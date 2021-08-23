@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.01;
+static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
 static int num_modes = 1;
@@ -161,9 +161,9 @@ void FreeFall::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
-        rsb->translate(btVector3(0, 10, 0));  //TODO: add back translate and scale
+        rsb->translate(btVector3(0, 5, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(0.5);
+        rsb->setStiffnessScale(1);
         rsb->setDamping(damping_alpha, damping_beta);
         // rsb->setFriction(200);
         
@@ -179,7 +179,7 @@ void FreeFall::initPhysics()
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
-        // rsb->setRigidVelocity(btVector3(0, 0, 0));
+        // rsb->setRigidVelocity(btVector3(0, 0, 1));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
@@ -188,14 +188,16 @@ void FreeFall::initPhysics()
     }
     // create a static rigid box as the ground
     {
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(3), btScalar(3), btScalar(3)));
+        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(5), btScalar(5), btScalar(5)));
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -50, 0));
+        // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
+        groundTransform.setOrigin(btVector3(0, -2, -2));
         // groundTransform.setOrigin(btVector3(0, 0, 6));
+        // groundTransform.setOrigin(btVector3(0, -50, 0));
         {
             btScalar mass(0.);
             createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));

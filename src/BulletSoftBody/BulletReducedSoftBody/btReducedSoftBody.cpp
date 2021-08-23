@@ -1,4 +1,5 @@
 #include "btReducedSoftBody.h"
+#include "../btSoftBodyInternals.h"
 #include "btReducedSoftBodyHelpers.h"
 #include "LinearMath/btTransformUtil.h"
 #include <iostream>
@@ -7,6 +8,8 @@
 btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
  : btSoftBody(worldInfo, node_count, x, m)
 {
+  m_rigidOnly = true;     //! only use rigid frame to debug
+
   // reduced deformable
   m_reducedModel = true;
   m_startMode = 0;
@@ -450,8 +453,7 @@ btMatrix3x3 btReducedSoftBody::getImpulseFactor(int n_node)
 
   btMatrix3x3 K2 = RSARinv + ri_skew * m_interpolateInvInertiaTensorWorld * sum_multiply_A * rotation.transpose();
 
-  return K1;  //TODO: change back
-  // return K1 + K2;
+  return m_rigidOnly ? K1 : K1 + K2;
 }
 
 void btReducedSoftBody::applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt)
@@ -485,14 +487,17 @@ void btReducedSoftBody::applyPositionConstraint(const btVector3& target_pos, int
 
 void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt)
 {
-  // // apply impulse force
-  // applyFullSpaceNodalForce(impulse / dt, n_node);
+  if (!m_rigidOnly)
+  {
+    // apply impulse force
+    applyFullSpaceNodalForce(impulse / dt, n_node);
 
-  // // update reduced internal force
-  // applyReducedDampingForce(m_reducedVelocity);
+    // update reduced internal force
+    applyReducedDampingForce(m_reducedVelocity);
 
-  // // update reduced velocity
-  // updateReducedVelocity(dt); // TODO: add back
+    // update reduced velocity
+    updateReducedVelocity(dt); // TODO: add back
+  }
 
   // // update reduced dofs
   // updateReducedDofs(dt);

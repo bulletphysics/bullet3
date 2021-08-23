@@ -2,7 +2,6 @@
 #define BT_REDUCED_SOFT_BODY_H
 
 #include "../btSoftBody.h"
-#include "../btSoftBodyInternals.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"
@@ -55,6 +54,8 @@ class btReducedSoftBody : public btSoftBody
 
  public:
 
+  bool m_rigidOnly;
+
   //
   //  Fields
   //
@@ -80,6 +81,7 @@ class btReducedSoftBody : public btSoftBody
   tDenseArray m_nodalMass;           // Mass on each node
   btAlignedObjectArray<int> m_fixedNodes; // index of the fixed nodes
 
+  // contacts
   btAlignedObjectArray<int> m_contactNodesList;
 
   //

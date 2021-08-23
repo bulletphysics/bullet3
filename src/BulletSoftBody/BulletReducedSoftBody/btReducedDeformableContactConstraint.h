@@ -34,6 +34,17 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btReducedSoftBody* m_rsb;
   btScalar m_dt;
 
+  btScalar m_appliedNormalImpulse;
+  btScalar m_appliedTangentImpulse;
+  btScalar m_impulseFactorNormal;
+  btScalar m_impulseFactorTangent;
+
+  btVector3 m_contactNormalA;     // for rigid body
+  btVector3 m_contactNormalB;     // for reduced deformable body
+  btVector3 m_relPosA;            // relative position of the contact point for A
+  btVector3 m_relPosB;            // relative position of the contact point for B
+  btMatrix3x3 m_impulseFactorInv; // total inverse impulse matrix
+
   btReducedDeformableRigidContactConstraint(btReducedSoftBody* rsb, 
                                             const btSoftBody::DeformableRigidContact& c, 
                                             const btContactSolverInfo& infoGlobal,
@@ -42,7 +53,11 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btReducedDeformableRigidContactConstraint() {}
   virtual ~btReducedDeformableRigidContactConstraint() {}
   
+  virtual void warmStarting() {}
+
   virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
+
+  virtual void applyImpulse(const btVector3& impulse) {}
 
   virtual void applySplitImpulse(const btVector3& impulse) {} // TODO: may need later
 };
@@ -60,6 +75,8 @@ class btReducedDeformableNodeRigidContactConstraint : public btReducedDeformable
 	// btReducedDeformableNodeRigidContactConstraint(const btReducedDeformableNodeRigidContactConstraint& other);
   btReducedDeformableNodeRigidContactConstraint() {}
   virtual ~btReducedDeformableNodeRigidContactConstraint() {}
+
+  virtual void warmStarting();
 
   // get the velocity of the deformable node in contact
 	virtual btVector3 getVb() const;

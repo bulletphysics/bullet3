@@ -54,6 +54,12 @@ void btReducedSoftBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody
 		// m_faceRigidConstraints[i].clear();
 	}
 
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    rsb->m_contactNodesList.clear();
+  }
+
 	btDeformableBodySolver::updateSoftBodies();
 }
 
@@ -129,12 +135,17 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
     // apply gravity to the rigid frame, get m_linearVelocity at time^*
     rsb->applyRigidGravity(m_gravity, solverdt);
 
-    // add internal force (elastic force & damping force)
-    // rsb->applyReducedElasticForce(rsb->m_reducedDofsBuffer);
-    // rsb->applyReducedDampingForce(rsb->m_reducedVelocityBuffer);
+    if (!rsb->m_rigidOnly)
+    {
+      // add internal force (elastic force & damping force)
+      rsb->applyReducedElasticForce(rsb->m_reducedDofsBuffer);
+      rsb->applyReducedDampingForce(rsb->m_reducedVelocityBuffer);
 
+      // get reduced velocity at time^* 
     // get reduced velocity at time^* 
-    rsb->updateReducedVelocity(solverdt, true);
+      // get reduced velocity at time^* 
+      rsb->updateReducedVelocity(solverdt, true);
+    }
 
     // apply damping (no need at this point)
     // rsb->applyDamping(solverdt);
@@ -150,12 +161,15 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     // rigid motion
     rsb->proceedToTransform(timeStep, true);
 
-    // update reduced dofs for time^n+1
-    // rsb->updateReducedDofs(timeStep);
+    if (!rsb->m_rigidOnly)
+    {
+      // update reduced dofs for time^n+1
+      rsb->updateReducedDofs(timeStep);
 
-    // update local moment arm for time^n+1
-    rsb->updateLocalMomentArm();
-    rsb->updateExternalForceProjectMatrix(true);
+      // update local moment arm for time^n+1
+      rsb->updateLocalMomentArm();
+      rsb->updateExternalForceProjectMatrix(true);
+    }
 
     // update mesh nodal positions for time^n+1
     rsb->mapToFullPosition(rsb->getRigidTransform());
@@ -207,6 +221,7 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
 			m_nodeRigidConstraints[i].push_back(constraint);
       rsb->m_contactNodesList.push_back(contact.m_node->index);
 		}
+    std::cout << "contact list size: " << rsb->m_contactNodesList.size() << "\n";
     std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
 
     // set Deformable Face vs. Rigid constraint

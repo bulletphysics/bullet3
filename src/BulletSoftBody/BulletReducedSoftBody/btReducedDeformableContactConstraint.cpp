@@ -48,7 +48,16 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
   : m_rsb(rsb), m_dt(dt), btDeformableRigidContactConstraint(c, infoGlobal)
-{}
+{
+	m_appliedNormalImpulse = 0;
+  m_appliedTangentImpulse = 0;
+  m_impulseFactorNormal = 0;
+  m_impulseFactorTangent = 0;
+
+  m_contactNormalA = c.m_cti.m_normal;
+  m_contactNormalB = -c.m_cti.m_normal;
+  m_impulseFactorInv = c.m_c0;
+}
 
 btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
 {
@@ -77,7 +86,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	}
 	// if (!infoGlobal.m_splitImpulse)
 	// {
-	// 	dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
+	// 	v_rel_normal += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
 	// }
 	
 	// if it's separating, no need to do anything
@@ -87,33 +96,36 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	}
 	btScalar residualSquare = v_rel_normal * v_rel_normal;	// get residual
 
-	// compute the tangential relative vel
-	btVector3 v_rel_tangent = v_rel - v_rel_normal * cti.m_normal;
+	// // compute the tangential relative vel
+	// btVector3 v_rel_tangent = v_rel - v_rel_normal * cti.m_normal;
 
-	// friction correction
-	btScalar delta_v_rel_normal = v_rel_normal;
-	btScalar delta_v_rel_tangent = m_contact->m_c3 * v_rel_normal;
-	// btScalar delta_v_rel_tangent = 0.3 * v_rel_normal;
+	// // friction correction
+	// btScalar delta_v_rel_normal = v_rel_normal;
+	// btScalar delta_v_rel_tangent = m_contact->m_c3 * v_rel_normal;
+	// // btScalar delta_v_rel_tangent = 0.3 * v_rel_normal;
 
-	btVector3 impulse_tangent(0, 0, 0);
-	if (v_rel_tangent.norm() < delta_v_rel_tangent)
-	{
-		// the object should be static
-		impulse_tangent = m_contact->m_c0 * (-v_rel_tangent);
-	}
-	else
-	{
-		// apply friction
-		impulse_tangent = m_contact->m_c0 * (-v_rel_tangent.safeNormalize() * delta_v_rel_tangent);
-		std::cout << "friction called\n";
-	}
+	// btVector3 impulse_tangent(0, 0, 0);
+	// if (v_rel_tangent.norm() < delta_v_rel_tangent)
+	// {
+	// 	// the object should be static
+	// 	impulse_tangent = m_contact->m_c0 * (-v_rel_tangent);
+	// }
+	// else
+	// {
+	// 	// apply friction
+	// 	impulse_tangent = m_contact->m_c0 * (-v_rel_tangent.safeNormalize() * delta_v_rel_tangent);
+	// 	std::cout << "friction called\n";
+	// }
 
 	// get total impulse
-	btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * (-v_rel_normal));
+	btVector3 impulse_normal = m_contact->m_c0 * (-v_rel);
+	// btVector3 impulse_normal = m_contact->m_c0 *  (cti.m_normal * (-v_rel_normal));
 	// btVector3 impulse = impulse_normal + impulse_tangent;
 	btVector3 impulse = impulse_normal.dot(cti.m_normal) * cti.m_normal;
 
-	std::cout << "impulse direct: " << impulse[0] / cti.m_normal[0] << '\t' << impulse[1] / cti.m_normal[1]<< '\t' << impulse[2] / cti.m_normal[2] << '\n';
+	btVector3 impulse_dir = impulse;
+	impulse_dir.safeNormalize();
+	std::cout << "impulse direct: " << impulse_dir[0] << '\t' << impulse_dir[1] << '\t' << impulse_dir[2] << '\n';
 
 	applyImpulse(impulse);
 	// applyImpulse(impulse); // TODO: apply impulse?
@@ -156,7 +168,16 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
   : m_node(contact.m_node), btReducedDeformableRigidContactConstraint(rsb, contact, infoGlobal, dt)
-{}
+{
+	m_relPosA = contact.m_c1;
+	m_relPosB = m_node->m_x - m_rsb->getRigidTransform().getOrigin();
+	warmStarting();
+}
+
+void btReducedDeformableNodeRigidContactConstraint::warmStarting()
+{
+	//
+}
 
 btVector3 btReducedDeformableNodeRigidContactConstraint::getVb() const
 {
@@ -176,7 +197,7 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getDv(const btSoftBody:
 void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3& impulse)
 {
 	std::cout << "impulse applied: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
-  m_rsb->applyFullSpaceImpulse(impulse, m_contact->m_c1, m_node->index, m_dt);
+  m_rsb->applyFullSpaceImpulse(impulse, m_relPosB, m_node->index, m_dt);
 	m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
 	std::cout << "node: " << m_node->index << " vel: " << m_node->m_v[0] << '\t' << m_node->m_v[1] << '\t' << m_node->m_v[2] << '\n';
 	// std::cout << "node: " << m_node->index << " m_x: " << m_node->m_x[0] << '\t' << m_node->m_x[1] << '\t' << m_node->m_x[2] << '\n';

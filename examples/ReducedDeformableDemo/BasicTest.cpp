@@ -183,7 +183,7 @@ void BasicTest::initPhysics()
         // rsb->scale(btVector3(1, 1, 1));  //TODO: add back scale
         rsb->translate(btVector3(0, 4, 0));
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(20);
+        rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // set fixed nodes
@@ -213,7 +213,7 @@ void BasicTest::initPhysics()
     getDeformableDynamicsWorld()->setUseProjection(true);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 0;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
