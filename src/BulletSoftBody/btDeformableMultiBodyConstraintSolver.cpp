@@ -15,6 +15,8 @@
 
 #include "btDeformableMultiBodyConstraintSolver.h"
 #include <iostream>
+#include <chrono>
+#include <thread>
 // override the iterations method to include deformable/multibody contact
 btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
 {
@@ -62,6 +64,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 			}
 		}
 		std::cout << "======next step=========\n";
+		// std::this_thread::sleep_for (std::chrono::milliseconds(100));
 	}
 	return 0.f;
 }

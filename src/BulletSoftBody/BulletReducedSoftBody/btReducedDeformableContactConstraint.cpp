@@ -57,8 +57,8 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 
   m_contactNormalA = c.m_cti.m_normal;
   m_contactNormalB = -c.m_cti.m_normal;
-  m_impulseFactorInv = c.m_c0;
-	m_normalImpulseFactorInv = (m_impulseFactorInv * m_contactNormalA).dot(m_contactNormalA);
+  m_impulseFactor = c.m_c0;
+	m_normalImpulseFactor = (m_impulseFactor * m_contactNormalA).dot(m_contactNormalA);
 }
 
 btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
@@ -80,7 +80,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// 	v_rel_normal += m_penetration / infoGlobal.m_timeStep;		// add penetration correction vel
 	// }
 
-	btScalar deltaImpulse = m_rhs - deltaV_rel_normal * m_normalImpulseFactorInv;
+	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
 	// btScalar deltaImpulse = m_rhs - v_rel_normal * m_normalImpulseFactorInv;
 
 	// cumulative impulse that has been applied
@@ -110,7 +110,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// 	return 0;
 	// }
 	// btScalar residualSquare = v_rel_normal * v_rel_normal;	// get residual
-	btScalar residualSquare = deltaImpulse / m_normalImpulseFactorInv;	// get residual
+	btScalar residualSquare = deltaImpulse * m_normalImpulseFactor;	// get residual
 	residualSquare *= residualSquare;
 
 	// // compute the tangential relative vel
@@ -202,15 +202,23 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 	m_bufferVelocityA = va;
 	m_bufferVelocityB = vb;
 
-	// get relative velocity and magnitude
+	// we define the (+) direction of errors to be the outward surface normal of the rigid object
 	btVector3 v_rel = va - vb;
-	btScalar v_rel_normal = -btDot(v_rel, m_contactNormalA);
+	btScalar velocity_error = -btDot(v_rel, m_contactNormalA);	// magnitude of relative velocity
+	btScalar position_error = 0;
+	std::cout << "penetration = " << m_penetration << "\n";
 	if (m_penetration > 0)
 	{
-		v_rel_normal += m_penetration / m_dt;		// add penetration correction vel
+		// velocity_error += m_penetration / m_dt; // TODO: why?
 	}
-
-	m_rhs = -v_rel_normal * m_normalImpulseFactorInv;
+	else
+	{
+		// add penetration correction vel
+		position_error = m_penetration * btScalar(0.2) / m_dt;
+	}
+	// get the initial estimate of impulse magnitude to be applied
+	// m_rhs = -velocity_error * m_normalImpulseFactorInv;
+	m_rhs = -(velocity_error + position_error) / m_normalImpulseFactor;
 }
 
 btVector3 btReducedDeformableNodeRigidContactConstraint::getVb() const
@@ -240,7 +248,8 @@ void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3
 	// m_rsb->applyFullSpaceImpulse(impulse, m_relPosB, m_node->index, m_dt);
 	// m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
 	std::cout << "node: " << m_node->index << " vel: " << m_node->m_v[0] << '\t' << m_node->m_v[1] << '\t' << m_node->m_v[2] << '\n';
-	// std::cout << "node: " << m_node->index << " m_x: " << m_node->m_x[0] << '\t' << m_node->m_x[1] << '\t' << m_node->m_x[2] << '\n';
+	btVector3 v_after = getDeltaVb() + m_node->m_v;
+	std::cout << "vel after: " << v_after[0] << '\t' << v_after[1] << '\t' << v_after[2] << '\n';
 }
 
 // ================= face vs rigid constraints ===================

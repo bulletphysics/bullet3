@@ -1695,7 +1695,7 @@ struct btSoftColliders
 
 							if (psb->m_reducedModel)
 							{
-								c.m_c0 = (psb->getImpulseFactor(n.index)).inverse();
+								c.m_c0 = psb->getImpulseFactor(n.index); //impulse factor K (not the inverse)
 								// c.m_c1 = n.m_x - psb->getRigidTransform().getOrigin();
 							}
 							else

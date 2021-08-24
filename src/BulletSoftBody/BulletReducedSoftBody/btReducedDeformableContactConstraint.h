@@ -38,14 +38,14 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btScalar m_appliedTangentImpulse;
   btScalar m_impulseFactorNormal;
   btScalar m_impulseFactorTangent;
-  btScalar m_normalImpulseFactorInv;
+  btScalar m_normalImpulseFactor;
   btScalar m_rhs;
 
   btVector3 m_contactNormalA;     // for rigid body
   btVector3 m_contactNormalB;     // for reduced deformable body
   btVector3 m_relPosA;            // relative position of the contact point for A
   btVector3 m_relPosB;            // relative position of the contact point for B
-  btMatrix3x3 m_impulseFactorInv; // total inverse impulse matrix
+  btMatrix3x3 m_impulseFactor;    // total impulse matrix
 
   btVector3 m_bufferVelocityA;    // velocity at the beginning of the iteration
   btVector3 m_bufferVelocityB;
