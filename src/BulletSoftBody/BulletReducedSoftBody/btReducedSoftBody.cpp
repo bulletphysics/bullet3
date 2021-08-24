@@ -8,7 +8,7 @@
 btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
  : btSoftBody(worldInfo, node_count, x, m)
 {
-  m_rigidOnly = true;     //! only use rigid frame to debug
+  m_rigidOnly = false;     //! only use rigid frame to debug
 
   // reduced deformable
   m_reducedModel = true;
@@ -547,7 +547,7 @@ void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, 
     for (int r = 0; r < m_nReduced; ++r)
     {
       btScalar mass_inv = (m_Mr[r] == 0) ? 0 : 1.0 / m_Mr[r]; // TODO: this might be redundant, because Mr is identity
-      m_internalDeltaReducedVelocity[r] = dt * mass_inv * (m_reducedForceDamping[r] + m_reducedForceExternal[r]);
+      m_internalDeltaReducedVelocity[r] += dt * mass_inv * (m_reducedForceDamping[r] + m_reducedForceExternal[r]);
     }
   }
 
