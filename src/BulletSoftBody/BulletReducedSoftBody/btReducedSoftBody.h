@@ -32,6 +32,10 @@ class btReducedSoftBody : public btSoftBody
 
   TVStack m_localMomentArm; // Sq + x0
 
+  btVector3 m_internalDeltaLinearVelocity;
+  btVector3 m_internalDeltaAngularVelocity;
+  tDenseArray m_internalDeltaReducedVelocity;
+
  protected:
   // rigid frame
   btScalar m_mass;          // total mass of the rigid frame
@@ -132,6 +136,8 @@ class btReducedSoftBody : public btSoftBody
 
   void endOfTimeStepZeroing();
 
+  void applyInternalVelocityChanges();
+
   //
   // position and velocity update related
   //
@@ -147,6 +153,12 @@ class btReducedSoftBody : public btSoftBody
 
   // compute full space velocity from the reduced velocity
   void mapToFullVelocity(const btTransform& ref_trans);
+
+  // get a single node's full space velocity from the reduced velocity
+  const btVector3 computeNodeFullVelocity(const btTransform& ref_trans, int n_node) const;
+
+  // get a single node's all delta velocity
+  const btVector3 internalComputeNodeDeltaVelocity(const btTransform& ref_trans, int n_node) const;
 
   //
   // rigid motion related
@@ -164,9 +176,11 @@ class btReducedSoftBody : public btSoftBody
   //
 
   // apply impulse to the rigid frame
+  void internalApplyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos);
 	void applyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos);
 
   // apply impulse to nodes in the full space
+  void internalApplyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt);
   void applyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt);
 
   // apply nodal external force in the full space
@@ -199,24 +213,10 @@ class btReducedSoftBody : public btSoftBody
   //
   // accessors
   //
-  btScalar getTotalMass() const
-  {
-    return m_mass;
-  }
-
-  btTransform& getRigidTransform()
-	{
-		return m_rigidTransformWorld;
-	}
-
-  const btVector3& getLinearVelocity() const
-	{
-		return m_linearVelocity;
-	}
-	const btVector3& getAngularVelocity() const
-	{
-		return m_angularVelocity;
-	}
+  btScalar getTotalMass() const;
+  btTransform& getRigidTransform();
+  const btVector3& getLinearVelocity() const;
+	const btVector3& getAngularVelocity() const;
 
   #if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
   void clampVelocity(btVector3& v) const {

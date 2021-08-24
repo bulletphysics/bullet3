@@ -47,6 +47,9 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
   // solve all constraints (fixed and contact)
   virtual btScalar solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal);
 
+  // apply all the delta velocities
+  virtual void deformableBodyInternalWriteBack();
+
   // virtual void setProjection() {}
 
   // virtual void setLagrangeMultiplier() {}

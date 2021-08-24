@@ -22,6 +22,8 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   // rigid motion
   m_linearVelocity.setZero();
 	m_angularVelocity.setZero();
+  m_internalDeltaLinearVelocity.setZero();
+  m_internalDeltaAngularVelocity.setZero();
 	m_angularFactor.setValue(1, 1, 1);
 	m_linearFactor.setValue(1, 1, 1);
   m_invInertiaLocal.setValue(1, 1, 1);
@@ -51,6 +53,7 @@ void btReducedSoftBody::setReducedModes(int start_mode, int num_modes, int full_
   m_reducedForceElastic.resize(m_nReduced, 0);
   m_reducedForceDamping.resize(m_nReduced, 0);
   m_reducedForceExternal.resize(m_nReduced, 0);
+  m_internalDeltaReducedVelocity.resize(m_nReduced, 0);
   m_nodalMass.resize(full_size, 0);
   m_localMomentArm.resize(m_nFull);
 }
@@ -234,10 +237,24 @@ void btReducedSoftBody::endOfTimeStepZeroing()
     m_reducedForceElastic[i] = 0;
     m_reducedForceDamping[i] = 0;
     m_reducedForceExternal[i] = 0;
+    m_internalDeltaReducedVelocity[i] = 0;
     m_reducedDofsBuffer[i] = m_reducedDofs[i];
     m_reducedVelocityBuffer[i] = m_reducedVelocity[i];
   }
   // std::cout << "zeroed!\n";
+}
+
+void btReducedSoftBody::applyInternalVelocityChanges()
+{
+  m_linearVelocity += m_internalDeltaLinearVelocity;
+  m_angularVelocity += m_internalDeltaAngularVelocity;
+  m_internalDeltaLinearVelocity.setZero();
+  m_internalDeltaAngularVelocity.setZero();
+  for (int r = 0; r < m_nReduced; ++r)
+  {
+    m_reducedVelocity[r] += m_internalDeltaReducedVelocity[r];
+    m_internalDeltaReducedVelocity[r] = 0;
+  }
 }
 
 void btReducedSoftBody::predictIntegratedTransform(btScalar dt, btTransform& predictedTransform)
@@ -292,33 +309,50 @@ void btReducedSoftBody::updateReducedVelocity(btScalar solverdt, bool explicit_f
 
 void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
 {
-  TVStack v_from_reduced;
-  v_from_reduced.resize(m_nFull);
   for (int i = 0; i < m_nFull; ++i)
   {
-    btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[i];
+    m_nodes[i].m_v = computeNodeFullVelocity(ref_trans, i);
+  }
+}
 
-    // compute velocity contributed by the reduced velocity
-    for (int k = 0; k < 3; ++k)
+const btVector3 btReducedSoftBody::computeNodeFullVelocity(const btTransform& ref_trans, int n_node) const
+{
+  btVector3 v_from_reduced(0, 0, 0);
+  btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[n_node];
+  // compute velocity contributed by the reduced velocity
+  for (int k = 0; k < 3; ++k)
+  {
+    for (int r = 0; r < m_nReduced; ++r)
     {
-      v_from_reduced[i][k] = 0;
-      for (int r = 0; r < m_nReduced; ++r)
-      {
-        v_from_reduced[i][k] += m_modes[r][3 * i + k] * m_reducedVelocity[r];
-      }
+      v_from_reduced[k] += m_modes[r][3 * n_node + k] * m_reducedVelocity[r];
     }
+  }
+  // get new velocity
+  btVector3 vel = m_angularVelocity.cross(r_com) + 
+                  ref_trans.getBasis() * v_from_reduced +
+                  m_linearVelocity;
+  return vel;
+}
 
-    // get new velocity
-    m_nodes[i].m_v = m_angularVelocity.cross(r_com) + 
-                     ref_trans.getBasis() * v_from_reduced[i] +
-                     m_linearVelocity;
+const btVector3 btReducedSoftBody::internalComputeNodeDeltaVelocity(const btTransform& ref_trans, int n_node) const
+{
+  btVector3 deltaV_from_reduced(0, 0, 0);
+  btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[n_node];
+
+  // compute velocity contributed by the reduced velocity
+  for (int k = 0; k < 3; ++k)
+  {
+    for (int r = 0; r < m_nReduced; ++r)
+    {
+      deltaV_from_reduced[k] += m_modes[r][3 * n_node + k] * m_internalDeltaReducedVelocity[r];
+    }
   }
 
-  // std::cout << "full space vel: \n";
-  // for (int i = 0; i < 4; ++i)
-  // {
-  //   std::cout << m_nodes[i].m_v[0] << '\t' << m_nodes[i].m_v[1] << '\t' << m_nodes[i].m_v[2]  << '\n';
-  // }
+  // get delta velocity
+  btVector3 deltaV = m_internalDeltaAngularVelocity.cross(r_com) + 
+                     ref_trans.getBasis() * deltaV_from_reduced +
+                     m_internalDeltaLinearVelocity;
+  return deltaV;
 }
 
 void btReducedSoftBody::proceedToTransform(btScalar dt, bool end_of_time_step)
@@ -375,6 +409,20 @@ void btReducedSoftBody::applyTorqueImpulse(const btVector3& torque)
   #if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
   clampVelocity(m_angularVelocity);
   #endif
+}
+
+void btReducedSoftBody::internalApplyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos)
+{
+  if (m_inverseMass == btScalar(0.))
+  {
+    std::cout << "something went wrong...probably didn't initialize?\n";
+    btAssert(false);
+  }
+  // delta linear velocity
+  m_internalDeltaLinearVelocity += impulse * m_linearFactor * m_inverseMass;
+  // delta angular velocity
+  btVector3 torque = rel_pos.cross(impulse * m_linearFactor);
+  m_internalDeltaAngularVelocity += m_interpolateInvInertiaTensorWorld * torque * m_angularFactor;
 }
 
 void btReducedSoftBody::applyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos)
@@ -485,6 +533,27 @@ void btReducedSoftBody::applyPositionConstraint(const btVector3& target_pos, int
   // applyFullSpaceImpulse(impulse, n_node, dt);
 }
 
+void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt)
+{
+  if (!m_rigidOnly)
+  {
+    // apply impulse force
+    applyFullSpaceNodalForce(impulse / dt, n_node);
+
+    // update reduced internal force
+    applyReducedDampingForce(m_reducedVelocity);
+
+    // delta reduced velocity
+    for (int r = 0; r < m_nReduced; ++r)
+    {
+      btScalar mass_inv = (m_Mr[r] == 0) ? 0 : 1.0 / m_Mr[r]; // TODO: this might be redundant, because Mr is identity
+      m_internalDeltaReducedVelocity[r] = dt * mass_inv * (m_reducedForceDamping[r] + m_reducedForceExternal[r]);
+    }
+  }
+
+  internalApplyRigidImpulse(impulse, rel_pos);
+}
+
 void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt)
 {
   if (!m_rigidOnly)
@@ -572,4 +641,24 @@ void btReducedSoftBody::applyFixedContraints(btScalar dt)
     // apply impulse again, position constraint
     // applyPositionConstraint(m_x0[m_fixedNodes[n]], m_fixedNodes[n], dt);
   }
+}
+
+btScalar btReducedSoftBody::getTotalMass() const
+{
+  return m_mass;
+}
+
+btTransform& btReducedSoftBody::getRigidTransform()
+{
+  return m_rigidTransformWorld;
+}
+
+const btVector3& btReducedSoftBody::getLinearVelocity() const
+{
+  return m_linearVelocity;
+}
+
+const btVector3& btReducedSoftBody::getAngularVelocity() const
+{
+  return m_angularVelocity;
 }

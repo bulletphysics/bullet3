@@ -199,6 +199,8 @@ public:
 		m_objective->m_projection.setLagrangeMultiplier();
 	}
 
+	virtual void deformableBodyInternalWriteBack() {}
+
 	// unused functions
 	virtual void optimize(btAlignedObjectArray<btSoftBody*>& softBodies, bool forceUpdate = false) {}
 	virtual void solveConstraints(btScalar dt) {}

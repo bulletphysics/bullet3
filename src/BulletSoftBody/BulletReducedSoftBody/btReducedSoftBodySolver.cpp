@@ -303,3 +303,12 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
 	}
 	return residualSquare;
 }
+
+void btReducedSoftBodySolver::deformableBodyInternalWriteBack()
+{
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    rsb->applyInternalVelocityChanges();
+  }
+}

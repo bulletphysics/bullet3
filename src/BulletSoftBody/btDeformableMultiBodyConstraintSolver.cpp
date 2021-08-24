@@ -56,6 +56,8 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 				m_analyticsData.m_numBodies = numBodies;
 				m_analyticsData.m_numContactManifolds = numManifolds;
 				m_analyticsData.m_remainingLeastSquaresResidual = m_leastSquaresResidual;
+				
+				m_deformableSolver->deformableBodyInternalWriteBack();
 				break;
 			}
 		}

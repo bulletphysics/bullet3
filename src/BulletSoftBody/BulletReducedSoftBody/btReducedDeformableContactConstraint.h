@@ -38,12 +38,17 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btScalar m_appliedTangentImpulse;
   btScalar m_impulseFactorNormal;
   btScalar m_impulseFactorTangent;
+  btScalar m_normalImpulseFactorInv;
+  btScalar m_rhs;
 
   btVector3 m_contactNormalA;     // for rigid body
   btVector3 m_contactNormalB;     // for reduced deformable body
   btVector3 m_relPosA;            // relative position of the contact point for A
   btVector3 m_relPosB;            // relative position of the contact point for B
   btMatrix3x3 m_impulseFactorInv; // total inverse impulse matrix
+
+  btVector3 m_bufferVelocityA;    // velocity at the beginning of the iteration
+  btVector3 m_bufferVelocityB;
 
   btReducedDeformableRigidContactConstraint(btReducedSoftBody* rsb, 
                                             const btSoftBody::DeformableRigidContact& c, 
@@ -60,6 +65,8 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   virtual void applyImpulse(const btVector3& impulse) {}
 
   virtual void applySplitImpulse(const btVector3& impulse) {} // TODO: may need later
+
+  virtual btVector3 getDeltaVb() const = 0;
 };
 
 // ================= node vs rigid constraints ===================
@@ -80,6 +87,9 @@ class btReducedDeformableNodeRigidContactConstraint : public btReducedDeformable
 
   // get the velocity of the deformable node in contact
 	virtual btVector3 getVb() const;
+
+  // get velocity change of the node in contat
+  virtual btVector3 getDeltaVb() const;
 
 	// get the split impulse velocity of the deformable face at the contact point
 	virtual btVector3 getSplitVb() const;
