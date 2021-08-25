@@ -36,9 +36,8 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 
   btScalar m_appliedNormalImpulse;
   btScalar m_appliedTangentImpulse;
-  btScalar m_impulseFactorNormal;
-  btScalar m_impulseFactorTangent;
   btScalar m_normalImpulseFactor;
+  btScalar m_tangentImpulseFactor;
   btScalar m_rhs;
   
   btScalar m_cfm;

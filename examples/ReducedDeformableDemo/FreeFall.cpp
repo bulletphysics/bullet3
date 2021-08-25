@@ -56,10 +56,10 @@ public:
 
     void resetCamera()
     {
-        float dist = 10;
+        float dist = 20;
         float pitch = -30;
-        float yaw = 60;
-        float targetPos[3] = {0, 6, 0};
+        float yaw = 125;
+        float targetPos[3] = {-2, 0, 2};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
@@ -189,13 +189,13 @@ void FreeFall::initPhysics()
     // create a static rigid box as the ground
     {
         // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(10), btScalar(10)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(2), btScalar(10)));
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-        groundTransform.setOrigin(btVector3(0, -10, 2));
+        // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
+        groundTransform.setOrigin(btVector3(0, 0, 0));
         // groundTransform.setOrigin(btVector3(0, 0, 6));
         // groundTransform.setOrigin(btVector3(0, -50, 0));
         {
