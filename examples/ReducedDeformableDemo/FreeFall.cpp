@@ -163,7 +163,7 @@ void FreeFall::initPhysics()
         // rsb->scale(btVector3(1, 1, 1));
         rsb->translate(btVector3(0, 10, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(1);
+        rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);
         // rsb->setFriction(200);
         
@@ -189,13 +189,13 @@ void FreeFall::initPhysics()
     // create a static rigid box as the ground
     {
         // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(5), btScalar(5), btScalar(5)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(10), btScalar(10)));
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-        groundTransform.setOrigin(btVector3(0, -2, -2));
+        groundTransform.setOrigin(btVector3(0, -10, 2));
         // groundTransform.setOrigin(btVector3(0, 0, 6));
         // groundTransform.setOrigin(btVector3(0, -50, 0));
         {

@@ -54,6 +54,9 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
   m_impulseFactorNormal = 0;
   m_impulseFactorTangent = 0;
 	m_rhs = 0;
+	m_cfm = 0;
+	m_erp = btScalar(0.2);
+	m_friction = btScalar(0.5);
 
   m_contactNormalA = c.m_cti.m_normal;
   m_contactNormalB = -c.m_cti.m_normal;
@@ -63,58 +66,59 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 
 btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
 {
-  // const btSoftBody::sCti& cti = m_contact->m_cti;
 	btVector3 deltaVa = getVa() - m_bufferVelocityA;
 	btVector3 deltaVb = getDeltaVb();
 	std::cout << "deltaVa: " << deltaVa[0] << '\t' << deltaVa[1] << '\t' << deltaVa[2] << '\n';
 	std::cout << "deltaVb: " << deltaVb[0] << '\t' << deltaVb[1] << '\t' << deltaVb[2] << '\n';
 
-	// get relative velocity and magnitude
+	// get delta relative velocity and magnitude (i.e., how much impulse has been applied?)
 	btVector3 deltaV_rel = deltaVa - deltaVb;
 	btScalar deltaV_rel_normal = -btDot(deltaV_rel, m_contactNormalA);
-	// btVector3 v_rel = va - vb;
-	// btScalar v_rel_normal = -btDot(v_rel, m_contactNormalA);
-	// if (m_penetration > 0)
-	// {
-	// 	std::cout << "penetrate!!!!\n";
-	// 	v_rel_normal += m_penetration / infoGlobal.m_timeStep;		// add penetration correction vel
-	// }
-
+	
+	// get the normal impulse to be applied
 	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
-	// btScalar deltaImpulse = m_rhs - v_rel_normal * m_normalImpulseFactorInv;
-
-	// cumulative impulse that has been applied
-	btScalar sum = m_appliedNormalImpulse + deltaImpulse;
-	// if the cumulative impulse is pushing the object into the rigid body, set it zero
-	if (sum < 0)
 	{
-		std::cout <<"set zeroed!!!\n";
-		deltaImpulse = -m_appliedNormalImpulse;
-		m_appliedNormalImpulse = 0;
+		// cumulative impulse that has been applied
+		btScalar sum = m_appliedNormalImpulse + deltaImpulse;
+		// if the cumulative impulse is pushing the object into the rigid body, set it zero
+		if (sum < 0)
+		{
+			std::cout <<"set zeroed!!!\n";
+			deltaImpulse = -m_appliedNormalImpulse;
+			m_appliedNormalImpulse = 0;
+		}
+		else
+		{
+			m_appliedNormalImpulse = sum;
+		}	
 	}
-	else
-	{
-		m_appliedNormalImpulse = sum;
-	}	
 	std::cout << "m_appliedNormalImpulse: " << m_appliedNormalImpulse << '\n';
 	std::cout << "deltaImpulse: " << deltaImpulse << '\n';
 
-	// if (!infoGlobal.m_splitImpulse)
-	// {
-	// 	v_rel_normal += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
-	// }
-	
-	// if it's separating, no need to do anything
-	// if (v_rel_normal > 0)
-	// {
-	// 	return 0;
-	// }
-	// btScalar residualSquare = v_rel_normal * v_rel_normal;	// get residual
+	// residual is the nodal normal velocity change in current iteration
 	btScalar residualSquare = deltaImpulse * m_normalImpulseFactor;	// get residual
 	residualSquare *= residualSquare;
 
-	// // compute the tangential relative vel
-	// btVector3 v_rel_tangent = v_rel - v_rel_normal * cti.m_normal;
+	
+	// use Coulomb friction (based on delta velocity, |dv_t| = |dv_n * friction|)
+	btScalar deltaImpulse_tangent = m_friction * deltaImpulse;
+	if (m_appliedNormalImpulse > 0)
+	{
+		btScalar sum = m_appliedTangentImpulse + deltaImpulse_tangent;
+		if (sum > m_appliedNormalImpulse * m_friction)
+		{
+			sum = m_appliedNormalImpulse * m_friction;
+			m_appliedTangentImpulse = sum;
+		}
+		else if (sum < - m_appliedNormalImpulse * m_friction)
+		{
+			sum = -m_appliedNormalImpulse * m_friction;
+			m_appliedTangentImpulse = sum;
+		}
+		deltaImpulse_tangent = sum - m_appliedTangentImpulse;	
+		std::cout << "deltaImpulse_tangent: " << deltaImpulse_tangent << '\n';
+	}
+	
 
 	// // friction correction
 	// btScalar delta_v_rel_normal = v_rel_normal;
@@ -134,19 +138,14 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// 	std::cout << "friction called\n";
 	// }
 
-	// get total impulse
-	// btVector3 impulse_normal = m_impulseFactorInv * (-v_rel);
-	// btVector3 impulse_normal = m_contact->m_c0 *  (cti.m_normal * (-v_rel_normal));
-	// btVector3 impulse = impulse_normal + impulse_tangent;
-	// btVector3 impulse = impulse_normal.dot(m_contactNormalA) * m_contactNormalA;
+	// get the total impulse vector
+	btVector3 impulse_normal = deltaImpulse * m_contactNormalA;
+	btVector3 impulse_tangent = -deltaImpulse_tangent * m_contactTangent;
+	btVector3 impulse = impulse_normal + impulse_tangent;
 
-	// btVector3 impulse = -m_normalImpulseFactorInv * v_rel_normal * m_contactNormalA;
-	// btVector3 impulse = m_appliedNormalImpulse * m_contactNormalA;
-	btVector3 impulse = deltaImpulse * m_contactNormalA;
-
-	btVector3 impulse_dir = impulse;
-	impulse_dir.safeNormalize();
-	std::cout << "impulse direct: " << impulse_dir[0] << '\t' << impulse_dir[1] << '\t' << impulse_dir[2] << '\n';
+	// btVector3 impulse_dir = impulse_tangent;
+	// impulse_dir.safeNormalize();
+	// std::cout << "impulse direct: " << impulse_dir[0] << '\t' << impulse_dir[1] << '\t' << impulse_dir[2] << '\n';
 
 	applyImpulse(impulse);
 	// applyImpulse(impulse); // TODO: apply impulse?
@@ -204,9 +203,11 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 
 	// we define the (+) direction of errors to be the outward surface normal of the rigid object
 	btVector3 v_rel = va - vb;
+	// get tangent direction
+	m_contactTangent = -(v_rel / v_rel.safeNorm() - m_contactNormalA);
+
 	btScalar velocity_error = -btDot(v_rel, m_contactNormalA);	// magnitude of relative velocity
 	btScalar position_error = 0;
-	std::cout << "penetration = " << m_penetration << "\n";
 	if (m_penetration > 0)
 	{
 		// velocity_error += m_penetration / m_dt; // TODO: why?
@@ -214,7 +215,7 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 	else
 	{
 		// add penetration correction vel
-		position_error = m_penetration * btScalar(0.2) / m_dt;
+		position_error = m_penetration * m_erp / m_dt;	//TODO: add erp parameter
 	}
 	// get the initial estimate of impulse magnitude to be applied
 	// m_rhs = -velocity_error * m_normalImpulseFactorInv;
