@@ -32,6 +32,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 {
  public:
   btReducedSoftBody* m_rsb;
+  btSolverBody* m_solverBody;
   btScalar m_dt;
 
   btScalar m_appliedNormalImpulse;
@@ -61,6 +62,8 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 	// btReducedDeformableRigidContactConstraint(const btReducedDeformableRigidContactConstraint& other);
   btReducedDeformableRigidContactConstraint() {}
   virtual ~btReducedDeformableRigidContactConstraint() {}
+
+  void setupSolverBody(btRigidBody* rigid_body);
   
   virtual void warmStarting() {}
 

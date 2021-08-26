@@ -53,8 +53,8 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
   m_appliedTangentImpulse = 0;
 	m_rhs = 0;
 	m_cfm = 0;
-	m_erp = btScalar(0.2);
-	m_friction = btScalar(0.3);
+	m_erp = btScalar(0.2);			// TODO: add parameter handle
+	m_friction = btScalar(0);
 
   m_contactNormalA = c.m_cti.m_normal;
   m_contactNormalB = -c.m_cti.m_normal;
@@ -150,34 +150,37 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	applyImpulse(impulse);
 	
 	// apply impulse to the rigid/multibodies involved and change their velocities
-	// if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-	// {
-	// 	btRigidBody* rigidCol = 0;
-	// 	rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-	// 	if (rigidCol)
-	// 	{
-	// 		rigidCol->applyImpulse(impulse, m_contact->m_c1);
-	// 	}
-	// }
-	// else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-	// {
-	// 	btMultiBodyLinkCollider* multibodyLinkCol = 0;
-	// 	multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
-	// 	if (multibodyLinkCol)
-	// 	{
-	// 		const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
-	// 		// apply normal component of the impulse
-	// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
-	// 		if (impulse_tangent.norm() > SIMD_EPSILON)
-	// 		{
-	// 			// apply tangential component of the impulse
-	// 			const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
-	// 			multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
-	// 			const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
-	// 			multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
-	// 		}
-	// 	}
-	// }
+	const btSoftBody::sCti& cti = m_contact->m_cti;
+	if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	{
+		btRigidBody* rigidCol = 0;
+		rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+		if (rigidCol)
+		{
+			std::cout << "called here??\n";
+			rigidCol->applyImpulse(impulse, m_contact->m_c1);
+		}
+	}
+	else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+	{
+		btAssert(false);	//TODO: unsupported yet
+		// btMultiBodyLinkCollider* multibodyLinkCol = 0;
+		// multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+		// if (multibodyLinkCol)
+		// {
+		// 	const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
+		// 	// apply normal component of the impulse
+		// 	multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
+		// 	if (impulse_tangent.norm() > SIMD_EPSILON)
+		// 	{
+		// 		// apply tangential component of the impulse
+		// 		const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+		// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
+		// 		const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
+		// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
+		// 	}
+		// }
+	}
 	return residualSquare;
 }
 

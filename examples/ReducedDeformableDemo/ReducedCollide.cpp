@@ -11,7 +11,7 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "FreeFall.h"
+#include "ReducedCollide.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
@@ -31,18 +31,18 @@
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
-static btScalar COLLIDING_VELOCITY = 0;
+static btScalar COLLIDING_VELOCITY = 4;
 static int start_mode = 6;
 static int num_modes = 1;
 
-class FreeFall : public CommonDeformableBodyBase
+class ReducedCollide : public CommonDeformableBodyBase
 {
 public:
-    FreeFall(struct GUIHelperInterface* helper)
+    ReducedCollide(struct GUIHelperInterface* helper)
         : CommonDeformableBodyBase(helper)
     {
     }
-    virtual ~FreeFall()
+    virtual ~ReducedCollide()
     {
     }
     void initPhysics();
@@ -98,7 +98,6 @@ public:
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
                 }
-                // static int num = 0;
                 for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
@@ -112,7 +111,7 @@ public:
     }
 };
 
-void FreeFall::initPhysics()
+void ReducedCollide::initPhysics()
 {
     m_guiHelper->setUpAxis(1);
 
@@ -124,7 +123,7 @@ void FreeFall::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, -10, 0);
+    btVector3 gravity = btVector3(0, 0, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -148,13 +147,8 @@ void FreeFall::initPhysics()
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
         rsb->translate(btVector3(0, 10, 0));  //TODO: add back translate and scale
-        // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);
-        // rsb->setFriction(200);
-        
-        // no fixed nodes
-        // rsb->setFixedNodes(0);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -164,30 +158,12 @@ void FreeFall::initPhysics()
         rsb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
         
-        // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
-        // rsb->setRigidVelocity(btVector3(0, 0, 1));
+        rsb->setRigidVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
         // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);
         // m_forces.push_back(gravity_force);
-    }
-    // create a static rigid box as the ground
-    {
-        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(2), btScalar(10)));
-        m_collisionShapes.push_back(groundShape);
-
-        btTransform groundTransform;
-        groundTransform.setIdentity();
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-        groundTransform.setOrigin(btVector3(0, 0, 0));
-        // groundTransform.setOrigin(btVector3(0, 0, 6));
-        // groundTransform.setOrigin(btVector3(0, -50, 0));
-        {
-            btScalar mass(0.);
-            createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
-        }
     }
 
     getDeformableDynamicsWorld()->setImplicit(false);
@@ -199,7 +175,7 @@ void FreeFall::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
-    // Ctor_RbUpStack();        // TODO: no rigid body for now
+    Ctor_RbUpStack();
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     
     // {
@@ -232,7 +208,7 @@ void FreeFall::initPhysics()
     // }
 }
 
-void FreeFall::exitPhysics()
+void ReducedCollide::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
     removePickingConstraint();
@@ -278,9 +254,9 @@ void FreeFall::exitPhysics()
 
 
 
-class CommonExampleInterface* ReducedFreeFallCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* ReducedCollideCreateFunc(struct CommonExampleOptions& options)
 {
-    return new FreeFall(options.m_guiHelper);
+    return new ReducedCollide(options.m_guiHelper);
 }
 
 
