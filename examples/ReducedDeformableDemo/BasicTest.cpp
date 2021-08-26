@@ -93,21 +93,61 @@ public:
         btRigidBody* rb = createRigidBody(mass, startTransform, shape);
         rb->setLinearVelocity(btVector3(0,+COLLIDING_VELOCITY, 0));
     }
+
+    void checkMomentum(btReducedSoftBody* rsb)
+    {
+      btVector3 x_com(0, 0, 0);
+      btVector3 total_linear(0, 0, 0);
+      btVector3 total_angular(0, 0, 0);
+      {
+        std::ofstream myfile("center_of_mass.txt", std::ios_base::app);
+        for (int i = 0; i < rsb->m_nFull; ++i)
+        {
+          x_com += rsb->m_nodalMass[i] * rsb->m_nodes[i].m_x;
+        }
+        x_com /= rsb->getTotalMass();
+        myfile << sim_time << "\t" << x_com[0] << "\t" << x_com[1] << "\t" << x_com[2] << "\n";
+        myfile.close();
+      }
+      {
+        std::ofstream myfile("linear_momentum.txt", std::ios_base::app);
+        for (int i = 0; i < rsb->m_nFull; ++i)
+        {
+          total_linear += rsb->m_nodalMass[i] * rsb->m_nodes[i].m_v;
+        }
+        myfile << sim_time << "\t" << total_linear[0] << "\t" << total_linear[1] << "\t" << total_linear[2] << "\n";
+        myfile.close();
+      }
+      {
+        std::ofstream myfile("angular_momentum.txt", std::ios_base::app);
+        btVector3 ri(0, 0, 0);
+        for (int i = 0; i < rsb->m_nFull; ++i)
+        { 
+          ri = rsb->m_nodes[i].m_x - x_com;
+          total_angular += rsb->m_nodalMass[i] * ri.cross(rsb->m_nodes[i].m_v);
+        }
+        myfile << sim_time << "\t" << total_angular[0] << "\t" << total_angular[1] << "\t" << total_angular[2] << "\n";
+        myfile.close();
+      }
+    }
     
     void stepSimulation(float deltaTime)
     {
       // TODO: remove this. very hacky way of adding initial deformation
-    //   btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
-    //   if (first_step /* && !rsb->m_bUpdateRtCst*/) 
-    //   {
-    //     getDeformedShape(rsb, 0, 1);
-    //     first_step = false;
-    //     // rsb->mapToReducedDofs();
-    //   }
+      // btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
+      // if (first_step /* && !rsb->m_bUpdateRtCst*/) 
+      // {
+      //   getDeformedShape(rsb, 0, 1);
+      //   first_step = false;
+      //   // rsb->mapToReducedDofs();
+      // }
       
       float internalTimeStep = 1. / 60.f;
     //   float internalTimeStep = 1e-3;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+
+      // sim_time += internalTimeStep;
+      // checkMomentum(rsb);
     }
     
     virtual void renderScene()
