@@ -3,7 +3,7 @@
     <light name='sun' type='directional'>
      <yunfei>99.2</yunfei> 
 	<cast_shadows>1</cast_shadows>
-      <pose frame=''>0 0 10 0 -0 0</pose>
+      <pose>0 0 10 0 -0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
       <specular>0.2 0.2 0.2 1</specular>
       <attenuation>
@@ -87,7 +87,7 @@
     </spherical_coordinates>
     <model name='unit_box_0'>
  <static>1</static>
-      <pose frame=''>0.512455 -1.58317 0.5 0 -0 0</pose>
+      <pose>0.512455 -1.58317 0.5 0 -0 0</pose>
       <link name='unit_box_0::link'>
       
         <inertial>
@@ -142,7 +142,7 @@
       </link>
     </model>
     <model name='unit_box_0_clone'>
-      <pose frame=''>0.105158 -4.55002 1.499995 -2.89297 -0.988287 -3.14159</pose>
+      <pose>0.105158 -4.55002 1.499995 -2.89297 -0.988287 -3.14159</pose>
       <link name='unit_box_0::link'>
         <inertial>
           <mass>1</mass>
@@ -197,42 +197,42 @@
       <wall_time>1462824251 956472000</wall_time>
       <iterations>0</iterations>
       <model name='ground_plane'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
+          <pose>0 0 0 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='unit_box_0'>
-        <pose frame=''>0.223196 -1.84719 0.499995 -2.89297 -0.988287 -3.14159</pose>
+        <pose>0.223196 -1.84719 0.499995 -2.89297 -0.988287 -3.14159</pose>
         <scale>1 1 1</scale>
         <link name='unit_box_0::link'>
-          <pose frame=''>0.223196 -1.84719 0.499995 -2.89297 -0.988287 -3.14159</pose>
+          <pose>0.223196 -1.84719 0.499995 -2.89297 -0.988287 -3.14159</pose>
           <velocity>0.004896 3e-06 -0.004891 -6e-06 0.009793 -0</velocity>
           <acceleration>0.010615 0.006191 -9.78231 -0.012424 0.021225 -1.8e-05</acceleration>
           <wrench>0.010615 0.006191 -9.78231 0 -0 0</wrench>
         </link>
       </model>
       <model name='unit_box_0_clone'>
-        <pose frame=''>0.105158 -4.55002 0.499995 -2.89297 -0.988287 -3.14159</pose>
+        <pose>0.105158 -4.55002 0.499995 -2.89297 -0.988287 -3.14159</pose>
         <scale>1 1 1</scale>
         <link name='unit_box_0::link'>
-          <pose frame=''>0.105158 -4.55002 0.499995 -2.89297 -0.988287 -3.14159</pose>
+          <pose>0.105158 -4.55002 0.499995 -2.89297 -0.988287 -3.14159</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <light name='sun'>
-        <pose frame=''>0 0 10 0 -0 0</pose>
+        <pose>0 0 10 0 -0 0</pose>
       </light>
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>8.0562 -8.87312 3.07529 0 0.205021 2.5208</pose>
+        <pose>8.0562 -8.87312 3.07529 0 0.205021 2.5208</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
