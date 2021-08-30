@@ -46,6 +46,7 @@ protected:
 	int m_maxNewtonIterations;                                     // max number of newton iterations
 	btScalar m_newtonTolerance;                                    // stop newton iterations if f(x) < m_newtonTolerance
 	bool m_lineSearch;                                             // If true, use newton's method with line search under implicit scheme
+	bool m_reducedSolver;																					 // flag for reduced soft body solver
 public:
 	// handles data related to objective function
 	btDeformableBackwardEulerObjective* m_objective;
@@ -198,6 +199,14 @@ public:
 	{
 		m_objective->m_projection.setLagrangeMultiplier();
 	}
+
+	virtual bool isReducedSolver()
+	{
+		return m_reducedSolver;
+	}
+	
+	// pair rigid contact constraint with solver body
+  virtual void pairConstraintWithSolverBody(btSolverBody& solverBody) {}
 
 	virtual void deformableBodyInternalWriteBack() {}
 

@@ -31,6 +31,8 @@ class btReducedDeformableStaticConstraint : public btDeformableStaticConstraint
 class btReducedDeformableRigidContactConstraint : public btDeformableRigidContactConstraint
 {
  public:
+  bool m_collideStatic;     // flag for collision with static object
+
   btReducedSoftBody* m_rsb;
   btSolverBody* m_solverBody;
   btScalar m_dt;
@@ -48,12 +50,14 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btVector3 m_contactNormalA;     // for rigid body
   btVector3 m_contactNormalB;     // for reduced deformable body
   btVector3 m_contactTangent;     // tangential direction of the relative velocity
-  btVector3 m_relPosA;            // relative position of the contact point for A
+  btVector3 m_relPosA;            // relative position of the contact point for A (rigid)
   btVector3 m_relPosB;            // relative position of the contact point for B
   btMatrix3x3 m_impulseFactor;    // total impulse matrix
 
   btVector3 m_bufferVelocityA;    // velocity at the beginning of the iteration
   btVector3 m_bufferVelocityB;
+  btVector3 m_linearComponent;    // linear components for the solver body
+  btVector3 m_angularComponent;   // angular components for the solver body
 
   btReducedDeformableRigidContactConstraint(btReducedSoftBody* rsb, 
                                             const btSoftBody::DeformableRigidContact& c, 
@@ -63,8 +67,8 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btReducedDeformableRigidContactConstraint() {}
   virtual ~btReducedDeformableRigidContactConstraint() {}
 
-  void setupSolverBody(btRigidBody* rigid_body);
-  
+  void setSolverBody(btSolverBody& solver_body);
+
   virtual void warmStarting() {}
 
   virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
@@ -73,6 +77,8 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 
   virtual void applySplitImpulse(const btVector3& impulse) {} // TODO: may need later
 
+  virtual btVector3 getVa() const;
+  virtual btVector3 getDeltaVa() const = 0;
   virtual btVector3 getDeltaVb() const = 0;
 };
 
@@ -94,6 +100,9 @@ class btReducedDeformableNodeRigidContactConstraint : public btReducedDeformable
 
   // get the velocity of the deformable node in contact
 	virtual btVector3 getVb() const;
+
+  // get the velocity change of the rigid body
+  virtual btVector3 getDeltaVa() const;
 
   // get velocity change of the node in contat
   virtual btVector3 getDeltaVb() const;

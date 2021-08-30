@@ -40,7 +40,6 @@ void btReducedDeformableStaticConstraint::applyImpulse(const btVector3& impulse)
 	m_rsb->applyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
 }
 
-
 // ================= base contact constraints ===================
 btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstraint(
   btReducedSoftBody* rsb, 
@@ -61,12 +60,43 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
   m_impulseFactor = c.m_c0;
 	m_normalImpulseFactor = (m_impulseFactor * m_contactNormalA).dot(m_contactNormalA);
 	m_tangentImpulseFactor = 0;
+
+	m_relPosA = c.m_c1;
+
+	btRigidBody* rb = m_contact->m_cti.m_colObj ? (btRigidBody*)btRigidBody::upcast(m_contact->m_cti.m_colObj) : nullptr;
+	if (!rb)
+	{
+		btAssert(false);
+	}
+	else
+	{
+		m_collideStatic = rb->isStaticObject();
+	}
+}
+
+void btReducedDeformableRigidContactConstraint::setSolverBody(btSolverBody& solver_body)
+{
+	m_solverBody = &solver_body;
+	m_linearComponent = m_contactNormalA * m_solverBody->internalGetInvMass();
+	btVector3	torqueAxis = m_relPosA.cross(m_contactNormalA);
+	m_angularComponent = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
+}
+
+btVector3 btReducedDeformableRigidContactConstraint::getVa() const
+{
+	btVector3 Va(0, 0, 0);
+	if (!m_collideStatic)
+	{
+		Va = btDeformableRigidContactConstraint::getVa();
+	}
+	return Va;
 }
 
 btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
 {
 	btVector3 Va = getVa();
-	btVector3 deltaVa = Va - m_bufferVelocityA;
+	// btVector3 deltaVa = Va - m_bufferVelocityA;
+	btVector3 deltaVa = getDeltaVa();
 	btVector3 deltaVb = getDeltaVb();
 	std::cout << "deltaVa: " << deltaVa[0] << '\t' << deltaVa[1] << '\t' << deltaVa[2] << '\n';
 	std::cout << "deltaVb: " << deltaVb[0] << '\t' << deltaVb[1] << '\t' << deltaVb[2] << '\n';
@@ -74,6 +104,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// get delta relative velocity and magnitude (i.e., how much impulse has been applied?)
 	btVector3 deltaV_rel = deltaVa - deltaVb;
 	btScalar deltaV_rel_normal = -btDot(deltaV_rel, m_contactNormalA);
+	std::cout << "deltaV_rel_normal: " << deltaV_rel_normal << "\n";
 	
 	// get the normal impulse to be applied
 	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
@@ -150,36 +181,34 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	applyImpulse(impulse);
 	
 	// apply impulse to the rigid/multibodies involved and change their velocities
-	const btSoftBody::sCti& cti = m_contact->m_cti;
-	if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	if (!m_collideStatic)
 	{
-		btRigidBody* rigidCol = 0;
-		rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-		if (rigidCol)
+		const btSoftBody::sCti& cti = m_contact->m_cti;
+		if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 		{
-			std::cout << "called here??\n";
-			rigidCol->applyImpulse(impulse, m_contact->m_c1);
+			m_solverBody->internalApplyImpulse(m_linearComponent, m_angularComponent, -deltaImpulse);
+			// m_solverBody->internalApplyImpulse(m_linearComponent, m_angularComponent, -deltaImpulse_tangent);
 		}
-	}
-	else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-	{
-		btAssert(false);	//TODO: unsupported yet
-		// btMultiBodyLinkCollider* multibodyLinkCol = 0;
-		// multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
-		// if (multibodyLinkCol)
-		// {
-		// 	const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
-		// 	// apply normal component of the impulse
-		// 	multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
-		// 	if (impulse_tangent.norm() > SIMD_EPSILON)
-		// 	{
-		// 		// apply tangential component of the impulse
-		// 		const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
-		// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
-		// 		const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
-		// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
-		// 	}
-		// }
+		else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+		{
+			btAssert(false);	//TODO: unsupported yet
+			// btMultiBodyLinkCollider* multibodyLinkCol = 0;
+			// multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+			// if (multibodyLinkCol)
+			// {
+			// 	const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
+			// 	// apply normal component of the impulse
+			// 	multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
+			// 	if (impulse_tangent.norm() > SIMD_EPSILON)
+			// 	{
+			// 		// apply tangential component of the impulse
+			// 		const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+			// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
+			// 		const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
+			// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
+			// 	}
+			// }
+		}
 	}
 	return residualSquare;
 }
@@ -192,7 +221,6 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
 	btScalar dt)
   : m_node(contact.m_node), btReducedDeformableRigidContactConstraint(rsb, contact, infoGlobal, dt)
 {
-	m_relPosA = contact.m_c1;
 	m_relPosB = m_node->m_x - m_rsb->getRigidTransform().getOrigin();
 	warmStarting();
 }
@@ -231,6 +259,16 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 btVector3 btReducedDeformableNodeRigidContactConstraint::getVb() const
 {
 	return m_node->m_v;
+}
+
+btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVa() const
+{
+	btVector3 deltaVa(0, 0, 0);
+	if (!m_collideStatic)
+	{
+		deltaVa = m_solverBody->internalGetDeltaLinearVelocity() + m_relPosA.cross(m_solverBody->internalGetDeltaAngularVelocity());
+	}
+	return deltaVa;
 }
 
 btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVb() const

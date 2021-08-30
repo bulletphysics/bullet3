@@ -21,6 +21,9 @@
 btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
 {
 	{
+		// pair deformable body with solver body
+		pairDeformableAndSolverBody(bodies, numBodies, deformableBodies, numDeformableBodies, infoGlobal);
+
 		///this is a special step to resolve penetrations (just for contacts)
 		solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, deformableBodies, numDeformableBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
 
@@ -89,6 +92,12 @@ void btDeformableMultiBodyConstraintSolver::solveDeformableBodyGroup(btCollision
 
 void btDeformableMultiBodyConstraintSolver::writeToSolverBody(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
 {
+	// reduced soft body solver directly modifies the solver body
+	if (m_deformableSolver->isReducedSolver())
+	{
+		return;
+	}
+
 	for (int i = 0; i < numBodies; i++)
 	{
 		int bodyId = getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
@@ -105,6 +114,12 @@ void btDeformableMultiBodyConstraintSolver::writeToSolverBody(btCollisionObject*
 
 void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactSolverInfo& infoGlobal)
 {
+	// reduced soft body solver directly modifies the solver body
+	if (m_deformableSolver->isReducedSolver())
+	{
+		return;
+	}
+
 	for (int i = 0; i < m_tmpSolverBodyPool.size(); i++)
 	{
 		btRigidBody* body = m_tmpSolverBodyPool[i].m_originalBody;
@@ -113,6 +128,32 @@ void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactS
 			m_tmpSolverBodyPool[i].m_originalBody->setLinearVelocity(m_tmpSolverBodyPool[i].m_linearVelocity + m_tmpSolverBodyPool[i].m_deltaLinearVelocity);
 			m_tmpSolverBodyPool[i].m_originalBody->setAngularVelocity(m_tmpSolverBodyPool[i].m_angularVelocity + m_tmpSolverBodyPool[i].m_deltaAngularVelocity);
 		}
+	}
+}
+
+
+void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
+{
+	if (!m_deformableSolver->isReducedSolver())
+	{
+		return;
+	}
+
+	for (int i = 0; i < numBodies; i++)
+	{
+		int bodyId = getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
+
+		btRigidBody* body = btRigidBody::upcast(bodies[i]);
+		if (body && body->getInvMass())
+		{
+			btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
+			m_deformableSolver->pairConstraintWithSolverBody(solverBody);
+		}
+	}
+
+	for (int i = 0; i < numDeformableBodies; ++i)
+	{
+		//
 	}
 }
 

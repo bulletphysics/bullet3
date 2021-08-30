@@ -3,6 +3,7 @@
 
 btReducedSoftBodySolver::btReducedSoftBodySolver()
 {
+  m_reducedSolver = true;
   m_dampingAlpha = 0;
   m_dampingBeta = 0;
   m_gravity = btVector3(0, 0, 0);
@@ -240,6 +241,29 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
   }
 }
 
+void btReducedSoftBodySolver::pairConstraintWithSolverBody(btSolverBody& solverBody)
+{
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+
+    // node vs rigid contact
+    for (int k = 0; k < m_nodeRigidConstraints[i].size(); ++k)
+    {
+      btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][k];
+      constraint.setSolverBody(solverBody);
+    }
+
+    // face vs rigid contact
+    // for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
+    // {
+    // 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
+    // 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+    // 	residualSquare = btMax(residualSquare, localResidualSquare);
+    // }
+  }
+}
+
 btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
   btScalar residualSquare = 0;
@@ -306,6 +330,7 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
 
 void btReducedSoftBodySolver::deformableBodyInternalWriteBack()
 {
+  // reduced deformable update
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);

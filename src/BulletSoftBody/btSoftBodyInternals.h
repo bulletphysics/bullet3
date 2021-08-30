@@ -1708,7 +1708,6 @@ struct btSoftColliders
 							{
 								btMatrix3x3 rigid_impulse_factor = ImpulseMatrixNonInverse(1, n.m_effectiveMass_inv, imb, iwi, ra);
 								c.m_c0 = psb->getImpulseFactor(n.index) + rigid_impulse_factor; //impulse factor K (not the inverse)
-								// c.m_c1 = n.m_x - psb->getRigidTransform().getOrigin();
 							}
 							else
 							{

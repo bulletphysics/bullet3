@@ -56,22 +56,22 @@ public:
 
     void resetCamera()
     {
-        float dist = 20;
-        float pitch = -30;
-        float yaw = 125;
-        float targetPos[3] = {-2, 0, 2};
+        float dist = 15;
+        float pitch = -10;
+        float yaw = 90;
+        float targetPos[3] = {0, 3, 0};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
     void Ctor_RbUpStack()
     {
-        float mass = 0.5;
+        float mass = 8;
         btCollisionShape* shape = new btBoxShape(btVector3(2, 2, 2));
         btTransform startTransform;
         startTransform.setIdentity();
         startTransform.setOrigin(btVector3(0,-2,0));
         btRigidBody* rb = createRigidBody(mass, startTransform, shape);
-        rb->setLinearVelocity(btVector3(0,+COLLIDING_VELOCITY, 0));
+        rb->setLinearVelocity(btVector3(0, +COLLIDING_VELOCITY, 0));
     }
     
     void stepSimulation(float deltaTime)
@@ -146,7 +146,7 @@ void ReducedCollide::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
-        rsb->translate(btVector3(0, 10, 0));  //TODO: add back translate and scale
+        rsb->translate(btVector3(0, 2, 0));  //TODO: add back translate and scale
         rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);
 

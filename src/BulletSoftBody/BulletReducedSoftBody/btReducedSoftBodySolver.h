@@ -44,6 +44,9 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
   // set up contact constraints
 	virtual void setConstraints(const btContactSolverInfo& infoGlobal);
 
+  // pair rigid contact constraint with solver body
+  virtual void pairConstraintWithSolverBody(btSolverBody& solverBody);
+
   // solve all constraints (fixed and contact)
   virtual btScalar solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal);
 

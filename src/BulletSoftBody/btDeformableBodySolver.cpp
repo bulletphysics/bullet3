@@ -23,6 +23,7 @@ btDeformableBodySolver::btDeformableBodySolver()
 	: m_numNodes(0), m_cg(kMaxConjugateGradientIterations), m_cr(kMaxConjugateGradientIterations), m_maxNewtonIterations(1), m_newtonTolerance(1e-4), m_lineSearch(false), m_useProjection(false)
 {
 	m_objective = new btDeformableBackwardEulerObjective(m_softBodies, m_backupVelocity);
+	m_reducedSolver = false;
 }
 
 btDeformableBodySolver::~btDeformableBodySolver()
