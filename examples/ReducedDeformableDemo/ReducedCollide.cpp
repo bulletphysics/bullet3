@@ -31,7 +31,7 @@
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
-static btScalar COLLIDING_VELOCITY = 4;
+static btScalar COLLIDING_VELOCITY = 15;
 static int start_mode = 6;
 static int num_modes = 1;
 
@@ -65,12 +65,13 @@ public:
     
     void Ctor_RbUpStack()
     {
-        float mass = 8;
-        btCollisionShape* shape = new btBoxShape(btVector3(2, 2, 2));
+        float mass = 10;
+        btCollisionShape* shape = new btBoxShape(btVector3(3, 3, 3));
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0,-2,0));
+        startTransform.setOrigin(btVector3(0,-3,0));
         btRigidBody* rb = createRigidBody(mass, startTransform, shape);
+        rb->setActivationState(DISABLE_DEACTIVATION);
         rb->setLinearVelocity(btVector3(0, +COLLIDING_VELOCITY, 0));
     }
     

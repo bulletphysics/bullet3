@@ -77,9 +77,9 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 void btReducedDeformableRigidContactConstraint::setSolverBody(btSolverBody& solver_body)
 {
 	m_solverBody = &solver_body;
-	m_linearComponent = m_contactNormalA * m_solverBody->internalGetInvMass();
+	m_linearComponentNormal = m_contactNormalA * m_solverBody->internalGetInvMass();
 	btVector3	torqueAxis = m_relPosA.cross(m_contactNormalA);
-	m_angularComponent = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
+	m_angularComponentNormal = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
 }
 
 btVector3 btReducedDeformableRigidContactConstraint::getVa() const
@@ -105,6 +105,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	btVector3 deltaV_rel = deltaVa - deltaVb;
 	btScalar deltaV_rel_normal = -btDot(deltaV_rel, m_contactNormalA);
 	std::cout << "deltaV_rel_normal: " << deltaV_rel_normal << "\n";
+	std::cout << "normal_A: " << m_contactNormalA[0] << '\t' << m_contactNormalA[1] << '\t' << m_contactNormalA[2] << '\n';
 	
 	// get the normal impulse to be applied
 	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
@@ -186,7 +187,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 		const btSoftBody::sCti& cti = m_contact->m_cti;
 		if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 		{
-			m_solverBody->internalApplyImpulse(m_linearComponent, m_angularComponent, -deltaImpulse);
+			m_solverBody->internalApplyImpulse(m_linearComponentNormal, m_angularComponentNormal, -deltaImpulse);
 			// m_solverBody->internalApplyImpulse(m_linearComponent, m_angularComponent, -deltaImpulse_tangent);
 		}
 		else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)

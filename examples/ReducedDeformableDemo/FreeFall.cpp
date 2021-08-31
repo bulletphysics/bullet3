@@ -65,13 +65,17 @@ public:
     
     void Ctor_RbUpStack()
     {
-        float mass = 0.5;
-        btCollisionShape* shape = new btBoxShape(btVector3(2, 2, 2));
+        float mass = 10;
+        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0,-2,0));
-        btRigidBody* rb = createRigidBody(mass, startTransform, shape);
-        rb->setLinearVelocity(btVector3(0,+COLLIDING_VELOCITY, 0));
+        startTransform.setOrigin(btVector3(0, 12, 0));
+        btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
+        rb0->setLinearVelocity(btVector3(0, 0, 0));
+
+        // startTransform.setOrigin(btVector3(0,8,0));
+        // btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
+        // rb1->setLinearVelocity(btVector3(0, 0, 0));
     }
     
     void stepSimulation(float deltaTime)
@@ -180,7 +184,7 @@ void FreeFall::initPhysics()
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
+        // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
         groundTransform.setOrigin(btVector3(0, 0, 0));
         // groundTransform.setOrigin(btVector3(0, 0, 6));
         // groundTransform.setOrigin(btVector3(0, -50, 0));
@@ -199,7 +203,7 @@ void FreeFall::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
-    // Ctor_RbUpStack();        // TODO: no rigid body for now
+    Ctor_RbUpStack();
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     
     // {

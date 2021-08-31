@@ -22,7 +22,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 {
 	{
 		// pair deformable body with solver body
-		pairDeformableAndSolverBody(bodies, numBodies, deformableBodies, numDeformableBodies, infoGlobal);
+		pairDeformableAndSolverBody(bodies, numBodies, infoGlobal);
 
 		///this is a special step to resolve penetrations (just for contacts)
 		solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, deformableBodies, numDeformableBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
@@ -132,7 +132,7 @@ void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactS
 }
 
 
-void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
+void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
 {
 	if (!m_deformableSolver->isReducedSolver())
 	{
@@ -149,11 +149,6 @@ void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollis
 			btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
 			m_deformableSolver->pairConstraintWithSolverBody(solverBody);
 		}
-	}
-
-	for (int i = 0; i < numDeformableBodies; ++i)
-	{
-		//
 	}
 }
 

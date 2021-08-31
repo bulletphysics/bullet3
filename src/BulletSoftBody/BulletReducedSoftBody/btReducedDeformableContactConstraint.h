@@ -56,8 +56,10 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 
   btVector3 m_bufferVelocityA;    // velocity at the beginning of the iteration
   btVector3 m_bufferVelocityB;
-  btVector3 m_linearComponent;    // linear components for the solver body
-  btVector3 m_angularComponent;   // angular components for the solver body
+  btVector3 m_linearComponentNormal;    // linear components for the solver body
+  btVector3 m_angularComponentNormal;   // angular components for the solver body
+  btVector3 m_linearComponentTangent;
+  btVector3 m_angularComponentTangent;
 
   btReducedDeformableRigidContactConstraint(btReducedSoftBody* rsb, 
                                             const btSoftBody::DeformableRigidContact& c, 
