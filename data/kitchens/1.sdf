@@ -3,7 +3,7 @@
 	<gravity>0 0 -9.8</gravity>
 		<model name='part0.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d0'>
 			<inertial>
 			<mass>0</mass>
@@ -42,7 +42,7 @@
 			</model>
 		<model name='part1.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d1'>
 			<inertial>
 			<mass>0</mass>
@@ -81,7 +81,7 @@
 			</model>
 		<model name='part2.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d2'>
 			<inertial>
 			<mass>0</mass>
@@ -120,7 +120,7 @@
 			</model>
 		<model name='part3.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d3'>
 			<inertial>
 			<mass>0</mass>
@@ -159,7 +159,7 @@
 			</model>
 		<model name='part4.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d4'>
 			<inertial>
 			<mass>0</mass>
@@ -198,7 +198,7 @@
 			</model>
 		<model name='part5.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d5'>
 			<inertial>
 			<mass>0</mass>
@@ -237,7 +237,7 @@
 			</model>
 		<model name='part6.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d6'>
 			<inertial>
 			<mass>0</mass>
@@ -276,7 +276,7 @@
 			</model>
 		<model name='part7.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d7'>
 			<inertial>
 			<mass>0</mass>
@@ -315,7 +315,7 @@
 			</model>
 		<model name='part8.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d8'>
 			<inertial>
 			<mass>0</mass>
@@ -354,7 +354,7 @@
 			</model>
 		<model name='part9.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d9'>
 			<inertial>
 			<mass>0</mass>
@@ -393,7 +393,7 @@
 			</model>
 		<model name='part10.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d10'>
 			<inertial>
 			<mass>0</mass>
@@ -432,7 +432,7 @@
 			</model>
 		<model name='part11.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d11'>
 			<inertial>
 			<mass>0</mass>
@@ -471,7 +471,7 @@
 			</model>
 		<model name='part12.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d12'>
 			<inertial>
 			<mass>0</mass>
@@ -510,7 +510,7 @@
 			</model>
 		<model name='part13.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d13'>
 			<inertial>
 			<mass>0</mass>
@@ -549,7 +549,7 @@
 			</model>
 		<model name='part14.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d14'>
 			<inertial>
 			<mass>0</mass>
@@ -588,7 +588,7 @@
 			</model>
 		<model name='part15.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d15'>
 			<inertial>
 			<mass>0</mass>
@@ -627,7 +627,7 @@
 			</model>
 		<model name='part16.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d16'>
 			<inertial>
 			<mass>0</mass>
@@ -666,7 +666,7 @@
 			</model>
 		<model name='part17.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d17'>
 			<inertial>
 			<mass>0</mass>
@@ -705,7 +705,7 @@
 			</model>
 		<model name='part18.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d18'>
 			<inertial>
 			<mass>0</mass>
@@ -744,7 +744,7 @@
 			</model>
 		<model name='part19.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d19'>
 			<inertial>
 			<mass>0</mass>
@@ -783,7 +783,7 @@
 			</model>
 		<model name='part20.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d20'>
 			<inertial>
 			<mass>0</mass>
@@ -822,7 +822,7 @@
 			</model>
 		<model name='part21.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d21'>
 			<inertial>
 			<mass>0</mass>
@@ -861,7 +861,7 @@
 			</model>
 		<model name='part22.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d22'>
 			<inertial>
 			<mass>0</mass>
@@ -900,7 +900,7 @@
 			</model>
 		<model name='part23.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d23'>
 			<inertial>
 			<mass>0</mass>
@@ -939,7 +939,7 @@
 			</model>
 		<model name='part24.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d24'>
 			<inertial>
 			<mass>0</mass>
@@ -978,7 +978,7 @@
 			</model>
 		<model name='part25.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d25'>
 			<inertial>
 			<mass>0</mass>
@@ -1017,7 +1017,7 @@
 			</model>
 		<model name='part26.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d26'>
 			<inertial>
 			<mass>0</mass>
@@ -1056,7 +1056,7 @@
 			</model>
 		<model name='part27.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d27'>
 			<inertial>
 			<mass>0</mass>
@@ -1095,7 +1095,7 @@
 			</model>
 		<model name='part28.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d28'>
 			<inertial>
 			<mass>0</mass>
@@ -1134,7 +1134,7 @@
 			</model>
 		<model name='part29.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d29'>
 			<inertial>
 			<mass>0</mass>
@@ -1173,7 +1173,7 @@
 			</model>
 		<model name='part30.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d30'>
 			<inertial>
 			<mass>0</mass>
@@ -1212,7 +1212,7 @@
 			</model>
 		<model name='part31.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d31'>
 			<inertial>
 			<mass>0</mass>
@@ -1251,7 +1251,7 @@
 			</model>
 		<model name='part32.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d32'>
 			<inertial>
 			<mass>0</mass>
@@ -1290,7 +1290,7 @@
 			</model>
 		<model name='part33.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d33'>
 			<inertial>
 			<mass>0</mass>
@@ -1329,7 +1329,7 @@
 			</model>
 		<model name='part34.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d34'>
 			<inertial>
 			<mass>0</mass>
@@ -1368,7 +1368,7 @@
 			</model>
 		<model name='part35.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d35'>
 			<inertial>
 			<mass>0</mass>
@@ -1407,7 +1407,7 @@
 			</model>
 		<model name='part36.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d36'>
 			<inertial>
 			<mass>0</mass>
@@ -1446,7 +1446,7 @@
 			</model>
 		<model name='part37.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d37'>
 			<inertial>
 			<mass>0</mass>
@@ -1485,7 +1485,7 @@
 			</model>
 		<model name='part38.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d38'>
 			<inertial>
 			<mass>0</mass>
@@ -1524,7 +1524,7 @@
 			</model>
 		<model name='part39.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d39'>
 			<inertial>
 			<mass>0</mass>
@@ -1563,7 +1563,7 @@
 			</model>
 		<model name='part40.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d40'>
 			<inertial>
 			<mass>0</mass>
@@ -1602,7 +1602,7 @@
 			</model>
 		<model name='part41.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d41'>
 			<inertial>
 			<mass>0</mass>
@@ -1641,7 +1641,7 @@
 			</model>
 		<model name='part42.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d42'>
 			<inertial>
 			<mass>0</mass>
@@ -1680,7 +1680,7 @@
 			</model>
 		<model name='part43.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d43'>
 			<inertial>
 			<mass>0</mass>
@@ -1719,7 +1719,7 @@
 			</model>
 		<model name='part44.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d44'>
 			<inertial>
 			<mass>0</mass>
@@ -1758,7 +1758,7 @@
 			</model>
 		<model name='part45.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d45'>
 			<inertial>
 			<mass>0</mass>
@@ -1797,7 +1797,7 @@
 			</model>
 		<model name='part46.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d46'>
 			<inertial>
 			<mass>0</mass>
@@ -1836,7 +1836,7 @@
 			</model>
 		<model name='part47.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d47'>
 			<inertial>
 			<mass>0</mass>
@@ -1875,7 +1875,7 @@
 			</model>
 		<model name='part48.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d48'>
 			<inertial>
 			<mass>0</mass>
@@ -1914,7 +1914,7 @@
 			</model>
 		<model name='part49.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d49'>
 			<inertial>
 			<mass>0</mass>
@@ -1953,7 +1953,7 @@
 			</model>
 		<model name='part50.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d50'>
 			<inertial>
 			<mass>0</mass>
@@ -1992,7 +1992,7 @@
 			</model>
 		<model name='part51.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d51'>
 			<inertial>
 			<mass>0</mass>
@@ -2031,7 +2031,7 @@
 			</model>
 		<model name='part52.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d52'>
 			<inertial>
 			<mass>0</mass>
@@ -2070,7 +2070,7 @@
 			</model>
 		<model name='part53.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d53'>
 			<inertial>
 			<mass>0</mass>
@@ -2109,7 +2109,7 @@
 			</model>
 		<model name='part54.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d54'>
 			<inertial>
 			<mass>0</mass>
@@ -2148,7 +2148,7 @@
 			</model>
 		<model name='part55.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d55'>
 			<inertial>
 			<mass>0</mass>
@@ -2187,7 +2187,7 @@
 			</model>
 		<model name='part56.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d56'>
 			<inertial>
 			<mass>0</mass>
@@ -2226,7 +2226,7 @@
 			</model>
 		<model name='part57.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d57'>
 			<inertial>
 			<mass>0</mass>
@@ -2265,7 +2265,7 @@
 			</model>
 		<model name='part58.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d58'>
 			<inertial>
 			<mass>0</mass>
@@ -2304,7 +2304,7 @@
 			</model>
 		<model name='part59.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d59'>
 			<inertial>
 			<mass>0</mass>
@@ -2343,7 +2343,7 @@
 			</model>
 		<model name='part60.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d60'>
 			<inertial>
 			<mass>0</mass>
@@ -2382,7 +2382,7 @@
 			</model>
 		<model name='part61.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d61'>
 			<inertial>
 			<mass>0</mass>
@@ -2421,7 +2421,7 @@
 			</model>
 		<model name='part62.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d62'>
 			<inertial>
 			<mass>0</mass>
@@ -2460,7 +2460,7 @@
 			</model>
 		<model name='part63.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d63'>
 			<inertial>
 			<mass>0</mass>
@@ -2499,7 +2499,7 @@
 			</model>
 		<model name='part64.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d64'>
 			<inertial>
 			<mass>0</mass>
@@ -2538,7 +2538,7 @@
 			</model>
 		<model name='part65.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d65'>
 			<inertial>
 			<mass>0</mass>
@@ -2577,7 +2577,7 @@
 			</model>
 		<model name='part66.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d66'>
 			<inertial>
 			<mass>0</mass>
@@ -2616,7 +2616,7 @@
 			</model>
 		<model name='part67.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d67'>
 			<inertial>
 			<mass>0</mass>
@@ -2655,7 +2655,7 @@
 			</model>
 		<model name='part68.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d68'>
 			<inertial>
 			<mass>0</mass>
@@ -2694,7 +2694,7 @@
 			</model>
 		<model name='part69.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d69'>
 			<inertial>
 			<mass>0</mass>
@@ -2733,7 +2733,7 @@
 			</model>
 		<model name='part70.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d70'>
 			<inertial>
 			<mass>0</mass>
@@ -2772,7 +2772,7 @@
 			</model>
 		<model name='part71.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d71'>
 			<inertial>
 			<mass>0</mass>
@@ -2811,7 +2811,7 @@
 			</model>
 		<model name='part72.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d72'>
 			<inertial>
 			<mass>0</mass>
@@ -2850,7 +2850,7 @@
 			</model>
 		<model name='part73.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d73'>
 			<inertial>
 			<mass>0</mass>
@@ -2889,7 +2889,7 @@
 			</model>
 		<model name='part74.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d74'>
 			<inertial>
 			<mass>0</mass>
@@ -2928,7 +2928,7 @@
 			</model>
 		<model name='part75.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d75'>
 			<inertial>
 			<mass>0</mass>
@@ -2967,7 +2967,7 @@
 			</model>
 		<model name='part76.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d76'>
 			<inertial>
 			<mass>0</mass>
@@ -3006,7 +3006,7 @@
 			</model>
 		<model name='part77.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d77'>
 			<inertial>
 			<mass>0</mass>
@@ -3045,7 +3045,7 @@
 			</model>
 		<model name='part78.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d78'>
 			<inertial>
 			<mass>0</mass>
@@ -3084,7 +3084,7 @@
 			</model>
 		<model name='part79.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d79'>
 			<inertial>
 			<mass>0</mass>
@@ -3123,7 +3123,7 @@
 			</model>
 		<model name='part80.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d80'>
 			<inertial>
 			<mass>0</mass>
@@ -3162,7 +3162,7 @@
 			</model>
 		<model name='part81.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d81'>
 			<inertial>
 			<mass>0</mass>
@@ -3201,7 +3201,7 @@
 			</model>
 		<model name='part82.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d82'>
 			<inertial>
 			<mass>0</mass>
@@ -3240,7 +3240,7 @@
 			</model>
 		<model name='part83.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d83'>
 			<inertial>
 			<mass>0</mass>
@@ -3279,7 +3279,7 @@
 			</model>
 		<model name='part84.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d84'>
 			<inertial>
 			<mass>0</mass>
@@ -3318,7 +3318,7 @@
 			</model>
 		<model name='part85.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d85'>
 			<inertial>
 			<mass>0</mass>
@@ -3357,7 +3357,7 @@
 			</model>
 		<model name='part86.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d86'>
 			<inertial>
 			<mass>0</mass>
@@ -3396,7 +3396,7 @@
 			</model>
 		<model name='part87.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d87'>
 			<inertial>
 			<mass>0</mass>
@@ -3435,7 +3435,7 @@
 			</model>
 		<model name='part88.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d88'>
 			<inertial>
 			<mass>0</mass>
@@ -3474,7 +3474,7 @@
 			</model>
 		<model name='part89.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d89'>
 			<inertial>
 			<mass>0</mass>
@@ -3513,7 +3513,7 @@
 			</model>
 		<model name='part90.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d90'>
 			<inertial>
 			<mass>0</mass>
@@ -3552,7 +3552,7 @@
 			</model>
 		<model name='part91.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d91'>
 			<inertial>
 			<mass>0</mass>
@@ -3591,7 +3591,7 @@
 			</model>
 		<model name='part92.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d92'>
 			<inertial>
 			<mass>0</mass>
@@ -3630,7 +3630,7 @@
 			</model>
 		<model name='part93.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d93'>
 			<inertial>
 			<mass>0</mass>
@@ -3669,7 +3669,7 @@
 			</model>
 		<model name='part94.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d94'>
 			<inertial>
 			<mass>0</mass>
@@ -3708,7 +3708,7 @@
 			</model>
 		<model name='part95.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d95'>
 			<inertial>
 			<mass>0</mass>
@@ -3747,7 +3747,7 @@
 			</model>
 		<model name='part96.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d96'>
 			<inertial>
 			<mass>0</mass>
@@ -3786,7 +3786,7 @@
 			</model>
 		<model name='part97.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d97'>
 			<inertial>
 			<mass>0</mass>
@@ -3825,7 +3825,7 @@
 			</model>
 		<model name='part98.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d98'>
 			<inertial>
 			<mass>0</mass>
@@ -3864,7 +3864,7 @@
 			</model>
 		<model name='part99.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d99'>
 			<inertial>
 			<mass>0</mass>
@@ -3903,7 +3903,7 @@
 			</model>
 		<model name='part100.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d100'>
 			<inertial>
 			<mass>0</mass>
@@ -3942,7 +3942,7 @@
 			</model>
 		<model name='part101.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d101'>
 			<inertial>
 			<mass>0</mass>
@@ -3981,7 +3981,7 @@
 			</model>
 		<model name='part102.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d102'>
 			<inertial>
 			<mass>0</mass>
@@ -4020,7 +4020,7 @@
 			</model>
 		<model name='part103.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d103'>
 			<inertial>
 			<mass>0</mass>
@@ -4059,7 +4059,7 @@
 			</model>
 		<model name='part104.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d104'>
 			<inertial>
 			<mass>0</mass>
@@ -4098,7 +4098,7 @@
 			</model>
 		<model name='part105.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d105'>
 			<inertial>
 			<mass>0</mass>
@@ -4138,7 +4138,7 @@
 		
 		<model name='part109.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d109'>
 			<inertial>
 			<mass>0</mass>
@@ -4178,7 +4178,7 @@
 	
 		<model name='part111.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d111'>
 			<inertial>
 			<mass>0</mass>
@@ -4217,7 +4217,7 @@
 			</model>
 		<model name='part112.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d112'>
 			<inertial>
 			<mass>0</mass>
@@ -4256,7 +4256,7 @@
 			</model>
 		<model name='part113.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d113'>
 			<inertial>
 			<mass>0</mass>
@@ -4295,7 +4295,7 @@
 			</model>
 		<model name='part114.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d114'>
 			<inertial>
 			<mass>0</mass>
@@ -4334,7 +4334,7 @@
 			</model>
 		<model name='part115.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d115'>
 			<inertial>
 			<mass>0</mass>
@@ -4373,7 +4373,7 @@
 			</model>
 		<model name='part116.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d116'>
 			<inertial>
 			<mass>0</mass>
@@ -4412,7 +4412,7 @@
 			</model>
 		<model name='part117.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d117'>
 			<inertial>
 			<mass>0</mass>
@@ -4451,7 +4451,7 @@
 			</model>
 		<model name='part118.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d118'>
 			<inertial>
 			<mass>0</mass>
@@ -4490,7 +4490,7 @@
 			</model>
 		<model name='part119.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d119'>
 			<inertial>
 			<mass>0</mass>
@@ -4529,7 +4529,7 @@
 			</model>
 		<model name='part120.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d120'>
 			<inertial>
 			<mass>0</mass>
@@ -4568,7 +4568,7 @@
 			</model>
 		<model name='part121.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d121'>
 			<inertial>
 			<mass>0</mass>
@@ -4607,7 +4607,7 @@
 			</model>
 		<model name='part122.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d122'>
 			<inertial>
 			<mass>0</mass>
@@ -4646,7 +4646,7 @@
 			</model>
 		<model name='part123.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d123'>
 			<inertial>
 			<mass>0</mass>
@@ -4685,7 +4685,7 @@
 			</model>
 		<model name='part124.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d124'>
 			<inertial>
 			<mass>0</mass>
@@ -4724,7 +4724,7 @@
 			</model>
 		<model name='part125.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d125'>
 			<inertial>
 			<mass>0</mass>
@@ -4763,7 +4763,7 @@
 			</model>
 		<model name='part126.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d126'>
 			<inertial>
 			<mass>0</mass>
@@ -4802,7 +4802,7 @@
 			</model>
 		<model name='part127.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d127'>
 			<inertial>
 			<mass>0</mass>
@@ -4841,7 +4841,7 @@
 			</model>
 		<model name='part128.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d128'>
 			<inertial>
 			<mass>0</mass>
@@ -4880,7 +4880,7 @@
 			</model>
 		<model name='part129.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d129'>
 			<inertial>
 			<mass>0</mass>
@@ -4919,7 +4919,7 @@
 			</model>
 		<model name='part130.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d130'>
 			<inertial>
 			<mass>0</mass>
@@ -4958,7 +4958,7 @@
 			</model>
 		<model name='part131.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d131'>
 			<inertial>
 			<mass>0</mass>
@@ -4997,7 +4997,7 @@
 			</model>
 		<model name='part132.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d132'>
 			<inertial>
 			<mass>0</mass>
@@ -5036,7 +5036,7 @@
 			</model>
 		<model name='part133.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d133'>
 			<inertial>
 			<mass>0</mass>
@@ -5075,7 +5075,7 @@
 			</model>
 		<model name='part134.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d134'>
 			<inertial>
 			<mass>0</mass>
@@ -5114,7 +5114,7 @@
 			</model>
 		<model name='part135.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d135'>
 			<inertial>
 			<mass>0</mass>
@@ -5153,7 +5153,7 @@
 			</model>
 		<model name='part136.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d136'>
 			<inertial>
 			<mass>0</mass>
@@ -5192,7 +5192,7 @@
 			</model>
 		<model name='part137.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d137'>
 			<inertial>
 			<mass>0</mass>
@@ -5231,7 +5231,7 @@
 			</model>
 		<model name='part138.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d138'>
 			<inertial>
 			<mass>0</mass>
@@ -5270,7 +5270,7 @@
 			</model>
 		<model name='part139.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d139'>
 			<inertial>
 			<mass>0</mass>
@@ -5309,7 +5309,7 @@
 			</model>
 		<model name='part140.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d140'>
 			<inertial>
 			<mass>0</mass>
@@ -5348,7 +5348,7 @@
 			</model>
 		<model name='part141.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d141'>
 			<inertial>
 			<mass>0</mass>
@@ -5387,7 +5387,7 @@
 			</model>
 		<model name='part142.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d142'>
 			<inertial>
 			<mass>0</mass>
@@ -5426,7 +5426,7 @@
 			</model>
 		<model name='part143.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d143'>
 			<inertial>
 			<mass>0</mass>
@@ -5465,7 +5465,7 @@
 			</model>
 		<model name='part144.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d144'>
 			<inertial>
 			<mass>0</mass>
@@ -5504,7 +5504,7 @@
 			</model>
 		<model name='part145.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d145'>
 			<inertial>
 			<mass>0</mass>
@@ -5543,7 +5543,7 @@
 			</model>
 		<model name='part146.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d146'>
 			<inertial>
 			<mass>0</mass>
@@ -5574,7 +5574,7 @@
 			</model>
 		<model name='part147.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d147'>
 			<inertial>
 			<mass>0</mass>
@@ -5613,7 +5613,7 @@
 			</model>
 		<model name='part148.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d148'>
 			<inertial>
 			<mass>0</mass>
@@ -5652,7 +5652,7 @@
 			</model>
 		<model name='part149.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d149'>
 			<inertial>
 			<mass>0</mass>
@@ -5691,7 +5691,7 @@
 			</model>
 		<model name='part150.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d150'>
 			<inertial>
 			<mass>0</mass>
@@ -5730,7 +5730,7 @@
 			</model>
 		<model name='part151.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d151'>
 			<inertial>
 			<mass>0</mass>
@@ -5769,7 +5769,7 @@
 			</model>
 		<model name='part152.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d152'>
 			<inertial>
 			<mass>0</mass>
@@ -5808,7 +5808,7 @@
 			</model>
 		<model name='part153.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d153'>
 			<inertial>
 			<mass>0</mass>
@@ -5847,7 +5847,7 @@
 			</model>
 		<model name='part154.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d154'>
 			<inertial>
 			<mass>0</mass>
@@ -5886,7 +5886,7 @@
 			</model>
 		<model name='part155.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d155'>
 			<inertial>
 			<mass>0</mass>
@@ -5925,7 +5925,7 @@
 			</model>
 		<model name='part156.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d156'>
 			<inertial>
 			<mass>0</mass>
@@ -5964,7 +5964,7 @@
 			</model>
 		<model name='part157.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d157'>
 			<inertial>
 			<mass>0</mass>
@@ -6003,7 +6003,7 @@
 			</model>
 		<model name='part158.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d158'>
 			<inertial>
 			<mass>0</mass>
@@ -6042,7 +6042,7 @@
 			</model>
 		<model name='part159.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d159'>
 			<inertial>
 			<mass>0</mass>
@@ -6081,7 +6081,7 @@
 			</model>
 		<model name='part160.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d160'>
 			<inertial>
 			<mass>0</mass>
@@ -6120,7 +6120,7 @@
 			</model>
 		<model name='part161.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d161'>
 			<inertial>
 			<mass>0</mass>
@@ -6159,7 +6159,7 @@
 			</model>
 		<model name='part162.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d162'>
 			<inertial>
 			<mass>0</mass>
@@ -6198,7 +6198,7 @@
 			</model>
 		<model name='part163.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d163'>
 			<inertial>
 			<mass>0</mass>
@@ -6237,7 +6237,7 @@
 			</model>
 		<model name='part164.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d164'>
 			<inertial>
 			<mass>0</mass>
@@ -6276,7 +6276,7 @@
 			</model>
 		<model name='part165.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d165'>
 			<inertial>
 			<mass>0</mass>
@@ -6315,7 +6315,7 @@
 			</model>
 		<model name='part166.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d166'>
 			<inertial>
 			<mass>0</mass>
@@ -6354,7 +6354,7 @@
 			</model>
 		<model name='part167.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d167'>
 			<inertial>
 			<mass>0</mass>
@@ -6393,7 +6393,7 @@
 			</model>
 		<model name='part168.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d168'>
 			<inertial>
 			<mass>0</mass>
@@ -6432,7 +6432,7 @@
 			</model>
 		<model name='part169.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d169'>
 			<inertial>
 			<mass>0</mass>
@@ -6471,7 +6471,7 @@
 			</model>
 		<model name='part170.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d170'>
 			<inertial>
 			<mass>0</mass>
@@ -6510,7 +6510,7 @@
 			</model>
 		<model name='part171.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d171'>
 			<inertial>
 			<mass>0</mass>
@@ -6549,7 +6549,7 @@
 			</model>
 		<model name='part172.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d172'>
 			<inertial>
 			<mass>0</mass>
@@ -6588,7 +6588,7 @@
 			</model>
 		<model name='part173.obj'>
 			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<pose>-12.0 -13.9 0 0 0 0</pose>
 			<link name='link_d173'>
 			<inertial>
 			<mass>0</mass>

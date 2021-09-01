@@ -228,7 +228,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 		m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
 		//////////////////////////////////////////////
-		if (0)  //numLinks > 0)
+		if (/* DISABLES CODE */ (0))  //numLinks > 0)
 		{
 			btScalar q0 = 45.f * SIMD_PI / 180.f;
 			if (!spherical)
@@ -349,7 +349,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 void MultiBodyConstraintFeedbackSetup::stepSimulation(float deltaTime)
 {
 	//m_multiBody->addLinkForce(0,btVector3(100,100,100));
-	if (0)  //m_once)
+	if (/* DISABLES CODE */ (0))  //m_once)
 	{
 		m_once = false;
 		m_multiBody->addJointTorque(0, 10.0);

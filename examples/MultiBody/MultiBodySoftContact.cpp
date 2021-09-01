@@ -130,7 +130,7 @@ void MultiBodySoftContact::initPhysics()
 
 void MultiBodySoftContact::stepSimulation(float deltaTime)
 {
-	if (0)  //m_once)
+	if (/* DISABLES CODE */ (0))  //m_once)
 	{
 		m_once = false;
 		m_multiBody->addJointTorque(0, 10.0);

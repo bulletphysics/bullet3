@@ -1,7 +1,7 @@
 <sdf version='1.6'>
   <world name='default'>
     <model name='unit_box_0'>
-      <pose frame=''>0 0 0.107 0 0 0</pose>
+      <pose>0 0 0.107 0 0 0</pose>
       <link name='unit_box_0::link'>
         <inertial>
           <mass>0.1</mass>
