@@ -66,22 +66,33 @@ public:
     void Ctor_RbUpStack()
     {
         float mass = 10;
-        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
+        btCollisionShape* shape = new btBoxShape(btVector3(3, 3, 3));
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0, 12, 0));
-        btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
-        rb0->setLinearVelocity(btVector3(0, 0, 0));
+        // startTransform.setOrigin(btVector3(0, 12, 0));
+        // btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
+        // rb0->setLinearVelocity(btVector3(0, 0, 0));
 
-        // startTransform.setOrigin(btVector3(0,8,0));
-        // btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
-        // rb1->setLinearVelocity(btVector3(0, 0, 0));
+        startTransform.setOrigin(btVector3(0,6,0));
+        // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 4.0));
+        btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
+        rb1->setLinearVelocity(btVector3(0, 0, 0));
     }
     
     void stepSimulation(float deltaTime)
     {
       float internalTimeStep = 1. / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+
+      // btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
+      // std::cout << "rigid_array size=" << deformableWorld->getNonStaticRigidBodies().size() << '\n';
+      // for (int i = 0; i < deformableWorld->getNonStaticRigidBodies().size(); ++i)
+      // {
+      //   btRigidBody* rb = deformableWorld->getNonStaticRigidBodies()[i];
+      //   std::cout << "end of timestep, rigid_vel: " << rb->getLinearVelocity()[0] << '\t'
+      //    << rb->getLinearVelocity()[1] << '\t'
+      //     << rb->getLinearVelocity()[2] << '\n';
+      // }
     }
     
     virtual void renderScene()
@@ -151,7 +162,7 @@ void FreeFall::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
-        rsb->translate(btVector3(0, 10, 0));  //TODO: add back translate and scale
+        rsb->translate(btVector3(0, 2.5, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);

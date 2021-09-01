@@ -222,7 +222,7 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
 			m_nodeRigidConstraints[i].push_back(constraint);
       rsb->m_contactNodesList.push_back(contact.m_node->index);
 		}
-    std::cout << "contact list size: " << rsb->m_contactNodesList.size() << "\n";
+    std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
     std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
 
     // set Deformable Face vs. Rigid constraint
