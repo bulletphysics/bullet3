@@ -55,14 +55,6 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 	m_erp = btScalar(0.2);			// TODO: add parameter handle
 	m_friction = btScalar(0);
 
-  m_contactNormalA = c.m_cti.m_normal;
-  m_contactNormalB = -c.m_cti.m_normal;
-  m_impulseFactor = c.m_c0;
-	m_normalImpulseFactor = (m_impulseFactor * m_contactNormalA).dot(m_contactNormalA);
-	m_tangentImpulseFactor = 0;
-
-	m_relPosA = c.m_c1;
-
 	btRigidBody* rb = m_contact->m_cti.m_colObj ? (btRigidBody*)btRigidBody::upcast(m_contact->m_cti.m_colObj) : nullptr;
 	if (!rb)
 	{
@@ -99,6 +91,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	if (!m_collideStatic)
 	{
 		std::cout << "moving collision!!!\n";
+		std::cout << "relPosA: " << m_relPosA[0] << "\t" << m_relPosA[1] << "\t" << m_relPosA[2] << "\n";
 		// std::cout << "moving rigid linear_vel: " << m_solverBody->m_originalBody->getLinearVelocity()[0] << '\t'
 		//  << m_solverBody->m_originalBody->getLinearVelocity()[1] << '\t'
 		//   << m_solverBody->m_originalBody->getLinearVelocity()[2] << '\n';
@@ -269,7 +262,24 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
 	btScalar dt)
   : m_node(contact.m_node), btReducedDeformableRigidContactConstraint(rsb, contact, infoGlobal, dt)
 {
+	m_contactNormalA = contact.m_cti.m_normal;
+  m_contactNormalB = -contact.m_cti.m_normal;
+
+	m_relPosA = contact.m_c1;
 	m_relPosB = m_node->m_x - m_rsb->getRigidTransform().getOrigin();
+
+	if (m_collideStatic)		// colliding with static object, only consider reduced deformable body's impulse factor
+	{
+		m_impulseFactor = m_rsb->getImpulseFactor(m_node->index);
+	}
+	else		// colliding with dynamic object, consider both reduced deformable and rigid body's impulse factors
+	{
+		m_impulseFactor = m_rsb->getImpulseFactor(m_node->index) + contact.m_c0;
+	}
+
+	m_normalImpulseFactor = (m_impulseFactor * m_contactNormalA).dot(m_contactNormalA);
+	m_tangentImpulseFactor = 0;
+
 	warmStarting();
 }
 

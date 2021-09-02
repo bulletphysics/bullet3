@@ -1024,15 +1024,6 @@ static inline btMatrix3x3 ImpulseMatrix(btScalar dt,
 	//    return effective_mass_inv.inverse() *  Add(effective_mass_inv.inverse(), iimb.inverse()).inverse() * iimb.inverse();
 }
 
-static inline btMatrix3x3 ImpulseMatrixNonInverse(btScalar dt,
-										const btMatrix3x3& effective_mass_inv,
-										btScalar imb,
-										const btMatrix3x3& iwi,
-										const btVector3& r)
-{
-	return Diagonal(1 / dt) * Add(effective_mass_inv, MassMatrix(imb, iwi, r));
-}
-
 //
 static inline btMatrix3x3 ImpulseMatrix(btScalar ima, const btMatrix3x3& iia, const btVector3& ra,
 										btScalar imb, const btMatrix3x3& iib, const btVector3& rb)
@@ -1706,8 +1697,7 @@ struct btSoftColliders
 							const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
 							if (psb->m_reducedModel)
 							{
-								btMatrix3x3 rigid_impulse_factor = ImpulseMatrixNonInverse(1, n.m_effectiveMass_inv, imb, iwi, ra);
-								c.m_c0 = psb->getImpulseFactor(n.index) + rigid_impulse_factor; //impulse factor K (not the inverse)
+								c.m_c0 = MassMatrix(imb, iwi, ra); //impulse factor K of the rigid body only (not the inverse)
 							}
 							else
 							{
