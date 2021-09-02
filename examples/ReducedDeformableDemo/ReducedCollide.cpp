@@ -65,7 +65,7 @@ public:
     
     void Ctor_RbUpStack()
     {
-        float mass = 10;
+        float mass = 8;
         btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
         btTransform startTransform;
         startTransform.setIdentity();
@@ -148,6 +148,7 @@ void ReducedCollide::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
+        rsb->rotate(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
         rsb->translate(btVector3(0, 2, 0));  //TODO: add back translate and scale
         rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);

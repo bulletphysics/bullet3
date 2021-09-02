@@ -123,6 +123,8 @@ class btReducedSoftBody : public btSoftBody
   //
   virtual void translate(const btVector3& trs);
 
+  virtual void rotate(const btQuaternion& rot);
+
   void updateRestNodalPositions();
 
   void updateInertiaTensor();

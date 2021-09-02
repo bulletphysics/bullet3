@@ -69,8 +69,8 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 void btReducedDeformableRigidContactConstraint::setSolverBody(btSolverBody& solver_body)
 {
 	m_solverBody = &solver_body;
-	m_linearComponentNormal = m_contactNormalA * m_solverBody->internalGetInvMass();
-	btVector3	torqueAxis = -m_relPosA.cross(m_contactNormalA);
+	m_linearComponentNormal = -m_contactNormalA * m_solverBody->internalGetInvMass();
+	btVector3	torqueAxis = m_relPosA.cross(m_contactNormalA);
 	m_angularComponentNormal = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
 }
 
@@ -202,33 +202,34 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// apply impulse to the rigid/multibodies involved and change their velocities
 	if (!m_collideStatic)
 	{
+		std::cout << "linear_component: " << m_linearComponentNormal[0] << '\t'
+																			<< m_linearComponentNormal[1] << '\t'
+																			<< m_linearComponentNormal[2] << '\n';
+		std::cout << "angular_component: " << m_angularComponentNormal[0] << '\t'
+																			<< m_angularComponentNormal[1] << '\t'
+																			<< m_angularComponentNormal[2] << '\n';
+
 		const btSoftBody::sCti& cti = m_contact->m_cti;
 		if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 		{
-			// if (!m_collideStatic)
-			// {
-			// 	std::cout << "rigid impulse applied!!\n";
-			// 	std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
-			// 	<< m_solverBody->getDeltaLinearVelocity()[1] << '\t'
-			// 		<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
-			// 	std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
-			// 	<< m_solverBody->getDeltaAngularVelocity()[1] << '\t'
-			// 		<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
-			// }
+			std::cout << "rigid impulse applied!!\n";
+			std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
+			<< m_solverBody->getDeltaLinearVelocity()[1] << '\t'
+				<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
+			std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
+			<< m_solverBody->getDeltaAngularVelocity()[1] << '\t'
+				<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
 
-			m_solverBody->internalApplyImpulse(m_linearComponentNormal, m_angularComponentNormal, -deltaImpulse);
+			m_solverBody->internalApplyImpulse(m_linearComponentNormal, m_angularComponentNormal, deltaImpulse);
 
-			if (!m_collideStatic)
-			{
-				std::cout << "after\n";
-				std::cout << "rigid impulse applied!!\n";
-				std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
-				<< m_solverBody->getDeltaLinearVelocity()[1] << '\t'
-					<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
-				std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
-				<< m_solverBody->getDeltaAngularVelocity()[1] << '\t'
-					<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
-			}
+			std::cout << "after\n";
+			std::cout << "rigid impulse applied!!\n";
+			std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
+			<< m_solverBody->getDeltaLinearVelocity()[1] << '\t'
+				<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
+			std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
+			<< m_solverBody->getDeltaAngularVelocity()[1] << '\t'
+				<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
 		}
 		else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
@@ -289,6 +290,12 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 	btVector3 vb = getVb();
 	m_bufferVelocityA = va;
 	m_bufferVelocityB = vb;
+
+	// add the external impulse force (TODO: add external torque impulse)
+	// if (!m_collideStatic)
+	// {
+	// 	va += m_solverBody->m_originalBody->getTotalForce() * m_solverBody->m_originalBody->getInvMass() * m_dt;
+	// }
 
 	// we define the (+) direction of errors to be the outward surface normal of the rigid object
 	btVector3 v_rel = vb - va;

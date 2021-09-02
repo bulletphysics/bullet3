@@ -376,6 +376,18 @@ void btReducedSoftBody::translate(const btVector3& trs)
   updateInertiaTensor();
 }
 
+void btReducedSoftBody::rotate(const btQuaternion& rot)
+{
+  // translate mesh
+	btSoftBody::rotate(rot);
+  updateRestNodalPositions();
+  
+  // update rigid frame
+  m_rigidTransformWorld.setRotation(rot);
+  m_interpolationWorldTransform = m_rigidTransformWorld;
+  updateInertiaTensor();
+}
+
 void btReducedSoftBody::updateRestNodalPositions()
 {
   // update reset nodal position

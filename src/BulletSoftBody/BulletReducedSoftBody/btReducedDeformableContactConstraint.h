@@ -47,8 +47,8 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btScalar m_erp;
   btScalar m_friction;
 
-  btVector3 m_contactNormalA;     // for rigid body
-  btVector3 m_contactNormalB;     // for reduced deformable body
+  btVector3 m_contactNormalA;     // surface normal for rigid body (opposite direction as impulse)
+  btVector3 m_contactNormalB;     // surface normal for reduced deformable body (opposite direction as impulse)
   btVector3 m_contactTangent;     // tangential direction of the relative velocity
   btVector3 m_relPosA;            // relative position of the contact point for A (rigid)
   btVector3 m_relPosB;            // relative position of the contact point for B
