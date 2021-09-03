@@ -1484,6 +1484,28 @@ B3_SHARED_API int b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle co
 	return -1;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3ResetMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int numVertices, const double* vertices)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	if (cl)
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_RESET_MESH_DATA;
+		command->m_updateFlags = 0;
+		command->m_resetMeshDataArgs.m_numVertices = numVertices;
+		command->m_resetMeshDataArgs.m_bodyUniqueId = bodyUniqueId;
+		command->m_resetMeshDataArgs.m_flags = 0;
+		int totalUploadSizeInBytes = numVertices * sizeof(double) *3;
+		cl->uploadBulletFileToSharedMemory((const char*)vertices, totalUploadSizeInBytes);
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
