@@ -1,4 +1,4 @@
-//#include "D:/dev/visual leak detector/include/vld.h"
+//#include "D:/dev/VisualLeakDetector/include/vld.h"
 
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
@@ -9116,6 +9116,55 @@ static PyObject* pybullet_getMeshData(PyObject* self, PyObject* args, PyObject* 
 	return NULL;
 }
 
+
+static PyObject* pybullet_resetMeshData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int bodyUniqueId = -1;
+	b3PhysicsClientHandle sm = 0;
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	struct b3MeshData meshData;
+	int statusType;
+	PyObject* verticesObj = 0;
+	int physicsClientId = 0;
+	int numVertices = 0;
+
+	static char* kwlist[] = { "bodyUniqueId",  "vertices", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iO|i", kwlist, &bodyUniqueId, &verticesObj, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	numVertices = extractVertices(verticesObj, 0, B3_MAX_NUM_VERTICES);
+	if (numVertices)
+	{
+		double* vertices = numVertices ? malloc(numVertices * 3 * sizeof(double)) : 0;
+		numVertices = extractVertices(verticesObj, vertices, B3_MAX_NUM_VERTICES);
+
+		command = b3ResetMeshDataCommandInit(sm, bodyUniqueId, numVertices, vertices);
+	
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		
+		free(vertices);
+
+		if (statusType == CMD_RESET_MESH_DATA_COMPLETED)
+		{
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+	
+	PyErr_SetString(SpamError, "resetMeshData failed");
+	return NULL;
+}
+
 static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
@@ -12522,8 +12571,11 @@ static PyMethodDef SpamMethods[] = {
 	{"removeCollisionShape", (PyCFunction)pybullet_removeCollisionShape, METH_VARARGS | METH_KEYWORDS,
 	 "Remove a collision shape. Only useful when the collision shape is not used in a body (to perform a getClosestPoint query)."},
 
-     {"getMeshData", (PyCFunction)pybullet_getMeshData, METH_VARARGS | METH_KEYWORDS,
+	{"getMeshData", (PyCFunction)pybullet_getMeshData, METH_VARARGS | METH_KEYWORDS,
 	 "Get mesh data. Returns vertices etc from the mesh."},
+
+	{"resetMeshData", (PyCFunction)pybullet_resetMeshData, METH_VARARGS | METH_KEYWORDS,
+	 "Reset mesh data. Only implemented for deformable bodies."},
 
 	{"createVisualShape", (PyCFunction)pybullet_createVisualShape, METH_VARARGS | METH_KEYWORDS,
 	 "Create a visual shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},

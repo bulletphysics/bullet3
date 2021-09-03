@@ -1306,6 +1306,14 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			}
 			break;
 		}
+		case CMD_RESET_MESH_DATA_COMPLETED:
+		{
+			break;
+		}
+		case CMD_RESET_MESH_DATA_FAILED:
+		{
+			break;
+		}
 		case CMD_REMOVE_STATE_FAILED:
 		{
 			break;
