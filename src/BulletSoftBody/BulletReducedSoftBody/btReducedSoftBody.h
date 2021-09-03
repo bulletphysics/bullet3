@@ -48,6 +48,7 @@ class btReducedSoftBody : public btSoftBody
   btVector3 m_angularFactor;
   btVector3 m_invInertiaLocal;
   btTransform m_rigidTransformWorld;
+  btMatrix3x3 m_invInertiaTensorWorldInitial;
   btMatrix3x3 m_invInertiaTensorWorld;
   btMatrix3x3 m_interpolateInvInertiaTensorWorld;
   btVector3 m_initialOrigin;  // initial center of mass (original of the m_rigidTransformWorld)
@@ -121,11 +122,23 @@ class btReducedSoftBody : public btSoftBody
   //
   // various internal updates
   //
-  virtual void translate(const btVector3& trs);
-
-  virtual void rotate(const btQuaternion& rot);
+  virtual void transform(const btTransform& trs);
+  virtual void translate(const btVector3& trs)
+  {
+    btAssert(false); // use transform().
+  }
+  virtual void rotate(const btQuaternion& rot)
+  {
+    btAssert(false); // use transform().
+  }
+  virtual void scale(const btVector3& scl)
+  {
+    btAssert(false); // scale is NOT supported in the reduced deformable body
+  }
 
   void updateRestNodalPositions();
+
+  void updateInitialInertiaTensor(const btMatrix3x3& rotation);
 
   void updateInertiaTensor();
 

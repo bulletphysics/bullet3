@@ -198,7 +198,7 @@ void BasicTest::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, -10, 0);
+    btVector3 gravity = btVector3(0, 0, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -220,17 +220,22 @@ void BasicTest::initPhysics()
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
-        // rsb->scale(btVector3(1, 1, 1));  //TODO: add back scale
-        rsb->translate(btVector3(0, 4, 0));
+        
+        btTransform init_transform;
+        init_transform.setIdentity();
+        init_transform.setOrigin(btVector3(0, 4, 0));
+        init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
+        rsb->transform(init_transform);
+
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // set fixed nodes
-        rsb->setFixedNodes(0);
-        rsb->setFixedNodes(1);
-        rsb->setFixedNodes(2);
-        rsb->setFixedNodes(3);
+        // rsb->setFixedNodes(0);
+        // rsb->setFixedNodes(1);
+        // rsb->setFixedNodes(2);
+        // rsb->setFixedNodes(3);
         
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body

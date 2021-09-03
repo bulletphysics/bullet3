@@ -1006,13 +1006,13 @@ public:
 	/* Transform to given pose                                              */
 	void transformTo(const btTransform& trs);
 	/* Transform															*/
-	void transform(const btTransform& trs);
+	virtual void transform(const btTransform& trs);
 	/* Translate															*/
 	virtual void translate(const btVector3& trs);
 	/* Rotate															*/
-	void rotate(const btQuaternion& rot);
+	virtual void rotate(const btQuaternion& rot);
 	/* Scale																*/
-	void scale(const btVector3& scl);
+	virtual void scale(const btVector3& scl);
 	/* Get link resting lengths scale										*/
 	btScalar getRestLengthScale();
 	/* Scale resting length of all springs									*/

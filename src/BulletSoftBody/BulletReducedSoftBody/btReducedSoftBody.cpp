@@ -82,31 +82,12 @@ void btReducedSoftBody::setInertiaProps(const btVector3& inertia)
 							  inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
 							  inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
   
-  // // CoM
-  // btVector3 x_com(0,0,0);
-  // for (int i = 0; i < m_nFull; ++i)
-  // {
-  //   x_com += m_nodalMass[i] * m_nodes[i].m_x;
-  // }
-  // x_com /= m_mass;
-
-  // btMatrix3x3 inertia_temp;
-  // inertia_temp.setZero();
-  // for (int i = 0; i < m_nFull; ++i)
-  // {
-  //   btVector3 ri = m_nodes[i].m_x - x_com;
-  //   for (int a = 0; a < 3; ++a)
-  //   {
-  //     for (int b = 0; b < 3; ++b)
-  //     {
-  //       inertia_temp[a][b] += m_nodalMass[i] * ri[a] * ri[b];
-  //     }
-  //   }
-  // }
-  // m_invInertiaLocal = inertia_temp.inverse();
 
 
   // update world inertia tensor
+  btMatrix3x3 rotation;
+  rotation.setIdentity();
+  updateInitialInertiaTensor(rotation);
   updateInertiaTensor();
   m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
 }
@@ -363,28 +344,21 @@ void btReducedSoftBody::proceedToTransform(btScalar dt, bool end_of_time_step)
   m_invInertiaTensorWorld = m_interpolateInvInertiaTensorWorld;
 }
 
-void btReducedSoftBody::translate(const btVector3& trs)
+void btReducedSoftBody::transform(const btTransform& trs)
 {
   // translate mesh
-	btSoftBody::translate(trs);
+	btSoftBody::transform(trs);
   updateRestNodalPositions();
   
-  // update rigid frame
-  m_rigidTransformWorld.setOrigin(trs);
+  // update rigid frame (No need to update the rotation. Nodes have already been updated.)
+  m_rigidTransformWorld.setOrigin(trs.getOrigin());
   m_interpolationWorldTransform = m_rigidTransformWorld;
   m_initialOrigin = m_rigidTransformWorld.getOrigin();
-  updateInertiaTensor();
-}
 
-void btReducedSoftBody::rotate(const btQuaternion& rot)
-{
-  // translate mesh
-	btSoftBody::rotate(rot);
-  updateRestNodalPositions();
-  
-  // update rigid frame
-  m_rigidTransformWorld.setRotation(rot);
-  m_interpolationWorldTransform = m_rigidTransformWorld;
+  updateLocalMomentArm();
+
+  // update inertia tensor
+  updateInitialInertiaTensor(trs.getBasis());
   updateInertiaTensor();
 }
 
@@ -393,12 +367,19 @@ void btReducedSoftBody::updateRestNodalPositions()
   // update reset nodal position
   m_x0.resize(m_nFull);
   for (int i = 0; i < m_nFull; ++i)
-	m_x0[i] = m_nodes[i].m_x;
+  {
+    m_x0[i] = m_nodes[i].m_x;
+  }
+}
+
+void btReducedSoftBody::updateInitialInertiaTensor(const btMatrix3x3& rotation)
+{
+  m_invInertiaTensorWorldInitial = rotation.scaled(m_invInertiaLocal) * rotation.transpose();
 }
 
 void btReducedSoftBody::updateInertiaTensor()
 {
-	m_invInertiaTensorWorld = m_rigidTransformWorld.getBasis().scaled(m_invInertiaLocal) * m_rigidTransformWorld.getBasis().transpose();
+	m_invInertiaTensorWorld = m_rigidTransformWorld.getBasis() * m_invInertiaTensorWorldInitial * m_rigidTransformWorld.getBasis().transpose();
 }
 
 void btReducedSoftBody::applyDamping(btScalar timeStep)
