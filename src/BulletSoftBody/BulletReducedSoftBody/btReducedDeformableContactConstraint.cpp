@@ -70,7 +70,7 @@ void btReducedDeformableRigidContactConstraint::setSolverBody(btSolverBody& solv
 {
 	m_solverBody = &solver_body;
 	m_linearComponentNormal = -m_contactNormalA * m_solverBody->internalGetInvMass();
-	btVector3	torqueAxis = m_relPosA.cross(m_contactNormalA);
+	btVector3	torqueAxis = -m_relPosA.cross(m_contactNormalA);
 	m_angularComponentNormal = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
 }
 
@@ -342,7 +342,7 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVa() const
 	btVector3 deltaVa(0, 0, 0);
 	if (!m_collideStatic)
 	{
-		deltaVa = m_solverBody->internalGetDeltaLinearVelocity() + m_relPosA.cross(m_solverBody->internalGetDeltaAngularVelocity());
+		deltaVa = m_solverBody->internalGetDeltaLinearVelocity() + m_solverBody->internalGetDeltaAngularVelocity().cross(m_relPosA);
 	}
 	return deltaVa;
 }
