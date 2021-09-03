@@ -135,7 +135,8 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 	
 	// calculate the inertia tensor in the local frame 
   btVector3 inertia(0, 0, 0);
-	calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(4, 1, 0.5), btVector3(0, 0, 0));
+	calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(1, 0.5, 4), btVector3(0, 0, 0));
+	// calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(0.5, 0.5, 0.5), btVector3(0, 0, 0));
 	rsb->setInertiaProps(inertia);
 
 	// other internal initialization
@@ -153,7 +154,7 @@ void btReducedSoftBodyHelpers::readBinary(btReducedSoftBody::tDenseArray& vec,
 	// first get size
 	unsigned int size;
 	f_in.read((char*)&size, sizeof(uint32_t));
-	btAssert(size == n_full);
+	// btAssert(size == n_full); //TODO: check here
 
 	// read data
 	vec.resize(n_modes);
@@ -177,7 +178,7 @@ void btReducedSoftBodyHelpers::readBinaryMat(btReducedSoftBody::tDenseMatrix& ma
 	// first get size
 	unsigned int v_size;
 	f_in.read((char*)&v_size, sizeof(uint32_t));
-	btAssert(v_size == n_full * n_full);
+	// btAssert(v_size == n_full * n_full); //TODO: check here
 
 	// read data
 	mat.resize(n_modes);
@@ -209,7 +210,7 @@ void btReducedSoftBodyHelpers::readBinaryModes(btReducedSoftBody::tDenseMatrix& 
 	// first get size
 	unsigned int v_size;
 	f_in.read((char*)&v_size, sizeof(uint32_t));
-	btAssert(v_size == n_full * n_full);
+	// btAssert(v_size == n_full * n_full); //TODO: check here
 
 	// read data
 	mat.resize(n_modes);
