@@ -56,7 +56,8 @@ void MyKeyboardCallback(int keycode, int state)
 		sOldKeyboardCB(keycode, state);
 }
 #include "TinyRenderer.h"
-float color2[4] = { 1,0,0,1 };
+#include "our_gl.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -108,10 +109,11 @@ int main(int argc, char* argv[])
 
 	b3Vector3 pos = b3MakeVector3(0, 0, 0);
 	b3Quaternion orn(0, 0, 0, 1);
+	float color[4] = {1,1,1,1};
 	
 	b3Vector3 scaling = b3MakeVector3(1, 1, 1);
-	//app->m_renderer->registerGraphicsInstance(cubeIndex, pos, orn, color, scaling);
-	//app->m_renderer->writeTransforms();
+	app->m_renderer->registerGraphicsInstance(cubeIndex, pos, orn, color, scaling);
+	app->m_renderer->writeTransforms();
 
 	do
 	{
@@ -160,6 +162,15 @@ int main(int argc, char* argv[])
 		tr.setOrigin(org);
 		tr.getOpenGLMatrix(modelMat);
 
+		TinyRender::Vec3f       eye(1,1,3);
+		TinyRender::Vec3f    center(0,0,0);
+		TinyRender::Vec3f        up(0,1,0);
+    
+		renderData.m_viewMatrix = TinyRender::lookat(eye, center, up);
+		renderData.m_viewportMatrix = TinyRender::viewport(gWidth/8, gHeight/8, gWidth*3/4, gHeight*3/4);
+		renderData.m_projectionMatrix = TinyRender::projection(-1.f/(eye-center).norm());
+
+
 		for (int i = 0; i < 4; i++)
 		{
 			for (int j = 0; j < 4; j++)
@@ -170,6 +181,7 @@ int main(int argc, char* argv[])
 		}
 
 		//render the object
+		float color2[4] = { 1,1,1,1 };
 		renderData.m_model->setColorRGBA(color2);
 		TinyRenderer::renderObject(renderData);
 

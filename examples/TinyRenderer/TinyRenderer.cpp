@@ -213,6 +213,7 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightAmbientCoeff = 0.6;
 	m_lightDiffuseCoeff = 0.35;
 	m_lightSpecularCoeff = 0.05;
+
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedObjectArray<float>& depthBuffer, b3AlignedObjectArray<float>* shadowBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex, int linkIndex)
@@ -254,6 +255,7 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	Vec3f center(0, 0, 0);
 	Vec3f up(0, 0, 1);
 	m_lightDirWorld.setValue(0, 0, 0);
+	m_lightDistance = 10;
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();

@@ -5485,6 +5485,44 @@ static void gatherVertices(const btTransform& trans, const btCollisionShape* col
 		}
 	}
 }
+
+bool PhysicsServerCommandProcessor::processResetMeshDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_REQUEST_MESH_DATA");
+	serverStatusOut.m_type = CMD_RESET_MESH_DATA_FAILED;
+	int sizeInBytes = 0;
+
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestMeshDataArgs.m_bodyUniqueId);
+	if (bodyHandle)
+	{
+		int totalBytesPerVertex = sizeof(btVector3);
+		double* vertexUpload = (double*)bufferServerToClient;
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+
+		if (bodyHandle->m_softBody)
+		{
+			btSoftBody* psb = bodyHandle->m_softBody;
+
+			int numVertices = psb->m_nodes.size();
+			if (clientCmd.m_resetMeshDataArgs.m_numVertices == numVertices)
+			{
+				for (int i = 0; i < numVertices; ++i)
+				{
+					btSoftBody::Node& n = psb->m_nodes[i];
+					n.m_x.setValue(vertexUpload[i*3+0], vertexUpload[i*3+1],vertexUpload[i*3+2]);
+				}
+				serverStatusOut.m_type = CMD_RESET_MESH_DATA_COMPLETED;
+			}
+		}
+#endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	}
+	serverStatusOut.m_numDataStreamBytes = 0;
+
+	return hasStatus;
+}
+
 bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -14345,6 +14383,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+		case CMD_RESET_MESH_DATA:
+		{
+			hasStatus = processResetMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+
 		case CMD_CREATE_MULTI_BODY:
 		{
 			hasStatus = processCreateMultiBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);

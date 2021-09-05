@@ -1521,12 +1521,18 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				b3Warning("Removing user data failed");
 				break;
 			}
+			case CMD_RESET_MESH_DATA_FAILED:
+			{
+				b3Warning("resetMeshData failed");
+				break;
+			}
 			case CMD_REQUEST_USER_DATA_COMPLETED:
 			case CMD_SYNC_USER_DATA_COMPLETED:
 			case CMD_REMOVE_USER_DATA_COMPLETED:
 			case CMD_ADD_USER_DATA_COMPLETED:
 			case CMD_REMOVE_STATE_FAILED:
 			case CMD_REMOVE_STATE_COMPLETED:
+			case CMD_RESET_MESH_DATA_COMPLETED:
 			{
 				break;
 			}
