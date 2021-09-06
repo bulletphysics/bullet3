@@ -394,6 +394,8 @@ SET(BulletExampleBrowser_SRCS
 	../ReducedDeformableDemo/ModeVisualizer.h
 	../ReducedDeformableDemo/FreeFall.cpp
 	../ReducedDeformableDemo/FreeFall.h
+	../ReducedDeformableDemo/FrictionSlope.cpp
+	../ReducedDeformableDemo/FrictionSlope.h
 	../ReducedDeformableDemo/ReducedCollide.cpp
 	../ReducedDeformableDemo/ReducedCollide.h
 	../ReducedDeformableDemo/ReducedGrasp.cpp

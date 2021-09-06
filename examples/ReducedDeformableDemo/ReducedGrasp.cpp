@@ -97,16 +97,18 @@ public:
             }
         }
     }
+
+    static void GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
 };
 
-void GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
+void ReducedGrasp::GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
 {
     btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
     if (rbs.size()<2)
         return;
     btRigidBody* rb0 = rbs[0];
     // btScalar pressTime = 0.9;
-    btScalar pressTime = 1.5;
+    btScalar pressTime = 1;
     btScalar liftTime = 2.5;
     btScalar shiftTime = 3.5;
     btScalar holdTime = 4.5*1000;
@@ -116,8 +118,8 @@ void GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     btVector3 translation;
     btVector3 velocity;
     
-    btVector3 initialTranslationLeft = btVector3(0.5,3,4);
-    btVector3 initialTranslationRight = btVector3(0.5,3,-4);
+    btVector3 initialTranslationLeft = btVector3(0,3,3);            // inner face has z=2
+    btVector3 initialTranslationRight = btVector3(0,3,-3);          // inner face has z=-2
     btVector3 pinchVelocityLeft = btVector3(0,0,-2);
     btVector3 pinchVelocityRight = btVector3(0,0,2);
     btVector3 liftVelocity = btVector3(0,5,0);
@@ -133,6 +135,7 @@ void GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     }
     else if (time < liftTime)
     {
+        exit(1);
         velocity = liftVelocity;
         translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (time - pressTime);
         
@@ -233,7 +236,7 @@ void ReducedGrasp::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        std::string filepath("../../../examples/SoftDemo/");
+        std::string filepath("../../../examples/SoftDemo/beam/");
         std::string filename = filepath + "mesh.vtk";
         btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
         
@@ -242,9 +245,13 @@ void ReducedGrasp::initPhysics()
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
-        // rsb->scale(btVector3(1, 1, 1));
-        rsb->rotate(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
-        rsb->translate(btVector3(0, 2, 0));  //TODO: add back translate and scale
+        
+        btTransform init_transform;
+        init_transform.setIdentity();
+        init_transform.setOrigin(btVector3(0, 4, 0));
+        init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
+        rsb->transform(init_transform);
+
         rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);
 
@@ -256,7 +263,7 @@ void ReducedGrasp::initPhysics()
         rsb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
         
-        rsb->setRigidVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
+        // rsb->setRigidVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
@@ -274,6 +281,16 @@ void ReducedGrasp::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     
     createGrip();
+
+    // {
+    //     float mass = 10;
+    //     btCollisionShape* shape = new btBoxShape(btVector3(0.25, 2, 0.5));
+    //     btTransform startTransform;
+    //     startTransform.setIdentity();
+    //     startTransform.setOrigin(btVector3(0,4,0));
+    //     btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
+    //     rb1->setLinearVelocity(btVector3(0, 0, 0));
+    // }
 
     //create a ground
     {

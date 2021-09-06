@@ -11,7 +11,7 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "FreeFall.h"
+#include "FrictionSlope.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
@@ -35,14 +35,13 @@ static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
 static int num_modes = 1;
 
-class FreeFall : public CommonDeformableBodyBase
+class FrictionSlope : public CommonDeformableBodyBase
 {
 public:
-    FreeFall(struct GUIHelperInterface* helper)
+    FrictionSlope(struct GUIHelperInterface* helper)
         : CommonDeformableBodyBase(helper)
-    {
-    }
-    virtual ~FreeFall()
+    {}
+    virtual ~FrictionSlope()
     {
     }
     void initPhysics();
@@ -56,14 +55,10 @@ public:
 
     void resetCamera()
     {
-        // float dist = 10;
-        // float pitch = -20;
-        // float yaw = 90;
-        // float targetPos[3] = {0, 0, 0.5};
         float dist = 20;
-        float pitch = -30;
-        float yaw = 125;
-        float targetPos[3] = {-2, 0, 2};
+        float pitch = -20;
+        float yaw = 90;
+        float targetPos[3] = {0, 0, 0.5};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
@@ -71,16 +66,27 @@ public:
     {
         float mass = 10;
         // btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
-        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
+        btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.25, 2));
         btTransform startTransform;
         startTransform.setIdentity();
-        // startTransform.setOrigin(btVector3(0, 12, 0));
-        // btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
-        // rb0->setLinearVelocity(btVector3(0, 0, 0));
 
-        startTransform.setOrigin(btVector3(0,10,0));
+        startTransform.setOrigin(btVector3(0,4,0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setLinearVelocity(btVector3(0, 0, 0));
+    }
+
+    void createGround()
+    {
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(2), btScalar(10)));
+        m_collisionShapes.push_back(groundShape);
+
+        btTransform groundTransform;
+        groundTransform.setIdentity();
+        // groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
+        groundTransform.setOrigin(btVector3(0, 0, 0));
+        btScalar mass(1e6);
+        btRigidBody* ground = createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
+        // ground->setFriction(1);
     }
     
     void stepSimulation(float deltaTime)
@@ -93,7 +99,6 @@ public:
     {
         CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
-        // int flag = 0;
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
@@ -112,16 +117,54 @@ public:
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
                 }
-
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 5, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 10, 0), 0.1, btVector3(1, 1, 1));
             }
         }
     }
 };
 
-void FreeFall::initPhysics()
+namespace FrictionSlopeHelper 
+{
+    void groundMotion(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
+    {
+        btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
+
+        btRigidBody* ground = rbs[0];
+        btAssert(ground->getMass() > 1e5);
+
+        btScalar start_time = 2;
+        btScalar end_time = 8;
+        btScalar start_angle = 0;
+        btScalar end_angle = SIMD_PI / 6;
+        btScalar current_angle = 0;
+        btScalar turn_speed = (end_angle - start_angle) / (end_time - start_time);
+
+        if (time >= start_time)
+        {
+            current_angle = (time - start_time) * turn_speed;
+            if (time > end_time)
+            {
+                current_angle = end_angle;
+                turn_speed = 0;
+            }
+        }
+        else
+        {
+            current_angle = start_angle;
+            turn_speed = 0;
+        }
+        
+        btTransform groundTransform;
+        groundTransform.setIdentity();
+        // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
+        groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), current_angle));
+
+        ground->setCenterOfMassTransform(groundTransform);
+        ground->setLinearVelocity(btVector3(0, 0, 0));
+        ground->setAngularVelocity(btVector3(0, 0, 0));
+    }
+};
+
+void FrictionSlope::initPhysics()
 {
     m_guiHelper->setUpAxis(1);
 
@@ -158,17 +201,9 @@ void FreeFall::initPhysics()
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 4, 0));
-        // init_transform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 4.0));
-        // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
         rsb->transform(init_transform);
-
-        // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);
-        // rsb->setFriction(200);
-        
-        // no fixed nodes
-        // rsb->setFixedNodes(0);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -177,49 +212,27 @@ void FreeFall::initPhysics()
         rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
         rsb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
-        
-        // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
-        // rsb->setRigidVelocity(btVector3(0, 0, 1));
-        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
-        
-        // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
-        // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);
-        // m_forces.push_back(gravity_force);
     }
-    // create a static rigid box as the ground
-    {
-        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(2), btScalar(10)));
-        m_collisionShapes.push_back(groundShape);
 
-        btTransform groundTransform;
-        groundTransform.setIdentity();
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-        // groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
-        groundTransform.setOrigin(btVector3(0, 0, 0));
-        // groundTransform.setOrigin(btVector3(0, 0, 6));
-        // groundTransform.setOrigin(btVector3(0, -50, 0));
-        {
-            btScalar mass(0.);
-            createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
-        }
-    }
+    createGround();
+    // add a few rigid bodies
+    // Ctor_RbUpStack();
 
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.3;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
-    // add a few rigid bodies
-    Ctor_RbUpStack();
-    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+    getDeformableDynamicsWorld()->setSolverCallback(FrictionSlopeHelper::groundMotion);
     m_dynamicsWorld->setGravity(gravity);
+    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void FreeFall::exitPhysics()
+void FrictionSlope::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
     removePickingConstraint();
@@ -265,9 +278,9 @@ void FreeFall::exitPhysics()
 
 
 
-class CommonExampleInterface* ReducedFreeFallCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* FrictionSlopeCreateFunc(struct CommonExampleOptions& options)
 {
-    return new FreeFall(options.m_guiHelper);
+    return new FrictionSlope(options.m_guiHelper);
 }
 
 

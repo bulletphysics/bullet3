@@ -75,6 +75,7 @@
 #include "../ReducedDeformableDemo/ModeVisualizer.h"
 #include "../ReducedDeformableDemo/BasicTest.h"
 #include "../ReducedDeformableDemo/FreeFall.h"
+#include "../ReducedDeformableDemo/FrictionSlope.h"
 #include "../ReducedDeformableDemo/ReducedCollide.h"
 #include "../ReducedDeformableDemo/ReducedGrasp.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
@@ -226,6 +227,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Reduced Free Fall", "Free fall ground contact test for the reduced deformable model", ReducedFreeFallCreateFunc),
 		ExampleEntry(1, "Reduced Collision Test", "Collision between a reduced block and the a rigid block", ReducedCollideCreateFunc),
 		ExampleEntry(1, "Reduced Grasp", "Grasp a reduced deformable block", ReducedGraspCreateFunc),
+		ExampleEntry(1, "Reduced Friction Slope", "Grasp a reduced deformable block", FrictionSlopeCreateFunc),
 		// ExampleEntry(1, "Simple Reduced Deformable Test", "Simple dynamics test for the reduced deformable objects", ReducedBasicTestCreateFunc),
         
 #ifdef INCLUDE_CLOTH_DEMOS
