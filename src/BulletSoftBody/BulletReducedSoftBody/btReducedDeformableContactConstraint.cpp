@@ -73,8 +73,8 @@ void btReducedDeformableRigidContactConstraint::setSolverBody(btSolverBody& solv
 	btVector3	torqueAxis = -m_relPosA.cross(m_contactNormalA);
 	m_angularComponentNormal = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
 	
-	m_linearComponentTangent = -m_contactTangent * m_solverBody->internalGetInvMass();
-	btVector3 torqueAxisTangent = -m_relPosA.cross(m_contactNormalA);
+	m_linearComponentTangent = m_contactTangent * m_solverBody->internalGetInvMass();
+	btVector3 torqueAxisTangent = m_relPosA.cross(m_contactTangent);
 	m_angularComponentTangent = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxisTangent;
 }
 
@@ -166,6 +166,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 
 		// initial relative tangential veloity magnitude
 		btScalar v_rel_tangent = abs((Va - getVb()).dot(m_contactTangent));
+		std::cout << "v_rel_tangent: " << v_rel_tangent << '\n';
 		btScalar deltaV_rel_tangent = deltaV_rel.dot(m_contactTangent);
 		std::cout << "deltaV_rel_tangent: " << deltaV_rel_tangent << "\n";
 		btScalar v_rel_tangent_budget = v_rel_tangent - deltaV_rel_tangent;
@@ -234,7 +235,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 				<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
 
 			m_solverBody->internalApplyImpulse(m_linearComponentNormal, m_angularComponentNormal, deltaImpulse);
-			// m_solverBody->internalApplyImpulse(m_linearComponentTangent, m_angularComponentTangent, deltaImpulse_tangent);
+			m_solverBody->internalApplyImpulse(m_linearComponentTangent, m_angularComponentTangent, deltaImpulse_tangent);
 
 			std::cout << "after\n";
 			std::cout << "rigid impulse applied!!\n";
