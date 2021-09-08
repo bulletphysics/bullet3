@@ -51,6 +51,7 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 	m_appliedNormalImpulse = 0;
   m_appliedTangentImpulse = 0;
 	m_rhs = 0;
+	m_rhs_tangent = 0;
 	m_cfm = 0;
 	m_erp = infoGlobal.m_deformable_erp;
 	m_friction = infoGlobal.m_friction;
@@ -115,6 +116,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 
 	// if (!m_collideStatic)
 	// {
+		std::cout << "deltaV_rel: " << deltaV_rel[0] << '\t' << deltaV_rel[1] << '\t' << deltaV_rel[2] << "\n";
 		std::cout << "deltaV_rel_normal: " << deltaV_rel_normal << "\n";
 		std::cout << "normal_A: " << m_contactNormalA[0] << '\t' << m_contactNormalA[1] << '\t' << m_contactNormalA[2] << '\n';
 	// }
@@ -143,11 +145,11 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 		}	
 	}
 
-	if (!m_collideStatic)
-	{
+	// if (!m_collideStatic)
+	// {
 		std::cout << "m_appliedNormalImpulse: " << m_appliedNormalImpulse << '\n';
 		std::cout << "deltaImpulse: " << deltaImpulse << '\n';
-	}
+	// }
 
 	// residual is the nodal normal velocity change in current iteration
 	btScalar residualSquare = deltaImpulse * m_normalImpulseFactor;	// get residual
@@ -157,31 +159,10 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// apply Coulomb friction (based on delta velocity, |dv_t| = |dv_n * friction|)
 	btScalar deltaImpulse_tangent = 0;
 	{
-		// trial velocity change
-		// deltaImpulse_tangent = m_friction * deltaImpulse;
-		// btScalar deltaV_tangent_trial = deltaImpulse_tangent * m_tangentImpulseFactor;
-
-		btScalar total_deltaV_rel_normal = m_appliedNormalImpulse * m_normalImpulseFactor;
-		btScalar deltaV_tangent_trial = abs(m_friction * total_deltaV_rel_normal);
-
-		// initial relative tangential veloity magnitude
-		btScalar v_rel_tangent = abs((Va - getVb()).dot(m_contactTangent));
-		std::cout << "v_rel_tangent: " << v_rel_tangent << '\n';
-		btScalar deltaV_rel_tangent = deltaV_rel.dot(m_contactTangent);
-		std::cout << "deltaV_rel_tangent: " << deltaV_rel_tangent << "\n";
-		btScalar v_rel_tangent_budget = v_rel_tangent - deltaV_rel_tangent;
-
-		// if the trial velocity change is greater than the current tangential relative velocity
-		if (deltaV_tangent_trial > v_rel_tangent_budget)
-		{	
-			std::cout << "clamped!!\n";
-			deltaImpulse_tangent = v_rel_tangent_budget / m_tangentImpulseFactor;
-		}
-		else
-		{
-			std::cout << "ok. not too big\n";
-			deltaImpulse_tangent = deltaV_tangent_trial / m_tangentImpulseFactor;
-		}
+		// calculate how much impulse is needed
+		btScalar deltaV_rel_tangent = btDot(deltaV_rel, m_contactTangent);
+		btScalar impulse_changed = deltaV_rel_tangent * m_tangentImpulseFactorInv;
+		deltaImpulse_tangent = m_rhs_tangent - impulse_changed;
 
 		btScalar sum = m_appliedTangentImpulse + deltaImpulse_tangent;
 		btScalar lower_limit = - m_appliedNormalImpulse * m_friction;
@@ -202,6 +183,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 		}
 
 		std::cout << "m_contactTangent: " << m_contactTangent[0] << "\t"  << m_contactTangent[1] << "\t"  << m_contactTangent[2] << "\n";
+		std::cout << "deltaV_rel_tangent: " << deltaV_rel_tangent << '\n';
 		std::cout << "deltaImpulseTangent: " << deltaImpulse_tangent << '\n';
 		std::cout << "m_appliedTangentImpulse: " << m_appliedTangentImpulse << '\n';
 	}
@@ -315,25 +297,45 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 	// we define the (+) direction of errors to be the outward surface normal of the rigid object
 	btVector3 v_rel = vb - va;
 	// get tangent direction of the relative velocity
-	m_contactTangent = (v_rel - v_rel.dot(m_contactNormalA) * m_contactNormalA).safeNormalize();
-
-	// tangent impulse factor
-	m_tangentImpulseFactor = (m_impulseFactor * m_contactTangent).dot(m_contactTangent);
-
-	btScalar velocity_error = btDot(v_rel, m_contactNormalA);	// magnitude of relative velocity
-	btScalar position_error = 0;
-	if (m_penetration > 0)
+	btVector3 v_tangent = v_rel - v_rel.dot(m_contactNormalA) * m_contactNormalA;
+	if (v_tangent.norm() < SIMD_EPSILON)
 	{
-		// velocity_error += m_penetration / m_dt; // TODO: why?
+		m_contactTangent = btVector3(0, 0, 0);
+		// tangent impulse factor
+		m_tangentImpulseFactor = 0;
+		m_tangentImpulseFactorInv = 0;
 	}
 	else
 	{
-		// add penetration correction vel
-		position_error = m_penetration * m_erp / m_dt;
+		m_contactTangent = v_tangent.normalize();
+		// tangent impulse factor
+		m_tangentImpulseFactor = (m_impulseFactor * m_contactTangent).dot(m_contactTangent);
+		m_tangentImpulseFactorInv = btScalar(1) / m_tangentImpulseFactor;
 	}
-	// get the initial estimate of impulse magnitude to be applied
-	// m_rhs = -velocity_error * m_normalImpulseFactorInv;
-	m_rhs = -(velocity_error + position_error) / m_normalImpulseFactor;
+
+
+	// initial guess for normal impulse
+	{
+		btScalar velocity_error = btDot(v_rel, m_contactNormalA);	// magnitude of relative velocity
+		btScalar position_error = 0;
+		if (m_penetration > 0)
+		{
+			// velocity_error += m_penetration / m_dt; // TODO: why?
+		}
+		else
+		{
+			// add penetration correction vel
+			position_error = m_penetration * m_erp / m_dt;
+		}
+		// get the initial estimate of impulse magnitude to be applied
+		m_rhs = -(velocity_error + position_error) / m_normalImpulseFactor;
+	}
+
+	// initial guess for tangential impulse
+	{
+		btScalar velocity_error = btDot(v_rel, m_contactTangent);
+		m_rhs_tangent = velocity_error * m_tangentImpulseFactorInv;
+	}
 
 	// warm starting
 	// applyImpulse(m_rhs * m_contactNormalA);

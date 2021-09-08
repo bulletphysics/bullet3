@@ -77,10 +77,11 @@ public:
         // btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
         // rb0->setLinearVelocity(btVector3(0, 0, 0));
 
-        startTransform.setOrigin(btVector3(0,4,0));
+        startTransform.setOrigin(btVector3(0,4,-1));
         // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 4.0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
-        rb1->setLinearVelocity(btVector3(0, 0, 0));
+        rb1->setActivationState(DISABLE_DEACTIVATION);
+        rb1->setLinearVelocity(btVector3(0, 0, 4));
     }
     
     void stepSimulation(float deltaTime)
@@ -273,10 +274,10 @@ void FreeFall::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.0;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.3;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
+    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
     Ctor_RbUpStack();
