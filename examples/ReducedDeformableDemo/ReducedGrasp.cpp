@@ -51,9 +51,13 @@ public:
 
 	void resetCamera()
 	{
-        float dist = 25;
-        float pitch = -30;
-        float yaw = 100;
+        float dist = 15;
+        float pitch = -10;
+        float yaw = 90;
+        
+        // float dist = 25;
+        // float pitch = -30;
+        // float yaw = 100;
         float targetPos[3] = {0, -0, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
@@ -61,26 +65,32 @@ public:
     void stepSimulation(float deltaTime)
     {
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
+        // float internalTimeStep = 1. / 240.f;
+        // m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
+        float internalTimeStep = 1. / 60.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
     void createGrip()
     {
         int count = 2;
         float mass = 1e6;
-        btCollisionShape* shape[] = {
-            new btBoxShape(btVector3(3, 4, 0.5)),
-        };
-        static const int nshapes = sizeof(shape) / sizeof(shape[0]);
-        for (int i = 0; i < count; ++i)
+        btCollisionShape* shape = new btBoxShape(btVector3(3, 4, 0.5));
         {
             btTransform startTransform;
             startTransform.setIdentity();
-            startTransform.setOrigin(btVector3(10, 0, 0));
+            startTransform.setOrigin(btVector3(0,4,3));
             startTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
-            createRigidBody(mass, startTransform, shape[i % nshapes]);
+            createRigidBody(mass, startTransform, shape);
         }
+        {
+            btTransform startTransform;
+            startTransform.setIdentity();
+            startTransform.setOrigin(btVector3(0,4,-3));
+            startTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
+            createRigidBody(mass, startTransform, shape);
+        }
+        
     }
 
     void Ctor_RbUpStack()
@@ -90,7 +100,7 @@ public:
         btTransform startTransform;
         startTransform.setIdentity();
 
-        startTransform.setOrigin(btVector3(0,4,0));
+        startTransform.setOrigin(btVector3(0,9.5,0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setLinearVelocity(btVector3(0, 0, 0));
         rb1->setFriction(0.7);
@@ -103,10 +113,15 @@ public:
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
-            btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
+            btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
             {
-                btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
-                btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
+                btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
+                btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
+            }
+
+            for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
+            {
+                deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
             }
         }
     }
@@ -121,6 +136,7 @@ void ReducedGrasp::GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsW
         return;
     btRigidBody* rb0 = rbs[0];
     // btScalar pressTime = 0.9;
+    // btScalar pressTime = 0.96;
     btScalar pressTime = 1;
     btScalar liftTime = 2.5;
     btScalar shiftTime = 3.5;
@@ -146,37 +162,37 @@ void ReducedGrasp::GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsW
         velocity = pinchVelocityLeft;
         translation = initialTranslationLeft + pinchVelocityLeft * time;
     }
-    else
-    {
-        velocity = pinchVelocityRight;
-        translation = initialTranslationLeft + pinchVelocityLeft * pressTime;
-    }
-    // else if (time < liftTime)
-    // {
-    //     velocity = liftVelocity;
-    //     translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (time - pressTime);
-        
-    // }
-    // else if (time < shiftTime)
-    // {
-    //     velocity = shiftVelocity;
-    //     translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (time - liftTime);
-    // }
-    // else if (time < holdTime)
-    // {
-    //     velocity = btVector3(0,0,0);
-    //     translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (time - shiftTime);
-    // }
-    // else if (time < dropTime)
-    // {
-    //     velocity = openVelocityLeft;
-    //     translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityLeft * (time - holdTime);
-    // }
     // else
     // {
-    //     velocity = holdVelocity;
-    //     translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityLeft * (dropTime - holdTime);
+    //     velocity = pinchVelocityRight;
+    //     translation = initialTranslationLeft + pinchVelocityLeft * pressTime;
     // }
+    else if (time < liftTime)
+    {
+        velocity = liftVelocity;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (time - pressTime);
+        
+    }
+    else if (time < shiftTime)
+    {
+        velocity = shiftVelocity;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (time - liftTime);
+    }
+    else if (time < holdTime)
+    {
+        velocity = btVector3(0,0,0);
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (time - shiftTime);
+    }
+    else if (time < dropTime)
+    {
+        velocity = openVelocityLeft;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityLeft * (time - holdTime);
+    }
+    else
+    {
+        velocity = holdVelocity;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityLeft * (dropTime - holdTime);
+    }
     rbTransform.setOrigin(translation);
     rbTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
     rb0->setCenterOfMassTransform(rbTransform);
@@ -189,37 +205,37 @@ void ReducedGrasp::GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsW
         velocity = pinchVelocityRight;
         translation = initialTranslationRight + pinchVelocityRight * time;
     }
-    else
-    {
-        velocity = pinchVelocityRight;
-        translation = initialTranslationRight + pinchVelocityRight * pressTime;
-    }
-    // else if (time < liftTime)
-    // {
-    //     velocity = liftVelocity;
-    //     translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (time - pressTime);
-        
-    // }
-    // else if (time < shiftTime)
-    // {
-    //     velocity = shiftVelocity;
-    //     translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (time - liftTime);
-    // }
-    // else if (time < holdTime)
-    // {
-    //     velocity = btVector3(0,0,0);
-    //     translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (time - shiftTime);
-    // }
-    // else if (time < dropTime)
-    // {
-    //     velocity = openVelocityRight;
-    //     translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityRight * (time - holdTime);
-    // }
     // else
     // {
-    //     velocity = holdVelocity;
-    //     translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityRight * (dropTime - holdTime);
+    //     velocity = pinchVelocityRight;
+    //     translation = initialTranslationRight + pinchVelocityRight * pressTime;
     // }
+    else if (time < liftTime)
+    {
+        velocity = liftVelocity;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (time - pressTime);
+        
+    }
+    else if (time < shiftTime)
+    {
+        velocity = shiftVelocity;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (time - liftTime);
+    }
+    else if (time < holdTime)
+    {
+        velocity = btVector3(0,0,0);
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (time - shiftTime);
+    }
+    else if (time < dropTime)
+    {
+        velocity = openVelocityRight;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityRight * (time - holdTime);
+    }
+    else
+    {
+        velocity = holdVelocity;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityRight * (dropTime - holdTime);
+    }
     rbTransform.setOrigin(translation);
     rbTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
     rb1->setCenterOfMassTransform(rbTransform);
@@ -242,7 +258,7 @@ void ReducedGrasp::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, -10, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -266,15 +282,16 @@ void ReducedGrasp::initPhysics()
         btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.1);
+        rsb->getCollisionShape()->setMargin(0.015);
         
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 4, 0));
-        init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
+        // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
+        init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(10);
+        rsb->setStiffnessScale(200);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -297,10 +314,10 @@ void ReducedGrasp::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
+    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     
     // grippers

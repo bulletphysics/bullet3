@@ -56,14 +56,14 @@ public:
 
     void resetCamera()
     {
-        float dist = 10;
-        float pitch = -20;
-        float yaw = 90;
-        float targetPos[3] = {0, 0, 0.5};
-        // float dist = 20;
-        // float pitch = -30;
-        // float yaw = 125;
-        // float targetPos[3] = {-2, 0, 2};
+        // float dist = 10;
+        // float pitch = -20;
+        // float yaw = 90;
+        // float targetPos[3] = {0, 0, 0.5};
+        float dist = 20;
+        float pitch = -30;
+        float yaw = 125;
+        float targetPos[3] = {-2, 0, 2};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
@@ -108,7 +108,6 @@ public:
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
                 }
-                // static int num = 0;
                 for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
@@ -158,13 +157,13 @@ void FreeFall::initPhysics()
 
         btTransform init_transform;
         init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 2.5, 0));
-        // init_transform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 4.0));
-        // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
+        init_transform.setOrigin(btVector3(0, 10, 0));
+        init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
+        // init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, 0));
         rsb->transform(init_transform);
 
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(10);
+        rsb->setStiffnessScale(200);
         rsb->setDamping(damping_alpha, damping_beta);
         // rsb->setFriction(200);
         
@@ -272,15 +271,15 @@ void FreeFall::initPhysics()
 
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
-    getDeformableDynamicsWorld()->setUseProjection(true);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.3;
+    getDeformableDynamicsWorld()->setUseProjection(false);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
-    Ctor_RbUpStack();
+    // Ctor_RbUpStack();
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     m_dynamicsWorld->setGravity(gravity);
 }

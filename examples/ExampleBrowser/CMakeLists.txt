@@ -400,6 +400,8 @@ SET(BulletExampleBrowser_SRCS
 	../ReducedDeformableDemo/ReducedCollide.h
 	../ReducedDeformableDemo/ReducedGrasp.cpp
 	../ReducedDeformableDemo/ReducedGrasp.h
+	../ReducedDeformableDemo/ReducedMotorGrasp.cpp
+	../ReducedDeformableDemo/ReducedMotorGrasp.h
   ../Constraints/TestHingeTorque.cpp
   ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp

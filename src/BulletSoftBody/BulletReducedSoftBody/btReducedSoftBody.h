@@ -136,12 +136,18 @@ class btReducedSoftBody : public btSoftBody
     btAssert(false); // scale is NOT supported in the reduced deformable body
   }
 
+ private:
   void updateRestNodalPositions();
 
   void updateInitialInertiaTensor(const btMatrix3x3& rotation);
 
+  void updateInitialInertiaTensorFromNodes();
+
   void updateInertiaTensor();
 
+  void updateModesByRotation(const btMatrix3x3& rotation);
+ 
+ public:
   void updateLocalMomentArm();
 
   void predictIntegratedTransform(btScalar dt, btTransform& predictedTransform);

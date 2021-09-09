@@ -82,9 +82,9 @@ public:
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        // groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
+        groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
         groundTransform.setOrigin(btVector3(0, 0, 0));
-        btScalar mass(1e6);
+        btScalar mass(0);
         btRigidBody* ground = createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
         // ground->setFriction(1);
     }
@@ -222,12 +222,12 @@ void FrictionSlope::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.6;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
-    getDeformableDynamicsWorld()->setSolverCallback(FrictionSlopeHelper::groundMotion);
+    // getDeformableDynamicsWorld()->setSolverCallback(FrictionSlopeHelper::groundMotion);
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }

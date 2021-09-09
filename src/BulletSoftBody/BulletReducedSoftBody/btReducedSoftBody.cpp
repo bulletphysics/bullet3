@@ -8,7 +8,7 @@
 btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
  : btSoftBody(worldInfo, node_count, x, m)
 {
-  m_rigidOnly = true;     //! only use rigid frame to debug
+  m_rigidOnly = false;     //! only use rigid frame to debug
 
   // reduced deformable
   m_reducedModel = true;
@@ -27,7 +27,6 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
 	m_angularFactor.setValue(1, 1, 1);
 	m_linearFactor.setValue(1, 1, 1);
   m_invInertiaLocal.setValue(1, 1, 1);
-  // m_invInertiaLocal.setZero();
   m_mass = 0.0;
   m_inverseMass = 0.0;
 
@@ -88,6 +87,7 @@ void btReducedSoftBody::setInertiaProps(const btVector3& inertia)
   btMatrix3x3 rotation;
   rotation.setIdentity();
   updateInitialInertiaTensor(rotation);
+  // updateInitialInertiaTensorFromNodes();
   updateInertiaTensor();
   m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
 }
@@ -358,7 +358,10 @@ void btReducedSoftBody::transform(const btTransform& trs)
 
   // update inertia tensor
   updateInitialInertiaTensor(trs.getBasis());
+  // updateInitialInertiaTensorFromNodes();
   updateInertiaTensor();
+  // update modes
+  updateModesByRotation(trs.getBasis());
 }
 
 void btReducedSoftBody::updateRestNodalPositions()
@@ -371,9 +374,45 @@ void btReducedSoftBody::updateRestNodalPositions()
   }
 }
 
+void btReducedSoftBody::updateInitialInertiaTensorFromNodes()
+{
+  btMatrix3x3 inertia_tensor;
+  inertia_tensor.setZero();
+
+  for (int p = 0; p < m_nFull; ++p)
+  {
+    btVector3 r = m_nodes[p].m_x - m_initialOrigin;
+    for (int i = 0; i < 3; ++i)
+    {
+      for (int j = 0; j < 3; ++j)
+      {
+        inertia_tensor[i][j] += m_nodalMass[p] * r[i] * r[j];
+      }
+    }
+  }
+  m_invInertiaTensorWorldInitial = inertia_tensor.inverse();
+}
+
 void btReducedSoftBody::updateInitialInertiaTensor(const btMatrix3x3& rotation)
 {
   m_invInertiaTensorWorldInitial = rotation.scaled(m_invInertiaLocal) * rotation.transpose();
+}
+
+void btReducedSoftBody::updateModesByRotation(const btMatrix3x3& rotation)
+{
+  for (int r = 0; r < m_nReduced; ++r)
+  {
+    for (int i = 0; i < m_nFull; ++i)
+    {
+      btVector3 nodal_disp(m_modes[r][3 * i], m_modes[r][3 * i + 1], m_modes[r][3 * i + 2]);
+      nodal_disp = rotation * nodal_disp;
+
+      for (int k = 0; k < 3; ++k)
+      {
+        m_modes[r][3 * i + k] = nodal_disp[k];
+      }
+    }
+  }
 }
 
 void btReducedSoftBody::updateInertiaTensor()
@@ -533,7 +572,7 @@ void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, 
     applyFullSpaceNodalForce(impulse / dt, n_node);
 
     // update reduced internal force
-    applyReducedDampingForce(m_reducedVelocity);
+    applyReducedDampingForce(m_reducedVelocity); //TODO: this needs to be the current velocity
 
     // delta reduced velocity
     for (int r = 0; r < m_nReduced; ++r)
