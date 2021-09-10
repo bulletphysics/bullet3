@@ -134,13 +134,13 @@ public:
     void stepSimulation(float deltaTime)
     {
       // TODO: remove this. very hacky way of adding initial deformation
-      // btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
-      // if (first_step /* && !rsb->m_bUpdateRtCst*/) 
-      // {
-      //   getDeformedShape(rsb, 0, 1);
-      //   first_step = false;
-      //   // rsb->mapToReducedDofs();
-      // }
+      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
+      if (first_step /* && !rsb->m_bUpdateRtCst*/) 
+      {
+        getDeformedShape(rsb, 0, 1);
+        first_step = false;
+        // rsb->mapToReducedDofs();
+      }
       
       float internalTimeStep = 1. / 60.f;
     //   float internalTimeStep = 1e-3;
@@ -211,7 +211,7 @@ void BasicTest::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        std::string filepath("../../../examples/SoftDemo/");
+        std::string filepath("../../../examples/SoftDemo/beam/");
         std::string filename = filepath + "mesh.vtk";
         btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
         
@@ -247,7 +247,7 @@ void BasicTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
         // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);

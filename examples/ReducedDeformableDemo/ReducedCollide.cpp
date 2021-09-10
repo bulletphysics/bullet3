@@ -33,7 +33,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 4;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 20;
 
 class ReducedCollide : public CommonDeformableBodyBase
 {
@@ -65,8 +65,8 @@ public:
     
     void Ctor_RbUpStack()
     {
-        float mass = 8;
-        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
+        float mass = 55;
+        btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
         btTransform startTransform;
         startTransform.setIdentity();
         startTransform.setOrigin(btVector3(0,-2,0));
@@ -138,7 +138,7 @@ void ReducedCollide::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        std::string filepath("../../../examples/SoftDemo/beam/");
+        std::string filepath("../../../examples/SoftDemo/cube/");
         std::string filename = filepath + "mesh.vtk";
         btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
         
@@ -146,14 +146,14 @@ void ReducedCollide::initPhysics()
         btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.1);
+        rsb->getCollisionShape()->setMargin(0.01);
         
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 2, 0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(10);
+        rsb->setStiffnessScale(50);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

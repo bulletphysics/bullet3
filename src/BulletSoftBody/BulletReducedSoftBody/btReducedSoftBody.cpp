@@ -199,7 +199,7 @@ void btReducedSoftBody::updateExternalForceProjectMatrix(bool initialized)
     {
       btMatrix3x3 r_star = Cross(m_localMomentArm[i]);
       btVector3 s_ri(m_modes[r][3 * i], m_modes[r][3 * i + 1], m_modes[r][3 * i + 2]);
-      btVector3 prod_i = r_star.scaled(m_invInertiaLocal) * r_star * s_ri;
+      btVector3 prod_i = r_star * m_invInertiaTensorWorld * r_star * s_ri;
 
       for (int k = 0; k < 3; ++k)
         m_projCq[r][3 * i + k] = m_nodalMass[i] * prod_i[k];
@@ -338,7 +338,8 @@ const btVector3 btReducedSoftBody::internalComputeNodeDeltaVelocity(const btTran
 void btReducedSoftBody::proceedToTransform(btScalar dt, bool end_of_time_step)
 {
   btTransformUtil::integrateTransform(m_rigidTransformWorld, m_linearVelocity, m_angularVelocity, dt, m_interpolationWorldTransform);
-  m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.getBasis().scaled(m_invInertiaLocal) * m_interpolationWorldTransform.getBasis().transpose();
+  updateInertiaTensor();
+  // m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.getBasis().scaled(m_invInertiaLocal) * m_interpolationWorldTransform.getBasis().transpose();
   m_rigidTransformWorld = m_interpolationWorldTransform;
   m_invInertiaTensorWorld = m_interpolateInvInertiaTensorWorld;
 }
@@ -347,21 +348,20 @@ void btReducedSoftBody::transform(const btTransform& trs)
 {
   // translate mesh
 	btSoftBody::transform(trs);
-  updateRestNodalPositions();
+  // update modes
+  updateModesByRotation(trs.getBasis());
+
+  // update inertia tensor
+  updateInitialInertiaTensor(trs.getBasis());
+  updateInertiaTensor();
+  m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
   
   // update rigid frame (No need to update the rotation. Nodes have already been updated.)
   m_rigidTransformWorld.setOrigin(trs.getOrigin());
   m_interpolationWorldTransform = m_rigidTransformWorld;
   m_initialOrigin = m_rigidTransformWorld.getOrigin();
 
-  updateLocalMomentArm();
-
-  // update inertia tensor
-  updateInitialInertiaTensor(trs.getBasis());
-  // updateInitialInertiaTensorFromNodes();
-  updateInertiaTensor();
-  // update modes
-  updateModesByRotation(trs.getBasis());
+  internalInitialization();
 }
 
 void btReducedSoftBody::updateRestNodalPositions()

@@ -85,14 +85,14 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 {
 	btVector3 Va = getVa();
 	// btVector3 deltaVa = Va - m_bufferVelocityA;
-	if (!m_collideStatic)
-	{
+	// if (!m_collideStatic)
+	// {
 		std::cout << "moving collision!!!\n";
 		std::cout << "relPosA: " << m_relPosA[0] << "\t" << m_relPosA[1] << "\t" << m_relPosA[2] << "\n";
 		// std::cout << "moving rigid linear_vel: " << m_solverBody->m_originalBody->getLinearVelocity()[0] << '\t'
 		//  << m_solverBody->m_originalBody->getLinearVelocity()[1] << '\t'
 		//   << m_solverBody->m_originalBody->getLinearVelocity()[2] << '\n';
-	}
+	// }
 	btVector3 deltaVa = getDeltaVa();
 	btVector3 deltaVb = getDeltaVb();
 
@@ -115,11 +115,11 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	
 	// get the normal impulse to be applied
 	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
-	if (!m_collideStatic)
-	{
+	// if (!m_collideStatic)
+	// {
 		std::cout << "m_rhs: " << m_rhs << '\t' << "m_appliedNormalImpulse: "  << m_appliedNormalImpulse << "\n";
 		std::cout << "m_normalImpulseFactor: " << m_normalImpulseFactor << '\n';
-	}
+	// }
 
 	{
 		// cumulative impulse that has been applied
