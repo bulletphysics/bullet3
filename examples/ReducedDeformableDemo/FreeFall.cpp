@@ -145,32 +145,19 @@ void FreeFall::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        std::string filepath("../../../examples/SoftDemo/beam/");
-        std::string filename = filepath + "mesh.vtk";
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
-        
-        rsb->setReducedModes(start_mode, num_modes, rsb->m_nodes.size());
-        btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
 
         btTransform init_transform;
         init_transform.setIdentity();
-        // init_transform.setOrigin(btVector3(0, 2.5, 0));
         init_transform.setOrigin(btVector3(0, 10, 0));
-        // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
-        // init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
         init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(50);
         rsb->setDamping(damping_alpha, damping_beta);
-        // rsb->setFriction(200);
-        
-        // no fixed nodes
-        // rsb->setFixedNodes(0);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -183,10 +170,6 @@ void FreeFall::initPhysics()
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 0, 1));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
-        
-        // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
-        // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);
-        // m_forces.push_back(gravity_force);
     }
     // create a static rigid box as the ground
     {

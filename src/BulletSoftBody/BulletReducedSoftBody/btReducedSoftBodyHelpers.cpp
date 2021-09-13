@@ -4,6 +4,32 @@
 #include <string>
 #include <sstream>
 
+btReducedSoftBody* btReducedSoftBodyHelpers::createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes)
+{
+	std::string filepath("../../../examples/SoftDemo/beam/");
+	std::string filename = filepath + "mesh.vtk";
+	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
+	
+	rsb->setReducedModes(start_mode, num_modes, rsb->m_nodes.size());
+	btVector3 half_extents(0.5, 0.25, 2);
+	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str(), half_extents);
+
+	return rsb;
+}
+
+btReducedSoftBody* btReducedSoftBodyHelpers::createReducedCube(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes)
+{
+	std::string filepath("../../../examples/SoftDemo/cube/");
+	std::string filename = filepath + "mesh.vtk";
+	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
+	
+	rsb->setReducedModes(start_mode, num_modes, rsb->m_nodes.size());
+	btVector3 half_extents(0.5, 0.5, 0.5);
+	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str(), half_extents);
+	
+	return rsb;
+}
+
 btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
 {
 	std::ifstream fs;
@@ -112,7 +138,7 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldIn
 	return rsb;
 }
 
-void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path)
+void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path, const btVector3& half_extents)
 {
 	// read in eigenmodes, stiffness and mass matrices
 	std::string eigenvalues_file = std::string(file_path) + "eigenvalues.bin";
@@ -135,7 +161,8 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 	
 	// calculate the inertia tensor in the local frame 
   btVector3 inertia(0, 0, 0);
-	calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(0.5, 0.25, 2), btVector3(0, 0, 0));
+	calculateLocalInertia(inertia, rsb->getTotalMass(), half_extents, btVector3(0, 0, 0));
+	// calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(0.5, 0.25, 2), btVector3(0, 0, 0));
 	// calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(0.5, 0.5, 0.5), btVector3(0, 0, 0));
 	rsb->setInertiaProps(inertia);
 

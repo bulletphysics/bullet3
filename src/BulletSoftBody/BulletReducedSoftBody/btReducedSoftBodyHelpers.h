@@ -5,10 +5,15 @@
 
 struct btReducedSoftBodyHelpers
 {
+	// create a beam
+	static btReducedSoftBody* createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes);
+	// create a cube
+	static btReducedSoftBody* createReducedCube(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes);
+
 	// read in geometry info from Vtk file
   static btReducedSoftBody* createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
 	// read in all reduced files
-	static void readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path);
+	static void readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path, const btVector3& half_extents);
 	// read in a binary vector
 	static void readBinary(btReducedSoftBody::tDenseArray& vec, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
 	// read in a binary matrix

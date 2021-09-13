@@ -304,12 +304,7 @@ void ReducedMotorGrasp::initPhysics()
 
 	// create volumetric reduced deformable body
     {   
-        std::string filepath("../../../examples/SoftDemo/beam/");
-        std::string filename = filepath + "mesh.vtk";
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
-        
-        rsb->setReducedModes(start_mode, num_modes, rsb->m_nodes.size());
-        btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);

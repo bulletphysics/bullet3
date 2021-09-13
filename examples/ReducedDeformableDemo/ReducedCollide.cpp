@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.0001;
 static btScalar COLLIDING_VELOCITY = 4;
 static int start_mode = 6;
 static int num_modes = 20;
@@ -56,10 +56,10 @@ public:
 
     void resetCamera()
     {
-        float dist = 15;
-        float pitch = -10;
+        float dist = 5;
+        float pitch = -5;
         float yaw = 90;
-        float targetPos[3] = {0, 3, 0};
+        float targetPos[3] = {0, 0, 0};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
@@ -86,28 +86,13 @@ public:
     {
         CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
-        // int flag = 0;
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
             btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
             {
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
-                // btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), flag);
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags()); 
-
-                for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
-                {
-                    deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
-                }
-                for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
-                {
-                    deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
-                }
-
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 5, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 10, 0), 0.1, btVector3(1, 1, 1));
             }
         }
     }
@@ -138,12 +123,7 @@ void ReducedCollide::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        std::string filepath("../../../examples/SoftDemo/cube/");
-        std::string filename = filepath + "mesh.vtk";
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
-        
-        rsb->setReducedModes(start_mode, num_modes, rsb->m_nodes.size());
-        btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
@@ -153,7 +133,7 @@ void ReducedCollide::initPhysics()
         init_transform.setOrigin(btVector3(0, 2, 0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(50);
+        rsb->setStiffnessScale(25);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -166,19 +146,15 @@ void ReducedCollide::initPhysics()
         
         rsb->setRigidVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
-        
-        // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
-        // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);
-        // m_forces.push_back(gravity_force);
     }
 
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
-    getDeformableDynamicsWorld()->setUseProjection(true);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
+    getDeformableDynamicsWorld()->setUseProjection(false);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
+    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
     Ctor_RbUpStack();

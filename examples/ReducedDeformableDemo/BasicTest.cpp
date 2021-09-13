@@ -210,12 +210,7 @@ void BasicTest::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        std::string filepath("../../../examples/SoftDemo/beam/");
-        std::string filename = filepath + "mesh.vtk";
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
-        
-        rsb->setReducedModes(start_mode, num_modes, rsb->m_nodes.size());
-        btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
@@ -246,10 +241,6 @@ void BasicTest::initPhysics()
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
-        
-        // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
-        // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);
-        // m_forces.push_back(gravity_force);
     }
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
