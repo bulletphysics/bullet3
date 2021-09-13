@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.01;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
 static int num_modes = 1;
@@ -134,16 +134,15 @@ public:
     void stepSimulation(float deltaTime)
     {
       // TODO: remove this. very hacky way of adding initial deformation
-      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
-      if (first_step /* && !rsb->m_bUpdateRtCst*/) 
-      {
-        getDeformedShape(rsb, 0, 1);
-        first_step = false;
-        // rsb->mapToReducedDofs();
-      }
+      // btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
+      // if (first_step /* && !rsb->m_bUpdateRtCst*/) 
+      // {
+      //   getDeformedShape(rsb, 0, 1);
+      //   first_step = false;
+      //   // rsb->mapToReducedDofs();
+      // }
       
       float internalTimeStep = 1. / 60.f;
-    //   float internalTimeStep = 1e-3;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
 
       // sim_time += internalTimeStep;
@@ -198,7 +197,7 @@ void BasicTest::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, -10, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -224,18 +223,17 @@ void BasicTest::initPhysics()
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 4, 0));
-        init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
+        // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // set fixed nodes
-        // rsb->setFixedNodes(0);
-        // rsb->setFixedNodes(1);
-        // rsb->setFixedNodes(2);
-        // rsb->setFixedNodes(3);
+        rsb->setFixedNodes(0);
+        rsb->setFixedNodes(1);
+        rsb->setFixedNodes(2);
+        rsb->setFixedNodes(3);
         
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -247,7 +245,7 @@ void BasicTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
         // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);
@@ -255,11 +253,11 @@ void BasicTest::initPhysics()
     }
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
-    getDeformableDynamicsWorld()->setUseProjection(true);
+    getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
+    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
     // Ctor_RbUpStack();        // TODO: no rigid body for now

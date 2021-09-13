@@ -11,33 +11,38 @@ btReducedDeformableStaticConstraint::btReducedDeformableStaticConstraint(
   : m_rsb(rsb), m_ri(ri), m_dt(dt), btDeformableStaticConstraint(node, infoGlobal)
 {
 	// get impulse
-  m_impulseFactor = rsb->getImpulseFactor(m_node->index);
+  m_impulseFactorInv = rsb->getImpulseFactor(m_node->index).inverse();
 }
 
 btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
 {
 	// target velocity of fixed constraint is 0
-  btVector3 impulse = -(m_impulseFactor.inverse() * m_node->m_v);
-  
-  // apply full space impulse
-	std::cout << "node: " << m_node->index << " impulse: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
-	// std::cout << "impulse norm: " << impulse.norm() << "\n";
-
-	m_rsb->applyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
-
-	// get residual //TODO: only calculate the velocity of the given node
-	m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
+	btVector3 deltaVa = getDeltaVa();
+	btVector3 rel_vel = m_node->m_v + deltaVa;
+  btVector3 deltaImpulse = -(m_impulseFactorInv * rel_vel);
+	applyImpulse(deltaImpulse);
 
 	// calculate residual
-	btScalar residualSquare = btDot(m_node->m_v, m_node->m_v);
+	btScalar residualSquare = btDot(rel_vel, rel_vel);
 
 	return residualSquare;
 }
   
-// this calls reduced deformable body's applyFullSpaceImpulse
+// this calls reduced deformable body's internalApplyFullSpaceImpulse
 void btReducedDeformableStaticConstraint::applyImpulse(const btVector3& impulse)
 {
-	m_rsb->applyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
+	// apply full space impulse
+	std::cout << "node: " << m_node->index << " impulse: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
+	m_rsb->internalApplyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
+
+	// get the new nodal velocity
+	// m_node->m_v = m_rsb->computeNodeFullVelocity(m_rsb->getInterpolationWorldTransform(), m_node->index);
+	// m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
+}
+
+btVector3 btReducedDeformableStaticConstraint::getDeltaVa() const
+{
+	return m_rsb->internalComputeNodeDeltaVelocity(m_rsb->getInterpolationWorldTransform(), m_node->index);
 }
 
 // ================= base contact constraints ===================

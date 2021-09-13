@@ -128,7 +128,6 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
 
 void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
 {
-  static bool applied = false;
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
@@ -142,8 +141,6 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
       rsb->applyReducedElasticForce(rsb->m_reducedDofsBuffer);
       rsb->applyReducedDampingForce(rsb->m_reducedVelocityBuffer);
 
-      // get reduced velocity at time^* 
-    // get reduced velocity at time^* 
       // get reduced velocity at time^* 
       rsb->updateReducedVelocity(solverdt, true);
     }
@@ -273,27 +270,12 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
-    btAlignedObjectArray<btScalar> residual;
-    residual.resize(m_staticConstraints[i].size(), 0);
-
     for (int k = 0; k < m_staticConstraints[i].size(); ++k)
     {
       btReducedDeformableStaticConstraint& constraint = m_staticConstraints[i][k];
       btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
       residualSquare = btMax(residualSquare, localResidualSquare);
-
-      btVector3 error;
-      error.setZero();
-      std::cout << "fixed_nodes: ";
-      for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
-      {
-        std::cout << rsb->m_nodes[rsb->m_fixedNodes[p]].m_v.norm() << '\t';
-        error += rsb->m_nodes[rsb->m_fixedNodes[p]].m_v;
-      }
-      std::cout << '\n';
-      std::cout << "norm: " << error.norm() << "\n";
     }
-
   }
 
   // handle contact constraint

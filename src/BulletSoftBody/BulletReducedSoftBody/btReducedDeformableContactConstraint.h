@@ -7,7 +7,7 @@ class btReducedDeformableStaticConstraint : public btDeformableStaticConstraint
  public:
   btReducedSoftBody* m_rsb;
   btScalar m_dt;
-  btMatrix3x3 m_impulseFactor;
+  btMatrix3x3 m_impulseFactorInv;
   btVector3 m_ri;
 
   btReducedDeformableStaticConstraint(btReducedSoftBody* rsb, 
@@ -23,6 +23,8 @@ class btReducedDeformableStaticConstraint : public btDeformableStaticConstraint
   
   // this calls reduced deformable body's applyFullSpaceImpulse
   virtual void applyImpulse(const btVector3& impulse);
+
+  btVector3 getDeltaVa() const;
 
   // virtual void applySplitImpulse(const btVector3& impulse) {}
 };

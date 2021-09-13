@@ -272,7 +272,7 @@ void btReducedSoftBody::updateReducedVelocity(btScalar solverdt, bool explicit_f
     btScalar delta_v = 0;
     if (explicit_force)
     {
-      delta_v = solverdt * mass_inv * m_reducedForceElastic[r];
+      delta_v = solverdt * mass_inv * (m_reducedForceElastic[r] + m_reducedForceDamping[r]);
     }
     else
     {
@@ -571,8 +571,8 @@ void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, 
     // apply impulse force
     applyFullSpaceNodalForce(impulse / dt, n_node);
 
-    // update reduced internal force
-    applyReducedDampingForce(m_reducedVelocity); //TODO: this needs to be the current velocity
+    // update delta damping force
+    applyReducedDampingForce(m_internalDeltaReducedVelocity);
 
     // delta reduced velocity
     for (int r = 0; r < m_nReduced; ++r)
