@@ -30,10 +30,10 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.01;
+static btScalar damping_beta = 0.001;
 static btScalar COLLIDING_VELOCITY = 4;
 static int start_mode = 6;
-static int num_modes = 10;
+static int num_modes = 20;
 
 class ReducedGrasp : public CommonDeformableBodyBase
 {
@@ -51,14 +51,14 @@ public:
 
 	void resetCamera()
 	{
-        float dist = 15;
+        float dist = 10;
         float pitch = -10;
         float yaw = 90;
         
         // float dist = 25;
         // float pitch = -30;
         // float yaw = 100;
-        float targetPos[3] = {0, -0, 0};
+        float targetPos[3] = {0, 0, 1};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
     
@@ -75,18 +75,18 @@ public:
     {
         int count = 2;
         float mass = 1e6;
-        btCollisionShape* shape = new btBoxShape(btVector3(3, 4, 0.5));
+        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 0.25));
         {
             btTransform startTransform;
             startTransform.setIdentity();
-            startTransform.setOrigin(btVector3(0,4,3));
+            startTransform.setOrigin(btVector3(0,1,2));
             startTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
             createRigidBody(mass, startTransform, shape);
         }
         {
             btTransform startTransform;
             startTransform.setIdentity();
-            startTransform.setOrigin(btVector3(0,4,-3));
+            startTransform.setOrigin(btVector3(0,1,-2));
             startTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
             createRigidBody(mass, startTransform, shape);
         }
@@ -137,7 +137,7 @@ void ReducedGrasp::GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsW
     btRigidBody* rb0 = rbs[0];
     // btScalar pressTime = 0.9;
     // btScalar pressTime = 0.96;
-    btScalar pressTime = 1;
+    btScalar pressTime = 1.25;
     btScalar liftTime = 2.5;
     btScalar shiftTime = 3.5;
     btScalar holdTime = 4.5;
@@ -147,12 +147,12 @@ void ReducedGrasp::GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsW
     btVector3 translation;
     btVector3 velocity;
     
-    btVector3 initialTranslationLeft = btVector3(0,4,3);            // inner face has z=2
-    btVector3 initialTranslationRight = btVector3(0,4,-3);          // inner face has z=-2
-    btVector3 pinchVelocityLeft = btVector3(0,0,-2);
-    btVector3 pinchVelocityRight = btVector3(0,0,2);
-    btVector3 liftVelocity = btVector3(0,5,0);
-    btVector3 shiftVelocity = btVector3(0,0,5);
+    btVector3 initialTranslationLeft = btVector3(0,1,2);            // inner face has z=2
+    btVector3 initialTranslationRight = btVector3(0,1,-2);          // inner face has z=-2
+    btVector3 pinchVelocityLeft = btVector3(0,0,-1);
+    btVector3 pinchVelocityRight = btVector3(0,0,1);
+    btVector3 liftVelocity = btVector3(0,4,0);
+    btVector3 shiftVelocity = btVector3(0,0,2);
     btVector3 holdVelocity = btVector3(0,0,0);
     btVector3 openVelocityLeft = btVector3(0,0,4);
     btVector3 openVelocityRight = btVector3(0,0,-4);
@@ -274,7 +274,7 @@ void ReducedGrasp::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.015);
@@ -286,7 +286,7 @@ void ReducedGrasp::initPhysics()
         // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(200);
+        rsb->setStiffnessScale(25);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
