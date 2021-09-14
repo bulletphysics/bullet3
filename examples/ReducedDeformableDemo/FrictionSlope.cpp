@@ -30,10 +30,10 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.001;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 20;
 
 class FrictionSlope : public CommonDeformableBodyBase
 {
@@ -64,9 +64,10 @@ public:
     
     void Ctor_RbUpStack()
     {
-        float mass = 10;
+        float mass = 1;
+        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
         // btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
-        btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.25, 2));
+        // btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.25, 2));
         btTransform startTransform;
         startTransform.setIdentity();
 
@@ -82,9 +83,9 @@ public:
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
+        // groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
         groundTransform.setOrigin(btVector3(0, 0, 0));
-        btScalar mass(0);
+        btScalar mass(1e6);
         btRigidBody* ground = createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
         // ground->setFriction(1);
     }
@@ -108,15 +109,14 @@ public:
                 // btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), flag);
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags()); 
 
-                for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
-                {
-                    deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
-                }
-                // static int num = 0;
-                for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
-                {
-                    deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
-                }
+                // for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
+                // {
+                //     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
+                // }
+                // for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
+                // {
+                //     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
+                // }
             }
         }
     }
@@ -191,13 +191,14 @@ void FrictionSlope::initPhysics()
         btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.1);
+        rsb->getCollisionShape()->setMargin(0.01);
 
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 4, 0));
+        init_transform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 2.0));
         rsb->transform(init_transform);
-        rsb->setStiffnessScale(10);
+        rsb->setStiffnessScale(50);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -215,14 +216,14 @@ void FrictionSlope::initPhysics()
 
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
-    getDeformableDynamicsWorld()->setUseProjection(true);
+    getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.6;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
+    getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
-    // getDeformableDynamicsWorld()->setSolverCallback(FrictionSlopeHelper::groundMotion);
+    getDeformableDynamicsWorld()->setSolverCallback(FrictionSlopeHelper::groundMotion);
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }

@@ -92,8 +92,8 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// btVector3 deltaVa = Va - m_bufferVelocityA;
 	// if (!m_collideStatic)
 	// {
-		std::cout << "moving collision!!!\n";
-		std::cout << "relPosA: " << m_relPosA[0] << "\t" << m_relPosA[1] << "\t" << m_relPosA[2] << "\n";
+		// std::cout << "moving collision!!!\n";
+		// std::cout << "relPosA: " << m_relPosA[0] << "\t" << m_relPosA[1] << "\t" << m_relPosA[2] << "\n";
 		// std::cout << "moving rigid linear_vel: " << m_solverBody->m_originalBody->getLinearVelocity()[0] << '\t'
 		//  << m_solverBody->m_originalBody->getLinearVelocity()[1] << '\t'
 		//   << m_solverBody->m_originalBody->getLinearVelocity()[2] << '\n';
@@ -101,11 +101,11 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	btVector3 deltaVa = getDeltaVa();
 	btVector3 deltaVb = getDeltaVb();
 
-	if (!m_collideStatic)
-	{
-		std::cout << "deltaVa: " << deltaVa[0] << '\t' << deltaVa[1] << '\t' << deltaVa[2] << '\n';
-		std::cout << "deltaVb: " << deltaVb[0] << '\t' << deltaVb[1] << '\t' << deltaVb[2] << '\n';
-	}
+	// if (!m_collideStatic)
+	// {
+	// 	std::cout << "deltaVa: " << deltaVa[0] << '\t' << deltaVa[1] << '\t' << deltaVa[2] << '\n';
+	// 	std::cout << "deltaVb: " << deltaVb[0] << '\t' << deltaVb[1] << '\t' << deltaVb[2] << '\n';
+	// }
 
 	// get delta relative velocity and magnitude (i.e., how much impulse has been applied?)
 	btVector3 deltaV_rel = deltaVa - deltaVb;
@@ -113,17 +113,17 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 
 	// if (!m_collideStatic)
 	// {
-		std::cout << "deltaV_rel: " << deltaV_rel[0] << '\t' << deltaV_rel[1] << '\t' << deltaV_rel[2] << "\n";
-		std::cout << "deltaV_rel_normal: " << deltaV_rel_normal << "\n";
-		std::cout << "normal_A: " << m_contactNormalA[0] << '\t' << m_contactNormalA[1] << '\t' << m_contactNormalA[2] << '\n';
+		// std::cout << "deltaV_rel: " << deltaV_rel[0] << '\t' << deltaV_rel[1] << '\t' << deltaV_rel[2] << "\n";
+		// std::cout << "deltaV_rel_normal: " << deltaV_rel_normal << "\n";
+		// std::cout << "normal_A: " << m_contactNormalA[0] << '\t' << m_contactNormalA[1] << '\t' << m_contactNormalA[2] << '\n';
 	// }
 	
 	// get the normal impulse to be applied
 	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
 	// if (!m_collideStatic)
 	// {
-		std::cout << "m_rhs: " << m_rhs << '\t' << "m_appliedNormalImpulse: "  << m_appliedNormalImpulse << "\n";
-		std::cout << "m_normalImpulseFactor: " << m_normalImpulseFactor << '\n';
+		// std::cout << "m_rhs: " << m_rhs << '\t' << "m_appliedNormalImpulse: "  << m_appliedNormalImpulse << "\n";
+		// std::cout << "m_normalImpulseFactor: " << m_normalImpulseFactor << '\n';
 	// }
 
 	{
@@ -132,7 +132,6 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 		// if the cumulative impulse is pushing the object into the rigid body, set it zero
 		if (sum < 0)
 		{
-			if (!m_collideStatic) std::cout <<"set zeroed!!!\n";
 			deltaImpulse = -m_appliedNormalImpulse;
 			m_appliedNormalImpulse = 0;
 		}
@@ -144,8 +143,8 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 
 	// if (!m_collideStatic)
 	// {
-		std::cout << "m_appliedNormalImpulse: " << m_appliedNormalImpulse << '\n';
-		std::cout << "deltaImpulse: " << deltaImpulse << '\n';
+		// std::cout << "m_appliedNormalImpulse: " << m_appliedNormalImpulse << '\n';
+		// std::cout << "deltaImpulse: " << deltaImpulse << '\n';
 	// }
 
 	// residual is the nodal normal velocity change in current iteration
@@ -179,10 +178,10 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 			m_appliedTangentImpulse = sum;
 		}
 
-		std::cout << "m_contactTangent: " << m_contactTangent[0] << "\t"  << m_contactTangent[1] << "\t"  << m_contactTangent[2] << "\n";
-		std::cout << "deltaV_rel_tangent: " << deltaV_rel_tangent << '\n';
-		std::cout << "deltaImpulseTangent: " << deltaImpulse_tangent << '\n';
-		std::cout << "m_appliedTangentImpulse: " << m_appliedTangentImpulse << '\n';
+		// std::cout << "m_contactTangent: " << m_contactTangent[0] << "\t"  << m_contactTangent[1] << "\t"  << m_contactTangent[2] << "\n";
+		// std::cout << "deltaV_rel_tangent: " << deltaV_rel_tangent << '\n';
+		// std::cout << "deltaImpulseTangent: " << deltaImpulse_tangent << '\n';
+		// std::cout << "m_appliedTangentImpulse: " << m_appliedTangentImpulse << '\n';
 	}
 
 	// get the total impulse vector
@@ -195,35 +194,35 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// apply impulse to the rigid/multibodies involved and change their velocities
 	if (!m_collideStatic)
 	{
-		std::cout << "linear_component: " << m_linearComponentNormal[0] << '\t'
-																			<< m_linearComponentNormal[1] << '\t'
-																			<< m_linearComponentNormal[2] << '\n';
-		std::cout << "angular_component: " << m_angularComponentNormal[0] << '\t'
-																			<< m_angularComponentNormal[1] << '\t'
-																			<< m_angularComponentNormal[2] << '\n';
+		// std::cout << "linear_component: " << m_linearComponentNormal[0] << '\t'
+		// 																	<< m_linearComponentNormal[1] << '\t'
+		// 																	<< m_linearComponentNormal[2] << '\n';
+		// std::cout << "angular_component: " << m_angularComponentNormal[0] << '\t'
+		// 																	<< m_angularComponentNormal[1] << '\t'
+		// 																	<< m_angularComponentNormal[2] << '\n';
 
 		const btSoftBody::sCti& cti = m_contact->m_cti;
 		if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 		{
-			std::cout << "rigid impulse applied!!\n";
-			std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
-			<< m_solverBody->getDeltaLinearVelocity()[1] << '\t'
-				<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
-			std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
-			<< m_solverBody->getDeltaAngularVelocity()[1] << '\t'
-				<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
+			// std::cout << "rigid impulse applied!!\n";
+			// std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
+			// << m_solverBody->getDeltaLinearVelocity()[1] << '\t'
+			// 	<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
+			// std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
+			// << m_solverBody->getDeltaAngularVelocity()[1] << '\t'
+			// 	<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
 
 			m_solverBody->internalApplyImpulse(m_linearComponentNormal, m_angularComponentNormal, deltaImpulse);
 			m_solverBody->internalApplyImpulse(m_linearComponentTangent, m_angularComponentTangent, deltaImpulse_tangent);
 
-			std::cout << "after\n";
-			std::cout << "rigid impulse applied!!\n";
-			std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
-			<< m_solverBody->getDeltaLinearVelocity()[1] << '\t'
-				<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
-			std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
-			<< m_solverBody->getDeltaAngularVelocity()[1] << '\t'
-				<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
+			// std::cout << "after\n";
+			// std::cout << "rigid impulse applied!!\n";
+			// std::cout << "delta Linear: " << m_solverBody->getDeltaLinearVelocity()[0] << '\t'
+			// << m_solverBody->getDeltaLinearVelocity()[1] << '\t'
+			// 	<< m_solverBody->getDeltaLinearVelocity()[2] << '\n';
+			// std::cout << "delta Angular: " << m_solverBody->getDeltaAngularVelocity()[0] << '\t'
+			// << m_solverBody->getDeltaAngularVelocity()[1] << '\t'
+			// 	<< m_solverBody->getDeltaAngularVelocity()[2] << '\n';
 		}
 		else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
@@ -233,15 +232,15 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 			{
 				const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
 				// apply normal component of the impulse
-				multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
-				if (impulse_tangent.norm() > SIMD_EPSILON)
-				{
-					// apply tangential component of the impulse
-					const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
-					multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
-					const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
-					multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
-				}
+				multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, deltaImpulse);
+				// if (impulse_tangent.norm() > SIMD_EPSILON)
+				// {
+				// 	// apply tangential component of the impulse
+				// 	const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+				// 	multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
+				// 	const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
+				// 	multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
+				// }
 			}
 		}
 	}
@@ -382,10 +381,10 @@ void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3
 	// m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
 	if (!m_collideStatic)
 	{
-		std::cout << "impulse applied: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
-		std::cout << "node: " << m_node->index << " vel: " << m_node->m_v[0] << '\t' << m_node->m_v[1] << '\t' << m_node->m_v[2] << '\n';
+		// std::cout << "impulse applied: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
+		// std::cout << "node: " << m_node->index << " vel: " << m_node->m_v[0] << '\t' << m_node->m_v[1] << '\t' << m_node->m_v[2] << '\n';
 		btVector3 v_after = getDeltaVb() + m_node->m_v;
-		std::cout << "vel after: " << v_after[0] << '\t' << v_after[1] << '\t' << v_after[2] << '\n';
+		// std::cout << "vel after: " << v_after[0] << '\t' << v_after[1] << '\t' << v_after[2] << '\n';
 	}
 	// std::cout << "node: " << m_node->index << " pos: " << m_node->m_x[0] << '\t' << m_node->m_x[1] << '\t' << m_node->m_x[2] << '\n';
 }

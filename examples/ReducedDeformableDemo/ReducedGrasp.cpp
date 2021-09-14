@@ -119,10 +119,10 @@ public:
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
             }
 
-            for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
-            {
-                deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
-            }
+            // for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
+            // {
+            //     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
+            // }
         }
     }
 

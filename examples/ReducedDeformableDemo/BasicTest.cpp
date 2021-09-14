@@ -31,9 +31,8 @@
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.01;
-static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 20;
 
 class BasicTest : public CommonDeformableBodyBase
 {
@@ -85,13 +84,13 @@ public:
     
     void Ctor_RbUpStack()
     {
-        float mass = 0.5;
-        btCollisionShape* shape = new btBoxShape(btVector3(2, 2, 2));
+        float mass = 2;
+        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0,-2,0));
-        btRigidBody* rb = createRigidBody(mass, startTransform, shape);
-        rb->setLinearVelocity(btVector3(0,+COLLIDING_VELOCITY, 0));
+        startTransform.setOrigin(btVector3(0,8,1));
+        btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
+        rb1->setActivationState(DISABLE_DEACTIVATION);
     }
 
     void checkMomentum(btReducedSoftBody* rsb)
@@ -163,23 +162,23 @@ public:
                 // btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), flag);
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags()); 
 
-                btVector3 origin = rsb->getRigidTransform().getOrigin();
-                btVector3 line_x = rsb->getRigidTransform().getBasis() * 2 * btVector3(1, 0, 0) + origin;
-                btVector3 line_y = rsb->getRigidTransform().getBasis() * 2 * btVector3(0, 1, 0) + origin;
-                btVector3 line_z = rsb->getRigidTransform().getBasis() * 2 * btVector3(0, 0, 1) + origin;
+                // btVector3 origin = rsb->getRigidTransform().getOrigin();
+                // btVector3 line_x = rsb->getRigidTransform().getBasis() * 2 * btVector3(1, 0, 0) + origin;
+                // btVector3 line_y = rsb->getRigidTransform().getBasis() * 2 * btVector3(0, 1, 0) + origin;
+                // btVector3 line_z = rsb->getRigidTransform().getBasis() * 2 * btVector3(0, 0, 1) + origin;
 
-                deformableWorld->getDebugDrawer()->drawLine(origin, line_x, btVector3(1, 0, 0));
-                deformableWorld->getDebugDrawer()->drawLine(origin, line_y, btVector3(0, 1, 0));
-                deformableWorld->getDebugDrawer()->drawLine(origin, line_z, btVector3(0, 0, 1));
+                // deformableWorld->getDebugDrawer()->drawLine(origin, line_x, btVector3(1, 0, 0));
+                // deformableWorld->getDebugDrawer()->drawLine(origin, line_y, btVector3(0, 1, 0));
+                // deformableWorld->getDebugDrawer()->drawLine(origin, line_z, btVector3(0, 0, 1));
 
                 for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
                     // std::cout << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[0] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[1] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[2] << "\n";
                 }
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.1, btVector3(1, 1, 1));
+                // deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
+                // deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
+                // deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.1, btVector3(1, 1, 1));
             }
         }
     }
@@ -221,7 +220,7 @@ void BasicTest::initPhysics()
         // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(100);
+        rsb->setStiffnessScale(200);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // set fixed nodes
@@ -251,7 +250,23 @@ void BasicTest::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
-    // Ctor_RbUpStack();        // TODO: no rigid body for now
+    Ctor_RbUpStack();
+
+    // create a static rigid box as the ground
+    {
+        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(2), btScalar(10)));
+        m_collisionShapes.push_back(groundShape);
+
+        btTransform groundTransform;
+        groundTransform.setIdentity();
+        groundTransform.setOrigin(btVector3(0, 0, 0));
+        {
+            btScalar mass(0.);
+            createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
+        }
+    }
+
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     
     // {

@@ -33,7 +33,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0001;
 static btScalar COLLIDING_VELOCITY = 4;
 static int start_mode = 6;
-static int num_modes = 20;
+static int num_modes = 40;
 
 class ReducedCollide : public CommonDeformableBodyBase
 {
@@ -133,7 +133,7 @@ void ReducedCollide::initPhysics()
         init_transform.setOrigin(btVector3(0, 2, 0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(25);
+        rsb->setStiffnessScale(10);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

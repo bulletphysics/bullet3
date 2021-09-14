@@ -75,6 +75,19 @@ public:
 
 	void exitPhysics();
 
+    void Ctor_RbUpStack()
+    {
+        float mass = 8;
+        btCollisionShape* shape = new btBoxShape(btVector3(2, 0.25, 0.5));
+        btTransform startTransform;
+        startTransform.setIdentity();
+
+        startTransform.setOrigin(btVector3(0,0.25,0));
+        btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
+        rb1->setLinearVelocity(btVector3(0, 0, 0));
+        rb1->setFriction(0.7);
+    }
+
 	void resetCamera()
 	{
         // float dist = 0.3;
@@ -205,7 +218,8 @@ void ReducedMotorGrasp::initPhysics()
 	m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
     // btVector3 gravity = btVector3(0, 0, 0);
-    btVector3 gravity = btVector3(0, -9.81, 0);
+    // btVector3 gravity = btVector3(0, -9.81, 0);
+    btVector3 gravity = btVector3(0, 1, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
 	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -326,6 +340,8 @@ void ReducedMotorGrasp::initPhysics()
         rsb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
     }
+
+    // Ctor_RbUpStack();
     
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
