@@ -66,14 +66,17 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 
 void btReducedDeformableRigidContactConstraint::setSolverBody(btSolverBody& solver_body)
 {
-	m_solverBody = &solver_body;
-	m_linearComponentNormal = -m_contactNormalA * m_solverBody->internalGetInvMass();
-	btVector3	torqueAxis = -m_relPosA.cross(m_contactNormalA);
-	m_angularComponentNormal = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
-	
-	m_linearComponentTangent = m_contactTangent * m_solverBody->internalGetInvMass();
-	btVector3 torqueAxisTangent = m_relPosA.cross(m_contactTangent);
-	m_angularComponentTangent = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxisTangent;
+	if (m_contact->m_cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	{
+		m_solverBody = &solver_body;
+		m_linearComponentNormal = -m_contactNormalA * m_solverBody->internalGetInvMass();
+		btVector3	torqueAxis = -m_relPosA.cross(m_contactNormalA);
+		m_angularComponentNormal = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxis;
+		
+		m_linearComponentTangent = m_contactTangent * m_solverBody->internalGetInvMass();
+		btVector3 torqueAxisTangent = m_relPosA.cross(m_contactTangent);
+		m_angularComponentTangent = m_solverBody->m_originalBody->getInvInertiaTensorWorld() * torqueAxisTangent;
+	}
 }
 
 btVector3 btReducedDeformableRigidContactConstraint::getVa() const
@@ -88,7 +91,7 @@ btVector3 btReducedDeformableRigidContactConstraint::getVa() const
 
 btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
 {
-	btVector3 Va = getVa();
+	// btVector3 Va = getVa();
 	// btVector3 deltaVa = Va - m_bufferVelocityA;
 	// if (!m_collideStatic)
 	// {
@@ -103,8 +106,8 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 
 	// if (!m_collideStatic)
 	// {
-	// 	std::cout << "deltaVa: " << deltaVa[0] << '\t' << deltaVa[1] << '\t' << deltaVa[2] << '\n';
-	// 	std::cout << "deltaVb: " << deltaVb[0] << '\t' << deltaVb[1] << '\t' << deltaVb[2] << '\n';
+		std::cout << "deltaVa: " << deltaVa[0] << '\t' << deltaVa[1] << '\t' << deltaVa[2] << '\n';
+		std::cout << "deltaVb: " << deltaVb[0] << '\t' << deltaVb[1] << '\t' << deltaVb[2] << '\n';
 	// }
 
 	// get delta relative velocity and magnitude (i.e., how much impulse has been applied?)
@@ -113,17 +116,17 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 
 	// if (!m_collideStatic)
 	// {
-		// std::cout << "deltaV_rel: " << deltaV_rel[0] << '\t' << deltaV_rel[1] << '\t' << deltaV_rel[2] << "\n";
-		// std::cout << "deltaV_rel_normal: " << deltaV_rel_normal << "\n";
-		// std::cout << "normal_A: " << m_contactNormalA[0] << '\t' << m_contactNormalA[1] << '\t' << m_contactNormalA[2] << '\n';
+		std::cout << "deltaV_rel: " << deltaV_rel[0] << '\t' << deltaV_rel[1] << '\t' << deltaV_rel[2] << "\n";
+		std::cout << "deltaV_rel_normal: " << deltaV_rel_normal << "\n";
+		std::cout << "normal_A: " << m_contactNormalA[0] << '\t' << m_contactNormalA[1] << '\t' << m_contactNormalA[2] << '\n';
 	// }
 	
 	// get the normal impulse to be applied
 	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
 	// if (!m_collideStatic)
 	// {
-		// std::cout << "m_rhs: " << m_rhs << '\t' << "m_appliedNormalImpulse: "  << m_appliedNormalImpulse << "\n";
-		// std::cout << "m_normalImpulseFactor: " << m_normalImpulseFactor << '\n';
+		std::cout << "m_rhs: " << m_rhs << '\t' << "m_appliedNormalImpulse: "  << m_appliedNormalImpulse << "\n";
+		std::cout << "m_normalImpulseFactor: " << m_normalImpulseFactor << '\n';
 	// }
 
 	{
@@ -143,8 +146,8 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 
 	// if (!m_collideStatic)
 	// {
-		// std::cout << "m_appliedNormalImpulse: " << m_appliedNormalImpulse << '\n';
-		// std::cout << "deltaImpulse: " << deltaImpulse << '\n';
+		std::cout << "m_appliedNormalImpulse: " << m_appliedNormalImpulse << '\n';
+		std::cout << "deltaImpulse: " << deltaImpulse << '\n';
 	// }
 
 	// residual is the nodal normal velocity change in current iteration
@@ -232,7 +235,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 			{
 				const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
 				// apply normal component of the impulse
-				multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, deltaImpulse);
+				multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, -deltaImpulse);
 				// if (impulse_tangent.norm() > SIMD_EPSILON)
 				// {
 				// 	// apply tangential component of the impulse
@@ -354,7 +357,45 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVa() const
 	btVector3 deltaVa(0, 0, 0);
 	if (!m_collideStatic)
 	{
-		deltaVa = m_solverBody->internalGetDeltaLinearVelocity() + m_solverBody->internalGetDeltaAngularVelocity().cross(m_relPosA);
+		if (m_contact->m_cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+		{
+			deltaVa = m_solverBody->internalGetDeltaLinearVelocity() + m_solverBody->internalGetDeltaAngularVelocity().cross(m_relPosA);
+		}
+		else if (m_contact->m_cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+		{
+			btMultiBodyLinkCollider* multibodyLinkCol = 0;
+			multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(m_contact->m_cti.m_colObj);
+			if (multibodyLinkCol)
+			{
+				const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
+				const btScalar* J_n = &m_contact->jacobianData_normal.m_jacobians[0];
+				const btScalar* J_t1 = &m_contact->jacobianData_t1.m_jacobians[0];
+				const btScalar* J_t2 = &m_contact->jacobianData_t2.m_jacobians[0];
+				const btScalar* local_dv = multibodyLinkCol->m_multiBody->getDeltaVelocityVector();
+				// add in the normal component of the va
+				btScalar vel = 0;
+				for (int k = 0; k < ndof; ++k)
+				{
+					vel += local_dv[k] * J_n[k];
+				}
+				deltaVa = m_contact->m_cti.m_normal * vel;
+				
+				// add in the tangential components of the va
+				vel = 0;
+				for (int k = 0; k < ndof; ++k)
+				{
+					vel += local_dv[k] * J_t1[k];
+				}
+				deltaVa += m_contact->t1 * vel;
+
+				vel = 0;
+				for (int k = 0; k < ndof; ++k)
+				{
+					vel += local_dv[k] * J_t2[k];
+				}
+				deltaVa += m_contact->t2 * vel;
+			}
+		}
 	}
 	return deltaVa;
 }

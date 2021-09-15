@@ -217,9 +217,8 @@ void ReducedMotorGrasp::initPhysics()
 
 	m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    // btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, 0, 0);
     // btVector3 gravity = btVector3(0, -9.81, 0);
-    btVector3 gravity = btVector3(0, 1, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
 	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -331,6 +330,8 @@ void ReducedMotorGrasp::initPhysics()
 
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
+        
+        rsb->setRigidVelocity(btVector3(0, 1, 0));
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
