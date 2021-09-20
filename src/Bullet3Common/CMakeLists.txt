@@ -26,11 +26,11 @@ SET(Bullet3Common_HDRS
 	b3Transform.h
 	b3TransformUtil.h
 	b3Vector3.h
-	shared/b3Float4
+	shared/b3Float4.h
 	shared/b3Int2.h
 	shared/b3Int4.h
 	shared/b3Mat3x3.h
-	shared/b3PlatformDefinitions
+	shared/b3PlatformDefinitions.h
 	shared/b3Quat.h
 )
 
