@@ -564,8 +564,7 @@ extern "C"
 											const double linkInertialFrameOrientation[/*4*/],
 											int linkParentIndex,
 											int linkJointType,
-											const double linkJointAxis[/*3*/],
-											const char* const linkName);
+											const double linkJointAxis[/*3*/]);
 
 	//batch creation is an performance feature to create a large number of multi bodies in one command
 	B3_SHARED_API int b3CreateMultiBodySetBatchPositions(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, double* batchPositions, int numBatchObjects);
