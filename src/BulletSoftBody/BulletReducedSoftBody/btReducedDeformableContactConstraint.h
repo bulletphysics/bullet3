@@ -34,6 +34,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 {
  public:
   bool m_collideStatic;     // flag for collision with static object
+  bool m_collideMultibody;  // flag for collision with multibody
 
   btReducedSoftBody* m_rsb;
   btSolverBody* m_solverBody;
@@ -41,11 +42,15 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 
   btScalar m_appliedNormalImpulse;
   btScalar m_appliedTangentImpulse;
+  btScalar m_appliedTangentImpulse2;
   btScalar m_normalImpulseFactor;
   btScalar m_tangentImpulseFactor;
+  btScalar m_tangentImpulseFactor2;
   btScalar m_tangentImpulseFactorInv;
+  btScalar m_tangentImpulseFactorInv2;
   btScalar m_rhs;
   btScalar m_rhs_tangent;
+  btScalar m_rhs_tangent2;
   
   btScalar m_cfm;
   btScalar m_erp;
@@ -54,6 +59,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btVector3 m_contactNormalA;     // surface normal for rigid body (opposite direction as impulse)
   btVector3 m_contactNormalB;     // surface normal for reduced deformable body (opposite direction as impulse)
   btVector3 m_contactTangent;     // tangential direction of the relative velocity
+  btVector3 m_contactTangent2;    // 2nd tangential direction of the relative velocity
   btVector3 m_relPosA;            // relative position of the contact point for A (rigid)
   btVector3 m_relPosB;            // relative position of the contact point for B
   btMatrix3x3 m_impulseFactor;    // total impulse matrix
@@ -62,6 +68,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btVector3 m_bufferVelocityB;
   btVector3 m_linearComponentNormal;    // linear components for the solver body
   btVector3 m_angularComponentNormal;   // angular components for the solver body
+  // since 2nd contact direction only applies to multibody, these components will never be used
   btVector3 m_linearComponentTangent;
   btVector3 m_angularComponentTangent;
 
@@ -78,6 +85,15 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   virtual void warmStarting() {}
 
   virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
+
+  void calculateTangentialImpulse(btScalar& deltaImpulse_tangent, 
+                                  btScalar& appliedImpulse, 
+                                  const btScalar rhs_tangent,
+                                  const btScalar tangentImpulseFactorInv,
+                                  const btVector3& tangent,
+                                  const btScalar lower_limit,
+                                  const btScalar upper_limit,
+                                  const btVector3& deltaV_rel);
 
   virtual void applyImpulse(const btVector3& impulse) {}
 

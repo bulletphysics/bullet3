@@ -297,9 +297,9 @@ void ReducedCollide::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
-    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
+    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 200;
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     
     // {
