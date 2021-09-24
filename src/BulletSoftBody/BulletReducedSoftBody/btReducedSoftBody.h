@@ -122,6 +122,7 @@ class btReducedSoftBody : public btSoftBody
   //
   // various internal updates
   //
+  virtual void scale(const btVector3& scl);
   virtual void transform(const btTransform& trs);
   virtual void translate(const btVector3& trs)
   {
@@ -130,10 +131,6 @@ class btReducedSoftBody : public btSoftBody
   virtual void rotate(const btQuaternion& rot)
   {
     btAssert(false); // use transform().
-  }
-  virtual void scale(const btVector3& scl)
-  {
-    btAssert(false); // scale is NOT supported in the reduced deformable body
   }
 
  private:

@@ -119,7 +119,7 @@ void ModeVisualizer::initPhysics()
 
     // create volumetric soft body
     {
-      btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+      btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
       getDeformableDynamicsWorld()->addSoftBody(rsb);
       rsb->getCollisionShape()->setMargin(0.1);

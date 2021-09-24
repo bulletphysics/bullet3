@@ -8,7 +8,7 @@
 btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
  : btSoftBody(worldInfo, node_count, x, m)
 {
-  m_rigidOnly = true;     //! only use rigid frame to debug
+  m_rigidOnly = false;     //! only use rigid frame to debug
 
   // reduced deformable
   m_reducedModel = true;
@@ -362,6 +362,12 @@ void btReducedSoftBody::transform(const btTransform& trs)
   m_initialOrigin = m_rigidTransformWorld.getOrigin();
 
   internalInitialization();
+}
+
+void btReducedSoftBody::scale(const btVector3& scl)
+{
+  // scale the mesh
+  btSoftBody::scale(scl);
 }
 
 void btReducedSoftBody::updateRestNodalPositions()

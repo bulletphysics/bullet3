@@ -30,6 +30,19 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createReducedCube(btSoftBodyWorldIn
 	return rsb;
 }
 
+btReducedSoftBody* btReducedSoftBodyHelpers::createReducedSponge(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes)
+{
+	std::string filepath("../../../examples/SoftDemo/sponge/");
+	std::string filename = filepath + "mesh.vtk";
+	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
+	
+	rsb->setReducedModes(start_mode, num_modes, rsb->m_nodes.size());
+	btVector3 half_extents(0.025, 0.025, 0.025); //TODO: fix
+	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str(), half_extents);
+	
+	return rsb;
+}
+
 btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
 {
 	std::ifstream fs;

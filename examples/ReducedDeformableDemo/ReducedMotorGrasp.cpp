@@ -41,7 +41,7 @@ static btScalar sGripperClosingTargetVelocity = 0.f;
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 20;
 static float friction = 1.;
 struct TetraCube
 {
@@ -126,14 +126,14 @@ public:
                         if (dofIndex == 6)
                         {
                             motor->setVelocityTarget(-fingerTargetVelocities[1], 1);
-                            motor->setMaxAppliedImpulse(20);
+                            motor->setMaxAppliedImpulse(70);
                         }
                         if (dofIndex == 7)
                         {
                             motor->setVelocityTarget(fingerTargetVelocities[1], 1);
-                            motor->setMaxAppliedImpulse(20);
+                            motor->setMaxAppliedImpulse(70);
                         }
-                        motor->setMaxAppliedImpulse(1);
+                        motor->setMaxAppliedImpulse(50);
                     }
                 }
                 dofIndex += mb->getLink(link).m_dofCount;
@@ -141,10 +141,10 @@ public:
         }
         
         //use a smaller internal timestep, there are stability issues
-        // float internalTimeStep = 1. / 240.f;
-        // m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
-        float internalTimeStep = 1. / 60.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+        float internalTimeStep = 1. / 240.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
+        // float internalTimeStep = 1. / 60.f;
+        // m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
     void createGrip()
@@ -217,8 +217,8 @@ void ReducedMotorGrasp::initPhysics()
 
 	m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, 0, 0);
-    // btVector3 gravity = btVector3(0, -9.81, 0);
+    // btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, -9.81, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
 	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -242,10 +242,10 @@ void ReducedMotorGrasp::initPhysics()
         int numLinks = 2;
         // btVector3 linkHalfExtents(0.02, 0.018, .003);
         // btVector3 baseHalfExtents(0.02, 0.002, .002);
-        btVector3 linkHalfExtents(0.5, 0.5, 0.1);
-        btVector3 baseHalfExtents(0.5, 0.1, 0.1);
-        // btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 0.05f,0.f), linkHalfExtents, baseHalfExtents, false);
-        btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 3.f,0.f), linkHalfExtents, baseHalfExtents, false);
+        btVector3 linkHalfExtents(1, 1, 0.15);
+        btVector3 baseHalfExtents(0.5, 0.35, 0.35);
+        // btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 0.05f,0.f), baseHalfExtents, linkHalfExtents, false);
+        btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 5.f,0.f), baseHalfExtents, linkHalfExtents, false);
         
         mbC->setCanSleep(canSleep);
         mbC->setHasSelfCollision(selfCollide);
@@ -317,21 +317,21 @@ void ReducedMotorGrasp::initPhysics()
 
 	// create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.1);
+        rsb->getCollisionShape()->setMargin(0.05);
 
         btTransform init_transform;
         init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 0.25, 0));
-        init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
+        init_transform.setOrigin(btVector3(0, 0.5, 0));
+        init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(100);
+        rsb->setStiffnessScale(20);
         rsb->setDamping(damping_alpha, damping_beta);
         
-        rsb->setRigidVelocity(btVector3(0, 1, 0));
+        // rsb->setRigidVelocity(btVector3(0, 1, 0));
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -348,11 +348,11 @@ void ReducedMotorGrasp::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
-    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
+    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 200;
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     
     {
@@ -421,8 +421,8 @@ btMultiBody* ReducedMotorGrasp::createFeatherstoneMultiBody(btMultiBodyDynamicsW
 {
     //init the base
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
-    float baseMass = 0.1;
-    float linkMass = 0.1;
+    float baseMass = 55;
+    float linkMass = 55;
     int numLinks = 2;
     
     if (baseMass)
@@ -450,11 +450,11 @@ btMultiBody* ReducedMotorGrasp::createFeatherstoneMultiBody(btMultiBodyDynamicsW
     
     //y-axis assumed up
     btAlignedObjectArray<btVector3> parentComToCurrentCom;
-    parentComToCurrentCom.push_back(btVector3(0, -linkHalfExtents[1] * 8.f, -baseHalfExtents[2] * 2.f));
-    parentComToCurrentCom.push_back(btVector3(0, -linkHalfExtents[1] * 8.f, +baseHalfExtents[2] * 2.f));//par body's COM to cur body's COM offset
+    parentComToCurrentCom.push_back(btVector3(0, -linkHalfExtents[1] * 2.f, -baseHalfExtents[2] * 2.f));
+    parentComToCurrentCom.push_back(btVector3(0, -linkHalfExtents[1] * 2.f, +baseHalfExtents[2] * 2.f));//par body's COM to cur body's COM offset
 
     
-    btVector3 currentPivotToCurrentCom(0, -linkHalfExtents[1]*8.f, 0);                         //cur body's COM to cur body's PIV offset
+    btVector3 currentPivotToCurrentCom(0, -linkHalfExtents[1]*2.f, 0);                         //cur body's COM to cur body's PIV offset
     
     btAlignedObjectArray<btVector3> parentComToCurrentPivot;
     parentComToCurrentPivot.push_back(btVector3(parentComToCurrentCom[0] - currentPivotToCurrentCom));
