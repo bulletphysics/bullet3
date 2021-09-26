@@ -9596,19 +9596,19 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	PyObject* linkInertialFramePositionObj = 0;
 	PyObject* linkInertialFrameOrientationObj = 0;
 	PyObject* objBatchPositions = 0;
-	PyObject* linkNamesObj = 0;
+	
 
 	static char* kwlist[] = {
 		"baseMass", "baseCollisionShapeIndex", "baseVisualShapeIndex", "basePosition", "baseOrientation",
 		"baseInertialFramePosition", "baseInertialFrameOrientation", "linkMasses", "linkCollisionShapeIndices",
 		"linkVisualShapeIndices", "linkPositions", "linkOrientations", "linkInertialFramePositions", "linkInertialFrameOrientations", "linkParentIndices",
-		"linkJointTypes", "linkJointAxis", "useMaximalCoordinates", "flags", "batchPositions", "linkNames", "physicsClientId", NULL};
+		"linkJointTypes", "linkJointAxis", "useMaximalCoordinates", "flags", "batchPositions", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOOOiiOOi", kwlist,
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOOOiiOi", kwlist,
 									 &baseMass, &baseCollisionShapeIndex, &baseVisualShapeIndex, &basePosObj, &baseOrnObj,
 									 &baseInertialFramePositionObj, &baseInertialFrameOrientationObj, &linkMassesObj, &linkCollisionShapeIndicesObj,
 									 &linkVisualShapeIndicesObj, &linkPositionsObj, &linkOrientationsObj, &linkInertialFramePositionObj, &linkInertialFrameOrientationObj, &linkParentIndicesObj,
-									 &linkJointTypesObj, &linkJointAxisObj, &useMaximalCoordinates, &flags, &objBatchPositions, &linkNamesObj, &physicsClientId))
+									 &linkJointTypesObj, &linkJointAxisObj, &useMaximalCoordinates, &flags, &objBatchPositions, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -9645,7 +9645,6 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 		PyObject* seqLinkInertialFrameOrientations = linkInertialFrameOrientationObj ? PySequence_Fast(linkInertialFrameOrientationObj, "expected a sequence") : 0;
 
 		PyObject* seqBatchPositions = objBatchPositions ? PySequence_Fast(objBatchPositions, "expected a sequence") : 0;
-		PyObject* seqLinkNames = linkNamesObj ? PySequence_Fast(linkNamesObj, "expected a sequence") : 0;
 
 		if ((numLinkMasses == numLinkCollisionShapes) &&
 			(numLinkMasses == numLinkVisualShapes) &&
@@ -9705,7 +9704,6 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 				pybullet_internalGetVector3FromSequence(seqLinkJoinAxis, i, linkJointAxis);
 				linkParentIndex = pybullet_internalGetIntFromSequence(seqLinkParentIndices, i);
 				linkJointType = pybullet_internalGetIntFromSequence(seqLinkJointTypes, i);
-				linkName = seqLinkNames? pybullet_internalGetCStringFromSequence(seqLinkNames, i) : 0;
 
 				b3CreateMultiBodyLink(commandHandle,
 									  linkMass,
@@ -9717,8 +9715,7 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 									  linkInertialFrameOrientation,
 									  linkParentIndex,
 									  linkJointType,
-									  linkJointAxis,
-									  linkName);
+									  linkJointAxis);
 			}
 
 			if (seqLinkMasses)

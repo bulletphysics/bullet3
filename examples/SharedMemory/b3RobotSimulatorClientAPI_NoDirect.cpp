@@ -2431,8 +2431,7 @@ int b3RobotSimulatorClientAPI_NoDirect::createMultiBody(struct b3RobotSimulatorC
 							  doubleLinkInertialFrameOrientation,
 							  linkParentIndex,
 							  linkJointType,
-							  doubleLinkJointAxis,
-							  0);
+							  doubleLinkJointAxis);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
