@@ -33,7 +33,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 20;
+static int num_modes = 40;
 
 class FreeFall : public CommonDeformableBodyBase
 {
@@ -56,29 +56,29 @@ public:
 
     void resetCamera()
     {
-        float dist = 6;
-        float pitch = -20;
-        float yaw = 90;
-        float targetPos[3] = {0, 2, 0};
-        // float dist = 20;
-        // float pitch = -30;
-        // float yaw = 125;
-        // float targetPos[3] = {-2, 0, 2};
+        // float dist = 6;
+        // float pitch = -20;
+        // float yaw = 90;
+        // float targetPos[3] = {0, 2, 0};
+        float dist = 20;
+        float pitch = -30;
+        float yaw = 125;
+        float targetPos[3] = {-2, 0, 2};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
     void Ctor_RbUpStack()
     {
         float mass = 10;
-        btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
-        // btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
+        // btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
+        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
         btTransform startTransform;
         startTransform.setIdentity();
         // startTransform.setOrigin(btVector3(0, 12, 0));
         // btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
         // rb0->setLinearVelocity(btVector3(0, 0, 0));
 
-        startTransform.setOrigin(btVector3(0,10,0));
+        startTransform.setOrigin(btVector3(0,4,0));
         // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 4.0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setActivationState(DISABLE_DEACTIVATION);
@@ -146,18 +146,18 @@ void FreeFall::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
 
         btTransform init_transform;
         init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 5, 0));
-        init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 2.0));
+        init_transform.setOrigin(btVector3(0, 10, 0));
+        // init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(25);
+        rsb->setStiffnessScale(20);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -261,7 +261,7 @@ void FreeFall::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;

@@ -61,22 +61,22 @@ public:
     {
         // float dist = 20;
         // float pitch = -10;
-        // // float dist = 5;
-        // // float pitch = -5;
-        // float yaw = 90;
-        // float targetPos[3] = {0, 0, 0};
+        float dist = 10;
+        float pitch = -5;
+        float yaw = 90;
+        float targetPos[3] = {0, 0, 0};
 
-        float dist = 5;
-		float pitch = -35;
-		float yaw = 50;
-		float targetPos[3] = {-3, 2.8, -2.5};
+        // float dist = 5;
+		// float pitch = -35;
+		// float yaw = 50;
+		// float targetPos[3] = {-3, 2.8, -2.5};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
     void Ctor_RbUpStack()
     {
         // float mass = 55;
-        float mass = 10;
+        float mass = 8;
 
         btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
         btVector3 localInertia(0, 0, 0);
@@ -85,7 +85,7 @@ public:
 
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0,4,0));
+        startTransform.setOrigin(btVector3(0,-2,0));
         // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 3.0));
         btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 
@@ -95,7 +95,7 @@ public:
 		m_dynamicsWorld->addRigidBody(body, 1, 1+2);
 
         body->setActivationState(DISABLE_DEACTIVATION);
-        body->setLinearVelocity(btVector3(0, 0, 0));
+        body->setLinearVelocity(btVector3(0, COLLIDING_VELOCITY, 0));
         // body->setFriction(1);
     }
 
@@ -190,7 +190,7 @@ void ReducedCollide::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, -10, 0);
+    btVector3 gravity = btVector3(0, 0, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -200,6 +200,7 @@ void ReducedCollide::initPhysics()
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
     m_dynamicsWorld->setGravity(gravity);
 	m_dynamicsWorld->getSolverInfo().m_globalCfm = 1e-3;
+    m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     // create volumetric reduced deformable body
@@ -211,7 +212,7 @@ void ReducedCollide::initPhysics()
         
         btTransform init_transform;
         init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 10, 0));
+        init_transform.setOrigin(btVector3(0, 4, 0));
         // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
@@ -226,70 +227,70 @@ void ReducedCollide::initPhysics()
         rsb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
         
-        rsb->setRigidVelocity(btVector3(0, 0, 0));
+        rsb->setRigidVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     // rigidBar();
 
     // add a few rigid bodies
-    // Ctor_RbUpStack();
+    Ctor_RbUpStack();
     
     // create ground
-    createGround();
+    // createGround();
 
     // create multibody
-    {
-        bool damping = false;
-        bool gyro = true;
-        int numLinks = 0;
-        bool spherical = true;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
-        bool multibodyOnly = true;
-        bool canSleep = false;
-        bool selfCollide = true;
-        bool multibodyConstraint = false;
-        btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-        btVector3 baseHalfExtents(1, 1, 1);
-        // btVector3 baseHalfExtents(2.5, 0.5, 2.5);
-        // btVector3 baseHalfExtents(0.05, 0.37, 0.1);
+    // {
+    //     bool damping = false;
+    //     bool gyro = true;
+    //     int numLinks = 0;
+    //     bool spherical = true;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
+    //     bool multibodyOnly = true;
+    //     bool canSleep = false;
+    //     bool selfCollide = true;
+    //     bool multibodyConstraint = false;
+    //     btVector3 linkHalfExtents(0.05, 0.37, 0.1);
+    //     btVector3 baseHalfExtents(1, 1, 1);
+    //     // btVector3 baseHalfExtents(2.5, 0.5, 2.5);
+    //     // btVector3 baseHalfExtents(0.05, 0.37, 0.1);
 
-        bool g_floatingBase = true;
-        // btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(m_dynamicsWorld, numLinks, btVector3(0, 4, 0), linkHalfExtents, baseHalfExtents, spherical, g_floatingBase);
-        btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(m_dynamicsWorld, numLinks, btVector3(0.f, 4.f, 0.f), baseHalfExtents, linkHalfExtents, spherical, g_floatingBase);
-        //mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
+    //     bool g_floatingBase = true;
+    //     // btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(m_dynamicsWorld, numLinks, btVector3(0, 4, 0), linkHalfExtents, baseHalfExtents, spherical, g_floatingBase);
+    //     btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(m_dynamicsWorld, numLinks, btVector3(0.f, 4.f, 0.f), baseHalfExtents, linkHalfExtents, spherical, g_floatingBase);
+    //     //mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
 
-        mbC->setCanSleep(canSleep);
-        mbC->setHasSelfCollision(selfCollide);
-        mbC->setUseGyroTerm(gyro);
-        //
-        if (!damping)
-        {
-            mbC->setLinearDamping(0.f);
-            mbC->setAngularDamping(0.f);
-        }
-        else
-        {
-            mbC->setLinearDamping(0.1f);
-            mbC->setAngularDamping(0.9f);
-        }
-        //
-        //////////////////////////////////////////////
-        // if (numLinks > 0)
-        // {
-        //     btScalar q0 = 45.f * SIMD_PI / 180.f;
-        //     if (!spherical)
-        //     {
-        //         mbC->setJointPosMultiDof(0, &q0);
-        //     }
-        //     else
-        //     {
-        //         btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
-        //         quat0.normalize();
-        //         mbC->setJointPosMultiDof(0, quat0);
-        //     }
-        // }
-        ///
-        addColliders_testMultiDof(mbC, m_dynamicsWorld, baseHalfExtents, linkHalfExtents);
-    }
+    //     mbC->setCanSleep(canSleep);
+    //     mbC->setHasSelfCollision(selfCollide);
+    //     mbC->setUseGyroTerm(gyro);
+    //     //
+    //     if (!damping)
+    //     {
+    //         mbC->setLinearDamping(0.f);
+    //         mbC->setAngularDamping(0.f);
+    //     }
+    //     else
+    //     {
+    //         mbC->setLinearDamping(0.1f);
+    //         mbC->setAngularDamping(0.9f);
+    //     }
+    //     //
+    //     //////////////////////////////////////////////
+    //     // if (numLinks > 0)
+    //     // {
+    //     //     btScalar q0 = 45.f * SIMD_PI / 180.f;
+    //     //     if (!spherical)
+    //     //     {
+    //     //         mbC->setJointPosMultiDof(0, &q0);
+    //     //     }
+    //     //     else
+    //     //     {
+    //     //         btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
+    //     //         quat0.normalize();
+    //     //         mbC->setJointPosMultiDof(0, quat0);
+    //     //     }
+    //     // }
+    //     ///
+    //     addColliders_testMultiDof(mbC, m_dynamicsWorld, baseHalfExtents, linkHalfExtents);
+    // }
 
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);

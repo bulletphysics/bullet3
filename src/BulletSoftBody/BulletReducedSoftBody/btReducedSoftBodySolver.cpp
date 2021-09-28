@@ -3,6 +3,7 @@
 
 btReducedSoftBodySolver::btReducedSoftBodySolver()
 {
+  m_ascendOrder = true;
   m_reducedSolver = true;
   m_dampingAlpha = 0;
   m_dampingBeta = 0;
@@ -265,48 +266,62 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
 {
   btScalar residualSquare = 0;
 
-  // handle fixed constraint
+  btAlignedObjectArray<int> m_orderNonContactConstraintPool;
+  btAlignedObjectArray<int> m_orderContactConstraintPool;
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
+    // shuffle the order of applying constraint
+    // if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
+    {
+
+      m_orderNonContactConstraintPool.resize(m_staticConstraints[i].size());
+      m_orderContactConstraintPool.resize(m_nodeRigidConstraints[i].size());
+      // fixed constraint order
+      for (int j = 0; j < m_staticConstraints[i].size(); ++j)
+      {
+        m_orderNonContactConstraintPool[j] = m_ascendOrder ? j : m_staticConstraints[i].size() - 1 - j;
+      }
+      // contact constraint order
+      for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
+      {
+        m_orderContactConstraintPool[j] = m_ascendOrder ? j : m_nodeRigidConstraints[i].size() - 1 - j;
+        std::cout << m_orderContactConstraintPool[j] << '\n';
+      }
+
+      m_ascendOrder = m_ascendOrder ? false : true;
+    }
+
+    // handle fixed constraint
     for (int k = 0; k < m_staticConstraints[i].size(); ++k)
     {
-      btReducedDeformableStaticConstraint& constraint = m_staticConstraints[i][k];
+      btReducedDeformableStaticConstraint& constraint = m_staticConstraints[i][m_orderNonContactConstraintPool[k]];
       btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
       residualSquare = btMax(residualSquare, localResidualSquare);
     }
+
+    // handle contact constraint
+
+    // node vs rigid contact
+    std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[i].size() << '\n';
+    for (int k = 0; k < m_nodeRigidConstraints[i].size(); ++k)
+    {
+      btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][m_orderContactConstraintPool[k]];
+      btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+      residualSquare = btMax(residualSquare, localResidualSquare);
+    }
+
+    // face vs rigid contact
+    // for (int k = 0; k < m_faceRigidConstraints[i].size(); ++k)
+    // {
+    // 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[i][k];
+    // 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+    // 	residualSquare = btMax(residualSquare, localResidualSquare);
+    // }
   }
 
-  // handle contact constraint
-	for (int i = 0; i < numDeformableBodies; ++i)
-	{
-		for (int j = 0; j < m_softBodies.size(); ++j)
-		{
-			btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
-			if (rsb != deformableBodies[i])
-			{
-				continue;
-			}
-
-      // node vs rigid contact
-      std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[j].size() << '\n';
-			for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
-			{
-				btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-				residualSquare = btMax(residualSquare, localResidualSquare);
-			}
-
-      // face vs rigid contact
-			// for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
-			// {
-			// 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
-			// 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-			// 	residualSquare = btMax(residualSquare, localResidualSquare);
-			// }
-		}
-	}
+  
 	return residualSquare;
 }
 
@@ -318,4 +333,5 @@ void btReducedSoftBodySolver::deformableBodyInternalWriteBack()
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
     rsb->applyInternalVelocityChanges();
   }
+  m_ascendOrder = true;
 }

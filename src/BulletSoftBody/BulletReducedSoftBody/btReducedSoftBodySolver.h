@@ -10,6 +10,7 @@ class btReducedSoftBody;
 class btReducedSoftBodySolver : public btDeformableBodySolver
 {
  protected:
+  bool m_ascendOrder;
   btScalar m_dampingAlpha;
   btScalar m_dampingBeta;
 

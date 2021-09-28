@@ -346,12 +346,6 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 	m_bufferVelocityA = va;
 	m_bufferVelocityB = vb;
 
-	// add the external impulse force (TODO: add external torque impulse)
-	// if (!m_collideStatic)
-	// {
-	// 	va += m_solverBody->m_originalBody->getTotalForce() * m_solverBody->m_originalBody->getInvMass() * m_dt;
-	// }
-
 	// we define the (+) direction of errors to be the outward surface normal of the rigid object
 	btVector3 v_rel = vb - va;
 	// get tangent direction of the relative velocity
@@ -367,7 +361,7 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 	{
 		if (!m_collideMultibody)
 		{
-			m_contactTangent = v_tangent.normalize();
+			m_contactTangent = v_tangent.normalized();
 			// tangent impulse factor
 			m_tangentImpulseFactor = (m_impulseFactor * m_contactTangent).dot(m_contactTangent);
 			m_tangentImpulseFactorInv = btScalar(1) / m_tangentImpulseFactor;

@@ -8,7 +8,7 @@
 btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
  : btSoftBody(worldInfo, node_count, x, m)
 {
-  m_rigidOnly = false;     //! only use rigid frame to debug
+  m_rigidOnly = true;     //! only use rigid frame to debug
 
   // reduced deformable
   m_reducedModel = true;
