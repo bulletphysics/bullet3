@@ -8060,115 +8060,167 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 	{
 		return false;
 	}
-	int numSoftbodyContact = 0;
-	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
-	{
-		numSoftbodyContact += deformWorld->getSoftBodyArray()[i]->m_faceRigidContacts.size();
-	}
-	int num_contact_points = m_data->m_cachedContactPoints.size();
-	m_data->m_cachedContactPoints.reserve(num_contact_points + numSoftbodyContact);
 
 	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
 	{
 		btSoftBody* psb = deformWorld->getSoftBodyArray()[i];
+		btAlignedObjectArray<b3ContactPointData> distinctContactPoints;
+		btAlignedObjectArray<btSoftBody::Node*> nodesInContact;
 		for (int c = 0; c < psb->m_faceRigidContacts.size(); c++)
 		{
-			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[i];
-			//convert rigidbody contact
-			int linkIndexA = -1;
-			int linkIndexB = -1;
-			int objectIndexA = psb->getUserIndex2();
+			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[c];
+			// calculate normal and tangent impulse
+			btVector3 impulse = contact->m_cti.m_impulse;
+			btVector3 impulseNormal = impulse.dot(contact->m_cti.m_normal) * contact->m_cti.m_normal;
+			btVector3 impulseTangent = impulse - impulseNormal;
+			// get node in contact
+			int contactNodeIdx = contact->m_bary.maxAxis();
+			btSoftBody::Node* node = contact->m_face->m_n[contactNodeIdx];
+			// check if node is already in the list
+			int idx = nodesInContact.findLinearSearch2(node);
+			if (idx < 0)
+			{
+				// add new node and contact point
+				nodesInContact.push_back(node);
+				//convert rigidbody contact
+				int linkIndexA = -1;
+				int linkIndexB = -1;
+				int objectIndexA = psb->getUserIndex2();
 
-			int objectIndexB = -1;
-			const btRigidBody* bodyB = btRigidBody::upcast(contact->m_cti.m_colObj);
-			if (bodyB)
-			{
-				objectIndexB = bodyB->getUserIndex2();
-			}
-			const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(contact->m_cti.m_colObj);
-			if (mblB && mblB->m_multiBody)
-			{
-				linkIndexB = mblB->m_link;
-				objectIndexB = mblB->m_multiBody->getUserIndex2();
-			}
-
-			//apply the filter, if the user provides it
-			bool swap = false;
-			if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
-			{
-				if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexA)
+				int objectIndexB = -1;
+				const btRigidBody* bodyB = btRigidBody::upcast(contact->m_cti.m_colObj);
+				if (bodyB)
 				{
-					swap = false;
+					objectIndexB = bodyB->getUserIndex2();
 				}
-				else if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexB)
+				const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(contact->m_cti.m_colObj);
+				if (mblB && mblB->m_multiBody)
 				{
-					swap = true;
+					linkIndexB = mblB->m_link;
+					objectIndexB = mblB->m_multiBody->getUserIndex2();
 				}
-				else
+
+				//apply the filter, if the user provides it
+				bool swap = false;
+				if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
 				{
-					continue;
+					if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexA)
+					{
+						swap = false;
+					}
+					else if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexB)
+					{
+						swap = true;
+					}
+					else
+					{
+						continue;
+					}
 				}
-			}
 
-			if (swap)
-			{
-				std::swap(objectIndexA, objectIndexB);
-				std::swap(linkIndexA, linkIndexB);
-			}
-
-			//apply the second object filter, if the user provides it
-			if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter >= 0)
-			{
-				if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB)
-				{
-					continue;
-				}
-			}
-
-			if (
-				(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
-				clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
-			{
-				continue;
-			}
-
-			if (
-				(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
-				clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
-			{
-				continue;
-			}
-			b3ContactPointData pt;
-			pt.m_bodyUniqueIdA = objectIndexA;
-			pt.m_bodyUniqueIdB = objectIndexB;
-			pt.m_contactDistance = contact->m_cti.m_offset;
-			pt.m_contactFlags = 0;
-			pt.m_linkIndexA = linkIndexA;
-			pt.m_linkIndexB = linkIndexB;
-			for (int j = 0; j < 3; j++)
-			{
 				if (swap)
 				{
-					pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
-					pt.m_positionOnAInWS[j] = contact->m_cti.m_normal[j];
-					pt.m_positionOnBInWS[j] = -contact->m_cti.m_normal[j];
+					std::swap(objectIndexA, objectIndexB);
+					std::swap(linkIndexA, linkIndexB);
 				}
-				else
+
+				//apply the second object filter, if the user provides it
+				if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter >= 0)
 				{
-					pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
-					pt.m_positionOnAInWS[j] = -contact->m_cti.m_normal[j];
-					pt.m_positionOnBInWS[j] = contact->m_cti.m_normal[j];
+					if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB)
+					{
+						continue;
+					}
 				}
+
+				if (
+					(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
+					clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+				{
+					continue;
+				}
+
+				if (
+					(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
+					clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
+				{
+					continue;
+				}
+				b3ContactPointData pt;
+				pt.m_bodyUniqueIdA = objectIndexA;
+				pt.m_bodyUniqueIdB = objectIndexB;
+				pt.m_contactDistance = -contact->m_cti.m_offset;
+				pt.m_contactFlags = 0;
+				pt.m_linkIndexA = linkIndexA;
+				pt.m_linkIndexB = linkIndexB;
+				for (int j = 0; j < 3; j++)
+				{
+					if (swap)
+					{
+						pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
+						pt.m_positionOnAInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
+						pt.m_positionOnBInWS[j] = node->m_x[j];
+					}
+					else
+					{
+						pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
+						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
+						pt.m_positionOnAInWS[j] = node->m_x[j];
+						pt.m_positionOnBInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+					}
+				}
+				pt.m_normalForce = (impulseNormal / m_data->m_physicsDeltaTime).norm();
+				pt.m_linearFrictionForce1 = (impulseTangent.dot(contact->t1) * contact->t1 / m_data->m_physicsDeltaTime).norm();
+				pt.m_linearFrictionForce2 = (impulseTangent.dot(contact->t2) * contact->t2 / m_data->m_physicsDeltaTime).norm();
+				for (int j = 0; j < 3; j++)
+				{
+					pt.m_linearFrictionDirection1[j] = contact->t1[j];
+					pt.m_linearFrictionDirection2[j] = contact->t2[j];
+				}
+				distinctContactPoints.push_back(pt);
 			}
-			pt.m_normalForce = 1;
-			pt.m_linearFrictionForce1 = 0;
-			pt.m_linearFrictionForce2 = 0;
-			for (int j = 0; j < 3; j++)
+			else
 			{
-				pt.m_linearFrictionDirection1[j] = 0;
-				pt.m_linearFrictionDirection2[j] = 0;
+				// add values to existing contact point
+				b3ContactPointData* pt = &distinctContactPoints[idx];
+				// current normal force of node
+				btVector3 normalForce = btVector3(btScalar(pt->m_contactNormalOnBInWS[0]),
+												  btScalar(pt->m_contactNormalOnBInWS[1]),
+												  btScalar(pt->m_contactNormalOnBInWS[2])) * pt->m_normalForce;
+				// add normal force of additional node contact 
+				normalForce += contact->m_cti.m_normal * (impulseNormal / m_data->m_physicsDeltaTime).norm();
+				// get magnitude of normal force
+				pt->m_normalForce = normalForce.norm();
+				// get direction of normal force
+				if (!normalForce.fuzzyZero()) 
+				{
+					// normalize for unit vectors if above numerical threshold
+					normalForce.normalize();
+					for (int j = 0; j < 3; j++)
+					{
+						pt->m_contactNormalOnBInWS[j] = normalForce[j];
+					}
+				}
+
+				// add magnitudes of tangential forces in existing directions
+				btVector3 linearFrictionDirection1 = btVector3(btScalar(pt->m_linearFrictionDirection1[0]),
+															   btScalar(pt->m_linearFrictionDirection1[1]),
+															   btScalar(pt->m_linearFrictionDirection1[2]));
+				btVector3 linearFrictionDirection2 = btVector3(btScalar(pt->m_linearFrictionDirection2[0]),
+															   btScalar(pt->m_linearFrictionDirection2[1]),
+															   btScalar(pt->m_linearFrictionDirection2[2]));
+				pt->m_linearFrictionForce1 = (impulseTangent.dot(linearFrictionDirection1) * linearFrictionDirection1 / m_data->m_physicsDeltaTime).norm();
+				pt->m_linearFrictionForce2 = (impulseTangent.dot(linearFrictionDirection2) * linearFrictionDirection2 / m_data->m_physicsDeltaTime).norm();
 			}
-			m_data->m_cachedContactPoints.push_back(pt);
+		}
+
+		int num_contact_points = m_data->m_cachedContactPoints.size() + distinctContactPoints.size();
+		m_data->m_cachedContactPoints.reserve(num_contact_points);
+		// add points to contact points cache
+		for (int p = 0; p < distinctContactPoints.size(); p++)
+		{
+			m_data->m_cachedContactPoints.push_back(distinctContactPoints[p]);
 		}
 	}
 #endif
