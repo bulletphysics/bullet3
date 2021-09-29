@@ -22,10 +22,10 @@ class XmlBasedRobot:
     self.ordered_joints = None
     self.robot_body = None
 
-    high = np.ones([action_dim])
-    self.action_space = gym.spaces.Box(-high, high)
-    high = np.inf * np.ones([obs_dim])
-    self.observation_space = gym.spaces.Box(-high, high)
+    high = np.ones([action_dim], dtype=np.float32)
+    self.action_space = gym.spaces.Box(-high, high, dtype=np.float32)
+    high = np.inf * np.ones([obs_dim], dtype=np.float32)
+    self.observation_space = gym.spaces.Box(-high, high, dtype=np.float32)
 
     #self.model_xml = model_xml
     self.robot_name = robot_name
