@@ -11850,7 +11850,6 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 				else
 				{
 					int link = clientCmd.m_externalForceArguments.m_linkIds[i];
-
 					btVector3 forceWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis() * tmpForce : tmpForce;
 					btVector3 relPosWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis() * tmpPosition : tmpPosition - mb->getLink(link).m_cachedWorldTransform.getOrigin();
 					mb->addLinkForce(link, forceWorld);
@@ -11860,20 +11859,20 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 			}
 			if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_TORQUE) != 0)
 			{
-				btVector3 torqueLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
-									  clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
-									  clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
+				btVector3 tmpTorque(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
 
 				if (clientCmd.m_externalForceArguments.m_linkIds[i] == -1)
 				{
-					btVector3 torqueWorld = isLinkFrame ? torqueLocal : mb->getBaseWorldTransform().getBasis() * torqueLocal;
+					btVector3 torqueWorld = isLinkFrame ? mb->getBaseWorldTransform().getBasis() * tmpTorque : tmpTorque;
 					mb->addBaseTorque(torqueWorld);
 					//b3Printf("apply base torque of %f,%f,%f\n", torqueWorld[0],torqueWorld[1],torqueWorld[2]);
 				}
 				else
 				{
 					int link = clientCmd.m_externalForceArguments.m_linkIds[i];
-					btVector3 torqueWorld = mb->getLink(link).m_cachedWorldTransform.getBasis() * torqueLocal;
+					btVector3 torqueWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis() * tmpTorque : tmpTorque;
 					mb->addLinkTorque(link, torqueWorld);
 					//b3Printf("apply link torque of %f,%f,%f\n", torqueWorld[0],torqueWorld[1],torqueWorld[2]);
 				}
@@ -11885,26 +11884,26 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 			btRigidBody* rb = body->m_rigidBody;
 			if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE) != 0)
 			{
-				btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
-									 clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
-									 clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
-				btVector3 positionLocal(
+				btVector3 tmpForce(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
+								   clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
+								   clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
+				btVector3 tmpPosition(
 					clientCmd.m_externalForceArguments.m_positions[i * 3 + 0],
 					clientCmd.m_externalForceArguments.m_positions[i * 3 + 1],
 					clientCmd.m_externalForceArguments.m_positions[i * 3 + 2]);
 
-				btVector3 forceWorld = isLinkFrame ? forceLocal : rb->getWorldTransform().getBasis() * forceLocal;
-				btVector3 relPosWorld = isLinkFrame ? positionLocal : rb->getWorldTransform().getBasis() * positionLocal;
+				btVector3 forceWorld = isLinkFrame ? rb->getWorldTransform().getBasis() * tmpForce : tmpForce;
+				btVector3 relPosWorld = isLinkFrame ? rb->getWorldTransform().getBasis() * tmpPosition : tmpPosition - rb->getWorldTransform().getOrigin();
 				rb->applyForce(forceWorld, relPosWorld);
 			}
 
 			if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_TORQUE) != 0)
 			{
-				btVector3 torqueLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
-									  clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
-									  clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
+				btVector3 tmpTorque(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
 
-				btVector3 torqueWorld = isLinkFrame ? torqueLocal : rb->getWorldTransform().getBasis() * torqueLocal;
+				btVector3 torqueWorld = isLinkFrame ? rb->getWorldTransform().getBasis() * tmpTorque : tmpTorque;
 				rb->applyTorque(torqueWorld);
 			}
 		}
@@ -11916,16 +11915,16 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 			int link = clientCmd.m_externalForceArguments.m_linkIds[i];
 			if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE) != 0)
 			{
-				btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
-									 clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
-									 clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
-				btVector3 positionLocal(
+				btVector3 tmpForce(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
+								   clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
+								   clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
+				btVector3 tmpPosition(
 					clientCmd.m_externalForceArguments.m_positions[i * 3 + 0],
 					clientCmd.m_externalForceArguments.m_positions[i * 3 + 1],
 					clientCmd.m_externalForceArguments.m_positions[i * 3 + 2]);
 
-				btVector3 forceWorld = isLinkFrame ? forceLocal : sb->getWorldTransform().getBasis() * forceLocal;
-				btVector3 relPosWorld = isLinkFrame ? positionLocal : sb->getWorldTransform().getBasis() * positionLocal;
+				btVector3 forceWorld = isLinkFrame ? sb->getWorldTransform().getBasis() * tmpForce : tmpForce;
+				btVector3 relPosWorld = isLinkFrame ? sb->getWorldTransform().getBasis() * tmpPosition : tmpPosition - sb->getWorldTransform().getOrigin();
 				if (link >= 0 && link < sb->m_nodes.size())
 				{
 					sb->addForce(forceWorld, link);
