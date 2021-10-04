@@ -8,7 +8,7 @@
 btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
  : btSoftBody(worldInfo, node_count, x, m)
 {
-  m_rigidOnly = true;     //! only use rigid frame to debug
+  m_rigidOnly = false;     //! only use rigid frame to debug
 
   // reduced deformable
   m_reducedModel = true;
@@ -26,7 +26,8 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_internalDeltaAngularVelocity.setZero();
 	m_angularFactor.setValue(1, 1, 1);
 	m_linearFactor.setValue(1, 1, 1);
-  m_invInertiaLocal.setValue(1, 1, 1);
+  // m_invInertiaLocal.setValue(1, 1, 1);
+  m_invInertiaLocal.setIdentity();
   m_mass = 0.0;
   m_inverseMass = 0.0;
 
@@ -76,18 +77,18 @@ void btReducedSoftBody::setInertiaProps(const btVector3& inertia)
 {
   // TODO: only support box shape now
   // set local inertia
-  m_invInertiaLocal.setValue(
-                inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x() : btScalar(0.0),
-							  inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
-							  inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
+  // m_invInertiaLocal.setValue(
+  //               inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x() : btScalar(0.0),
+	// 						  inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
+	// 						  inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
   
+  updateLocalInertiaTensorFromNodes();
 
 
   // update world inertia tensor
   btMatrix3x3 rotation;
   rotation.setIdentity();
   updateInitialInertiaTensor(rotation);
-  // updateInitialInertiaTensorFromNodes();
   updateInertiaTensor();
   m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
 }
@@ -367,7 +368,37 @@ void btReducedSoftBody::transform(const btTransform& trs)
 void btReducedSoftBody::scale(const btVector3& scl)
 {
   // scale the mesh
-  btSoftBody::scale(scl);
+  {
+    const btScalar margin = getCollisionShape()->getMargin();
+    ATTRIBUTE_ALIGNED16(btDbvtVolume)
+    vol;
+
+    btVector3 CoM = m_rigidTransformWorld.getOrigin();
+
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+      Node& n = m_nodes[i];
+      n.m_x = (n.m_x - CoM) * scl + CoM;
+      n.m_q = (n.m_q - CoM) * scl + CoM;
+      vol = btDbvtVolume::FromCR(n.m_x, margin);
+      m_ndbvt.update(n.m_leaf, vol);
+    }
+    updateNormals();
+    updateBounds();
+    updateConstants();
+    initializeDmInverse();
+  }
+
+  // update inertia tensor
+  updateLocalInertiaTensorFromNodes();
+
+  btMatrix3x3 id;
+  id.setIdentity();
+  updateInitialInertiaTensor(id);   // there is no rotation, but the local inertia tensor has changed
+  updateInertiaTensor();
+  m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
+
+  internalInitialization();
 }
 
 void btReducedSoftBody::updateRestNodalPositions()
@@ -380,7 +411,7 @@ void btReducedSoftBody::updateRestNodalPositions()
   }
 }
 
-void btReducedSoftBody::updateInitialInertiaTensorFromNodes()
+void btReducedSoftBody::updateLocalInertiaTensorFromNodes()
 {
   btMatrix3x3 inertia_tensor;
   inertia_tensor.setZero();
@@ -396,12 +427,13 @@ void btReducedSoftBody::updateInitialInertiaTensorFromNodes()
       }
     }
   }
-  m_invInertiaTensorWorldInitial = inertia_tensor.inverse();
+  m_invInertiaLocal = inertia_tensor.inverse();
 }
 
 void btReducedSoftBody::updateInitialInertiaTensor(const btMatrix3x3& rotation)
 {
-  m_invInertiaTensorWorldInitial = rotation.scaled(m_invInertiaLocal) * rotation.transpose();
+  // m_invInertiaTensorWorldInitial = rotation.scaled(m_invInertiaLocal) * rotation.transpose();
+  m_invInertiaTensorWorldInitial = rotation * m_invInertiaLocal * rotation.transpose();
 }
 
 void btReducedSoftBody::updateModesByRotation(const btMatrix3x3& rotation)
@@ -658,7 +690,7 @@ void btReducedSoftBody::applyReducedDampingForce(const tDenseArray& reduce_vel)
 {
   for (int r = 0; r < m_nReduced; ++r) 
   {
-    m_reducedForceDamping[r] = - m_dampingBeta * m_Kr[r] * reduce_vel[r];
+    m_reducedForceDamping[r] = - m_dampingBeta * m_ksScale * m_Kr[r] * reduce_vel[r];
   }
 }
 

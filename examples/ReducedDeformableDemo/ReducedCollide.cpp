@@ -30,10 +30,10 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0001;
+static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 4;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 20;
 
 class ReducedCollide : public CommonDeformableBodyBase
 {
@@ -75,10 +75,10 @@ public:
     
     void Ctor_RbUpStack()
     {
-        // float mass = 55;
-        float mass = 8;
+        float mass = 55;
+        // float mass = 8;
 
-        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
+        btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
         btVector3 localInertia(0, 0, 0);
 		if (mass != 0.f)
 			shape->calculateLocalInertia(mass, localInertia);
@@ -205,10 +205,11 @@ void ReducedCollide::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
+        rsb->scale(btVector3(1, 1, 1));
         
         btTransform init_transform;
         init_transform.setIdentity();
@@ -216,7 +217,7 @@ void ReducedCollide::initPhysics()
         // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(100);
+        rsb->setStiffnessScale(20);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -298,9 +299,9 @@ void ReducedCollide::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
-    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 200;
+    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     
     // {

@@ -46,7 +46,8 @@ class btReducedSoftBody : public btSoftBody
   btScalar m_angularDamping;    // angular damping coefficient
   btVector3 m_linearFactor;
   btVector3 m_angularFactor;
-  btVector3 m_invInertiaLocal;
+  // btVector3 m_invInertiaLocal;
+  btMatrix3x3 m_invInertiaLocal;
   btTransform m_rigidTransformWorld;
   btMatrix3x3 m_invInertiaTensorWorldInitial;
   btMatrix3x3 m_invInertiaTensorWorld;
@@ -122,8 +123,15 @@ class btReducedSoftBody : public btSoftBody
   //
   // various internal updates
   //
-  virtual void scale(const btVector3& scl);
   virtual void transform(const btTransform& trs);
+  // caution: 
+  // need to use scale before using transform, because the scale is performed in the local frame 
+  // (i.e., may have some rotation already, but the m_rigidTransformWorld doesn't have this info)
+  virtual void scale(const btVector3& scl);
+  virtual void transformTo(const btTransform& trs)
+  {
+    btAssert(false); // not supported yet
+  }
   virtual void translate(const btVector3& trs)
   {
     btAssert(false); // use transform().
@@ -138,7 +146,7 @@ class btReducedSoftBody : public btSoftBody
 
   void updateInitialInertiaTensor(const btMatrix3x3& rotation);
 
-  void updateInitialInertiaTensorFromNodes();
+  void updateLocalInertiaTensorFromNodes();
 
   void updateInertiaTensor();
 

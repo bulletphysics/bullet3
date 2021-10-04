@@ -33,7 +33,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 40;
+static int num_modes = 20;
 
 class FreeFall : public CommonDeformableBodyBase
 {
@@ -56,14 +56,14 @@ public:
 
     void resetCamera()
     {
-        // float dist = 6;
-        // float pitch = -20;
-        // float yaw = 90;
-        // float targetPos[3] = {0, 2, 0};
-        float dist = 20;
-        float pitch = -30;
-        float yaw = 125;
-        float targetPos[3] = {-2, 0, 2};
+        float dist = 10;
+        float pitch = -20;
+        float yaw = 90;
+        float targetPos[3] = {0, 2, 0};
+        // float dist = 20;
+        // float pitch = -30;
+        // float yaw = 125;
+        // float targetPos[3] = {-2, 0, 2};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
@@ -143,6 +143,7 @@ void FreeFall::initPhysics()
 
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+    // m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
 
     // create volumetric reduced deformable body
     {   
@@ -150,11 +151,12 @@ void FreeFall::initPhysics()
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
+        rsb->scale(btVector3(1, 1, 0.5));
 
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 10, 0));
-        // init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 2.0));
+        init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 4.0));
         rsb->transform(init_transform);
 
         rsb->setStiffnessScale(20);
@@ -173,7 +175,7 @@ void FreeFall::initPhysics()
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     // add a few rigid bodies
-    Ctor_RbUpStack();
+    // Ctor_RbUpStack();
     // create a static rigid box as the ground
     {
         // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));

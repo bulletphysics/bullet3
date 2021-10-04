@@ -39,7 +39,7 @@
 static btScalar sGripperVerticalVelocity = 0.f;
 static btScalar sGripperClosingTargetVelocity = 0.f;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.001;
 static int start_mode = 6;
 static int num_modes = 20;
 static float friction = 1.;
@@ -126,14 +126,14 @@ public:
                         if (dofIndex == 6)
                         {
                             motor->setVelocityTarget(-fingerTargetVelocities[1], 1);
-                            motor->setMaxAppliedImpulse(70);
+                            motor->setMaxAppliedImpulse(100);
                         }
                         if (dofIndex == 7)
                         {
                             motor->setVelocityTarget(fingerTargetVelocities[1], 1);
-                            motor->setMaxAppliedImpulse(70);
+                            motor->setMaxAppliedImpulse(100);
                         }
-                        motor->setMaxAppliedImpulse(50);
+                        motor->setMaxAppliedImpulse(200);
                     }
                 }
                 dofIndex += mb->getLink(link).m_dofCount;
@@ -320,15 +320,15 @@ void ReducedMotorGrasp::initPhysics()
         btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.05);
+        rsb->getCollisionShape()->setMargin(0.01);
 
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 0.5, 0));
-        init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, SIMD_PI / 2.0));
+        // init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(20);
+        rsb->setStiffnessScale(25);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
@@ -359,8 +359,8 @@ void ReducedMotorGrasp::initPhysics()
         SliderParams slider("Moving velocity", &sGripperVerticalVelocity);
         // slider.m_minVal = -.02;
         // slider.m_maxVal = .02;
-        slider.m_minVal = -.2;
-        slider.m_maxVal = .2;
+        slider.m_minVal = -.5;
+        slider.m_maxVal = .5;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     

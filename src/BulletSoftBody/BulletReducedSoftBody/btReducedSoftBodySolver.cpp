@@ -273,11 +273,10 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
     // shuffle the order of applying constraint
-    // if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
+    m_orderNonContactConstraintPool.resize(m_staticConstraints[i].size());
+    m_orderContactConstraintPool.resize(m_nodeRigidConstraints[i].size());
+    if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
     {
-
-      m_orderNonContactConstraintPool.resize(m_staticConstraints[i].size());
-      m_orderContactConstraintPool.resize(m_nodeRigidConstraints[i].size());
       // fixed constraint order
       for (int j = 0; j < m_staticConstraints[i].size(); ++j)
       {
@@ -287,10 +286,21 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
       for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
       {
         m_orderContactConstraintPool[j] = m_ascendOrder ? j : m_nodeRigidConstraints[i].size() - 1 - j;
-        std::cout << m_orderContactConstraintPool[j] << '\n';
       }
 
       m_ascendOrder = m_ascendOrder ? false : true;
+    }
+    else
+    {
+      for (int j = 0; j < m_staticConstraints[i].size(); ++j)
+      {
+        m_orderNonContactConstraintPool[j] = j;
+      }
+      // contact constraint order
+      for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
+      {
+        m_orderContactConstraintPool[j] = j;
+      }
     }
 
     // handle fixed constraint
