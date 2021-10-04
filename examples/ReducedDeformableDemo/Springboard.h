@@ -11,9 +11,9 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef _REDUCED_BASIC_TEST_H
-#define _REDUCED_BASIC_TEST_H
+#ifndef _REDUCED_SPRINGBOARD_H
+#define _REDUCED_SPRINGBOARD_H
 
-class CommonExampleInterface* ReducedBasicTestCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* ReducedSpringboardCreateFunc(struct CommonExampleOptions& options);
 
-#endif  //_REDUCED_BASIC_TEST_H
+#endif  //_REDUCED_SPRINGBOARD_H

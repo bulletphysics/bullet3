@@ -388,8 +388,10 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp
   ../RigidBody/KinematicRigidBodyExample.cpp
-	../ReducedDeformableDemo/BasicTest.cpp
-	../ReducedDeformableDemo/BasicTest.h
+	../ReducedDeformableDemo/ConservationTest.cpp
+	../ReducedDeformableDemo/ConservationTest.h
+	../ReducedDeformableDemo/Springboard.cpp
+	../ReducedDeformableDemo/Springboard.h
 	../ReducedDeformableDemo/ModeVisualizer.cpp
 	../ReducedDeformableDemo/ModeVisualizer.h
 	../ReducedDeformableDemo/FreeFall.cpp

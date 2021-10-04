@@ -411,6 +411,8 @@ void btReducedSoftBody::updateRestNodalPositions()
   }
 }
 
+// reference notes:
+// https://ocw.mit.edu/courses/aeronautics-and-astronautics/16-07-dynamics-fall-2009/lecture-notes/MIT16_07F09_Lec26.pdf
 void btReducedSoftBody::updateLocalInertiaTensorFromNodes()
 {
   btMatrix3x3 inertia_tensor;
@@ -418,14 +420,24 @@ void btReducedSoftBody::updateLocalInertiaTensorFromNodes()
 
   for (int p = 0; p < m_nFull; ++p)
   {
+    btMatrix3x3 particle_inertia;
+    particle_inertia.setZero();
+
     btVector3 r = m_nodes[p].m_x - m_initialOrigin;
-    for (int i = 0; i < 3; ++i)
-    {
-      for (int j = 0; j < 3; ++j)
-      {
-        inertia_tensor[i][j] += m_nodalMass[p] * r[i] * r[j];
-      }
-    }
+
+    particle_inertia[0][0] = m_nodalMass[p] * (r[1] * r[1] + r[2] * r[2]);
+    particle_inertia[1][1] = m_nodalMass[p] * (r[0] * r[0] + r[2] * r[2]);
+    particle_inertia[2][2] = m_nodalMass[p] * (r[0] * r[0] + r[1] * r[1]);
+
+    particle_inertia[0][1] = - m_nodalMass[p] * (r[0] * r[1]);
+    particle_inertia[0][2] = - m_nodalMass[p] * (r[0] * r[2]);
+    particle_inertia[1][2] = - m_nodalMass[p] * (r[1] * r[2]);
+
+    particle_inertia[1][0] = particle_inertia[0][1];
+    particle_inertia[2][0] = particle_inertia[0][2];
+    particle_inertia[2][1] = particle_inertia[1][2];
+
+    inertia_tensor += particle_inertia;
   }
   m_invInertiaLocal = inertia_tensor.inverse();
 }
