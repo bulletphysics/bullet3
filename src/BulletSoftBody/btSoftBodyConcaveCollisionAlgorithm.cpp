@@ -195,8 +195,7 @@ void btSoftBodyConcaveCollisionAlgorithm::processCollision(const btCollisionObje
 
 	if (triBody->getCollisionShape()->isConcave())
 	{
-		const btCollisionObject* triOb = triBody->getCollisionObject();
-		const btConcaveShape* concaveShape = static_cast<const btConcaveShape*>(triOb->getCollisionShape());
+		const btConcaveShape* concaveShape = static_cast<const btConcaveShape*>(triBody->getCollisionShape());
 
 		//	if (convexBody->getCollisionShape()->isConvex())
 		{
