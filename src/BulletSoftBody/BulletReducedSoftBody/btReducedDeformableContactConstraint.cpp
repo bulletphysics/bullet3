@@ -57,8 +57,10 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
   m_appliedTangentImpulse = 0;
 	m_rhs = 0;
 	m_rhs_tangent = 0;
-	m_cfm = 0;
+	m_cfm = infoGlobal.m_deformable_cfm;
+	m_cfm_friction = 0;
 	m_erp = infoGlobal.m_deformable_erp;
+	m_erp_friction = infoGlobal.m_deformable_erp;
 	m_friction = infoGlobal.m_friction;
 
 	m_collideStatic = m_contact->m_cti.m_colObj->isStaticObject();
@@ -123,7 +125,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// }
 	
 	// get the normal impulse to be applied
-	btScalar deltaImpulse = m_rhs - deltaV_rel_normal / m_normalImpulseFactor;
+	btScalar deltaImpulse = m_rhs - m_appliedNormalImpulse * m_cfm - deltaV_rel_normal / m_normalImpulseFactor;
 	// if (!m_collideStatic)
 	// {
 	// 	std::cout << "m_rhs: " << m_rhs << '\t' << "m_appliedNormalImpulse: "  << m_appliedNormalImpulse << "\n";
@@ -284,7 +286,7 @@ void btReducedDeformableRigidContactConstraint::calculateTangentialImpulse(btSca
 {
 	btScalar deltaV_rel_tangent = btDot(deltaV_rel, tangent);
 	btScalar impulse_changed = deltaV_rel_tangent * tangentImpulseFactorInv;
-	deltaImpulse_tangent = rhs_tangent - impulse_changed;
+	deltaImpulse_tangent = rhs_tangent - m_cfm_friction * appliedImpulse - impulse_changed;
 
 	btScalar sum = appliedImpulse + deltaImpulse_tangent;
 	if (sum > upper_limit)
@@ -387,7 +389,7 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 		btScalar position_error = 0;
 		if (m_penetration > 0)
 		{
-			// velocity_error += m_penetration / m_dt; // TODO: why?
+			velocity_error += m_penetration / m_dt;
 		}
 		else
 		{

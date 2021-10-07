@@ -53,7 +53,9 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btScalar m_rhs_tangent2;
   
   btScalar m_cfm;
+  btScalar m_cfm_friction;
   btScalar m_erp;
+  btScalar m_erp_friction;
   btScalar m_friction;
 
   btVector3 m_contactNormalA;     // surface normal for rigid body (opposite direction as impulse)

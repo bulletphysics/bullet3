@@ -29,7 +29,7 @@
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
 static int start_mode = 6;
-static int num_modes = 20;
+static int num_modes = 1;
 
 class ConservationTest : public CommonDeformableBodyBase
 {
@@ -217,6 +217,7 @@ void ConservationTest::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;

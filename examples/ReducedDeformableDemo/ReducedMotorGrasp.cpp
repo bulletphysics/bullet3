@@ -39,7 +39,7 @@
 static btScalar sGripperVerticalVelocity = 0.f;
 static btScalar sGripperClosingTargetVelocity = 0.f;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.001;
+static btScalar damping_beta = 0.0;
 static int start_mode = 6;
 static int num_modes = 20;
 static float friction = 1.;
@@ -328,7 +328,7 @@ void ReducedMotorGrasp::initPhysics()
         // init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(25);
+        rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
@@ -348,6 +348,7 @@ void ReducedMotorGrasp::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;

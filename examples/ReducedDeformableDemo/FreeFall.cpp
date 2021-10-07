@@ -151,15 +151,15 @@ void FreeFall::initPhysics()
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
-        rsb->scale(btVector3(1, 1, 0.5));
+        // rsb->scale(btVector3(1, 1, 0.5));
 
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 10, 0));
-        init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 4.0));
+        // init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 4.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(20);
+        rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -175,7 +175,7 @@ void FreeFall::initPhysics()
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     // add a few rigid bodies
-    // Ctor_RbUpStack();
+    Ctor_RbUpStack();
     // create a static rigid box as the ground
     {
         // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
@@ -262,6 +262,7 @@ void FreeFall::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);

@@ -75,7 +75,7 @@ public:
     
     void Ctor_RbUpStack()
     {
-        float mass = 55;
+        float mass = 28;
         // float mass = 8;
 
         btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
@@ -209,7 +209,7 @@ void ReducedCollide::initPhysics()
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
-        rsb->scale(btVector3(1, 1, 1));
+        // rsb->scale(btVector3(0.5, 0.5, 0.5));
         
         btTransform init_transform;
         init_transform.setIdentity();
@@ -217,7 +217,7 @@ void ReducedCollide::initPhysics()
         // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
-        rsb->setStiffnessScale(20);
+        rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -230,6 +230,7 @@ void ReducedCollide::initPhysics()
         
         rsb->setRigidVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        b3Printf("total mass: %e", rsb->getTotalMass());
     }
     // rigidBar();
 
@@ -298,6 +299,7 @@ void ReducedCollide::initPhysics()
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;

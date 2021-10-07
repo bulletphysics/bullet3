@@ -28,7 +28,7 @@
 
 
 static int start_mode = 6;
-static int num_modes = 20;
+static int num_modes = 40;
 static btScalar visualize_mode = 0;
 static btScalar frequency_scale = 1;
 
@@ -42,6 +42,19 @@ class ModeVisualizer : public CommonDeformableBodyBase
       for (int i = 0; i < rsb->m_nodes.size(); ++i)
         for (int k = 0; k < 3; ++k)
           rsb->m_nodes[i].m_x[k] = rsb->m_x0[i][k] + rsb->m_modes[mode_n][3 * i + k] * time_term;
+    }
+
+    btVector3 computeMassWeightedColumnSum(btReducedSoftBody* rsb, const int mode_n)
+    {
+        btVector3 sum(0, 0, 0);
+        for (int i = 0; i < rsb->m_nodes.size(); ++i)
+        {
+            for (int k = 0; k < 3; ++k)
+            {
+                sum[k] += rsb->m_nodalMass[i] * rsb->m_modes[mode_n][3 * i + k];
+            }
+        }
+        return sum;
     }
 
 public:
@@ -79,6 +92,10 @@ public:
       int n_mode = floor(visualize_mode);
       btScalar scale = sin(sqrt(rsb->m_eigenvalues[n_mode]) * sim_time / frequency_scale);
       getDeformedShape(rsb, n_mode, scale);
+      btVector3 mass_weighted_column_sum = computeMassWeightedColumnSum(rsb, visualize_mode);
+      std::cout << "mode=" << int(visualize_mode) << "\t" << mass_weighted_column_sum[0] << "\t"
+                                                          << mass_weighted_column_sum[1] << "\t"
+                                                          << mass_weighted_column_sum[2] << "\n";
     }
     
     virtual void renderScene()
@@ -127,7 +144,7 @@ void ModeVisualizer::initPhysics()
       btTransform init_transform;
       init_transform.setIdentity();
       init_transform.setOrigin(btVector3(0, 2, 0));
-      init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
+    //   init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
       rsb->transform(init_transform);
       btSoftBodyHelpers::generateBoundaryFaces(rsb);
     }

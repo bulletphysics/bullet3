@@ -24,6 +24,8 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
 	m_angularVelocity.setZero();
   m_internalDeltaLinearVelocity.setZero();
   m_internalDeltaAngularVelocity.setZero();
+  m_angularVelocityFromReduced.setZero();
+  m_internalDeltaAngularVelocityFromReduced.setZero();
 	m_angularFactor.setValue(1, 1, 1);
 	m_linearFactor.setValue(1, 1, 1);
   // m_invInertiaLocal.setValue(1, 1, 1);
@@ -290,6 +292,38 @@ void btReducedSoftBody::updateReducedVelocity(btScalar solverdt, bool explicit_f
 
 void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
 {
+  // compute the reduced contribution to the angular velocity
+  btVector3 sum_linear(0, 0, 0);
+  btVector3 sum_angular(0, 0, 0);
+  m_linearVelocityFromReduced.setZero();
+  m_angularVelocityFromReduced.setZero();
+  // for (int i = 0; i < m_nFull; ++i)
+  // {
+  //   btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[i];
+  //   btMatrix3x3 r_star = Cross(r_com);
+
+  //   btVector3 v_from_reduced(0, 0, 0);
+  //   for (int k = 0; k < 3; ++k)
+  //   {
+  //     for (int r = 0; r < m_nReduced; ++r)
+  //     {
+  //       v_from_reduced[k] += m_modes[r][3 * i + k] * m_reducedVelocity[r];
+  //     }
+  //   }
+
+  //   btVector3 delta_linear = m_nodalMass[i] * v_from_reduced;
+  //   btVector3 delta_angular = m_nodalMass[i] * (r_star * ref_trans.getBasis() * v_from_reduced);
+  //   sum_linear += delta_linear;
+  //   sum_angular += delta_angular;
+  //   std::cout << "delta_linear: " << delta_linear[0] << "\t" << delta_linear[1] << "\t" << delta_linear[2] << "\n";
+  //   std::cout << "delta_angular: " << delta_angular[0] << "\t" << delta_angular[1] << "\t" << delta_angular[2] << "\n";
+  //   std::cout << "sum_linear: " << sum_linear[0] << "\t" << sum_linear[1] << "\t" << sum_linear[2] << "\n";
+  //   std::cout << "sum_angular: " << sum_angular[0] << "\t" << sum_angular[1] << "\t" << sum_angular[2] << "\n";
+  // }
+  // m_linearVelocityFromReduced = 1.0 / m_mass * (ref_trans.getBasis() * sum_linear);
+  // m_angularVelocityFromReduced = m_interpolateInvInertiaTensorWorld * sum_angular;
+  // std::cout << "-----end here------\n";
+
   for (int i = 0; i < m_nFull; ++i)
   {
     m_nodes[i].m_v = computeNodeFullVelocity(ref_trans, i);
@@ -309,9 +343,9 @@ const btVector3 btReducedSoftBody::computeNodeFullVelocity(const btTransform& re
     }
   }
   // get new velocity
-  btVector3 vel = m_angularVelocity.cross(r_com) + 
+  btVector3 vel = (m_angularVelocity - m_angularVelocityFromReduced).cross(r_com) + 
                   ref_trans.getBasis() * v_from_reduced +
-                  m_linearVelocity;
+                  m_linearVelocity - m_linearVelocityFromReduced;
   return vel;
 }
 
@@ -506,18 +540,6 @@ void btReducedSoftBody::internalApplyRigidImpulse(const btVector3& impulse, cons
   m_internalDeltaAngularVelocity += m_interpolateInvInertiaTensorWorld * torque * m_angularFactor;
 }
 
-void btReducedSoftBody::applyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos)
-{
-  if (m_inverseMass != btScalar(0.))
-  {
-    applyCentralImpulse(impulse);
-    if (m_angularFactor)
-    {
-      applyTorqueImpulse(rel_pos.cross(impulse * m_linearFactor));
-    }
-  }
-}
-
 btVector3 btReducedSoftBody::getRelativePos(int n_node)
 {
   btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
@@ -585,35 +607,6 @@ btMatrix3x3 btReducedSoftBody::getImpulseFactor(int n_node)
   return m_rigidOnly ? K1 : K1 + K2;
 }
 
-void btReducedSoftBody::applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt)
-{
-  // get impulse
-  btMatrix3x3 impulse_factor = getImpulseFactor(n_node);
-  btVector3 impulse = impulse_factor.inverse() * (target_vel - m_nodes[n_node].m_v);
-  // btScalar impulse_magnitude = impulse.norm();
-  
-  // if (impulse_magnitude < 5e-7)
-  // {
-  //   impulse.setZero();
-  //   impulse_magnitude = 0;
-  // }
-
-  // relative position
-  btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
-  btVector3 ri = rotation * m_localMomentArm[n_node];
-  
-  // apply full space impulse
-  applyFullSpaceImpulse(impulse, ri, n_node, dt);
-}
-
-void btReducedSoftBody::applyPositionConstraint(const btVector3& target_pos, int n_node, btScalar dt)
-{
-  btVector3 impulse(0, 0, 0);
-
-  // apply full space impulse
-  // applyFullSpaceImpulse(impulse, n_node, dt);
-}
-
 void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt)
 {
   if (!m_rigidOnly)
@@ -633,34 +626,6 @@ void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, 
   }
 
   internalApplyRigidImpulse(impulse, rel_pos);
-}
-
-void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt)
-{
-  if (!m_rigidOnly)
-  {
-    // apply impulse force
-    applyFullSpaceNodalForce(impulse / dt, n_node);
-
-    // update reduced internal force
-    applyReducedDampingForce(m_reducedVelocity);
-
-    // update reduced velocity
-    updateReducedVelocity(dt); // TODO: add back
-  }
-
-  // // update reduced dofs
-  // updateReducedDofs(dt);
-
-  // // internal force
-  // // applyReducedInternalForce(0, 0.01); // TODO: this should be necessary, but no obvious effects. Check again.
-
-  // // update local moment arm
-  // updateLocalMomentArm();
-  // updateExternalForceProjectMatrix(true);
-
-  // impulse causes rigid motion
-  applyRigidImpulse(impulse, rel_pos);
 }
 
 void btReducedSoftBody::applyFullSpaceNodalForce(const btVector3& f_ext, int n_node)
@@ -703,24 +668,6 @@ void btReducedSoftBody::applyReducedDampingForce(const tDenseArray& reduce_vel)
   for (int r = 0; r < m_nReduced; ++r) 
   {
     m_reducedForceDamping[r] = - m_dampingBeta * m_ksScale * m_Kr[r] * reduce_vel[r];
-  }
-}
-
-void btReducedSoftBody::applyFixedContraints(btScalar dt)
-{
-  for (int n = 0; n < m_fixedNodes.size(); ++n)
-  {
-    // apply impulse, velocity constraint
-    applyVelocityConstraint(btVector3(0, 0, 0), m_fixedNodes[n], dt);
-
-    // update predicted basis
-    proceedToTransform(dt, false);  // TODO: maybe don't need?
-
-    // update full space velocity
-    mapToFullVelocity(getInterpolationWorldTransform());
-
-    // apply impulse again, position constraint
-    // applyPositionConstraint(m_x0[m_fixedNodes[n]], m_fixedNodes[n], dt);
   }
 }
 

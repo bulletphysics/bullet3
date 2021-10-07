@@ -35,6 +35,10 @@ class btReducedSoftBody : public btSoftBody
   btVector3 m_internalDeltaLinearVelocity;
   btVector3 m_internalDeltaAngularVelocity;
   tDenseArray m_internalDeltaReducedVelocity;
+  
+  btVector3 m_linearVelocityFromReduced;  // contribution to the linear velocity from reduced velocity
+  btVector3 m_angularVelocityFromReduced; // contribution to the angular velocity from reduced velocity
+  btVector3 m_internalDeltaAngularVelocityFromReduced;
 
  protected:
   // rigid frame
@@ -203,17 +207,12 @@ class btReducedSoftBody : public btSoftBody
 
   // apply impulse to the rigid frame
   void internalApplyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos);
-	void applyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos);
 
   // apply impulse to nodes in the full space
   void internalApplyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt);
-  void applyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt);
 
   // apply nodal external force in the full space
   void applyFullSpaceNodalForce(const btVector3& f_ext, int n_node);
-
-  // apply fixed contraints to the nodes
-  void applyFixedContraints(btScalar dt);
 
   // apply gravity to the rigid frame
   void applyRigidGravity(const btVector3& gravity, btScalar dt);
@@ -229,12 +228,6 @@ class btReducedSoftBody : public btSoftBody
 
   // get relative position from a node to the CoM of the rigid frame
   btVector3 getRelativePos(int n_node);
-
-  // apply velocity constraint
-  void applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt);
-
-  // apply position constraint
-  void applyPositionConstraint(const btVector3& target_pos, int n_node, btScalar dt);
 
   //
   // accessors
