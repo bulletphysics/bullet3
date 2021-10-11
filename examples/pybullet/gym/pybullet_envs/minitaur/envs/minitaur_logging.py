@@ -18,8 +18,8 @@ os.sys.path.insert(0, parentdir)
 import datetime
 import os
 import time
+import logging
 
-import tensorflow.compat.v1 as tf
 from pybullet_envs.minitaur.envs import minitaur_logging_pb2
 
 NUM_MOTORS = 8
@@ -74,7 +74,7 @@ def update_episode_proto(episode_proto, minitaur, action, step):
   """
   max_num_steps = len(episode_proto.state_action)
   if step >= max_num_steps:
-    tf.logging.warning("{}th step is not recorded in the logging since only {} steps were "
+    logging.warning("{}th step is not recorded in the logging since only {} steps were "
                        "pre-allocated.".format(step, max_num_steps))
     return
   step_log = episode_proto.state_action[step]
@@ -119,12 +119,13 @@ class MinitaurLogging(object):
     """
     if not self._log_path or not episode_proto.state_action:
       return self._log_path
-    if not tf.gfile.Exists(self._log_path):
-      tf.gfile.MakeDirs(self._log_path)
+    if not os.path.exists(self._log_path):
+      os.mkdir(self._log_path)
     ts = time.time()
     time_stamp = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d-%H%M%S")
     log_path = os.path.join(self._log_path, "minitaur_log_{}".format(time_stamp))
-    with tf.gfile.Open(log_path, "w") as f:
+    
+    with open(log_path, 'wb') as f:
       f.write(episode_proto.SerializeToString())
     return log_path
 
@@ -136,7 +137,7 @@ class MinitaurLogging(object):
     Returns:
       The minitaur episode proto.
     """
-    with tf.gfile.Open(log_path, 'rb') as f:
+    with open(log_path, 'rb') as f:
       content = f.read()
       episode_proto = minitaur_logging_pb2.MinitaurEpisode()
       episode_proto.ParseFromString(content)

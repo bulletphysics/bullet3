@@ -8,8 +8,13 @@ import collections
 import gin
 from gym import spaces
 import numpy as np
+import traceback
+import logging
 
-import tensorflow.compat.v1 as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception as e:
+  pass # logging.warning(traceback.format_exc())
 
 
 

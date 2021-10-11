@@ -10,7 +10,7 @@ import random
 import gin
 import mock
 import numpy as np
-import tensorflow.compat.v1 as tf
+import unittest
 from absl.testing import parameterized
 
 from pybullet_envs.minitaur.envs_v2 import locomotion_gym_env
@@ -56,7 +56,7 @@ class TestTask(task_interface.Task):
     return False
 
 
-class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
+class LocomotionGymEnvTest(unittest.TestCase):
 
   def setUp(self):
     super().setUp()
@@ -68,7 +68,7 @@ class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
     env = locomotion_gym_env.LocomotionGymEnv()
     self.assertIsInstance(env.robot, minitaur_v2.Minitaur)
     # The robot will stand on the ground.
-    self.assertNear(env.robot.base_position[2], 0.25, 5e-2)
+    self.assertAlmostEqual(env.robot.base_position[2], 0.25, 1)
 
   def test_reset_gym(self):
     gin.parse_config_file(_CONFIG_FILE)
@@ -80,8 +80,8 @@ class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
                              action_dim)
     observations = env_utils.flatten_observations(observations)
     self.assertEqual(observations.size, 12)
-    self.assertNear(observations[0], 0, 1e-2)
-    self.assertNear(observations[4], desired_init_motor_angle, 2e-1)
+    self.assertAlmostEqual(observations[0], 0, 1)
+    self.assertAlmostEqual(observations[4], desired_init_motor_angle, 0)
 
   def test_step_gym(self):
     gin.parse_config_file(_CONFIG_FILE)
@@ -98,8 +98,8 @@ class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
     self.assertFalse(done)
     self.assertEqual(reward, steps)
     self.assertEqual(observations.size, 12)
-    self.assertNear(observations[0], 0, 1e-2)
-    self.assertNear(observations[4], desired_motor_angle, 2e-1)
+    self.assertAlmostEqual(observations[0], 0, 1)
+    self.assertAlmostEqual(observations[4], desired_motor_angle, 1)
     np.testing.assert_allclose(env._last_action,
                                [desired_motor_angle] * action_dim, 2e-1)
 
@@ -126,7 +126,7 @@ class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
     env = locomotion_gym_env.LocomotionGymEnv(task=None, scene=None)
 
     # The robot will free fall.
-    self.assertNear(env.robot.base_position[2], 0.15, 5e-2)
+    self.assertAlmostEqual(env.robot.base_position[2], 0.15, 1)
 
   def test_seed_draw_with_np(self):
     gin.parse_config_file(_CONFIG_FILE)
@@ -150,12 +150,11 @@ class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
     action_dim = len(env.action_space.high)
     observations = env.reset(initial_motor_angles=[desired_init_motor_angle] *
                              action_dim)
-    self.assertLen(observations, 2)
-    self.assertLen(observations['IMU'], 4)
-    self.assertNear(observations['IMU'][0], 0, 1e-2)
-    self.assertLen(observations['MotorAngle'], 8)
-    self.assertNear(observations['MotorAngle'][0], desired_init_motor_angle,
-                    2e-1)
+    self.assertEqual(len(observations), 2)
+    self.assertEqual(len(observations['IMU']), 4)
+    self.assertAlmostEqual(observations['IMU'][0], 0, 2)
+    self.assertEqual(len(observations['MotorAngle']), 8)
+    self.assertAlmostEqual(observations['MotorAngle'][0], desired_init_motor_angle,0)
 
   
 
@@ -171,7 +170,7 @@ class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
     ])
     env = locomotion_gym_env.LocomotionGymEnv()
 
-    self.assertLen(env.scene.dynamic_objects, 2)
+    self.assertEqual(len(env.scene.dynamic_objects), 2)
     for obj in env.scene.dynamic_objects:
       self.assertIsInstance(obj, autonomous_object.AutonomousObject)
 
@@ -238,4 +237,4 @@ class LocomotionGymEnvTest(tf.test.TestCase, parameterized.TestCase):
 
 
 if __name__ == '__main__':
-   tf.test.main()
+   unittest.main()
