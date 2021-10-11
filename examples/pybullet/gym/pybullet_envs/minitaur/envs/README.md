@@ -9,7 +9,6 @@ The following two environments are used in the RSS paper "[Sim-to-Real: Learning
 The rest are experimental environments.
 
 ## Prerequisites
-Install [TensorFlow](https://www.tensorflow.org/install/)
 
 Install OpenAI gym
 ```
