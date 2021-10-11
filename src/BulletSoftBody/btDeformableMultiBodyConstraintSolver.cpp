@@ -15,7 +15,6 @@
 
 #include "btDeformableMultiBodyConstraintSolver.h"
 #include <iostream>
-#include <chrono>
 #include <thread>
 // override the iterations method to include deformable/multibody contact
 btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
@@ -42,11 +41,6 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 			// solver body velocity <- rigid body velocity
 			writeToSolverBody(bodies, numBodies, infoGlobal);
 
-			std::cout << "iter: " << iteration << "\tres: " << m_leastSquaresResidual << '\t';
-			std::cout << "------------------\n";
-			// std::cout << infoGlobal.m_leastSquaresResidualThreshold << '\n';
-			// std::cout << maxIterations << '\n';
-
 			if (m_leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || (iteration >= (maxIterations - 1)))
 			{
 #ifdef VERBOSE_RESIDUAL_PRINTF
@@ -66,8 +60,6 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 				break;
 			}
 		}
-		std::cout << "======next step=========\n";
-		// std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	return 0.f;
 }

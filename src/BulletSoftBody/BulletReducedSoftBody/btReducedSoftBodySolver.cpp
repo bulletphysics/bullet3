@@ -220,8 +220,8 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
 			m_nodeRigidConstraints[i].push_back(constraint);
       rsb->m_contactNodesList.push_back(contact.m_node->index);
 		}
-    std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
-    std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
+    // std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
+    // std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
 
     // set Deformable Face vs. Rigid constraint
 		// for (int j = 0; j < rsb->m_faceRigidContacts.size(); ++j)
@@ -314,7 +314,7 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
     // handle contact constraint
 
     // node vs rigid contact
-    std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[i].size() << '\n';
+    // std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[i].size() << '\n';
     for (int k = 0; k < m_nodeRigidConstraints[i].size(); ++k)
     {
       btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][m_orderContactConstraintPool[k]];
