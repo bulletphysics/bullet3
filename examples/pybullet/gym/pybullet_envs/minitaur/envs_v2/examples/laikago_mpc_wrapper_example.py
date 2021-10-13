@@ -26,7 +26,7 @@ from pybullet_envs.minitaur.envs_v2 import env_loader
 FLAGS = flags.FLAGS
 flags.DEFINE_string("video_file", None, "The filename for saving the videos.")
 
-CONFIG_FILE_SIM = (pd.getDataPath()+"/configs/laikago_mpc_example_flat.gin")
+CONFIG_FILE_SIM = (pd.getDataPath()+"/configs/laikago_mpc_two_camera_random_stepstone.gin")
 
 NUM_STEPS = 100
 ENABLE_RENDERING = True  # Will be disabled for tests
