@@ -20,7 +20,8 @@ from __future__ import print_function
 import os
 
 import gin
-import tensorflow.compat.v1 as tf
+import sys
+
 from pybullet_envs.minitaur.envs_v2 import env_loader
 import pybullet_data as pd
 
@@ -81,4 +82,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-  tf.app.run(main)
+  
+  main(sys.argv)

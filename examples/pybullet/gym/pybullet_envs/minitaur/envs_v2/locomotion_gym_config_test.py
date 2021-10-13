@@ -6,12 +6,12 @@ from __future__ import print_function
 
 import gin
 from pybullet_envs.minitaur.envs_v2 import locomotion_gym_config
-import tensorflow.compat.v1 as tf
+import unittest
 from absl.testing import parameterized
 
 
 
-class LocomotionGymConfigTest(tf.test.TestCase, parameterized.TestCase):
+class LocomotionGymConfigTest(unittest.TestCase):
 
   def testSimulationParametersFromGinString(self):
     config_text = (
@@ -72,4 +72,4 @@ class LocomotionGymConfigTest(tf.test.TestCase, parameterized.TestCase):
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  unittest.main()
