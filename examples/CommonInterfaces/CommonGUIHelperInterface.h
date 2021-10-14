@@ -112,6 +112,7 @@ struct GUIHelperInterface
 
 	virtual int addUserDebugText3D(const char* txt, const double positionXYZ[3], const double orientation[4], const double textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags, int replaceItemUid) { return -1; }
 	virtual int addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid) { return -1; };
+	virtual int addUserDebugPoints(const double debugPointPositionXYZ[], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum) { return -1; };
 	virtual int addUserDebugParameter(const char* txt, double rangeMin, double rangeMax, double startValue) { return -1; };
 	virtual int readUserDebugParameter(int itemUniqueId, double* value) { return 0; }
 
@@ -219,6 +220,10 @@ struct DummyGUIHelper : public GUIHelperInterface
 	{
 		return -1;
 	}
+	virtual int addUserDebugPoints(const double debugPointPositionXYZ[3], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum)
+	{
+		return -1;
+	};
 	virtual void removeUserDebugItem(int debugItemUniqueId)
 	{
 	}

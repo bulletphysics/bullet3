@@ -11,7 +11,7 @@ out vec4 colourV;
 
 void main (void)
 {
-    colourV = colour;
+		colourV = (colour[3] == -1) ? colourIn : colour;
 		gl_Position = ProjectionMatrix * ModelViewMatrix * position;
 		
 }

@@ -82,6 +82,8 @@ public:
 
 	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize);
 
+	virtual void drawPoints(const float* positions, const float* colors, int numPoints, int pointStrideInBytes, float pointDrawSize);
+
 	virtual void updateShape(int shapeIndex, const float* vertices, int numVertices);
 
 	virtual void clearZBuffer();

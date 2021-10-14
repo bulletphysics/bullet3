@@ -1643,6 +1643,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<const unsigned char*> m_heightfieldDatas;
 	btAlignedObjectArray<int> m_allocatedTextures;
 	btAlignedObjectArray<unsigned char*> m_allocatedTexturesRequireFree;
+	btAlignedObjectArray<double*> m_debugPointsDatas;
 	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 	btAlignedObjectArray<btStridingMeshInterface*> m_meshInterfaces;
 
@@ -3021,9 +3022,16 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 		//we can't free them right away, due to caching based on memory pointer in PhysicsServerExample
 		free(m_data->m_allocatedTexturesRequireFree[i]);
 	}
+
+	for (int i = 0; i < m_data->m_debugPointsDatas.size(); i++)
+	{
+		free(m_data->m_debugPointsDatas[i]);
+	}
+
 	m_data->m_heightfieldDatas.clear();
 	m_data->m_allocatedTextures.clear();
 	m_data->m_allocatedTexturesRequireFree.clear();
+	m_data->m_debugPointsDatas.clear();
 	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
 	m_data->m_bulletCollisionShape2UrdfCollision.clear();
@@ -6065,6 +6073,47 @@ bool PhysicsServerCommandProcessor::processUserDebugDrawCommand(const struct Sha
 			clientCmd.m_userDebugDrawArgs.m_lifeTime,
 			trackingVisualShapeIndex,
 			replaceItemUid);
+
+		if (uid >= 0)
+		{
+			serverCmd.m_userDebugDrawArgs.m_debugItemUniqueId = uid;
+			serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+		}
+	}
+
+	if (clientCmd.m_updateFlags & USER_DEBUG_HAS_POINTS)
+	{
+		int replaceItemUid = -1;
+		if (clientCmd.m_updateFlags & USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID)
+		{
+			replaceItemUid = clientCmd.m_userDebugDrawArgs.m_replaceItemUniqueId;
+		}
+
+		int pointNum = clientCmd.m_userDebugDrawArgs.m_debugPointNum;
+
+		double* pointPositionsUpload = (double*)bufferServerToClient;
+		double* pointPositions = (double*)malloc(pointNum * 3 * sizeof(double));
+		double* pointColorsUpload = (double*)(bufferServerToClient + pointNum * 3 * sizeof(double));
+		double* pointColors = (double*)malloc(pointNum * 3 * sizeof(double));
+		for (int i = 0; i < pointNum; i++) {
+			pointPositions[i * 3 + 0] = pointPositionsUpload[i * 3 + 0];
+			pointPositions[i * 3 + 1] = pointPositionsUpload[i * 3 + 1];
+			pointPositions[i * 3 + 2] = pointPositionsUpload[i * 3 + 2];
+			pointColors[i * 3 + 0] = pointColorsUpload[i * 3 + 0];
+			pointColors[i * 3 + 1] = pointColorsUpload[i * 3 + 1];
+			pointColors[i * 3 + 2] = pointColorsUpload[i * 3 + 2];
+		}
+		m_data->m_debugPointsDatas.push_back(pointPositions);
+		m_data->m_debugPointsDatas.push_back(pointColors);
+
+		int uid = m_data->m_guiHelper->addUserDebugPoints(
+			pointPositions,
+			pointColors,
+			clientCmd.m_userDebugDrawArgs.m_pointSize,
+			clientCmd.m_userDebugDrawArgs.m_lifeTime,
+			trackingVisualShapeIndex,
+			replaceItemUid,
+			clientCmd.m_userDebugDrawArgs.m_debugPointNum);
 
 		if (uid >= 0)
 		{

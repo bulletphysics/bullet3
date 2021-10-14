@@ -302,6 +302,7 @@ static GLint lines_ModelViewMatrix = 0;
 static GLint lines_ProjectionMatrix = 0;
 static GLint lines_position = 0;
 static GLint lines_colour = 0;
+static GLint lines_colourIn = 0;
 GLuint lineVertexBufferObject = 0;
 GLuint lineVertexArrayObject = 0;
 GLuint lineIndexVbo = 0;
@@ -1247,6 +1248,7 @@ void GLInstancingRenderer::InitShaders()
 	lines_ModelViewMatrix = glGetUniformLocation(linesShader, "ModelViewMatrix");
 	lines_ProjectionMatrix = glGetUniformLocation(linesShader, "ProjectionMatrix");
 	lines_colour = glGetUniformLocation(linesShader, "colour");
+	lines_colourIn = glGetAttribLocation(linesShader, "colourIn");
 	lines_position = glGetAttribLocation(linesShader, "position");
 	glLinkProgram(linesShader);
 	glUseProgram(linesShader);
@@ -1889,7 +1891,7 @@ void GLInstancingRenderer::drawPoint(const float* positions, const float color[4
 {
 	drawPoints(positions, color, 1, 3 * sizeof(float), pointDrawSize);
 }
-void GLInstancingRenderer::drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize)
+void GLInstancingRenderer::drawPoints(const float* positions, const float* colors, int numPoints, int pointStrideInBytes, float pointDrawSize)
 {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1898,12 +1900,10 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float color[
 	glUseProgram(linesShader);
 	glUniformMatrix4fv(lines_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 	glUniformMatrix4fv(lines_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
-	glUniform4f(lines_colour, color[0], color[1], color[2], color[3]);
+	glUniform4f(lines_colour, 0, 0, 0, -1);
 
 	glPointSize(pointDrawSize);
 	glBindVertexArray(lineVertexArrayObject);
-
-	glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
 
 	int maxPointsInBatch = MAX_POINTS_IN_BATCH;
 	int remainingPoints = numPoints;
@@ -1913,10 +1913,16 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float color[
 		int curPointsInBatch = b3Min(maxPointsInBatch, remainingPoints);
 		if (curPointsInBatch)
 		{
-			glBufferSubData(GL_ARRAY_BUFFER, 0, curPointsInBatch * pointStrideInBytes, positions + offsetNumPoints * (pointStrideInBytes / sizeof(float)));
-			glEnableVertexAttribArray(0);
-			int numFloats = 3;  // pointStrideInBytes / sizeof(float);
-			glVertexAttribPointer(0, numFloats, GL_FLOAT, GL_FALSE, pointStrideInBytes, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, lineVertexBufferObject);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, curPointsInBatch * pointStrideInBytes, positions + offsetNumPoints * 3);
+			glEnableVertexAttribArray(lines_position);
+			glVertexAttribPointer(lines_position, 3, GL_FLOAT, GL_FALSE, pointStrideInBytes, 0);
+
+			glBindBuffer(GL_ARRAY_BUFFER, lineVertexArrayObject);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, curPointsInBatch * 4 * sizeof(float), colors + offsetNumPoints * 4);
+			glEnableVertexAttribArray(lines_colourIn);
+			glVertexAttribPointer(lines_colourIn, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
 			glDrawArrays(GL_POINTS, 0, curPointsInBatch);
 			remainingPoints -= curPointsInBatch;
 			offsetNumPoints += curPointsInBatch;
