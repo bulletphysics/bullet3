@@ -143,7 +143,7 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
       rsb->applyReducedDampingForce(rsb->m_reducedVelocityBuffer);
 
       // get reduced velocity at time^* 
-      rsb->updateReducedVelocity(solverdt, true);
+      rsb->updateReducedVelocity(solverdt);
     }
 
     // apply damping (no need at this point)

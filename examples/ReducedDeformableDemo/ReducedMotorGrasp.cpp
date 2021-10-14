@@ -39,7 +39,7 @@
 static btScalar sGripperVerticalVelocity = 0.f;
 static btScalar sGripperClosingTargetVelocity = 0.f;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.0001;
 static int start_mode = 6;
 static int num_modes = 20;
 static float friction = 1.;

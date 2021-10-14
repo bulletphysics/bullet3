@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.0001;
 static int start_mode = 6;
 static int num_modes = 20;
 

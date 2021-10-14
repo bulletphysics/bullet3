@@ -167,6 +167,7 @@ void Springboard::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;

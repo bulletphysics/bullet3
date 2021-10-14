@@ -27,7 +27,7 @@
 #include "../Utils/b3ResourcePath.h"
 
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.001;
 static int start_mode = 6;
 static int num_modes = 1;
 
@@ -114,6 +114,12 @@ public:
         myfile << sim_time << "\t" << total_angular[0] << "\t" << total_angular[1] << "\t" << total_angular[2] << "\n";
         myfile.close();
       }
+
+      {
+        std::ofstream myfile("reduced_velocity.txt", std::ios_base::app);
+        myfile << sim_time << "\t" << rsb->m_reducedVelocity[0] << "\t" << rsb->m_reducedDofs[0] << "\n";
+        myfile.close();
+      }
     }
     
     void stepSimulation(float deltaTime)
@@ -187,7 +193,7 @@ void ConservationTest::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
@@ -211,7 +217,7 @@ void ConservationTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);

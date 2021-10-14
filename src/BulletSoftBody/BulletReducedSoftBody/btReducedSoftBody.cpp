@@ -266,28 +266,17 @@ void btReducedSoftBody::mapToFullPosition(const btTransform& ref_trans)
   }
 }
 
-void btReducedSoftBody::updateReducedVelocity(btScalar solverdt, bool explicit_force)
+void btReducedSoftBody::updateReducedVelocity(btScalar solverdt)
 {
   // update reduced velocity
   for (int r = 0; r < m_nReduced; ++r)
   {
     btScalar mass_inv = (m_Mr[r] == 0) ? 0 : 1.0 / m_Mr[r]; // TODO: this might be redundant, because Mr is identity
     btScalar delta_v = 0;
-    if (explicit_force)
-    {
-      delta_v = solverdt * mass_inv * (m_reducedForceElastic[r] + m_reducedForceDamping[r]);
-    }
-    else
-    {
-      delta_v = solverdt * mass_inv * (m_reducedForceDamping[r] + m_reducedForceExternal[r]);
-    }
+    delta_v = solverdt * mass_inv * (m_reducedForceElastic[r] + m_reducedForceDamping[r]);
     // delta_v = solverdt * mass_inv * (m_reducedForceElastic[r] + m_reducedForceDamping[r] + m_reducedForceExternal[r]);
-    // std::cout << "delta_v: " << delta_v << '\n';
-    // m_reducedVelocity[r] = m_reducedVelocityBuffer[r] + delta_v;
-    m_reducedVelocity[r] += delta_v;
+    m_reducedVelocity[r] = m_reducedVelocityBuffer[r] + delta_v;
   }
-  // std::cout << "reduce_vel: " << m_reducedVelocity[0] << '\n';
-  // std::cout << "force: " << m_reducedForceElastic[0] << '\t' << m_reducedForceDamping[0] << '\t' << m_reducedForceExternal[0] << '\n';
 }
 
 void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
@@ -615,7 +604,14 @@ void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, 
     applyFullSpaceNodalForce(impulse / dt, n_node);
 
     // update delta damping force
-    applyReducedDampingForce(m_internalDeltaReducedVelocity);
+    tDenseArray reduced_vel_tmp;
+    reduced_vel_tmp.resize(m_nReduced);
+    for (int r = 0; r < m_nReduced; ++r)
+    {
+      reduced_vel_tmp[r] = m_reducedVelocity[r] + m_internalDeltaReducedVelocity[r];
+    }
+    applyReducedDampingForce(reduced_vel_tmp);
+    // applyReducedDampingForce(m_internalDeltaReducedVelocity);
 
     // delta reduced velocity
     for (int r = 0; r < m_nReduced; ++r)

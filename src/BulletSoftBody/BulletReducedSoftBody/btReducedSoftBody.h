@@ -175,8 +175,8 @@ class btReducedSoftBody : public btSoftBody
   // compute reduced degree of freedoms
   void updateReducedDofs(btScalar solverdt);
 
-  // compute reduced velocity update
-  void updateReducedVelocity(btScalar solverdt, bool explicit_force = false);
+  // compute reduced velocity update (for explicit time stepping)
+  void updateReducedVelocity(btScalar solverdt);
 
   // map to full degree of freedoms
   void mapToFullPosition(const btTransform& ref_trans);
