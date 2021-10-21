@@ -8078,74 +8078,74 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 			btSoftBody::Node* node = contact->m_face->m_n[contactNodeIdx];
 			// check if node is already in the list
 			int idx = nodesInContact.findLinearSearch2(node);
+
+			//apply the filter, if the user provides it
+			int linkIndexA = -1;
+			int linkIndexB = -1;
+			int objectIndexA = psb->getUserIndex2();
+
+			int objectIndexB = -1;
+			const btRigidBody* bodyB = btRigidBody::upcast(contact->m_cti.m_colObj);
+			if (bodyB)
+			{
+				objectIndexB = bodyB->getUserIndex2();
+			}
+			const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(contact->m_cti.m_colObj);
+			if (mblB && mblB->m_multiBody)
+			{
+				linkIndexB = mblB->m_link;
+				objectIndexB = mblB->m_multiBody->getUserIndex2();
+			}
+			bool swap = false;
+			if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
+			{
+				if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexA)
+				{
+					swap = false;
+				}
+				else if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexB)
+				{
+					swap = true;
+				}
+				else
+				{
+					continue;
+				}
+			}
+
+			if (swap)
+			{
+				std::swap(objectIndexA, objectIndexB);
+				std::swap(linkIndexA, linkIndexB);
+			}
+
+			//apply the second object filter, if the user provides it
+			if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter >= 0)
+			{
+				if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB)
+				{
+					continue;
+				}
+			}
+
+			if (
+				(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
+				clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+			{
+				continue;
+			}
+
+			if (
+				(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
+				clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
+			{
+				continue;
+			}
+
 			if (idx < 0)
 			{
 				// add new node and contact point
 				nodesInContact.push_back(node);
-				//convert rigidbody contact
-				int linkIndexA = -1;
-				int linkIndexB = -1;
-				int objectIndexA = psb->getUserIndex2();
-
-				int objectIndexB = -1;
-				const btRigidBody* bodyB = btRigidBody::upcast(contact->m_cti.m_colObj);
-				if (bodyB)
-				{
-					objectIndexB = bodyB->getUserIndex2();
-				}
-				const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(contact->m_cti.m_colObj);
-				if (mblB && mblB->m_multiBody)
-				{
-					linkIndexB = mblB->m_link;
-					objectIndexB = mblB->m_multiBody->getUserIndex2();
-				}
-
-				//apply the filter, if the user provides it
-				bool swap = false;
-				if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
-				{
-					if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexA)
-					{
-						swap = false;
-					}
-					else if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexB)
-					{
-						swap = true;
-					}
-					else
-					{
-						continue;
-					}
-				}
-
-				if (swap)
-				{
-					std::swap(objectIndexA, objectIndexB);
-					std::swap(linkIndexA, linkIndexB);
-				}
-
-				//apply the second object filter, if the user provides it
-				if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter >= 0)
-				{
-					if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB)
-					{
-						continue;
-					}
-				}
-
-				if (
-					(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
-					clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
-				{
-					continue;
-				}
-
-				if (
-					(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
-					clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
-				{
-					continue;
-				}
 				b3ContactPointData pt;
 				pt.m_bodyUniqueIdA = objectIndexA;
 				pt.m_bodyUniqueIdB = objectIndexB;
@@ -8188,12 +8188,13 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 				btVector3 normalForce = btVector3(btScalar(pt->m_contactNormalOnBInWS[0]),
 												  btScalar(pt->m_contactNormalOnBInWS[1]),
 												  btScalar(pt->m_contactNormalOnBInWS[2])) * pt->m_normalForce;
-				// add normal force of additional node contact 
-				normalForce += contact->m_cti.m_normal * (impulseNormal / m_data->m_physicsDeltaTime).norm();
+				// add normal force of additional node contact
+				btScalar swapFactor = swap ? -1.0 : 1.0;
+				normalForce += swapFactor * contact->m_cti.m_normal * (impulseNormal / m_data->m_physicsDeltaTime).norm();
 				// get magnitude of normal force
 				pt->m_normalForce = normalForce.norm();
 				// get direction of normal force
-				if (!normalForce.fuzzyZero()) 
+				if (!normalForce.fuzzyZero())
 				{
 					// normalize for unit vectors if above numerical threshold
 					normalForce.normalize();
