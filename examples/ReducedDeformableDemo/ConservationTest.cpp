@@ -22,14 +22,15 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include <stdio.h>  //printf debugging
+#include <random>
 
 #include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.001;
+static btScalar damping_beta = 0.0;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 20;
 
 class ConservationTest : public CommonDeformableBodyBase
 {
@@ -42,13 +43,21 @@ class ConservationTest : public CommonDeformableBodyBase
       // for (int i = 0; i < rsb->m_nodes.size(); ++i)
       //   for (int k = 0; k < 3; ++k)
       //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
-
+      
       rsb->m_reducedDofs[mode_n] = scale;
       rsb->m_reducedDofsBuffer[mode_n] = scale;
+
+      // srand(1);
+      // for (int r = 0; r < rsb->m_nReduced; r++)
+      // {
+      //   rsb->m_reducedDofs[r] = btScalar(rand()) / btScalar(RAND_MAX) - 0.5;
+      //   rsb->m_reducedDofsBuffer[r] = rsb->m_reducedDofs[r];
+      // }
+
       rsb->mapToFullPosition(rsb->getRigidTransform());
-      std::cout << "-----------\n";
-      std::cout << rsb->m_nodes[0].m_x[0] << '\t' << rsb->m_nodes[0].m_x[1] << '\t' << rsb->m_nodes[0].m_x[2] << '\n';
-      std::cout << "-----------\n";
+      // std::cout << "-----------\n";
+      // std::cout << rsb->m_nodes[0].m_x[0] << '\t' << rsb->m_nodes[0].m_x[1] << '\t' << rsb->m_nodes[0].m_x[2] << '\n';
+      // std::cout << "-----------\n";
     }
 
 public:
@@ -112,6 +121,19 @@ public:
           total_angular += rsb->m_nodalMass[i] * ri.cross(rsb->m_nodes[i].m_v);
         }
         myfile << sim_time << "\t" << total_angular[0] << "\t" << total_angular[1] << "\t" << total_angular[2] << "\n";
+        myfile.close();
+      }
+      {
+        btVector3 angular_rigid(0, 0, 0);
+        std::ofstream myfile("angular_momentum_rigid.txt", std::ios_base::app);
+        btVector3 ri(0, 0, 0);
+        for (int i = 0; i < rsb->m_nFull; ++i)
+        { 
+          ri = rsb->m_nodes[i].m_x - x_com;
+          btMatrix3x3 ri_star = Cross(ri);
+          angular_rigid += rsb->m_nodalMass[i] * (ri_star.transpose() * ri_star * rsb->getAngularVelocity());
+        }
+        myfile << sim_time << "\t" << angular_rigid[0] << "\t" << angular_rigid[1] << "\t" << angular_rigid[2] << "\n";
         myfile.close();
       }
 
@@ -193,7 +215,7 @@ void ConservationTest::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
@@ -217,7 +239,7 @@ void ConservationTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);

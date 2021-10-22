@@ -15,7 +15,7 @@ struct btReducedSoftBodyHelpers
 	// read in geometry info from Vtk file
   static btReducedSoftBody* createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
 	// read in all reduced files
-	static void readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path, const btVector3& half_extents);
+	static void readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path, const btVector3& half_extents = btVector3(0, 0, 0));
 	// read in a binary vector
 	static void readBinary(btReducedSoftBody::tDenseArray& vec, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
 	// read in a binary matrix

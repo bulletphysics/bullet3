@@ -286,32 +286,35 @@ void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
   btVector3 sum_angular(0, 0, 0);
   m_linearVelocityFromReduced.setZero();
   m_angularVelocityFromReduced.setZero();
-  // for (int i = 0; i < m_nFull; ++i)
-  // {
-  //   btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[i];
-  //   btMatrix3x3 r_star = Cross(r_com);
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[i];
+    btMatrix3x3 r_star = Cross(r_com);
 
-  //   btVector3 v_from_reduced(0, 0, 0);
-  //   for (int k = 0; k < 3; ++k)
-  //   {
-  //     for (int r = 0; r < m_nReduced; ++r)
-  //     {
-  //       v_from_reduced[k] += m_modes[r][3 * i + k] * m_reducedVelocity[r];
-  //     }
-  //   }
+    btVector3 v_from_reduced(0, 0, 0);
+    for (int k = 0; k < 3; ++k)
+    {
+      for (int r = 0; r < m_nReduced; ++r)
+      {
+        v_from_reduced[k] += m_modes[r][3 * i + k] * m_reducedVelocity[r];
+      }
+    }
 
-  //   btVector3 delta_linear = m_nodalMass[i] * v_from_reduced;
-  //   btVector3 delta_angular = m_nodalMass[i] * (r_star * ref_trans.getBasis() * v_from_reduced);
-  //   sum_linear += delta_linear;
-  //   sum_angular += delta_angular;
-  //   std::cout << "delta_linear: " << delta_linear[0] << "\t" << delta_linear[1] << "\t" << delta_linear[2] << "\n";
-  //   std::cout << "delta_angular: " << delta_angular[0] << "\t" << delta_angular[1] << "\t" << delta_angular[2] << "\n";
-  //   std::cout << "sum_linear: " << sum_linear[0] << "\t" << sum_linear[1] << "\t" << sum_linear[2] << "\n";
-  //   std::cout << "sum_angular: " << sum_angular[0] << "\t" << sum_angular[1] << "\t" << sum_angular[2] << "\n";
-  // }
-  // m_linearVelocityFromReduced = 1.0 / m_mass * (ref_trans.getBasis() * sum_linear);
-  // m_angularVelocityFromReduced = m_interpolateInvInertiaTensorWorld * sum_angular;
+    btVector3 delta_linear = m_nodalMass[i] * v_from_reduced;
+    btVector3 delta_angular = m_nodalMass[i] * (r_star * ref_trans.getBasis() * v_from_reduced);
+    sum_linear += delta_linear;
+    sum_angular += delta_angular;
+    // std::cout << "delta_linear: " << delta_linear[0] << "\t" << delta_linear[1] << "\t" << delta_linear[2] << "\n";
+    // std::cout << "delta_angular: " << delta_angular[0] << "\t" << delta_angular[1] << "\t" << delta_angular[2] << "\n";
+    // std::cout << "sum_linear: " << sum_linear[0] << "\t" << sum_linear[1] << "\t" << sum_linear[2] << "\n";
+    // std::cout << "sum_angular: " << sum_angular[0] << "\t" << sum_angular[1] << "\t" << sum_angular[2] << "\n";
+  }
+  m_linearVelocityFromReduced = 1.0 / m_mass * (ref_trans.getBasis() * sum_linear);
+  m_angularVelocityFromReduced = m_interpolateInvInertiaTensorWorld * sum_angular;
   // std::cout << "-----end here------\n";
+
+  // m_linearVelocity -= m_linearVelocityFromReduced;
+  // m_angularVelocity -= m_angularVelocityFromReduced;
 
   for (int i = 0; i < m_nFull; ++i)
   {
@@ -332,9 +335,9 @@ const btVector3 btReducedSoftBody::computeNodeFullVelocity(const btTransform& re
     }
   }
   // get new velocity
-  btVector3 vel = (m_angularVelocity - m_angularVelocityFromReduced).cross(r_com) + 
+  btVector3 vel = m_angularVelocity.cross(r_com) + 
                   ref_trans.getBasis() * v_from_reduced +
-                  m_linearVelocity - m_linearVelocityFromReduced;
+                  m_linearVelocity;
   return vel;
 }
 
