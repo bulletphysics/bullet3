@@ -7,35 +7,38 @@ btReducedDeformableStaticConstraint::btReducedDeformableStaticConstraint(
   btSoftBody::Node* node,
 	const btVector3& ri,
 	const btVector3& x0,
+	const btVector3& dir,
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
-  : m_rsb(rsb), m_ri(ri), m_x0(x0), m_dt(dt), btDeformableStaticConstraint(node, infoGlobal)
+  : m_rsb(rsb), m_ri(ri), m_targetPos(x0), m_impulseDirection(dir), m_dt(dt), btDeformableStaticConstraint(node, infoGlobal)
 {
-	// get impulse
-  m_impulseFactorInv = rsb->getImpulseFactor(m_node->index).inverse();
+	m_erp = 0.2;
+	m_appliedImpulse = 0;
 
-	btVector3 vel_error = -m_node->m_v;
-	btVector3 pos_error = m_x0 - m_node->m_x;
-	std::cout << "pos_errors: " << pos_error[0] << "\t" << pos_error[1] << "\t" << pos_error[2] << "\n";
+	// get impulse factor
+  m_impulseFactorMatrix = rsb->getImpulseFactor(m_node->index);
+	m_impulseFactor = (m_impulseFactorMatrix * m_impulseDirection).dot(m_impulseDirection);
 
-	m_appliedImpulse = btVector3(0, 0, 0);
-	m_rhs = m_impulseFactorInv * (vel_error + 0.2 * pos_error / m_dt);
+	btScalar vel_error = btDot(-m_node->m_v, m_impulseDirection);
+	btScalar pos_error = btDot(m_targetPos - m_node->m_x, m_impulseDirection);
+
+	m_rhs = (vel_error + m_erp * pos_error / m_dt) / m_impulseFactor;
 }
 
 btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
 {
 	// target velocity of fixed constraint is 0
 	btVector3 deltaVa = getDeltaVa();
-	btVector3 rel_vel = deltaVa;
-  btVector3 deltaImpulse = m_rhs - m_impulseFactorInv * rel_vel;
+	btScalar deltaV_rel = btDot(deltaVa, m_impulseDirection);
+  btScalar deltaImpulse = m_rhs - deltaV_rel / m_impulseFactor;
 	m_appliedImpulse = m_appliedImpulse + deltaImpulse;
 
-	applyImpulse(deltaImpulse);
-
-	btVector3 deltaV = m_rsb->getImpulseFactor(m_node->index) * deltaImpulse;
+	btVector3 impulse = deltaImpulse * m_impulseDirection;
+	applyImpulse(impulse);
 
 	// calculate residual
-	btScalar residualSquare = btDot(deltaV, deltaV);
+	btScalar residualSquare = m_impulseFactor * deltaImpulse;
+	residualSquare *= residualSquare;
 	std::cout << "residualSquare: " << residualSquare << "\n";
 
 	return residualSquare;

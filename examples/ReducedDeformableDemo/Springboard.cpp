@@ -27,7 +27,7 @@
 #include "../Utils/b3ResourcePath.h"
 
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.0001;
 static int start_mode = 6;
 static int num_modes = 20;
 
@@ -79,6 +79,14 @@ public:
     {      
       float internalTimeStep = 1. / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+
+      {
+        sim_time += internalTimeStep;
+        btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(getDeformableDynamicsWorld()->getSoftBodyArray()[0]);
+        std::ofstream myfile("fixed_node.txt", std::ios_base::app);
+        myfile << sim_time << "\t" << rsb->m_nodes[0].m_x[0] << "\t" << rsb->m_nodes[0].m_x[1] << "\t" << rsb->m_nodes[0].m_x[2] << "\n";
+        myfile.close();
+      }
     }
     
     virtual void renderScene()
@@ -173,7 +181,7 @@ void Springboard::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
-    // Ctor_RbUpStack();
+    Ctor_RbUpStack();
 
     // create a static rigid box as the ground
     // {

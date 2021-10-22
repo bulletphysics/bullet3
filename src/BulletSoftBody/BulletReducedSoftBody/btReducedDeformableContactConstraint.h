@@ -7,16 +7,20 @@ class btReducedDeformableStaticConstraint : public btDeformableStaticConstraint
  public:
   btReducedSoftBody* m_rsb;
   btScalar m_dt;
-  btMatrix3x3 m_impulseFactorInv;
   btVector3 m_ri;
-  btVector3 m_x0;
-  btVector3 m_rhs;
-  btVector3 m_appliedImpulse;
+  btVector3 m_targetPos;
+  btVector3 m_impulseDirection;
+  btMatrix3x3 m_impulseFactorMatrix;
+  btScalar m_impulseFactor;
+  btScalar m_rhs;
+  btScalar m_appliedImpulse;
+  btScalar m_erp;
 
   btReducedDeformableStaticConstraint(btReducedSoftBody* rsb, 
                                       btSoftBody::Node* node,
                                       const btVector3& ri,
                                       const btVector3& x0,
+                                      const btVector3& dir,
                                       const btContactSolverInfo& infoGlobal,
                                       btScalar dt);
 	// btReducedDeformableStaticConstraint(const btReducedDeformableStaticConstraint& other);

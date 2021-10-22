@@ -201,8 +201,13 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
       int i_node = rsb->m_fixedNodes[j];
 			if (rsb->m_nodes[i_node].m_im == 0)
 			{
-				btReducedDeformableStaticConstraint static_constraint(rsb, &rsb->m_nodes[i_node], rsb->getRelativePos(i_node), rsb->m_x0[i_node], infoGlobal, m_dt);
-				m_staticConstraints[i].push_back(static_constraint);
+        for (int k = 0; k < 3; ++k)
+        {
+          btVector3 dir(0, 0, 0);
+          dir[k] = 1;
+          btReducedDeformableStaticConstraint static_constraint(rsb, &rsb->m_nodes[i_node], rsb->getRelativePos(i_node), rsb->m_x0[i_node], dir, infoGlobal, m_dt);
+          m_staticConstraints[i].push_back(static_constraint);
+        }
 			}
 		}
     btAssert(rsb->m_fixedNodes.size() == m_staticConstraints[i].size());
