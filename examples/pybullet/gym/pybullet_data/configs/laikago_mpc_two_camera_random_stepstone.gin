@@ -9,6 +9,7 @@ import pybullet_envs.minitaur.envs_v2.env_wrappers.observation_dictionary_to_arr
 import pybullet_envs.minitaur.envs_v2.locomotion_gym_config
 import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
 import pybullet_envs.minitaur.envs_v2.scenes.random_stepstone_scene
+import pybullet_envs.minitaur.envs_v2.sensors.camera_sensor
 import pybullet_envs.minitaur.envs_v2.sensors.imu_sensor
 import pybullet_envs.minitaur.envs_v2.sensors.last_action_sensor
 import pybullet_envs.minitaur.envs_v2.sensors.toe_position_sensor
@@ -40,13 +41,32 @@ imu_sensor.IMUSensor.lower_bound = [-6.28318548203, -6.28318548203, -6283.185546
 imu_sensor.IMUSensor.upper_bound = [6.28318548203, 6.28318548203, 6283.18554688, 6283.18554688]
 
 # Add noise to the IMU sensor and toe position sensor
-# IMUNoise/noise_generators.NormalNoise.scale = (0.025, 0.025, 0.1, 0.1)
-# TOENoise/noise_generators.NormalNoise.scale = (0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005)
-# imu_sensor.IMUSensor.noise_generator = @IMUNoise/noise_generators.NormalNoise()
-# toe_position_sensor.ToePositionSensor.noise_generator = @TOENoise/noise_generators.NormalNoise()
+IMUNoise/noise_generators.NormalNoise.scale = (0.025, 0.025, 0.1, 0.1)
+TOENoise/noise_generators.NormalNoise.scale = (0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005)
+imu_sensor.IMUSensor.noise_generator = @IMUNoise/noise_generators.NormalNoise()
+toe_position_sensor.ToePositionSensor.noise_generator = @TOENoise/noise_generators.NormalNoise()
 
+frontCamera/camera_sensor.CameraSensor.camera_translation_from_base = (0.197, 0.0, -0.115)
+frontCamera/camera_sensor.CameraSensor.camera_rotation_from_base = (-0.4996018, 0.4999998, 0.4999998, 0.5003982)
+frontCamera/camera_sensor.CameraSensor.parent_link_id = -1
+frontCamera/camera_sensor.CameraSensor.resolution = (32, 24)
+frontCamera/camera_sensor.CameraSensor.sensor_latency = 0.03
+frontCamera/camera_sensor.CameraSensor.name = "frontCam"
+frontCamera/camera_sensor.CameraSensor.fov_degree = 75
+frontCamera/camera_sensor.CameraSensor.camera_mode = %sim_camera.CameraMode.DEPTH
+frontCamera/camera_sensor.CameraSensor.camera_update_frequency_hz = 30.0
 
-sensors = [@imu_sensor.IMUSensor(), @last_action_sensor.LastActionSensor(), @toe_position_sensor.ToePositionSensor()]
+rearCamera/camera_sensor.CameraSensor.camera_translation_from_base = (-0.092, 0.0, -0.105)
+rearCamera/camera_sensor.CameraSensor.camera_rotation_from_base = (-0.4996018, 0.4999998, 0.4999998, 0.5003982)
+rearCamera/camera_sensor.CameraSensor.parent_link_id = -1
+rearCamera/camera_sensor.CameraSensor.resolution = (32, 24)
+rearCamera/camera_sensor.CameraSensor.sensor_latency = 0.03
+rearCamera/camera_sensor.CameraSensor.name = "rearCam"
+rearCamera/camera_sensor.CameraSensor.fov_degree = 75
+rearCamera/camera_sensor.CameraSensor.camera_mode = %sim_camera.CameraMode.DEPTH
+rearCamera/camera_sensor.CameraSensor.camera_update_frequency_hz = 30.0
+
+sensors = [@imu_sensor.IMUSensor(), @last_action_sensor.LastActionSensor(), @toe_position_sensor.ToePositionSensor(), @frontCamera/camera_sensor.CameraSensor(), @rearCamera/camera_sensor.CameraSensor()]
 laikago_v2.Laikago.sensors = %sensors
 
 
@@ -85,6 +105,7 @@ random_stepstone_scene.RandomStepstoneScene.gap_length_upper_bound = 0.15
 random_stepstone_scene.RandomStepstoneScene.stone_width_lower_bound = 0.6
 random_stepstone_scene.RandomStepstoneScene.stone_width_upper_bound = 0.6
 
+
 ########################################
 # Setup the task and terminal condition parameters
 ########################################
@@ -100,7 +121,8 @@ terminal_conditions.logical_any_terminal_condition.conditions = [
     @terminal_conditions.maxstep_terminal_condition,
     ]
 
-    simple_locomotion_task.SimpleForwardTask.terminal_condition = @terminal_conditions.logical_any_terminal_condition
+simple_locomotion_task.SimpleForwardTask.terminal_condition = @terminal_conditions.logical_any_terminal_condition
+
 simple_locomotion_task.SimpleForwardTask.clip_velocity = 0.0015
 
 time_ordered_buffer.TimeOrderedBuffer.error_on_duplicate_timestamp = False

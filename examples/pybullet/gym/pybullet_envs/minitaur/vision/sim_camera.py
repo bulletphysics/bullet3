@@ -130,7 +130,6 @@ def create_camera_image(pybullet_client,
       projectionMatrix=projection_mat,
       renderer=renderer)
 
-
 class MountedCamera(object):
   """A camera that is fixed to a robot's body part.
 
@@ -305,12 +304,11 @@ class MountedCamera(object):
                    depth, self._prev_depth)
       depth = self._prev_depth
     self._prev_depth = depth
-    rgba = np.array(rgba, dtype=np.float32)
+    rgba = np.reshape(np.array(rgba, dtype=np.float32), (self._resolution[0], self._resolution[1], -1))
 
     # Converts from OpenGL depth map to a distance map (unit: meter).
     distances = from_opengl_depth_to_distance(
-        np.array(depth), self._near, self._far)
-
+        np.reshape(np.array(depth), (self._resolution[0], self._resolution[1], -1)), self._near, self._far)
     if self._normalize_rgb:
       # Does not normalize the depth image.
       rgba = 2 * rgba / 255.0 - 1
