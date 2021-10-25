@@ -857,9 +857,6 @@ struct UserDebugDrawArgs
 	double m_debugLineColorRGB[3];
 	double m_lineWidth;
 
-	int m_debugPointNum;
-	double m_pointSize;
-
 	double m_lifeTime;
 	int m_itemUniqueId;
 
@@ -880,6 +877,9 @@ struct UserDebugDrawArgs
 	double m_objectDebugColorRGB[3];
 	int m_objectUniqueId;
 	int m_linkIndex;
+
+	int m_debugPointNum;
+	double m_pointSize;
 };
 
 struct UserDebugDrawResultArgs
