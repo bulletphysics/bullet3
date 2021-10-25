@@ -29,7 +29,6 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 		int maxIterations = m_maxOverrideNumSolverIterations > infoGlobal.m_numIterations ? m_maxOverrideNumSolverIterations : infoGlobal.m_numIterations;
 		for (int iteration = 0; iteration < maxIterations; iteration++)
 		{
-			std::cout << "iter: " << iteration << " -------------\n";
 			// rigid bodies are solved using solver body velocity, but rigid/deformable contact directly uses the velocity of the actual rigid body. So we have to do the following: Solve one iteration of the rigid/rigid contact, get the updated velocity in the solver body and update the velocity of the underlying rigid body. Then solve the rigid/deformable contact. Finally, grab the (once again) updated rigid velocity and update the velocity of the wrapping solver body
 
 			// solve rigid/rigid in solver body
@@ -61,7 +60,6 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 				break;
 			}
 		}
-		std::cout << "===========new step============\n";
 	}
 	return 0.f;
 }

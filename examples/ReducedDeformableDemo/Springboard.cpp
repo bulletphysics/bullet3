@@ -83,8 +83,11 @@ public:
       {
         sim_time += internalTimeStep;
         btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(getDeformableDynamicsWorld()->getSoftBodyArray()[0]);
+        
         std::ofstream myfile("fixed_node.txt", std::ios_base::app);
-        myfile << sim_time << "\t" << rsb->m_nodes[0].m_x[0] << "\t" << rsb->m_nodes[0].m_x[1] << "\t" << rsb->m_nodes[0].m_x[2] << "\n";
+        myfile << sim_time << "\t" << rsb->m_nodes[0].m_x[0] - rsb->m_x0[0][0] << "\t" 
+                                   << rsb->m_nodes[0].m_x[1] - rsb->m_x0[0][1] << "\t" 
+                                   << rsb->m_nodes[0].m_x[2] - rsb->m_x0[0][2] << "\n";
         myfile.close();
       }
     }

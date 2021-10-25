@@ -210,7 +210,7 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
         }
 			}
 		}
-    btAssert(rsb->m_fixedNodes.size() == m_staticConstraints[i].size());
+    btAssert(rsb->m_fixedNodes.size() * 3 == m_staticConstraints[i].size());
 
     // set Deformable Node vs. Rigid constraint
 		for (int j = 0; j < rsb->m_nodeRigidContacts.size(); ++j)

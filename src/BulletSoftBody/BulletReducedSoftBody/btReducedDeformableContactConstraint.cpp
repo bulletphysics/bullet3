@@ -39,7 +39,6 @@ btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSol
 	// calculate residual
 	btScalar residualSquare = m_impulseFactor * deltaImpulse;
 	residualSquare *= residualSquare;
-	std::cout << "residualSquare: " << residualSquare << "\n";
 
 	return residualSquare;
 }
@@ -48,12 +47,7 @@ btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSol
 void btReducedDeformableStaticConstraint::applyImpulse(const btVector3& impulse)
 {
 	// apply full space impulse
-	std::cout << "node: " << m_node->index << " impulse: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
 	m_rsb->internalApplyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
-
-	// get the new nodal velocity
-	// m_node->m_v = m_rsb->computeNodeFullVelocity(m_rsb->getInterpolationWorldTransform(), m_node->index);
-	// m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
 }
 
 btVector3 btReducedDeformableStaticConstraint::getDeltaVa() const
