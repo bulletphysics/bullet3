@@ -480,8 +480,8 @@ public:
 		}
 
 		buffer[9] = '3';
-		buffer[10] = '0';
-		buffer[11] = '8';
+		buffer[10] = '2';
+		buffer[11] = '0';
 	}
 
 	virtual void startSerialization()

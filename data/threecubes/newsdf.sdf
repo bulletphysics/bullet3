@@ -3,7 +3,7 @@
 	<gravity>0 0 -9.8</gravity>
 		<model name='part0.obj'>
 			<static>1</static>
-			<pose frame=''>0 0 0 0 0 0</pose>
+			<pose>0 0 0 0 0 0</pose>
 			<link name='link_d0'>
 			<inertial>
 			<mass>0</mass>
@@ -42,7 +42,7 @@
 			</model>
 		<model name='part1.obj'>
 			<static>1</static>
-			<pose frame=''>0 0 0 0 0 0</pose>
+			<pose>0 0 0 0 0 0</pose>
 			<link name='link_d1'>
 			<inertial>
 			<mass>0</mass>
@@ -81,7 +81,7 @@
 			</model>
 		<model name='part2.obj'>
 			<static>1</static>
-			<pose frame=''>0 0 0 0 0 0</pose>
+			<pose>0 0 0 0 0 0</pose>
 			<link name='link_d2'>
 			<inertial>
 			<mass>0</mass>

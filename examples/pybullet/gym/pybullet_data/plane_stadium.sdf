@@ -3,7 +3,7 @@
 	<gravity>0 0 -9.8</gravity>
 		<model name='floor_obj'>
 			<static>1</static>
-			<pose frame=''>0 0 0 0 0 0</pose>
+			<pose>0 0 0 0 0 0</pose>
 			<link name='floor'>
 			<inertial>
 			<mass>0</mass>

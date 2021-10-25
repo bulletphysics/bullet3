@@ -30,6 +30,7 @@ public:
 	virtual void setShadowMapIntensity(double shadowMapIntensity) {}
 	virtual void setShadowMapWorldSize(float worldSize) {}
 	virtual void resize(int width, int height);
+	virtual void setBackgroundColor(const double rgbBackground[3]) {}
 
 	virtual void removeAllInstances();
 	virtual void removeGraphicsInstance(int instanceUid);

@@ -33,6 +33,10 @@ class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int urdfLinkIndex, btSc
 {
 	btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
 	rbci.m_startWorldTransform = initialWorldTrans;
+	btScalar sleep_threshold = btScalar(0.22360679775);//sqrt(0.05) to be similar to btMultiBody (SLEEP_THRESHOLD)
+	rbci.m_angularSleepingThreshold = sleep_threshold;
+	rbci.m_linearSleepingThreshold = sleep_threshold;
+	
 	btRigidBody* body = new btRigidBody(rbci);
 	if (m_rigidBody == 0)
 	{

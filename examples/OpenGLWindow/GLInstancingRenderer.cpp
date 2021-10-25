@@ -1522,6 +1522,11 @@ void GLInstancingRenderer::setLightPosition(const double lightPos[3])
 	m_data->m_lightPos[2] = lightPos[2];
 }
 
+void GLInstancingRenderer::setBackgroundColor(const double rgbBackground[3])
+{
+	glClearColor(rgbBackground[0], rgbBackground[1], rgbBackground[2], 1.f);
+}
+
 void GLInstancingRenderer::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
 {
 	for (int i = 0; i < 16; i++)

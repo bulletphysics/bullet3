@@ -2,7 +2,7 @@
 <sdf version='1.6'>
   <world name='default'>
   <model name='wsg50_with_gripper'>
-    <pose frame=''>0 0 0.27 3.14 0 0</pose>
+    <pose>0 0 0.27 3.14 0 0</pose>
 	
     <link name='world'>
 	</link>
@@ -28,9 +28,9 @@
     </joint>
 
     <link name='base_link'>
-      <pose frame=''>0 0 0 0 -0 0</pose>
+      <pose>0 0 0 0 -0 0</pose>
       <inertial>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <mass>1.2</mass>
         <inertia>
           <ixx>1</ixx>
@@ -42,7 +42,7 @@
         </inertia>
       </inertial>
       <collision name='base_link_collision'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <geometry>
 		<box>
               <size>0.2 0.05 0.05 </size>
@@ -50,7 +50,7 @@
         </geometry>
       </collision>
       <visual name='base_link_visual'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
@@ -67,9 +67,9 @@
     </link>
 
     <link name='gripper_left'>
-      <pose frame=''>-0.055 0 0 0 -0 0</pose>
+      <pose>-0.055 0 0 0 -0 0</pose>
       <inertial>
-        <pose frame=''>0 0 0.0115 0 -0 0</pose>
+        <pose>0 0 0.0115 0 -0 0</pose>
         <mass>0.2</mass>
         <inertia>
           <ixx>0.1</ixx>
@@ -82,7 +82,7 @@
       </inertial>
 	  
       <collision name='gripper_left_collision'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -91,7 +91,7 @@
         </geometry>
       </collision>
       <collision name='gripper_left_fixed_joint_lump__finger_left_collision_1'>
-        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <pose>0 0 0.023 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -101,7 +101,7 @@
       </collision>
 	  
       <visual name='gripper_left_visual'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -110,7 +110,7 @@
         </geometry>
       </visual>
       <visual name='gripper_left_fixed_joint_lump__finger_left_visual_1'>
-        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <pose>0 0 0.023 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -141,9 +141,9 @@
     </joint>
 	
     <link name='gripper_right'>
-      <pose frame=''>0.055 0 0 0 -0 3.14159</pose>
+      <pose>0.055 0 0 0 -0 3.14159</pose>
       <inertial>
-        <pose frame=''>0 0 0.0115 0 -0 0</pose>
+        <pose>0 0 0.0115 0 -0 0</pose>
         <mass>0.2</mass>
         <inertia>
           <ixx>0.1</ixx>
@@ -156,7 +156,7 @@
       </inertial>
 	  
       <collision name='gripper_right_collision'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -165,7 +165,7 @@
         </geometry>
       </collision>
       <collision name='gripper_right_fixed_joint_lump__finger_right_collision_1'>
-        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <pose>0 0 0.023 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -175,7 +175,7 @@
       </collision>
 	  
       <visual name='gripper_right_visual'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -184,7 +184,7 @@
         </geometry>
       </visual>
       <visual name='gripper_right_fixed_joint_lump__finger_right_visual_1'>
-        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <pose>0 0 0.023 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -219,7 +219,7 @@
         <lateral_friction>1.0</lateral_friction>
         <spinning_friction>1.5</spinning_friction>
       </contact>
-      <pose frame=''>0.062 0 0.145 0 0 1.5708</pose>
+      <pose>0.062 0 0.145 0 0 1.5708</pose>
       <inertial>
         <mass>0.2</mass>
         <inertia>
@@ -233,7 +233,7 @@
       </inertial>
 	  
       <collision name='finger_right_collision'>
-	<pose frame=''>0 0 0.042 0 0 0 </pose>
+	<pose>0 0 0.042 0 0 0 </pose>
 	<geometry>        
        <box>
               <size>0.02 0.02 0.15 </size>
@@ -243,7 +243,7 @@
       </collision>
 	  
       <visual name='finger_right_visual'>
-        <pose frame=''>0 0 0 0 0 0 </pose>
+        <pose>0 0 0 0 0 0 </pose>
         <geometry>
           <mesh>
             <scale>1 1 1 </scale>
@@ -263,7 +263,7 @@
         <lateral_friction>1.0</lateral_friction>
         <spinning_friction>1.5</spinning_friction>
       </contact>
-      <pose frame=''>-0.062 0 0.145 0 0 4.71239</pose>
+      <pose>-0.062 0 0.145 0 0 4.71239</pose>
       <inertial>
         <mass>0.2</mass>
         <inertia>
@@ -277,7 +277,7 @@
       </inertial>
 	  
       <collision name='finger_left_collision'>
-        <pose frame=''>0 0 0.042 0 0 0 </pose>
+        <pose>0 0 0.042 0 0 0 </pose>
         <geometry>
                <box>
               <size>0.02 0.02 0.15 </size>
@@ -287,7 +287,7 @@
       </collision>
 	  
       <visual name='finger_left_visual'>
-        <pose frame=''>0 0 0 0 0 0 </pose>
+        <pose>0 0 0 0 0 0 </pose>
         <geometry>
           <mesh>
             <scale>1 1 1 </scale>

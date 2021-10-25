@@ -75,6 +75,7 @@ bFile::bFile(const char *filename, const char headerString[7])
 		fseek(fp, 0L, SEEK_SET);
 
 		mFileBuffer = (char *)malloc(mFileLen + 1);
+                memset(mFileBuffer, 0, mFileLen+1);
 		size_t bytesRead;
 		bytesRead = fread(mFileBuffer, mFileLen, 1, fp);
 
@@ -736,7 +737,7 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 	if (new_dna == -1) return;
 
 	//disable this, because we need to fixup pointers/ListBase
-	if (0)  //mFileDNA->flagEqual(old_dna))
+	if (/* DISABLES CODE */ (0))  //mFileDNA->flagEqual(old_dna))
 	{
 		short *strc = mFileDNA->getStruct(old_dna);
 		int len = mFileDNA->getLength(strc[0]);

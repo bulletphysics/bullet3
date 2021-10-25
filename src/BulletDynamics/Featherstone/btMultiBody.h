@@ -545,7 +545,10 @@ public:
 	{
 		m_canWakeup = canWakeup;
 	}
-	bool isAwake() const { return m_awake; }
+	bool isAwake() const 
+	{ 
+		return m_awake; 
+	}
 	void wakeUp();
 	void goToSleep();
 	void checkMotionAndSleepIfRequired(btScalar timestep);
@@ -726,6 +729,17 @@ public:
 
 	bool isLinkAndAllAncestorsKinematic(const int i) const;
 
+	void setSleepThreshold(btScalar sleepThreshold)
+	{
+		m_sleepEpsilon = sleepThreshold;
+	}
+
+	void setSleepTimeout(btScalar sleepTimeout)
+	{
+		this->m_sleepTimeout = sleepTimeout;
+	}
+
+
 private:
 	btMultiBody(const btMultiBody &);     // not implemented
 	void operator=(const btMultiBody &);  // not implemented
@@ -801,6 +815,8 @@ private:
 	bool m_canSleep;
 	bool m_canWakeup;
 	btScalar m_sleepTimer;
+	btScalar m_sleepEpsilon;
+	btScalar m_sleepTimeout;
 
 	void *m_userObjectPointer;
 	int m_userIndex2;

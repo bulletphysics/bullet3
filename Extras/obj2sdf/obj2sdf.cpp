@@ -271,7 +271,7 @@ int main(int argc, char* argv[])
 			fprintf(sdfFile,
 					"\t\t<model name='%s'>\n"
 					"\t\t\t<static>1</static>\n"
-					"\t\t\t<pose frame=''>0 0 0 0 0 0</pose>\n"
+					"\t\t\t<pose >0 0 0 0 0 0</pose>\n"
 					"\t\t\t<link name='link_d%d'>\n"
 					"\t\t\t<inertial>\n"
 					"\t\t\t<mass>0</mass>\n"
@@ -411,7 +411,7 @@ int main(int argc, char* argv[])
 			fprintf(sdfFile,
 					"\t\t<model name='%s'>\n"
 					"\t\t\t<static>1</static>\n"
-					"\t\t\t<pose frame=''>0 0 0 0 0 0</pose>\n"
+					"\t\t\t<pose>0 0 0 0 0 0</pose>\n"
 					"\t\t\t<link name='link_d%d'>\n"
 					"\t\t\t<inertial>\n"
 					"\t\t\t<mass>0</mass>\n"
