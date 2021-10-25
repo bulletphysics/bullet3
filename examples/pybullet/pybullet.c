@@ -12910,7 +12910,7 @@ static PyMethodDef SpamMethods[] = {
 	 "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."},
 
 	{"addUserDebugPoints", (PyCFunction)pybullet_addUserDebugPoints, METH_VARARGS | METH_KEYWORDS,
-	 "Add a user debug draw point with pointPositions[3], pointColorsRGB[3], pointSize, lifeTime. "
+	 "Add user debug draw points with pointPositions[3], pointColorsRGB[3], pointSize, lifeTime. "
 	 "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."},
 
 	{"addUserDebugText", (PyCFunction)pybullet_addUserDebugText, METH_VARARGS | METH_KEYWORDS,
