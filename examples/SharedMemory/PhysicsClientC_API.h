@@ -106,6 +106,9 @@ extern "C"
 	///If you re-connected to an existing server, or server changed otherwise, sync the body info and user constraints etc.
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitSyncBodyInfoCommand(b3PhysicsClientHandle physClient);
 
+	// Sync the body info of a single body. Useful when a new body has been added by a different client (e,g, when detecting through a body added notification).
+	B3_SHARED_API b3SharedMemoryCommandHandle b3InitRequestBodyInfoCommand(b3PhysicsClientHandle physClient, int bodyUniqueId);
+
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitRemoveBodyCommand(b3PhysicsClientHandle physClient, int bodyUniqueId);
 
 	///return the total number of bodies in the simulation
