@@ -28,7 +28,7 @@
 
 
 static int start_mode = 6;
-static int num_modes = 40;
+static int num_modes = 78;
 static btScalar visualize_mode = 0;
 static btScalar frequency_scale = 1;
 
@@ -92,10 +92,10 @@ public:
       int n_mode = floor(visualize_mode);
       btScalar scale = sin(sqrt(rsb->m_eigenvalues[n_mode]) * sim_time / frequency_scale);
       getDeformedShape(rsb, n_mode, scale);
-      btVector3 mass_weighted_column_sum = computeMassWeightedColumnSum(rsb, visualize_mode);
-      std::cout << "mode=" << int(visualize_mode) << "\t" << mass_weighted_column_sum[0] << "\t"
-                                                          << mass_weighted_column_sum[1] << "\t"
-                                                          << mass_weighted_column_sum[2] << "\n";
+    //   btVector3 mass_weighted_column_sum = computeMassWeightedColumnSum(rsb, visualize_mode);
+    //   std::cout << "mode=" << int(visualize_mode) << "\t" << mass_weighted_column_sum[0] << "\t"
+    //                                                       << mass_weighted_column_sum[1] << "\t"
+    //                                                       << mass_weighted_column_sum[2] << "\n";
     }
     
     virtual void renderScene()
@@ -136,7 +136,7 @@ void ModeVisualizer::initPhysics()
 
     // create volumetric soft body
     {
-      btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+      btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
       getDeformableDynamicsWorld()->addSoftBody(rsb);
       rsb->getCollisionShape()->setMargin(0.1);

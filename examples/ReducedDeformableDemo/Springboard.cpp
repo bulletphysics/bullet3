@@ -84,11 +84,11 @@ public:
         sim_time += internalTimeStep;
         btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(getDeformableDynamicsWorld()->getSoftBodyArray()[0]);
         
-        std::ofstream myfile("fixed_node.txt", std::ios_base::app);
-        myfile << sim_time << "\t" << rsb->m_nodes[0].m_x[0] - rsb->m_x0[0][0] << "\t" 
-                                   << rsb->m_nodes[0].m_x[1] - rsb->m_x0[0][1] << "\t" 
-                                   << rsb->m_nodes[0].m_x[2] - rsb->m_x0[0][2] << "\n";
-        myfile.close();
+        // std::ofstream myfile("fixed_node.txt", std::ios_base::app);
+        // myfile << sim_time << "\t" << rsb->m_nodes[0].m_x[0] - rsb->m_x0[0][0] << "\t" 
+        //                            << rsb->m_nodes[0].m_x[1] - rsb->m_x0[0][1] << "\t" 
+        //                            << rsb->m_nodes[0].m_x[2] - rsb->m_x0[0][2] << "\n";
+        // myfile.close();
       }
     }
     
@@ -187,19 +187,19 @@ void Springboard::initPhysics()
     Ctor_RbUpStack();
 
     // create a static rigid box as the ground
-    // {
-    //     // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-    //     btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(2), btScalar(10)));
-    //     m_collisionShapes.push_back(groundShape);
+    {
+        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10), btScalar(2), btScalar(10)));
+        m_collisionShapes.push_back(groundShape);
 
-    //     btTransform groundTransform;
-    //     groundTransform.setIdentity();
-    //     groundTransform.setOrigin(btVector3(0, 0, 0));
-    //     {
-    //         btScalar mass(0.);
-    //         createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
-    //     }
-    // }
+        btTransform groundTransform;
+        groundTransform.setIdentity();
+        groundTransform.setOrigin(btVector3(0, 0, 0));
+        {
+            btScalar mass(0.);
+            createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
+        }
+    }
 
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }

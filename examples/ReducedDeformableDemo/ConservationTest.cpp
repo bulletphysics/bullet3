@@ -30,7 +30,7 @@
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
 static int start_mode = 6;
-static int num_modes = 20;
+static int num_modes = 78;
 
 class ConservationTest : public CommonDeformableBodyBase
 {
@@ -44,15 +44,15 @@ class ConservationTest : public CommonDeformableBodyBase
       //   for (int k = 0; k < 3; ++k)
       //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
       
-      rsb->m_reducedDofs[mode_n] = scale;
-      rsb->m_reducedDofsBuffer[mode_n] = scale;
+      // rsb->m_reducedDofs[mode_n] = scale;
+      // rsb->m_reducedDofsBuffer[mode_n] = scale;
 
-      // srand(1);
-      // for (int r = 0; r < rsb->m_nReduced; r++)
-      // {
-      //   rsb->m_reducedDofs[r] = btScalar(rand()) / btScalar(RAND_MAX) - 0.5;
-      //   rsb->m_reducedDofsBuffer[r] = rsb->m_reducedDofs[r];
-      // }
+      srand(1);
+      for (int r = 0; r < rsb->m_nReduced; r++)
+      {
+        rsb->m_reducedDofs[r] = (btScalar(rand()) / btScalar(RAND_MAX) - 0.5);
+        rsb->m_reducedDofsBuffer[r] = rsb->m_reducedDofs[r];
+      }
 
       rsb->mapToFullPosition(rsb->getRigidTransform());
       // std::cout << "-----------\n";
@@ -114,12 +114,13 @@ public:
       }
       {
         std::ofstream myfile("angular_momentum.txt", std::ios_base::app);
-        btVector3 ri(0, 0, 0);
-        for (int i = 0; i < rsb->m_nFull; ++i)
-        { 
-          ri = rsb->m_nodes[i].m_x - x_com;
-          total_angular += rsb->m_nodalMass[i] * ri.cross(rsb->m_nodes[i].m_v);
-        }
+        // btVector3 ri(0, 0, 0);
+        // for (int i = 0; i < rsb->m_nFull; ++i)
+        // { 
+        //   ri = rsb->m_nodes[i].m_x - x_com;
+        //   total_angular += rsb->m_nodalMass[i] * ri.cross(rsb->m_nodes[i].m_v);
+        // }
+        total_angular = rsb->computeTotalAngularMomentum();
         myfile << sim_time << "\t" << total_angular[0] << "\t" << total_angular[1] << "\t" << total_angular[2] << "\n";
         myfile.close();
       }
@@ -154,8 +155,8 @@ public:
         first_step = false;
       }
       
-      float internalTimeStep = 1. / 60.f;
-      m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+      float internalTimeStep = 1. / 240.f;
+      m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
 
       sim_time += internalTimeStep;
       checkMomentum(rsb);
@@ -239,7 +240,7 @@ void ConservationTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);

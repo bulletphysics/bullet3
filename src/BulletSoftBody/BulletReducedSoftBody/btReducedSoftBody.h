@@ -184,6 +184,9 @@ class btReducedSoftBody : public btSoftBody
   // compute full space velocity from the reduced velocity
   void mapToFullVelocity(const btTransform& ref_trans);
 
+  // compute total angular momentum
+  const btVector3 computeTotalAngularMomentum() const;
+
   // get a single node's full space velocity from the reduced velocity
   const btVector3 computeNodeFullVelocity(const btTransform& ref_trans, int n_node) const;
 
