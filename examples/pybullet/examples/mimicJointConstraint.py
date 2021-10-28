@@ -7,6 +7,8 @@ import pybullet_data
 
 p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
+p.resetDebugVisualizerCamera(cameraDistance=1.1, cameraYaw = 3.6,cameraPitch=-27, cameraTargetPosition=[0.19,1.21,-0.44])
+
 p.loadURDF("plane.urdf", 0, 0, -2)
 wheelA = p.loadURDF("differential/diff_ring.urdf", [0, 0, 0])
 for i in range(p.getNumJoints(wheelA)):
@@ -21,7 +23,7 @@ c = p.createConstraint(wheelA,
                        jointAxis=[0, 1, 0],
                        parentFramePosition=[0, 0, 0],
                        childFramePosition=[0, 0, 0])
-p.changeConstraint(c, gearRatio=1, maxForce=10000)
+p.changeConstraint(c, gearRatio=1, maxForce=10000,erp=0.2)
 
 c = p.createConstraint(wheelA,
                        2,
@@ -31,7 +33,7 @@ c = p.createConstraint(wheelA,
                        jointAxis=[0, 1, 0],
                        parentFramePosition=[0, 0, 0],
                        childFramePosition=[0, 0, 0])
-p.changeConstraint(c, gearRatio=-1, maxForce=10000)
+p.changeConstraint(c, gearRatio=-1, maxForce=10000,erp=0.2)
 
 c = p.createConstraint(wheelA,
                        1,
@@ -41,7 +43,7 @@ c = p.createConstraint(wheelA,
                        jointAxis=[0, 1, 0],
                        parentFramePosition=[0, 0, 0],
                        childFramePosition=[0, 0, 0])
-p.changeConstraint(c, gearRatio=-1, maxForce=10000)
+p.changeConstraint(c, gearRatio=-1, maxForce=10000,erp=0.2)
 
 p.setRealTimeSimulation(1)
 while (1):

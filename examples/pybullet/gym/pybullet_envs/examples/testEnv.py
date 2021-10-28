@@ -13,10 +13,28 @@ def test(args):
   count = 0
   env = gym.make(args.env)
   env.env.configure(args)
+  
   print("args.render=", args.render)
   if (args.render == 1):
     env.render(mode="human")
   env.reset()
+  
+  w, h, vmat,projmat,camup,camfwd,hor,ver,yaw,pitch,dist,target= p.getDebugVisualizerCamera()
+  dist = 0.4
+  yaw = 0
+  p.resetDebugVisualizerCamera(dist,yaw, pitch,target)
+  
+  for obindex in range (p.getNumBodies()):
+    obuid = p.getBodyUniqueId(obindex)
+    p.changeDynamics(obuid, -1, linearDamping=0, angularDamping=0)
+    for l in range (p.getNumJoints(obuid)):
+      p.changeDynamics(obuid, l, linearDamping=0, angularDamping=0, jointDamping=0)
+      #if (l==0):
+      #  p.setJointMotorControl2(obuid,l,p.POSITION_CONTROL,targetPosition=0)
+      if (l==2):
+        jp,jv,_,_ = p.getJointState(obuid,l)
+        p.resetJointState(obuid,l, jp,0.01 )
+    
   if (args.resetbenchmark):
     while (1):
       env.reset()
@@ -26,6 +44,8 @@ def test(args):
   print("action space:")
   sample = env.action_space.sample()
   action = sample * 0.0
+  action = [0,0]#sample * 0.0
+  
   print("action=")
   print(action)
   for i in range(args.steps):
