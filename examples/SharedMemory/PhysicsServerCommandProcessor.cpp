@@ -11542,17 +11542,17 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 				btInverseDynamics::vecx nu(num_dofs + baseDofQdot), qdot(num_dofs + baseDofQdot), q(num_dofs + baseDofQdot), joint_force(num_dofs + baseDofQdot);
 
 				//for floating base, inverse dynamics expects euler angle x,y,z and position x,y,z in that order
-				//PyBullet expects quaternion, so convert and swap to have a more consistent PyBullet API
+				//PyBullet expects xyz and quaternion in that order, so convert and swap to have a more consistent PyBullet API
 				if (baseDofQ)
 				{
 					btVector3 pos(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
 								  clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
 								  clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2]);
 
-					btQuaternion orn(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
-									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
-									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2],
-									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[3]);
+					btQuaternion orn(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[3],
+									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[4],
+									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[5],
+									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[6]);
 					btScalar yawZ, pitchY, rollX;
 					orn.getEulerZYX(yawZ, pitchY, rollX);
 					q[0] = rollX;
@@ -11562,12 +11562,9 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 					q[4] = pos[1];
 					q[5] = pos[2];
 				}
-				else
+				for (int i = 0; i < num_dofs; i++)
 				{
-					for (int i = 0; i < num_dofs; i++)
-					{
-						q[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
-					}
+					q[i + baseDofQ] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i + baseDofQ];
 				}
 				for (int i = 0; i < num_dofs + baseDofQdot; i++)
 				{
