@@ -1008,21 +1008,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 
 				m_data->m_tmpInfoRequestCommand.m_type = CMD_REQUEST_BODY_INFO;
 				m_data->m_tmpInfoRequestCommand.m_sdfRequestInfoArgs.m_bodyUniqueId = bodyUniqueId;
-
-				bool hasStatus = m_data->m_commandProcessor->processCommand(m_data->m_tmpInfoRequestCommand, m_data->m_tmpInfoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
-
-				b3Clock clock;
-				double startTime = clock.getTimeInSeconds();
-				double timeOutInSeconds = m_data->m_timeOutInSeconds;
-				while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
-				{
-					hasStatus = m_data->m_commandProcessor->receiveStatus(m_data->m_tmpInfoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
-				}
-
-				if (hasStatus)
-				{
-					processBodyJointInfo(bodyUniqueId, m_data->m_tmpInfoStatus);
-				}
+				processRequestBodyInfo(m_data->m_tmpInfoRequestCommand, m_data->m_tmpInfoStatus);
 			}
 			break;
 		}
@@ -1405,6 +1391,22 @@ bool PhysicsDirect::processCustomCommand(const struct SharedMemoryCommand& orgCo
 	return m_data->m_hasStatus;
 }
 
+bool PhysicsDirect::processRequestBodyInfo(const struct SharedMemoryCommand& command, SharedMemoryStatus& status) {
+	bool hasStatus = m_data->m_commandProcessor->processCommand(command, status, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+	b3Clock clock;
+	double startTime = clock.getTimeInSeconds();
+	double timeOutInSeconds = m_data->m_timeOutInSeconds;
+	while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
+	{
+		hasStatus = m_data->m_commandProcessor->receiveStatus(status, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+	}
+	if (hasStatus) {
+		processBodyJointInfo(command.m_sdfRequestInfoArgs.m_bodyUniqueId, status);
+	}
+	m_data->m_hasStatus = hasStatus;
+	return m_data->m_hasStatus;
+}
+
 bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& command)
 {
 	if (command.m_type == CMD_CUSTOM_COMMAND)
@@ -1434,9 +1436,13 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 		return processOverlappingObjects(command);
 	}
 
-  if (command.m_type == CMD_REQUEST_MESH_DATA)
+	if (command.m_type == CMD_REQUEST_MESH_DATA)
 	{
 		return processMeshData(command);
+	}
+	if (command.m_type == CMD_REQUEST_BODY_INFO)
+	{
+		return processRequestBodyInfo(command, m_data->m_serverStatus);
 	}
 
 	bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
