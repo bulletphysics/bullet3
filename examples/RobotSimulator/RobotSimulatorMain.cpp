@@ -27,6 +27,9 @@ int main(int argc, char* argv[])
 		printf("Cannot connect\n");
 		return -1;
 	}
+
+	sim->resetSimulation(RESET_USE_DEFORMABLE_WORLD);
+
 	//Can also use eCONNECT_DIRECT,eCONNECT_SHARED_MEMORY,eCONNECT_UDP,eCONNECT_TCP, for example:
 	//sim->connect(eCONNECT_UDP, "localhost", 1234);
 	sim->configureDebugVisualizer(COV_ENABLE_GUI, 0);
@@ -48,10 +51,23 @@ int main(int argc, char* argv[])
 	//b3BodyInfo bodyInfo;
 	//sim->getBodyInfo(blockId,&bodyInfo);
 
-	sim->loadURDF("plane.urdf");
+	{
+		int planeUID = sim->loadURDF("plane.urdf");
+		btVector3 basePosition = btVector3(0, 0, -5);
+		btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
+		sim->resetBasePositionAndOrientation(planeUID, basePosition, baseOrientation);
+	}
 
-	MinitaurSetup minitaur;
-	int minitaurUid = minitaur.setupMinitaur(sim, btVector3(0, 0, .3));
+	{
+		int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
+		// int deformableUID = sim->loadURDF("torus_deform.urdf");
+		btVector3 basePosition = btVector3(0, 0, 10);
+		btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
+		sim->resetBasePositionAndOrientation(deformableUID, basePosition, baseOrientation);
+	}
+
+	// MinitaurSetup minitaur;
+	// int minitaurUid = minitaur.setupMinitaur(sim, btVector3(0, 0, .3));
 
 	//b3RobotSimulatorLoadUrdfFileArgs args;
 	//args.m_startPosition.setValue(2,0,1);
@@ -107,15 +123,15 @@ int main(int argc, char* argv[])
 
 				if (e.m_keyCode == 'm')
 				{
-					if (minitaurLogId < 0 && e.m_keyState & eButtonTriggered)
-					{
-						minitaurLogId = sim->startStateLogging(STATE_LOGGING_MINITAUR, "simlog.bin");
-					}
-					if (minitaurLogId >= 0 && e.m_keyState & eButtonReleased)
-					{
-						sim->stopStateLogging(minitaurLogId);
-						minitaurLogId = -1;
-					}
+					// if (minitaurLogId < 0 && e.m_keyState & eButtonTriggered)
+					// {
+					// 	minitaurLogId = sim->startStateLogging(STATE_LOGGING_MINITAUR, "simlog.bin");
+					// }
+					// if (minitaurLogId >= 0 && e.m_keyState & eButtonReleased)
+					// {
+					// 	sim->stopStateLogging(minitaurLogId);
+					// 	minitaurLogId = -1;
+					// }
 				}
 
 				if (e.m_keyCode == 'r' && e.m_keyState & eButtonTriggered)
@@ -135,7 +151,7 @@ int main(int argc, char* argv[])
 			yaw += 0.1;
 			btVector3 basePos;
 			btQuaternion baseOrn;
-			sim->getBasePositionAndOrientation(minitaurUid, basePos, baseOrn);
+			// sim->getBasePositionAndOrientation(minitaurUid, basePos, baseOrn);
 			sim->resetDebugVisualizerCamera(distance, -20, yaw, basePos);
 		}
 		b3Clock::usleep(1000. * 1000. * fixedTimeStep);
