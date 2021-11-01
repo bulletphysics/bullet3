@@ -134,14 +134,14 @@ void FreeFall::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, -10, 0);
-    reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
     sol->setDeformableSolver(reducedSoftBodySolver);
     m_solver = sol;
 
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
+    btVector3 gravity = btVector3(0, -10, 0);
+    m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     // m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
 
@@ -157,7 +157,7 @@ void FreeFall::initPhysics()
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 10, 0));
         // init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-        rsb->transform(init_transform);
+        rsb->transformTo(init_transform);
 
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);

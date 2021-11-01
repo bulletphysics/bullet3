@@ -442,6 +442,12 @@ void btDeformableMultiBodyDynamicsWorld::predictUnconstraintMotion(btScalar time
 	m_deformableBodySolver->predictMotion(timeStep);
 }
 
+void btDeformableMultiBodyDynamicsWorld::setGravity(const btVector3& gravity)
+{
+	btDiscreteDynamicsWorld::setGravity(gravity);
+	m_deformableBodySolver->setGravity(gravity);
+}
+
 void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 {
 	m_internalTime += timeStep;

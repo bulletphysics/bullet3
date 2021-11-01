@@ -397,6 +397,15 @@ void btReducedSoftBody::proceedToTransform(btScalar dt, bool end_of_time_step)
   m_invInertiaTensorWorld = m_interpolateInvInertiaTensorWorld;
 }
 
+void btReducedSoftBody::transformTo(const btTransform& trs)
+{
+  // get the current best rigid fit
+	btTransform current_transform = getRigidTransform();
+	// apply transform in material space
+	btTransform new_transform = trs * current_transform.inverse();
+  transform(new_transform);
+}
+
 void btReducedSoftBody::transform(const btTransform& trs)
 {
   // translate mesh

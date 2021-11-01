@@ -122,6 +122,8 @@ public:
 		return m_sbi;
 	}
 
+	virtual void setGravity(const btVector3& gravity);
+
 	void reinitialize(btScalar timeStep);
 
 	void applyRigidBodyGravity(btScalar timeStep);

@@ -69,6 +69,13 @@ public:
 	// solve the momentum equation
 	virtual void solveDeformableConstraints(btScalar solverdt);
 
+	// set gravity (get from deformable world)
+	virtual void setGravity(const btVector3& gravity)
+	{
+		// for full deformable object, we don't store gravity in the solver
+		// this function is overriden in the reduced deformable object
+	}
+
 	// resize/clear data structures
 	virtual void reinitialize(const btAlignedObjectArray<btSoftBody*>& softBodies, btScalar dt);
 

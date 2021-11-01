@@ -127,15 +127,12 @@ class btReducedSoftBody : public btSoftBody
   //
   // various internal updates
   //
+  virtual void transformTo(const btTransform& trs);
   virtual void transform(const btTransform& trs);
   // caution: 
   // need to use scale before using transform, because the scale is performed in the local frame 
   // (i.e., may have some rotation already, but the m_rigidTransformWorld doesn't have this info)
   virtual void scale(const btVector3& scl);
-  virtual void transformTo(const btTransform& trs)
-  {
-    btAssert(false); // not supported yet
-  }
   virtual void translate(const btVector3& trs)
   {
     btAssert(false); // use transform().

@@ -225,7 +225,7 @@ void ConservationTest::initPhysics()
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 4, 0));
         // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
-        rsb->transform(init_transform);
+        rsb->transformTo(init_transform);
 
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);

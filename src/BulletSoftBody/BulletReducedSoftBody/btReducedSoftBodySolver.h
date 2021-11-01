@@ -28,7 +28,7 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
   btReducedSoftBodySolver();
   ~btReducedSoftBodySolver() {}
 
-  void setGravity(const btVector3& gravity);
+  virtual void setGravity(const btVector3& gravity);
 
   virtual SolverTypes getSolverType() const
   {

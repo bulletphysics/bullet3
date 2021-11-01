@@ -1004,7 +1004,7 @@ public:
 	/* Get best fit rigid transform                                         */
 	btTransform getRigidTransform();
 	/* Transform to given pose                                              */
-	void transformTo(const btTransform& trs);
+	virtual void transformTo(const btTransform& trs);
 	/* Transform															*/
 	virtual void transform(const btTransform& trs);
 	/* Translate															*/
