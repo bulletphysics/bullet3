@@ -178,6 +178,9 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
 
     // end of time step clean up and update
     rsb->endOfTimeStepZeroing();
+
+    // update the rendering mesh
+    rsb->interpolateRenderMesh();
   }
 
   // static int count = 0;

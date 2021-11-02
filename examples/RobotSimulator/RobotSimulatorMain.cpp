@@ -51,17 +51,12 @@ int main(int argc, char* argv[])
 	//b3BodyInfo bodyInfo;
 	//sim->getBodyInfo(blockId,&bodyInfo);
 
-	{
-		int planeUID = sim->loadURDF("plane.urdf");
-		btVector3 basePosition = btVector3(0, 0, -5);
-		btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
-		sim->resetBasePositionAndOrientation(planeUID, basePosition, baseOrientation);
-	}
+	sim->loadURDF("plane.urdf");
 
 	{
 		int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
 		// int deformableUID = sim->loadURDF("torus_deform.urdf");
-		btVector3 basePosition = btVector3(0, 0, 10);
+		btVector3 basePosition = btVector3(0, 0, 2);
 		btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
 		sim->resetBasePositionAndOrientation(deformableUID, basePosition, baseOrientation);
 	}

@@ -311,7 +311,6 @@ void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
   // }
   // m_linearVelocityFromReduced = 1.0 / m_mass * (ref_trans.getBasis() * sum_linear);
   // m_angularVelocityFromReduced = m_interpolateInvInertiaTensorWorld * sum_angular;
-  // std::cout << "-----end here------\n";
 
   // m_linearVelocity -= m_linearVelocityFromReduced;
   // m_angularVelocity -= m_angularVelocityFromReduced;
