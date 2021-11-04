@@ -3629,8 +3629,13 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		{
 			bool use_self_collision = false;
 			use_self_collision = (flags & CUF_USE_SELF_COLLISION);
-			// return processDeformable(u2b.getDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
-			return processReducedDeformable(u2b.getDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
+			return processDeformable(u2b.getDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
+
+		}
+		if (!(u2b.getReducedDeformableModel().m_visualFileName.empty()))
+		{
+			bool use_self_collision = false;
+			return processReducedDeformable(u2b.getReducedDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
 		}
 		bool ok = processImportedObjects(fileName, bufferServerToClient, bufferSizeInBytes, useMultiBody, flags, u2b);
 		if (ok)
@@ -9472,7 +9477,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 	return true;
 }
 
-bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformable& deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision)
+bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDeformable& reduced_deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision)
 {
 	std::cout << "---process reduced deformable!!\n";
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -9481,7 +9486,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformabl
 	char relativeFileName[1024];
 	char pathPrefix[1024];
 	pathPrefix[0] = 0;
-	if (fileIO->findResourcePath(deformable.m_visualFileName.c_str(), relativeFileName, 1024))
+	if (fileIO->findResourcePath(reduced_deformable.m_visualFileName.c_str(), relativeFileName, 1024))
 	{
 		b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 	}
@@ -9493,9 +9498,9 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformabl
 	std::cout << pathPrefix << "\n";
 
 	bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
-	if (!deformable.m_simFileName.empty())
+	if (!reduced_deformable.m_simFileName.empty())
 	{
-		bool foundSimMesh = UrdfFindMeshFile(fileIO, pathPrefix, deformable.m_simFileName, error_message_prefix, &out_found_sim_filename, &out_sim_type);
+		bool foundSimMesh = UrdfFindMeshFile(fileIO, pathPrefix, reduced_deformable.m_simFileName, error_message_prefix, &out_found_sim_filename, &out_sim_type);
 	}
 	else
 	{
@@ -9579,7 +9584,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformabl
 			}
 
 			// load modes, reduced stiffness matrix
-			rsb->setReducedModes(6, 20, rsb->m_nodes.size()); // TODO: add modes info to URDF
+			rsb->setReducedModes(reduced_deformable.m_startMode, reduced_deformable.m_numModes, rsb->m_nodes.size()); // TODO: add modes info to URDF
 			rsb->setStiffnessScale(100);
 			btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, pathPrefix);
 
@@ -9721,11 +9726,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformabl
 			rsb->m_cfg.kKHR = collision_hardness;
 			rsb->m_cfg.kCHR = collision_hardness;
 
-			rsb->m_cfg.kDF = deformable.m_friction;
-			if (deformable.m_springCoefficients.bending_stiffness)
-			{
-				rsb->generateBendingConstraints(deformable.m_springCoefficients.bending_stride);
-			}
+			rsb->m_cfg.kDF = reduced_deformable.m_friction;
 			btSoftBody::Material* pm = rsb->appendMaterial();
 			pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
 
@@ -9739,30 +9740,27 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformabl
 			// collion between deformable and deformable and self-collision
 			// rsb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
 			rsb->setCollisionFlags(0);
-			rsb->setTotalMass(deformable.m_mass);
+			rsb->setTotalMass(reduced_deformable.m_mass);
 			rsb->setSelfCollision(useSelfCollision);
-			rsb->setSpringStiffness(deformable.m_repulsionStiffness);
-			rsb->setGravityFactor(deformable.m_gravFactor);
-			rsb->setCacheBarycenter(deformable.m_cache_barycenter);
 			rsb->initializeFaceTree();
 		}
 #endif  //SKIP_DEFORMABLE_BODY
-#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-		btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
-		if (softWorld)
-		{
-			btSoftBody::Material* pm = rsb->appendMaterial();
-			pm->m_kLST = 0.5;
-			pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
-			rsb->generateBendingConstraints(2, pm);
-			rsb->m_cfg.piterations = 20;
-			rsb->m_cfg.kDF = 0.5;
-			//turn on softbody vs softbody collision
-			rsb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
-			rsb->randomizeConstraints();
-			rsb->setTotalMass(deformable.m_mass, true);
-		}
-#endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+// #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+// 		btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+// 		if (softWorld)
+// 		{
+// 			btSoftBody::Material* pm = rsb->appendMaterial();
+// 			pm->m_kLST = 0.5;
+// 			pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+// 			rsb->generateBendingConstraints(2, pm);
+// 			rsb->m_cfg.piterations = 20;
+// 			rsb->m_cfg.kDF = 0.5;
+// 			//turn on softbody vs softbody collision
+// 			rsb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
+// 			rsb->randomizeConstraints();
+// 			rsb->setTotalMass(reduced_deformable.m_mass, true);
+// 		}
+// #endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		rsb->scale(btVector3(scale, scale, scale));
 		// rsb->rotate(orn);
 		// rsb->translate(pos);
@@ -9771,14 +9769,14 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformabl
 		init_transform.setRotation(orn);
 		rsb->transform(init_transform);
 
-		rsb->getCollisionShape()->setMargin(deformable.m_collisionMargin);
+		rsb->getCollisionShape()->setMargin(reduced_deformable.m_collisionMargin);
 		rsb->getCollisionShape()->setUserPointer(rsb);
 #ifndef SKIP_DEFORMABLE_BODY
 		if (deformWorld)
 		{
 			deformWorld->addSoftBody(rsb);
-			deformWorld->getSolverInfo().m_deformable_erp = 0.2;
-			deformWorld->getSolverInfo().m_deformable_cfm = 0.2;
+			deformWorld->getSolverInfo().m_deformable_erp = reduced_deformable.m_erp;
+			deformWorld->getSolverInfo().m_deformable_cfm = reduced_deformable.m_cfm;
 		}
 		else
 #endif  //SKIP_DEFORMABLE_BODY
@@ -9989,9 +9987,9 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfDeformabl
 		}
 		m_data->m_pluginManager.getRenderInterface()->updateShape(rsb->getUserIndex3(), &vertices[0], vertices.size(), &normals[0], normals.size());
 
-		if (!deformable.m_name.empty())
+		if (!reduced_deformable.m_name.empty())
 		{
-			bodyHandle->m_bodyName = deformable.m_name;
+			bodyHandle->m_bodyName = reduced_deformable.m_name;
 		}
 		else
 		{

@@ -262,8 +262,8 @@ void ReducedGrasp::initPhysics()
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
-    btDeformableBodySolver* solver = new btDeformableBodySolver();
-    // btReducedSoftBodySolver* solver = new btReducedSoftBodySolver();
+    // btDeformableBodySolver* solver = new btDeformableBodySolver();
+    btReducedSoftBodySolver* solver = new btReducedSoftBodySolver();
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
     sol->setDeformableSolver(solver);
@@ -279,63 +279,63 @@ void ReducedGrasp::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        // btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
-        // getDeformableDynamicsWorld()->addSoftBody(rsb);
-        // rsb->getCollisionShape()->setMargin(0.015);
+        getDeformableDynamicsWorld()->addSoftBody(rsb);
+        rsb->getCollisionShape()->setMargin(0.015);
         
-        // btTransform init_transform;
-        // init_transform.setIdentity();
-        // init_transform.setOrigin(btVector3(0, 1, -2));
-        // // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
-        // // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
-        // rsb->transform(init_transform);
+        btTransform init_transform;
+        init_transform.setIdentity();
+        init_transform.setOrigin(btVector3(0, 1, -2));
+        // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
+        // init_transform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI / 2.0));
+        rsb->transform(init_transform);
 
-        // rsb->setStiffnessScale(100);
-        // rsb->setDamping(damping_alpha, damping_beta);
+        rsb->setStiffnessScale(100);
+        rsb->setDamping(damping_alpha, damping_beta);
 
-        // rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        // rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        // rsb->m_cfg.kDF = 0;
-        // rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        // rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
-        // rsb->m_sleepingThreshold = 0;
-        // btSoftBodyHelpers::generateBoundaryFaces(rsb);
+        rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+        rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
+        rsb->m_cfg.kDF = 0;
+        rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
+        rsb->m_sleepingThreshold = 0;
+        btSoftBodyHelpers::generateBoundaryFaces(rsb);
     }
 
     // create full deformable cube
     {
-        std::string filepath("../../../examples/SoftDemo/cube/");
-        std::string filename = filepath + "mesh.vtk";
-        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
+        // std::string filepath("../../../examples/SoftDemo/cube/");
+        // std::string filename = filepath + "mesh.vtk";
+        // btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
         
-        // psb->scale(btVector3(2, 2, 2));
-        psb->translate(btVector3(0, 1, -2));
-        psb->getCollisionShape()->setMargin(0.05);
-        psb->setTotalMass(28.6);
-        psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = .5;
-        psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
-        getDeformableDynamicsWorld()->addSoftBody(psb);
-        btSoftBodyHelpers::generateBoundaryFaces(psb);
+        // // psb->scale(btVector3(2, 2, 2));
+        // psb->translate(btVector3(0, 1, -2));
+        // psb->getCollisionShape()->setMargin(0.05);
+        // psb->setTotalMass(28.6);
+        // psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+        // psb->m_cfg.kCHR = 1; // collision hardness with rigid body
+        // psb->m_cfg.kDF = .5;
+        // psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        // psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
+        // getDeformableDynamicsWorld()->addSoftBody(psb);
+        // btSoftBodyHelpers::generateBoundaryFaces(psb);
         
-        btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
-        getDeformableDynamicsWorld()->addForce(psb, gravity_force);
-        m_forces.push_back(gravity_force);
+        // btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
+        // getDeformableDynamicsWorld()->addForce(psb, gravity_force);
+        // m_forces.push_back(gravity_force);
         
-        btScalar E = 10000;
-        btScalar nu = 0.3;
-        btScalar lambda = E * nu / ((1 + nu) * (1 - 2 * nu));
-        btScalar mu = E / (2 * (1 + nu));
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(lambda, mu, 0.02);
-        // neohookean->setPoissonRatio(0.3);
-        // neohookean->setYoungsModulus(25);
-        neohookean->setDamping(0.01);
-        psb->m_cfg.drag = 0.001;
-        getDeformableDynamicsWorld()->addForce(psb, neohookean);
-        m_forces.push_back(neohookean);
+        // btScalar E = 10000;
+        // btScalar nu = 0.3;
+        // btScalar lambda = E * nu / ((1 + nu) * (1 - 2 * nu));
+        // btScalar mu = E / (2 * (1 + nu));
+        // btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(lambda, mu, 0.02);
+        // // neohookean->setPoissonRatio(0.3);
+        // // neohookean->setYoungsModulus(25);
+        // neohookean->setDamping(0.01);
+        // psb->m_cfg.drag = 0.001;
+        // getDeformableDynamicsWorld()->addForce(psb, neohookean);
+        // m_forces.push_back(neohookean);
     }
 
     getDeformableDynamicsWorld()->setImplicit(false);

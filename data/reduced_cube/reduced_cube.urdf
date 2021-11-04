@@ -1,14 +1,11 @@
 <?xml version="1.0"?>
 <robot name="reduced_cube">
-  <deformable name="reduced_cube">
-    <inertial>
-      <mass value="3" />
-      <inertia ixx="0.0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
-    </inertial>
+  <reduced_deformable name="reduced_cube">
+    <num_modes value="20"/>
+    <mass value="1"/>
+    <stiffness_scale value="100"/>
     <collision_margin value="0.01"/>
-    <repulsion_stiffness value="800.0"/>
     <friction value= "0.5"/>
-    <neohookean mu= "180" lambda= "600" damping= "0.01" />
     <visual filename="cube_mesh.vtk"/>
-  </deformable>
+  </reduced_deformable>
 </robot>
