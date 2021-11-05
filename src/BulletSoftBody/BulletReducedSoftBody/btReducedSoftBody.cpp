@@ -461,6 +461,11 @@ void btReducedSoftBody::scale(const btVector3& scl)
   internalInitialization();
 }
 
+void btReducedSoftBody::setTotalMass(btScalar mass, bool fromfaces)
+{
+  //
+}
+
 void btReducedSoftBody::updateRestNodalPositions()
 {
   // update reset nodal position

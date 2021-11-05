@@ -1346,6 +1346,45 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 	}
 
 	{
+		XMLElement* erp_xml = config->FirstChildElement("erp");
+		if (erp_xml)
+		{
+			if (!erp_xml->Attribute("value"))
+			{
+				logger->reportError("friction element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_erp = urdfLexicalCast<double>(erp_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* cfm_xml = config->FirstChildElement("cfm");
+		if (cfm_xml)
+		{
+			if (!cfm_xml->Attribute("value"))
+			{
+				logger->reportError("cfm element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_cfm = urdfLexicalCast<double>(cfm_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* damping_xml = config->FirstChildElement("damping_coefficient");
+		if (damping_xml)
+		{
+			if (!damping_xml->Attribute("value"))
+			{
+				logger->reportError("damping_coefficient element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_damping = urdfLexicalCast<double>(damping_xml->Attribute("value"));
+		}
+	}
+
+	{
 		XMLElement* friction_xml = config->FirstChildElement("friction");
 		if (friction_xml)
 		{

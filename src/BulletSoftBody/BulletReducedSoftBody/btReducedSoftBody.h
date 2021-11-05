@@ -124,6 +124,8 @@ class btReducedSoftBody : public btSoftBody
 
   void setDamping(const btScalar alpha, const btScalar beta);
 
+  virtual void setTotalMass(btScalar mass, bool fromfaces = false);
+
   //
   // various internal updates
   //

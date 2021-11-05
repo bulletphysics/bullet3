@@ -8955,7 +8955,6 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 
 bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision)
 {
-	std::cout << "---process dformable!!\n";
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btSoftBody* psb = NULL;
 	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
@@ -9473,13 +9472,11 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		m_data->m_pluginManager.addNotification(notification);
 	}
 #endif
-	std::cout << "---deformable processed!!\n";
 	return true;
 }
 
 bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDeformable& reduced_deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision)
 {
-	std::cout << "---process reduced deformable!!\n";
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btReducedSoftBody* rsb = NULL;
 	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
@@ -9494,9 +9491,6 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 	std::string out_found_filename, out_found_sim_filename;
 	int out_type(0), out_sim_type(0);
 
-	// std::cout << relativeFileName << "\n";
-	std::cout << pathPrefix << "\n";
-
 	bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 	if (!reduced_deformable.m_simFileName.empty())
 	{
@@ -9510,64 +9504,8 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 
 	if (out_sim_type == UrdfGeometry::FILE_OBJ)
 	{
-// 		std::vector<tinyobj::shape_t> shapes;
-// 		tinyobj::attrib_t attribute;
-// 		std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
-// 		if (!shapes.empty())
-// 		{
-// 			const tinyobj::shape_t& shape = shapes[0];
-// 			btAlignedObjectArray<btScalar> vertices;
-// 			btAlignedObjectArray<int> indices;
-// 			for (int i = 0; i < attribute.vertices.size(); i++)
-// 			{
-// 				vertices.push_back(attribute.vertices[i]);
-// 			}
-// 			for (int i = 0; i < shape.mesh.indices.size(); i++)
-// 			{
-// 				indices.push_back(shape.mesh.indices[i].vertex_index);
-// 			}
-// 			int numTris = shape.mesh.indices.size() / 3;
-// 			if (numTris > 0)
-// 			{
-// 				{
-// 					btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
-// 					if (softWorld)
-// 					{
-// 						psb = btSoftBodyHelpers::CreateFromTriMesh(softWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
-// 						if (!psb)
-// 						{
-// 							printf("Load deformable failed\n");
-// 							return false;
-// 						}
-// 					}
-// 				}
-// 				{
-// 					btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-// 					if (deformWorld)
-// 					{
-// 						psb = btSoftBodyHelpers::CreateFromTriMesh(deformWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
-// 						if (!psb)
-// 						{
-// 							printf("Load deformable failed\n");
-// 							return false;
-// 						}
-// 					}
-// 				}
-// 			}
-// 		}
-// #ifndef SKIP_DEFORMABLE_BODY
-// 		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-// 		if (deformWorld && deformable.m_springCoefficients.elastic_stiffness > 0.)
-// 		{
-// 			btDeformableLagrangianForce* springForce =
-// 				new btDeformableMassSpringForce(deformable.m_springCoefficients.elastic_stiffness,
-// 												deformable.m_springCoefficients.damping_stiffness,
-// 												!deformable.m_springCoefficients.damp_all_directions,
-// 												deformable.m_springCoefficients.bending_stiffness);
-// 			deformWorld->addForce(psb, springForce);
-// 			m_data->m_lf.push_back(springForce);
-// 		}
-// #endif
+		printf("Obj file is currently unsupported\n");
+		return false;
 	}
 	else if (out_sim_type == UrdfGeometry::FILE_VTK)
 	{
@@ -9575,7 +9513,6 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
 		if (deformWorld)
 		{
-			std::cout << "out_found_sim_filename = " << out_found_sim_filename << "\n";
 			rsb = btReducedSoftBodyHelpers::createFromVtkFile(deformWorld->getWorldInfo(), out_found_sim_filename.c_str());
 			if (!rsb)
 			{
@@ -9584,40 +9521,10 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			}
 
 			// load modes, reduced stiffness matrix
-			rsb->setReducedModes(reduced_deformable.m_startMode, reduced_deformable.m_numModes, rsb->m_nodes.size()); // TODO: add modes info to URDF
-			rsb->setStiffnessScale(100);
+			rsb->setReducedModes(reduced_deformable.m_startMode, reduced_deformable.m_numModes, rsb->m_nodes.size());
+			rsb->setStiffnessScale(reduced_deformable.m_stiffnessScale);
+			rsb->setDamping(0, reduced_deformable.m_damping); // damping alpha is set to 0 by default
 			btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, pathPrefix);
-
-			// btScalar corotated_mu(0.), corotated_lambda(0.);
-			// corotated_mu = deformable.m_corotatedCoefficients.mu;
-			// corotated_lambda = deformable.m_corotatedCoefficients.lambda;
-			// if (corotated_mu > 0 || corotated_lambda > 0)
-			// {
-			// 	btDeformableLagrangianForce* corotatedForce = new btDeformableCorotatedForce(corotated_mu, corotated_lambda);
-			// 	deformWorld->addForce(psb, corotatedForce);
-			// 	m_data->m_lf.push_back(corotatedForce);
-			// }
-			// btScalar neohookean_mu, neohookean_lambda, neohookean_damping;
-			// neohookean_mu = deformable.m_neohookeanCoefficients.mu;
-			// neohookean_lambda = deformable.m_neohookeanCoefficients.lambda;
-			// neohookean_damping = deformable.m_neohookeanCoefficients.damping;
-			// if (neohookean_mu > 0 || neohookean_lambda > 0)
-			// {
-			// 	btDeformableLagrangianForce* neohookeanForce = new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda, neohookean_damping);
-			// 	deformWorld->addForce(psb, neohookeanForce);
-			// 	m_data->m_lf.push_back(neohookeanForce);
-			// }
-
-			// btScalar spring_elastic_stiffness, spring_damping_stiffness, spring_bending_stiffness;
-			// spring_elastic_stiffness = deformable.m_springCoefficients.elastic_stiffness;
-			// spring_damping_stiffness = deformable.m_springCoefficients.damping_stiffness;
-			// spring_bending_stiffness = deformable.m_springCoefficients.bending_stiffness;
-			// if (spring_elastic_stiffness > 0.)
-			// {
-			// 	btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true, spring_bending_stiffness);
-			// 	deformWorld->addForce(psb, springForce);
-			// 	m_data->m_lf.push_back(springForce);
-			// }
 		}
 #endif
 	}
@@ -9717,11 +9624,6 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
 		if (deformWorld)
 		{
-			
-			// btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
-			// btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity);
-			// deformWorld->addForce(rsb, gravityForce);
-			// m_data->m_lf.push_back(gravityForce);
 			btScalar collision_hardness = 1;
 			rsb->m_cfg.kKHR = collision_hardness;
 			rsb->m_cfg.kCHR = collision_hardness;
@@ -9762,8 +9664,6 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 // 		}
 // #endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		rsb->scale(btVector3(scale, scale, scale));
-		// rsb->rotate(orn);
-		// rsb->translate(pos);
 		btTransform init_transform;
 		init_transform.setOrigin(pos);
 		init_transform.setRotation(orn);
@@ -9789,7 +9689,6 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 		}
 		
 		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
-		std::cout << "bodyUniqueId: " << *bodyUniqueId;
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
 		bodyHandle->m_softBody = rsb;
 		rsb->setUserIndex2(*bodyUniqueId);
@@ -10008,8 +9907,6 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 		m_data->m_pluginManager.addNotification(notification);
 	}
 #endif
-	std::cout << "---reduced deformable processed!!\n";
-	// exit(123);
 	return true;
 }
 

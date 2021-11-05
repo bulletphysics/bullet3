@@ -257,6 +257,7 @@ struct UrdfReducedDeformable
 	double m_cfm;
 	double m_friction;
 	double m_collisionMargin;
+	double m_damping;
 
 	std::string m_visualFileName;
 	std::string m_simFileName;
@@ -271,6 +272,7 @@ struct UrdfReducedDeformable
 			m_mass(1),
 			m_stiffnessScale(100),
 			m_collisionMargin(0.02),
+			m_damping(0),
 			m_visualFileName(""),
 			m_simFileName("")
 	{}
