@@ -24,7 +24,8 @@ struct selfadjoint_rank2_update_selector;
 template<typename Scalar, typename Index, typename UType, typename VType>
 struct selfadjoint_rank2_update_selector<Scalar,Index,UType,VType,Lower>
 {
-  static void run(Scalar* mat, Index stride, const UType& u, const VType& v, const Scalar& alpha)
+  static EIGEN_DEVICE_FUNC
+  void run(Scalar* mat, Index stride, const UType& u, const VType& v, const Scalar& alpha)
   {
     const Index size = u.size();
     for (Index i=0; i<size; ++i)
@@ -79,8 +80,8 @@ EIGEN_DEVICE_FUNC SelfAdjointView<MatrixType,UpLo>& SelfAdjointView<MatrixType,U
   if (IsRowMajor)
     actualAlpha = numext::conj(actualAlpha);
 
-  typedef typename internal::remove_all<typename internal::conj_expr_if<IsRowMajor ^ UBlasTraits::NeedToConjugate,_ActualUType>::type>::type UType;
-  typedef typename internal::remove_all<typename internal::conj_expr_if<IsRowMajor ^ VBlasTraits::NeedToConjugate,_ActualVType>::type>::type VType;
+  typedef typename internal::remove_all<typename internal::conj_expr_if<int(IsRowMajor) ^ int(UBlasTraits::NeedToConjugate), _ActualUType>::type>::type UType;
+  typedef typename internal::remove_all<typename internal::conj_expr_if<int(IsRowMajor) ^ int(VBlasTraits::NeedToConjugate), _ActualVType>::type>::type VType;
   internal::selfadjoint_rank2_update_selector<Scalar, Index, UType, VType,
     (IsRowMajor ? int(UpLo==Upper ? Lower : Upper) : UpLo)>
     ::run(_expression().const_cast_derived().data(),_expression().outerStride(),UType(actualU),VType(actualV),actualAlpha);

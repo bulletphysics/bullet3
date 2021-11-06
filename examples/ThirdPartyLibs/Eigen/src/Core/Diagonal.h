@@ -11,7 +11,7 @@
 #ifndef EIGEN_DIAGONAL_H
 #define EIGEN_DIAGONAL_H
 
-namespace Eigen { 
+namespace Eigen {
 
 /** \class Diagonal
   * \ingroup Core_Module
@@ -70,7 +70,10 @@ template<typename MatrixType, int _DiagIndex> class Diagonal
     EIGEN_DENSE_PUBLIC_INTERFACE(Diagonal)
 
     EIGEN_DEVICE_FUNC
-    explicit inline Diagonal(MatrixType& matrix, Index a_index = DiagIndex) : m_matrix(matrix), m_index(a_index) {}
+    explicit inline Diagonal(MatrixType& matrix, Index a_index = DiagIndex) : m_matrix(matrix), m_index(a_index)
+    {
+      eigen_assert( a_index <= m_matrix.cols() && -a_index <= m_matrix.rows() );
+    }
 
     EIGEN_INHERIT_ASSIGNMENT_OPERATORS(Diagonal)
 
@@ -81,20 +84,16 @@ template<typename MatrixType, int _DiagIndex> class Diagonal
                                : numext::mini<Index>(m_matrix.rows(),m_matrix.cols()-m_index.value());
     }
 
-    EIGEN_DEVICE_FUNC
-    inline Index cols() const { return 1; }
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    inline Index cols() const EIGEN_NOEXCEPT { return 1; }
 
-    EIGEN_DEVICE_FUNC
-    inline Index innerStride() const
-    {
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    inline Index innerStride() const EIGEN_NOEXCEPT {
       return m_matrix.outerStride() + 1;
     }
 
-    EIGEN_DEVICE_FUNC
-    inline Index outerStride() const
-    {
-      return 0;
-    }
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    inline Index outerStride() const EIGEN_NOEXCEPT { return 0; }
 
     typedef typename internal::conditional<
                        internal::is_lvalue<MatrixType>::value,
@@ -146,8 +145,8 @@ template<typename MatrixType, int _DiagIndex> class Diagonal
     }
 
     EIGEN_DEVICE_FUNC
-    inline const typename internal::remove_all<typename MatrixType::Nested>::type& 
-    nestedExpression() const 
+    inline const typename internal::remove_all<typename MatrixType::Nested>::type&
+    nestedExpression() const
     {
       return m_matrix;
     }
@@ -164,12 +163,12 @@ template<typename MatrixType, int _DiagIndex> class Diagonal
 
   private:
     // some compilers may fail to optimize std::max etc in case of compile-time constants...
-    EIGEN_DEVICE_FUNC
-    EIGEN_STRONG_INLINE Index absDiagIndex() const { return m_index.value()>0 ? m_index.value() : -m_index.value(); }
-    EIGEN_DEVICE_FUNC
-    EIGEN_STRONG_INLINE Index rowOffset() const { return m_index.value()>0 ? 0 : -m_index.value(); }
-    EIGEN_DEVICE_FUNC
-    EIGEN_STRONG_INLINE Index colOffset() const { return m_index.value()>0 ? m_index.value() : 0; }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+    Index absDiagIndex() const EIGEN_NOEXCEPT { return m_index.value()>0 ? m_index.value() : -m_index.value(); }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+    Index rowOffset() const EIGEN_NOEXCEPT { return m_index.value()>0 ? 0 : -m_index.value(); }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE EIGEN_CONSTEXPR
+    Index colOffset() const EIGEN_NOEXCEPT { return m_index.value()>0 ? m_index.value() : 0; }
     // trigger a compile-time error if someone try to call packet
     template<int LoadMode> typename MatrixType::PacketReturnType packet(Index) const;
     template<int LoadMode> typename MatrixType::PacketReturnType packet(Index,Index) const;

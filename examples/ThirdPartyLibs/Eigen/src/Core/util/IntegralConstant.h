@@ -52,10 +52,12 @@ template<int N> class FixedInt
 {
 public:
   static const int value = N;
-  operator int() const { return value; }
+  EIGEN_CONSTEXPR operator int() const { return value; }
   FixedInt() {}
   FixedInt( VariableAndFixedInt<N> other) {
-    EIGEN_ONLY_USED_FOR_DEBUG(other);
+    #ifndef EIGEN_INTERNAL_DEBUGGING
+    EIGEN_UNUSED_VARIABLE(other);
+    #endif
     eigen_internal_assert(int(other)==N);
   }
 
@@ -75,7 +77,7 @@ public:
   template<int M>
   FixedInt<N&M> operator&( FixedInt<M>) const { return FixedInt<N&M>(); }
 
-#if EIGEN_HAS_CXX14
+#if EIGEN_HAS_CXX14_VARIABLE_TEMPLATES
   // Needed in C++14 to allow fix<N>():
   FixedInt operator() () const { return *this; }
 
@@ -182,7 +184,7 @@ template<int N, int DynamicKey> struct cleanup_index_type<std::integral_constant
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
 
-#if EIGEN_HAS_CXX14
+#if EIGEN_HAS_CXX14_VARIABLE_TEMPLATES
 template<int N>
 static const internal::FixedInt<N> fix{};
 #else
@@ -192,7 +194,7 @@ inline internal::FixedInt<N> fix() { return internal::FixedInt<N>(); }
 // The generic typename T is mandatory. Otherwise, a code like fix<N> could refer to either the function above or this next overload.
 // This way a code like fix<N> can only refer to the previous function.
 template<int N,typename T>
-inline internal::VariableAndFixedInt<N> fix(T val) { return internal::VariableAndFixedInt<N>(val); }
+inline internal::VariableAndFixedInt<N> fix(T val) { return internal::VariableAndFixedInt<N>(internal::convert_index<int>(val)); }
 #endif
 
 #else // EIGEN_PARSED_BY_DOXYGEN
