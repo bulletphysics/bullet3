@@ -13,7 +13,7 @@ p.setGravity(0, 0, -10)
 tex = p.loadTexture("uvmap.png")
 planeId = p.loadURDF("plane.urdf", [0,0,-2])
 
-p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "reduced_cube.mp4")
+# p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "reduced_cube.mp4")
 cube = p.loadURDF("reduced_cube/reduced_cube.urdf", [1,1,1])
 p.changeVisualShape(cube, -1, rgbaColor=[1,1,1,1], textureUniqueId=tex, flags=0)
 p.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)

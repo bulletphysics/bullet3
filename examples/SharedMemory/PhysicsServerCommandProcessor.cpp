@@ -9525,6 +9525,8 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			rsb->setStiffnessScale(reduced_deformable.m_stiffnessScale);
 			rsb->setDamping(0, reduced_deformable.m_damping); // damping alpha is set to 0 by default
 			btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, pathPrefix);
+			// set total mass
+			rsb->setTotalMass(reduced_deformable.m_mass);
 		}
 #endif
 	}

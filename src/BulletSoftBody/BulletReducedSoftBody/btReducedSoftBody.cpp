@@ -463,7 +463,26 @@ void btReducedSoftBody::scale(const btVector3& scl)
 
 void btReducedSoftBody::setTotalMass(btScalar mass, bool fromfaces)
 {
-  //
+  btScalar scale_ratio = mass / m_mass;
+
+  // update nodal mass
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    m_nodalMass[i] *= scale_ratio;
+  }
+  m_mass = mass;
+  m_inverseMass = mass > 0 ? 1.0 / mass : 0;
+
+  // update inertia tensors
+  updateLocalInertiaTensorFromNodes();
+
+  btMatrix3x3 id;
+  id.setIdentity();
+  updateInitialInertiaTensor(id);   // there is no rotation, but the local inertia tensor has changed
+  updateInertiaTensor();
+  m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
+
+  internalInitialization();
 }
 
 void btReducedSoftBody::updateRestNodalPositions()

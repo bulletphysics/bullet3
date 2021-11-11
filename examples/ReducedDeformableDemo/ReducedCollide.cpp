@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.001;
+static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 4;
 static int start_mode = 6;
 static int num_modes = 20;
@@ -75,11 +75,10 @@ public:
     
     void Ctor_RbUpStack()
     {
-        // float mass = 28;
-        float mass = 8;
+        float mass = 10;
 
-        // btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
-        btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
+        btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
+        // btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
         btVector3 localInertia(0, 0, 0);
 		if (mass != 0.f)
 			shape->calculateLocalInertia(mass, localInertia);
@@ -102,7 +101,7 @@ public:
 
     void rigidBar()
     {
-        float mass = 8;
+        float mass = 10;
 
         btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.25, 2));
         btVector3 localInertia(0, 0, 0);
@@ -206,7 +205,7 @@ void ReducedCollide::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
@@ -220,6 +219,8 @@ void ReducedCollide::initPhysics()
 
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
+
+        rsb->setTotalMass(15);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
