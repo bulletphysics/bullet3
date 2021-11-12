@@ -29,7 +29,12 @@ std::map<std::string, int> jointNameToId;
 
 int main(int argc, char* argv[])
 {
+#ifdef __APPLE__
+	kPhysClient = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
+#else
 	kPhysClient = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
+#endif
+
 	if (!kPhysClient)
 		return -1;
 	// visualizer
