@@ -101,7 +101,7 @@ public:
       }
       else
       {
-        m_value = 0; // this is to avoid a compilation warning
+        m_value = Scalar(0); // this is to avoid a compilation warning
         m_id = -1;
       }
       return *this;
@@ -126,7 +126,7 @@ public:
   
   
   enum {
-    CoeffReadCost = evaluator<Lhs>::CoeffReadCost + evaluator<Rhs>::CoeffReadCost + functor_traits<BinaryOp>::Cost,
+    CoeffReadCost = int(evaluator<Lhs>::CoeffReadCost) + int(evaluator<Rhs>::CoeffReadCost) + int(functor_traits<BinaryOp>::Cost),
     Flags = XprType::Flags
   };
   
@@ -211,7 +211,7 @@ public:
 
 
   enum {
-    CoeffReadCost = evaluator<Lhs>::CoeffReadCost + evaluator<Rhs>::CoeffReadCost + functor_traits<BinaryOp>::Cost,
+    CoeffReadCost = int(evaluator<Lhs>::CoeffReadCost) + int(evaluator<Rhs>::CoeffReadCost) + int(functor_traits<BinaryOp>::Cost),
     Flags = XprType::Flags
   };
 
@@ -298,7 +298,7 @@ public:
 
 
   enum {
-    CoeffReadCost = evaluator<Lhs>::CoeffReadCost + evaluator<Rhs>::CoeffReadCost + functor_traits<BinaryOp>::Cost,
+    CoeffReadCost = int(evaluator<Lhs>::CoeffReadCost) + int(evaluator<Rhs>::CoeffReadCost) + int(functor_traits<BinaryOp>::Cost),
     Flags = XprType::Flags
   };
 
@@ -457,7 +457,7 @@ public:
   
   
   enum {
-    CoeffReadCost = evaluator<LhsArg>::CoeffReadCost + evaluator<RhsArg>::CoeffReadCost + functor_traits<BinaryOp>::Cost,
+    CoeffReadCost = int(evaluator<LhsArg>::CoeffReadCost) + int(evaluator<RhsArg>::CoeffReadCost) + int(functor_traits<BinaryOp>::Cost),
     Flags = XprType::Flags
   };
   
@@ -530,7 +530,7 @@ public:
   
   
   enum {
-    CoeffReadCost = evaluator<LhsArg>::CoeffReadCost + evaluator<RhsArg>::CoeffReadCost + functor_traits<BinaryOp>::Cost,
+    CoeffReadCost = int(evaluator<LhsArg>::CoeffReadCost) + int(evaluator<RhsArg>::CoeffReadCost) + int(functor_traits<BinaryOp>::Cost),
     Flags = XprType::Flags
   };
   
@@ -604,7 +604,7 @@ public:
   
   
   enum {
-    CoeffReadCost = evaluator<LhsArg>::CoeffReadCost + evaluator<RhsArg>::CoeffReadCost + functor_traits<BinaryOp>::Cost,
+    CoeffReadCost = int(evaluator<LhsArg>::CoeffReadCost) + int(evaluator<RhsArg>::CoeffReadCost) + int(functor_traits<BinaryOp>::Cost),
     Flags = XprType::Flags
   };
   

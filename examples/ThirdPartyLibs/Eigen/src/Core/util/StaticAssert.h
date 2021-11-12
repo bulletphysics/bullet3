@@ -24,9 +24,10 @@
  *
  */
 
+#ifndef EIGEN_STATIC_ASSERT
 #ifndef EIGEN_NO_STATIC_ASSERT
 
-  #if EIGEN_MAX_CPP_VER>=11 && (__has_feature(cxx_static_assert) || (defined(__cplusplus) && __cplusplus >= 201103L) || (EIGEN_COMP_MSVC >= 1600))
+  #if EIGEN_MAX_CPP_VER>=11 && (__has_feature(cxx_static_assert) || (EIGEN_COMP_CXXVER >= 11) || (EIGEN_COMP_MSVC >= 1600))
 
     // if native static_assert is enabled, let's use it
     #define EIGEN_STATIC_ASSERT(X,MSG) static_assert(X,#MSG);
@@ -101,7 +102,11 @@
         THIS_TYPE_IS_NOT_SUPPORTED=1,
         STORAGE_KIND_MUST_MATCH=1,
         STORAGE_INDEX_MUST_MATCH=1,
-        CHOLMOD_SUPPORTS_DOUBLE_PRECISION_ONLY=1
+        CHOLMOD_SUPPORTS_DOUBLE_PRECISION_ONLY=1,
+        SELFADJOINTVIEW_ACCEPTS_UPPER_AND_LOWER_MODE_ONLY=1,
+        INVALID_TEMPLATE_PARAMETER=1,
+        GPU_TENSOR_CONTRACTION_DOES_NOT_SUPPORT_OUTPUT_KERNELS=1,
+        THE_ARRAY_SIZE_SHOULD_EQUAL_WITH_PACKET_SIZE=1
       };
     };
 
@@ -131,7 +136,7 @@
   #define EIGEN_STATIC_ASSERT(CONDITION,MSG) eigen_assert((CONDITION) && #MSG);
 
 #endif // EIGEN_NO_STATIC_ASSERT
-
+#endif // EIGEN_STATIC_ASSERT
 
 // static assertion failing if the type \a TYPE is not a vector type
 #define EIGEN_STATIC_ASSERT_VECTOR_ONLY(TYPE) \
@@ -180,7 +185,7 @@
      )
 
 #define EIGEN_STATIC_ASSERT_NON_INTEGER(TYPE) \
-    EIGEN_STATIC_ASSERT(!NumTraits<TYPE>::IsInteger, THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES)
+    EIGEN_STATIC_ASSERT(!Eigen::NumTraits<TYPE>::IsInteger, THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES)
 
 
 // static assertion failing if it is guaranteed at compile-time that the two matrix expression types have different sizes
@@ -190,8 +195,8 @@
     YOU_MIXED_MATRICES_OF_DIFFERENT_SIZES)
 
 #define EIGEN_STATIC_ASSERT_SIZE_1x1(TYPE) \
-      EIGEN_STATIC_ASSERT((TYPE::RowsAtCompileTime == 1 || TYPE::RowsAtCompileTime == Dynamic) && \
-                          (TYPE::ColsAtCompileTime == 1 || TYPE::ColsAtCompileTime == Dynamic), \
+      EIGEN_STATIC_ASSERT((TYPE::RowsAtCompileTime == 1 || TYPE::RowsAtCompileTime == Eigen::Dynamic) && \
+                          (TYPE::ColsAtCompileTime == 1 || TYPE::ColsAtCompileTime == Eigen::Dynamic), \
                           THIS_METHOD_IS_ONLY_FOR_1x1_EXPRESSIONS)
 
 #define EIGEN_STATIC_ASSERT_LVALUE(Derived) \

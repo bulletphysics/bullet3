@@ -4,6 +4,7 @@
 #ifdef _MSC_VER
   // 4100 - unreferenced formal parameter (occurred e.g. in aligned_allocator::destroy(pointer p))
   // 4101 - unreferenced local variable
+  // 4127 - conditional expression is constant
   // 4181 - qualifier applied to reference type ignored
   // 4211 - nonstandard extension used : redefined extern to static
   // 4244 - 'argument' : conversion from 'type1' to 'type2', possible loss of data
@@ -19,7 +20,7 @@
   #ifndef EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
     #pragma warning( push )
   #endif
-  #pragma warning( disable : 4100 4101 4181 4211 4244 4273 4324 4503 4512 4522 4700 4714 4717 4800)
+  #pragma warning( disable : 4100 4101 4127 4181 4211 4244 4273 4324 4503 4512 4522 4700 4714 4717 4800)
 
 #elif defined __INTEL_COMPILER
   // 2196 - routine is both "inline" and "noinline" ("noinline" assumed)
@@ -44,14 +45,33 @@
   #if __clang_major__ >= 3 && __clang_minor__ >= 5
     #pragma clang diagnostic ignored "-Wabsolute-value"
   #endif
+  #if __clang_major__ >= 10
+    #pragma clang diagnostic ignored "-Wimplicit-int-float-conversion"
+  #endif
+  #if ( defined(__ALTIVEC__) || defined(__VSX__) ) && __cplusplus < 201103L
+    // warning: generic selections are a C11-specific feature
+    // ignoring warnings thrown at vec_ctf in Altivec/PacketMath.h
+    #pragma clang diagnostic ignored "-Wc11-extensions"
+  #endif
 
-#elif defined __GNUC__ && __GNUC__>=6
+#elif defined __GNUC__
 
-  #ifndef EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
+  #if (!defined(EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS)) &&  (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
     #pragma GCC diagnostic push
   #endif
-  #pragma GCC diagnostic ignored "-Wignored-attributes"
-
+  // g++ warns about local variables shadowing member functions, which is too strict
+  #pragma GCC diagnostic ignored "-Wshadow"
+  #if __GNUC__ == 4 && __GNUC_MINOR__ < 8
+    // Until g++-4.7 there are warnings when comparing unsigned int vs 0, even in templated functions:
+    #pragma GCC diagnostic ignored "-Wtype-limits"
+  #endif
+  #if __GNUC__>=6
+    #pragma GCC diagnostic ignored "-Wignored-attributes"
+  #endif
+  #if __GNUC__==7
+    // See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=89325
+    #pragma GCC diagnostic ignored "-Wattributes"
+  #endif
 #endif
 
 #if defined __NVCC__
@@ -74,6 +94,21 @@
   #pragma diag_suppress 2735
   #pragma diag_suppress 2737
   #pragma diag_suppress 2739
+  #pragma diag_suppress 2976
+  #pragma diag_suppress 2979
+  // Disable the "// __device__ annotation is ignored on a function(...) that is
+  //              explicitly defaulted on its first declaration" message.
+  // The __device__ annotation seems to actually be needed in some cases,
+  // otherwise resulting in kernel runtime errors.
+  #pragma diag_suppress 2977
 #endif
+
+#else
+// warnings already disabled:
+# ifndef EIGEN_WARNINGS_DISABLED_2
+#  define EIGEN_WARNINGS_DISABLED_2
+# elif defined(EIGEN_INTERNAL_DEBUGGING)
+#  error "Do not include \"DisableStupidWarnings.h\" recursively more than twice!"
+# endif
 
 #endif // not EIGEN_WARNINGS_DISABLED

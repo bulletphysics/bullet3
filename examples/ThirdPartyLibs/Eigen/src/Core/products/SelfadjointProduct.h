@@ -109,10 +109,10 @@ struct selfadjoint_product_selector<MatrixType,OtherType,UpLo,false>
     internal::general_matrix_matrix_triangular_product<Index,
       Scalar, OtherIsRowMajor ? RowMajor : ColMajor,   OtherBlasTraits::NeedToConjugate  && NumTraits<Scalar>::IsComplex,
       Scalar, OtherIsRowMajor ? ColMajor : RowMajor, (!OtherBlasTraits::NeedToConjugate) && NumTraits<Scalar>::IsComplex,
-      IsRowMajor ? RowMajor : ColMajor, UpLo>
+      IsRowMajor ? RowMajor : ColMajor, MatrixType::InnerStrideAtCompileTime, UpLo>
       ::run(size, depth,
-            &actualOther.coeffRef(0,0), actualOther.outerStride(), &actualOther.coeffRef(0,0), actualOther.outerStride(),
-            mat.data(), mat.outerStride(), actualAlpha, blocking);
+            actualOther.data(), actualOther.outerStride(), actualOther.data(), actualOther.outerStride(),
+            mat.data(), mat.innerStride(), mat.outerStride(), actualAlpha, blocking);
   }
 };
 

@@ -12,6 +12,28 @@
 
 namespace Eigen {
 
+// Portable replacements for certain functors.
+namespace numext {
+
+template<typename T = void>
+struct equal_to {
+  typedef bool result_type;
+  EIGEN_DEVICE_FUNC bool operator()(const T& lhs, const T& rhs) const {
+    return lhs == rhs;
+  }
+};
+
+template<typename T = void>
+struct not_equal_to {
+  typedef bool result_type;
+  EIGEN_DEVICE_FUNC bool operator()(const T& lhs, const T& rhs) const {
+    return lhs != rhs;
+  }
+};
+
+}
+
+
 namespace internal {
 
 // default functor traits for STL functors:
@@ -69,10 +91,18 @@ struct functor_traits<std::equal_to<T> >
 { enum { Cost = 1, PacketAccess = false }; };
 
 template<typename T>
+struct functor_traits<numext::equal_to<T> >
+  : functor_traits<std::equal_to<T> > {};
+
+template<typename T>
 struct functor_traits<std::not_equal_to<T> >
 { enum { Cost = 1, PacketAccess = false }; };
 
-#if (__cplusplus < 201103L) && (EIGEN_COMP_MSVC <= 1900)
+template<typename T>
+struct functor_traits<numext::not_equal_to<T> >
+  : functor_traits<std::not_equal_to<T> > {};
+
+#if (EIGEN_COMP_CXXVER < 11)
 // std::binder* are deprecated since c++11 and will be removed in c++17
 template<typename T>
 struct functor_traits<std::binder2nd<T> >
@@ -83,13 +113,17 @@ struct functor_traits<std::binder1st<T> >
 { enum { Cost = functor_traits<T>::Cost, PacketAccess = false }; };
 #endif
 
+#if (EIGEN_COMP_CXXVER < 17)
+// std::unary_negate is deprecated since c++17 and will be removed in c++20
 template<typename T>
 struct functor_traits<std::unary_negate<T> >
 { enum { Cost = 1 + functor_traits<T>::Cost, PacketAccess = false }; };
 
+// std::binary_negate is deprecated since c++17 and will be removed in c++20
 template<typename T>
 struct functor_traits<std::binary_negate<T> >
 { enum { Cost = 1 + functor_traits<T>::Cost, PacketAccess = false }; };
+#endif
 
 #ifdef EIGEN_STDEXT_SUPPORT
 

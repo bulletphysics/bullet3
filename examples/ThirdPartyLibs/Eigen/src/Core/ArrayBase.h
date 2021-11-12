@@ -153,8 +153,8 @@ template<typename Derived> class ArrayBase
 //     inline void evalTo(Dest& dst) const { dst = matrix(); }
 
   protected:
-    EIGEN_DEVICE_FUNC
-    ArrayBase() : Base() {}
+    EIGEN_DEFAULT_COPY_CONSTRUCTOR(ArrayBase)
+    EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(ArrayBase)
 
   private:
     explicit ArrayBase(Index);
