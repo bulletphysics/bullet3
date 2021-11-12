@@ -99,7 +99,9 @@ template<> EIGEN_STRONG_INLINE Packet4cf ploadu<Packet4cf>(const std::complex<fl
 
 template<> EIGEN_STRONG_INLINE Packet4cf pset1<Packet4cf>(const std::complex<float>& from)
 {
-  return Packet4cf(_mm256_castpd_ps(_mm256_broadcast_sd((const double*)(const void*)&from)));
+  const float re = std::real(from);
+  const float im = std::imag(from);
+  return Packet4cf(_mm256_set_ps(im, re, im, re, im, re, im, re));
 }
 
 template<> EIGEN_STRONG_INLINE Packet4cf ploaddup<Packet4cf>(const std::complex<float>* from)

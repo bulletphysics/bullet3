@@ -106,14 +106,9 @@ template<> EIGEN_STRONG_INLINE Packet2cf ploadu<Packet2cf>(const std::complex<fl
 
 template<> EIGEN_STRONG_INLINE Packet2cf pset1<Packet2cf>(const std::complex<float>&  from)
 {
-  Packet2cf res;
-#ifdef EIGEN_VECTORIZE_SSE3
-  res.v = _mm_castpd_ps(_mm_loaddup_pd(reinterpret_cast<double const*>(&from)));
-#else
-  res.v = _mm_castpd_ps(_mm_load_sd(reinterpret_cast<double const*>(&from)));
-  res.v = _mm_movelh_ps(res.v, res.v);
-#endif
-  return res;
+  const float re = std::real(from);
+  const float im = std::imag(from);
+  return Packet2cf(_mm_set_ps(im, re, im, re));
 }
 
 template<> EIGEN_STRONG_INLINE Packet2cf ploaddup<Packet2cf>(const std::complex<float>* from) { return pset1<Packet2cf>(*from); }

@@ -155,7 +155,7 @@ EIGEN_STRONG_INLINE Packet4f vec4f_unpackhi(const Packet4f& a, const Packet4f& b
   #define EIGEN_ARM_PREFETCH(ADDR) __builtin_prefetch(ADDR);
 #elif defined __pld
   #define EIGEN_ARM_PREFETCH(ADDR) __pld(ADDR)
-#elif EIGEN_ARCH_ARM32
+#elif EIGEN_ARCH_ARM
   #define EIGEN_ARM_PREFETCH(ADDR) __asm__ __volatile__ ("pld [%[addr]]\n" :: [addr] "r" (ADDR) : );
 #else
   // by default no explicit prefetching
@@ -3918,8 +3918,6 @@ template<> EIGEN_STRONG_INLINE Packet2d prsqrt(const Packet2d& a) {
 
 template<> EIGEN_STRONG_INLINE Packet2d psqrt(const Packet2d& _x){ return vsqrtq_f64(_x); }
 
-#endif // EIGEN_ARCH_ARM64
-
 // Do we have an fp16 types and supporting Neon intrinsics?
 #if EIGEN_HAS_ARM64_FP16_VECTOR_ARITHMETIC
 typedef float16x4_t Packet4hf;
@@ -4579,6 +4577,8 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void ptranspose(PacketBlock<Packet8hf, 8>&
   kernel.packet[7] = T_3[3].val[1];
 }
 #endif // end EIGEN_HAS_ARM64_FP16_VECTOR_ARITHMETIC
+
+#endif // EIGEN_ARCH_ARM64
 
 } // end namespace internal
 

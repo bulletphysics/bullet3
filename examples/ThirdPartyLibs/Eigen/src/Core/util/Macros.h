@@ -1131,7 +1131,16 @@ namespace Eigen {
       #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+r,v,wa" (X));
     #elif EIGEN_ARCH_ARM_OR_ARM64
       // General, NEON.
-      #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,w" (X));
+      // Clang doesn't like "r",
+      //    error: non-trivial scalar-to-vector conversion, possible invalid
+      //           constraint for vector type
+      // GCC < 5 doesn't like "g",
+      //    error: 'asm' operand requires impossible reload
+      #if EIGEN_COMP_GNUC_STRICT && EIGEN_GNUC_AT_MOST(5, 0)
+        #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+r,w" (X));
+      #else
+        #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,w" (X));
+      #endif
     #elif EIGEN_ARCH_i386_OR_x86_64
       // General, SSE.
       #define EIGEN_OPTIMIZATION_BARRIER(X)  __asm__  ("" : "+g,x" (X));
@@ -1216,7 +1225,7 @@ namespace Eigen {
  * This is necessary, because the implicit definition is deprecated if the copy-assignment is overridden.
  */
 #if EIGEN_HAS_CXX11
-#define EIGEN_DEFAULT_COPY_CONSTRUCTOR(CLASS) CLASS(const CLASS&) = default;
+#define EIGEN_DEFAULT_COPY_CONSTRUCTOR(CLASS) EIGEN_DEVICE_FUNC CLASS(const CLASS&) = default;
 #else
 #define EIGEN_DEFAULT_COPY_CONSTRUCTOR(CLASS)
 #endif
@@ -1241,12 +1250,12 @@ namespace Eigen {
  */
 #if EIGEN_HAS_CXX11
 #define EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(Derived)  \
-    Derived() = default; \
-    ~Derived() = default;
+    EIGEN_DEVICE_FUNC Derived() = default; \
+    EIGEN_DEVICE_FUNC ~Derived() = default;
 #else
 #define EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(Derived)  \
-    Derived() {}; \
-    /* ~Derived() {}; */
+    EIGEN_DEVICE_FUNC Derived() {}; \
+    /* EIGEN_DEVICE_FUNC ~Derived() {}; */
 #endif
 
 

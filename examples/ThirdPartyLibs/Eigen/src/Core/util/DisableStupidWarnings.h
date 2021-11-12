@@ -4,6 +4,7 @@
 #ifdef _MSC_VER
   // 4100 - unreferenced formal parameter (occurred e.g. in aligned_allocator::destroy(pointer p))
   // 4101 - unreferenced local variable
+  // 4127 - conditional expression is constant
   // 4181 - qualifier applied to reference type ignored
   // 4211 - nonstandard extension used : redefined extern to static
   // 4244 - 'argument' : conversion from 'type1' to 'type2', possible loss of data
@@ -19,7 +20,7 @@
   #ifndef EIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
     #pragma warning( push )
   #endif
-  #pragma warning( disable : 4100 4101 4181 4211 4244 4273 4324 4503 4512 4522 4700 4714 4717 4800)
+  #pragma warning( disable : 4100 4101 4127 4181 4211 4244 4273 4324 4503 4512 4522 4700 4714 4717 4800)
 
 #elif defined __INTEL_COMPILER
   // 2196 - routine is both "inline" and "noinline" ("noinline" assumed)
@@ -93,6 +94,13 @@
   #pragma diag_suppress 2735
   #pragma diag_suppress 2737
   #pragma diag_suppress 2739
+  #pragma diag_suppress 2976
+  #pragma diag_suppress 2979
+  // Disable the "// __device__ annotation is ignored on a function(...) that is
+  //              explicitly defaulted on its first declaration" message.
+  // The __device__ annotation seems to actually be needed in some cases,
+  // otherwise resulting in kernel runtime errors.
+  #pragma diag_suppress 2977
 #endif
 
 #else

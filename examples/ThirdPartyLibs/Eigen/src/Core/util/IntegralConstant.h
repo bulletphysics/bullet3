@@ -138,7 +138,7 @@ template<int N,int Default> struct get_fixed_value<FixedInt<N>,Default> {
   static const int value = N;
 };
 
-#if !EIGEN_HAS_CXX14
+#if !EIGEN_HAS_CXX14_VARIABLE_TEMPLATES
 template<int N,int Default> struct get_fixed_value<FixedInt<N> (*)(),Default> {
   static const int value = N;
 };
@@ -154,7 +154,7 @@ struct get_fixed_value<variable_if_dynamic<T,N>,Default> {
 };
 
 template<typename T> EIGEN_DEVICE_FUNC Index get_runtime_value(const T &x) { return x; }
-#if !EIGEN_HAS_CXX14
+#if !EIGEN_HAS_CXX14_VARIABLE_TEMPLATES
 template<int N> EIGEN_DEVICE_FUNC Index get_runtime_value(FixedInt<N> (*)()) { return N; }
 #endif
 
@@ -166,7 +166,7 @@ template<typename T, int DynamicKey=Dynamic, typename EnableIf=void> struct clea
 // Convert any integral type (e.g., short, int, unsigned int, etc.) to Eigen::Index
 template<typename T, int DynamicKey> struct cleanup_index_type<T,DynamicKey,typename internal::enable_if<internal::is_integral<T>::value>::type> { typedef Index type; };
 
-#if !EIGEN_HAS_CXX14
+#if !EIGEN_HAS_CXX14_VARIABLE_TEMPLATES
 // In c++98/c++11, fix<N> is a pointer to function that we better cleanup to a true FixedInt<N>:
 template<int N, int DynamicKey> struct cleanup_index_type<FixedInt<N> (*)(), DynamicKey> { typedef FixedInt<N> type; };
 #endif

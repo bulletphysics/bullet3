@@ -91,8 +91,8 @@ static _EIGEN_DECLARE_CONST_FAST_Packet2l(ZERO, 0);
 static _EIGEN_DECLARE_CONST_FAST_Packet2l(ONE, 1);
 
 static Packet2d p2d_ONE = { 1.0, 1.0 };
-static Packet2d p2d_ZERO_ = { numext::bit_cast<double>0x8000000000000000ull),
-                              numext::bit_cast<double>0x8000000000000000ull) };
+static Packet2d p2d_ZERO_ = { numext::bit_cast<double>(0x8000000000000000ull),
+                              numext::bit_cast<double>(0x8000000000000000ull) };
 
 #if !defined(__ARCH__) || (defined(__ARCH__) && __ARCH__ >= 12)
 #define _EIGEN_DECLARE_CONST_FAST_Packet4f(NAME,X) \
@@ -358,7 +358,7 @@ pbroadcast4<Packet2d>(const double *a,
 
 template<> EIGEN_DEVICE_FUNC inline Packet4i pgather<int, Packet4i>(const int* from, Index stride)
 {
-  int EIGEN_ALIGN16 ai[4];
+  EIGEN_ALIGN16 int ai[4];
   ai[0] = from[0*stride];
   ai[1] = from[1*stride];
   ai[2] = from[2*stride];
@@ -368,7 +368,7 @@ template<> EIGEN_DEVICE_FUNC inline Packet4i pgather<int, Packet4i>(const int* f
 
 template<> EIGEN_DEVICE_FUNC inline Packet2d pgather<double, Packet2d>(const double* from, Index stride)
 {
-  double EIGEN_ALIGN16 af[2];
+  EIGEN_ALIGN16 double af[2];
   af[0] = from[0*stride];
   af[1] = from[1*stride];
  return pload<Packet2d>(af);
@@ -376,7 +376,7 @@ template<> EIGEN_DEVICE_FUNC inline Packet2d pgather<double, Packet2d>(const dou
 
 template<> EIGEN_DEVICE_FUNC inline void pscatter<int, Packet4i>(int* to, const Packet4i& from, Index stride)
 {
-  int EIGEN_ALIGN16 ai[4];
+  EIGEN_ALIGN16 int ai[4];
   pstore<int>((int *)ai, from);
   to[0*stride] = ai[0];
   to[1*stride] = ai[1];
@@ -386,7 +386,7 @@ template<> EIGEN_DEVICE_FUNC inline void pscatter<int, Packet4i>(int* to, const 
 
 template<> EIGEN_DEVICE_FUNC inline void pscatter<double, Packet2d>(double* to, const Packet2d& from, Index stride)
 {
-  double EIGEN_ALIGN16 af[2];
+  EIGEN_ALIGN16 double af[2];
   pstore<double>(af, from);
   to[0*stride] = af[0];
   to[1*stride] = af[1];
@@ -460,8 +460,8 @@ template<> EIGEN_STRONG_INLINE void pstoreu<double>(double*  to, const Packet2d&
 template<> EIGEN_STRONG_INLINE void prefetch<int>(const int*       addr) { EIGEN_ZVECTOR_PREFETCH(addr); }
 template<> EIGEN_STRONG_INLINE void prefetch<double>(const double* addr) { EIGEN_ZVECTOR_PREFETCH(addr); }
 
-template<> EIGEN_STRONG_INLINE int    pfirst<Packet4i>(const Packet4i& a) { int    EIGEN_ALIGN16 x[4]; pstore(x, a); return x[0]; }
-template<> EIGEN_STRONG_INLINE double pfirst<Packet2d>(const Packet2d& a) { double EIGEN_ALIGN16 x[2]; pstore(x, a); return x[0]; }
+template<> EIGEN_STRONG_INLINE int    pfirst<Packet4i>(const Packet4i& a) { EIGEN_ALIGN16 int    x[4]; pstore(x, a); return x[0]; }
+template<> EIGEN_STRONG_INLINE double pfirst<Packet2d>(const Packet2d& a) { EIGEN_ALIGN16 double x[2]; pstore(x, a); return x[0]; }
 
 template<> EIGEN_STRONG_INLINE Packet4i preverse(const Packet4i& a)
 {
@@ -639,7 +639,7 @@ pbroadcast4<Packet4f>(const float *a,
 
 template<> EIGEN_DEVICE_FUNC inline Packet4f pgather<float, Packet4f>(const float* from, Index stride)
 {
-  float EIGEN_ALIGN16 ai[4];
+  EIGEN_ALIGN16 float ai[4];
   ai[0] = from[0*stride];
   ai[1] = from[1*stride];
   ai[2] = from[2*stride];
@@ -649,7 +649,7 @@ template<> EIGEN_DEVICE_FUNC inline Packet4f pgather<float, Packet4f>(const floa
 
 template<> EIGEN_DEVICE_FUNC inline void pscatter<float, Packet4f>(float* to, const Packet4f& from, Index stride)
 {
-  float EIGEN_ALIGN16 ai[4];
+  EIGEN_ALIGN16 float ai[4];
   pstore<float>((float *)ai, from);
   to[0*stride] = ai[0];
   to[1*stride] = ai[1];
@@ -785,7 +785,7 @@ template<> EIGEN_STRONG_INLINE Packet4f ploaddup<Packet4f>(const float*    from)
   return p;
 }
 
-template<> EIGEN_STRONG_INLINE float  pfirst<Packet4f>(const Packet4f& a) { float  EIGEN_ALIGN16 x[2]; vec_st2f(a.v4f[0], &x[0]); return x[0]; }
+template<> EIGEN_STRONG_INLINE float  pfirst<Packet4f>(const Packet4f& a) { EIGEN_ALIGN16 float x[2]; vec_st2f(a.v4f[0], &x[0]); return x[0]; }
 
 template<> EIGEN_STRONG_INLINE Packet4f preverse(const Packet4f& a)
 {
@@ -943,7 +943,7 @@ pbroadcast4<Packet4f>(const float *a,
 
 template<> EIGEN_DEVICE_FUNC inline Packet4f pgather<float, Packet4f>(const float* from, Index stride)
 {
-  float EIGEN_ALIGN16 af[4];
+  EIGEN_ALIGN16 float af[4];
   af[0] = from[0*stride];
   af[1] = from[1*stride];
   af[2] = from[2*stride];
@@ -953,7 +953,7 @@ template<> EIGEN_DEVICE_FUNC inline Packet4f pgather<float, Packet4f>(const floa
 
 template<> EIGEN_DEVICE_FUNC inline void pscatter<float, Packet4f>(float* to, const Packet4f& from, Index stride)
 {
-  float EIGEN_ALIGN16 af[4];
+  EIGEN_ALIGN16 float af[4];
   pstore<float>((float*)af, from);
   to[0*stride] = af[0];
   to[1*stride] = af[1];
@@ -978,7 +978,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pround<Packet4f> (const Packet4f& a) { r
 template<> EIGEN_STRONG_INLINE Packet4f pceil<Packet4f>  (const Packet4f& a) { return vec_ceil(a); }
 template<> EIGEN_STRONG_INLINE Packet4f pfloor<Packet4f> (const Packet4f& a) { return vec_floor(a); }
 template<> EIGEN_STRONG_INLINE Packet4f pabs<Packet4f>   (const Packet4f& a) { return vec_abs(a); }
-template<> EIGEN_STRONG_INLINE float pfirst<Packet4f>(const Packet4f& a) { float EIGEN_ALIGN16 x[4]; pstore(x, a); return x[0]; }
+template<> EIGEN_STRONG_INLINE float pfirst<Packet4f>(const Packet4f& a) { EIGEN_ALIGN16 float x[4]; pstore(x, a); return x[0]; }
 
 template<> EIGEN_STRONG_INLINE Packet4f ploaddup<Packet4f>(const float* from)
 {

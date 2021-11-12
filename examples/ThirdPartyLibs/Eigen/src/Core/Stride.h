@@ -38,9 +38,13 @@ namespace Eigen {
   * \include Map_general_stride.cpp
   * Output: \verbinclude Map_general_stride.out
   *
-  * Both strides can be negative, however, a negative stride of -1 cannot be specified at compiletime
+  * Both strides can be negative. However, a negative stride of -1 cannot be specified at compile time
   * because of the ambiguity with Dynamic which is defined to -1 (historically, negative strides were
   * not allowed).
+  *
+  * Note that for compile-time vectors (ColsAtCompileTime==1 or RowsAtCompile==1),
+  * the inner stride is the pointer increment between two consecutive elements,
+  * regardless of storage layout.
   *
   * \sa class InnerStride, class OuterStride, \ref TopicStorageOrders
   */

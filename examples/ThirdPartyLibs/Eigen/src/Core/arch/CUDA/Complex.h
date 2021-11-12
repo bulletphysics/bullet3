@@ -11,13 +11,24 @@
 #ifndef EIGEN_COMPLEX_CUDA_H
 #define EIGEN_COMPLEX_CUDA_H
 
-// clang-format off
 // Many std::complex methods such as operator+, operator-, operator* and
 // operator/ are not constexpr. Due to this, GCC and older versions of clang do
 // not treat them as device functions and thus Eigen functors making use of
 // these operators fail to compile. Here, we manually specialize these
 // operators and functors for complex types when building for CUDA to enable
 // their use on-device.
+//
+// NOTES:
+//  - Compound assignment operators +=,-=,*=,/=(Scalar) will not work on device,
+//    since they are already specialized in the standard. Using them will result
+//    in silent kernel failures.
+//  - Compiling with MSVC and using +=,-=,*=,/=(std::complex<Scalar>) will lead
+//    to duplicate definition errors, since these are already specialized in
+//    Visual Studio's <complex> header (contrary to the standard).  This is
+//    preferable to removing such definitions, which will lead to silent kernel
+//    failures.
+//  - Compiling with ICC requires defining _USE_COMPLEX_SPECIALIZATION_ prior
+//    to the first inclusion of <complex>.
 
 #if defined(EIGEN_CUDACC) && defined(EIGEN_GPU_COMPILE_PHASE)
     

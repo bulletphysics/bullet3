@@ -438,11 +438,11 @@
   #include <arm_fp16.h>
 #endif
 
-#if defined(__F16C__) && (!defined(EIGEN_GPUCC) && (!defined(EIGEN_COMP_CLANG) || EIGEN_COMP_CLANG>=380))
+#if defined(__F16C__) && (!defined(EIGEN_GPUCC) && (!EIGEN_COMP_CLANG || EIGEN_COMP_CLANG>=380))
   // We can use the optimized fp16 to float and float to fp16 conversion routines
   #define EIGEN_HAS_FP16_C
 
-  #if defined(EIGEN_COMP_CLANG)
+  #if EIGEN_COMP_CLANG
     // Workaround for clang: The FP16C intrinsics for clang are included by
     // immintrin.h, as opposed to emmintrin.h as suggested by Intel:
     // https://software.intel.com/sites/landingpage/IntrinsicsGuide/#othertechs=FP16C&expand=1711
