@@ -66,9 +66,9 @@ void btReducedSoftBody::setMassProps(const tDenseArray& mass_array)
   btScalar total_mass = 0;
 	for (int i = 0; i < m_nFull; ++i)
 	{
-		m_nodalMass[i] = m_rhoScale * mass_array[3 * i];
-		m_nodes[i].m_im = mass_array[3 * i] > 0 ? 1.0 / (m_rhoScale * mass_array[3 * i]) : 0;
-		total_mass += m_rhoScale * mass_array[3 * i];
+		m_nodalMass[i] = m_rhoScale * mass_array[i];
+		m_nodes[i].m_im = mass_array[i] > 0 ? 1.0 / (m_rhoScale * mass_array[i]) : 0;
+		total_mass += m_rhoScale * mass_array[i];
 	}
   // total rigid body mass
   m_mass = total_mass;

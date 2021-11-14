@@ -28,7 +28,7 @@
 
 
 static int start_mode = 6;
-static int num_modes = 78;
+static int num_modes = 20;
 static btScalar visualize_mode = 0;
 static btScalar frequency_scale = 1;
 

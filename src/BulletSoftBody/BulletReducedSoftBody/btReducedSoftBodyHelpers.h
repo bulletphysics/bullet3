@@ -17,12 +17,10 @@ struct btReducedSoftBodyHelpers
 	// read in all reduced files
 	static void readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path, const btVector3& half_extents = btVector3(0, 0, 0));
 	// read in a binary vector
-	static void readBinary(btReducedSoftBody::tDenseArray& vec, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
+	static void readBinaryVec(btReducedSoftBody::tDenseArray& vec, const unsigned int n_size, const char* file);
 	// read in a binary matrix
-	static void readBinaryMat(btReducedSoftBody::tDenseMatrix& mat, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
-	// read in modes file (different version of read in matrix)
-	static void readBinaryModes(btReducedSoftBody::tDenseMatrix& mat, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
-
+	static void readBinaryMat(btReducedSoftBody::tDenseMatrix& mat, const unsigned int n_modes, const unsigned int n_full, const char* file);
+	
 	// calculate the local inertia tensor for a box shape reduced deformable object
 	static void calculateLocalInertia(btVector3& inertia, const btScalar mass, const btVector3& half_extents, const btVector3& margin);
 };

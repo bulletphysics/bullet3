@@ -155,21 +155,21 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 {
 	// read in eigenmodes, stiffness and mass matrices
 	std::string eigenvalues_file = std::string(file_path) + "eigenvalues.bin";
-	btReducedSoftBodyHelpers::readBinary(rsb->m_eigenvalues, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, eigenvalues_file.c_str());
+	btReducedSoftBodyHelpers::readBinaryVec(rsb->m_eigenvalues, rsb->m_nReduced, eigenvalues_file.c_str());
 
 	std::string Kr_file = std::string(file_path) + "K_r_diag_mat.bin";
-	btReducedSoftBodyHelpers::readBinary(rsb->m_Kr, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, Kr_file.c_str());
+	btReducedSoftBodyHelpers::readBinaryVec(rsb->m_Kr,  rsb->m_nReduced, Kr_file.c_str());
 
 	std::string Mr_file = std::string(file_path) + "M_r_diag_mat.bin";
-	btReducedSoftBodyHelpers::readBinary(rsb->m_Mr, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, Mr_file.c_str());
+	btReducedSoftBodyHelpers::readBinaryVec(rsb->m_Mr, rsb->m_nReduced, Mr_file.c_str());
 
 	std::string modes_file = std::string(file_path) + "modes.bin";
-	btReducedSoftBodyHelpers::readBinaryModes(rsb->m_modes, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());	// default to 3D
+	btReducedSoftBodyHelpers::readBinaryMat(rsb->m_modes, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());
 	
 	// read in full nodal mass
 	std::string M_file = std::string(file_path) + "M_diag_mat.bin";
 	btAlignedObjectArray<btScalar> mass_array;
-	btReducedSoftBodyHelpers::readBinary(mass_array, 0, 3 * rsb->m_nFull, 3 * rsb->m_nFull, M_file.c_str());
+	btReducedSoftBodyHelpers::readBinaryVec(mass_array, rsb->m_nFull, M_file.c_str());
 	rsb->setMassProps(mass_array);
 	
 	// calculate the inertia tensor in the local frame 
@@ -183,90 +183,52 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 	rsb->internalInitialization();
 }
 
-// read in binary files
-void btReducedSoftBodyHelpers::readBinary(btReducedSoftBody::tDenseArray& vec, 
-																	 const unsigned int n_start, 				// starting index
-																	 const unsigned int n_modes, 				// #entries read
-																	 const unsigned int n_full,					// array size
-																	 const char* file)
+// read in a vector from the binary file
+void btReducedSoftBodyHelpers::readBinaryVec(btReducedSoftBody::tDenseArray& vec, 
+																				  	 const unsigned int n_size, 				// #entries read
+																						 const char* file)
 {
 	std::ifstream f_in(file, std::ios::in | std::ios::binary);
 	// first get size
 	unsigned int size;
 	f_in.read((char*)&size, sizeof(uint32_t));
-	// btAssert(size == n_full); //TODO: check here
+	btAssert(size >= n_size); 	// make sure the #requested mode is smaller than the #available modes
 
 	// read data
-	vec.resize(n_modes);
+	vec.resize(n_size);
 	double temp;
-	for (unsigned int i = 0; i < n_start + n_modes; ++i)
+	for (unsigned int i = 0; i < n_size; ++i)
 	{
 		f_in.read((char*)&temp, sizeof(double));
-		if (i >= n_start) 
-			vec[i - n_start] = btScalar(temp);
+		vec[i] = btScalar(temp);
 	}
   f_in.close();
 }
 
+// read in a matrix from the binary file
 void btReducedSoftBodyHelpers::readBinaryMat(btReducedSoftBody::tDenseMatrix& mat, 
-																			const unsigned int n_start, 		// starting mode index
-																			const unsigned int n_modes, 		// #modes, outer array size
-																			const unsigned int n_full, 			// inner array size
-																			const char* file)
+																						 const unsigned int n_modes, 		// #modes, outer array size
+																						 const unsigned int n_full, 		// inner array size
+																						 const char* file)
 {
 	std::ifstream f_in(file, std::ios::in | std::ios::binary);
 	// first get size
 	unsigned int v_size;
 	f_in.read((char*)&v_size, sizeof(uint32_t));
-	// btAssert(v_size == n_full * n_full); //TODO: check here
+	btAssert(v_size >= n_modes * n_full); 	// make sure the #requested mode is smaller than the #available modes
 
 	// read data
 	mat.resize(n_modes);
-	for (int i = 0; i < n_start + n_modes; ++i) 
+	for (int i = 0; i < n_modes; ++i) 
 	{
 		for (int j = 0; j < n_full; ++j)
 		{
 			double temp;
 			f_in.read((char*)&temp, sizeof(double));
 
-			if (i >= n_start && j >= n_start && i < n_start + n_modes && j < n_start + n_modes)
-			{
-				if (mat[i - n_start].size() != n_modes)
-					mat[i - n_start].resize(n_modes);
-				mat[i - n_start][j - n_start] = btScalar(temp);
-			}
-		}
-	}
-  f_in.close();
-}
-
-void btReducedSoftBodyHelpers::readBinaryModes(btReducedSoftBody::tDenseMatrix& mat, 
-																				const unsigned int n_start, 		// starting mode index
-																				const unsigned int n_modes, 		// #modes, outer array size
-																				const unsigned int n_full, 			// inner array size
-																				const char* file)
-{
-	std::ifstream f_in(file, std::ios::in | std::ios::binary);
-	// first get size
-	unsigned int v_size;
-	f_in.read((char*)&v_size, sizeof(uint32_t));
-	// btAssert(v_size == n_full * n_full); //TODO: check here
-
-	// read data
-	mat.resize(n_modes);
-	for (int i = 0; i < n_start + n_modes; ++i) 
-	{
-		for (int j = 0; j < n_full; ++j)
-		{
-			double temp;
-			f_in.read((char*)&temp, sizeof(double));
-
-			if (i >= n_start)
-			{
-				if (mat[i - n_start].size() != n_full)
-					mat[i - n_start].resize(n_full);
-				mat[i - n_start][j] = btScalar(temp);
-			}
+			if (mat[i].size() != n_modes)
+				mat[i].resize(n_full);
+			mat[i][j] = btScalar(temp);
 		}
 	}
   f_in.close();

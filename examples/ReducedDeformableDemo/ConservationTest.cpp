@@ -30,7 +30,7 @@
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
 static int start_mode = 6;
-static int num_modes = 78;
+static int num_modes = 20;
 
 class ConservationTest : public CommonDeformableBodyBase
 {

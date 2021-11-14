@@ -40,4 +40,3 @@ CTestTestFile.cmake
 .vscode/
 .idea/
 cmake-build-debug/
-examples/pybullet/gym/pybullet.cpython-37m-darwin.so
