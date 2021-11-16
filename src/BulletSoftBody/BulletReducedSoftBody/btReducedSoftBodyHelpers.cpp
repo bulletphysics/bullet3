@@ -160,8 +160,8 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 	std::string Kr_file = std::string(file_path) + "K_r_diag_mat.bin";
 	btReducedSoftBodyHelpers::readBinaryVec(rsb->m_Kr,  rsb->m_nReduced, Kr_file.c_str());
 
-	std::string Mr_file = std::string(file_path) + "M_r_diag_mat.bin";
-	btReducedSoftBodyHelpers::readBinaryVec(rsb->m_Mr, rsb->m_nReduced, Mr_file.c_str());
+	// std::string Mr_file = std::string(file_path) + "M_r_diag_mat.bin";
+	// btReducedSoftBodyHelpers::readBinaryVec(rsb->m_Mr, rsb->m_nReduced, Mr_file.c_str());
 
 	std::string modes_file = std::string(file_path) + "modes.bin";
 	btReducedSoftBodyHelpers::readBinaryMat(rsb->m_modes, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());

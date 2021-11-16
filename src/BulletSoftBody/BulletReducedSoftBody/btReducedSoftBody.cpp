@@ -263,10 +263,10 @@ void btReducedSoftBody::updateReducedVelocity(btScalar solverdt)
   // update reduced velocity
   for (int r = 0; r < m_nReduced; ++r)
   {
-    btScalar mass_inv = (m_Mr[r] == 0) ? 0 : 1.0 / m_Mr[r]; // TODO: this might be redundant, because Mr is identity
+    // the reduced mass is always identity!
     btScalar delta_v = 0;
-    delta_v = solverdt * mass_inv * (m_reducedForceElastic[r] + m_reducedForceDamping[r]);
-    // delta_v = solverdt * mass_inv * (m_reducedForceElastic[r] + m_reducedForceDamping[r] + m_reducedForceExternal[r]);
+    delta_v = solverdt * (m_reducedForceElastic[r] + m_reducedForceDamping[r]);
+    // delta_v = solverdt * (m_reducedForceElastic[r] + m_reducedForceDamping[r] + m_reducedForceExternal[r]);
     m_reducedVelocity[r] = m_reducedVelocityBuffer[r] + delta_v;
   }
 }
@@ -669,8 +669,8 @@ void btReducedSoftBody::internalApplyFullSpaceImpulse(const btVector3& impulse, 
     // delta reduced velocity
     for (int r = 0; r < m_nReduced; ++r)
     {
-      btScalar mass_inv = (m_Mr[r] == 0) ? 0 : 1.0 / m_Mr[r]; // TODO: this might be redundant, because Mr is identity
-      m_internalDeltaReducedVelocity[r] += dt * mass_inv * (m_reducedForceDamping[r] + m_reducedForceExternal[r]);
+      // The reduced mass is always identity!
+      m_internalDeltaReducedVelocity[r] += dt * (m_reducedForceDamping[r] + m_reducedForceExternal[r]);
     }
   }
 

@@ -84,7 +84,6 @@ class btReducedSoftBody : public btSoftBody
   tDenseArray m_reducedForceDamping;           // reduced internal damping force
   tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
   tDenseArray m_Kr;	// reduced stiffness matrix
-  tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
   
   // full space
   TVStack m_x0;					     				 // Rest position
