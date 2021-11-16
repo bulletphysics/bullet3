@@ -75,17 +75,9 @@ void btReducedSoftBody::setMassProps(const tDenseArray& mass_array)
   m_inverseMass = total_mass > 0 ? 1.0 / total_mass : 0;
 }
 
-void btReducedSoftBody::setInertiaProps(const btVector3& inertia)
+void btReducedSoftBody::setInertiaProps()
 {
-  // TODO: only support box shape now
-  // set local inertia
-  // m_invInertiaLocal.setValue(
-  //               inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x() : btScalar(0.0),
-	// 						  inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
-	// 						  inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
-  
   updateLocalInertiaTensorFromNodes();
-
 
   // update world inertia tensor
   btMatrix3x3 rotation;

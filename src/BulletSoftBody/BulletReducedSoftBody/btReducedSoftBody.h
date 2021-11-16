@@ -110,7 +110,7 @@ class btReducedSoftBody : public btSoftBody
 
   void setMassProps(const tDenseArray& mass_array);
 
-  void setInertiaProps(const btVector3& inertia);
+  void setInertiaProps();
 
   void setRigidVelocity(const btVector3& v);
 

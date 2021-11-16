@@ -173,11 +173,7 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 	rsb->setMassProps(mass_array);
 	
 	// calculate the inertia tensor in the local frame 
-  btVector3 inertia(0, 0, 0);
-	calculateLocalInertia(inertia, rsb->getTotalMass(), half_extents, btVector3(0, 0, 0));
-	// calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(0.5, 0.25, 2), btVector3(0, 0, 0));
-	// calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(0.5, 0.5, 0.5), btVector3(0, 0, 0));
-	rsb->setInertiaProps(inertia);
+ 	rsb->setInertiaProps();
 
 	// other internal initialization
 	rsb->internalInitialization();
