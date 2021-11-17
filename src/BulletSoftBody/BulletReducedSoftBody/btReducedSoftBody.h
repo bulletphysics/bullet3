@@ -71,7 +71,6 @@ class btReducedSoftBody : public btSoftBody
   //
 
   // reduced space
-  int m_startMode;
   int m_nReduced;
   int m_nFull;
   tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
@@ -105,7 +104,7 @@ class btReducedSoftBody : public btSoftBody
   //
   void internalInitialization();
 
-  void setReducedModes(int start_mode, int num_modes, int full_size);
+  void setReducedModes(int num_modes, int full_size);
 
   void setMassProps(const tDenseArray& mass_array);
 

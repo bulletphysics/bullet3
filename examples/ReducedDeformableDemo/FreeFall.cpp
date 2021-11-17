@@ -32,7 +32,6 @@
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.00001;
 static btScalar COLLIDING_VELOCITY = 0;
-static int start_mode = 6;
 static int num_modes = 20;
 
 class FreeFall : public CommonDeformableBodyBase
@@ -109,10 +108,10 @@ public:
                 // {
                 //     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
                 // }
-                for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
-                {
-                    deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
-                }
+                // for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
+                // {
+                //     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
+                // }
 
                 // deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
                 // deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 5, 0), 0.1, btVector3(1, 1, 1));
@@ -147,7 +146,7 @@ void FreeFall::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
@@ -162,6 +161,8 @@ void FreeFall::initPhysics()
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
 
+        rsb->setTotalMass(10);
+
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
         rsb->m_cfg.kDF = 0;
@@ -175,7 +176,7 @@ void FreeFall::initPhysics()
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     // add a few rigid bodies
-    Ctor_RbUpStack();
+    // Ctor_RbUpStack();
     // create a static rigid box as the ground
     {
         // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
@@ -264,7 +265,7 @@ void FreeFall::initPhysics()
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
+    getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.5;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;

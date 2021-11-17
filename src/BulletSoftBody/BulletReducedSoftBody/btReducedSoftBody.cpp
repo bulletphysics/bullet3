@@ -12,7 +12,6 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
 
   // reduced deformable
   m_reducedModel = true;
-  m_startMode = 0;
   m_nReduced = 0;
   m_nFull = 0;
 
@@ -43,9 +42,8 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_rigidTransformWorld.setIdentity();
 }
 
-void btReducedSoftBody::setReducedModes(int start_mode, int num_modes, int full_size)
+void btReducedSoftBody::setReducedModes(int num_modes, int full_size)
 {
-  m_startMode = start_mode;
   m_nReduced = num_modes;
   m_nFull = full_size;
   m_reducedDofs.resize(m_nReduced, 0);

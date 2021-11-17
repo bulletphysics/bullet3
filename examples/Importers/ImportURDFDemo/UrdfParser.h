@@ -248,7 +248,6 @@ struct UrdfDeformable
 struct UrdfReducedDeformable
 {
 	std::string m_name;
-	int m_startMode;
 	int m_numModes;
 
 	double m_mass;
@@ -264,8 +263,7 @@ struct UrdfReducedDeformable
 	btHashMap<btHashString, std::string> m_userData;
 
 	UrdfReducedDeformable() 
-		: m_startMode(6),			// for most of cases, the first 6 modes (rigid modes) are ignored
-			m_numModes(1),
+		:	m_numModes(1),
 			m_erp(0.2),					// generally, 0.2 is a good value for erp and cfm
 			m_cfm(0.2),
 			m_friction(0),

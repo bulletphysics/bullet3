@@ -27,7 +27,6 @@
 #include "../Utils/b3ResourcePath.h"
 
 
-static int start_mode = 6;
 static int num_modes = 20;
 static btScalar visualize_mode = 0;
 static btScalar frequency_scale = 1;
@@ -136,7 +135,7 @@ void ModeVisualizer::initPhysics()
 
     // create volumetric soft body
     {
-      btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+      btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
       getDeformableDynamicsWorld()->addSoftBody(rsb);
       rsb->getCollisionShape()->setMargin(0.1);

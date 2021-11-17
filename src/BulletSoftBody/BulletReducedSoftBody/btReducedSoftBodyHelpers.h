@@ -6,11 +6,11 @@
 struct btReducedSoftBodyHelpers
 {
 	// create a beam
-	static btReducedSoftBody* createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes);
+	static btReducedSoftBody* createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int num_modes);
 	// create a cube
-	static btReducedSoftBody* createReducedCube(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes);
+	static btReducedSoftBody* createReducedCube(btSoftBodyWorldInfo& worldInfo, const int num_modes);
 	// create a sponge (small rectangular cuboid)
-	static btReducedSoftBody* createReducedSponge(btSoftBodyWorldInfo& worldInfo, const int start_mode, const int num_modes);
+	static btReducedSoftBody* createReducedSponge(btSoftBodyWorldInfo& worldInfo, const int num_modes);
 
 	// read in geometry info from Vtk file
   static btReducedSoftBody* createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);

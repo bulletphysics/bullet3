@@ -28,7 +28,6 @@
 
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0001;
-static int start_mode = 6;
 static int num_modes = 20;
 
 class Springboard : public CommonDeformableBodyBase
@@ -142,7 +141,7 @@ void Springboard::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), start_mode, num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);

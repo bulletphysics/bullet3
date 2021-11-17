@@ -9521,7 +9521,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			}
 
 			// load modes, reduced stiffness matrix
-			rsb->setReducedModes(reduced_deformable.m_startMode, reduced_deformable.m_numModes, rsb->m_nodes.size());
+			rsb->setReducedModes(reduced_deformable.m_numModes, rsb->m_nodes.size());
 			rsb->setStiffnessScale(reduced_deformable.m_stiffnessScale);
 			rsb->setDamping(0, reduced_deformable.m_damping); // damping alpha is set to 0 by default
 			btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, pathPrefix);
