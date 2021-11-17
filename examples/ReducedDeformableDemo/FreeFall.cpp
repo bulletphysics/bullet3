@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.00001;
+static btScalar damping_beta = 0.0001;
 static btScalar COLLIDING_VELOCITY = 0;
 static int num_modes = 20;
 
@@ -55,8 +55,8 @@ public:
 
     void resetCamera()
     {
-        float dist = 10;
-        float pitch = -20;
+        float dist = 6;
+        float pitch = -10;
         float yaw = 90;
         float targetPos[3] = {0, 2, 0};
         // float dist = 20;
@@ -77,7 +77,7 @@ public:
         // btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
         // rb0->setLinearVelocity(btVector3(0, 0, 0));
 
-        startTransform.setOrigin(btVector3(0,4,0));
+        startTransform.setOrigin(btVector3(0,10,0));
         // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 4.0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setActivationState(DISABLE_DEACTIVATION);
@@ -146,7 +146,7 @@ void FreeFall::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
@@ -154,11 +154,11 @@ void FreeFall::initPhysics()
 
         btTransform init_transform;
         init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 10, 0));
-        // init_transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
+        init_transform.setOrigin(btVector3(0, 4, 0));
+        init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
         rsb->transformTo(init_transform);
 
-        rsb->setStiffnessScale(100);
+        rsb->setStiffnessScale(5);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->setTotalMass(10);
@@ -176,7 +176,7 @@ void FreeFall::initPhysics()
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
     }
     // add a few rigid bodies
-    // Ctor_RbUpStack();
+    Ctor_RbUpStack();
     // create a static rigid box as the ground
     {
         // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
@@ -195,70 +195,6 @@ void FreeFall::initPhysics()
             createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
         }
     }
-    // {
-    //     // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-    //     btBoxShape* groundShape = createBoxShape(btVector3(btScalar(2), btScalar(0.5), btScalar(1)));
-    //     m_collisionShapes.push_back(groundShape);
-
-    //     btTransform groundTransform;
-    //     groundTransform.setIdentity();
-    //     // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-    //     groundTransform.setOrigin(btVector3(0, 2, 3.1));
-    //     // groundTransform.setOrigin(btVector3(0, 0, 6));
-    //     // groundTransform.setOrigin(btVector3(0, -50, 0));
-    //     {
-    //         btScalar mass(0.);
-    //         createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
-    //     }
-    // }
-    // {
-    //     // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-    //     btBoxShape* groundShape = createBoxShape(btVector3(btScalar(2), btScalar(0.5), btScalar(1)));
-    //     m_collisionShapes.push_back(groundShape);
-
-    //     btTransform groundTransform;
-    //     groundTransform.setIdentity();
-    //     // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-    //     groundTransform.setOrigin(btVector3(0, 2, -3.1));
-    //     // groundTransform.setOrigin(btVector3(0, 0, 6));
-    //     // groundTransform.setOrigin(btVector3(0, -50, 0));
-    //     {
-    //         btScalar mass(0.);
-    //         createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
-    //     }
-    // }
-    // {
-    //     // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-    //     btBoxShape* groundShape = createBoxShape(btVector3(btScalar(1), btScalar(0.5), btScalar(2)));
-    //     m_collisionShapes.push_back(groundShape);
-
-    //     btTransform groundTransform;
-    //     groundTransform.setIdentity();
-    //     // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-    //     groundTransform.setOrigin(btVector3(2, 2, 0));
-    //     // groundTransform.setOrigin(btVector3(0, 0, 6));
-    //     // groundTransform.setOrigin(btVector3(0, -50, 0));
-    //     {
-    //         btScalar mass(0.);
-    //         createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
-    //     }
-    // }
-    // {
-    //     // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
-    //     btBoxShape* groundShape = createBoxShape(btVector3(btScalar(1), btScalar(0.5), btScalar(2)));
-    //     m_collisionShapes.push_back(groundShape);
-
-    //     btTransform groundTransform;
-    //     groundTransform.setIdentity();
-    //     // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
-    //     groundTransform.setOrigin(btVector3(-2, 2, 0));
-    //     // groundTransform.setOrigin(btVector3(0, 0, 6));
-    //     // groundTransform.setOrigin(btVector3(0, -50, 0));
-    //     {
-    //         btScalar mass(0.);
-    //         createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
-    //     }
-    // }
 
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);

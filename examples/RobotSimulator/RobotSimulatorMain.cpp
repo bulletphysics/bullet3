@@ -54,7 +54,8 @@ int main(int argc, char* argv[])
 	sim->loadURDF("plane.urdf");
 
 	{
-		int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
+		// int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
+		int deformableUID = sim->loadURDF("reduced_torus/reduced_torus.urdf");
 		// int deformableUID = sim->loadURDF("torus_deform.urdf");
 		btVector3 basePosition = btVector3(0, 0, 2);
 		btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);

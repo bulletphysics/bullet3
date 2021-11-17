@@ -11,8 +11,7 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createReducedBeam(btSoftBodyWorldIn
 	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
 	
 	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btVector3 half_extents(0.5, 0.25, 2);
-	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str(), half_extents);
+	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 
 	return rsb;
 }
@@ -24,8 +23,19 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createReducedCube(btSoftBodyWorldIn
 	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
 	
 	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btVector3 half_extents(0.5, 0.5, 0.5);
-	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str(), half_extents);
+	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+	
+	return rsb;
+}
+
+btReducedSoftBody* btReducedSoftBodyHelpers::createReducedTorus(btSoftBodyWorldInfo& worldInfo, const int num_modes)
+{
+	std::string filepath("../../../data/reduced_torus/");
+	std::string filename = filepath + "torus_mesh.vtk";
+	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
+	
+	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
+	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 	
 	return rsb;
 }
@@ -138,7 +148,7 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldIn
 	return rsb;
 }
 
-void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path, const btVector3& half_extents)
+void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path)
 {
 	// read in eigenmodes, stiffness and mass matrices
 	std::string eigenvalues_file = std::string(file_path) + "eigenvalues.bin";
