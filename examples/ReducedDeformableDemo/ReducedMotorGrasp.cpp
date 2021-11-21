@@ -93,9 +93,9 @@ public:
         // float pitch = -45;
         // float yaw = 100;
         // float targetPos[3] = {0, -0.1, 0};
-        float dist = 8;
-        float pitch = -20;
-        float yaw = 100;
+        float dist = 0.4;
+        float pitch = -25;
+        float yaw = 90;
         float targetPos[3] = {0, 0, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
@@ -125,14 +125,14 @@ public:
                         if (dofIndex == 6)
                         {
                             motor->setVelocityTarget(-fingerTargetVelocities[1], 1);
-                            motor->setMaxAppliedImpulse(100);
+                            motor->setMaxAppliedImpulse(10);
                         }
                         if (dofIndex == 7)
                         {
                             motor->setVelocityTarget(fingerTargetVelocities[1], 1);
-                            motor->setMaxAppliedImpulse(100);
+                            motor->setMaxAppliedImpulse(10);
                         }
-                        motor->setMaxAppliedImpulse(200);
+                        motor->setMaxAppliedImpulse(25);
                     }
                 }
                 dofIndex += mb->getLink(link).m_dofCount;
@@ -186,11 +186,11 @@ public:
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
 				btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), fDrawFlags::Faces);// deformableWorld->getDrawFlags());
             }
-            for (int p = 0; p < rsb->m_contactNodesList.size(); ++p)
-            {
-                int index = rsb->m_contactNodesList[p];
-                deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[index].m_x, 0.2, btVector3(0, 1, 0));
-            }
+            // for (int p = 0; p < rsb->m_contactNodesList.size(); ++p)
+            // {
+            //     int index = rsb->m_contactNodesList[p];
+            //     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[index].m_x, 0.2, btVector3(0, 1, 0));
+            // }
         }
     }
     
@@ -241,10 +241,11 @@ void ReducedMotorGrasp::initPhysics()
         int numLinks = 2;
         // btVector3 linkHalfExtents(0.02, 0.018, .003);
         // btVector3 baseHalfExtents(0.02, 0.002, .002);
-        btVector3 linkHalfExtents(1, 1, 0.15);
-        btVector3 baseHalfExtents(0.5, 0.35, 0.35);
+        btVector3 linkHalfExtents(0.03, 0.04, 0.006);
+        btVector3 baseHalfExtents(0.02, 0.015, 0.015);
+        btVector3 basePosition(0, 0.3, 0);
         // btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 0.05f,0.f), baseHalfExtents, linkHalfExtents, false);
-        btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 5.f,0.f), baseHalfExtents, linkHalfExtents, false);
+        btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), basePosition, baseHalfExtents, linkHalfExtents, false);
         
         mbC->setCanSleep(canSleep);
         mbC->setHasSelfCollision(selfCollide);
@@ -316,19 +317,22 @@ void ReducedMotorGrasp::initPhysics()
 
 	// create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.01);
+        rsb->getCollisionShape()->setMargin(0.001);
 
         btTransform init_transform;
         init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 0.5, 0));
+        init_transform.setOrigin(btVector3(0, 0.1, 0));
         // init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
 
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
+
+        rsb->scale(btVector3(0.075, 0.075, 0.075));       // roughly about 10cm x 10cm x 10cm
+        rsb->setTotalMass(1);                     // about 200 gram
         
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
 
@@ -359,8 +363,8 @@ void ReducedMotorGrasp::initPhysics()
         SliderParams slider("Moving velocity", &sGripperVerticalVelocity);
         // slider.m_minVal = -.02;
         // slider.m_maxVal = .02;
-        slider.m_minVal = -.5;
-        slider.m_maxVal = .5;
+        slider.m_minVal = -.2;
+        slider.m_maxVal = .2;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     

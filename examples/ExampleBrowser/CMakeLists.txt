@@ -402,6 +402,8 @@ SET(BulletExampleBrowser_SRCS
 	../ReducedDeformableDemo/ReducedCollide.h
 	../ReducedDeformableDemo/ReducedGrasp.cpp
 	../ReducedDeformableDemo/ReducedGrasp.h
+	../ReducedDeformableDemo/ReducedGraspBenchmark.cpp
+	../ReducedDeformableDemo/ReducedGraspBenchmark.h
 	../ReducedDeformableDemo/ReducedPress.cpp
 	../ReducedDeformableDemo/ReducedPress.h
 	../ReducedDeformableDemo/ReducedMotorGrasp.cpp

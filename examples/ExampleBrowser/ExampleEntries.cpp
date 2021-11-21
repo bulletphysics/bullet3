@@ -81,6 +81,7 @@
 #include "../ReducedDeformableDemo/ReducedGrasp.h"
 #include "../ReducedDeformableDemo/ReducedPress.h"
 #include "../ReducedDeformableDemo/ReducedMotorGrasp.h"
+#include "../ReducedDeformableDemo/ReducedGraspBenchmark.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
 
 #ifdef B3_ENABLE_TINY_AUDIO
@@ -234,6 +235,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Reduced Press", "Press a reduced deformable block against the ground", ReducedPressCreateFunc),
 		ExampleEntry(1, "Reduced Motor Grasp", "Grasp a reduced deformable block with motor", ReducedMotorGraspCreateFunc),
 		ExampleEntry(1, "Reduced Friction Slope", "Grasp a reduced deformable block", FrictionSlopeCreateFunc),
+		ExampleEntry(1, "Reduced Benchmark", "Grasp a reduced deformable block", ReducedGraspBenchmarkCreateFunc),
 		// ExampleEntry(1, "Simple Reduced Deformable Test", "Simple dynamics test for the reduced deformable objects", ReducedBasicTestCreateFunc),
         
 #ifdef INCLUDE_CLOTH_DEMOS

@@ -162,6 +162,7 @@ void FreeFall::initPhysics()
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->setTotalMass(10);
+        // rsb->scale(btVector3(0.5, 0.5, 0.5));
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
