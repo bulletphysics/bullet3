@@ -264,11 +264,11 @@ struct UrdfReducedDeformable
 
 	UrdfReducedDeformable() 
 		:	m_numModes(1),
+			m_mass(1),
+			m_stiffnessScale(100),
 			m_erp(0.2),					// generally, 0.2 is a good value for erp and cfm
 			m_cfm(0.2),
 			m_friction(0),
-			m_mass(1),
-			m_stiffnessScale(100),
 			m_collisionMargin(0.02),
 			m_damping(0),
 			m_visualFileName(""),

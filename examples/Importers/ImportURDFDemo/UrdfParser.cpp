@@ -1288,7 +1288,7 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 	const char* name = config->Attribute("name");
 	if (!name)
 	{
-		logger->reportError("Deformable with no name");
+		logger->reportError("Reduced deformable with no name");
 		return false;
 	}
 	reduced_deformable.m_name = name;
@@ -1422,6 +1422,7 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 		return false;
 	}
 
+	// collision mesh is optional
 	XMLElement* col_xml = config->FirstChildElement("collision");
 	if (col_xml)
 	{
@@ -1430,9 +1431,9 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 			logger->reportError("expected a filename for collision geoemtry");
 			return false;
 		}
-		fn = vis_xml->Attribute("filename");
+		fn = col_xml->Attribute("filename");
 		success = UrdfFindMeshFile(m_fileIO,
-								   model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+								   model.m_sourceFile, fn, sourceFileLocation(col_xml),
 								   &reduced_deformable.m_simFileName, &out_type);
 
 		if (!success)
