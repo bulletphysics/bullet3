@@ -60,21 +60,32 @@ void btReducedSoftBody::setReducedModes(int num_modes, int full_size)
 
 void btReducedSoftBody::setMassProps(const tDenseArray& mass_array)
 {
-  // nodal mass
   btScalar total_mass = 0;
+  btVector3 CoM(0, 0, 0);
 	for (int i = 0; i < m_nFull; ++i)
 	{
 		m_nodalMass[i] = m_rhoScale * mass_array[i];
 		m_nodes[i].m_im = mass_array[i] > 0 ? 1.0 / (m_rhoScale * mass_array[i]) : 0;
 		total_mass += m_rhoScale * mass_array[i];
+
+    CoM += m_nodalMass[i] * m_nodes[i].m_x;
 	}
   // total rigid body mass
   m_mass = total_mass;
   m_inverseMass = total_mass > 0 ? 1.0 / total_mass : 0;
+  // original CoM
+  m_initialCoM = CoM / total_mass;
 }
 
 void btReducedSoftBody::setInertiaProps()
 {
+  // make sure the initial CoM is at the origin (0,0,0)
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    m_nodes[i].m_x -= m_initialCoM;
+  }
+  m_initialCoM.setZero();
+  
   updateLocalInertiaTensorFromNodes();
 
   // update world inertia tensor
@@ -146,7 +157,7 @@ void btReducedSoftBody::updateLocalMomentArm()
       }
     }
     // get new moment arm Sq + x0
-    m_localMomentArm[i] = m_x0[i] - m_initialOrigin + delta_x[i];
+    m_localMomentArm[i] = m_x0[i] - m_initialCoM + delta_x[i];
   }
 }
 
@@ -410,7 +421,7 @@ void btReducedSoftBody::transform(const btTransform& trs)
   // update rigid frame (No need to update the rotation. Nodes have already been updated.)
   m_rigidTransformWorld.setOrigin(trs.getOrigin());
   m_interpolationWorldTransform = m_rigidTransformWorld;
-  m_initialOrigin = m_rigidTransformWorld.getOrigin();
+  m_initialCoM = m_rigidTransformWorld.getOrigin();
 
   internalInitialization();
 }
@@ -497,7 +508,7 @@ void btReducedSoftBody::updateLocalInertiaTensorFromNodes()
     btMatrix3x3 particle_inertia;
     particle_inertia.setZero();
 
-    btVector3 r = m_nodes[p].m_x - m_initialOrigin;
+    btVector3 r = m_nodes[p].m_x - m_initialCoM;
 
     particle_inertia[0][0] = m_nodalMass[p] * (r[1] * r[1] + r[2] * r[2]);
     particle_inertia[1][1] = m_nodalMass[p] * (r[0] * r[0] + r[2] * r[2]);

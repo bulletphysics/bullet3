@@ -56,7 +56,7 @@ class btReducedSoftBody : public btSoftBody
   btMatrix3x3 m_invInertiaTensorWorldInitial;
   btMatrix3x3 m_invInertiaTensorWorld;
   btMatrix3x3 m_interpolateInvInertiaTensorWorld;
-  btVector3 m_initialOrigin;  // initial center of mass (original of the m_rigidTransformWorld)
+  btVector3 m_initialCoM;  // initial center of mass (original of the m_rigidTransformWorld)
 
   // damping
   btScalar m_dampingAlpha;
