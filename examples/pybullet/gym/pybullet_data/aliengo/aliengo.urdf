@@ -31,19 +31,6 @@
   <material name="white">
     <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
-  <link name="base">
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <box size="0.001 0.001 0.001"/>
-      </geometry>
-    </visual>
-  </link>
-  <joint name="floating_base" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="base"/>
-    <child link="trunk"/>
-  </joint>
   <link name="trunk">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -117,15 +104,15 @@
       <inertia ixx="0.002903894" ixy="7.185e-05" ixz="-1.262e-06" iyy="0.004907517" iyz="1.75e-06" izz="0.005586944"/>
     </inertial>
   </link>
-  <joint name="FR_thigh_joint" type="continuous">
+  <joint name="FR_upper_joint" type="continuous">
     <origin rpy="0 0 0" xyz="0 -0.083 0"/>
     <parent link="FR_hip"/>
-    <child link="FR_thigh"/>
+    <child link="FR_upper"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" velocity="40"/>
   </joint>
-  <link name="FR_thigh">
+  <link name="FR_upper">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -145,15 +132,15 @@
       <inertia ixx="0.005666803" ixy="-3.597e-06" ixz="0.000491446" iyy="0.005847229" iyz="-1.0086e-05" izz="0.000369811"/>
     </inertial>
   </link>
-  <joint name="FR_calf_joint" type="revolute">
+  <joint name="FR_lower_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="FR_thigh"/>
-    <child link="FR_calf"/>
+    <parent link="FR_upper"/>
+    <child link="FR_lower"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" lower="-2.77507351067" upper="-0.645771823238" velocity="40"/>
   </joint>
-  <link name="FR_calf">
+  <link name="FR_lower">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -173,12 +160,12 @@
       <inertia ixx="0.006341369" ixy="-3e-09" ixz="-8.7951e-05" iyy="0.006355157" iyz="-1.336e-06" izz="3.9188e-05"/>
     </inertial>
   </link>
-  <joint name="FR_foot_fixed" type="fixed">
+  <joint name="FR_toe_fixed" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="FR_calf"/>
-    <child link="FR_foot"/>
+    <parent link="FR_lower"/>
+    <child link="FR_toe"/>
   </joint>
-  <link name="FR_foot">
+  <link name="FR_toe">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -207,22 +194,22 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="FR_thigh_tran">
+  <transmission name="FR_upper_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="FR_thigh_joint">
+    <joint name="FR_upper_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="FR_thigh_motor">
+    <actuator name="FR_upper_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="FR_calf_tran">
+  <transmission name="FR_lower_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="FR_calf_joint">
+    <joint name="FR_lower_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="FR_calf_motor">
+    <actuator name="FR_lower_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
@@ -255,15 +242,15 @@
       <inertia ixx="0.002903894" ixy="-7.185e-05" ixz="-1.262e-06" iyy="0.004907517" iyz="-1.75e-06" izz="0.005586944"/>
     </inertial>
   </link>
-  <joint name="FL_thigh_joint" type="continuous">
+  <joint name="FL_upper_joint" type="continuous">
     <origin rpy="0 0 0" xyz="0 0.083 0"/>
     <parent link="FL_hip"/>
-    <child link="FL_thigh"/>
+    <child link="FL_upper"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" velocity="40"/>
   </joint>
-  <link name="FL_thigh">
+  <link name="FL_upper">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -283,15 +270,15 @@
       <inertia ixx="0.005666803" ixy="3.597e-06" ixz="0.000491446" iyy="0.005847229" iyz="1.0086e-05" izz="0.000369811"/>
     </inertial>
   </link>
-  <joint name="FL_calf_joint" type="revolute">
+  <joint name="FL_lower_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="FL_thigh"/>
-    <child link="FL_calf"/>
+    <parent link="FL_upper"/>
+    <child link="FL_lower"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" lower="-2.77507351067" upper="-0.645771823238" velocity="40"/>
   </joint>
-  <link name="FL_calf">
+  <link name="FL_lower">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -311,12 +298,12 @@
       <inertia ixx="0.006341369" ixy="-3e-09" ixz="-8.7951e-05" iyy="0.006355157" iyz="-1.336e-06" izz="3.9188e-05"/>
     </inertial>
   </link>
-  <joint name="FL_foot_fixed" type="fixed">
+  <joint name="FL_toe_fixed" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="FL_calf"/>
-    <child link="FL_foot"/>
+    <parent link="FL_lower"/>
+    <child link="FL_toe"/>
   </joint>
-  <link name="FL_foot">
+  <link name="FL_toe">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -345,22 +332,22 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="FL_thigh_tran">
+  <transmission name="FL_upper_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="FL_thigh_joint">
+    <joint name="FL_upper_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="FL_thigh_motor">
+    <actuator name="FL_upper_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="FL_calf_tran">
+  <transmission name="FL_lower_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="FL_calf_joint">
+    <joint name="FL_lower_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="FL_calf_motor">
+    <actuator name="FL_lower_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
@@ -393,15 +380,15 @@
       <inertia ixx="0.002903894" ixy="-7.185e-05" ixz="1.262e-06" iyy="0.004907517" iyz="1.75e-06" izz="0.005586944"/>
     </inertial>
   </link>
-  <joint name="RR_thigh_joint" type="continuous">
+  <joint name="RR_upper_joint" type="continuous">
     <origin rpy="0 0 0" xyz="0 -0.083 0"/>
     <parent link="RR_hip"/>
-    <child link="RR_thigh"/>
+    <child link="RR_upper"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" velocity="40"/>
   </joint>
-  <link name="RR_thigh">
+  <link name="RR_upper">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -421,15 +408,15 @@
       <inertia ixx="0.005666803" ixy="-3.597e-06" ixz="0.000491446" iyy="0.005847229" iyz="-1.0086e-05" izz="0.000369811"/>
     </inertial>
   </link>
-  <joint name="RR_calf_joint" type="revolute">
+  <joint name="RR_lower_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="RR_thigh"/>
-    <child link="RR_calf"/>
+    <parent link="RR_upper"/>
+    <child link="RR_lower"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" lower="-2.77507351067" upper="-0.645771823238" velocity="40"/>
   </joint>
-  <link name="RR_calf">
+  <link name="RR_lower">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -449,12 +436,12 @@
       <inertia ixx="0.006341369" ixy="-3e-09" ixz="-8.7951e-05" iyy="0.006355157" iyz="-1.336e-06" izz="3.9188e-05"/>
     </inertial>
   </link>
-  <joint name="RR_foot_fixed" type="fixed">
+  <joint name="RR_toe_fixed" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="RR_calf"/>
-    <child link="RR_foot"/>
+    <parent link="RR_lower"/>
+    <child link="RR_toe"/>
   </joint>
-  <link name="RR_foot">
+  <link name="RR_toe">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -483,22 +470,22 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="RR_thigh_tran">
+  <transmission name="RR_upper_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="RR_thigh_joint">
+    <joint name="RR_upper_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="RR_thigh_motor">
+    <actuator name="RR_upper_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="RR_calf_tran">
+  <transmission name="RR_lower_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="RR_calf_joint">
+    <joint name="RR_lower_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="RR_calf_motor">
+    <actuator name="RR_lower_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
@@ -531,15 +518,15 @@
       <inertia ixx="0.002903894" ixy="7.185e-05" ixz="1.262e-06" iyy="0.004907517" iyz="-1.75e-06" izz="0.005586944"/>
     </inertial>
   </link>
-  <joint name="RL_thigh_joint" type="continuous">
+  <joint name="RL_upper_joint" type="continuous">
     <origin rpy="0 0 0" xyz="0 0.083 0"/>
     <parent link="RL_hip"/>
-    <child link="RL_thigh"/>
+    <child link="RL_upper"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" velocity="40"/>
   </joint>
-  <link name="RL_thigh">
+  <link name="RL_upper">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -559,15 +546,15 @@
       <inertia ixx="0.005666803" ixy="3.597e-06" ixz="0.000491446" iyy="0.005847229" iyz="1.0086e-05" izz="0.000369811"/>
     </inertial>
   </link>
-  <joint name="RL_calf_joint" type="revolute">
+  <joint name="RL_lower_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="RL_thigh"/>
-    <child link="RL_calf"/>
+    <parent link="RL_upper"/>
+    <child link="RL_lower"/>
     <axis xyz="0 1 0"/>
     <dynamics damping="0" friction="0"/>
     <limit effort="44.4" lower="-2.77507351067" upper="-0.645771823238" velocity="40"/>
   </joint>
-  <link name="RL_calf">
+  <link name="RL_lower">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -587,12 +574,12 @@
       <inertia ixx="0.006341369" ixy="-3e-09" ixz="-8.7951e-05" iyy="0.006355157" iyz="-1.336e-06" izz="3.9188e-05"/>
     </inertial>
   </link>
-  <joint name="RL_foot_fixed" type="fixed">
+  <joint name="RL_toe_fixed" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 -0.25"/>
-    <parent link="RL_calf"/>
-    <child link="RL_foot"/>
+    <parent link="RL_lower"/>
+    <child link="RL_toe"/>
   </joint>
-  <link name="RL_foot">
+  <link name="RL_toe">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -621,22 +608,22 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="RL_thigh_tran">
+  <transmission name="RL_upper_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="RL_thigh_joint">
+    <joint name="RL_upper_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="RL_thigh_motor">
+    <actuator name="RL_upper_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <transmission name="RL_calf_tran">
+  <transmission name="RL_lower_tran">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="RL_calf_joint">
+    <joint name="RL_lower_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
-    <actuator name="RL_calf_motor">
+    <actuator name="RL_lower_motor">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
