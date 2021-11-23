@@ -2725,24 +2725,26 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 		m_data->m_broadphase = bv;
 	}
 
+#ifndef SKIP_DEFORMABLE_BODY
 	if (flags & RESET_USE_DEFORMABLE_WORLD)
 	{
-#ifndef SKIP_DEFORMABLE_BODY
 		// deformable
-		// m_data->m_deformablebodySolver = new btDeformableBodySolver();
-		// btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
-		// m_data->m_solver = solver;
-		// solver->setDeformableSolver(m_data->m_deformablebodySolver);
-		// m_data->m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, solver, m_data->m_collisionConfiguration, m_data->m_deformablebodySolver);
-
+		m_data->m_deformablebodySolver = new btDeformableBodySolver();
+		btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
+		m_data->m_solver = solver;
+		solver->setDeformableSolver(m_data->m_deformablebodySolver);
+		m_data->m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, solver, m_data->m_collisionConfiguration, m_data->m_deformablebodySolver);
+	}
+	else if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD)
+	{
 		// reduced deformable
 		m_data->m_reducedSoftBodySolver = new btReducedSoftBodySolver();
 		btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
 		m_data->m_solver = solver;
 		solver->setDeformableSolver(m_data->m_reducedSoftBodySolver);
 		m_data->m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, solver, m_data->m_collisionConfiguration, m_data->m_reducedSoftBodySolver);
-#endif
 	}
+#endif
 
 	
 

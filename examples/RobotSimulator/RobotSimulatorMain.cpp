@@ -28,7 +28,8 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	sim->resetSimulation(RESET_USE_DEFORMABLE_WORLD);
+	// sim->resetSimulation(RESET_USE_DEFORMABLE_WORLD);
+	sim->resetSimulation(RESET_USE_REDUCED_DEFORMABLE_WORLD);
 
 	//Can also use eCONNECT_DIRECT,eCONNECT_SHARED_MEMORY,eCONNECT_UDP,eCONNECT_TCP, for example:
 	//sim->connect(eCONNECT_UDP, "localhost", 1234);
@@ -54,8 +55,8 @@ int main(int argc, char* argv[])
 	sim->loadURDF("plane.urdf");
 
 	{
-		// int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
-		int deformableUID = sim->loadURDF("reduced_cube/deform_cube.urdf");
+		int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
+		// int deformableUID = sim->loadURDF("reduced_cube/deform_cube.urdf");
 		// int deformableUID = sim->loadURDF("reduced_torus/reduced_torus.urdf");
 		// int deformableUID = sim->loadURDF("torus_deform.urdf");
 		btVector3 basePosition = btVector3(0, 0, 2);
