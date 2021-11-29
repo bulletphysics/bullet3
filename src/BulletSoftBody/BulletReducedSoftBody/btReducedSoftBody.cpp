@@ -15,6 +15,7 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_nReduced = 0;
   m_nFull = 0;
 
+  m_transform_lock = false;
   m_ksScale = 1.0;
   m_rhoScale = 1.0;
 
@@ -80,11 +81,13 @@ void btReducedSoftBody::setMassProps(const tDenseArray& mass_array)
 void btReducedSoftBody::setInertiaProps()
 {
   // make sure the initial CoM is at the origin (0,0,0)
-  for (int i = 0; i < m_nFull; ++i)
-  {
-    m_nodes[i].m_x -= m_initialCoM;
-  }
-  m_initialCoM.setZero();
+  // for (int i = 0; i < m_nFull; ++i)
+  // {
+  //   m_nodes[i].m_x -= m_initialCoM;
+  // }
+  // m_initialCoM.setZero();
+  m_rigidTransformWorld.setOrigin(m_initialCoM);
+  m_interpolationWorldTransform = m_rigidTransformWorld;
   
   updateLocalInertiaTensorFromNodes();
 
@@ -399,17 +402,41 @@ void btReducedSoftBody::proceedToTransform(btScalar dt, bool end_of_time_step)
 
 void btReducedSoftBody::transformTo(const btTransform& trs)
 {
-  // get the current best rigid fit
 	btTransform current_transform = getRigidTransform();
-	// apply transform in material space
-	btTransform new_transform = trs * current_transform.inverse();
+	btTransform new_transform(trs.getBasis() * current_transform.getBasis().transpose(),
+                            trs.getOrigin() - current_transform.getOrigin());
   transform(new_transform);
 }
 
 void btReducedSoftBody::transform(const btTransform& trs)
 {
-  // translate mesh
-	btSoftBody::transform(trs);
+  m_transform_lock = true;
+
+  // transform mesh
+  {
+    const btScalar margin = getCollisionShape()->getMargin();
+    ATTRIBUTE_ALIGNED16(btDbvtVolume)
+    vol;
+
+    btVector3 CoM = m_rigidTransformWorld.getOrigin();
+    btVector3 translation = trs.getOrigin();
+    btMatrix3x3 rotation = trs.getBasis();
+
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+      Node& n = m_nodes[i];
+      n.m_x = rotation * (n.m_x - CoM) + CoM + translation;
+      n.m_q = rotation * (n.m_q - CoM) + CoM + translation;
+      n.m_n = rotation * n.m_n;
+      vol = btDbvtVolume::FromCR(n.m_x, margin);
+
+      m_ndbvt.update(n.m_leaf, vol);
+    }
+    updateNormals();
+    updateBounds();
+    updateConstants();
+  }
+
   // update modes
   updateModesByRotation(trs.getBasis());
 
@@ -419,7 +446,7 @@ void btReducedSoftBody::transform(const btTransform& trs)
   m_interpolateInvInertiaTensorWorld = m_invInertiaTensorWorld;
   
   // update rigid frame (No need to update the rotation. Nodes have already been updated.)
-  m_rigidTransformWorld.setOrigin(trs.getOrigin());
+  m_rigidTransformWorld.setOrigin(m_initialCoM + trs.getOrigin());
   m_interpolationWorldTransform = m_rigidTransformWorld;
   m_initialCoM = m_rigidTransformWorld.getOrigin();
 
@@ -428,6 +455,9 @@ void btReducedSoftBody::transform(const btTransform& trs)
 
 void btReducedSoftBody::scale(const btVector3& scl)
 {
+  // Scaling the mesh after transform is applied is not allowed
+  btAssert(!m_transform_lock);
+
   // scale the mesh
   {
     const btScalar margin = getCollisionShape()->getMargin();
@@ -464,6 +494,9 @@ void btReducedSoftBody::scale(const btVector3& scl)
 
 void btReducedSoftBody::setTotalMass(btScalar mass, bool fromfaces)
 {
+  // Changing the total mass after transform is applied is not allowed
+  btAssert(!m_transform_lock);
+
   btScalar scale_ratio = mass / m_mass;
 
   // update nodal mass

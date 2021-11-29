@@ -10,6 +10,6 @@
     <friction value= "0.5"/>
     <damping_coefficient value="0.00001"/>
     <visual filename="torus_textured.obj"/>
-    <collision filename="torus_mesh_visual.vtk"/>
+    <collision filename="torus_mesh.vtk"/>
   </reduced_deformable>
 </robot>

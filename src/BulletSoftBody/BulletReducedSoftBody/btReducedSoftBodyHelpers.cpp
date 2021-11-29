@@ -7,7 +7,8 @@
 btReducedSoftBody* btReducedSoftBodyHelpers::createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int num_modes)
 {
 	std::string filepath("../../../data/reduced_beam/");
-	std::string filename = filepath + "beam_mesh.vtk";
+	// std::string filename = filepath + "beam_mesh.vtk";
+	std::string filename = filepath + "beam_mesh_origin.vtk";
 	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
 	
 	rsb->setReducedModes(num_modes, rsb->m_nodes.size());

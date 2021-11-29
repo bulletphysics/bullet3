@@ -20,6 +20,9 @@ class btReducedSoftBody : public btSoftBody
   typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 
  private:
+  // Flags for transform. Once transform is applied, users cannot scale the mesh or change its total mass.
+  bool m_transform_lock;
+
   // scaling factors
   btScalar m_rhoScale;         // mass density scale
   btScalar m_ksScale;          // stiffness scale
@@ -133,14 +136,6 @@ class btReducedSoftBody : public btSoftBody
   // need to use scale before using transform, because the scale is performed in the local frame 
   // (i.e., may have some rotation already, but the m_rigidTransformWorld doesn't have this info)
   virtual void scale(const btVector3& scl);
-  virtual void translate(const btVector3& trs)
-  {
-    btAssert(false); // use transform().
-  }
-  virtual void rotate(const btQuaternion& rot)
-  {
-    btAssert(false); // use transform().
-  }
 
  private:
   void updateRestNodalPositions();
