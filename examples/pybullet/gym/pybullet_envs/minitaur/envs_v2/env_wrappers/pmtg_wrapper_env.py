@@ -230,15 +230,26 @@ class PmtgWrapperEnv(object):
     # Calculate trajectory generator's output based on the rest of the actions.
     delta_real_time = time - self._last_real_time
     self._last_real_time = time
+
+    # added swing stance to actions
+
+    # action[self._num_actions:][3] = action
+
+    # self._trajectory_generator.adjust_swing_stance_ratio(action)
+
     action_tg = self._trajectory_generator.get_actions(
         delta_real_time, action[self._num_actions:])
+  
     # If the residuals have a larger dimension, extend trajectory generator's
     # actions to include abduction motors.
     if len(action_tg) == 8 and len(action_residual) == 12:
       for i in [0, 3, 6, 9]:
         action_tg.insert(i, 0)
     # Add TG actions with residual actions (in swing - extend space).
-    action_total = [a + b for a, b in zip(action_tg, action_residual)]
+    # action_total = [a + b for a, b in zip(action_tg, action_residual)]
+
+    action_total = action_tg
+
     # Convert them to motor space based on the robot-specific conversions.
     if self._leg_pose_util:
       action_motor_space = self._leg_pose_util.convert_leg_pose_to_motor_angles(

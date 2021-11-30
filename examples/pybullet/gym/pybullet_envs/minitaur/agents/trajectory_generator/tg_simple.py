@@ -198,15 +198,17 @@ class TgSimple(object):
     # Adjust the swing stance ratio of the controller (used for all four legs).
     if swing_stance_ratio:
       self.adjust_swing_stance_ratio(swing_stance_ratio)
-    # Adjust the walking height, intensity and swing vs stance of the legs.
-    for idx, leg in enumerate(self._legs):
-      leg.adjust_intensity(intensity)
-      if heights:
-        leg.adjust_center_extension(heights[self._walk_height_id_per_leg[idx]])
+    # # Adjust the walking height, intensity and swing vs stance of the legs.
+    # for idx, leg in enumerate(self._legs):
+    #   leg.adjust_intensity(intensity)
+    #   if heights:
+    #     leg.adjust_center_extension(heights[self._walk_height_id_per_leg[idx]])
 
     # Progress all the phase generators based on delta time.
     for idx, integrator_unit in enumerate(self._integrator_units):
-      integrator_unit.progress_phase(speeds[idx] * delta_real_time,
+      # integrator_unit.progress_phase(speeds[idx] * delta_real_time,
+      #                                self._swing_stance_ratio)
+      integrator_unit.progress_phase(delta_real_time,
                                      self._swing_stance_ratio)
 
     # Set the phases for the legs based on their offsets with phase generators.
