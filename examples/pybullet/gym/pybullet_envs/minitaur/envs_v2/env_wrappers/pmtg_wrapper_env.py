@@ -133,15 +133,17 @@ class PmtgWrapperEnv(object):
   def _extend_obs_space(self):
     """Extend observation space to include pmtg phase variables."""
     # Set the observation space and boundaries.
-    lower_bound, upper_bound = self._get_observation_bounds()
-    if hasattr(self._gym_env.observation_space, "spaces"):
-      new_obs_space = spaces.Box(np.array(lower_bound), np.array(upper_bound))
-      self.observation_space.spaces.update({"pmtg_phase": new_obs_space})
-    else:
-      lower_bound = np.append(self._gym_env.observation_space.low, lower_bound)
-      upper_bound = np.append(self._gym_env.observation_space.high, upper_bound)
-      self.observation_space = spaces.Box(
-          np.array(lower_bound), np.array(upper_bound), dtype=np.float32)
+    # lower_bound, upper_bound = self._get_observation_bounds()
+    # if hasattr(self._gym_env.observation_space, "spaces"):
+    #   new_obs_space = spaces.Box(np.array(lower_bound), np.array(upper_bound))
+    #   self.observation_space.spaces.update({"pmtg_phase": new_obs_space})
+    # else:
+    #   lower_bound = np.append(self._gym_env.observation_space.low, lower_bound)
+    #   upper_bound = np.append(self._gym_env.observation_space.high, upper_bound)
+    #   self.observation_space = spaces.Box(
+    #       np.array(lower_bound), np.array(upper_bound), dtype=np.float32)
+    self.observation_space = self._gym_env.observation_space
+    return self.observation_space
 
   def _extend_action_space(self):
     """Extend the action space to include pmtg parameters."""
@@ -246,7 +248,7 @@ class PmtgWrapperEnv(object):
       for i in [0, 3, 6, 9]:
         action_tg.insert(i, 0)
     # Add TG actions with residual actions (in swing - extend space).
-    # action_total = [a + b for a, b in zip(action_tg, action_residual)]
+    action_total = [a + b for a, b in zip(action_tg, action_residual)]
 
     action_total = action_tg
 

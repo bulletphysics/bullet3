@@ -11,6 +11,7 @@ import numpy as np
 
 from pybullet_envs.minitaur.envs_v2 import base_client
 from pybullet_utils import bullet_client
+from gym import spaces
 import pybullet_data
 import pybullet
 from pybullet_envs.minitaur.envs import minitaur_logging
@@ -186,6 +187,21 @@ class LocomotionGymEnv(gym.Env):
             sensor for sensor in self.all_sensors()
             if sensor.get_name() not in self._gym_config.ignored_sensor_list
         ]))
+    print("obs space",self.observation_space)
+    # we are not using sensors, instead use manually definied velocities
+    # self.observation_space.remove("MotorAngle")
+    # self.observation_space[v]=
+
+    obs={}
+    obs["v"] = spaces.Box(
+          np.array([float(-20)]), np.array([float(20)]), dtype=np.float32)
+    obs["v_d"] = spaces.Box(
+          np.array([float(-20)]), np.array([float(20)]), dtype=np.float32)
+
+    self.observation_space = spaces.Dict(obs)
+    print("obs space",self.observation_space)
+    
+
 
   def __del__(self):
     self.close()
@@ -410,7 +426,7 @@ class LocomotionGymEnv(gym.Env):
                                                      self._last_base_position)
 
   def _step_old_robot_class(self, action):
-    self._last_base_position = self._robot.GetBasePosition()
+    self._last_base_position = self._robot.base_position()
     self._last_action = action
 
     if self._is_render:
@@ -616,6 +632,27 @@ class LocomotionGymEnv(gym.Env):
 
     self._observation_dict = collections.OrderedDict(
         sorted(sensors_dict.items()))
+
+    # just return a base velocity and a desired velocity
+
+    # could also use only y pos
+
+    cur_velocity = tuple(map(lambda i, j: (i - j)/self._sim_time_step, self._last_base_position, self._robot.base_position))[1]
+
+    desired_velocity = 10
+
+    new_obs = {}
+    new_obs["v"] = cur_velocity
+    new_obs["v_d"] = desired_velocity
+
+    self._observation_dict = collections.OrderedDict(
+        sorted(new_obs.items()))
+
+    print("obs during training ", self.observation_space)
+    # print("cur velocity: ", tuple(map(lambda i, j: (i - j)/self._sim_time_step, self._last_base_position, self._robot.base_position)))
+    # print("cur pos: ", self._robot.base_position)
+    # print("last pos: ", self._last_base_position)
+
     return self._observation_dict
 
   def set_time_step(self, num_action_repeat, sim_step=0.001):

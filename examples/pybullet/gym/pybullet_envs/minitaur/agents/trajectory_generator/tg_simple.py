@@ -199,10 +199,10 @@ class TgSimple(object):
     if swing_stance_ratio:
       self.adjust_swing_stance_ratio(swing_stance_ratio)
     # # Adjust the walking height, intensity and swing vs stance of the legs.
-    # for idx, leg in enumerate(self._legs):
-    #   leg.adjust_intensity(intensity)
-    #   if heights:
-    #     leg.adjust_center_extension(heights[self._walk_height_id_per_leg[idx]])
+    for idx, leg in enumerate(self._legs):
+      leg.adjust_intensity(intensity)
+      if heights:
+        leg.adjust_center_extension(heights[self._walk_height_id_per_leg[idx]])
 
     # Progress all the phase generators based on delta time.
     for idx, integrator_unit in enumerate(self._integrator_units):
