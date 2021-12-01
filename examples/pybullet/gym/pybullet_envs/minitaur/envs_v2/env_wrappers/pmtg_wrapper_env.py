@@ -167,6 +167,7 @@ class PmtgWrapperEnv(object):
     return getattr(self._gym_env, attrb)
 
   def _modify_observation(self, observation):
+    return observation
     if isinstance(observation, dict):
       observation["pmtg_phase"] = self._trajectory_generator.get_state()
       return observation

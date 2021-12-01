@@ -187,7 +187,7 @@ class LocomotionGymEnv(gym.Env):
             sensor for sensor in self.all_sensors()
             if sensor.get_name() not in self._gym_config.ignored_sensor_list
         ]))
-    print("obs space",self.observation_space)
+    # print("obs space",self.observation_space)
     # we are not using sensors, instead use manually definied velocities
     # self.observation_space.remove("MotorAngle")
     # self.observation_space[v]=
@@ -199,7 +199,7 @@ class LocomotionGymEnv(gym.Env):
           np.array([float(-20)]), np.array([float(20)]), dtype=np.float32)
 
     self.observation_space = spaces.Dict(obs)
-    print("obs space",self.observation_space)
+    # print("obs space",self.observation_space)
     
 
 
@@ -637,7 +637,7 @@ class LocomotionGymEnv(gym.Env):
 
     # could also use only y pos
 
-    cur_velocity = tuple(map(lambda i, j: (i - j)/self._sim_time_step, self._last_base_position, self._robot.base_position))[1]
+    cur_velocity = tuple(map(lambda i, j: (j - i)/self._sim_time_step, self._last_base_position, self._robot.base_position))[1]
 
     desired_velocity = 10
 
@@ -648,7 +648,7 @@ class LocomotionGymEnv(gym.Env):
     self._observation_dict = collections.OrderedDict(
         sorted(new_obs.items()))
 
-    print("obs during training ", self.observation_space)
+    # print("obs during training ", self._observation_dict)
     # print("cur velocity: ", tuple(map(lambda i, j: (i - j)/self._sim_time_step, self._last_base_position, self._robot.base_position)))
     # print("cur pos: ", self._robot.base_position)
     # print("last pos: ", self._last_base_position)
