@@ -9216,6 +9216,10 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setGravityFactor(deformable.m_gravFactor);
 			psb->setCacheBarycenter(deformable.m_cache_barycenter);
 			psb->initializeFaceTree();
+
+			deformWorld->setImplicit(true);
+			deformWorld->setLineSearch(false);
+			deformWorld->setUseProjection(true);
 		}
 #endif  //SKIP_DEFORMABLE_BODY
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -9646,7 +9650,6 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			// collion between deformable and deformable and self-collision
 			// rsb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
 			rsb->setCollisionFlags(0);
-			rsb->setTotalMass(reduced_deformable.m_mass);
 			rsb->setSelfCollision(useSelfCollision);
 			rsb->initializeFaceTree();
 		}
@@ -9681,6 +9684,11 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			deformWorld->addSoftBody(rsb);
 			deformWorld->getSolverInfo().m_deformable_erp = reduced_deformable.m_erp;
 			deformWorld->getSolverInfo().m_deformable_cfm = reduced_deformable.m_cfm;
+			deformWorld->getSolverInfo().m_friction = reduced_deformable.m_friction;
+			deformWorld->getSolverInfo().m_splitImpulse = false;
+			deformWorld->setImplicit(false);
+			deformWorld->setLineSearch(false);
+			deformWorld->setUseProjection(false);
 		}
 		else
 #endif  //SKIP_DEFORMABLE_BODY

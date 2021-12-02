@@ -18,7 +18,8 @@ int main(int argc, char* argv[])
 	}
 
 	//remove all existing objects (if any)
-	sim->resetSimulation();
+	// sim->resetSimulation();
+	sim->resetSimulation(RESET_USE_REDUCED_DEFORMABLE_WORLD);
 	sim->setGravity(btVector3(0, 0, -9.8));
 	sim->setNumSolverIterations(100);
 	b3RobotSimulatorSetPhysicsEngineParameters args;
@@ -27,10 +28,11 @@ int main(int argc, char* argv[])
 	int planeUid = sim->loadURDF("plane.urdf");
 	printf("planeUid = %d\n", planeUid);
 
-	int r2d2Uid = sim->loadURDF("r2d2.urdf");
-	printf("r2d2 #joints = %d\n", sim->getNumJoints(r2d2Uid));
+	int r2d2Uid = sim->loadURDF("reduced_bottle_coarse/reduced_bottle_coarse.urdf");
+	// int r2d2Uid = sim->loadURDF("r2d2.urdf");
+	// printf("r2d2 #joints = %d\n", sim->getNumJoints(r2d2Uid));
 
-	btVector3 basePosition = btVector3(0, 0, 0.5);
+	btVector3 basePosition = btVector3(0, 0.5, 0.2);
 	btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
 
 	sim->resetBasePositionAndOrientation(r2d2Uid, basePosition, baseOrientation);
@@ -40,7 +42,7 @@ int main(int argc, char* argv[])
 		btVector3 basePos;
 		btQuaternion baseOrn;
 		sim->getBasePositionAndOrientation(r2d2Uid, basePos, baseOrn);
-		printf("r2d2 basePosition = [%f,%f,%f]\n", basePos[0], basePos[1], basePos[2]);
+		// printf("r2d2 basePosition = [%f,%f,%f]\n", basePos[0], basePos[1], basePos[2]);
 
 		sim->stepSimulation();
 	}
