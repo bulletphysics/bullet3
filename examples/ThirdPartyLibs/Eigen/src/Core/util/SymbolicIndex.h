@@ -12,7 +12,7 @@
 
 namespace Eigen {
 
-/** \namespace Eigen::Symbolic
+/** \namespace Eigen::symbolic
   * \ingroup Core_Module
   *
   * This namespace defines a set of classes and functions to build and evaluate symbolic expressions of scalar type Index.
@@ -20,9 +20,9 @@ namespace Eigen {
   *
   * \code
   * // First step, defines symbols:
-  * struct x_tag {};  static const Symbolic::SymbolExpr<x_tag> x;
-  * struct y_tag {};  static const Symbolic::SymbolExpr<y_tag> y;
-  * struct z_tag {};  static const Symbolic::SymbolExpr<z_tag> z;
+  * struct x_tag {};  static const symbolic::SymbolExpr<x_tag> x;
+  * struct y_tag {};  static const symbolic::SymbolExpr<y_tag> y;
+  * struct z_tag {};  static const symbolic::SymbolExpr<z_tag> z;
   *
   * // Defines an expression:
   * auto expr = (x+3)/y+z;
@@ -35,10 +35,10 @@ namespace Eigen {
   * std::cout << expr98.eval(x=6) << "\n";
   * \endcode
   *
-  * It is currently only used internally to define and minipulate the placeholders::last and placeholders::end symbols in Eigen::seq and Eigen::seqN.
+  * It is currently only used internally to define and manipulate the Eigen::last and Eigen::lastp1 symbols in Eigen::seq and Eigen::seqN.
   *
   */
-namespace Symbolic {
+namespace symbolic {
 
 template<typename Tag> class Symbol;
 template<typename Arg0> class NegateExpr;
@@ -65,7 +65,7 @@ class ValueExpr<internal::FixedInt<N> > {
 public:
   ValueExpr() {}
   template<typename T>
-  Index eval_impl(const T&) const { return N; }
+  EIGEN_CONSTEXPR Index eval_impl(const T&) const { return N; }
 };
 
 
@@ -187,15 +187,8 @@ public:
 
 template<typename T>
 struct is_symbolic {
-  // BaseExpr has no conversion ctor, so we only have to check whether T can be staticaly cast to its base class BaseExpr<T>.
+  // BaseExpr has no conversion ctor, so we only have to check whether T can be statically cast to its base class BaseExpr<T>.
   enum { value = internal::is_convertible<T,BaseExpr<T> >::value };
-};
-
-// Specialization for functions, because is_convertible fails in this case.
-// Useful in c++98/11 mode when testing is_symbolic<decltype(fix<N>)>
-template<typename T>
-struct is_symbolic<T (*)()> {
-  enum { value = false };
 };
 
 /** Represents the actual value of a symbol identified by its tag
@@ -293,7 +286,7 @@ protected:
   Arg1 m_arg1;
 };
 
-} // end namespace Symbolic
+} // end namespace symbolic
 
 } // end namespace Eigen
 

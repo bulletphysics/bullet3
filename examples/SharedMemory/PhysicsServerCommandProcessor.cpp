@@ -3631,8 +3631,20 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		{
 			bool use_self_collision = false;
 			use_self_collision = (flags & CUF_USE_SELF_COLLISION);
-			return processDeformable(u2b.getDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
-
+			bool ok = processDeformable(u2b.getDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
+			if (ok)
+			{
+				const UrdfModel* urdfModel = u2b.getUrdfModel();
+				if (urdfModel)
+				{
+					addUserData(urdfModel->m_userData, *bodyUniqueIdPtr);
+				}
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		if (!(u2b.getReducedDeformableModel().m_visualFileName.empty()))
 		{
@@ -8081,21 +8093,26 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 	{
 		return false;
 	}
-	int numSoftbodyContact = 0;
-	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
-	{
-		numSoftbodyContact += deformWorld->getSoftBodyArray()[i]->m_faceRigidContacts.size();
-	}
-	int num_contact_points = m_data->m_cachedContactPoints.size();
-	m_data->m_cachedContactPoints.reserve(num_contact_points + numSoftbodyContact);
 
 	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
 	{
 		btSoftBody* psb = deformWorld->getSoftBodyArray()[i];
+		btAlignedObjectArray<b3ContactPointData> distinctContactPoints;
+		btAlignedObjectArray<btSoftBody::Node*> nodesInContact;
 		for (int c = 0; c < psb->m_faceRigidContacts.size(); c++)
 		{
-			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[i];
-			//convert rigidbody contact
+			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[c];
+			// calculate normal and tangent impulse
+			btVector3 impulse = contact->m_cti.m_impulse;
+			btVector3 impulseNormal = impulse.dot(contact->m_cti.m_normal) * contact->m_cti.m_normal;
+			btVector3 impulseTangent = impulse - impulseNormal;
+			// get node in contact
+			int contactNodeIdx = contact->m_bary.maxAxis();
+			btSoftBody::Node* node = contact->m_face->m_n[contactNodeIdx];
+			// check if node is already in the list
+			int idx = nodesInContact.findLinearSearch2(node);
+
+			//apply the filter, if the user provides it
 			int linkIndexA = -1;
 			int linkIndexB = -1;
 			int objectIndexA = psb->getUserIndex2();
@@ -8112,8 +8129,6 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 				linkIndexB = mblB->m_link;
 				objectIndexB = mblB->m_multiBody->getUserIndex2();
 			}
-
-			//apply the filter, if the user provides it
 			bool swap = false;
 			if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
 			{
@@ -8159,37 +8174,87 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 			{
 				continue;
 			}
-			b3ContactPointData pt;
-			pt.m_bodyUniqueIdA = objectIndexA;
-			pt.m_bodyUniqueIdB = objectIndexB;
-			pt.m_contactDistance = contact->m_cti.m_offset;
-			pt.m_contactFlags = 0;
-			pt.m_linkIndexA = linkIndexA;
-			pt.m_linkIndexB = linkIndexB;
-			for (int j = 0; j < 3; j++)
+
+			if (idx < 0)
 			{
-				if (swap)
+				// add new node and contact point
+				nodesInContact.push_back(node);
+				b3ContactPointData pt;
+				pt.m_bodyUniqueIdA = objectIndexA;
+				pt.m_bodyUniqueIdB = objectIndexB;
+				pt.m_contactDistance = -contact->m_cti.m_offset;
+				pt.m_contactFlags = 0;
+				pt.m_linkIndexA = linkIndexA;
+				pt.m_linkIndexB = linkIndexB;
+				for (int j = 0; j < 3; j++)
 				{
-					pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
-					pt.m_positionOnAInWS[j] = contact->m_cti.m_normal[j];
-					pt.m_positionOnBInWS[j] = -contact->m_cti.m_normal[j];
+					if (swap)
+					{
+						pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
+						pt.m_positionOnAInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
+						pt.m_positionOnBInWS[j] = node->m_x[j];
+					}
+					else
+					{
+						pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
+						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
+						pt.m_positionOnAInWS[j] = node->m_x[j];
+						pt.m_positionOnBInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+					}
 				}
-				else
+				pt.m_normalForce = (impulseNormal / m_data->m_physicsDeltaTime).norm();
+				pt.m_linearFrictionForce1 = (impulseTangent.dot(contact->t1) * contact->t1 / m_data->m_physicsDeltaTime).norm();
+				pt.m_linearFrictionForce2 = (impulseTangent.dot(contact->t2) * contact->t2 / m_data->m_physicsDeltaTime).norm();
+				for (int j = 0; j < 3; j++)
 				{
-					pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
-					pt.m_positionOnAInWS[j] = -contact->m_cti.m_normal[j];
-					pt.m_positionOnBInWS[j] = contact->m_cti.m_normal[j];
+					pt.m_linearFrictionDirection1[j] = contact->t1[j];
+					pt.m_linearFrictionDirection2[j] = contact->t2[j];
 				}
+				distinctContactPoints.push_back(pt);
 			}
-			pt.m_normalForce = 1;
-			pt.m_linearFrictionForce1 = 0;
-			pt.m_linearFrictionForce2 = 0;
-			for (int j = 0; j < 3; j++)
+			else
 			{
-				pt.m_linearFrictionDirection1[j] = 0;
-				pt.m_linearFrictionDirection2[j] = 0;
+				// add values to existing contact point
+				b3ContactPointData* pt = &distinctContactPoints[idx];
+				// current normal force of node
+				btVector3 normalForce = btVector3(btScalar(pt->m_contactNormalOnBInWS[0]),
+												  btScalar(pt->m_contactNormalOnBInWS[1]),
+												  btScalar(pt->m_contactNormalOnBInWS[2])) * pt->m_normalForce;
+				// add normal force of additional node contact
+				btScalar swapFactor = swap ? -1.0 : 1.0;
+				normalForce += swapFactor * contact->m_cti.m_normal * (impulseNormal / m_data->m_physicsDeltaTime).norm();
+				// get magnitude of normal force
+				pt->m_normalForce = normalForce.norm();
+				// get direction of normal force
+				if (!normalForce.fuzzyZero())
+				{
+					// normalize for unit vectors if above numerical threshold
+					normalForce.normalize();
+					for (int j = 0; j < 3; j++)
+					{
+						pt->m_contactNormalOnBInWS[j] = normalForce[j];
+					}
+				}
+
+				// add magnitudes of tangential forces in existing directions
+				btVector3 linearFrictionDirection1 = btVector3(btScalar(pt->m_linearFrictionDirection1[0]),
+															   btScalar(pt->m_linearFrictionDirection1[1]),
+															   btScalar(pt->m_linearFrictionDirection1[2]));
+				btVector3 linearFrictionDirection2 = btVector3(btScalar(pt->m_linearFrictionDirection2[0]),
+															   btScalar(pt->m_linearFrictionDirection2[1]),
+															   btScalar(pt->m_linearFrictionDirection2[2]));
+				pt->m_linearFrictionForce1 = (impulseTangent.dot(linearFrictionDirection1) * linearFrictionDirection1 / m_data->m_physicsDeltaTime).norm();
+				pt->m_linearFrictionForce2 = (impulseTangent.dot(linearFrictionDirection2) * linearFrictionDirection2 / m_data->m_physicsDeltaTime).norm();
 			}
-			m_data->m_cachedContactPoints.push_back(pt);
+		}
+
+		int num_contact_points = m_data->m_cachedContactPoints.size() + distinctContactPoints.size();
+		m_data->m_cachedContactPoints.reserve(num_contact_points);
+		// add points to contact points cache
+		for (int p = 0; p < distinctContactPoints.size(); p++)
+		{
+			m_data->m_cachedContactPoints.push_back(distinctContactPoints[p]);
 		}
 	}
 #endif
@@ -12009,17 +12074,17 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 				btInverseDynamics::vecx nu(num_dofs + baseDofQdot), qdot(num_dofs + baseDofQdot), q(num_dofs + baseDofQdot), joint_force(num_dofs + baseDofQdot);
 
 				//for floating base, inverse dynamics expects euler angle x,y,z and position x,y,z in that order
-				//PyBullet expects quaternion, so convert and swap to have a more consistent PyBullet API
+				//PyBullet expects xyz and quaternion in that order, so convert and swap to have a more consistent PyBullet API
 				if (baseDofQ)
 				{
 					btVector3 pos(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
 								  clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
 								  clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2]);
 
-					btQuaternion orn(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
-									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
-									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2],
-									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[3]);
+					btQuaternion orn(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[3],
+									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[4],
+									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[5],
+									 clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[6]);
 					btScalar yawZ, pitchY, rollX;
 					orn.getEulerZYX(yawZ, pitchY, rollX);
 					q[0] = rollX;
@@ -12029,12 +12094,9 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 					q[4] = pos[1];
 					q[5] = pos[2];
 				}
-				else
+				for (int i = 0; i < num_dofs; i++)
 				{
-					for (int i = 0; i < num_dofs; i++)
-					{
-						q[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
-					}
+					q[i + baseDofQ] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i + baseDofQ];
 				}
 				for (int i = 0; i < num_dofs + baseDofQdot; i++)
 				{

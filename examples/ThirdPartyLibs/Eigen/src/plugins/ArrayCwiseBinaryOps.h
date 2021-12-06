@@ -30,15 +30,40 @@ operator/(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
   *
   * \sa max()
   */
-EIGEN_MAKE_CWISE_BINARY_OP(min,min)
+template <int NaNPropagation, typename OtherDerived>
+EIGEN_DEVICE_FUNC
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_min_op<Scalar,Scalar,NaNPropagation>, const Derived, const OtherDerived>
+#ifdef EIGEN_PARSED_BY_DOXYGEN
+min
+#else
+(min)
+#endif
+(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
+{
+  return CwiseBinaryOp<internal::scalar_min_op<Scalar,Scalar,NaNPropagation>, const Derived, const OtherDerived>(derived(), other.derived());
+}
+
+template <typename OtherDerived>
+EIGEN_DEVICE_FUNC
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_min_op<Scalar,Scalar,PropagateFast>, const Derived, const OtherDerived>
+#ifdef EIGEN_PARSED_BY_DOXYGEN
+min
+#else
+(min)
+#endif
+(const OtherDerived &other) const
+{
+  return (min<PropagateFast>)(other);
+}
 
 /** \returns an expression of the coefficient-wise min of \c *this and scalar \a other
   *
   * \sa max()
   */
+template <int NaNPropagation>
 EIGEN_DEVICE_FUNC
-EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_min_op<Scalar,Scalar>, const Derived,
-                                        const CwiseNullaryOp<internal::scalar_constant_op<Scalar>, PlainObject> >
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_min_op<Scalar,Scalar,NaNPropagation>, const Derived,
+    const CwiseNullaryOp<internal::scalar_constant_op<Scalar>, PlainObject> >
 #ifdef EIGEN_PARSED_BY_DOXYGEN
 min
 #else
@@ -46,7 +71,20 @@ min
 #endif
 (const Scalar &other) const
 {
-  return (min)(Derived::PlainObject::Constant(rows(), cols(), other));
+  return (min<NaNPropagation>)(Derived::PlainObject::Constant(rows(), cols(), other));
+}
+
+EIGEN_DEVICE_FUNC
+    EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_min_op<Scalar,Scalar,PropagateFast>, const Derived,
+    const CwiseNullaryOp<internal::scalar_constant_op<Scalar>, PlainObject> >
+#ifdef EIGEN_PARSED_BY_DOXYGEN
+min
+#else
+(min)
+#endif
+(const Scalar &other) const
+{
+  return (min<PropagateFast>)(Derived::PlainObject::Constant(rows(), cols(), other));
 }
 
 /** \returns an expression of the coefficient-wise max of \c *this and \a other
@@ -56,14 +94,39 @@ min
   *
   * \sa min()
   */
-EIGEN_MAKE_CWISE_BINARY_OP(max,max)
+template <int NaNPropagation, typename OtherDerived>
+EIGEN_DEVICE_FUNC
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar,NaNPropagation>, const Derived, const OtherDerived>
+#ifdef EIGEN_PARSED_BY_DOXYGEN
+max
+#else
+(max)
+#endif
+(const EIGEN_CURRENT_STORAGE_BASE_CLASS<OtherDerived> &other) const
+{
+  return CwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar,NaNPropagation>, const Derived, const OtherDerived>(derived(), other.derived());
+}
+
+template <typename OtherDerived>
+EIGEN_DEVICE_FUNC
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar,PropagateFast>, const Derived, const OtherDerived>
+#ifdef EIGEN_PARSED_BY_DOXYGEN
+max
+#else
+(max)
+#endif
+(const OtherDerived &other) const
+{
+  return (max<PropagateFast>)(other);
+}
 
 /** \returns an expression of the coefficient-wise max of \c *this and scalar \a other
   *
   * \sa min()
   */
+template <int NaNPropagation>
 EIGEN_DEVICE_FUNC
-EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar>, const Derived,
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar,NaNPropagation>, const Derived,
                                         const CwiseNullaryOp<internal::scalar_constant_op<Scalar>, PlainObject> >
 #ifdef EIGEN_PARSED_BY_DOXYGEN
 max
@@ -72,7 +135,46 @@ max
 #endif
 (const Scalar &other) const
 {
-  return (max)(Derived::PlainObject::Constant(rows(), cols(), other));
+  return (max<NaNPropagation>)(Derived::PlainObject::Constant(rows(), cols(), other));
+}
+
+EIGEN_DEVICE_FUNC
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_max_op<Scalar,Scalar,PropagateFast>, const Derived,
+                                        const CwiseNullaryOp<internal::scalar_constant_op<Scalar>, PlainObject> >
+#ifdef EIGEN_PARSED_BY_DOXYGEN
+max
+#else
+(max)
+#endif
+(const Scalar &other) const
+{
+  return (max<PropagateFast>)(Derived::PlainObject::Constant(rows(), cols(), other));
+}
+
+/** \returns an expression of the coefficient-wise absdiff of \c *this and \a other
+  *
+  * Example: \include Cwise_absolute_difference.cpp
+  * Output: \verbinclude Cwise_absolute_difference.out
+  *
+  * \sa absolute_difference()
+  */
+EIGEN_MAKE_CWISE_BINARY_OP(absolute_difference,absolute_difference)
+
+/** \returns an expression of the coefficient-wise absolute_difference of \c *this and scalar \a other
+  *
+  * \sa absolute_difference()
+  */
+EIGEN_DEVICE_FUNC
+EIGEN_STRONG_INLINE const CwiseBinaryOp<internal::scalar_absolute_difference_op<Scalar,Scalar>, const Derived,
+                                        const CwiseNullaryOp<internal::scalar_constant_op<Scalar>, PlainObject> >
+#ifdef EIGEN_PARSED_BY_DOXYGEN
+absolute_difference
+#else
+(absolute_difference)
+#endif
+(const Scalar &other) const
+{
+  return (absolute_difference)(Derived::PlainObject::Constant(rows(), cols(), other));
 }
 
 /** \returns an expression of the coefficient-wise power of \c *this to the given array of \a exponents.
@@ -119,7 +221,7 @@ OP(const Scalar& s) const { \
   return this->OP(Derived::PlainObject::Constant(rows(), cols(), s)); \
 } \
 EIGEN_DEVICE_FUNC friend EIGEN_STRONG_INLINE const RCmp ## COMPARATOR ## ReturnType \
-OP(const Scalar& s, const Derived& d) { \
+OP(const Scalar& s, const EIGEN_CURRENT_STORAGE_BASE_CLASS<Derived>& d) { \
   return Derived::PlainObject::Constant(d.rows(), d.cols(), s).OP(d); \
 }
 
@@ -314,9 +416,9 @@ polygamma(const EIGEN_CURRENT_STORAGE_BASE_CLASS<DerivedN> &n) const
   *
   * It returns the Riemann zeta function of two arguments \c *this and \a q:
   *
-  * \param *this is the exposent, it must be > 1
   * \param q is the shift, it must be > 0
   *
+  * \note *this is the exponent, it must be > 1.
   * \note This function supports only float and double scalar types. To support other scalar types, the user has
   * to provide implementations of zeta(T,T) for any scalar type T to be supported.
   *

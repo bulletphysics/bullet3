@@ -75,10 +75,10 @@ class NoAlias
   *
   * More precisely, noalias() allows to bypass the EvalBeforeAssignBit flag.
   * Currently, even though several expressions may alias, only product
-  * expressions have this flag. Therefore, noalias() is only usefull when
+  * expressions have this flag. Therefore, noalias() is only useful when
   * the source expression contains a matrix product.
   *
-  * Here are some examples where noalias is usefull:
+  * Here are some examples where noalias is useful:
   * \code
   * D.noalias()  = A * B;
   * D.noalias() += A.transpose() * B;

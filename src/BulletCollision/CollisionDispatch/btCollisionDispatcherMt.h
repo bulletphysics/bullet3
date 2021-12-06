@@ -31,6 +31,7 @@ public:
 
 protected:
 	btAlignedObjectArray<btAlignedObjectArray<btPersistentManifold*> > m_batchManifoldsPtr;
+	btAlignedObjectArray<btAlignedObjectArray<btPersistentManifold*> > m_batchReleasePtr;
 	bool m_batchUpdating;
 	int m_grainSize;
 };

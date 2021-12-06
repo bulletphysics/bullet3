@@ -28,6 +28,8 @@ protected:
 
 	void processAddUserData(const struct SharedMemoryStatus& serverCmd);
 
+	bool processRequestBodyInfo(const struct SharedMemoryCommand& command, SharedMemoryStatus& status);
+
 	bool processCustomCommand(const struct SharedMemoryCommand& orgCommand);
 
 	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);

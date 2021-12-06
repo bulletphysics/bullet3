@@ -15,7 +15,7 @@
       EIGEN_STATIC_ASSERT((int(internal::evaluator<Derived>::Flags) & LinearAccessBit) || Derived::IsVectorAtCompileTime, \
                           YOU_ARE_TRYING_TO_USE_AN_INDEX_BASED_ACCESSOR_ON_AN_EXPRESSION_THAT_DOES_NOT_SUPPORT_THAT)
 
-namespace Eigen { 
+namespace Eigen {
 
 /** \ingroup Core_Module
   *
@@ -43,6 +43,7 @@ template<typename Derived> class MapBase<Derived, ReadOnlyAccessors>
     enum {
       RowsAtCompileTime = internal::traits<Derived>::RowsAtCompileTime,
       ColsAtCompileTime = internal::traits<Derived>::ColsAtCompileTime,
+      InnerStrideAtCompileTime = internal::traits<Derived>::InnerStrideAtCompileTime,
       SizeAtCompileTime = Base::SizeAtCompileTime
     };
 
@@ -86,9 +87,11 @@ template<typename Derived> class MapBase<Derived, ReadOnlyAccessors>
     typedef typename Base::CoeffReturnType CoeffReturnType;
 
     /** \copydoc DenseBase::rows() */
-    EIGEN_DEVICE_FUNC inline Index rows() const { return m_rows.value(); }
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    inline Index rows() const EIGEN_NOEXCEPT { return m_rows.value(); }
     /** \copydoc DenseBase::cols() */
-    EIGEN_DEVICE_FUNC inline Index cols() const { return m_cols.value(); }
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR
+    inline Index cols() const EIGEN_NOEXCEPT { return m_cols.value(); }
 
     /** Returns a pointer to the first coefficient of the matrix or vector.
       *
@@ -181,14 +184,19 @@ template<typename Derived> class MapBase<Derived, ReadOnlyAccessors>
     #endif
 
   protected:
+    EIGEN_DEFAULT_COPY_CONSTRUCTOR(MapBase)
+    EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(MapBase)
 
     template<typename T>
     EIGEN_DEVICE_FUNC
     void checkSanity(typename internal::enable_if<(internal::traits<T>::Alignment>0),void*>::type = 0) const
     {
 #if EIGEN_MAX_ALIGN_BYTES>0
+      // innerStride() is not set yet when this function is called, so we optimistically assume the lowest plausible value:
+      const Index minInnerStride = InnerStrideAtCompileTime == Dynamic ? 1 : Index(InnerStrideAtCompileTime);
+      EIGEN_ONLY_USED_FOR_DEBUG(minInnerStride);
       eigen_assert((   ((internal::UIntPtr(m_data) % internal::traits<Derived>::Alignment) == 0)
-                    || (cols() * rows() * innerStride() * sizeof(Scalar)) < internal::traits<Derived>::Alignment ) && "data is not aligned");
+                    || (cols() * rows() * minInnerStride * sizeof(Scalar)) < internal::traits<Derived>::Alignment ) && "data is not aligned");
 #endif
     }
 
@@ -290,6 +298,9 @@ template<typename Derived> class MapBase<Derived, WriteAccessors>
     // In theory we could simply refer to Base:Base::operator=, but MSVC does not like Base::Base,
     // see bugs 821 and 920.
     using ReadOnlyMapBase::Base::operator=;
+  protected:
+    EIGEN_DEFAULT_COPY_CONSTRUCTOR(MapBase)
+    EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(MapBase)
 };
 
 #undef EIGEN_STATIC_ASSERT_INDEX_BASED_ACCESS
