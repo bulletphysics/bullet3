@@ -5,11 +5,17 @@ from __future__ import division
 from __future__ import print_function
 from gym import spaces
 import numpy as np
+import math
 import gin
 from pybullet_envs.minitaur.agents.trajectory_generator import tg_simple
 from pybullet_envs.minitaur.envs_v2.utilities import robot_pose_utils
 from pybullet_envs.minitaur.robots.utilities import action_filter
 
+from pybullet_envs.minitaur.envs_v2.StanfordQuadruped.src.Controller import Controller
+from pybullet_envs.minitaur.envs_v2.StanfordQuadruped.djipupper.Config import Configuration
+from pybullet_envs.minitaur.envs_v2.StanfordQuadruped.src.State import State
+from pybullet_envs.minitaur.envs_v2.StanfordQuadruped.src.Command import Command
+from pybullet_envs.minitaur.envs_v2.StanfordQuadruped.djipupper.Kinematics import four_legs_inverse_kinematics
 _DELTA_TIME_LOWER_BOUND = 0.0
 _DELTA_TIME_UPPER_BOUND = 3
 
@@ -46,6 +52,7 @@ class PmtgWrapperEnv(object):
                action_filter_initialize=False,
                leg_pose_class=None):
     """Initialzes the wrapped env.
+
     Args:
       gym_env: An instance of LocomotionGymEnv.
       intensity_upper_bound: The upper bound for intensity of the trajectory
@@ -88,10 +95,26 @@ class PmtgWrapperEnv(object):
         value the first time it is called and fills the history with that value.
       leg_pose_class: A class providing a convert_leg_pose_to_motor_angle
         instance method or None. If None, robot_pose_utils is used.
+
     Raises:
       ValueError if the controller does not implement get_action and
       get_observation.
+
     """
+    self.config = Configuration()
+    self.state = State(self.config.default_z_ref)
+    self.controller = Controller(self.config, four_legs_inverse_kinematics)
+    self.command = Command(height=self.config.default_z_ref)
+    self.command.trot_event = True
+    self.last_action = 0
+    self.jv = [0,0,0,0,0,0,0,0,0,0,0,0]
+    self.max1=0
+    self.max2=0
+    self.max3=0
+    self.min1=0
+    self.min2=0
+    self.min3=0
+
     self._gym_env = gym_env
     self._num_actions = gym_env.robot.num_motors
     self._residual_range = residual_range
@@ -130,21 +153,25 @@ class PmtgWrapperEnv(object):
   def _extend_obs_space(self):
     """Extend observation space to include pmtg phase variables."""
     # Set the observation space and boundaries.
-    lower_bound, upper_bound = self._get_observation_bounds()
-    if hasattr(self._gym_env.observation_space, "spaces"):
-      new_obs_space = spaces.Box(np.array(lower_bound), np.array(upper_bound))
-      self.observation_space.spaces.update({"pmtg_phase": new_obs_space})
-    else:
-      lower_bound = np.append(self._gym_env.observation_space.low, lower_bound)
-      upper_bound = np.append(self._gym_env.observation_space.high, upper_bound)
-      self.observation_space = spaces.Box(
-          np.array(lower_bound), np.array(upper_bound), dtype=np.float32)
+    # lower_bound, upper_bound = self._get_observation_bounds()
+    # if hasattr(self._gym_env.observation_space, "spaces"):
+    #   new_obs_space = spaces.Box(np.array(lower_bound), np.array(upper_bound))
+    #   self.observation_space.spaces.update({"pmtg_phase": new_obs_space})
+    # else:
+    #   lower_bound = np.append(self._gym_env.observation_space.low, lower_bound)
+    #   upper_bound = np.append(self._gym_env.observation_space.high, upper_bound)
+    #   self.observation_space = spaces.Box(
+    #       np.array(lower_bound), np.array(upper_bound), dtype=np.float32)
+    self.observation_space = self._gym_env.observation_space
+    return self.observation_space
 
   def _extend_action_space(self):
     """Extend the action space to include pmtg parameters."""
     # Add the action boundaries for delta time, one per integrator.
     action_low = [-self._residual_range] * self._num_actions
+    action_low[0] = 0.001
     action_high = [self._residual_range] * self._num_actions
+    action_high[0] = 0.1
     action_low = np.append(action_low, [self._min_delta_time] *
                            self._trajectory_generator.num_integrators)
     action_high = np.append(action_high, [self._max_delta_time] *
@@ -162,6 +189,7 @@ class PmtgWrapperEnv(object):
     return getattr(self._gym_env, attrb)
 
   def _modify_observation(self, observation):
+    return observation
     if isinstance(observation, dict):
       observation["pmtg_phase"] = self._trajectory_generator.get_state()
       return observation
@@ -170,11 +198,13 @@ class PmtgWrapperEnv(object):
 
   def reset(self, initial_motor_angles=None, reset_duration=1.0):
     """Resets the environment as well as the trajectory generator(s).
+
     Args:
       initial_motor_angles: Unused for PMTG. Instead, it sets the legs to a pose
         with the neutral action for the trajectory generator.
       reset_duration: Float. The time (in seconds) needed to rotate all motors
         to the desired initial values.
+
     Returns:
       A numpy array contains the initial observation after reset.
     """
@@ -197,13 +227,17 @@ class PmtgWrapperEnv(object):
 
   def step(self, action):
     """Steps the wrapped environment.
+
     Args:
       action: Numpy array. The input action from an NN agent.
+
     Returns:
       The tuple containing the modified observation, the reward, the epsiode end
       indicator.
+
     Raises:
       ValueError if input action is None.
+
     """
 
     if action is None:
@@ -221,22 +255,93 @@ class PmtgWrapperEnv(object):
     # Calculate trajectory generator's output based on the rest of the actions.
     delta_real_time = time - self._last_real_time
     self._last_real_time = time
+
+    #added swing stance to actions
+
+    # action[self._num_actions:][3] = action
+
+    # self._trajectory_generator.adjust_swing_stance_ratio(action)
+
+
+    #accept parameters and return motor torques
+    #instead use my own functions
     action_tg = self._trajectory_generator.get_actions(
         delta_real_time, action[self._num_actions:])
-    # If the residuals have a larger dimension, extend trajectory generator's
-    # actions to include abduction motors.
+
+
+    #print("h: ", joint_angles_vector)
+  
+    #If the residuals have a larger dimension, extend trajectory generator's
+    #actions to include abduction motors.
     if len(action_tg) == 8 and len(action_residual) == 12:
       for i in [0, 3, 6, 9]:
-        action_tg.insert(i, 0)
+        action_tg.insert(i, 0)#no
     # Add TG actions with residual actions (in swing - extend space).
     action_total = [a + b for a, b in zip(action_tg, action_residual)]
+
+    action_total = action_tg
+
+    print("tg: ", action_tg)
+
+    #])
+
+    # if time - self.last_action >= 0:
+    self.last_action = time
+    self.command.horizontal_velocity[0] = 0.6
+    self.controller.run(self.state, self.command) # produces final state locations state.final_foot_locations
+
+    MOTOR_ORIENTATION_CORRECTION = np.array([[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]])
+    motor_frame_angles = self.state.joint_angles * MOTOR_ORIENTATION_CORRECTION
+    self.jv = motor_frame_angles.flatten("F").tolist()
+
+    self.jv[0]=-self.jv[0]
+    self.jv[6]=-self.jv[6]
+
+    self.jv[1]=-self.jv[1]
+    self.jv[2]=-self.jv[2]
+    self.jv[4]=-self.jv[4]
+    self.jv[5]=-self.jv[5]
+    self.jv[7]=-self.jv[7]
+    self.jv[8]=-self.jv[8]
+    self.jv[10]=-self.jv[10]
+    self.jv[11]=-self.jv[11]
+
+
+
+    #print("jv: ", self.jv)
+
+    # if jv[0]<self.min1:
+    #   self.min1 = jv[0]
+    # if jv[1]<self.min2:
+    #   self.min2 = jv[1]
+    # if jv[2]<self.min3:
+    #   self.min3 = jv[2]
+    
+    # if jv[0]>self.max1:
+    #   self.max1 = jv[0]
+    # if jv[1]>self.max2:
+    #   self.max2 = jv[1]
+    # if jv[2]>self.max3:
+    #   self.max3 = jv[2]
+
+    # print("min1: ", self.min1)
+    # print("min2: ", self.min2)  
+    # print("min3: ", self.min3)
+    # print("max1: ", self.max1)
+    # print("max2: ", self.max2)  
+    # print("max3: ", self.max3)
+
+    #print("actions: ", action_total)
+
+    # returns a list of 12 leg desired positions
+
     # Convert them to motor space based on the robot-specific conversions.
     if self._leg_pose_util:
-      action_motor_space = self._leg_pose_util.convert_leg_pose_to_motor_angles(
-          action_total)
+      action_motor_space = self.jv #self._leg_pose_util.convert_leg_pose_to_motor_angles(
+          #action_total)
     else:
-      action_motor_space = robot_pose_utils.convert_leg_pose_to_motor_angles(
-          self._gym_env.robot_class, action_total)
+      action_motor_space = self.jv #robot_pose_utils.convert_leg_pose_to_motor_angles(
+          #self._gym_env.robot_class, action_total)
     original_observation, reward, done, _ = self._gym_env.step(
         action_motor_space)
 
@@ -245,6 +350,7 @@ class PmtgWrapperEnv(object):
 
   def _get_observation_bounds(self):
     """Get the bounds of the observation added from the trajectory generator.
+
     Returns:
       lower_bounds: Lower bounds for observations.
       upper_bounds: Upper bounds for observations.

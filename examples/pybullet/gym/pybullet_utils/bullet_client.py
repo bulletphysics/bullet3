@@ -23,8 +23,10 @@ class BulletClient(object):
     """
     self._shapes = {}
     self._pid = os.getpid()
+    # error here !!
     if connection_mode is None:
       self._client = pybullet.connect(pybullet.SHARED_MEMORY, options=options)
+      print("runnning")
       if self._client >= 0:
         return
       else:

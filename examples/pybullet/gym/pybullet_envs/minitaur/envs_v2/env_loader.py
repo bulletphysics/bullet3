@@ -67,7 +67,6 @@ def load(wrapper_classes=None, multiagent=False, **kwargs):
     # A little macro for the automatic list expansion
     if not isinstance(wrapper_classes, list):
       wrapper_classes = [wrapper_classes]
-
     # Wrap environments with user-provided wrappers
     # (e.g. TrajectoryGeneratorWrapperEnv)
     for wrapper_cls in wrapper_classes:
