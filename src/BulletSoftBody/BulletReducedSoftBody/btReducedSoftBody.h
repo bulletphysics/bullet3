@@ -91,6 +91,7 @@ class btReducedSoftBody : public btSoftBody
   TVStack m_x0;					     				 // Rest position
   tDenseArray m_nodalMass;           // Mass on each node
   btAlignedObjectArray<int> m_fixedNodes; // index of the fixed nodes
+  int m_nodeIndexOffset;             // offset of the node index needed for contact solver when there are multiple reduced deformable body in the world.
 
   // contacts
   btAlignedObjectArray<int> m_contactNodesList;

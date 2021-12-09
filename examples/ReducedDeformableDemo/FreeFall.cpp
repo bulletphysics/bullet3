@@ -152,6 +152,8 @@ void FreeFall::initPhysics()
         rsb->getCollisionShape()->setMargin(0.01);
         // rsb->scale(btVector3(1, 1, 0.5));
 
+        rsb->setTotalMass(10);
+
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 4, 0));
@@ -160,8 +162,38 @@ void FreeFall::initPhysics()
 
         rsb->setStiffnessScale(5);
         rsb->setDamping(damping_alpha, damping_beta);
+        // rsb->scale(btVector3(0.5, 0.5, 0.5));
+
+        rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+        rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
+        rsb->m_cfg.kDF = 0;
+        rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
+        rsb->m_sleepingThreshold = 0;
+        btSoftBodyHelpers::generateBoundaryFaces(rsb);
+        
+        // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
+        // rsb->setRigidVelocity(btVector3(0, 0, 1));
+        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+    }
+
+    {   
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+
+        getDeformableDynamicsWorld()->addSoftBody(rsb);
+        rsb->getCollisionShape()->setMargin(0.01);
+        // rsb->scale(btVector3(1, 1, 0.5));
 
         rsb->setTotalMass(10);
+
+        btTransform init_transform;
+        init_transform.setIdentity();
+        init_transform.setOrigin(btVector3(4, 4, 0));
+        init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+        rsb->transformTo(init_transform);
+
+        rsb->setStiffnessScale(5);
+        rsb->setDamping(damping_alpha, damping_beta);
         // rsb->scale(btVector3(0.5, 0.5, 0.5));
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

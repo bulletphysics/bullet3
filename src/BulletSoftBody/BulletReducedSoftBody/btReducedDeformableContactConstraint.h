@@ -44,6 +44,8 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   bool m_collideStatic;     // flag for collision with static object
   bool m_collideMultibody;  // flag for collision with multibody
 
+  int m_nodeQueryIndex;
+
   btReducedSoftBody* m_rsb;
   btSolverBody* m_solverBody;
   btScalar m_dt;

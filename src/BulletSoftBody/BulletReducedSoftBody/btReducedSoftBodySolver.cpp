@@ -62,6 +62,15 @@ void btReducedSoftBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody
     rsb->m_contactNodesList.clear();
   }
 
+  // set node index offsets
+  int sum = 0;
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    rsb->m_nodeIndexOffset = sum;
+    rsb->m_nodeIndexOffset += rsb->m_nodes.size();
+  }
+
 	btDeformableBodySolver::updateSoftBodies();
 }
 
@@ -182,10 +191,6 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     // update the rendering mesh
     rsb->interpolateRenderMesh();
   }
-
-  // static int count = 0;
-  // if (count > 0) exit(100);
-  // count++;
 }
 
 void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlobal)
@@ -226,7 +231,7 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
 			}
 			btReducedDeformableNodeRigidContactConstraint constraint(rsb, contact, infoGlobal, m_dt);
 			m_nodeRigidConstraints[i].push_back(constraint);
-      rsb->m_contactNodesList.push_back(contact.m_node->index);
+      rsb->m_contactNodesList.push_back(contact.m_node->index - rsb->m_nodeIndexOffset);
 		}
     // std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
     // std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
@@ -274,10 +279,11 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
 {
   btScalar residualSquare = 0;
 
-  btAlignedObjectArray<int> m_orderNonContactConstraintPool;
-  btAlignedObjectArray<int> m_orderContactConstraintPool;
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
+    btAlignedObjectArray<int> m_orderNonContactConstraintPool;
+    btAlignedObjectArray<int> m_orderContactConstraintPool;
+
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
     // shuffle the order of applying constraint

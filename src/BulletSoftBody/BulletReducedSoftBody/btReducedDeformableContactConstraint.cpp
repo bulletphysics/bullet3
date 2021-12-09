@@ -63,6 +63,7 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 	btScalar dt)
   : m_rsb(rsb), m_dt(dt), btDeformableRigidContactConstraint(c, infoGlobal)
 {
+	m_nodeQueryIndex = 0;
 	m_appliedNormalImpulse = 0;
   m_appliedTangentImpulse = 0;
 	m_rhs = 0;
@@ -326,6 +327,15 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
 	m_contactNormalA = contact.m_cti.m_normal;
   m_contactNormalB = -contact.m_cti.m_normal;
 
+	if (contact.m_node->index < rsb->m_nodes.size())
+	{
+		m_nodeQueryIndex = contact.m_node->index;
+	}
+	else
+	{
+		m_nodeQueryIndex = m_node->index - rsb->m_nodeIndexOffset;
+	}
+
 	if (m_contact->m_cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 	{
 		m_relPosA = contact.m_c1;
@@ -338,11 +348,11 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
 
 	if (m_collideStatic)		// colliding with static object, only consider reduced deformable body's impulse factor
 	{
-		m_impulseFactor = m_rsb->getImpulseFactor(m_node->index);
+		m_impulseFactor = m_rsb->getImpulseFactor(m_nodeQueryIndex);
 	}
 	else		// colliding with dynamic object, consider both reduced deformable and rigid body's impulse factors
 	{
-		m_impulseFactor = m_rsb->getImpulseFactor(m_node->index) + contact.m_c0;
+		m_impulseFactor = m_rsb->getImpulseFactor(m_nodeQueryIndex) + contact.m_c0;
 	}
 
 	m_normalImpulseFactor = (m_impulseFactor * m_contactNormalA).dot(m_contactNormalA);
@@ -374,9 +384,13 @@ void btReducedDeformableNodeRigidContactConstraint::warmStarting()
 		if (!m_collideMultibody)
 		{
 			m_contactTangent = v_tangent.normalized();
-			// tangent impulse factor
+			m_contactTangent2.setZero();
+			// tangent impulse factor 1
 			m_tangentImpulseFactor = (m_impulseFactor * m_contactTangent).dot(m_contactTangent);
 			m_tangentImpulseFactorInv = btScalar(1) / m_tangentImpulseFactor;
+			// tangent impulse factor 2
+			m_tangentImpulseFactor2 = 0;
+			m_tangentImpulseFactorInv2 = 0;
 		}
 		else	// multibody requires 2 contact directions
 		{
@@ -490,7 +504,7 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVa() const
 btVector3 btReducedDeformableNodeRigidContactConstraint::getDeltaVb() const
 {	
 	// std::cout << "node: " << m_node->index << '\n';
-	return m_rsb->internalComputeNodeDeltaVelocity(m_rsb->getInterpolationWorldTransform(), m_node->index);
+	return m_rsb->internalComputeNodeDeltaVelocity(m_rsb->getInterpolationWorldTransform(), m_nodeQueryIndex);
 }
 
 btVector3 btReducedDeformableNodeRigidContactConstraint::getSplitVb() const
@@ -505,7 +519,7 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getDv(const btSoftBody:
 
 void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3& impulse)
 {
-  m_rsb->internalApplyFullSpaceImpulse(impulse, m_relPosB, m_node->index, m_dt);
+  m_rsb->internalApplyFullSpaceImpulse(impulse, m_relPosB, m_nodeQueryIndex, m_dt);
 	// m_rsb->applyFullSpaceImpulse(impulse, m_relPosB, m_node->index, m_dt);
 	// m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
 	// if (!m_collideStatic)

@@ -14,6 +14,7 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_reducedModel = true;
   m_nReduced = 0;
   m_nFull = 0;
+  m_nodeIndexOffset = 0;
 
   m_transform_lock = false;
   m_ksScale = 1.0;
