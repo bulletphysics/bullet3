@@ -2791,7 +2791,14 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;  //need to check if there are artifacts with frictionERP
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
-	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
+	if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD) 
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 128;
+	}
+	else
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
+	}
 	m_data->m_dynamicsWorld->getSolverInfo().m_warmstartingFactor = 0.1;
 	gDbvtMargin = btScalar(0);
 	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
