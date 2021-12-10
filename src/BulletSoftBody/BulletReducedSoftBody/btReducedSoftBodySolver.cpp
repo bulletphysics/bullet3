@@ -68,7 +68,7 @@ void btReducedSoftBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
     rsb->m_nodeIndexOffset = sum;
-    rsb->m_nodeIndexOffset += rsb->m_nodes.size();
+    sum += rsb->m_nodes.size();
   }
 
 	btDeformableBodySolver::updateSoftBodies();

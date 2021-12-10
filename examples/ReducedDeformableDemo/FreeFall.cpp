@@ -55,18 +55,18 @@ public:
 
     void resetCamera()
     {
-        float dist = 6;
-        float pitch = -10;
-        float yaw = 90;
+        // float dist = 6;
+        // float pitch = -10;
+        // float yaw = 90;
+        // float targetPos[3] = {0, 2, 0};
+        float dist = 10;
+        float pitch = -30;
+        float yaw = 125;
         float targetPos[3] = {0, 2, 0};
-        // float dist = 20;
-        // float pitch = -30;
-        // float yaw = 125;
-        // float targetPos[3] = {-2, 0, 2};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
-    void Ctor_RbUpStack()
+    void Ctor_RbUpStack(const btVector3& origin)
     {
         float mass = 10;
         btCollisionShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
@@ -77,11 +77,40 @@ public:
         // btRigidBody* rb0 = createRigidBody(mass, startTransform, shape);
         // rb0->setLinearVelocity(btVector3(0, 0, 0));
 
-        startTransform.setOrigin(btVector3(0,10,0));
+        startTransform.setOrigin(origin);
         // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 4.0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setActivationState(DISABLE_DEACTIVATION);
         // rb1->setLinearVelocity(btVector3(0, 0, 4));
+    }
+
+    void createReducedDeformableObject(const btVector3& origin, const btQuaternion& rotation)
+    {   
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+
+        getDeformableDynamicsWorld()->addSoftBody(rsb);
+        rsb->getCollisionShape()->setMargin(0.01);
+        // rsb->scale(btVector3(1, 1, 0.5));
+
+        rsb->setTotalMass(10);
+
+        btTransform init_transform;
+        init_transform.setIdentity();
+        init_transform.setOrigin(origin);
+        init_transform.setRotation(rotation);
+        rsb->transformTo(init_transform);
+
+        rsb->setStiffnessScale(5);
+        rsb->setDamping(damping_alpha, damping_beta);
+        // rsb->scale(btVector3(0.5, 0.5, 0.5));
+
+        rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+        rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
+        rsb->m_cfg.kDF = 0;
+        rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
+        rsb->m_sleepingThreshold = 0;
+        btSoftBodyHelpers::generateBoundaryFaces(rsb);
     }
     
     void stepSimulation(float deltaTime)
@@ -143,73 +172,24 @@ void FreeFall::initPhysics()
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     // m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
+    
+    // 3x3 torus
+    createReducedDeformableObject(btVector3(4, 4, -4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(4, 4, 0), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(4, 4, 4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(0, 4, -4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(0, 4, 0), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(0, 4, 4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(-4, 4, -4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(-4, 4, 0), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
+    createReducedDeformableObject(btVector3(-4, 4, 4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
 
-    // create volumetric reduced deformable body
-    {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
-
-        getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.01);
-        // rsb->scale(btVector3(1, 1, 0.5));
-
-        rsb->setTotalMass(10);
-
-        btTransform init_transform;
-        init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 4, 0));
-        init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-        rsb->transformTo(init_transform);
-
-        rsb->setStiffnessScale(5);
-        rsb->setDamping(damping_alpha, damping_beta);
-        // rsb->scale(btVector3(0.5, 0.5, 0.5));
-
-        rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        rsb->m_cfg.kDF = 0;
-        rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
-        rsb->m_sleepingThreshold = 0;
-        btSoftBodyHelpers::generateBoundaryFaces(rsb);
-        
-        // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
-        // rsb->setRigidVelocity(btVector3(0, 0, 1));
-        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
-    }
-
-    {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
-
-        getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.01);
-        // rsb->scale(btVector3(1, 1, 0.5));
-
-        rsb->setTotalMass(10);
-
-        btTransform init_transform;
-        init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(4, 4, 0));
-        init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-        rsb->transformTo(init_transform);
-
-        rsb->setStiffnessScale(5);
-        rsb->setDamping(damping_alpha, damping_beta);
-        // rsb->scale(btVector3(0.5, 0.5, 0.5));
-
-        rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        rsb->m_cfg.kDF = 0;
-        rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
-        rsb->m_sleepingThreshold = 0;
-        btSoftBodyHelpers::generateBoundaryFaces(rsb);
-        
-        // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
-        // rsb->setRigidVelocity(btVector3(0, 0, 1));
-        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
-    }
-    // add a few rigid bodies
-    Ctor_RbUpStack();
+    // Ctor_RbUpStack(btVector3(0, 10, 0));
+    // Ctor_RbUpStack(btVector3(0, 10, 4));
+    // Ctor_RbUpStack(btVector3(0, 10, 4));
+    // Ctor_RbUpStack(btVector3(-4, 10, 0));
+    // Ctor_RbUpStack(btVector3(4, 10, 0));
+    
     // create a static rigid box as the ground
     {
         // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
