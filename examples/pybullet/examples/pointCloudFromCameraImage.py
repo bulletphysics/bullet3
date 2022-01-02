@@ -72,8 +72,8 @@ imgW = int(width / 10)
 imgH = int(height / 10)
 
 img = p.getCameraImage(imgW, imgH, renderer=p.ER_BULLET_HARDWARE_OPENGL)
-rgbBuffer = img[2]
-depthBuffer = img[3]
+rgbBuffer = np.reshape(img[2], (imgH, imgW, 4))
+depthBuffer = np.reshape(img[3], [imgW, imgH])
 print("rgbBuffer.shape=", rgbBuffer.shape)
 print("depthBuffer.shape=", depthBuffer.shape)
 
