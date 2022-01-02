@@ -73,7 +73,7 @@ imgH = int(height / 10)
 
 img = p.getCameraImage(imgW, imgH, renderer=p.ER_BULLET_HARDWARE_OPENGL)
 rgbBuffer = np.reshape(img[2], (imgH, imgW, 4))
-# Note: this depth buffer's reshaping does not match the [w, h] convention for
+# NOTE: this depth buffer's reshaping does not match the [w, h] convention for
 # OpenGL depth buffers.  See getCameraImageTest.py for an OpenGL depth buffer
 depthBuffer = np.reshape(img[3], [imgH, imgW])
 print("rgbBuffer.shape=", rgbBuffer.shape)
