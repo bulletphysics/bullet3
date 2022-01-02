@@ -31,6 +31,7 @@ images = p.getCameraImage(width,
                           projection_matrix,
                           shadow=True,
                           renderer=p.ER_BULLET_HARDWARE_OPENGL)
+# NOTE: the ordering of height and width change based on the conversion
 rgb_opengl = np.reshape(images[2], (height, width, 4)) * 1. / 255.
 depth_buffer_opengl = np.reshape(images[3], [width, height])
 depth_opengl = far * near / (far - (far - near) * depth_buffer_opengl)
