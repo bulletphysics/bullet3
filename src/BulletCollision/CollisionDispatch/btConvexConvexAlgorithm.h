@@ -64,6 +64,8 @@ public:
 
 	virtual void processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut);
 
+	void computeContactPoint(const btDiscreteCollisionDetectorInterface::ClosestPointInput &input, btScalar closestPointDistanceThreshold,  const btConvexShape* convexA, const btConvexShape* convexB, btDiscreteCollisionDetectorInterface::Result& output, class btIDebugDraw *debugDraw, const btDispatcherInfo& dispatchInfo, btVector3& cachedSeparatingAxis);
+
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0, btCollisionObject* body1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut);
 
 	virtual void getAllContactManifolds(btManifoldArray& manifoldArray)

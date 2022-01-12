@@ -46,7 +46,7 @@ public:
         m_vecs.clear();
     }
     
-    btReducedVector(int sz, const btAlignedObjectArray<int>& indices, const btAlignedObjectArray<btVector3>& vecs): m_sz(sz), m_indices(indices), m_vecs(vecs)
+    btReducedVector(int sz, const btAlignedObjectArray<int>& indices, const btAlignedObjectArray<btVector3>& vecs): m_indices(indices), m_vecs(vecs), m_sz(sz)
     {
     }
     

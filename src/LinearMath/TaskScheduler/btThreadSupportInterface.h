@@ -49,13 +49,15 @@ public:
 						 int threadStackSize = 65535)
 			: m_uniqueName(uniqueName),
 			  m_userThreadFunc(userThreadFunc),
-			  m_threadStackSize(threadStackSize)
+			  m_threadStackSize(threadStackSize),
+			m_numThreads(-1)
 		{
 		}
 
 		const char* m_uniqueName;
 		ThreadFunc m_userThreadFunc;
 		int m_threadStackSize;
+		int m_numThreads;
 	};
 
 	static btThreadSupportInterface* create(const ConstructionInfo& info);

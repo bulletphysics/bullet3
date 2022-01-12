@@ -668,6 +668,11 @@ public:
 #endif
 	}
 
+	static btVector3 sZero()
+	{
+		return btVector3(0,0,0);
+	}
+
 	void setZero()
 	{
 #if defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)
@@ -689,6 +694,30 @@ public:
 	{
 		return length2() < SIMD_EPSILON * SIMD_EPSILON;
 	}
+
+	SIMD_FORCE_INLINE bool isNearZero(btScalar inMaxDistSq=1.0e-12f) const
+	{
+		return length2() <= inMaxDistSq;
+	}
+
+	btVector3 getNormalizedPerpendicular() const
+	{
+		if (btFabs(m_floats[0]) > btFabs(m_floats[1]))
+		{
+			btScalar len = btSqrt(m_floats[0] * m_floats[0] + m_floats[2] * m_floats[2]);
+			btVector3 res(m_floats[2], btScalar(0.0), -m_floats[0]);
+			res/=len;
+			return res;
+		}
+		else
+		{
+			btScalar len = btSqrt(m_floats[1] * m_floats[1] + m_floats[2] * m_floats[2]);
+			btVector3 res(btScalar(0.0), m_floats[2], -m_floats[1]);
+			res/=len;
+			return res;
+		}
+	}
+
 
 	SIMD_FORCE_INLINE void serialize(struct btVector3Data & dataOut) const;
 

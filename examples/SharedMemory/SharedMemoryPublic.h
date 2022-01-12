@@ -1008,6 +1008,10 @@ enum eInternalSimFlags
 {
 	eVRTinyGUI = 1<<1,
 	eDeformableAlternativeIndexing = 1<<2,
+	eEnableTrimeshNormalCulling = 1<<3,
+	eDisableTrimeshNormalCulling = 1<<4,
+	eEnableJoltGjkEpa = 1<<5,
+	eDisableJoltGjkEpa = 1<<6,
 };
 
 struct b3PhysicsSimulationParameters
@@ -1044,6 +1048,7 @@ struct b3PhysicsSimulationParameters
 	int m_reportSolverAnalytics;
 	double m_sparseSdfVoxelSize;
 	int m_numNonContactInnerIterations;
+	
 };
 
 

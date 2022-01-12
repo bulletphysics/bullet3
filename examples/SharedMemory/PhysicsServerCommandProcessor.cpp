@@ -10738,6 +10738,23 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		gInternalSimFlags = clientCmd.m_physSimParamArgs.m_internalSimFlags;
 		m_data->m_useAlternativeDeformableIndexing =
 				(clientCmd.m_physSimParamArgs.m_internalSimFlags & eDeformableAlternativeIndexing) != 0;
+
+		if ((clientCmd.m_physSimParamArgs.m_internalSimFlags & eEnableJoltGjkEpa) != 0)
+		{
+			m_data->m_dynamicsWorld->getDispatchInfo().m_useJoltGjkEpa = true;
+		}
+		if ((clientCmd.m_physSimParamArgs.m_internalSimFlags & eDisableJoltGjkEpa) != 0)
+		{
+			m_data->m_dynamicsWorld->getDispatchInfo().m_useJoltGjkEpa = false;
+		}
+		if ((clientCmd.m_physSimParamArgs.m_internalSimFlags & eEnableTrimeshNormalCulling) != 0)
+		{
+			m_data->m_dynamicsWorld->getDispatchInfo().m_concave_trimesh_normal_culling = true;
+		}
+		if ((clientCmd.m_physSimParamArgs.m_internalSimFlags & eDisableTrimeshNormalCulling) != 0)
+		{
+			m_data->m_dynamicsWorld->getDispatchInfo().m_concave_trimesh_normal_culling = false;
+		}
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_GRAVITY)

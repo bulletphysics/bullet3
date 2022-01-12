@@ -47,7 +47,13 @@ struct btDispatcherInfo
 		  m_allowedCcdPenetration(btScalar(0.04)),
 		  m_useConvexConservativeDistanceUtil(false),
 		  m_convexConservativeDistanceThreshold(0.0f),
-		  m_deterministicOverlappingPairs(false)
+		  m_deterministicOverlappingPairs(false),
+#ifdef BT_ENABLE_JOLT_GJK_EPA
+		  m_useJoltGjkEpa(true),
+#else
+		  m_useJoltGjkEpa(false),
+#endif
+		  m_concave_trimesh_normal_culling(true)
 	{
 	}
 	btScalar m_timeStep;
@@ -63,6 +69,8 @@ struct btDispatcherInfo
 	bool m_useConvexConservativeDistanceUtil;
 	btScalar m_convexConservativeDistanceThreshold;
 	bool m_deterministicOverlappingPairs;
+	bool m_useJoltGjkEpa;
+	bool m_concave_trimesh_normal_culling;
 };
 
 enum ebtDispatcherQueryType
