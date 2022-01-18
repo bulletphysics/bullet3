@@ -702,6 +702,7 @@ void btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 						: btTriangleConvexcastCallback(castShape, from, to, triangleToWorld, triangleMesh->getMargin()),
 						  m_resultCallback(resultCallback),
 						  m_collisionObject(collisionObject),
+						  m_collisionShape(collisionShape),
 						  m_triangleMesh(triangleMesh)
 					{
 					}
