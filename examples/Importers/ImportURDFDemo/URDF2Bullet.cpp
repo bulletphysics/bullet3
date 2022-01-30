@@ -10,6 +10,9 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
+#include "BulletDynamics/Featherstone/btMultiBodySphericalJointLimit.h"
+
+
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
 #include "URDF2Bullet.h"
 #include "URDFImporterInterface.h"
@@ -259,8 +262,8 @@ btTransform ConvertURDF2BulletInternal(
 	btScalar jointFriction;
 	btScalar jointMaxForce;
 	btScalar jointMaxVelocity;
-
-	bool hasParentJoint = u2b.getJointInfo2(urdfLinkIndex, parent2joint, linkTransformInWorldSpace, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction, jointMaxForce, jointMaxVelocity);
+	btScalar twistLimit;
+	bool hasParentJoint = u2b.getJointInfo3(urdfLinkIndex, parent2joint, linkTransformInWorldSpace, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction, jointMaxForce, jointMaxVelocity, twistLimit);
 	std::string linkName = u2b.getLinkName(urdfLinkIndex);
 
 	if (flags & CUF_USE_SDF)
@@ -422,6 +425,20 @@ btTransform ConvertURDF2BulletInternal(
 						cache.m_bulletMultiBody->setupSpherical(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
 							parentRotToThis, offsetInA.getOrigin(), -offsetInB.getOrigin(),
 							disableParentCollision);
+
+
+						//create a spherical joint limit, swing_x,. swing_y and twist
+						//jointLowerLimit <= jointUpperLimit)
+						if (jointUpperLimit > 0 && jointLowerLimit> 0 && twistLimit > 0 && jointMaxForce>0)
+						{
+							btMultiBodySphericalJointLimit* con = new btMultiBodySphericalJointLimit(cache.m_bulletMultiBody, mbLinkIndex, 
+								jointLowerLimit,
+								jointUpperLimit,
+								twistLimit,
+								jointMaxForce);
+							world1->addMultiBodyConstraint(con);
+						}
+
 					}
 					else
 					{

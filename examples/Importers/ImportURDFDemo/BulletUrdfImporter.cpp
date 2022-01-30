@@ -484,6 +484,12 @@ void BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass, btVect
 
 bool BulletURDFImporter::getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const
 {
+	btScalar twistLimit;
+	return getJointInfo3(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction, jointMaxForce, jointMaxVelocity, twistLimit);
+}
+
+bool BulletURDFImporter::getJointInfo3(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity, btScalar& twistLimit) const
+{
 	jointLowerLimit = 0.f;
 	jointUpperLimit = 0.f;
 	jointDamping = 0.f;
@@ -510,6 +516,7 @@ bool BulletURDFImporter::getJointInfo2(int urdfLinkIndex, btTransform& parent2jo
 			jointFriction = pj->m_jointFriction;
 			jointMaxForce = pj->m_effortLimit;
 			jointMaxVelocity = pj->m_velocityLimit;
+			twistLimit = pj->m_twistLimit;
 			return true;
 		}
 		else
