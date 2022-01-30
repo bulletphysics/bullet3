@@ -304,6 +304,7 @@ INSTALL (
   ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)	
 
 IF(NOT MSVC)
+    SET(PKGCONFIG_INSTALL_PREFIX "lib${LIB_SUFFIX}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet_robotics.pc.cmake
                    ${CMAKE_CURRENT_BINARY_DIR}/bullet_robotics.pc @ONLY)
   	INSTALL(
