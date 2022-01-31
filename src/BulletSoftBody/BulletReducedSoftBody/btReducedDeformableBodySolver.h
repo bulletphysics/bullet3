@@ -1,13 +1,13 @@
-#ifndef BT_REDUCED_SOFT_BODY_SOLVER_H
-#define BT_REDUCED_SOFT_BODY_SOLVER_H
+#ifndef BT_REDUCED_DEFORMABLE_BODY_DYNAMICS_WORLD_H
+#define BT_REDUCED_DEFORMABLE_BODY_DYNAMICS_WORLD_H
 
 #include "../btDeformableBodySolver.h"
-#include "btReducedSoftBody.h"
+#include "btReducedDeformableBody.h"
 #include "btReducedDeformableContactConstraint.h"
 
-class btReducedSoftBody;
+class btReducedDeformableBody;
 
-class btReducedSoftBodySolver : public btDeformableBodySolver
+class btReducedDeformableBodySolver : public btDeformableBodySolver
 {
  protected:
   bool m_ascendOrder;
@@ -25,8 +25,8 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
   btAlignedObjectArray<btAlignedObjectArray<btReducedDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
   btAlignedObjectArray<btAlignedObjectArray<btReducedDeformableFaceRigidContactConstraint> > m_faceRigidConstraints;
   
-  btReducedSoftBodySolver();
-  ~btReducedSoftBodySolver() {}
+  btReducedDeformableBodySolver();
+  ~btReducedDeformableBodySolver() {}
 
   virtual void setGravity(const btVector3& gravity);
 
@@ -62,4 +62,4 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
 
 };
 
-#endif // BT_REDUCED_SOFT_BODY_DYNAMICS_WORLD_H
+#endif // BT_REDUCED_DEFORMABLE_BODY_DYNAMICS_WORLD_H

@@ -1,7 +1,7 @@
-#include "btReducedSoftBodySolver.h"
+#include "btReducedDeformableBodySolver.h"
 #include "../btDeformableMultiBodyDynamicsWorld.h"
 
-btReducedSoftBodySolver::btReducedSoftBodySolver()
+btReducedDeformableBodySolver::btReducedDeformableBodySolver()
 {
   m_ascendOrder = true;
   m_reducedSolver = true;
@@ -10,12 +10,12 @@ btReducedSoftBodySolver::btReducedSoftBodySolver()
   m_gravity = btVector3(0, 0, 0);
 }
 
-void btReducedSoftBodySolver::setGravity(const btVector3& gravity)
+void btReducedDeformableBodySolver::setGravity(const btVector3& gravity)
 {
   m_gravity = gravity;
 }
 
-void btReducedSoftBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody*>& bodies, btScalar dt)
+void btReducedDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody*>& bodies, btScalar dt)
 {
   m_softBodies.copyFromArray(bodies);
 	bool nodeUpdated = updateNodes();
@@ -58,7 +58,7 @@ void btReducedSoftBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody
 
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
     rsb->m_contactNodesList.clear();
   }
 
@@ -66,7 +66,7 @@ void btReducedSoftBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody
   int sum = 0;
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
     rsb->m_nodeIndexOffset = sum;
     sum += rsb->m_nodes.size();
   }
@@ -74,7 +74,7 @@ void btReducedSoftBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody
 	btDeformableBodySolver::updateSoftBodies();
 }
 
-void btReducedSoftBodySolver::predictMotion(btScalar solverdt)
+void btReducedDeformableBodySolver::predictMotion(btScalar solverdt)
 {
   applyExplicitForce(solverdt);
 
@@ -84,11 +84,11 @@ void btReducedSoftBodySolver::predictMotion(btScalar solverdt)
   //TODO: check if there is anything missed from btDeformableBodySolver::predictDeformableMotion
 }
 
-void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
+void btReducedDeformableBodySolver::predictReduceDeformableMotion(btScalar solverdt)
 {
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
     if (!rsb->isActive())
     {
       continue;
@@ -136,11 +136,11 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
   }
 }
 
-void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
+void btReducedDeformableBodySolver::applyExplicitForce(btScalar solverdt)
 {
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
 
     // apply gravity to the rigid frame, get m_linearVelocity at time^*
     rsb->applyRigidGravity(m_gravity, solverdt);
@@ -160,11 +160,11 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
   }
 }
 
-void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
+void btReducedDeformableBodySolver::applyTransforms(btScalar timeStep)
 {
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
 
     // rigid motion
     rsb->proceedToTransform(timeStep, true);
@@ -193,11 +193,11 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
   }
 }
 
-void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlobal)
+void btReducedDeformableBodySolver::setConstraints(const btContactSolverInfo& infoGlobal)
 {
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
     if (!rsb->isActive())
 		{
 			continue;
@@ -252,11 +252,11 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
   }
 }
 
-void btReducedSoftBodySolver::pairConstraintWithSolverBody(btSolverBody& solverBody)
+void btReducedDeformableBodySolver::pairConstraintWithSolverBody(btSolverBody& solverBody)
 {
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
 
     // node vs rigid contact
     for (int k = 0; k < m_nodeRigidConstraints[i].size(); ++k)
@@ -275,7 +275,7 @@ void btReducedSoftBodySolver::pairConstraintWithSolverBody(btSolverBody& solverB
   }
 }
 
-btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
+btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
   btScalar residualSquare = 0;
 
@@ -284,7 +284,7 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
     btAlignedObjectArray<int> m_orderNonContactConstraintPool;
     btAlignedObjectArray<int> m_orderContactConstraintPool;
 
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
 
     // shuffle the order of applying constraint
     m_orderNonContactConstraintPool.resize(m_staticConstraints[i].size());
@@ -349,12 +349,12 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
 	return residualSquare;
 }
 
-void btReducedSoftBodySolver::deformableBodyInternalWriteBack()
+void btReducedDeformableBodySolver::deformableBodyInternalWriteBack()
 {
   // reduced deformable update
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
     rsb->applyInternalVelocityChanges();
   }
   m_ascendOrder = true;

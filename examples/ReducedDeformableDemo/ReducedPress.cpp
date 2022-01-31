@@ -15,9 +15,9 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBody.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodyHelpers.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodySolver.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodySolver.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
@@ -109,7 +109,7 @@ public:
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
-            btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
+            btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(deformableWorld->getSoftBodyArray()[i]);
             {
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
@@ -171,7 +171,7 @@ void ReducedPress::initPhysics()
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
-    btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
+    btReducedDeformableBodySolver* reducedSoftBodySolver = new btReducedDeformableBodySolver();
     btVector3 gravity = btVector3(0, 0, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
@@ -188,7 +188,7 @@ void ReducedPress::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.015);

@@ -8,7 +8,7 @@
 #include "LinearMath/btTransform.h"
 
 // Reduced deformable body is a simplified deformable object embedded in a rigid frame.
-class btReducedSoftBody : public btSoftBody
+class btReducedDeformableBody : public btSoftBody
 {
  public:
   //
@@ -99,9 +99,9 @@ class btReducedSoftBody : public btSoftBody
   //
   // Api
   //
-  btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m);
+  btReducedDeformableBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m);
 
-  ~btReducedSoftBody() {}
+  ~btReducedDeformableBody() {}
 
   //
   // initializing helpers

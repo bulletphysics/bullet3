@@ -121,9 +121,9 @@
 #include "BulletSoftBody/btDeformableBodySolver.h"
 #include "BulletSoftBody/btDeformableMultiBodyConstraintSolver.h"
 
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBody.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodyHelpers.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodySolver.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodySolver.h"
 #endif  //SKIP_DEFORMABLE_BODY
 
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
@@ -1668,7 +1668,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btDeformableMousePickingForce* m_mouseForce;
 	btScalar m_maxPickingForce;
 	btDeformableBodySolver* m_deformablebodySolver;
-	btReducedSoftBodySolver* m_reducedSoftBodySolver;
+	btReducedDeformableBodySolver* m_reducedSoftBodySolver;
 	btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
 #endif
 
@@ -2738,7 +2738,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 	else if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD)
 	{
 		// reduced deformable
-		m_data->m_reducedSoftBodySolver = new btReducedSoftBodySolver();
+		m_data->m_reducedSoftBodySolver = new btReducedDeformableBodySolver();
 		btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
 		m_data->m_solver = solver;
 		solver->setDeformableSolver(m_data->m_reducedSoftBodySolver);
@@ -9556,7 +9556,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDeformable& reduced_deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision)
 {
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-	btReducedSoftBody* rsb = NULL;
+	btReducedDeformableBody* rsb = NULL;
 	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
 	char relativeFileName[1024];
 	char pathPrefix[1024];
@@ -9591,7 +9591,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
 		if (deformWorld)
 		{
-			rsb = btReducedSoftBodyHelpers::createFromVtkFile(deformWorld->getWorldInfo(), out_found_sim_filename.c_str());
+			rsb = btReducedDeformableBodyHelpers::createFromVtkFile(deformWorld->getWorldInfo(), out_found_sim_filename.c_str());
 			if (!rsb)
 			{
 				printf("Load reduced deformable failed\n");
@@ -9602,7 +9602,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			rsb->setReducedModes(reduced_deformable.m_numModes, rsb->m_nodes.size());
 			rsb->setStiffnessScale(reduced_deformable.m_stiffnessScale);
 			rsb->setDamping(0, reduced_deformable.m_damping); // damping alpha is set to 0 by default
-			btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, pathPrefix);
+			btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, pathPrefix);
 			// set total mass
 			rsb->setTotalMass(reduced_deformable.m_mass);
 		}

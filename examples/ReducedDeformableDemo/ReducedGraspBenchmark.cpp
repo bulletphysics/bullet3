@@ -15,9 +15,9 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBody.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodyHelpers.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodySolver.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodySolver.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
@@ -88,7 +88,7 @@ public:
 
         if (run_reduced)
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
@@ -156,7 +156,7 @@ public:
         std::cout << "Running full deformable\n";
     }
 
-        // btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        // btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         // getDeformableDynamicsWorld()->addSoftBody(rsb);
         // rsb->getCollisionShape()->setMargin(0.01);
@@ -196,7 +196,7 @@ public:
 
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
-            btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
+            btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(deformableWorld->getSoftBodyArray()[i]);
             {
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags()); 
@@ -219,7 +219,7 @@ void ReducedGraspBenchmark::initPhysics()
 
     if (run_reduced)
     {
-        btReducedSoftBodySolver* solver = new btReducedSoftBodySolver();
+        btReducedDeformableBodySolver* solver = new btReducedDeformableBodySolver();
 
         btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
         sol->setDeformableSolver(solver);

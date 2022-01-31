@@ -3,7 +3,7 @@
 
 // ================= static constraints ===================
 btReducedDeformableStaticConstraint::btReducedDeformableStaticConstraint(
-  btReducedSoftBody* rsb, 
+  btReducedDeformableBody* rsb, 
   btSoftBody::Node* node,
 	const btVector3& ri,
 	const btVector3& x0,
@@ -57,7 +57,7 @@ btVector3 btReducedDeformableStaticConstraint::getDeltaVa() const
 
 // ================= base contact constraints ===================
 btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstraint(
-  btReducedSoftBody* rsb, 
+  btReducedDeformableBody* rsb, 
   const btSoftBody::DeformableRigidContact& c, 
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
@@ -318,7 +318,7 @@ void btReducedDeformableRigidContactConstraint::calculateTangentialImpulse(btSca
 
 // ================= node vs rigid constraints ===================
 btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidContactConstraint(
-  btReducedSoftBody* rsb, 
+  btReducedDeformableBody* rsb, 
   const btSoftBody::DeformableNodeRigidContact& contact, 
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
@@ -534,7 +534,7 @@ void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3
 
 // ================= face vs rigid constraints ===================
 btReducedDeformableFaceRigidContactConstraint::btReducedDeformableFaceRigidContactConstraint(
-  btReducedSoftBody* rsb, 
+  btReducedDeformableBody* rsb, 
   const btSoftBody::DeformableFaceRigidContact& contact, 
   const btContactSolverInfo& infoGlobal,
 	btScalar dt, 

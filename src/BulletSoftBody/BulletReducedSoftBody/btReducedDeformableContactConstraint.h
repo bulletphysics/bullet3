@@ -1,11 +1,11 @@
 #include "../btDeformableContactConstraint.h"
-#include "btReducedSoftBody.h"
+#include "btReducedDeformableBody.h"
 
 // ================= static constraints ===================
 class btReducedDeformableStaticConstraint : public btDeformableStaticConstraint
 {
  public:
-  btReducedSoftBody* m_rsb;
+  btReducedDeformableBody* m_rsb;
   btScalar m_dt;
   btVector3 m_ri;
   btVector3 m_targetPos;
@@ -16,7 +16,7 @@ class btReducedDeformableStaticConstraint : public btDeformableStaticConstraint
   btScalar m_appliedImpulse;
   btScalar m_erp;
 
-  btReducedDeformableStaticConstraint(btReducedSoftBody* rsb, 
+  btReducedDeformableStaticConstraint(btReducedDeformableBody* rsb, 
                                       btSoftBody::Node* node,
                                       const btVector3& ri,
                                       const btVector3& x0,
@@ -46,7 +46,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
 
   int m_nodeQueryIndex;
 
-  btReducedSoftBody* m_rsb;
+  btReducedDeformableBody* m_rsb;
   btSolverBody* m_solverBody;
   btScalar m_dt;
 
@@ -84,7 +84,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btVector3 m_linearComponentTangent;
   btVector3 m_angularComponentTangent;
 
-  btReducedDeformableRigidContactConstraint(btReducedSoftBody* rsb, 
+  btReducedDeformableRigidContactConstraint(btReducedDeformableBody* rsb, 
                                             const btSoftBody::DeformableRigidContact& c, 
                                             const btContactSolverInfo& infoGlobal,
                                             btScalar dt);
@@ -122,7 +122,7 @@ class btReducedDeformableNodeRigidContactConstraint : public btReducedDeformable
  public:
   btSoftBody::Node* m_node;
 
-  btReducedDeformableNodeRigidContactConstraint(btReducedSoftBody* rsb, 
+  btReducedDeformableNodeRigidContactConstraint(btReducedDeformableBody* rsb, 
                                                 const btSoftBody::DeformableNodeRigidContact& contact, 
                                                 const btContactSolverInfo& infoGlobal,
                                                 btScalar dt);
@@ -164,7 +164,7 @@ class btReducedDeformableFaceRigidContactConstraint : public btReducedDeformable
   btSoftBody::Face* m_face;
 	bool m_useStrainLimiting;
 
-  btReducedDeformableFaceRigidContactConstraint(btReducedSoftBody* rsb, 
+  btReducedDeformableFaceRigidContactConstraint(btReducedDeformableBody* rsb, 
                                                 const btSoftBody::DeformableFaceRigidContact& contact, 
                                                 const btContactSolverInfo& infoGlobal,
                                                 btScalar dt, 

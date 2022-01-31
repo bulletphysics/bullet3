@@ -1,47 +1,47 @@
-#include "btReducedSoftBodyHelpers.h"
+#include "btReducedDeformableBodyHelpers.h"
 #include "../btSoftBodyHelpers.h"
 #include <iostream>
 #include <string>
 #include <sstream>
 
-btReducedSoftBody* btReducedSoftBodyHelpers::createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int num_modes)
+btReducedDeformableBody* btReducedDeformableBodyHelpers::createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int num_modes)
 {
 	std::string filepath("../../../data/reduced_beam/");
 	// std::string filename = filepath + "beam_mesh.vtk";
 	std::string filename = filepath + "beam_mesh_origin.vtk";
-	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
+	btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
 	
 	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+	btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 
 	return rsb;
 }
 
-btReducedSoftBody* btReducedSoftBodyHelpers::createReducedCube(btSoftBodyWorldInfo& worldInfo, const int num_modes)
+btReducedDeformableBody* btReducedDeformableBodyHelpers::createReducedCube(btSoftBodyWorldInfo& worldInfo, const int num_modes)
 {
 	std::string filepath("../../../data/reduced_cube/");
 	std::string filename = filepath + "cube_mesh.vtk";
-	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
+	btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
 	
 	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+	btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 	
 	return rsb;
 }
 
-btReducedSoftBody* btReducedSoftBodyHelpers::createReducedTorus(btSoftBodyWorldInfo& worldInfo, const int num_modes)
+btReducedDeformableBody* btReducedDeformableBodyHelpers::createReducedTorus(btSoftBodyWorldInfo& worldInfo, const int num_modes)
 {
 	std::string filepath("../../../data/reduced_torus/");
 	std::string filename = filepath + "torus_mesh.vtk";
-	btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
+	btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
 	
 	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+	btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 	
 	return rsb;
 }
 
-btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
+btReducedDeformableBody* btReducedDeformableBodyHelpers::createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
 {
 	std::ifstream fs;
 	fs.open(vtk_file);
@@ -119,7 +119,7 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldIn
 			indices[indices_count++] = tet;
 		}
 	}
-	btReducedSoftBody* rsb = new btReducedSoftBody(&worldInfo, n_points, &X[0], 0);
+	btReducedDeformableBody* rsb = new btReducedDeformableBody(&worldInfo, n_points, &X[0], 0);
 
 	for (int i = 0; i < n_tets; ++i)
 	{
@@ -149,25 +149,25 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldIn
 	return rsb;
 }
 
-void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path)
+void btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(btReducedDeformableBody* rsb, const char* file_path)
 {
 	// read in eigenmodes, stiffness and mass matrices
 	std::string eigenvalues_file = std::string(file_path) + "eigenvalues.bin";
-	btReducedSoftBodyHelpers::readBinaryVec(rsb->m_eigenvalues, rsb->m_nReduced, eigenvalues_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_eigenvalues, rsb->m_nReduced, eigenvalues_file.c_str());
 
 	std::string Kr_file = std::string(file_path) + "K_r_diag_mat.bin";
-	btReducedSoftBodyHelpers::readBinaryVec(rsb->m_Kr,  rsb->m_nReduced, Kr_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_Kr,  rsb->m_nReduced, Kr_file.c_str());
 
 	// std::string Mr_file = std::string(file_path) + "M_r_diag_mat.bin";
-	// btReducedSoftBodyHelpers::readBinaryVec(rsb->m_Mr, rsb->m_nReduced, Mr_file.c_str());
+	// btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_Mr, rsb->m_nReduced, Mr_file.c_str());
 
 	std::string modes_file = std::string(file_path) + "modes.bin";
-	btReducedSoftBodyHelpers::readBinaryMat(rsb->m_modes, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryMat(rsb->m_modes, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());
 	
 	// read in full nodal mass
 	std::string M_file = std::string(file_path) + "M_diag_mat.bin";
 	btAlignedObjectArray<btScalar> mass_array;
-	btReducedSoftBodyHelpers::readBinaryVec(mass_array, rsb->m_nFull, M_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryVec(mass_array, rsb->m_nFull, M_file.c_str());
 	rsb->setMassProps(mass_array);
 	
 	// calculate the inertia tensor in the local frame 
@@ -178,7 +178,7 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 }
 
 // read in a vector from the binary file
-void btReducedSoftBodyHelpers::readBinaryVec(btReducedSoftBody::tDenseArray& vec, 
+void btReducedDeformableBodyHelpers::readBinaryVec(btReducedDeformableBody::tDenseArray& vec, 
 																				  	 const unsigned int n_size, 				// #entries read
 																						 const char* file)
 {
@@ -200,7 +200,7 @@ void btReducedSoftBodyHelpers::readBinaryVec(btReducedSoftBody::tDenseArray& vec
 }
 
 // read in a matrix from the binary file
-void btReducedSoftBodyHelpers::readBinaryMat(btReducedSoftBody::tDenseMatrix& mat, 
+void btReducedDeformableBodyHelpers::readBinaryMat(btReducedDeformableBody::tDenseMatrix& mat, 
 																						 const unsigned int n_modes, 		// #modes, outer array size
 																						 const unsigned int n_full, 		// inner array size
 																						 const char* file)
@@ -228,7 +228,7 @@ void btReducedSoftBodyHelpers::readBinaryMat(btReducedSoftBody::tDenseMatrix& ma
   f_in.close();
 }
 
-void btReducedSoftBodyHelpers::calculateLocalInertia(btVector3& inertia, const btScalar mass, const btVector3& half_extents, const btVector3& margin)
+void btReducedDeformableBodyHelpers::calculateLocalInertia(btVector3& inertia, const btScalar mass, const btVector3& half_extents, const btVector3& margin)
 {
 	btScalar lx = btScalar(2.) * (half_extents[0] + margin[0]);
 	btScalar ly = btScalar(2.) * (half_extents[1] + margin[1]);

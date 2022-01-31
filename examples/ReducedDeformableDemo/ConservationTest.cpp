@@ -15,9 +15,9 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBody.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodyHelpers.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodySolver.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodySolver.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
@@ -38,7 +38,7 @@ class ConservationTest : public CommonDeformableBodyBase
     bool first_step;
 
     // get deformed shape
-    void getDeformedShape(btReducedSoftBody* rsb, const int mode_n, const btScalar scale = 1)
+    void getDeformedShape(btReducedDeformableBody* rsb, const int mode_n, const btScalar scale = 1)
     {
       // for (int i = 0; i < rsb->m_nodes.size(); ++i)
       //   for (int k = 0; k < 3; ++k)
@@ -88,7 +88,7 @@ public:
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
 
-    void checkMomentum(btReducedSoftBody* rsb)
+    void checkMomentum(btReducedDeformableBody* rsb)
     {
       btVector3 x_com(0, 0, 0);
       btVector3 total_linear(0, 0, 0);
@@ -148,7 +148,7 @@ public:
     void stepSimulation(float deltaTime)
     {
       // add initial deformation
-      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
+      btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
       if (first_step /* && !rsb->m_bUpdateRtCst*/) 
       {
         getDeformedShape(rsb, 0, 1);
@@ -169,7 +169,7 @@ public:
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
-            btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
+            btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(deformableWorld->getSoftBodyArray()[i]);
             {
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags()); 
@@ -202,7 +202,7 @@ void ConservationTest::initPhysics()
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
-    btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
+    btReducedDeformableBodySolver* reducedSoftBodySolver = new btReducedDeformableBodySolver();
     btVector3 gravity = btVector3(0, 0, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
@@ -216,7 +216,7 @@ void ConservationTest::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);

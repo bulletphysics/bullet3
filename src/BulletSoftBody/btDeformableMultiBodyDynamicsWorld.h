@@ -21,7 +21,6 @@
 #include "btDeformableMassSpringForce.h"
 // #include "btDeformableBodySolver.h"
 #include "btDeformableMultiBodyConstraintSolver.h"
-#include "BulletReducedSoftBody/btReducedSoftBody.h"
 #include "btSoftBodyHelpers.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include <functional>

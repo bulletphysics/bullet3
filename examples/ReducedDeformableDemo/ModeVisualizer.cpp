@@ -15,9 +15,9 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBody.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodyHelpers.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodySolver.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodySolver.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
@@ -36,14 +36,14 @@ class ModeVisualizer : public CommonDeformableBodyBase
     btScalar sim_time;
 
     // get deformed shape
-    void getDeformedShape(btReducedSoftBody* rsb, const int mode_n, const btScalar time_term = 1)
+    void getDeformedShape(btReducedDeformableBody* rsb, const int mode_n, const btScalar time_term = 1)
     {
       for (int i = 0; i < rsb->m_nodes.size(); ++i)
         for (int k = 0; k < 3; ++k)
           rsb->m_nodes[i].m_x[k] = rsb->m_x0[i][k] + rsb->m_modes[mode_n][3 * i + k] * time_term;
     }
 
-    btVector3 computeMassWeightedColumnSum(btReducedSoftBody* rsb, const int mode_n)
+    btVector3 computeMassWeightedColumnSum(btReducedDeformableBody* rsb, const int mode_n)
     {
         btVector3 sum(0, 0, 0);
         for (int i = 0; i < rsb->m_nodes.size(); ++i)
@@ -85,7 +85,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
+      btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
 
       sim_time += deltaTime;
       int n_mode = floor(visualize_mode);
@@ -124,7 +124,7 @@ void ModeVisualizer::initPhysics()
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
-    btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
+    btReducedDeformableBodySolver* reducedSoftBodySolver = new btReducedDeformableBodySolver();
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
     sol->setDeformableSolver(reducedSoftBodySolver);
@@ -135,7 +135,7 @@ void ModeVisualizer::initPhysics()
 
     // create volumetric soft body
     {
-      btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+      btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
       getDeformableDynamicsWorld()->addSoftBody(rsb);
       rsb->getCollisionShape()->setMargin(0.1);
