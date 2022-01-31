@@ -209,17 +209,17 @@ void ReducedCollide::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(0.5, 0.5, 0.5));
-        
-        btTransform init_transform;
-        init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 4, 0));
-        // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
-        rsb->transformTo(init_transform);
 
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
 
         rsb->setTotalMass(15);
+
+        btTransform init_transform;
+        init_transform.setIdentity();
+        init_transform.setOrigin(btVector3(0, 4, 0));
+        // init_transform.setRotation(btQuaternion(0, SIMD_PI / 2.0, SIMD_PI / 2.0));
+        rsb->transformTo(init_transform);
 
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body

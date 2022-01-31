@@ -136,8 +136,6 @@ void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 
 void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero)
 {
-	static btScalar sim_time = 0;
-
 	size_t counter = 0;
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
