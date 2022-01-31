@@ -25,10 +25,10 @@ SET(BulletSoftBody_SRCS
 	btDeformableContactConstraint.cpp
 	poly34.cpp
 
-	BulletReducedSoftBody/btReducedDeformableBody.cpp
-	BulletReducedSoftBody/btReducedDeformableBodyHelpers.cpp
-	BulletReducedSoftBody/btReducedDeformableBodySolver.cpp
-	BulletReducedSoftBody/btReducedDeformableContactConstraint.cpp
+	BulletReducedDeformableBody/btReducedDeformableBody.cpp
+	BulletReducedDeformableBody/btReducedDeformableBodyHelpers.cpp
+	BulletReducedDeformableBody/btReducedDeformableBodySolver.cpp
+	BulletReducedDeformableBody/btReducedDeformableContactConstraint.cpp
 )
 
 
@@ -69,10 +69,10 @@ SET(BulletSoftBody_HDRS
 
 	btSoftBodySolverVertexBuffer.h
 
-	BulletReducedSoftBody/btReducedDeformableBody.h
-	BulletReducedSoftBody/btReducedDeformableBodyHelpers.h
-	BulletReducedSoftBody/btReducedDeformableBodySolver.h
-	BulletReducedSoftBody/btReducedDeformableContactConstraint.h
+	BulletReducedDeformableBody/btReducedDeformableBody.h
+	BulletReducedDeformableBody/btReducedDeformableBodyHelpers.h
+	BulletReducedDeformableBody/btReducedDeformableBodySolver.h
+	BulletReducedDeformableBody/btReducedDeformableContactConstraint.h
 )
 
 

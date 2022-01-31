@@ -121,9 +121,9 @@
 #include "BulletSoftBody/btDeformableBodySolver.h"
 #include "BulletSoftBody/btDeformableMultiBodyConstraintSolver.h"
 
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBody.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodyHelpers.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodySolver.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBodySolver.h"
 #endif  //SKIP_DEFORMABLE_BODY
 
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"

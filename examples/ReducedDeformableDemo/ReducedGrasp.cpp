@@ -15,9 +15,9 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBody.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodyHelpers.h"
-#include "BulletSoftBody/BulletReducedSoftBody/btReducedDeformableBodySolver.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBodySolver.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
