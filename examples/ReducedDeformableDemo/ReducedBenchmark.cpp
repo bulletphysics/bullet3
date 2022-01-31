@@ -11,7 +11,7 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "ReducedGraspBenchmark.h"
+#include "ReducedBenchmark.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
@@ -32,15 +32,15 @@ static btScalar COLLIDING_VELOCITY = 0;
 static int num_modes = 20;
 static bool run_reduced = true;
 
-class ReducedGraspBenchmark : public CommonDeformableBodyBase
+class ReducedBenchmark : public CommonDeformableBodyBase
 {
     btVector3 m_gravity;
 public:
-    ReducedGraspBenchmark(struct GUIHelperInterface* helper)
+    ReducedBenchmark(struct GUIHelperInterface* helper)
         : CommonDeformableBodyBase(helper)
     {
     }
-    virtual ~ReducedGraspBenchmark()
+    virtual ~ReducedBenchmark()
     {
     }
     void initPhysics();
@@ -205,7 +205,7 @@ public:
     }
 };
 
-void ReducedGraspBenchmark::initPhysics()
+void ReducedBenchmark::initPhysics()
 {
     m_guiHelper->setUpAxis(1);
 
@@ -288,7 +288,7 @@ void ReducedGraspBenchmark::initPhysics()
     m_dynamicsWorld->setGravity(gravity);
 }
 
-void ReducedGraspBenchmark::exitPhysics()
+void ReducedBenchmark::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
     removePickingConstraint();
@@ -334,9 +334,9 @@ void ReducedGraspBenchmark::exitPhysics()
 
 
 
-class CommonExampleInterface* ReducedGraspBenchmarkCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* ReducedBenchmarkCreateFunc(struct CommonExampleOptions& options)
 {
-    return new ReducedGraspBenchmark(options.m_guiHelper);
+    return new ReducedBenchmark(options.m_guiHelper);
 }
 
 

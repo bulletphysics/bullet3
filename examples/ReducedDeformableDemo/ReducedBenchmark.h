@@ -11,9 +11,9 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef _REDUCED_GRASP_BENCHMARK_H
-#define _REDUCED_GRASP_BENCHMARK_H
+#ifndef _REDUCED_BENCHMARK_H
+#define _REDUCED_BENCHMARK_H
 
-class CommonExampleInterface* ReducedGraspBenchmarkCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* ReducedBenchmarkCreateFunc(struct CommonExampleOptions& options);
 
-#endif  //_REDUCED_GRASP_BENCHMARK_H
+#endif  //_REDUCED_BENCHMARK_H
