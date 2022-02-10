@@ -1051,6 +1051,9 @@ public:
 								   Material* mat = 0);
 	/* Randomize constraints to reduce solver bias							*/
 	void randomizeConstraints();
+    
+    void updateState(const btAlignedObjectArray<btVector3>& qs, const btAlignedObjectArray<btVector3>& vs);
+    
 	/* Release clusters														*/
 	void releaseCluster(int index);
 	void releaseClusters();

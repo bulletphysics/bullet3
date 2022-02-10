@@ -1483,6 +1483,20 @@ void btSoftBody::randomizeConstraints()
 #undef NEXTRAND
 }
 
+
+void btSoftBody::updateState(const btAlignedObjectArray<btVector3>& q, const btAlignedObjectArray<btVector3>& v){
+    int node_count =m_nodes.size();
+    btAssert(node_count == q.size());
+    btAssert(node_count == v.size());
+    for (int i = 0; i<node_count; i++){
+        Node& n = m_nodes[i];
+        n.m_x = q[i];
+        n.m_q = q[i];
+        n.m_v = v[i];
+        n.m_vn = v[i];
+    }
+}
+
 //
 void btSoftBody::releaseCluster(int index)
 {
