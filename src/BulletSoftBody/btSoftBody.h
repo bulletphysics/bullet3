@@ -407,6 +407,7 @@ public:
 		btScalar m_friction;  // Friction
 		btScalar m_imf;       // inverse mass of the face at contact point
 		btScalar m_c0;        // scale of the impulse matrix;
+       	const btCollisionObject* m_colObj; // Collision object to collide with.
 	};
 
 	/* SContact		*/
@@ -1090,6 +1091,7 @@ public:
 	/* defaultCollisionHandlers												*/
 	void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap);
 	void defaultCollisionHandler(btSoftBody* psb);
+    void approximateCollisionHandler(btSoftBody* psb)
 	void setSelfCollision(bool useSelfCollision);
 	bool useSelfCollision();
 	void updateDeactivation(btScalar timeStep);
