@@ -25,6 +25,7 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 CTestTestFile.cmake
+test/Testing/Temporary
 
 # Visual Studio build files
 *.vcxproj
@@ -36,3 +37,4 @@ CTestTestFile.cmake
 
 # vim temp files
 *.swp
+
