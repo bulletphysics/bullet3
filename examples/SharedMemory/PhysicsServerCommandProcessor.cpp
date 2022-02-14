@@ -5512,13 +5512,24 @@ bool PhysicsServerCommandProcessor::processResetMeshDataCommand(const struct Sha
 			int numVertices = psb->m_nodes.size();
 			if (clientCmd.m_resetMeshDataArgs.m_numVertices == numVertices)
 			{
+              if(clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY){
 				for (int i = 0; i < numVertices; ++i)
 				{
 					btSoftBody::Node& n = psb->m_nodes[i];
-					n.m_x.setValue(vertexUpload[i*3+0], vertexUpload[i*3+1],vertexUpload[i*3+2]);
+					n.m_v.setValue(vertexUpload[i*3+0], vertexUpload[i*3+1],vertexUpload[i*3+2]);
+                    n.m_vn.setValue(vertexUpload[i*3+0], vertexUpload[i*3+1],vertexUpload[i*3+2]);
 				}
-				serverStatusOut.m_type = CMD_RESET_MESH_DATA_COMPLETED;
-			}
+              }
+              else{
+                  for (int i = 0; i < numVertices; ++i)
+                  {
+                    btSoftBody::Node& n = psb->m_nodes[i];
+                    n.m_x.setValue(vertexUpload[i*3+0], vertexUpload[i*3+1],vertexUpload[i*3+2]);
+                    n.m_q.setValue(vertexUpload[i*3+0], vertexUpload[i*3+1],vertexUpload[i*3+2]);
+                  }
+                }
+                serverStatusOut.m_type = CMD_RESET_MESH_DATA_COMPLETED;
+            }
 		}
 #endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	}
