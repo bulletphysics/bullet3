@@ -55,14 +55,14 @@ public:
 
     void resetCamera()
     {
-        // float dist = 6;
-        // float pitch = -10;
-        // float yaw = 90;
-        // float targetPos[3] = {0, 2, 0};
-        float dist = 10;
-        float pitch = -30;
-        float yaw = 125;
+        float dist = 6;
+        float pitch = -10;
+        float yaw = 90;
         float targetPos[3] = {0, 2, 0};
+        // float dist = 10;
+        // float pitch = -30;
+        // float yaw = 125;
+        // float targetPos[3] = {0, 2, 0};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
@@ -81,12 +81,12 @@ public:
         // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 4.0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setActivationState(DISABLE_DEACTIVATION);
-        // rb1->setLinearVelocity(btVector3(0, 0, 4));
+        rb1->setLinearVelocity(btVector3(0, -4, 0));
     }
 
     void createReducedDeformableObject(const btVector3& origin, const btQuaternion& rotation)
     {   
-        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
@@ -168,27 +168,18 @@ void FreeFall::initPhysics()
     m_solver = sol;
 
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
-    btVector3 gravity = btVector3(0, -10, 0);
+    btVector3 gravity = btVector3(0, 0, 0);
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     // m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
     
-    // 3x3 torus
-    createReducedDeformableObject(btVector3(4, 4, -4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(4, 4, 0), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(4, 4, 4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(0, 4, -4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(0, 4, 0), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(0, 4, 4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(-4, 4, -4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(-4, 4, 0), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-    createReducedDeformableObject(btVector3(-4, 4, 4), btQuaternion(SIMD_PI / 2.0, SIMD_PI / 2.0, 0));
-
-    // Ctor_RbUpStack(btVector3(0, 10, 0));
-    // Ctor_RbUpStack(btVector3(0, 10, 4));
-    // Ctor_RbUpStack(btVector3(0, 10, 4));
-    // Ctor_RbUpStack(btVector3(-4, 10, 0));
-    // Ctor_RbUpStack(btVector3(4, 10, 0));
+    // 2 reduced deformable cubes
+    createReducedDeformableObject(btVector3(0, 1, -2), btQuaternion());
+    // createReducedDeformableObject(btVector3(0, 1, 2), btQuaternion());
+   
+    // 2 rigid cubes
+    Ctor_RbUpStack(btVector3(0, 3, -2));
+    Ctor_RbUpStack(btVector3(0, 3, 2));
     
     // create a static rigid box as the ground
     {
@@ -200,7 +191,7 @@ void FreeFall::initPhysics()
         groundTransform.setIdentity();
         // groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI / 6.0));
         // groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
-        groundTransform.setOrigin(btVector3(0, 0, 0));
+        groundTransform.setOrigin(btVector3(0, -2, 0));
         // groundTransform.setOrigin(btVector3(0, 0, 6));
         // groundTransform.setOrigin(btVector3(0, -50, 0));
         {
@@ -216,9 +207,9 @@ void FreeFall::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.5;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
-    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 200;
+    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
 
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     m_dynamicsWorld->setGravity(gravity);

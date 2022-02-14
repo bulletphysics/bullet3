@@ -1,5 +1,5 @@
 #include "btReducedDeformableBodySolver.h"
-#include "../btDeformableMultiBodyDynamicsWorld.h"
+#include "btReducedDeformableBody.h"
 
 btReducedDeformableBodySolver::btReducedDeformableBodySolver()
 {
@@ -233,45 +233,9 @@ void btReducedDeformableBodySolver::setConstraints(const btContactSolverInfo& in
 			m_nodeRigidConstraints[i].push_back(constraint);
       rsb->m_contactNodesList.push_back(contact.m_node->index - rsb->m_nodeIndexOffset);
 		}
-    // std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
-    // std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
+    std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
+    std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
 
-    // set Deformable Face vs. Rigid constraint
-		// for (int j = 0; j < rsb->m_faceRigidContacts.size(); ++j)
-		// {
-		// 	const btSoftBody::DeformableFaceRigidContact& contact = rsb->m_faceRigidContacts[j];
-		// 	// skip fixed faces
-		// 	if (contact.m_c2 == 0)
-		// 	{
-		// 		continue;
-		// 	}
-		// 	// btDeformableFaceRigidContactConstraint constraint(contact, infoGlobal, m_useStrainLimiting);
-		// 	// m_faceRigidConstraints[i].push_back(constraint);
-		// }
-
-  }
-}
-
-void btReducedDeformableBodySolver::pairConstraintWithSolverBody(btSolverBody& solverBody)
-{
-  for (int i = 0; i < m_softBodies.size(); ++i)
-  {
-    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
-
-    // node vs rigid contact
-    for (int k = 0; k < m_nodeRigidConstraints[i].size(); ++k)
-    {
-      btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][k];
-      constraint.setSolverBody(solverBody);
-    }
-
-    // face vs rigid contact
-    // for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
-    // {
-    // 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
-    // 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-    // 	residualSquare = btMax(residualSquare, localResidualSquare);
-    // }
   }
 }
 
@@ -328,7 +292,7 @@ btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObjec
     // handle contact constraint
 
     // node vs rigid contact
-    // std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[i].size() << '\n';
+    std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[i].size() << '\n';
     for (int k = 0; k < m_nodeRigidConstraints[i].size(); ++k)
     {
       btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][m_orderContactConstraintPool[k]];

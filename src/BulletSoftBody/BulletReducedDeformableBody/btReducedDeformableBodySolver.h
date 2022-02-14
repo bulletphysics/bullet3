@@ -1,8 +1,7 @@
 #ifndef BT_REDUCED_DEFORMABLE_BODY_DYNAMICS_WORLD_H
 #define BT_REDUCED_DEFORMABLE_BODY_DYNAMICS_WORLD_H
 
-#include "../btDeformableBodySolver.h"
-#include "btReducedDeformableBody.h"
+#include "BulletSoftBody/btDeformableBodySolver.h"
 #include "btReducedDeformableContactConstraint.h"
 
 class btReducedDeformableBody;
@@ -44,9 +43,6 @@ class btReducedDeformableBodySolver : public btDeformableBodySolver
 
   // set up contact constraints
 	virtual void setConstraints(const btContactSolverInfo& infoGlobal);
-
-  // pair rigid contact constraint with solver body
-  virtual void pairConstraintWithSolverBody(btSolverBody& solverBody);
 
   // solve all constraints (fixed and contact)
   virtual btScalar solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal);

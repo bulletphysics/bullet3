@@ -212,9 +212,6 @@ public:
 		return m_reducedSolver;
 	}
 	
-	// pair rigid contact constraint with solver body
-  virtual void pairConstraintWithSolverBody(btSolverBody& solverBody) {}
-
 	virtual void deformableBodyInternalWriteBack() {}
 
 	// unused functions

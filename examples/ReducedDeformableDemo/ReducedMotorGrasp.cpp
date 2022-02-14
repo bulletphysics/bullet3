@@ -317,22 +317,22 @@ void ReducedMotorGrasp::initPhysics()
 
 	// create volumetric reduced deformable body
     {   
-        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.001);
+
+        rsb->setStiffnessScale(100);
+        rsb->setDamping(damping_alpha, damping_beta);
+
+        rsb->scale(btVector3(0.075, 0.075, 0.075));
+        rsb->setTotalMass(1);
 
         btTransform init_transform;
         init_transform.setIdentity();
         init_transform.setOrigin(btVector3(0, 0.1, 0));
         // init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
-
-        rsb->setStiffnessScale(100);
-        rsb->setDamping(damping_alpha, damping_beta);
-
-        rsb->scale(btVector3(0.075, 0.075, 0.075));       // roughly about 10cm x 10cm x 10cm
-        rsb->setTotalMass(1);                     // about 200 gram
         
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
 

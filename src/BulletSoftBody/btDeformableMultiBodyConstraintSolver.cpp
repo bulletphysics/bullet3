@@ -14,6 +14,7 @@
  */
 
 #include "btDeformableMultiBodyConstraintSolver.h"
+#include "BulletReducedDeformableBody/btReducedDeformableBodySolver.h"
 #include <iostream>
 #include <thread>
 // override the iterations method to include deformable/multibody contact
@@ -21,7 +22,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 {
 	{
 		// pair deformable body with solver body
-		pairDeformableAndSolverBody(bodies, numBodies, infoGlobal);
+		pairDeformableAndSolverBody(bodies, numBodies, numDeformableBodies, infoGlobal);
 
 		///this is a special step to resolve penetrations (just for contacts)
 		solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, deformableBodies, numDeformableBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
@@ -41,6 +42,10 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 			// solver body velocity <- rigid body velocity
 			writeToSolverBody(bodies, numBodies, infoGlobal);
 
+
+			std::cout << "------------Iteration " << iteration << "------------\n";
+			std::cout << "m_leastSquaresResidual: " << m_leastSquaresResidual << "\n";
+
 			if (m_leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || (iteration >= (maxIterations - 1)))
 			{
 #ifdef VERBOSE_RESIDUAL_PRINTF
@@ -57,6 +62,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 				m_analyticsData.m_remainingLeastSquaresResidual = m_leastSquaresResidual;
 				
 				m_deformableSolver->deformableBodyInternalWriteBack();
+				std::cout << "[===================Next Step===================]\n";
 				break;
 			}
 		}
@@ -124,23 +130,49 @@ void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactS
 }
 
 
-void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
+void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollisionObject** bodies, int numBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
 	if (!m_deformableSolver->isReducedSolver())
 	{
 		return;
 	}
 
-	for (int i = 0; i < numBodies; i++)
+	btReducedDeformableBodySolver* solver = static_cast<btReducedDeformableBodySolver*>(m_deformableSolver);
+	
+	for (int i = 0; i < numDeformableBodies; ++i)
 	{
-		int bodyId = getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
+		for (int k = 0; k < solver->m_nodeRigidConstraints[i].size(); ++k)
+    {
+      btReducedDeformableNodeRigidContactConstraint& constraint = solver->m_nodeRigidConstraints[i][k];
 
-		btRigidBody* body = btRigidBody::upcast(bodies[i]);
-		if (body && body->getInvMass())
-		{
-			btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
-			m_deformableSolver->pairConstraintWithSolverBody(solverBody);
-		}
+			if (!constraint.m_contact->m_cti.m_colObj->isStaticObject())
+			{
+				btCollisionObject& col_obj = const_cast<btCollisionObject&>(*constraint.m_contact->m_cti.m_colObj);
+
+				// object index in the solver body pool
+				int bodyId = getOrInitSolverBody(col_obj, infoGlobal.m_timeStep);
+				
+				const btRigidBody* body = btRigidBody::upcast(bodies[bodyId]);
+				if (body && body->getInvMass())
+				{
+						std::cout << "Node: " << constraint.m_node->index << ", body: " << bodyId << "\n";
+					btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
+					constraint.setSolverBody(bodyId, solverBody);
+				}
+			}
+    }
+
+		// for (int j = 0; j < numBodies; j++)
+		// {
+		// 	int bodyId = getOrInitSolverBody(*bodies[j], infoGlobal.m_timeStep);
+
+		// 	btRigidBody* body = btRigidBody::upcast(bodies[j]);
+		// 	if (body && body->getInvMass())
+		// 	{
+		// 		btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
+		// 		m_deformableSolver->pairConstraintWithSolverBody(i, bodyId, solverBody);
+		// 	}
+		// }	
 	}
 }
 

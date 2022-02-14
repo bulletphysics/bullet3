@@ -78,10 +78,11 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
 	m_collideMultibody = (m_contact->m_cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK);
 }
 
-void btReducedDeformableRigidContactConstraint::setSolverBody(btSolverBody& solver_body)
+void btReducedDeformableRigidContactConstraint::setSolverBody(const int bodyId, btSolverBody& solver_body)
 {
 	if (!m_collideMultibody)
 	{
+		m_solverBodyId = bodyId;
 		m_solverBody = &solver_body;
 		m_linearComponentNormal = -m_contactNormalA * m_solverBody->internalGetInvMass();
 		btVector3	torqueAxis = -m_relPosA.cross(m_contactNormalA);

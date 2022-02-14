@@ -45,6 +45,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   bool m_collideMultibody;  // flag for collision with multibody
 
   int m_nodeQueryIndex;
+  int m_solverBodyId;       // for debugging
 
   btReducedDeformableBody* m_rsb;
   btSolverBody* m_solverBody;
@@ -92,7 +93,7 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
   btReducedDeformableRigidContactConstraint() {}
   virtual ~btReducedDeformableRigidContactConstraint() {}
 
-  void setSolverBody(btSolverBody& solver_body);
+  void setSolverBody(const int bodyId, btSolverBody& solver_body);
 
   virtual void warmStarting() {}
 
