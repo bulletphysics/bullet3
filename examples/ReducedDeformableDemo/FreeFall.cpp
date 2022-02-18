@@ -174,8 +174,8 @@ void FreeFall::initPhysics()
     // m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
     
     // 2 reduced deformable cubes
-    createReducedDeformableObject(btVector3(0, 1, -2), btQuaternion());
-    // createReducedDeformableObject(btVector3(0, 1, 2), btQuaternion());
+    createReducedDeformableObject(btVector3(0, 1, -2), btQuaternion(0, 0, 0));
+    createReducedDeformableObject(btVector3(0, 1, 2), btQuaternion(0, 0, 0));
    
     // 2 rigid cubes
     Ctor_RbUpStack(btVector3(0, 3, -2));
