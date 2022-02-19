@@ -1610,7 +1610,7 @@ std::string btSoftBodyHelpers::loadDeformableState(btAlignedObjectArray<btVector
 			const char* token = linebuf.c_str();
 			token += strspn(token, " \t");
 
-			assert(token);
+			btAssert(token);
 			if (token[0] == '\0') continue;  // empty line
 
 			if (token[0] == '#') continue;  // comment line
