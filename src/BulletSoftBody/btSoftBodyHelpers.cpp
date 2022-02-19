@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <iomanip> 
 #include <sstream>
 #include <string.h>
 #include <algorithm>
