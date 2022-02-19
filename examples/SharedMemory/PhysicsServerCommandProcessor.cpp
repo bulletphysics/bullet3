@@ -8086,7 +8086,7 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 		btSoftBody* psb = deformWorld->getSoftBodyArray()[i];
 		for (int c = 0; c < psb->m_faceRigidContacts.size(); c++)
 		{
-			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[i];
+			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[c];
 			//convert rigidbody contact
 			int linkIndexA = -1;
 			int linkIndexB = -1;
