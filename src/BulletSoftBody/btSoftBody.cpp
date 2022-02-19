@@ -4288,14 +4288,6 @@ void btSoftBody::geometricCollisionHandler(btSoftBody* psb)
 		}
 	}
 }
-void btSoftBody::approximateCollisionHandler(btSoftBody* psb)
-{
-    if (psb->isActive() || this->isActive())
-    {
-        // test aabb collision
-        }
-}
-
 
 void btSoftBody::setWindVelocity(const btVector3& velocity)
 {
