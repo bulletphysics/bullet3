@@ -407,7 +407,7 @@ public:
 		btScalar m_friction;  // Friction
 		btScalar m_imf;       // inverse mass of the face at contact point
 		btScalar m_c0;        // scale of the impulse matrix;
-	  const btCollisionObject* m_colObj; // Collision object to collide with.
+		const btCollisionObject* m_colObj;  // Collision object to collide with.
 	};
 
 	/* SContact		*/
