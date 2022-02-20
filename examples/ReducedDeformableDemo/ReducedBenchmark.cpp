@@ -87,74 +87,81 @@ public:
     {
 
         if (run_reduced)
-    {   
-        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        {   
+            std::string file_path("../../../data/reduced_torus/");
+            std::string vtk_file("torus_mesh.vtk");
+            btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedDeformableObject(
+                                                getDeformableDynamicsWorld()->getWorldInfo(),
+                                                file_path,
+                                                vtk_file,
+                                                num_modes,
+                                                false);
 
-        getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.01);
-        // rsb->scale(btVector3(1, 1, 0.5));
+            getDeformableDynamicsWorld()->addSoftBody(rsb);
+            rsb->getCollisionShape()->setMargin(0.01);
+            // rsb->scale(btVector3(1, 1, 0.5));
 
-        rsb->setTotalMass(10);
+            rsb->setTotalMass(10);
 
-        btTransform init_transform;
-        init_transform.setIdentity();
-        init_transform.setOrigin(origin);
-        init_transform.setRotation(rotation);
-        rsb->transformTo(init_transform);
+            btTransform init_transform;
+            init_transform.setIdentity();
+            init_transform.setOrigin(origin);
+            init_transform.setRotation(rotation);
+            rsb->transformTo(init_transform);
 
-        rsb->setStiffnessScale(5);
-        rsb->setDamping(damping_alpha, damping_beta);
-        // rsb->scale(btVector3(0.5, 0.5, 0.5));
+            rsb->setStiffnessScale(5);
+            rsb->setDamping(damping_alpha, damping_beta);
+            // rsb->scale(btVector3(0.5, 0.5, 0.5));
 
-        rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        rsb->m_cfg.kDF = 0;
-        rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
-        rsb->m_sleepingThreshold = 0;
-        btSoftBodyHelpers::generateBoundaryFaces(rsb);
+            rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+            rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
+            rsb->m_cfg.kDF = 0;
+            rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+            rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
+            rsb->m_sleepingThreshold = 0;
+            btSoftBodyHelpers::generateBoundaryFaces(rsb);
 
-        std::cout << "Running reduced deformable\n";
-    }
-    else    // create full deformable cube
-    {
-        std::string filepath("../../../data/reduced_torus/");
-        std::string filename = filepath + "torus_mesh.vtk";
-        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
-        
-        btTransform init_transform;
-        init_transform.setIdentity();
-        init_transform.setOrigin(origin);
-        init_transform.setRotation(rotation);
-        psb->transform(init_transform);
-        psb->getCollisionShape()->setMargin(0.015);
-        psb->setTotalMass(10);
-        psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = .5;
-        psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
-        getDeformableDynamicsWorld()->addSoftBody(psb);
-        btSoftBodyHelpers::generateBoundaryFaces(psb);
-        
-        btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(m_gravity);
-        getDeformableDynamicsWorld()->addForce(psb, gravity_force);
-        m_forces.push_back(gravity_force);
-        
-        btScalar E = 10000;
-        btScalar nu = 0.3;
-        btScalar lambda = E * nu / ((1 + nu) * (1 - 2 * nu));
-        btScalar mu = E / (2 * (1 + nu));
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(lambda, mu, 0.01);
-        // neohookean->setPoissonRatio(0.3);
-        // neohookean->setYoungsModulus(25);
-        neohookean->setDamping(0.01);
-        psb->m_cfg.drag = 0.001;
-        getDeformableDynamicsWorld()->addForce(psb, neohookean);
-        m_forces.push_back(neohookean);
+            std::cout << "Running reduced deformable\n";
+        }
+        else    // create full deformable cube
+        {
+            std::string filepath("../../../data/reduced_torus/");
+            std::string filename = filepath + "torus_mesh.vtk";
+            btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
+            
+            btTransform init_transform;
+            init_transform.setIdentity();
+            init_transform.setOrigin(origin);
+            init_transform.setRotation(rotation);
+            psb->transform(init_transform);
+            psb->getCollisionShape()->setMargin(0.015);
+            psb->setTotalMass(10);
+            psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+            psb->m_cfg.kCHR = 1; // collision hardness with rigid body
+            psb->m_cfg.kDF = .5;
+            psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+            psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
+            getDeformableDynamicsWorld()->addSoftBody(psb);
+            btSoftBodyHelpers::generateBoundaryFaces(psb);
+            
+            btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(m_gravity);
+            getDeformableDynamicsWorld()->addForce(psb, gravity_force);
+            m_forces.push_back(gravity_force);
+            
+            btScalar E = 10000;
+            btScalar nu = 0.3;
+            btScalar lambda = E * nu / ((1 + nu) * (1 - 2 * nu));
+            btScalar mu = E / (2 * (1 + nu));
+            btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(lambda, mu, 0.01);
+            // neohookean->setPoissonRatio(0.3);
+            // neohookean->setYoungsModulus(25);
+            neohookean->setDamping(0.01);
+            psb->m_cfg.drag = 0.001;
+            getDeformableDynamicsWorld()->addForce(psb, neohookean);
+            m_forces.push_back(neohookean);
 
-        std::cout << "Running full deformable\n";
-    }
+            std::cout << "Running full deformable\n";
+        }
 
         // btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedTorus(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
 

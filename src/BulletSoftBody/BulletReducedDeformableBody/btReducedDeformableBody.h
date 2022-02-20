@@ -20,6 +20,9 @@ class btReducedDeformableBody : public btSoftBody
   typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 
  private:
+  // flag to turn off the reduced modes
+  bool m_rigidOnly;
+
   // Flags for transform. Once transform is applied, users cannot scale the mesh or change its total mass.
   bool m_transform_lock;
 
@@ -66,9 +69,6 @@ class btReducedDeformableBody : public btSoftBody
   btScalar m_dampingBeta;
 
  public:
-
-  bool m_rigidOnly;
-
   //
   //  Fields
   //
@@ -125,6 +125,8 @@ class btReducedDeformableBody : public btSoftBody
   void setFixedNodes(const int n_node);
 
   void setDamping(const btScalar alpha, const btScalar beta);
+
+  void disableReducedModes(const bool rigid_only);
 
   virtual void setTotalMass(btScalar mass, bool fromfaces = false);
 
@@ -228,6 +230,7 @@ class btReducedDeformableBody : public btSoftBody
   //
   // accessors
   //
+  bool isReducedModesOFF() const;
   btScalar getTotalMass() const;
   btTransform& getRigidTransform();
   const btVector3& getLinearVelocity() const;

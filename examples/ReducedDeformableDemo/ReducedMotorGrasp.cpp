@@ -317,8 +317,14 @@ void ReducedMotorGrasp::initPhysics()
 
 	// create volumetric reduced deformable body
     {   
-        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
-
+        std::string file_path("../../../data/reduced_cube/");
+        std::string vtk_file("cube_mesh.vtk");
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedDeformableObject(
+                                            getDeformableDynamicsWorld()->getWorldInfo(),
+                                            file_path,
+                                            vtk_file,
+                                            num_modes,
+                                            false);
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.001);
 

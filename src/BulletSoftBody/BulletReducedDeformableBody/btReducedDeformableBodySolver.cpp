@@ -145,7 +145,7 @@ void btReducedDeformableBodySolver::applyExplicitForce(btScalar solverdt)
     // apply gravity to the rigid frame, get m_linearVelocity at time^*
     rsb->applyRigidGravity(m_gravity, solverdt);
 
-    if (!rsb->m_rigidOnly)
+    if (!rsb->isReducedModesOFF())
     {
       // add internal force (elastic force & damping force)
       rsb->applyReducedElasticForce(rsb->m_reducedDofsBuffer);
@@ -169,7 +169,7 @@ void btReducedDeformableBodySolver::applyTransforms(btScalar timeStep)
     // rigid motion
     rsb->proceedToTransform(timeStep, true);
 
-    if (!rsb->m_rigidOnly)
+    if (!rsb->isReducedModesOFF())
     {
       // update reduced dofs for time^n+1
       rsb->updateReducedDofs(timeStep);
@@ -233,8 +233,8 @@ void btReducedDeformableBodySolver::setConstraints(const btContactSolverInfo& in
 			m_nodeRigidConstraints[i].push_back(constraint);
       rsb->m_contactNodesList.push_back(contact.m_node->index - rsb->m_nodeIndexOffset);
 		}
-    std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
-    std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
+    // std::cout << "contact node list size: " << rsb->m_contactNodesList.size() << "\n";
+    // std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
 
   }
 }
@@ -292,7 +292,7 @@ btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObjec
     // handle contact constraint
 
     // node vs rigid contact
-    std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[i].size() << '\n';
+    // std::cout << "!!#contact_nodes: " << m_nodeRigidConstraints[i].size() << '\n';
     for (int k = 0; k < m_nodeRigidConstraints[i].size(); ++k)
     {
       btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][m_orderContactConstraintPool[k]];

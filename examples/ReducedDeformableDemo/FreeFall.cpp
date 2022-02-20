@@ -32,7 +32,7 @@
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0001;
 static btScalar COLLIDING_VELOCITY = 0;
-static int num_modes = 20;
+static int num_modes = 40;
 
 class FreeFall : public CommonDeformableBodyBase
 {
@@ -55,7 +55,7 @@ public:
 
     void resetCamera()
     {
-        float dist = 6;
+        float dist = 8;
         float pitch = -10;
         float yaw = 90;
         float targetPos[3] = {0, 2, 0};
@@ -81,12 +81,19 @@ public:
         // startTransform.setRotation(btQuaternion(btVector3(1, 0, 1), SIMD_PI / 4.0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setActivationState(DISABLE_DEACTIVATION);
-        rb1->setLinearVelocity(btVector3(0, -4, 0));
+        rb1->setLinearVelocity(btVector3(0, 0, 0));
     }
 
     void createReducedDeformableObject(const btVector3& origin, const btQuaternion& rotation)
     {   
-        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedCube(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        std::string file_path("../../../data/reduced_cube/");
+        std::string vtk_file("cube_mesh.vtk");
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedDeformableObject(
+                                            getDeformableDynamicsWorld()->getWorldInfo(),
+                                            file_path,
+                                            vtk_file,
+                                            num_modes,
+                                            false);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.01);
@@ -100,7 +107,7 @@ public:
         init_transform.setRotation(rotation);
         rsb->transformTo(init_transform);
 
-        rsb->setStiffnessScale(5);
+        rsb->setStiffnessScale(25);
         rsb->setDamping(damping_alpha, damping_beta);
         // rsb->scale(btVector3(0.5, 0.5, 0.5));
 
@@ -168,18 +175,18 @@ void FreeFall::initPhysics()
     m_solver = sol;
 
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
-    btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, -9.8, 0);
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     // m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
     
     // 2 reduced deformable cubes
-    createReducedDeformableObject(btVector3(0, 1, -2), btQuaternion(0, 0, 0));
-    createReducedDeformableObject(btVector3(0, 1, 2), btQuaternion(0, 0, 0));
+    createReducedDeformableObject(btVector3(0, 4, -2), btQuaternion(0, 0, 0));
+    createReducedDeformableObject(btVector3(0, 4, 2), btQuaternion(0, 0, 0));
    
     // 2 rigid cubes
-    Ctor_RbUpStack(btVector3(0, 3, -2));
-    Ctor_RbUpStack(btVector3(0, 3, 2));
+    Ctor_RbUpStack(btVector3(0, 10, -2));
+    Ctor_RbUpStack(btVector3(0, 10, 2));
     
     // create a static rigid box as the ground
     {

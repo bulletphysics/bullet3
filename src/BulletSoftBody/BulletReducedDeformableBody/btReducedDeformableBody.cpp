@@ -6,10 +6,8 @@
 #include <fstream>
 
 btReducedDeformableBody::btReducedDeformableBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
- : btSoftBody(worldInfo, node_count, x, m)
+ : btSoftBody(worldInfo, node_count, x, m), m_rigidOnly(false)
 {
-  m_rigidOnly = true;     //! only use rigid frame to debug
-
   // reduced deformable
   m_reducedModel = true;
   m_nReduced = 0;
@@ -781,4 +779,14 @@ const btVector3& btReducedDeformableBody::getLinearVelocity() const
 const btVector3& btReducedDeformableBody::getAngularVelocity() const
 {
   return m_angularVelocity;
+}
+
+void btReducedDeformableBody::disableReducedModes(const bool rigid_only)
+{
+  m_rigidOnly = rigid_only;
+}
+
+bool btReducedDeformableBody::isReducedModesOFF() const
+{
+  return m_rigidOnly;
 }

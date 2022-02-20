@@ -4,40 +4,15 @@
 #include <string>
 #include <sstream>
 
-btReducedDeformableBody* btReducedDeformableBodyHelpers::createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int num_modes)
-{
-	std::string filepath("../../../data/reduced_beam/");
-	// std::string filename = filepath + "beam_mesh.vtk";
-	std::string filename = filepath + "beam_mesh_origin.vtk";
+btReducedDeformableBody* btReducedDeformableBodyHelpers::createReducedDeformableObject(btSoftBodyWorldInfo& worldInfo, const std::string& file_path, const std::string& vtk_file, const int num_modes, bool rigid_only) {
+	std::string filename = file_path + vtk_file;
 	btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
 	
 	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
+	btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, file_path.c_str());
+	
+	rsb->disableReducedModes(rigid_only);
 
-	return rsb;
-}
-
-btReducedDeformableBody* btReducedDeformableBodyHelpers::createReducedCube(btSoftBodyWorldInfo& worldInfo, const int num_modes)
-{
-	std::string filepath("../../../data/reduced_cube/");
-	std::string filename = filepath + "cube_mesh.vtk";
-	btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
-	
-	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
-	
-	return rsb;
-}
-
-btReducedDeformableBody* btReducedDeformableBodyHelpers::createReducedTorus(btSoftBodyWorldInfo& worldInfo, const int num_modes)
-{
-	std::string filepath("../../../data/reduced_torus/");
-	std::string filename = filepath + "torus_mesh.vtk";
-	btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createFromVtkFile(worldInfo, filename.c_str());
-	
-	rsb->setReducedModes(num_modes, rsb->m_nodes.size());
-	btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
-	
 	return rsb;
 }
 

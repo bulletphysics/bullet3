@@ -2,16 +2,12 @@
 #define BT_REDUCED_SOFT_BODY_HELPERS_H
 
 #include "btReducedDeformableBody.h"
+#include <string>
 
 struct btReducedDeformableBodyHelpers
 {
-	// create a beam
-	static btReducedDeformableBody* createReducedBeam(btSoftBodyWorldInfo& worldInfo, const int num_modes);
-	// create a cube
-	static btReducedDeformableBody* createReducedCube(btSoftBodyWorldInfo& worldInfo, const int num_modes);
-	// create a torus
-	static btReducedDeformableBody* createReducedTorus(btSoftBodyWorldInfo& worldInfo, const int num_modes);
-
+	// create a reduced deformable object
+	static btReducedDeformableBody* createReducedDeformableObject(btSoftBodyWorldInfo& worldInfo, const std::string& file_path, const std::string& vtk_file, const int num_modes, bool rigid_only);
 	// read in geometry info from Vtk file
   static btReducedDeformableBody* createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
 	// read in all reduced files

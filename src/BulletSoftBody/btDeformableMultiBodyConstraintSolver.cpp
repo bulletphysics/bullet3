@@ -43,8 +43,8 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 			writeToSolverBody(bodies, numBodies, infoGlobal);
 
 
-			std::cout << "------------Iteration " << iteration << "------------\n";
-			std::cout << "m_leastSquaresResidual: " << m_leastSquaresResidual << "\n";
+			// std::cout << "------------Iteration " << iteration << "------------\n";
+			// std::cout << "m_leastSquaresResidual: " << m_leastSquaresResidual << "\n";
 
 			if (m_leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || (iteration >= (maxIterations - 1)))
 			{
@@ -62,7 +62,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 				m_analyticsData.m_remainingLeastSquaresResidual = m_leastSquaresResidual;
 				
 				m_deformableSolver->deformableBodyInternalWriteBack();
-				std::cout << "[===================Next Step===================]\n";
+				// std::cout << "[===================Next Step===================]\n";
 				break;
 			}
 		}
@@ -155,7 +155,7 @@ void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollis
 				const btRigidBody* body = btRigidBody::upcast(bodies[bodyId]);
 				if (body && body->getInvMass())
 				{
-						std::cout << "Node: " << constraint.m_node->index << ", body: " << bodyId << "\n";
+						// std::cout << "Node: " << constraint.m_node->index << ", body: " << bodyId << "\n";
 					btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
 					constraint.setSolverBody(bodyId, solverBody);
 				}

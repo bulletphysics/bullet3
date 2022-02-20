@@ -141,7 +141,14 @@ void Springboard::initPhysics()
 
     // create volumetric reduced deformable body
     {   
-        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedBeam(getDeformableDynamicsWorld()->getWorldInfo(), num_modes);
+        std::string file_path("../../../data/reduced_beam/");
+        std::string vtk_file("beam_mesh_origin.vtk");
+        btReducedDeformableBody* rsb = btReducedDeformableBodyHelpers::createReducedDeformableObject(
+                                            getDeformableDynamicsWorld()->getWorldInfo(),
+                                            file_path,
+                                            vtk_file,
+                                            num_modes,
+                                            false);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
