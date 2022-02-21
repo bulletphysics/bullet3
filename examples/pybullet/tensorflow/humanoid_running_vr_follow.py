@@ -1,4 +1,8 @@
-import tf.compat.v1 as tf
+try:
+  import tf.compat.v1 as tf
+except Exception:
+  import tensorflow.compat.v1 as tf
+  tf.disable_eager_execution()
 import sys
 import numpy as np
 
