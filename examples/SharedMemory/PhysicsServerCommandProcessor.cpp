@@ -5275,12 +5275,12 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						{
 							//create a convex hull for each shape, and store it in a btCompoundShape
 
-							std::vector<tinyobj::shape_t> shapes;
-							tinyobj::attrib_t attribute;
-							std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
+							std::vector<bt_tinyobj::shape_t> shapes;
+							bt_tinyobj::attrib_t attribute;
+							std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
 
 							//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
-							//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
+							//static btCollisionShape* createConvexHullFromShapes(std::vector<bt_tinyobj::shape_t>& shapes, const btVector3& geomScale)
 							B3_PROFILE("createConvexHullFromShapes");
 							if (compound == 0)
 							{
@@ -5292,7 +5292,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							{
 								btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
 								convexHull->setMargin(m_data->m_defaultCollisionMargin);
-								tinyobj::shape_t& shape = shapes[s];
+								bt_tinyobj::shape_t& shape = shapes[s];
 								int faceCount = shape.mesh.indices.size();
 
 								for (int f = 0; f < faceCount; f += 3)
@@ -8975,12 +8975,12 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 	}
 	if (out_sim_type == UrdfGeometry::FILE_OBJ)
 	{
-		std::vector<tinyobj::shape_t> shapes;
-		tinyobj::attrib_t attribute;
-		std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
+		std::vector<bt_tinyobj::shape_t> shapes;
+		bt_tinyobj::attrib_t attribute;
+		std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
 		if (!shapes.empty())
 		{
-			const tinyobj::shape_t& shape = shapes[0];
+			const bt_tinyobj::shape_t& shape = shapes[0];
 			btAlignedObjectArray<btScalar> vertices;
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < attribute.vertices.size(); i++)
@@ -9124,14 +9124,14 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			}
 			else
 			{
-				tinyobj::attrib_t attribute;
-				std::vector<tinyobj::shape_t> shapes;
+				bt_tinyobj::attrib_t attribute;
+				std::vector<bt_tinyobj::shape_t> shapes;
 
-				std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+				std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
 
 				for (int s = 0; s < (int)shapes.size(); s++)
 				{
-					tinyobj::shape_t& shape = shapes[s];
+					bt_tinyobj::shape_t& shape = shapes[s];
 					int faceCount = shape.mesh.indices.size();
 					int vertexCount = attribute.vertices.size() / 3;
 					for (int v = 0; v < vertexCount; v++)
@@ -9146,9 +9146,9 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 						{
 							continue;
 						}
-						tinyobj::index_t v_0 = shape.mesh.indices[f];
-						tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-						tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+						bt_tinyobj::index_t v_0 = shape.mesh.indices[f];
+						bt_tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+						bt_tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
 						btSoftBody::RenderFace ff;
 						ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
 						ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];

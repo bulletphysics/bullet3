@@ -30,13 +30,13 @@
 #include "Bullet3Common/b3HashMap.h"
 #include "../Utils/b3BulletDefaultFileIO.h"
 
-using tinyobj::index_t;
+using bt_tinyobj::index_t;
 
 struct ShapeContainer
 {
 	std::string m_matName;
 	std::string m_shapeName;
-	tinyobj::material_t material;
+	bt_tinyobj::material_t material;
 	std::vector<float> positions;
 	std::vector<float> normals;
 	std::vector<float> texcoords;
@@ -91,11 +91,11 @@ int main(int argc, char* argv[])
 	char materialPrefixPath[MAX_PATH_LEN];
 	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN);
 
-	std::vector<tinyobj::shape_t> shapes;
-	tinyobj::attrib_t attribute;
+	std::vector<bt_tinyobj::shape_t> shapes;
+	bt_tinyobj::attrib_t attribute;
 
 	b3BulletDefaultFileIO fileIO;
-	std::string err = tinyobj::LoadObj(attribute, shapes, fileNameWithPath, materialPrefixPath,&fileIO);
+	std::string err = bt_tinyobj::LoadObj(attribute, shapes, fileNameWithPath, materialPrefixPath, &fileIO);
 
 	char sdfFileName[MAX_PATH_LEN];
 	sprintf(sdfFileName, "%s%s.sdf", materialPrefixPath, "newsdf");
@@ -110,8 +110,8 @@ int main(int argc, char* argv[])
 
 	for (int s = 0; s < (int)shapes.size(); s++)
 	{
-		tinyobj::shape_t& shape = shapes[s];
-		tinyobj::material_t mat = shape.material;
+		bt_tinyobj::shape_t& shape = shapes[s];
+		bt_tinyobj::material_t mat = shape.material;
 
 		b3HashString key = mat.name.length() ? mat.name.c_str() : "";
 		if (!gMaterialNames.find(key))
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 
 			int faceCount = shapeCon->indices.size();
 			int vertexCount = shapeCon->positions.size();
-			tinyobj::material_t mat = shapeCon->material;
+			bt_tinyobj::material_t mat = shapeCon->material;
 			if (shapeCon->m_matName.length())
 			{
 				const char* objName = shapeCon->m_matName.c_str();
@@ -317,7 +317,7 @@ int main(int argc, char* argv[])
 	{
 		for (int s = 0; s < (int)shapes.size(); s++)
 		{
-			tinyobj::shape_t& shape = shapes[s];
+			bt_tinyobj::shape_t& shape = shapes[s];
 
 			if (shape.name.length())
 			{
@@ -351,7 +351,7 @@ int main(int argc, char* argv[])
 
 			int faceCount = shape.mesh.indices.size();
 			int vertexCount = attribute.vertices.size();
-			tinyobj::material_t mat = shape.material;
+			bt_tinyobj::material_t mat = shape.material;
 			if (shape.name.length())
 			{
 				const char* objName = shape.name.c_str();

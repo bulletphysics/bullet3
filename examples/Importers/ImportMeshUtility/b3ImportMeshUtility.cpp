@@ -64,8 +64,8 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 		btVector3 shift(0, 0, 0);
 
-		std::vector<tinyobj::shape_t> shapes;
-		tinyobj::attrib_t attribute;
+		std::vector<bt_tinyobj::shape_t> shapes;
+		bt_tinyobj::attrib_t attribute;
 		{
 			B3_PROFILE("tinyobj::LoadObj");
 			std::string err = LoadFromCachedOrFromObj(attribute, shapes, relativeFileName, pathPrefix, fileIO);
@@ -79,7 +79,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 			//try to load some texture
 			for (int i = 0; meshData.m_textureImage1 == 0 && i < shapes.size(); i++)
 			{
-				const tinyobj::shape_t& shape = shapes[i];
+				const bt_tinyobj::shape_t& shape = shapes[i];
 				meshData.m_rgbaColor[0] = shape.material.diffuse[0];
 				meshData.m_rgbaColor[1] = shape.material.diffuse[1];
 				meshData.m_rgbaColor[2] = shape.material.diffuse[2];

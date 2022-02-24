@@ -4,6 +4,6 @@
 #include "../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
 #include <vector>
 
-struct GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, bool flatShading = false);
+struct GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj::attrib_t& attribute, std::vector<bt_tinyobj::shape_t>& shapes, bool flatShading = false);
 
 #endif  //WAVEFRONT2GRAPHICS_H

@@ -3,8 +3,8 @@
 //
 // Licensed under 2-clause BSD liecense.
 //
-#ifndef _TINY_OBJ_LOADER_H
-#define _TINY_OBJ_LOADER_H
+#ifndef _BT_TINY_OBJ_LOADER_H
+#define _BT_TINY_OBJ_LOADER_H
 
 #include <string>
 #include <vector>
@@ -12,7 +12,7 @@
 
 struct CommonFileIOInterface;
 
-namespace tinyobj
+namespace bt_tinyobj
 {
 struct vertex_index_t
 {
@@ -94,6 +94,6 @@ LoadObj(
 	CommonFileIOInterface* fileIO);
 #endif
 
-};  // namespace tinyobj
+};  // namespace bt_tinyobj
 
-#endif  // _TINY_OBJ_LOADER_H
+#endif  // _BT_TINY_OBJ_LOADER_H
