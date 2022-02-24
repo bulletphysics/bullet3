@@ -31,7 +31,7 @@
 #include "tiny_obj_loader.h"
 #include <stdio.h>
 
-namespace tinyobj
+namespace bt_tinyobj
 {
 #ifdef USE_STREAM
 //See http://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf
@@ -880,4 +880,4 @@ LoadObj(
 	return err.str();
 }
 
-};  // namespace tinyobj
+};  // namespace bt_tinyobj

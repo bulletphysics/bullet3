@@ -11,8 +11,8 @@
 struct CachedObjResult
 {
 	std::string m_msg;
-	std::vector<tinyobj::shape_t> m_shapes;
-	tinyobj::attrib_t m_attribute;
+	std::vector<bt_tinyobj::shape_t> m_shapes;
+	bt_tinyobj::attrib_t m_attribute;
 };
 
 static b3HashMap<b3HashString, CachedObjResult> gCachedObjResults;
@@ -32,8 +32,8 @@ void b3EnableFileCaching(int enable)
 }
 
 std::string LoadFromCachedOrFromObj(
-	tinyobj::attrib_t& attribute,
-	std::vector<tinyobj::shape_t>& shapes,  // [output]
+	bt_tinyobj::attrib_t& attribute,
+	std::vector<bt_tinyobj::shape_t>& shapes,  // [output]
 	const char* filename,
 	const char* mtl_basepath,
 	struct CommonFileIOInterface* fileIO)
@@ -47,7 +47,7 @@ std::string LoadFromCachedOrFromObj(
 		return result.m_msg;
 	}
 
-	std::string err = tinyobj::LoadObj(attribute, shapes, filename, mtl_basepath, fileIO);
+	std::string err = bt_tinyobj::LoadObj(attribute, shapes, filename, mtl_basepath, fileIO);
 	CachedObjResult result;
 	result.m_msg = err;
 	result.m_shapes = shapes;
@@ -62,10 +62,10 @@ std::string LoadFromCachedOrFromObj(
 GLInstanceGraphicsShape* LoadMeshFromObj(const char* relativeFileName, const char* materialPrefixPath, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("LoadMeshFromObj");
-	std::vector<tinyobj::shape_t> shapes;
-	tinyobj::attrib_t attribute;
+	std::vector<bt_tinyobj::shape_t> shapes;
+	bt_tinyobj::attrib_t attribute;
 	{
-		B3_PROFILE("tinyobj::LoadObj2");
+		B3_PROFILE("bt_tinyobj::LoadObj2");
 		std::string err = LoadFromCachedOrFromObj(attribute, shapes, relativeFileName, materialPrefixPath, fileIO);
 	}
 
