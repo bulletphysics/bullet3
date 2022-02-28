@@ -38,8 +38,8 @@ TestLoadObj(
 
 	std::cout << "Loading " << fullPath << std::endl;
 
-	std::vector<tinyobj::shape_t> shapes;
-	std::string err = tinyobj::LoadObj(shapes, fullPath, prefix[index]);
+	std::vector<bt_tinyobj::shape_t> shapes;
+	std::string err = bt_tinyobj::LoadObj(shapes, fullPath, prefix[index]);
 
 	if (!err.empty())
 	{

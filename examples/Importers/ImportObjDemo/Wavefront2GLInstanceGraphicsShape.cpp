@@ -9,7 +9,7 @@
 #include "../../OpenGLWindow/GLInstancingRenderer.h"
 #include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
 
-GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, bool flatShading)
+GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj::attrib_t& attribute, std::vector<bt_tinyobj::shape_t>& shapes, bool flatShading)
 {
 	b3AlignedObjectArray<GLInstanceVertex>* vertices = new b3AlignedObjectArray<GLInstanceVertex>;
 	{
@@ -19,7 +19,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const tinyobj::a
 
 		for (int s = 0; s < (int)shapes.size(); s++)
 		{
-			tinyobj::shape_t& shape = shapes[s];
+			bt_tinyobj::shape_t& shape = shapes[s];
 			int faceCount = shape.mesh.indices.size();
 
 			for (int f = 0; f < faceCount; f += 3)
@@ -36,7 +36,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const tinyobj::a
 					}
 
 					GLInstanceVertex vtx0;
-					tinyobj::index_t v_0 = shape.mesh.indices[f];
+					bt_tinyobj::index_t v_0 = shape.mesh.indices[f];
 					vtx0.xyzw[0] = attribute.vertices[3 * v_0.vertex_index];
 					vtx0.xyzw[1] = attribute.vertices[3 * v_0.vertex_index + 1];
 					vtx0.xyzw[2] = attribute.vertices[3 * v_0.vertex_index + 2];
@@ -65,7 +65,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const tinyobj::a
 					}
 
 					GLInstanceVertex vtx1;
-					tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+					bt_tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
 					vtx1.xyzw[0] = attribute.vertices[3 * v_1.vertex_index];
 					vtx1.xyzw[1] = attribute.vertices[3 * v_1.vertex_index + 1];
 					vtx1.xyzw[2] = attribute.vertices[3 * v_1.vertex_index + 2];
@@ -94,7 +94,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const tinyobj::a
 					}
 
 					GLInstanceVertex vtx2;
-					tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+					bt_tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
 					vtx2.xyzw[0] = attribute.vertices[3 * v_2.vertex_index];
 					vtx2.xyzw[1] = attribute.vertices[3 * v_2.vertex_index + 1];
 					vtx2.xyzw[2] = attribute.vertices[3 * v_2.vertex_index + 2];

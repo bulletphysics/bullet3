@@ -2273,7 +2273,7 @@ int BulletMJCFImporter::getBodyUniqueId() const
 	return m_data->m_activeBodyUniqueId;
 }
 
-static btCollisionShape* MjcfCreateConvexHullFromShapes(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, btScalar collisionMargin)
+static btCollisionShape* MjcfCreateConvexHullFromShapes(const bt_tinyobj::attrib_t& attribute, std::vector<bt_tinyobj::shape_t>& shapes, const btVector3& geomScale, btScalar collisionMargin)
 {
 	btCompoundShape* compound = new btCompoundShape();
 	compound->setMargin(collisionMargin);
@@ -2285,7 +2285,7 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(const tinyobj::attrib_t&
 	{
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(collisionMargin);
-		tinyobj::shape_t& shape = shapes[s];
+		bt_tinyobj::shape_t& shape = shapes[s];
 
 		int faceCount = shape.mesh.indices.size();
 
@@ -2399,9 +2399,9 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							}
 							else
 							{
-								std::vector<tinyobj::shape_t> shapes;
-								tinyobj::attrib_t attribute;
-								std::string err = tinyobj::LoadObj(attribute, shapes, col->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
+								std::vector<bt_tinyobj::shape_t> shapes;
+								bt_tinyobj::attrib_t attribute;
+								std::string err = bt_tinyobj::LoadObj(attribute, shapes, col->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
 								//create a convex hull for each shape, and store it in a btCompoundShape
 
 								childShape = MjcfCreateConvexHullFromShapes(attribute, shapes, col->m_geometry.m_meshScale, m_data->m_globalDefaults.m_defaultCollisionMargin);
