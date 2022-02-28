@@ -9612,14 +9612,14 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			}
 			else
 			{
-				tinyobj::attrib_t attribute;
-				std::vector<tinyobj::shape_t> shapes;
+				bt_tinyobj::attrib_t attribute;
+				std::vector<bt_tinyobj::shape_t> shapes;
 
-				std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+				std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
 
 				for (int s = 0; s < (int)shapes.size(); s++)
 				{
-					tinyobj::shape_t& shape = shapes[s];
+					bt_tinyobj::shape_t& shape = shapes[s];
 					int faceCount = shape.mesh.indices.size();
 					int vertexCount = attribute.vertices.size() / 3;
 					for (int v = 0; v < vertexCount; v++)
@@ -9634,9 +9634,9 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 						{
 							continue;
 						}
-						tinyobj::index_t v_0 = shape.mesh.indices[f];
-						tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-						tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+						bt_tinyobj::index_t v_0 = shape.mesh.indices[f];
+						bt_tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+						bt_tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
 						btSoftBody::RenderFace ff;
 						ff.m_n[0] = &rsb->m_renderNodes[v_0.vertex_index];
 						ff.m_n[1] = &rsb->m_renderNodes[v_1.vertex_index];
