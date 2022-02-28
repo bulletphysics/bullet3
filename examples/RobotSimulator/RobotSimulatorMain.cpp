@@ -62,6 +62,28 @@ int main(int argc, char* argv[])
 	}
 
 	{
+		int cubeID = sim->loadURDF("cube.urdf");
+		btVector3 basePosition = btVector3(2, 0, 2);
+		btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
+		sim->resetBasePositionAndOrientation(cubeID, basePosition, baseOrientation);
+	}
+
+	{
+		int deformableUID = sim->loadURDF("reduced_torus/reduced_torus.urdf");
+		// int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
+		// int deformableUID = sim->loadURDF("reduced_bottle/reduced_bottle.urdf");
+		// int deformableUID = sim->loadURDF("reduced_bottle_coarse/reduced_bottle_coarse.urdf");
+		// int deformableUID = sim->loadURDF("reduced_bottle/deform_bottle.urdf");
+		// int deformableUID = sim->loadURDF("torus_deform.urdf");
+		btVector3 basePosition = btVector3(3, 3, 3);
+		// btVector3 basePosition = btVector3(0, 0, 0.2);
+		// btVector3 basePosition = btVector3(0, 0.5, 0.2);
+		btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
+		// btQuaternion baseOrientation = btQuaternion(btVector3(1, 0, 0), SIMD_PI / 2.0);
+		sim->resetBasePositionAndOrientation(deformableUID, basePosition, baseOrientation);
+	}
+
+	{
 		// int deformableUID = sim->loadURDF("reduced_torus/reduced_torus.urdf");
 		int deformableUID = sim->loadURDF("reduced_cube/reduced_cube.urdf");
 		// int deformableUID = sim->loadURDF("reduced_bottle/reduced_bottle.urdf");

@@ -13,11 +13,16 @@ p.setGravity(0, 0, -10)
 tex = p.loadTexture("uvmap.png")
 planeId = p.loadURDF("plane.urdf", [0,0,-2])
 
-boxId = p.loadURDF("cube.urdf", [1,1,3],useMaximalCoordinates = True)
+box1 = p.loadURDF("cube.urdf", [1,1,3],useMaximalCoordinates = True)
+box2 = p.loadURDF("cube.urdf", [0,3,2],useMaximalCoordinates = True)
 
 # p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "reduced_torus.mp4")
-cube = p.loadURDF("reduced_torus/reduced_torus.urdf", [1,1,1])
-p.changeVisualShape(cube, -1, rgbaColor=[1,1,1,1], textureUniqueId=tex, flags=0)
+reduced_obj1= p.loadURDF("reduced_torus/reduced_torus.urdf", [1,1,1])
+p.changeVisualShape(reduced_obj1, -1, rgbaColor=[1,1,1,1], textureUniqueId=tex, flags=0)
+
+reduced_obj2 = p.loadURDF("reduced_torus/reduced_torus.urdf", [1,2,1])
+p.changeVisualShape(reduced_obj2, -1, rgbaColor=[1,1,1,1], textureUniqueId=tex, flags=0)
+
 p.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
 p.setRealTimeSimulation(0)
 
