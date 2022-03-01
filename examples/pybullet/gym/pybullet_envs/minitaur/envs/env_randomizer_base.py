@@ -25,11 +25,28 @@ class EnvRandomizerBase(object):
     pass
 
   def randomize_step(self, env):
-    """Randomize simulation steps.
+    """Randomize environment steps.
 
-    Will be called at every timestep. May add random forces/torques to Minitaur.
+    Will be called at every environment step.
+
+    It is NOT recommended to use this for force / torque disturbance because
+    pybullet applyExternalForce/Torque only persist for single simulation step
+    not the entire env step which can contain multiple simulation steps.
 
     Args:
       env: The Minitaur gym environment to be randomized.
+    """
+    pass
+
+  def randomize_sub_step(self, env, sub_step_index, num_sub_steps):
+    """Randomize simulation sub steps.
+
+    Will be called at every simulation step. This is the correct place to add
+    random forces/torques.
+
+    Args:
+      env: The Minitaur gym environment to be randomized.
+      sub_step_index: Index of sub step, from 0 to N-1. N is the action repeat.
+      num_sub_steps: Number of sub steps, equals to action repeat.
     """
     pass

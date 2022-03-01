@@ -457,6 +457,8 @@ class LocomotionGymEnv(gym.Env):
     for obj in self._dynamic_objects():
       obj.pre_control_step(autonomous_object.AUTONOMOUS_ACTION)
     for _ in range(self._num_action_repeat):
+      for env_randomizer in self._env_randomizers:
+        env_randomizer.randomize_sub_step(self, i, self._num_action_repeat)
       self._robot.apply_action(action)
       for obj in self._dynamic_objects():
         obj.update(self.get_time_since_reset(), self._observation_dict)

@@ -3455,34 +3455,46 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 			}
 		}
 
-		// Because the link order between UrdfModel and MultiBody may be different,
-		// create a mapping from link name to link index in order to apply the user
-		// data to the correct link in the MultiBody.
-		btHashMap<btHashString, int> linkNameToIndexMap;
-		if (bodyHandle->m_multiBody)
-		{
-			btMultiBody* mb = bodyHandle->m_multiBody;
-			linkNameToIndexMap.insert(mb->getBaseName(), -1);
-			for (int linkIndex = 0; linkIndex < mb->getNumLinks(); ++linkIndex)
-			{
-				linkNameToIndexMap.insert(mb->getLink(linkIndex).m_linkName, linkIndex);
-			}
-		}
-
+		// Add user data specified in URDF to the added body.
 		const UrdfModel* urdfModel = u2b.getUrdfModel();
 		if (urdfModel)
 		{
 			addUserData(urdfModel->m_userData, bodyUniqueId);
-			for (int i = 0; i < urdfModel->m_links.size(); ++i)
+			if (bodyHandle->m_multiBody)
 			{
-				const UrdfLink* link = *urdfModel->m_links.getAtIndex(i);
-				int* linkIndex = linkNameToIndexMap.find(link->m_name.c_str());
-				if (linkIndex)
+				btMultiBody* mb = bodyHandle->m_multiBody;
+				// Because the link order between UrdfModel and MultiBody may be different,
+				// create a mapping from link name to link index in order to apply the user
+				// data to the correct link in the MultiBody.
+				btHashMap<btHashString, int> linkNameToIndexMap;
+				linkNameToIndexMap.insert(mb->getBaseName(), -1);
+				for (int linkIndex = 0; linkIndex < mb->getNumLinks(); ++linkIndex)
 				{
-					addUserData(link->m_userData, bodyUniqueId, *linkIndex);
+					linkNameToIndexMap.insert(mb->getLink(linkIndex).m_linkName, linkIndex);
+				}
+				for (int i = 0; i < urdfModel->m_links.size(); ++i)
+				{
+					const UrdfLink* link = *urdfModel->m_links.getAtIndex(i);
+					int* linkIndex = linkNameToIndexMap.find(link->m_name.c_str());
+					if (linkIndex)
+					{
+						addUserData(link->m_userData, bodyUniqueId, *linkIndex);
+						for (int visualShapeIndex = 0; visualShapeIndex < link->m_visualArray.size(); ++visualShapeIndex)
+						{
+							addUserData(link->m_visualArray.at(visualShapeIndex).m_userData, bodyUniqueId, *linkIndex, visualShapeIndex);
+						}
+					}
+				}
+			}
+			else if (bodyHandle->m_rigidBody)
+			{
+				for (int i = 0; i < urdfModel->m_links.size(); ++i)
+				{
+					const UrdfLink* link = *urdfModel->m_links.getAtIndex(i);
+					addUserData(link->m_userData, bodyUniqueId, -1);
 					for (int visualShapeIndex = 0; visualShapeIndex < link->m_visualArray.size(); ++visualShapeIndex)
 					{
-						addUserData(link->m_visualArray.at(visualShapeIndex).m_userData, bodyUniqueId, *linkIndex, visualShapeIndex);
+						addUserData(link->m_visualArray.at(visualShapeIndex).m_userData, bodyUniqueId, -1, visualShapeIndex);
 					}
 				}
 			}
@@ -5302,12 +5314,12 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						{
 							//create a convex hull for each shape, and store it in a btCompoundShape
 
-							std::vector<tinyobj::shape_t> shapes;
-							tinyobj::attrib_t attribute;
-							std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
+							std::vector<bt_tinyobj::shape_t> shapes;
+							bt_tinyobj::attrib_t attribute;
+							std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
 
 							//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
-							//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
+							//static btCollisionShape* createConvexHullFromShapes(std::vector<bt_tinyobj::shape_t>& shapes, const btVector3& geomScale)
 							B3_PROFILE("createConvexHullFromShapes");
 							if (compound == 0)
 							{
@@ -5319,7 +5331,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							{
 								btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
 								convexHull->setMargin(m_data->m_defaultCollisionMargin);
-								tinyobj::shape_t& shape = shapes[s];
+								bt_tinyobj::shape_t& shape = shapes[s];
 								int faceCount = shape.mesh.indices.size();
 
 								for (int f = 0; f < faceCount; f += 3)
@@ -8100,26 +8112,21 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 	{
 		return false;
 	}
+	int numSoftbodyContact = 0;
+	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
+	{
+		numSoftbodyContact += deformWorld->getSoftBodyArray()[i]->m_faceRigidContacts.size();
+	}
+	int num_contact_points = m_data->m_cachedContactPoints.size();
+	m_data->m_cachedContactPoints.reserve(num_contact_points + numSoftbodyContact);
 
 	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
 	{
 		btSoftBody* psb = deformWorld->getSoftBodyArray()[i];
-		btAlignedObjectArray<b3ContactPointData> distinctContactPoints;
-		btAlignedObjectArray<btSoftBody::Node*> nodesInContact;
 		for (int c = 0; c < psb->m_faceRigidContacts.size(); c++)
 		{
 			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[c];
-			// calculate normal and tangent impulse
-			btVector3 impulse = contact->m_cti.m_impulse;
-			btVector3 impulseNormal = impulse.dot(contact->m_cti.m_normal) * contact->m_cti.m_normal;
-			btVector3 impulseTangent = impulse - impulseNormal;
-			// get node in contact
-			int contactNodeIdx = contact->m_bary.maxAxis();
-			btSoftBody::Node* node = contact->m_face->m_n[contactNodeIdx];
-			// check if node is already in the list
-			int idx = nodesInContact.findLinearSearch2(node);
-
-			//apply the filter, if the user provides it
+			//convert rigidbody contact
 			int linkIndexA = -1;
 			int linkIndexB = -1;
 			int objectIndexA = psb->getUserIndex2();
@@ -8136,6 +8143,8 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 				linkIndexB = mblB->m_link;
 				objectIndexB = mblB->m_multiBody->getUserIndex2();
 			}
+
+			//apply the filter, if the user provides it
 			bool swap = false;
 			if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
 			{
@@ -8181,87 +8190,37 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 			{
 				continue;
 			}
-
-			if (idx < 0)
+			b3ContactPointData pt;
+			pt.m_bodyUniqueIdA = objectIndexA;
+			pt.m_bodyUniqueIdB = objectIndexB;
+			pt.m_contactDistance = contact->m_cti.m_offset;
+			pt.m_contactFlags = 0;
+			pt.m_linkIndexA = linkIndexA;
+			pt.m_linkIndexB = linkIndexB;
+			for (int j = 0; j < 3; j++)
 			{
-				// add new node and contact point
-				nodesInContact.push_back(node);
-				b3ContactPointData pt;
-				pt.m_bodyUniqueIdA = objectIndexA;
-				pt.m_bodyUniqueIdB = objectIndexB;
-				pt.m_contactDistance = -contact->m_cti.m_offset;
-				pt.m_contactFlags = 0;
-				pt.m_linkIndexA = linkIndexA;
-				pt.m_linkIndexB = linkIndexB;
-				for (int j = 0; j < 3; j++)
+				if (swap)
 				{
-					if (swap)
-					{
-						pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
-						pt.m_positionOnAInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
-						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
-						pt.m_positionOnBInWS[j] = node->m_x[j];
-					}
-					else
-					{
-						pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
-						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
-						pt.m_positionOnAInWS[j] = node->m_x[j];
-						pt.m_positionOnBInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
-					}
+					pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
+					pt.m_positionOnAInWS[j] = contact->m_cti.m_normal[j];
+					pt.m_positionOnBInWS[j] = -contact->m_cti.m_normal[j];
 				}
-				pt.m_normalForce = (impulseNormal / m_data->m_physicsDeltaTime).norm();
-				pt.m_linearFrictionForce1 = (impulseTangent.dot(contact->t1) * contact->t1 / m_data->m_physicsDeltaTime).norm();
-				pt.m_linearFrictionForce2 = (impulseTangent.dot(contact->t2) * contact->t2 / m_data->m_physicsDeltaTime).norm();
-				for (int j = 0; j < 3; j++)
+				else
 				{
-					pt.m_linearFrictionDirection1[j] = contact->t1[j];
-					pt.m_linearFrictionDirection2[j] = contact->t2[j];
+					pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
+					pt.m_positionOnAInWS[j] = -contact->m_cti.m_normal[j];
+					pt.m_positionOnBInWS[j] = contact->m_cti.m_normal[j];
 				}
-				distinctContactPoints.push_back(pt);
 			}
-			else
+			pt.m_normalForce = 1;
+			pt.m_linearFrictionForce1 = 0;
+			pt.m_linearFrictionForce2 = 0;
+			for (int j = 0; j < 3; j++)
 			{
-				// add values to existing contact point
-				b3ContactPointData* pt = &distinctContactPoints[idx];
-				// current normal force of node
-				btVector3 normalForce = btVector3(btScalar(pt->m_contactNormalOnBInWS[0]),
-												  btScalar(pt->m_contactNormalOnBInWS[1]),
-												  btScalar(pt->m_contactNormalOnBInWS[2])) * pt->m_normalForce;
-				// add normal force of additional node contact
-				btScalar swapFactor = swap ? -1.0 : 1.0;
-				normalForce += swapFactor * contact->m_cti.m_normal * (impulseNormal / m_data->m_physicsDeltaTime).norm();
-				// get magnitude of normal force
-				pt->m_normalForce = normalForce.norm();
-				// get direction of normal force
-				if (!normalForce.fuzzyZero())
-				{
-					// normalize for unit vectors if above numerical threshold
-					normalForce.normalize();
-					for (int j = 0; j < 3; j++)
-					{
-						pt->m_contactNormalOnBInWS[j] = normalForce[j];
-					}
-				}
-
-				// add magnitudes of tangential forces in existing directions
-				btVector3 linearFrictionDirection1 = btVector3(btScalar(pt->m_linearFrictionDirection1[0]),
-															   btScalar(pt->m_linearFrictionDirection1[1]),
-															   btScalar(pt->m_linearFrictionDirection1[2]));
-				btVector3 linearFrictionDirection2 = btVector3(btScalar(pt->m_linearFrictionDirection2[0]),
-															   btScalar(pt->m_linearFrictionDirection2[1]),
-															   btScalar(pt->m_linearFrictionDirection2[2]));
-				pt->m_linearFrictionForce1 = (impulseTangent.dot(linearFrictionDirection1) * linearFrictionDirection1 / m_data->m_physicsDeltaTime).norm();
-				pt->m_linearFrictionForce2 = (impulseTangent.dot(linearFrictionDirection2) * linearFrictionDirection2 / m_data->m_physicsDeltaTime).norm();
+				pt.m_linearFrictionDirection1[j] = 0;
+				pt.m_linearFrictionDirection2[j] = 0;
 			}
-		}
-
-		int num_contact_points = m_data->m_cachedContactPoints.size() + distinctContactPoints.size();
-		m_data->m_cachedContactPoints.reserve(num_contact_points);
-		// add points to contact points cache
-		for (int p = 0; p < distinctContactPoints.size(); p++)
-		{
-			m_data->m_cachedContactPoints.push_back(distinctContactPoints[p]);
+			m_data->m_cachedContactPoints.push_back(pt);
 		}
 	}
 #endif
@@ -9055,12 +9014,12 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 	}
 	if (out_sim_type == UrdfGeometry::FILE_OBJ)
 	{
-		std::vector<tinyobj::shape_t> shapes;
-		tinyobj::attrib_t attribute;
-		std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
+		std::vector<bt_tinyobj::shape_t> shapes;
+		bt_tinyobj::attrib_t attribute;
+		std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
 		if (!shapes.empty())
 		{
-			const tinyobj::shape_t& shape = shapes[0];
+			const bt_tinyobj::shape_t& shape = shapes[0];
 			btAlignedObjectArray<btScalar> vertices;
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < attribute.vertices.size(); i++)
@@ -9204,14 +9163,14 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			}
 			else
 			{
-				tinyobj::attrib_t attribute;
-				std::vector<tinyobj::shape_t> shapes;
+				bt_tinyobj::attrib_t attribute;
+				std::vector<bt_tinyobj::shape_t> shapes;
 
-				std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+				std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
 
 				for (int s = 0; s < (int)shapes.size(); s++)
 				{
-					tinyobj::shape_t& shape = shapes[s];
+					bt_tinyobj::shape_t& shape = shapes[s];
 					int faceCount = shape.mesh.indices.size();
 					int vertexCount = attribute.vertices.size() / 3;
 					for (int v = 0; v < vertexCount; v++)
@@ -9226,9 +9185,9 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 						{
 							continue;
 						}
-						tinyobj::index_t v_0 = shape.mesh.indices[f];
-						tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-						tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+						bt_tinyobj::index_t v_0 = shape.mesh.indices[f];
+						bt_tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+						bt_tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
 						btSoftBody::RenderFace ff;
 						ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
 						ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
@@ -9653,14 +9612,14 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			}
 			else
 			{
-				tinyobj::attrib_t attribute;
-				std::vector<tinyobj::shape_t> shapes;
+				bt_tinyobj::attrib_t attribute;
+				std::vector<bt_tinyobj::shape_t> shapes;
 
-				std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+				std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
 
 				for (int s = 0; s < (int)shapes.size(); s++)
 				{
-					tinyobj::shape_t& shape = shapes[s];
+					bt_tinyobj::shape_t& shape = shapes[s];
 					int faceCount = shape.mesh.indices.size();
 					int vertexCount = attribute.vertices.size() / 3;
 					for (int v = 0; v < vertexCount; v++)
@@ -9675,9 +9634,9 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 						{
 							continue;
 						}
-						tinyobj::index_t v_0 = shape.mesh.indices[f];
-						tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-						tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+						bt_tinyobj::index_t v_0 = shape.mesh.indices[f];
+						bt_tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+						bt_tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
 						btSoftBody::RenderFace ff;
 						ff.m_n[0] = &rsb->m_renderNodes[v_0.vertex_index];
 						ff.m_n[1] = &rsb->m_renderNodes[v_1.vertex_index];

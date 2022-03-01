@@ -484,6 +484,12 @@ void BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass, btVect
 
 bool BulletURDFImporter::getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const
 {
+	btScalar twistLimit;
+	return getJointInfo3(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction, jointMaxForce, jointMaxVelocity, twistLimit);
+}
+
+bool BulletURDFImporter::getJointInfo3(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity, btScalar& twistLimit) const
+{
 	jointLowerLimit = 0.f;
 	jointUpperLimit = 0.f;
 	jointDamping = 0.f;
@@ -510,6 +516,7 @@ bool BulletURDFImporter::getJointInfo2(int urdfLinkIndex, btTransform& parent2jo
 			jointFriction = pj->m_jointFriction;
 			jointMaxForce = pj->m_effortLimit;
 			jointMaxVelocity = pj->m_velocityLimit;
+			twistLimit = pj->m_twistLimit;
 			return true;
 		}
 		else
@@ -540,7 +547,7 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
 	return true;
 }
 
-static btCollisionShape* createConvexHullFromShapes(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, int flags)
+static btCollisionShape* createConvexHullFromShapes(const bt_tinyobj::attrib_t& attribute, std::vector<bt_tinyobj::shape_t>& shapes, const btVector3& geomScale, int flags)
 {
 	B3_PROFILE("createConvexHullFromShapes");
 	btCompoundShape* compound = new btCompoundShape();
@@ -553,7 +560,7 @@ static btCollisionShape* createConvexHullFromShapes(const tinyobj::attrib_t& att
 	{
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(gUrdfDefaultCollisionMargin);
-		tinyobj::shape_t& shape = shapes[s];
+		bt_tinyobj::shape_t& shape = shapes[s];
 		int faceCount = shape.mesh.indices.size();
 
 		for (int f = 0; f < faceCount; f += 3)
@@ -747,9 +754,9 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 					}
 					else
 					{
-						std::vector<tinyobj::shape_t> shapes;
-						tinyobj::attrib_t attribute;
-						std::string err = tinyobj::LoadObj(attribute, shapes, collision->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
+						std::vector<bt_tinyobj::shape_t> shapes;
+						bt_tinyobj::attrib_t attribute;
+						std::string err = bt_tinyobj::LoadObj(attribute, shapes, collision->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
 						//create a convex hull for each shape, and store it in a btCompoundShape
 						shape = createConvexHullFromShapes(attribute, shapes, collision->m_geometry.m_meshScale, m_data->m_flags);
 						m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, *collision);
