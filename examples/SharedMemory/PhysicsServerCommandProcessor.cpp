@@ -5615,11 +5615,11 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			}
 
 			bool separateRenderMesh = false;
-			if ((flags & B3_MESH_DATA_SIMULATION_MESH) == 0)
+			if ((clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH) == 0)
 			{
 				separateRenderMesh = (psb->m_renderNodes.size() != 0);
 			}
-            bool requestVelocity = flags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY;
+            bool requestVelocity = clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY;
             
 			int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
