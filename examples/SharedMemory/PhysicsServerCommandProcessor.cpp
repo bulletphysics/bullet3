@@ -8166,7 +8166,6 @@ bool PhysicsServerCommandProcessor::processRequestDeformableDeformableContactpoi
 			pt.m_contactDistance = -contact->m_margin + contact->m_normal.dot(l);
 			pt.m_bodyUniqueIdA = objectIndexA;
             pt.m_bodyUniqueIdB = objectIndexB;
-            pt.m_contactDistance = 0;
             pt.m_contactFlags = 0;
             pt.m_linkIndexA = linkIndexA;
             pt.m_linkIndexB = linkIndexB;
