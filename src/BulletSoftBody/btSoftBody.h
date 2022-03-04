@@ -824,7 +824,7 @@ public:
 	btAlignedObjectArray<DeformableNodeRigidContact> m_nodeRigidContacts;
 	btAlignedObjectArray<DeformableFaceNodeContact> m_faceNodeContacts;
 	btAlignedObjectArray<DeformableFaceRigidContact> m_faceRigidContacts;
-    btAlignedObjectArray<DeformableFaceNodeContact> m_faceNodeContactsCCD;
+	btAlignedObjectArray<DeformableFaceNodeContact> m_faceNodeContactsCCD;
 	tSContactArray m_scontacts;     // Soft contacts
 	tJointArray m_joints;           // Joints
 	tMaterialArray m_materials;     // Materials
