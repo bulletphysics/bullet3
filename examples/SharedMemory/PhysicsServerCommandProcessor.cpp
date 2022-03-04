@@ -8134,8 +8134,10 @@ bool PhysicsServerCommandProcessor::processRequestDeformableDeformableContactpoi
     {
         return false;
     }
+    const int max_contacts_per_object = 4;
     for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
     {
+        int num_contacts_reported = 0;
         btSoftBody* psb = deformWorld->getSoftBodyArray()[i];
         for (int c = 0; c < psb->m_faceNodeContacts.size(); c++)
         {
@@ -8154,8 +8156,13 @@ bool PhysicsServerCommandProcessor::processRequestDeformableDeformableContactpoi
             if(RequestFiltered(clientCmd, linkIndexA, linkIndexB, objectIndexA, objectIndexB, swap)==true){
                 continue;
             }
+            if(++num_contacts_reported>max_contacts_per_object){
+                break;
+            }
             //Convert contact info
             b3ContactPointData pt;
+            btVector3 l = contact->m_node->m_x - BaryEval(contact->m_face->m_n[0]->m_x, contact->m_face->m_n[1]->m_x, contact->m_face->m_n[2]->m_x, contact->m_normal);
+            pt.m_contactDistance = -contact->m_margin + contact->m_normal.dot(l);
             pt.m_bodyUniqueIdA = objectIndexA;
             pt.m_bodyUniqueIdB = objectIndexB;
             pt.m_contactDistance = 0;
