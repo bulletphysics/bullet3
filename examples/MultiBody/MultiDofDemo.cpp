@@ -165,7 +165,7 @@ void MultiDofDemo::initPhysics()
 	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
 	btVector3 baseHalfExtents(0.05, 0.37, 0.1);
 
-	btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(world, numLinks, btVector3(-0.4f, 3.f, 0.f), linkHalfExtents, baseHalfExtents, spherical, g_floatingBase);
+	btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(world, numLinks, btVector3(-0.4f, 3.f, 0.f), baseHalfExtents, linkHalfExtents, spherical, g_floatingBase);
 	//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
 
 	mbC->setCanSleep(canSleep);
