@@ -1549,6 +1549,22 @@ B3_SHARED_API void b3GetMeshDataSetFlags(b3SharedMemoryCommandHandle commandHand
 	}
 }
 
+B3_SHARED_API void b3GetMeshDataSimulationMesh(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_MESH_DATA);
+	command->m_updateFlags |= B3_MESH_DATA_SIMULATION_MESH;
+}
+
+B3_SHARED_API void b3MeshDataSimulationMeshVelocity(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_MESH_DATA || command->m_type == CMD_RESET_MESH_DATA);
+	command->m_updateFlags |= B3_MESH_DATA_SIMULATION_MESH_VELOCITY;
+}
+
 B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3MeshData* meshData)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;

@@ -1282,6 +1282,171 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 	return true;
 }
 
+bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* config, ErrorLogger* logger)
+{
+	UrdfReducedDeformable& reduced_deformable = model.m_reducedDeformable;
+	const char* name = config->Attribute("name");
+	if (!name)
+	{
+		logger->reportError("Reduced deformable with no name");
+		return false;
+	}
+	reduced_deformable.m_name = name;
+
+	{
+		XMLElement* numModes_xml = config->FirstChildElement("num_modes");
+		if (numModes_xml)
+		{
+			if (!numModes_xml->Attribute("value"))
+			{
+				logger->reportError("numModes_xml element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_numModes = urdfLexicalCast<double>(numModes_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* mass_xml = config->FirstChildElement("mass");
+		if (mass_xml)
+		{
+			if (!mass_xml->Attribute("value"))
+			{
+				logger->reportError("mass_xml element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_mass = urdfLexicalCast<double>(mass_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* stiffnessScale_xml = config->FirstChildElement("stiffness_scale");
+		if (stiffnessScale_xml)
+		{
+			if (!stiffnessScale_xml->Attribute("value"))
+			{
+				logger->reportError("stiffnessScale_xml element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_stiffnessScale = urdfLexicalCast<double>(stiffnessScale_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* collisionMargin_xml = config->FirstChildElement("collision_margin");
+		if (collisionMargin_xml)
+		{
+			if (!collisionMargin_xml->Attribute("value"))
+			{
+				logger->reportError("collision_margin element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_collisionMargin = urdfLexicalCast<double>(collisionMargin_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* erp_xml = config->FirstChildElement("erp");
+		if (erp_xml)
+		{
+			if (!erp_xml->Attribute("value"))
+			{
+				logger->reportError("friction element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_erp = urdfLexicalCast<double>(erp_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* cfm_xml = config->FirstChildElement("cfm");
+		if (cfm_xml)
+		{
+			if (!cfm_xml->Attribute("value"))
+			{
+				logger->reportError("cfm element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_cfm = urdfLexicalCast<double>(cfm_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* damping_xml = config->FirstChildElement("damping_coefficient");
+		if (damping_xml)
+		{
+			if (!damping_xml->Attribute("value"))
+			{
+				logger->reportError("damping_coefficient element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_damping = urdfLexicalCast<double>(damping_xml->Attribute("value"));
+		}
+	}
+
+	{
+		XMLElement* friction_xml = config->FirstChildElement("friction");
+		if (friction_xml)
+		{
+			if (!friction_xml->Attribute("value"))
+			{
+				logger->reportError("friction element must have value attribute");
+				return false;
+			}
+			reduced_deformable.m_friction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
+		}
+	}
+
+	XMLElement* vis_xml = config->FirstChildElement("visual");
+	if (!vis_xml)
+	{
+		logger->reportError("expected an visual element");
+		return false;
+	}
+	if (!vis_xml->Attribute("filename"))
+	{
+		logger->reportError("expected a filename for visual geometry");
+		return false;
+	}
+	std::string fn = vis_xml->Attribute("filename");
+	reduced_deformable.m_visualFileName = fn;
+
+	int out_type(0);
+	bool success = UrdfFindMeshFile(m_fileIO,
+									model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+									&reduced_deformable.m_visualFileName, &out_type);
+
+	if (!success)
+	{
+		// warning already printed
+		return false;
+	}
+
+	// collision mesh is optional
+	XMLElement* col_xml = config->FirstChildElement("collision");
+	if (col_xml)
+	{
+		if (!col_xml->Attribute("filename"))
+		{
+			logger->reportError("expected a filename for collision geoemtry");
+			return false;
+		}
+		fn = col_xml->Attribute("filename");
+		success = UrdfFindMeshFile(m_fileIO,
+								   model.m_sourceFile, fn, sourceFileLocation(col_xml),
+								   &reduced_deformable.m_simFileName, &out_type);
+
+		if (!success)
+		{
+			// warning already printed
+			return false;
+		}
+	}
+
+	ParseUserData(config, reduced_deformable.m_userData, logger);
+	return true;
+}
+
 bool UrdfParser::parseJointLimits(UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
 {
 	joint.m_lowerLimit = 0.f;
@@ -2126,9 +2291,16 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	//	logger->printMessage(msg);
 
 
+  
+	XMLElement* reduced_deformable_xml = robot_xml->FirstChildElement("reduced_deformable");
+  if (reduced_deformable_xml) {
+    return parseReducedDeformable(m_urdf2Model, reduced_deformable_xml, logger);
+	}
+	
   XMLElement* deformable_xml = robot_xml->FirstChildElement("deformable");
-  if(deformable_xml)
+  if (deformable_xml) {
     return parseDeformable(m_urdf2Model, deformable_xml, logger);
+	}
 
 	for (XMLElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
 	{

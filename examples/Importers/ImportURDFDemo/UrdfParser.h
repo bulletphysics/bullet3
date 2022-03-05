@@ -247,6 +247,37 @@ struct UrdfDeformable
 	}
 };
 
+struct UrdfReducedDeformable
+{
+	std::string m_name;
+	int m_numModes;
+
+	double m_mass;
+	double m_stiffnessScale;
+	double m_erp;
+	double m_cfm;
+	double m_friction;
+	double m_collisionMargin;
+	double m_damping;
+
+	std::string m_visualFileName;
+	std::string m_simFileName;
+	btHashMap<btHashString, std::string> m_userData;
+
+	UrdfReducedDeformable() 
+		:	m_numModes(1),
+			m_mass(1),
+			m_stiffnessScale(100),
+			m_erp(0.2),					// generally, 0.2 is a good value for erp and cfm
+			m_cfm(0.2),
+			m_friction(0),
+			m_collisionMargin(0.02),
+			m_damping(0),
+			m_visualFileName(""),
+			m_simFileName("")
+	{}
+};
+
 struct UrdfModel
 {
 	std::string m_name;
@@ -256,6 +287,7 @@ struct UrdfModel
 	btHashMap<btHashString, UrdfLink*> m_links;
 	btHashMap<btHashString, UrdfJoint*> m_joints;
 	UrdfDeformable m_deformable;
+	UrdfReducedDeformable m_reducedDeformable;
 	// Maps user data keys to user data values.
 	btHashMap<btHashString, std::string> m_userData;
 
@@ -333,7 +365,7 @@ protected:
 	bool parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
   bool parseLameCoefficients(LameCoefficients& lameCoefficients, tinyxml2::XMLElement* config, ErrorLogger* logger);
 	bool parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config, ErrorLogger* logger);
-
+	bool parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* config, ErrorLogger* logger);
 
 public:
 	UrdfParser(struct CommonFileIOInterface* fileIO);
@@ -411,6 +443,11 @@ public:
 	const UrdfDeformable& getDeformable() const
 	{
 		return m_urdf2Model.m_deformable;
+	}
+
+	const UrdfReducedDeformable& getReducedDeformable() const
+	{
+		return m_urdf2Model.m_reducedDeformable;
 	}
 
 	bool mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* logger, bool forceFixedBase, int level);

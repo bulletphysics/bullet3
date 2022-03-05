@@ -64,6 +64,8 @@ class UrdfJoint(object):
     self.joint_type = p.JOINT_REVOLUTE
     self.joint_lower_limit = 0
     self.joint_upper_limit = -1
+    self.joint_max_force = 0
+    self.joint_max_velocity = 0
     self.parent_name = "parentName"
     self.child_name = "childName"
     self.joint_origin_xyz = [1, 2, 3]
@@ -171,6 +173,8 @@ class UrdfEditor(object):
       urdfJoint.joint_type = jointInfo[2]
       urdfJoint.joint_lower_limit = jointInfo[8]
       urdfJoint.joint_upper_limit = jointInfo[9]
+      urdfJoint.joint_max_force = jointInfo[10]
+      urdfJoint.joint_max_velocity = jointInfo[11]
       urdfJoint.joint_axis_xyz = jointInfo[13]
       orgParentIndex = jointInfo[16]
       if (orgParentIndex < 0):
@@ -326,12 +330,14 @@ class UrdfEditor(object):
     str = '\t\t<child link=\"{}\"/>\n'.format(urdfJoint.child_name)
     file.write(str)
 
-    if urdfJoint.joint_type == p.JOINT_PRISMATIC:
-      #todo: handle limits
-      lowerLimit = -0.5
-      upperLimit = 0.5
-      str = '<limit effort="1000.0" lower="{:.{prec}f}" upper="{:.{prec}f}" velocity="0.5"/>'.format(
-          lowerLimit, upperLimit, prec=precision)
+    if jointTypeStr == "prismatic" or jointTypeStr == "revolute":
+      lowerLimit = urdfJoint.joint_lower_limit
+      upperLimit = urdfJoint.joint_upper_limit
+      maxForce = urdfJoint.joint_max_force
+      maxVelocity = urdfJoint.joint_max_velocity
+      
+      str = '\t\t<limit effort="{:.{prec}f}" lower="{:.{prec}f}" upper="{:.{prec}f}" velocity="{:.{prec}f}"/>\n'.format(
+          maxForce, lowerLimit, upperLimit, maxVelocity, prec=precision)
       file.write(str)
 
     file.write("\t\t<dynamics damping=\"1.0\" friction=\"0.0001\"/>\n")

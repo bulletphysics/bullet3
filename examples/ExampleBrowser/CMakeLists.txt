@@ -379,6 +379,8 @@ SET(BulletExampleBrowser_SRCS
   ../DeformableDemo/Collide.cpp
   ../DeformableDemo/Collide.h
   ../DeformableDemo/LargeDeformation.cpp
+  ../DeformableDemo/LoadDeformed.h
+  ../DeformableDemo/LoadDeformed.cpp
   ../DeformableDemo/LargeDeformation.h
   ../DeformableDemo/DeformableClothAnchor.cpp
   ../DeformableDemo/DeformableClothAnchor.h
@@ -388,6 +390,24 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp
   ../RigidBody/KinematicRigidBodyExample.cpp
+	../ReducedDeformableDemo/ConservationTest.cpp
+	../ReducedDeformableDemo/ConservationTest.h
+	../ReducedDeformableDemo/Springboard.cpp
+	../ReducedDeformableDemo/Springboard.h
+	../ReducedDeformableDemo/ModeVisualizer.cpp
+	../ReducedDeformableDemo/ModeVisualizer.h
+	../ReducedDeformableDemo/FreeFall.cpp
+	../ReducedDeformableDemo/FreeFall.h
+	../ReducedDeformableDemo/FrictionSlope.cpp
+	../ReducedDeformableDemo/FrictionSlope.h
+	../ReducedDeformableDemo/ReducedCollide.cpp
+	../ReducedDeformableDemo/ReducedCollide.h
+	../ReducedDeformableDemo/ReducedGrasp.cpp
+	../ReducedDeformableDemo/ReducedGrasp.h
+	../ReducedDeformableDemo/ReducedBenchmark.cpp
+	../ReducedDeformableDemo/ReducedBenchmark.h
+	../ReducedDeformableDemo/ReducedMotorGrasp.cpp
+	../ReducedDeformableDemo/ReducedMotorGrasp.h
   ../Constraints/TestHingeTorque.cpp
   ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp

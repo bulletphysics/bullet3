@@ -8,6 +8,11 @@
 #define TEST_SHARED_MEMORY
 #endif  //_WIN32
 
+//Shmem not available on target api < 26
+#if defined(__ANDROID_API__) && (__ANDROID_API__ < 26)
+#undef TEST_SHARED_MEMORY
+#endif  //__ANDROID__
+
 #include <stddef.h>
 
 #ifdef TEST_SHARED_MEMORY

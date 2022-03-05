@@ -55,6 +55,7 @@
 #include "../DeformableDemo/DeformableMultibody.h"
 #include "../DeformableDemo/VolumetricDeformable.h"
 #include "../DeformableDemo/LargeDeformation.h"
+#include "../DeformableDemo/LoadDeformed.h"
 #include "../DeformableDemo/Collide.h"
 #include "../DeformableDemo/GraspDeformable.h"
 #include "../DeformableDemo/DeformableContact.h"
@@ -72,6 +73,15 @@
 #include "../RoboticsLearning/R2D2GraspExample.h"
 #include "../RoboticsLearning/KukaGraspExample.h"
 #include "../RoboticsLearning/GripperGraspExample.h"
+#include "../ReducedDeformableDemo/ConservationTest.h"
+#include "../ReducedDeformableDemo/ModeVisualizer.h"
+#include "../ReducedDeformableDemo/Springboard.h"
+#include "../ReducedDeformableDemo/FreeFall.h"
+#include "../ReducedDeformableDemo/FrictionSlope.h"
+#include "../ReducedDeformableDemo/ReducedCollide.h"
+#include "../ReducedDeformableDemo/ReducedGrasp.h"
+#include "../ReducedDeformableDemo/ReducedMotorGrasp.h"
+#include "../ReducedDeformableDemo/ReducedBenchmark.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
 
 #ifdef B3_ENABLE_TINY_AUDIO
@@ -209,11 +219,24 @@ static ExampleEntry gDefaultExamples[] =
         ExampleEntry(1, "Grasp Deformable with Motor", "Grasping test", GraspDeformableCreateFunc),
         ExampleEntry(1, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
 		ExampleEntry(1, "Extreme Deformation", "Recovery from extreme deformation", LargeDeformationCreateFunc),
+        ExampleEntry(1, "Load Deformed", "Reconstruct a deformed object", LoadDeformedCreateFunc),
 		ExampleEntry(1, "Colliding Test", "Volumetric deformable collide with rigid box", CollideCreateFunc),
         ExampleEntry(1, "Rigid Cloth Anchor", "Deformable Rigid body Anchor test", DeformableClothAnchorCreateFunc),
         ExampleEntry(1, "Multibody Cloth Anchor", "Deformable Multibody Anchor test", MultibodyClothAnchorCreateFunc),
         ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableMultibodyCreateFunc),
         // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
+		
+		ExampleEntry(0, "Reduced Deformabe Body"),
+		ExampleEntry(1, "Mode Visualizer", "Visualizer the modes for reduced deformable objects", ReducedModeVisualizerCreateFunc),
+		ExampleEntry(1, "Reduced Conservation Test", "Momentum conservation test for the reduced deformable objects", ReducedConservationTestCreateFunc),
+		ExampleEntry(1, "Reduced Springboard", "Moving rigid object colliding with a fixed reduced deformable objects", ReducedSpringboardCreateFunc),
+		ExampleEntry(1, "Reduced Free Fall", "Free fall ground contact test for the reduced deformable model", ReducedFreeFallCreateFunc),
+		ExampleEntry(1, "Reduced Collision Test", "Collision between a reduced block and the a rigid block", ReducedCollideCreateFunc),
+		ExampleEntry(1, "Reduced Grasp", "Grasp a reduced deformable block", ReducedGraspCreateFunc),
+		ExampleEntry(1, "Reduced Motor Grasp", "Grasp a reduced deformable block with motor", ReducedMotorGraspCreateFunc),
+		ExampleEntry(1, "Reduced Friction Slope", "Grasp a reduced deformable block", FrictionSlopeCreateFunc),
+		ExampleEntry(1, "Reduced Benchmark", "Reduced deformable performance benchmark example", ReducedBenchmarkCreateFunc),
+		// ExampleEntry(1, "Simple Reduced Deformable Test", "Simple dynamics test for the reduced deformable objects", ReducedBasicTestCreateFunc),
         
 #ifdef INCLUDE_CLOTH_DEMOS
 		ExampleEntry(0, "Soft Body"),
