@@ -201,7 +201,7 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 			if (psb->isActive())
 			{
 				// clear contact points in the previous iteration
-				psb->m_faceNodeContacts.clear();
+				psb->m_faceNodeContactsCCD.clear();
 
 				// update m_q and normals for CCD calculation
 				for (int j = 0; j < psb->m_nodes.size(); ++j)
@@ -237,7 +237,8 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 			btSoftBody* psb = m_softBodies[i];
 			if (psb->isActive())
 			{
-				penetration_count += psb->m_faceNodeContacts.size();
+				penetration_count += psb->m_faceNodeContactsCCD.size();
+				;
 			}
 		}
 		if (penetration_count == 0)

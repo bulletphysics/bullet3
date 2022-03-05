@@ -8104,6 +8104,125 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 	return hasStatus;
 }
 
+bool RequestFiltered(const struct SharedMemoryCommand& clientCmd, int& linkIndexA, int& linkIndexB, int& objectIndexA, int& objectIndexB, bool& swap){
+   
+    if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
+    {
+        if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexA)
+        {
+            swap = false;
+        }
+        else if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexB)
+        {
+            swap = true;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    if (swap)
+    {
+        std::swap(objectIndexA, objectIndexB);
+        std::swap(linkIndexA, linkIndexB);
+    }
+
+    //apply the second object filter, if the user provides it
+    if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter >= 0)
+    {
+        if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB)
+        {
+            return true;
+        }
+    }
+
+    if (
+        (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
+        clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+    {
+        return true;
+    }
+
+    if (
+        (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
+        clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+bool PhysicsServerCommandProcessor::processRequestDeformableDeformableContactpointHelper(const struct SharedMemoryCommand& clientCmd){
+#ifndef SKIP_DEFORMABLE_BODY
+    btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+    if (!deformWorld)
+    {
+        return false;
+    }
+	const int max_contacts_per_object = 4;
+	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
+    {
+		int num_contacts_reported = 0;
+		btSoftBody* psb = deformWorld->getSoftBodyArray()[i];
+        for (int c = 0; c < psb->m_faceNodeContacts.size(); c++)
+        {
+            const btSoftBody::DeformableFaceNodeContact* contact = &psb->m_faceNodeContacts[c];
+            //apply the filter, if the user provides it
+            int linkIndexA = -1;
+            int linkIndexB = -1;
+            int objectIndexA = psb->getUserIndex2();
+            int objectIndexB = -1;
+            const btSoftBody* bodyB = btSoftBody::upcast(contact->m_colObj);
+            if (bodyB)
+            {
+                objectIndexB = bodyB->getUserIndex2();
+            }
+            bool swap = false;
+            if(RequestFiltered(clientCmd, linkIndexA, linkIndexB, objectIndexA, objectIndexB, swap)==true){
+                continue;
+            }
+			if (++num_contacts_reported > max_contacts_per_object)
+			{
+				break;
+			}
+			//Convert contact info
+            b3ContactPointData pt;
+			btVector3 l = contact->m_node->m_x - BaryEval(contact->m_face->m_n[0]->m_x, contact->m_face->m_n[1]->m_x, contact->m_face->m_n[2]->m_x, contact->m_normal);
+			pt.m_contactDistance = -contact->m_margin + contact->m_normal.dot(l);
+			pt.m_bodyUniqueIdA = objectIndexA;
+            pt.m_bodyUniqueIdB = objectIndexB;
+            pt.m_contactFlags = 0;
+            pt.m_linkIndexA = linkIndexA;
+            pt.m_linkIndexB = linkIndexB;
+            for (int j = 0; j < 3; j++)
+            {
+                if (swap)
+                {
+                    pt.m_contactNormalOnBInWS[j] = -contact->m_normal[j];
+                }
+                else
+                {
+                    pt.m_contactNormalOnBInWS[j] = contact->m_normal[j];
+                }
+                pt.m_positionOnAInWS[j] = contact->m_node->m_x[j];
+                pt.m_positionOnBInWS[j] = contact->m_node->m_x[j];
+                pt.m_linearFrictionDirection1[j] = 0;
+                pt.m_linearFrictionDirection2[j] = 0;
+            }
+            pt.m_normalForce = 0;
+            pt.m_linearFrictionForce1 = 0;
+            pt.m_linearFrictionForce2 = 0;
+           m_data->m_cachedContactPoints.push_back(pt);
+        }
+    }
+#endif
+    return true;
+}
+
+
+
 bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(const struct SharedMemoryCommand& clientCmd)
 {
 #ifndef SKIP_DEFORMABLE_BODY
@@ -8372,6 +8491,7 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 
 #ifndef SKIP_DEFORMABLE_BODY
 				processRequestDeformableContactpointHelper(clientCmd);
+ 				processRequestDeformableDeformableContactpointHelper(clientCmd);
 #endif
 				break;
 			}
