@@ -379,6 +379,8 @@ SET(BulletExampleBrowser_SRCS
   ../DeformableDemo/Collide.cpp
   ../DeformableDemo/Collide.h
   ../DeformableDemo/LargeDeformation.cpp
+  ../DeformableDemo/LoadDeformed.h
+  ../DeformableDemo/LoadDeformed.cpp
   ../DeformableDemo/LargeDeformation.h
   ../DeformableDemo/DeformableClothAnchor.cpp
   ../DeformableDemo/DeformableClothAnchor.h

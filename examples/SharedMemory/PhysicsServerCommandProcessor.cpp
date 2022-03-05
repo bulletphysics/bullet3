@@ -5551,10 +5551,23 @@ bool PhysicsServerCommandProcessor::processResetMeshDataCommand(const struct Sha
 			int numVertices = psb->m_nodes.size();
 			if (clientCmd.m_resetMeshDataArgs.m_numVertices == numVertices)
 			{
-				for (int i = 0; i < numVertices; ++i)
+				if (clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY)
 				{
-					btSoftBody::Node& n = psb->m_nodes[i];
-					n.m_x.setValue(vertexUpload[i*3+0], vertexUpload[i*3+1],vertexUpload[i*3+2]);
+					for (int i = 0; i < numVertices; ++i)
+					{
+						btSoftBody::Node& n = psb->m_nodes[i];
+						n.m_v.setValue(vertexUpload[i * 3 + 0], vertexUpload[i * 3 + 1], vertexUpload[i * 3 + 2]);
+						n.m_vn.setValue(vertexUpload[i * 3 + 0], vertexUpload[i * 3 + 1], vertexUpload[i * 3 + 2]);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < numVertices; ++i)
+					{
+						btSoftBody::Node& n = psb->m_nodes[i];
+						n.m_x.setValue(vertexUpload[i * 3 + 0], vertexUpload[i * 3 + 1], vertexUpload[i * 3 + 2]);
+						n.m_q.setValue(vertexUpload[i * 3 + 0], vertexUpload[i * 3 + 1], vertexUpload[i * 3 + 2]);
+					}
 				}
 				serverStatusOut.m_type = CMD_RESET_MESH_DATA_COMPLETED;
 			}
@@ -5641,10 +5654,12 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			}
 
 			bool separateRenderMesh = false;
-			if ((flags & B3_MESH_DATA_SIMULATION_MESH) == 0)
+			if ((clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH) == 0)
 			{
 				separateRenderMesh = (psb->m_renderNodes.size() != 0);
 			}
+            bool requestVelocity = clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY;
+            
 			int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
 			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -5653,14 +5668,22 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			{
 				if (separateRenderMesh)
 				{
-					
 					const btSoftBody::RenderNode& n = psb->m_renderNodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
+                    if(requestVelocity){
+                        b3Warning("Request mesh velocity not implemented for Render Mesh.");
+                        return hasStatus;
+                    }
 					verticesOut[i].setValue(n.m_x.x(), n.m_x.y(), n.m_x.z());
 				}
 				else
 				{
 					const btSoftBody::Node& n = psb->m_nodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
-					verticesOut[i].setValue(n.m_x.x(), n.m_x.y(), n.m_x.z());
+                    if(!requestVelocity){
+                        verticesOut[i].setValue(n.m_x.x(), n.m_x.y(), n.m_x.z());
+                    }
+                    else{
+                        verticesOut[i].setValue(n.m_v.x(), n.m_v.y(), n.m_v.z());
+                    }
 				}
 			}
 			sizeInBytes = verticesCopied * sizeof(btVector3);

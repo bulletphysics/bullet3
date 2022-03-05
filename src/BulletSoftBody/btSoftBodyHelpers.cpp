@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <iomanip> 
 #include <sstream>
 #include <string.h>
 #include <algorithm>
@@ -1485,6 +1486,168 @@ void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
 		}
 	}
 	fs.close();
+}
+
+static inline bool isSpace(const char c)
+{
+	return (c == ' ') || (c == '\t');
+}
+static inline bool isNewLine(const char c)
+{
+	return (c == '\r') || (c == '\n') || (c == '\0');
+}
+static inline float parseFloat(const char*& token)
+{
+	token += strspn(token, " \t");
+	float f = (float)atof(token);
+	token += strcspn(token, " \t\r");
+	return f;
+}
+static inline void parseFloat3(
+	float& x, float& y, float& z,
+	const char*& token)
+{
+	x = parseFloat(token);
+	y = parseFloat(token);
+	z = parseFloat(token);
+}
+
+void btSoftBodyHelpers::writeState(const char* file, const btSoftBody* psb)
+{
+	std::ofstream fs;
+	fs.open(file);
+	btAssert(fs);
+	fs << std::scientific << std::setprecision(16);
+
+	// Only write out for trimesh, directly write out all the nodes and faces.xs
+	for (int i = 0; i < psb->m_nodes.size(); ++i)
+	{
+		fs << "q";
+		for (int d = 0; d < 3; d++)
+		{
+			fs << " " << psb->m_nodes[i].m_q[d];
+		}
+		fs << "\n";
+	}
+
+	for (int i = 0; i < psb->m_nodes.size(); ++i)
+	{
+		fs << "v";
+		for (int d = 0; d < 3; d++)
+		{
+			fs << " " << psb->m_nodes[i].m_v[d];
+		}
+		fs << "\n";
+	}
+	fs.close();
+}
+
+std::string btSoftBodyHelpers::loadDeformableState(btAlignedObjectArray<btVector3>& qs, btAlignedObjectArray<btVector3>& vs, const char* filename, CommonFileIOInterface* fileIO)
+{
+	{
+		qs.clear();
+		vs.clear();
+		std::string tmp = filename;
+		std::stringstream err;
+#ifdef USE_STREAM
+		std::ifstream ifs(filename);
+		if (!ifs)
+		{
+			err << "Cannot open file [" << filename << "]" << std::endl;
+			return err.str();
+		}
+#else
+		int fileHandle = fileIO->fileOpen(filename, "r");
+		if (fileHandle < 0)
+		{
+			err << "Cannot open file [" << filename << "]" << std::endl;
+			return err.str();
+		}
+#endif
+
+		std::string name;
+
+		int maxchars = 8192;              // Alloc enough size.
+		std::vector<char> buf(maxchars);  // Alloc enough size.
+		std::string linebuf;
+		linebuf.reserve(maxchars);
+
+#ifdef USE_STREAM
+		while (ifs.peek() != -1)
+#else
+		char* line = 0;
+		do
+#endif
+		{
+			linebuf.resize(0);
+#ifdef USE_STREAM
+			safeGetline(ifs, linebuf);
+#else
+			char tmpBuf[1024];
+			line = fileIO->readLine(fileHandle, tmpBuf, 1024);
+			if (line)
+			{
+				linebuf = line;
+			}
+#endif
+			// Trim newline '\r\n' or '\r'
+			if (linebuf.size() > 0)
+			{
+				if (linebuf[linebuf.size() - 1] == '\n') linebuf.erase(linebuf.size() - 1);
+			}
+			if (linebuf.size() > 0)
+			{
+				if (linebuf[linebuf.size() - 1] == '\n') linebuf.erase(linebuf.size() - 1);
+			}
+
+			// Skip if empty line.
+			if (linebuf.empty())
+			{
+				continue;
+			}
+
+			// Skip leading space.
+			const char* token = linebuf.c_str();
+			token += strspn(token, " \t");
+
+			btAssert(token);
+			if (token[0] == '\0') continue;  // empty line
+
+			if (token[0] == '#') continue;  // comment line
+
+			// q
+			if (token[0] == 'q' && isSpace((token[1])))
+			{
+				token += 2;
+				float x, y, z;
+				parseFloat3(x, y, z, token);
+				qs.push_back(btVector3(x, y, z));
+				continue;
+			}
+
+			// v
+			if (token[0] == 'v' && isSpace((token[1])))
+			{
+				token += 3;
+				float x, y, z;
+				parseFloat3(x, y, z, token);
+				vs.push_back(btVector3(x, y, z));
+				continue;
+			}
+
+			// Ignore unknown command.
+		}
+#ifndef USE_STREAM
+		while (line)
+			;
+#endif
+
+		if (fileHandle >= 0)
+		{
+			fileIO->fileClose(fileHandle);
+		}
+		return err.str();
+	}
 }
 
 void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* psb)
