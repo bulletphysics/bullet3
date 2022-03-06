@@ -1201,7 +1201,7 @@ struct lhs_process_one_packet
     traits.madd(*A0, *rhs_panel, *C1, *T0, fix<1>);
     traits.madd(*A0, *rhs_panel, *C2, *T0, fix<2>);
     traits.madd(*A0, *rhs_panel, *C3, *T0, fix<3>);
-    #if EIGEN_GNUC_AT_LEAST(6,0) && defined(EIGEN_VECTORIZE_SSE)
+    #if EIGEN_GNUC_AT_LEAST(6,0) && defined(EIGEN_VECTORIZE_SSE) && !(EIGEN_COMP_LCC)
     __asm__  ("" : "+x,m" (*A0));
     #endif
     EIGEN_ASM_COMMENT("end step of gebp micro kernel 1X4");
@@ -1727,7 +1727,7 @@ void gebp_kernel<LhsScalar,RhsScalar,Index,DataMapper,mr,nr,ConjugateLhs,Conjuga
 
           // NOTE: the begin/end asm comments below work around bug 935!
           // but they are not enough for gcc>=6 without FMA (bug 1637)
-          #if EIGEN_GNUC_AT_LEAST(6,0) && defined(EIGEN_VECTORIZE_SSE)
+          #if EIGEN_GNUC_AT_LEAST(6,0) && defined(EIGEN_VECTORIZE_SSE) && !(EIGEN_COMP_LCC)
             #define EIGEN_GEBP_2PX4_SPILLING_WORKAROUND __asm__  ("" : [a0] "+x,m" (A0),[a1] "+x,m" (A1));
           #else
             #define EIGEN_GEBP_2PX4_SPILLING_WORKAROUND

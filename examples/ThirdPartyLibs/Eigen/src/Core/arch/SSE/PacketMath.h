@@ -30,7 +30,7 @@ namespace internal {
 #endif
 #endif
 
-#if ((defined EIGEN_VECTORIZE_AVX) && (EIGEN_COMP_GNUC_STRICT || EIGEN_COMP_MINGW) && (__GXX_ABI_VERSION < 1004)) || EIGEN_OS_QNX
+#if ((defined EIGEN_VECTORIZE_AVX) && (EIGEN_COMP_GNUC_STRICT || EIGEN_COMP_MINGW || EIGEN_COMP_LCC) && (__GXX_ABI_VERSION < 1004)) || EIGEN_OS_QNX
 // With GCC's default ABI version, a __m128 or __m256 are the same types and therefore we cannot
 // have overloads for both types without linking error.
 // One solution is to increase ABI version using -fabi-version=4 (or greater).
@@ -444,7 +444,7 @@ template<> EIGEN_STRONG_INLINE Packet16b pcmp_eq(const Packet16b& a, const Packe
 template<> EIGEN_STRONG_INLINE Packet4i pcmp_le(const Packet4i& a, const Packet4i& b) { return por(pcmp_lt(a,b), pcmp_eq(a,b)); }
 
 template<> EIGEN_STRONG_INLINE Packet4f pmin<Packet4f>(const Packet4f& a, const Packet4f& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC < 63
   // There appears to be a bug in GCC, by which the optimizer may
   // flip the argument order in calls to _mm_min_ps, so we have to
   // resort to inline ASM here. This is supposed to be fixed in gcc6.3,
@@ -463,7 +463,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pmin<Packet4f>(const Packet4f& a, const 
 #endif
 }
 template<> EIGEN_STRONG_INLINE Packet2d pmin<Packet2d>(const Packet2d& a, const Packet2d& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC < 63
   // There appears to be a bug in GCC, by which the optimizer may
   // flip the argument order in calls to _mm_min_pd, so we have to
   // resort to inline ASM here. This is supposed to be fixed in gcc6.3,
@@ -494,7 +494,7 @@ template<> EIGEN_STRONG_INLINE Packet4i pmin<Packet4i>(const Packet4i& a, const 
 
 
 template<> EIGEN_STRONG_INLINE Packet4f pmax<Packet4f>(const Packet4f& a, const Packet4f& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC < 63
   // There appears to be a bug in GCC, by which the optimizer may
   // flip the argument order in calls to _mm_max_ps, so we have to
   // resort to inline ASM here. This is supposed to be fixed in gcc6.3,
@@ -513,7 +513,7 @@ template<> EIGEN_STRONG_INLINE Packet4f pmax<Packet4f>(const Packet4f& a, const 
 #endif
 }
 template<> EIGEN_STRONG_INLINE Packet2d pmax<Packet2d>(const Packet2d& a, const Packet2d& b) {
-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
+#if EIGEN_COMP_GNUC_STRICT && EIGEN_COMP_GNUC < 63
   // There appears to be a bug in GCC, by which the optimizer may
   // flip the argument order in calls to _mm_max_pd, so we have to
   // resort to inline ASM here. This is supposed to be fixed in gcc6.3,
