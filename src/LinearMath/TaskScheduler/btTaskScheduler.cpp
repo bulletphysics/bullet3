@@ -464,9 +464,10 @@ public:
 		}
 	}
 
-	void init()
+	void init(int numThreads)
 	{
 		btThreadSupportInterface::ConstructionInfo constructionInfo("TaskScheduler", WorkerThreadFunc);
+		constructionInfo.m_numThreads = numThreads;
 		m_threadSupport = btThreadSupportInterface::create(constructionInfo);
 		m_workerDirective = static_cast<WorkerThreadDirectives*>(btAlignedAlloc(sizeof(*m_workerDirective), 64));
 
@@ -497,7 +498,8 @@ public:
 				else
 				{
 					// 2 threads share each queue
-					jq = &m_jobQueues[i / numThreadsPerQueue];
+					int index = btMin(i / numThreadsPerQueue, m_jobQueues.size()-1);
+					jq = &m_jobQueues[index];
 				}
 			}
 			m_perThreadJobQueues[i] = jq;
@@ -775,10 +777,10 @@ public:
 	}
 };
 
-btITaskScheduler* btCreateDefaultTaskScheduler()
+btITaskScheduler* btCreateDefaultTaskScheduler(int numThreads)
 {
 	btTaskSchedulerDefault* ts = new btTaskSchedulerDefault();
-	ts->init();
+	ts->init(numThreads);
 	return ts;
 }
 

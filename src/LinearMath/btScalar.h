@@ -112,7 +112,7 @@ inline int btIsDoublePrecision()
 #elif (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
 
 #ifdef __clang__
-#define __BT_DISABLE_SSE__
+#define BT_NO_SIMD_OPERATOR_OVERLOADS //#define __BT_DISABLE_SSE__
 #endif
 #ifndef __BT_DISABLE_SSE__
 			#if _MSC_VER>1400
