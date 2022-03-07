@@ -66,7 +66,27 @@
 		trigger = "enable_static_vr_plugin",
 		description = "Statically link vr plugin (in examples/SharedMemory/plugins/vrSyncPlugin)"
 	}
-	
+         newoption
+        {
+                trigger = "enable_static_test_plugin",
+                description = "Statically link test plugin (in examples/SharedMemory/plugins/testPlugin)"
+        }
+         newoption
+        {
+                trigger = "enable_static_tiny_renderer__plugin",
+                description = "Statically link vr plugin (in examples/SharedMemory/plugins/tinyRendererPlugin)"
+        }
+         newoption
+        {
+                trigger = "enable_static_pd_control_plugin",
+                description = "Statically link vr plugin (in examples/SharedMemory/plugins/pdControlPlugin)"
+        }
+         newoption
+        {
+                trigger = "enable_static_collision_filter_plugin",
+                description = "Statically link vr plugin (in examples/SharedMemory/plugins/collisionFilterPlugin)"
+        }
+ 
 	newoption
 	{
 		trigger = "enable_physx",
@@ -319,6 +339,12 @@ end
 		trigger = "no-test",
 		description = "Disable all tests"
 	}
+	newoption
+        {       
+                trigger = "test-bullet2",
+
+                description = "Enable Bullet2 LinearMath test"
+        }
 
 	newoption
 	{
@@ -646,7 +672,9 @@ end
         end
 
 	if not _OPTIONS["no-test"] then
+                if _OPTIONS["test-bullet2"] then
 		include "../test/Bullet2"
+		end
 
 		if not _OPTIONS["no-gtest"] then
 			include "../test/gtest-1.7.0"

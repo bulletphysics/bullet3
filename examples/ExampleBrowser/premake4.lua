@@ -182,6 +182,7 @@ project "App_BulletExampleBrowser"
 		"../VoronoiFracture/*",
 		"../SoftDemo/*",
 		"../DeformableDemo/*",
+                "../ReducedDeformableDemo/*",
 		"../RollingFrictionDemo/*",
 		"../rbdl/*",
 		"../FractureDemo/*",

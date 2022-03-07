@@ -123,7 +123,7 @@ if (_OPTIONS["enable_static_vr_plugin"]) then
 	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
 end
 
-if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+if (_OPTIONS["enable_static_tinyrenderer_plugin"]) then
 	files 
 		{
 		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
@@ -222,7 +222,7 @@ language "C++"
 		
 	end
 
-if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+if ( _OPTIONS["enable_static_tinyrenderer_plugin"]) then
 	files 
 		{
 		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
@@ -381,7 +381,7 @@ if os.is("Windows") then
 		initOpenGL()
 	  initGlew()
 	
-	if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+	if ( _OPTIONS["enable_static_tinyrenderer_plugin"]) then
 	files 
 		{
 		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
@@ -477,13 +477,24 @@ end
 include "udp"
 include "tcp"
 
+if (_OPTIONS["enable_static_test_plugin"]) then
 include "plugins/testPlugin"
+end
+
+if (_OPTIONS["enable_vr_sync_plugin"]) then
 include "plugins/vrSyncPlugin"
+end
+
+if (_OPTIONS["enable_static_tiny_renderer__plugin"]) then
 include "plugins/tinyRendererPlugin"
-
+end
+if (_OPTIONS["enable_static_pd_control_plugin"]) then
 include "plugins/pdControlPlugin"
-include "plugins/collisionFilterPlugin"
+end
 
+if (_OPTIONS["enable_static_collision_filter_plugin"]) then
+include "plugins/collisionFilterPlugin"
+end
 if _OPTIONS["enable_egl"] then
 		include "plugins/eglPlugin"
 end
