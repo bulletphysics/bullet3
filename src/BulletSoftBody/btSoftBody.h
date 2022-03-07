@@ -799,7 +799,6 @@ public:
 	typedef btAlignedObjectArray<Material*> tMaterialArray;
 	typedef btAlignedObjectArray<Joint*> tJointArray;
 	typedef btAlignedObjectArray<btSoftBody*> tSoftBodyArray;
-	typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 
 	//
 	// Fields
@@ -858,8 +857,6 @@ public:
 
 	btScalar m_restLengthScale;
 
-	bool m_reducedModel;	// Reduced deformable model flag
-	
 	//
 	// Api
 	//
@@ -1006,15 +1003,15 @@ public:
 	/* Get best fit rigid transform                                         */
 	btTransform getRigidTransform();
 	/* Transform to given pose                                              */
-	virtual void transformTo(const btTransform& trs);
+	void transformTo(const btTransform& trs);
 	/* Transform															*/
-	virtual void transform(const btTransform& trs);
+	void transform(const btTransform& trs);
 	/* Translate															*/
-	virtual void translate(const btVector3& trs);
+	void translate(const btVector3& trs);
 	/* Rotate															*/
-	virtual void rotate(const btQuaternion& rot);
+	void rotate(const btQuaternion& rot);
 	/* Scale																*/
-	virtual void scale(const btVector3& scl);
+	void scale(const btVector3& scl);
 	/* Get link resting lengths scale										*/
 	btScalar getRestLengthScale();
 	/* Scale resting length of all springs									*/
@@ -1103,13 +1100,6 @@ public:
 	void updateDeactivation(btScalar timeStep);
 	void setZeroVelocity();
 	bool wantsSleeping();
-
-	virtual btMatrix3x3 getImpulseFactor(int n_node)
-	{
-		btMatrix3x3 tmp;
-		tmp.setIdentity();
-		return tmp;
-	}
 
 	//
 	// Functionality to deal with new accelerated solvers.
