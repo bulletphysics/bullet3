@@ -627,6 +627,10 @@ int RemoteGUIHelper::addUserDebugLine(const double debugLineFromXYZ[3], const do
 {
 	return -1;
 }
+int RemoteGUIHelper::addUserDebugPoints(const double debugPointPositionXYZ[3], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum)
+{
+	return -1;
+}
 void RemoteGUIHelper::removeUserDebugItem(int debugItemUniqueId)
 {
 }

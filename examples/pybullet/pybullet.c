@@ -6398,6 +6398,119 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	}
 }
 
+static int extractVertices(PyObject* verticesObj, double* vertices, int maxNumVertices)
+{
+	int numVerticesOut = 0;
+
+	if (verticesObj)
+	{
+		PyObject* seqVerticesObj = PySequence_Fast(verticesObj, "expected a sequence of vertex positions");
+		if (seqVerticesObj)
+		{
+			int numVerticesSrc = PySequence_Size(seqVerticesObj);
+			{
+				int i;
+
+				if (numVerticesSrc > maxNumVertices)
+				{
+					PyErr_SetString(SpamError, "Number of vertices exceeds the maximum.");
+					Py_DECREF(seqVerticesObj);
+					return 0;
+				}
+				for (i = 0; i < numVerticesSrc; i++)
+				{
+					PyObject* vertexObj = PySequence_GetItem(seqVerticesObj, i);
+					double vertex[3];
+					if (pybullet_internalSetVectord(vertexObj, vertex))
+					{
+						if (vertices)
+						{
+							vertices[numVerticesOut * 3 + 0] = vertex[0];
+							vertices[numVerticesOut * 3 + 1] = vertex[1];
+							vertices[numVerticesOut * 3 + 2] = vertex[2];
+						}
+						numVerticesOut++;
+					}
+				}
+			}
+		}
+	}
+	return numVerticesOut;
+}
+
+static PyObject* pybullet_addUserDebugPoints(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int res = 0;
+
+	int parentObjectUniqueId = -1;
+	int parentLinkIndex = -1;
+
+	PyObject* pointPositionsObj = 0;
+	PyObject* pointColorsObj = 0;
+	double pointSize = 1.f;
+	double lifeTime = 0.f;
+	int physicsClientId = 0;
+	int debugItemUniqueId = -1;
+	int replaceItemUniqueId = -1;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"pointPositions", "pointColorsRGB", "pointSize", "lifeTime", "parentObjectUniqueId", "parentLinkIndex", "replaceItemUniqueId", "physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|ddiiii", kwlist, &pointPositionsObj, &pointColorsObj, &pointSize, &lifeTime, &parentObjectUniqueId, &parentLinkIndex, &replaceItemUniqueId, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	int numPositions = extractVertices(pointPositionsObj, 0, B3_MAX_NUM_VERTICES);
+	if (numPositions == 0) {
+		return NULL;
+	}
+	double* pointPositions = numPositions ? malloc(numPositions * 3 * sizeof(double)) : 0;
+	numPositions = extractVertices(pointPositionsObj, pointPositions, B3_MAX_NUM_VERTICES);
+
+	int numColors = extractVertices(pointColorsObj, 0, B3_MAX_NUM_VERTICES);
+	double* pointColors = numColors ? malloc(numColors * 3 * sizeof(double)) : 0;
+	numColors = extractVertices(pointColorsObj, pointColors, B3_MAX_NUM_VERTICES);
+	if (numColors != numPositions) {
+		PyErr_SetString(SpamError, "numColors must match numPositions.");
+		return NULL;
+	}
+
+	commandHandle = b3InitUserDebugDrawAddPoints3D(sm, pointPositions, pointColors, pointSize, lifeTime, numPositions);
+
+	free(pointPositions);
+	free(pointColors);
+
+	if (parentObjectUniqueId >= 0)
+	{
+		b3UserDebugItemSetParentObject(commandHandle, parentObjectUniqueId, parentLinkIndex);
+	}
+
+	if (replaceItemUniqueId >= 0)
+	{
+		b3UserDebugItemSetReplaceItemUniqueId(commandHandle, replaceItemUniqueId);
+	}
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED)
+	{
+		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
+	}
+	{
+		PyObject* item = PyInt_FromLong(debugItemUniqueId);
+		return item;
+	}
+}
+
 static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	b3SharedMemoryCommandHandle commandHandle;
@@ -8517,46 +8630,6 @@ static PyObject* pybullet_enableJointForceTorqueSensor(PyObject* self, PyObject*
 
 	PyErr_SetString(SpamError, "Error creating sensor.");
 	return NULL;
-}
-
-static int extractVertices(PyObject* verticesObj, double* vertices, int maxNumVertices)
-{
-	int numVerticesOut = 0;
-
-	if (verticesObj)
-	{
-		PyObject* seqVerticesObj = PySequence_Fast(verticesObj, "expected a sequence of vertex positions");
-		if (seqVerticesObj)
-		{
-			int numVerticesSrc = PySequence_Size(seqVerticesObj);
-			{
-				int i;
-
-				if (numVerticesSrc > B3_MAX_NUM_VERTICES)
-				{
-					PyErr_SetString(SpamError, "Number of vertices exceeds the maximum.");
-					Py_DECREF(seqVerticesObj);
-					return 0;
-				}
-				for (i = 0; i < numVerticesSrc; i++)
-				{
-					PyObject* vertexObj = PySequence_GetItem(seqVerticesObj, i);
-					double vertex[3];
-					if (pybullet_internalSetVectord(vertexObj, vertex))
-					{
-						if (vertices)
-						{
-							vertices[numVerticesOut * 3 + 0] = vertex[0];
-							vertices[numVerticesOut * 3 + 1] = vertex[1];
-							vertices[numVerticesOut * 3 + 2] = vertex[2];
-						}
-						numVerticesOut++;
-					}
-				}
-			}
-		}
-	}
-	return numVerticesOut;
 }
 
 static int extractUVs(PyObject* uvsObj, double* uvs, int maxNumVertices)
@@ -12834,6 +12907,10 @@ static PyMethodDef SpamMethods[] = {
 
 	{"addUserDebugLine", (PyCFunction)pybullet_addUserDebugLine, METH_VARARGS | METH_KEYWORDS,
 	 "Add a user debug draw line with lineFrom[3], lineTo[3], lineColorRGB[3], lineWidth, lifeTime. "
+	 "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."},
+
+	{"addUserDebugPoints", (PyCFunction)pybullet_addUserDebugPoints, METH_VARARGS | METH_KEYWORDS,
+	 "Add user debug draw points with pointPositions[3], pointColorsRGB[3], pointSize, lifeTime. "
 	 "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."},
 
 	{"addUserDebugText", (PyCFunction)pybullet_addUserDebugText, METH_VARARGS | METH_KEYWORDS,

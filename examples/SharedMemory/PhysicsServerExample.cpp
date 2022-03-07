@@ -134,6 +134,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperResetCamera,
 	eGUIHelperChangeGraphicsInstanceFlags,
 	eGUIHelperSetRgbBackground,
+	eGUIUserDebugAddPoints,
 };
 
 #include <stdio.h>
@@ -484,6 +485,19 @@ struct UserDebugDrawLine
 	double m_debugLineToXYZ[3];
 	double m_debugLineColorRGB[3];
 	double m_lineWidth;
+
+	double m_lifeTime;
+	int m_itemUniqueId;
+	int m_trackingVisualShapeIndex;
+	int m_replaceItemUid;
+};
+
+struct UserDebugDrawPoint
+{
+	const double* m_debugPointPositions;
+	const double* m_debugPointColors;
+	int m_debugPointNum;
+	double m_pointSize;
 
 	double m_lifeTime;
 	int m_itemUniqueId;
@@ -1424,6 +1438,55 @@ public:
 		}
 		return m_resultDebugLineUid;
 	}
+
+	btAlignedObjectArray<UserDebugDrawPoint> m_userDebugPoints;
+	UserDebugDrawPoint m_tmpPoint;
+	int m_resultDebugPointUid;
+
+	virtual int addUserDebugPoints(const double* debugPointPositions, const double* debugPointColors, double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum)
+	{
+		m_tmpPoint.m_lifeTime = lifeTime;
+		m_tmpPoint.m_pointSize = pointSize;
+
+		m_tmpPoint.m_itemUniqueId = replaceItemUid < 0 ? m_uidGenerator++ : replaceItemUid;
+		m_tmpPoint.m_debugPointPositions = debugPointPositions;
+		m_tmpPoint.m_debugPointColors = debugPointColors;
+		m_tmpPoint.m_debugPointNum = debugPointNum;
+
+		m_tmpPoint.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
+		m_tmpPoint.m_replaceItemUid = replaceItemUid;
+
+		//don't block when replacing an item
+		if (replaceItemUid>=0 && replaceItemUid<m_userDebugPoints.size())
+		{
+			//find the right slot
+
+			int slot=-1;
+			for (int i=0;i<m_userDebugPoints.size();i++)
+			{
+				if (replaceItemUid == m_userDebugPoints[i].m_itemUniqueId)
+				{
+						slot = i;
+				}
+			}
+
+			if (slot>=0)
+			{
+				m_userDebugPoints[slot] = m_tmpPoint;
+			}
+			m_resultDebugPointUid = replaceItemUid;
+		}
+		else
+		{
+
+			m_cs->lock();
+			setSharedParam(1, eGUIUserDebugAddPoints);
+			m_resultDebugPointUid = -1;
+			workerThreadWait();
+		}
+		return m_resultDebugPointUid;
+	}
+
 
 	int m_removeDebugItemUid;
 
@@ -2601,6 +2664,29 @@ void PhysicsServerExample::updateGraphics()
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
+		case eGUIUserDebugAddPoints:
+		{
+			B3_PROFILE("eGUIUserDebugAddPoints");
+
+			if (m_multiThreadedHelper->m_tmpPoint.m_replaceItemUid >= 0)
+			{
+				for (int i = 0; i < m_multiThreadedHelper->m_userDebugPoints.size(); i++)
+				{
+					if (m_multiThreadedHelper->m_userDebugPoints[i].m_itemUniqueId == m_multiThreadedHelper->m_tmpPoint.m_replaceItemUid)
+					{
+						m_multiThreadedHelper->m_userDebugPoints[i] = m_multiThreadedHelper->m_tmpPoint;
+						m_multiThreadedHelper->m_resultDebugPointUid = m_multiThreadedHelper->m_tmpPoint.m_replaceItemUid;
+					}
+				}
+			}
+			else
+			{
+				m_multiThreadedHelper->m_userDebugPoints.push_back(m_multiThreadedHelper->m_tmpPoint);
+				m_multiThreadedHelper->m_resultDebugPointUid = m_multiThreadedHelper->m_userDebugPoints[m_multiThreadedHelper->m_userDebugPoints.size() - 1].m_itemUniqueId;
+			}
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
 		case eGUIUserDebugRemoveItem:
 		{
 			B3_PROFILE("eGUIUserDebugRemoveItem");
@@ -2611,6 +2697,16 @@ void PhysicsServerExample::updateGraphics()
 				{
 					m_multiThreadedHelper->m_userDebugLines.swap(i, m_multiThreadedHelper->m_userDebugLines.size() - 1);
 					m_multiThreadedHelper->m_userDebugLines.pop_back();
+					break;
+				}
+			}
+
+			for (int i = 0; i < m_multiThreadedHelper->m_userDebugPoints.size(); i++)
+			{
+				if (m_multiThreadedHelper->m_userDebugPoints[i].m_itemUniqueId == m_multiThreadedHelper->m_removeDebugItemUid)
+				{
+					m_multiThreadedHelper->m_userDebugPoints.swap(i, m_multiThreadedHelper->m_userDebugPoints.size() - 1);
+					m_multiThreadedHelper->m_userDebugPoints.pop_back();
 					break;
 				}
 			}
@@ -2931,6 +3027,28 @@ void PhysicsServerExample::drawUserDebugLines()
 				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
 				m_multiThreadedHelper->m_userDebugText[i].textSize);
 				*/
+		}
+
+		for (int i = 0; i < m_multiThreadedHelper->m_userDebugPoints.size(); i++) {
+			const double* positions = m_multiThreadedHelper->m_userDebugPoints[i].m_debugPointPositions;
+			const double* colors = m_multiThreadedHelper->m_userDebugPoints[i].m_debugPointColors;
+			const int pointNum = m_multiThreadedHelper->m_userDebugPoints[i].m_debugPointNum;
+			const double sz = m_multiThreadedHelper->m_userDebugPoints[i].m_pointSize;
+
+			float* pos = (float*)malloc(pointNum * 3 * sizeof(float));
+			float* clr = (float*)malloc(pointNum * 4 * sizeof(float));
+			for (int i = 0; i < pointNum; i++) {
+				pos[i * 3 + 0] = (float)positions[i * 3 + 0];
+				pos[i * 3 + 1] = (float)positions[i * 3 + 1];
+				pos[i * 3 + 2] = (float)positions[i * 3 + 2];
+				clr[i * 4 + 0] = (float)colors[i * 3 + 0];
+				clr[i * 4 + 1] = (float)colors[i * 3 + 1];
+				clr[i * 4 + 2] = (float)colors[i * 3 + 2];
+				clr[i * 4 + 3] = 1.f;
+			}
+			m_guiHelper->getAppInterface()->m_renderer->drawPoints(pos, clr, pointNum, 3 * sizeof(float), sz);
+			free(pos);
+			free(clr);
 		}
 	}
 }
