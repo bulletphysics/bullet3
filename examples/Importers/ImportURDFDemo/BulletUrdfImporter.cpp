@@ -1541,3 +1541,8 @@ const struct UrdfDeformable& BulletURDFImporter::getDeformableModel() const
 {
 	return m_data->m_urdfParser.getDeformable();
 }
+
+const struct UrdfReducedDeformable& BulletURDFImporter::getReducedDeformableModel() const
+{
+	return m_data->m_urdfParser.getReducedDeformable();
+}

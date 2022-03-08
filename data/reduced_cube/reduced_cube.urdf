@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot name="reduced_cube">
+  <reduced_deformable name="reduced_cube">
+    <num_modes value="20"/>
+    <mass value="10"/>
+    <stiffness_scale value="100"/>
+    <collision_margin value="0.01"/>
+    <erp value= "0.2"/>
+    <cfm value= "0.2"/>
+    <friction value= "0.5"/>
+    <damping_coefficient value="0.0"/>
+    <visual filename="cube_mesh.vtk"/>
+  </reduced_deformable>
+</robot>

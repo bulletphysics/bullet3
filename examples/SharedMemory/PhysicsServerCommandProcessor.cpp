@@ -120,6 +120,10 @@
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletSoftBody/btDeformableBodySolver.h"
 #include "BulletSoftBody/btDeformableMultiBodyConstraintSolver.h"
+
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBody.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedDeformableBody/btReducedDeformableBodySolver.h"
 #endif  //SKIP_DEFORMABLE_BODY
 
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
@@ -1665,6 +1669,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btDeformableMousePickingForce* m_mouseForce;
 	btScalar m_maxPickingForce;
 	btDeformableBodySolver* m_deformablebodySolver;
+	btReducedDeformableBodySolver* m_reducedSoftBodySolver;
 	btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
 #endif
 
@@ -2721,16 +2726,26 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 		m_data->m_broadphase = bv;
 	}
 
+#ifndef SKIP_DEFORMABLE_BODY
 	if (flags & RESET_USE_DEFORMABLE_WORLD)
 	{
-#ifndef SKIP_DEFORMABLE_BODY
+		// deformable
 		m_data->m_deformablebodySolver = new btDeformableBodySolver();
 		btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
 		m_data->m_solver = solver;
 		solver->setDeformableSolver(m_data->m_deformablebodySolver);
 		m_data->m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, solver, m_data->m_collisionConfiguration, m_data->m_deformablebodySolver);
-#endif
 	}
+	else if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD)
+	{
+		// reduced deformable
+		m_data->m_reducedSoftBodySolver = new btReducedDeformableBodySolver();
+		btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
+		m_data->m_solver = solver;
+		solver->setDeformableSolver(m_data->m_reducedSoftBodySolver);
+		m_data->m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, solver, m_data->m_collisionConfiguration, m_data->m_reducedSoftBodySolver);
+	}
+#endif
 
 	
 
@@ -2777,7 +2792,14 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;  //need to check if there are artifacts with frictionERP
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
-	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
+	if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD) 
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 128;
+	}
+	else
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
+	}
 	m_data->m_dynamicsWorld->getSolverInfo().m_warmstartingFactor = 0.1;
 	gDbvtMargin = btScalar(0);
 	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
@@ -3650,6 +3672,11 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 			{
 				return false;
 			}
+		}
+		if (!(u2b.getReducedDeformableModel().m_visualFileName.empty()))
+		{
+			bool use_self_collision = false;
+			return processReducedDeformable(u2b.getReducedDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
 		}
 		bool ok = processImportedObjects(fileName, bufferServerToClient, bufferSizeInBytes, useMultiBody, flags, u2b);
 		if (ok)
@@ -9412,6 +9439,10 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setGravityFactor(deformable.m_gravFactor);
 			psb->setCacheBarycenter(deformable.m_cache_barycenter);
 			psb->initializeFaceTree();
+
+			deformWorld->setImplicit(true);
+			deformWorld->setLineSearch(false);
+			deformWorld->setUseProjection(true);
 		}
 #endif  //SKIP_DEFORMABLE_BODY
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -9652,6 +9683,447 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		if (!deformable.m_name.empty())
 		{
 			bodyHandle->m_bodyName = deformable.m_name;
+		}
+		else
+		{
+			int pos = strlen(relativeFileName) - 1;
+			while (pos >= 0 && relativeFileName[pos] != '/')
+			{
+				pos--;
+			}
+			btAssert(strlen(relativeFileName) - pos - 5 > 0);
+			std::string object_name(std::string(relativeFileName).substr(pos + 1, strlen(relativeFileName) - 5 - pos));
+			bodyHandle->m_bodyName = object_name;
+		}
+		b3Notification notification;
+		notification.m_notificationType = BODY_ADDED;
+		notification.m_bodyArgs.m_bodyUniqueId = *bodyUniqueId;
+		m_data->m_pluginManager.addNotification(notification);
+	}
+#endif
+	return true;
+}
+
+bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDeformable& reduced_deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision)
+{
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	btReducedDeformableBody* rsb = NULL;
+	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
+	char relativeFileName[1024];
+	char pathPrefix[1024];
+	pathPrefix[0] = 0;
+	if (fileIO->findResourcePath(reduced_deformable.m_visualFileName.c_str(), relativeFileName, 1024))
+	{
+		b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+	}
+	const std::string& error_message_prefix = "";
+	std::string out_found_filename, out_found_sim_filename;
+	int out_type(0), out_sim_type(0);
+
+	bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+	if (!reduced_deformable.m_simFileName.empty())
+	{
+		bool foundSimMesh = UrdfFindMeshFile(fileIO, pathPrefix, reduced_deformable.m_simFileName, error_message_prefix, &out_found_sim_filename, &out_sim_type);
+	}
+	else
+	{
+		out_sim_type = out_type;
+		out_found_sim_filename = out_found_filename;
+	}
+
+	if (out_sim_type == UrdfGeometry::FILE_OBJ)
+	{
+		printf("Obj file is currently unsupported\n");
+		return false;
+	}
+	else if (out_sim_type == UrdfGeometry::FILE_VTK)
+	{
+#ifndef SKIP_DEFORMABLE_BODY
+		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+		if (deformWorld)
+		{
+			rsb = btReducedDeformableBodyHelpers::createFromVtkFile(deformWorld->getWorldInfo(), out_found_sim_filename.c_str());
+			if (!rsb)
+			{
+				printf("Load reduced deformable failed\n");
+				return false;
+			}
+
+			// load modes, reduced stiffness matrix
+			rsb->setReducedModes(reduced_deformable.m_numModes, rsb->m_nodes.size());
+			rsb->setStiffnessScale(reduced_deformable.m_stiffnessScale);
+			rsb->setDamping(0, reduced_deformable.m_damping); // damping alpha is set to 0 by default
+			btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(rsb, pathPrefix);
+			// set total mass
+			rsb->setTotalMass(reduced_deformable.m_mass);
+		}
+#endif
+	}
+	b3ImportMeshData meshData;
+
+	if (rsb != NULL)
+	{
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		// load render mesh
+		if ((out_found_sim_filename != out_found_filename) || ((out_sim_type == UrdfGeometry::FILE_OBJ)))
+		{
+			// load render mesh
+			if (!m_data->m_useAlternativeDeformableIndexing)
+			{
+
+				float rgbaColor[4] = { 1,1,1,1 };
+
+				if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
+					out_found_filename.c_str(), meshData, fileIO))
+				{
+
+					for (int v = 0; v < meshData.m_gfxShape->m_numvertices; v++)
+					{
+						btSoftBody::RenderNode n;
+						n.m_x.setValue(
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[0],
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[1],
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[2]);
+						n.m_uv1.setValue(meshData.m_gfxShape->m_vertices->at(v).uv[0],
+							meshData.m_gfxShape->m_vertices->at(v).uv[1],
+							0.);
+						n.m_normal.setValue(meshData.m_gfxShape->m_vertices->at(v).normal[0],
+							meshData.m_gfxShape->m_vertices->at(v).normal[1],
+							meshData.m_gfxShape->m_vertices->at(v).normal[2]);
+						rsb->m_renderNodes.push_back(n);
+					}
+					for (int f = 0; f < meshData.m_gfxShape->m_numIndices; f += 3)
+					{
+						btSoftBody::RenderFace ff;
+						ff.m_n[0] = &rsb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 0)];
+						ff.m_n[1] = &rsb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 1)];
+						ff.m_n[2] = &rsb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 2)];
+						rsb->m_renderFaces.push_back(ff);
+					}
+				}
+			}
+			else
+			{
+				bt_tinyobj::attrib_t attribute;
+				std::vector<bt_tinyobj::shape_t> shapes;
+
+				std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+
+				for (int s = 0; s < (int)shapes.size(); s++)
+				{
+					bt_tinyobj::shape_t& shape = shapes[s];
+					int faceCount = shape.mesh.indices.size();
+					int vertexCount = attribute.vertices.size() / 3;
+					for (int v = 0; v < vertexCount; v++)
+					{
+						btSoftBody::RenderNode n;
+						n.m_x = btVector3(attribute.vertices[3 * v], attribute.vertices[3 * v + 1], attribute.vertices[3 * v + 2]);
+						rsb->m_renderNodes.push_back(n);
+					}
+					for (int f = 0; f < faceCount; f += 3)
+					{
+						if (f < 0 && f >= int(shape.mesh.indices.size()))
+						{
+							continue;
+						}
+						bt_tinyobj::index_t v_0 = shape.mesh.indices[f];
+						bt_tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+						bt_tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+						btSoftBody::RenderFace ff;
+						ff.m_n[0] = &rsb->m_renderNodes[v_0.vertex_index];
+						ff.m_n[1] = &rsb->m_renderNodes[v_1.vertex_index];
+						ff.m_n[2] = &rsb->m_renderNodes[v_2.vertex_index];
+						rsb->m_renderFaces.push_back(ff);
+					}
+				}
+			}
+			if (out_sim_type == UrdfGeometry::FILE_VTK)
+			{
+				btSoftBodyHelpers::interpolateBarycentricWeights(rsb);
+			}
+			else if (out_sim_type == UrdfGeometry::FILE_OBJ)
+			{
+				btSoftBodyHelpers::extrapolateBarycentricWeights(rsb);
+			}
+		}
+		else
+		{
+			rsb->m_renderNodes.resize(0);
+		}
+#endif
+#ifndef SKIP_DEFORMABLE_BODY
+		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+		if (deformWorld)
+		{
+			btScalar collision_hardness = 1;
+			rsb->m_cfg.kKHR = collision_hardness;
+			rsb->m_cfg.kCHR = collision_hardness;
+
+			rsb->m_cfg.kDF = reduced_deformable.m_friction;
+			btSoftBody::Material* pm = rsb->appendMaterial();
+			pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+
+			// turn on the collision flag for deformable
+			// collision between deformable and rigid
+			rsb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+			/// turn on node contact for rigid body
+			rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
+			// turn on face contact for multibodies
+			// rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
+			// collion between deformable and deformable and self-collision
+			// rsb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
+			rsb->setCollisionFlags(0);
+			rsb->setSelfCollision(useSelfCollision);
+			rsb->initializeFaceTree();
+		}
+#endif  //SKIP_DEFORMABLE_BODY
+// #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+// 		btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+// 		if (softWorld)
+// 		{
+// 			btSoftBody::Material* pm = rsb->appendMaterial();
+// 			pm->m_kLST = 0.5;
+// 			pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+// 			rsb->generateBendingConstraints(2, pm);
+// 			rsb->m_cfg.piterations = 20;
+// 			rsb->m_cfg.kDF = 0.5;
+// 			//turn on softbody vs softbody collision
+// 			rsb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
+// 			rsb->randomizeConstraints();
+// 			rsb->setTotalMass(reduced_deformable.m_mass, true);
+// 		}
+// #endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		rsb->scale(btVector3(scale, scale, scale));
+		btTransform init_transform;
+		init_transform.setOrigin(pos);
+		init_transform.setRotation(orn);
+		rsb->transform(init_transform);
+
+		rsb->getCollisionShape()->setMargin(reduced_deformable.m_collisionMargin);
+		rsb->getCollisionShape()->setUserPointer(rsb);
+#ifndef SKIP_DEFORMABLE_BODY
+		if (deformWorld)
+		{
+			deformWorld->addSoftBody(rsb);
+			deformWorld->getSolverInfo().m_deformable_erp = reduced_deformable.m_erp;
+			deformWorld->getSolverInfo().m_deformable_cfm = reduced_deformable.m_cfm;
+			deformWorld->getSolverInfo().m_friction = reduced_deformable.m_friction;
+			deformWorld->getSolverInfo().m_splitImpulse = false;
+			deformWorld->setImplicit(false);
+			deformWorld->setLineSearch(false);
+			deformWorld->setUseProjection(false);
+		}
+		else
+#endif  //SKIP_DEFORMABLE_BODY
+		{
+			btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+			if (softWorld)
+			{
+				softWorld->addSoftBody(rsb);
+			}
+		}
+		
+		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
+		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
+		bodyHandle->m_softBody = rsb;
+		rsb->setUserIndex2(*bodyUniqueId);
+
+		b3VisualShapeData visualShape;
+
+		visualShape.m_objectUniqueId = *bodyUniqueId;
+		visualShape.m_linkIndex = -1;
+		visualShape.m_visualGeometryType = URDF_GEOM_MESH;
+		//dimensions just contains the scale
+		visualShape.m_dimensions[0] = 1;
+		visualShape.m_dimensions[1] = 1;
+		visualShape.m_dimensions[2] = 1;
+		//filename
+		strncpy(visualShape.m_meshAssetFileName, relativeFileName, VISUAL_SHAPE_MAX_PATH_LEN);
+		visualShape.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
+		//position and orientation
+		visualShape.m_localVisualFrame[0] = 0;
+		visualShape.m_localVisualFrame[1] = 0;
+		visualShape.m_localVisualFrame[2] = 0;
+		visualShape.m_localVisualFrame[3] = 0;
+		visualShape.m_localVisualFrame[4] = 0;
+		visualShape.m_localVisualFrame[5] = 0;
+		visualShape.m_localVisualFrame[6] = 1;
+		//color and ids to be set by the renderer
+		visualShape.m_rgbaColor[0] = 1;
+		visualShape.m_rgbaColor[1] = 1;
+		visualShape.m_rgbaColor[2] = 1;
+		visualShape.m_rgbaColor[3] = 1;
+		visualShape.m_tinyRendererTextureId = -1;
+		visualShape.m_textureUniqueId = -1;
+		visualShape.m_openglTextureId = -1;
+
+		if (meshData.m_gfxShape)
+		{
+			int texUid1 = -1;
+			if (meshData.m_textureHeight > 0 && meshData.m_textureWidth > 0 && meshData.m_textureImage1)
+			{
+				texUid1 = m_data->m_guiHelper->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			}
+			visualShape.m_openglTextureId = texUid1;
+			int shapeUid1 = m_data->m_guiHelper->registerGraphicsShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES, texUid1);
+			rsb->getCollisionShape()->setUserIndex(shapeUid1);
+			float position[4] = { 0,0,0,1 };
+			float orientation[4] = { 0,0,0,1 };
+			float color[4] = { 1,1,1,1 };
+			float scaling[4] = { 1,1,1,1 };
+ 			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid1, position, orientation, color, scaling);
+			rsb->setUserIndex(instanceUid);
+			
+			if (m_data->m_enableTinyRenderer)
+			{
+				int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+				visualShape.m_tinyRendererTextureId = texUid2;
+				int linkIndex = -1;
+				int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+					visualShape,
+					&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
+					meshData.m_gfxShape->m_numvertices,
+					&meshData.m_gfxShape->m_indices->at(0),
+					meshData.m_gfxShape->m_numIndices,
+					B3_GL_TRIANGLES,
+					texUid2,
+					rsb->getBroadphaseHandle()->getUid(),
+					*bodyUniqueId,
+					linkIndex);
+
+				rsb->setUserIndex3(softBodyGraphicsShapeUid);
+			}
+			delete meshData.m_gfxShape;
+			meshData.m_gfxShape = 0;
+		}
+		else
+		{
+			//m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
+
+			btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+			btAlignedObjectArray<int> indices;
+			int strideInBytes = 9 * sizeof(float);
+			gfxVertices.resize(rsb->m_faces.size() * 3);
+			for (int i = 0; i < rsb->m_faces.size(); i++)  // Foreach face
+			{
+				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+				{
+					int currentIndex = i * 3 + k;
+					for (int j = 0; j < 3; j++)
+					{
+						gfxVertices[currentIndex].xyzw[j] = rsb->m_faces[i].m_n[k]->m_x[j];
+					}
+					for (int j = 0; j < 3; j++)
+					{
+						gfxVertices[currentIndex].normal[j] = rsb->m_faces[i].m_n[k]->m_n[j];
+					}
+					for (int j = 0; j < 2; j++)
+					{
+						gfxVertices[currentIndex].uv[j] = btFabs(btFabs(10. * rsb->m_faces[i].m_n[k]->m_x[j]));
+					}
+					indices.push_back(currentIndex);
+				}
+			}
+			if (gfxVertices.size() && indices.size())
+			{
+				int red = 173;
+				int green = 199;
+				int blue = 255;
+
+				int texWidth = 256;
+				int texHeight = 256;
+				btAlignedObjectArray<unsigned char> texels;
+				texels.resize(texWidth* texHeight * 3);
+				for (int i = 0; i < texWidth * texHeight * 3; i++)
+					texels[i] = 255;
+				for (int i = 0; i < texWidth; i++)
+				{
+					for (int j = 0; j < texHeight; j++)
+					{
+						int a = i < texWidth / 2 ? 1 : 0;
+						int b = j < texWidth / 2 ? 1 : 0;
+
+						if (a == b)
+						{
+							texels[(i + j * texWidth) * 3 + 0] = red;
+							texels[(i + j * texWidth) * 3 + 1] = green;
+							texels[(i + j * texWidth) * 3 + 2] = blue;
+						}
+					}
+				}
+
+				int texId = m_data->m_guiHelper->registerTexture(&texels[0], texWidth, texHeight);
+				visualShape.m_openglTextureId = texId;
+				int shapeId = m_data->m_guiHelper->registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texId);
+				b3Assert(shapeId >= 0);
+				rsb->getCollisionShape()->setUserIndex(shapeId);
+				if (m_data->m_enableTinyRenderer)
+				{
+
+					int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(&texels[0], texWidth, texHeight);
+					visualShape.m_tinyRendererTextureId = texUid2;
+					int linkIndex = -1;
+					int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+						visualShape,
+						&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texUid2,
+						rsb->getBroadphaseHandle()->getUid(),
+						*bodyUniqueId,
+						linkIndex);
+					rsb->setUserIndex3(softBodyGraphicsShapeUid);
+				}
+			}
+		}
+		
+
+
+		btAlignedObjectArray<btVector3> vertices;
+		btAlignedObjectArray<btVector3> normals;
+		if (rsb->m_renderNodes.size() == 0)
+		{
+			rsb->m_renderNodes.resize(rsb->m_faces.size()*3);
+			vertices.resize(rsb->m_faces.size() * 3);
+			normals.resize(rsb->m_faces.size() * 3);
+
+			for (int i = 0; i < rsb->m_faces.size(); i++)  // Foreach face
+			{
+				
+				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+				{
+					int currentIndex = i * 3 + k;
+					for (int j = 0; j < 3; j++)
+					{
+						rsb->m_renderNodes[currentIndex].m_x[j] = rsb->m_faces[i].m_n[k]->m_x[j];
+					}
+					for (int j = 0; j < 3; j++)
+					{
+						rsb->m_renderNodes[currentIndex].m_normal[j] = rsb->m_faces[i].m_n[k]->m_n[j];
+					}
+					for (int j = 0; j < 2; j++)
+					{
+						rsb->m_renderNodes[currentIndex].m_uv1[j] = btFabs(10*rsb->m_faces[i].m_n[k]->m_x[j]);
+					}
+					rsb->m_renderNodes[currentIndex].m_uv1[2] = 0;
+					vertices[currentIndex] = rsb->m_faces[i].m_n[k]->m_x;
+					normals[currentIndex] = rsb->m_faces[i].m_n[k]->m_n;
+				}
+			}
+			btSoftBodyHelpers::extrapolateBarycentricWeights(rsb);
+		}
+		else
+		{
+			vertices.resize(rsb->m_renderNodes.size());
+			normals.resize(rsb->m_renderNodes.size());
+			for (int i = 0; i < rsb->m_renderNodes.size(); i++)  // Foreach face
+			{
+				vertices[i] = rsb->m_renderNodes[i].m_x;
+				normals[i] = rsb->m_renderNodes[i].m_normal;
+			}
+		}
+		m_data->m_pluginManager.getRenderInterface()->updateShape(rsb->getUserIndex3(), &vertices[0], vertices.size(), &normals[0], normals.size());
+
+		if (!reduced_deformable.m_name.empty())
+		{
+			bodyHandle->m_bodyName = reduced_deformable.m_name;
 		}
 		else
 		{
@@ -10906,7 +11378,8 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
 		if (deformWorld)
 		{
-			deformWorld->getWorldInfo().m_gravity = grav;
+			// deformWorld->getWorldInfo().m_gravity = grav;
+			deformWorld->setGravity(grav);
 			for (int i = 0; i < m_data->m_lf.size(); ++i)
 			{
 				btDeformableLagrangianForce* force = m_data->m_lf[i];

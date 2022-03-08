@@ -231,6 +231,9 @@ void btSoftBody::initDefaults()
 	m_gravityFactor = 1;
 	m_cacheBarycenter = false;
 	m_fdbvnt = 0;
+
+	// reduced flag
+	m_reducedModel = false;
 }
 
 //
