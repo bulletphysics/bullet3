@@ -93,6 +93,7 @@ public:
 	virtual void setEnableTinyRenderer(bool enable);
 	void convertURDFToVisualShapeInternal(const struct UrdfVisual* visual, const char* urdfPathPrefix, const class btTransform& visualTransform, btAlignedObjectArray<struct GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<struct BulletURDFTexture>& texturesOut, struct b3ImportMeshData& meshData) const;
 	const struct UrdfDeformable& getDeformableModel() const;
+	const struct UrdfReducedDeformable& getReducedDeformableModel() const;
 };
 
 #endif  //BULLET_URDF_IMPORTER_H
