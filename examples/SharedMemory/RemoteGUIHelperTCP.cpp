@@ -635,7 +635,7 @@ void RemoteGUIHelperTCP::drawText3D(const char* txt, float position[3], float or
 {
 }
 
-int RemoteGUIHelperTCP::addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid)
+int RemoteGUIHelperTCP::addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid,int debugPointNum)
 {
 	return -1;
 }

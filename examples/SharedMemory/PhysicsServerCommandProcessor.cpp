@@ -5662,7 +5662,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			}
 
 			bool separateRenderMesh = false;
-			if ((clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH) == 0)
+			if ((clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH) == 0 && (flags & B3_MESH_DATA_SIMULATION_MESH) == 0)
 			{
 				separateRenderMesh = (psb->m_renderNodes.size() != 0);
 			}
