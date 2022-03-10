@@ -9440,9 +9440,6 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setCacheBarycenter(deformable.m_cache_barycenter);
 			psb->initializeFaceTree();
 
-			deformWorld->setImplicit(true);
-			deformWorld->setLineSearch(false);
-			deformWorld->setUseProjection(true);
 		}
 #endif  //SKIP_DEFORMABLE_BODY
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
