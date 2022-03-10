@@ -639,7 +639,7 @@ int RemoteGUIHelperTCP::addUserDebugLine(const double debugLineFromXYZ[3], const
 {
 	return -1;
 }
-int RemoteGUIHelperTCP::addUserDebugPoints(const double debugPointPositionXYZ[3], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid)
+int RemoteGUIHelperTCP::addUserDebugPoints(const double debugPointPositionXYZ[3], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum)
 {
 	return -1;
 }
