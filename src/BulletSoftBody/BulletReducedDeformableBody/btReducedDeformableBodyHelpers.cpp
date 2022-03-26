@@ -159,8 +159,8 @@ void btReducedDeformableBodyHelpers::readBinaryVec(btReducedDeformableBody::tDen
 {
 	std::ifstream f_in(file, std::ios::in | std::ios::binary);
 	// first get size
-	unsigned int size;
-	f_in.read((char*)&size, sizeof(uint32_t));
+	unsigned int size=0;
+	f_in.read((char*)&size, 4);//sizeof(unsigned int));
 	btAssert(size >= n_size); 	// make sure the #requested mode is smaller than the #available modes
 
 	// read data
@@ -182,8 +182,8 @@ void btReducedDeformableBodyHelpers::readBinaryMat(btReducedDeformableBody::tDen
 {
 	std::ifstream f_in(file, std::ios::in | std::ios::binary);
 	// first get size
-	unsigned int v_size;
-	f_in.read((char*)&v_size, sizeof(uint32_t));
+	unsigned int v_size=0;
+	f_in.read((char*)&v_size, 4);//sizeof(unsigned int));
 	btAssert(v_size >= n_modes * n_full); 	// make sure the #requested mode is smaller than the #available modes
 
 	// read data
