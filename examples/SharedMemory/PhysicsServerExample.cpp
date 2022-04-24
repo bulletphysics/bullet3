@@ -655,7 +655,7 @@ public:
 		return m_debugMode;
 	}
 
-	virtual void clearLines() override
+	virtual void clearLines()
 	{
 		m_hashedLines.clear();
 		m_sortedIndices.clear();

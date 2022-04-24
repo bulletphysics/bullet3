@@ -53,6 +53,7 @@ class PandaSim(object):
     pass
 
   def step(self):
+    self.bullet_client.getCameraImage(320,200)
     t = self.t
     self.t += 1./60.
     pos = [self.offset[0]+0.2 * math.sin(1.5 * t), self.offset[1]+0.044, self.offset[2]+-0.6 + 0.1 * math.cos(1.5 * t)]
