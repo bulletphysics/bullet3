@@ -17,7 +17,6 @@ subject to the following restrictions:
 #define BT_SOFT_BODY_HELPERS_H
 
 #include "btSoftBody.h"
-#include "../../examples/CommonInterfaces/CommonFileIOInterface.h"
 #include <fstream>
 #include <string>
 //
@@ -149,7 +148,8 @@ struct btSoftBodyHelpers
 
 	static void writeState(const char* file, const btSoftBody* psb);
 
-	static std::string loadDeformableState(btAlignedObjectArray<btVector3>& qs, btAlignedObjectArray<btVector3>& vs, const char* filename, CommonFileIOInterface* fileIO);
+  //this code cannot be here, dependency on example code are not allowed
+	//static std::string loadDeformableState(btAlignedObjectArray<btVector3>& qs, btAlignedObjectArray<btVector3>& vs, const char* filename, CommonFileIOInterface* fileIO);
 
 	static void getBarycentricWeights(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, const btVector3& p, btVector4& bary);
 
