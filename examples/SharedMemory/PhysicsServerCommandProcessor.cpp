@@ -240,6 +240,10 @@ struct InternalVisualShapeData
 
 	b3AlignedObjectArray<std::string> m_pathPrefixes;
 
+	virtual ~InternalVisualShapeData()
+	{
+		clear();
+	}
 	void clear()
 	{
 		m_tinyRendererVisualShapeIndex = -1;
@@ -259,8 +263,14 @@ struct InternalCollisionShapeData
 		  m_used(0)
 	{
 	}
+
+	virtual ~InternalCollisionShapeData()
+	{
+		clear();
+	}
 	void clear()
 	{
+		m_urdfCollisionObjects.clear();
 		m_collisionShape = 0;
 		m_used = 0;
 	}
@@ -15948,6 +15958,9 @@ void PhysicsServerCommandProcessor::resetSimulation(int flags)
 
 	m_data->m_bodyHandles.exitHandles();
 	m_data->m_bodyHandles.initHandles();
+
+	m_data->m_userVisualShapeHandles.exitHandles();
+	m_data->m_userVisualShapeHandles.initHandles();
 
 	m_data->m_userCollisionShapeHandles.exitHandles();
 	m_data->m_userCollisionShapeHandles.initHandles();
