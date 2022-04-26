@@ -95,6 +95,46 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 			   flipQuadEdges);
 }
 
+void btHeightfieldTerrainShape::reinitialize(
+	int heightStickWidth, int heightStickLength,
+	btScalar minHeight, btScalar maxHeight)
+{
+	btScalar heightScale = maxHeight / 65535;
+	m_minHeight = minHeight;
+	m_maxHeight = maxHeight;
+	// determine min/max axis-aligned bounding box (aabb) values
+	switch (m_upAxis)
+	{
+		case 0:
+		{
+			m_localAabbMin.setValue(m_minHeight, 0, 0);
+			m_localAabbMax.setValue(m_maxHeight, m_width, m_length);
+			break;
+		}
+		case 1:
+		{
+			m_localAabbMin.setValue(0, m_minHeight, 0);
+			m_localAabbMax.setValue(m_width, m_maxHeight, m_length);
+			break;
+		};
+		case 2:
+		{
+			m_localAabbMin.setValue(0, 0, m_minHeight);
+			m_localAabbMax.setValue(m_width, m_length, m_maxHeight);
+			break;
+		}
+		default:
+		{
+			//need to get valid m_upAxis
+			btAssert(0);  // && "Bad m_upAxis");
+		}
+	}
+
+	// remember origin (defined as exact middle of aabb)
+	m_localOrigin = btScalar(0.5) * (m_localAabbMin + m_localAabbMax);
+}
+
+
 void btHeightfieldTerrainShape::initialize(
 	int heightStickWidth, int heightStickLength, const void* heightfieldData,
 	btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,

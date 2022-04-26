@@ -5010,6 +5010,8 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							{
 								heightfieldDest[i] = datafl[i];
 							}
+							terrainShape->reinitialize(width, height, minHeight, maxHeight);
+
 							//update graphics
 
 							btAlignedObjectArray<GLInstanceVertex> gfxVertices;
@@ -5023,6 +5025,8 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							MyTriangleCollector4 col(aabbMin, aabbMax);
 							col.m_pVerticesOut = &gfxVertices;
 							col.m_pIndicesOut = &indices;
+							double textureScaling = clientCmd.m_createUserShapeArgs.m_shapes[i].m_heightfieldTextureScaling;
+							col.m_textureScaling = textureScaling;
 							
 							terrainShape->processAllTriangles(&col, aabbMin, aabbMax);
 							if (gfxVertices.size() && indices.size())
