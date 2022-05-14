@@ -30,8 +30,6 @@ add_executable(${PROJECT_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}/../RobotSimulator/MinitaurSetup.cpp
 )
 
-# However, the source file
-
 target_include_directories(${PROJECT_NAME}
   PUBLIC 
     ${BULLET_INCLUDE_DIRS}
