@@ -119,7 +119,7 @@ btVector3 btKinematicCharacterController::computeReflectionDirection(const btVec
  */
 btVector3 btKinematicCharacterController::parallelComponent(const btVector3& direction, const btVector3& normal)
 {
-	btScalar magnitude = direction.dot(normal);
+	const btScalar magnitude = direction.dot(normal);
 	return normal * magnitude;
 }
 
@@ -164,11 +164,7 @@ btKinematicCharacterController::btKinematicCharacterController(btPairCachingGhos
 	setMaxSlope(btRadians(45));
 }
 
-btKinematicCharacterController::~btKinematicCharacterController()
-{
-}
-
-btPairCachingGhostObject* btKinematicCharacterController::getGhostObject()
+btPairCachingGhostObject* btKinematicCharacterController::getGhostObject() const
 {
 	return m_ghostObject;
 }
@@ -218,12 +214,12 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 		for (int j = 0; j < m_manifoldArray.size(); j++)
 		{
 			btPersistentManifold* manifold = m_manifoldArray[j];
-			btScalar directionSign = manifold->getBody0() == m_ghostObject ? btScalar(-1.0) : btScalar(1.0);
+			const btScalar directionSign = manifold->getBody0() == m_ghostObject ? btScalar(-1.0) : btScalar(1.0);
 			for (int p = 0; p < manifold->getNumContacts(); p++)
 			{
 				const btManifoldPoint& pt = manifold->getContactPoint(p);
 
-				btScalar dist = pt.getDistance();
+				const btScalar dist = pt.getDistance();
 
 				if (dist < -m_maxPenetrationDepth)
 				{
@@ -336,7 +332,7 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 	}
 }
 
-bool btKinematicCharacterController::needsCollision(const btCollisionObject* body0, const btCollisionObject* body1)
+bool btKinematicCharacterController::needsCollision(const btCollisionObject* body0, const btCollisionObject* body1) const
 {
 	bool collides = (body0->getBroadphaseHandle()->m_collisionFilterGroup & body1->getBroadphaseHandle()->m_collisionFilterMask) != 0;
 	collides = collides && (body1->getBroadphaseHandle()->m_collisionFilterGroup & body0->getBroadphaseHandle()->m_collisionFilterMask);
@@ -346,7 +342,7 @@ bool btKinematicCharacterController::needsCollision(const btCollisionObject* bod
 void btKinematicCharacterController::updateTargetPositionBasedOnCollision(const btVector3& hitNormal, btScalar tangentMag, btScalar normalMag)
 {
 	btVector3 movementDirection = m_targetPosition - m_currentPosition;
-	btScalar movementLength = movementDirection.length();
+	const btScalar movementLength = movementDirection.length();
 	if (movementLength > SIMD_EPSILON)
 	{
 		movementDirection.normalize();
@@ -354,22 +350,20 @@ void btKinematicCharacterController::updateTargetPositionBasedOnCollision(const 
 		btVector3 reflectDir = computeReflectionDirection(movementDirection, hitNormal);
 		reflectDir.normalize();
 
-		btVector3 parallelDir, perpindicularDir;
-
-		parallelDir = parallelComponent(reflectDir, hitNormal);
-		perpindicularDir = perpindicularComponent(reflectDir, hitNormal);
+		const btVector3 parallelDir = parallelComponent(reflectDir, hitNormal);
+		const btVector3 perpindicularDir = perpindicularComponent(reflectDir, hitNormal);
 
 		m_targetPosition = m_currentPosition;
 		if (0)  //tangentMag != 0)
 		{
-			btVector3 parComponent = parallelDir * btScalar(tangentMag * movementLength);
+			const btVector3 parComponent = parallelDir * btScalar(tangentMag * movementLength);
 			//			printf("parComponent=%f,%f,%f\n",parComponent[0],parComponent[1],parComponent[2]);
 			m_targetPosition += parComponent;
 		}
 
 		if (normalMag != 0)
 		{
-			btVector3 perpComponent = perpindicularDir * btScalar(normalMag * movementLength);
+			const btVector3 perpComponent = perpindicularDir * btScalar(normalMag * movementLength);
 			//			printf("perpComponent=%f,%f,%f\n",perpComponent[0],perpComponent[1],perpComponent[2]);
 			m_targetPosition += perpComponent;
 		}
@@ -402,7 +396,7 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 	{
 		start.setOrigin(m_currentPosition);
 		end.setOrigin(m_targetPosition);
-		btVector3 sweepDirNegative(m_currentPosition - m_targetPosition);
+		const btVector3 sweepDirNegative(m_currentPosition - m_targetPosition);
 
 		start.setRotation(m_currentOrientation);
 		end.setRotation(m_targetOrientation);
@@ -411,7 +405,7 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 		callback.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
 		callback.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
 
-		btScalar margin = m_convexShape->getMargin();
+		const btScalar margin = m_convexShape->getMargin();
 		m_convexShape->setMargin(margin + m_addedMargin);
 
 		if (!(start == end))
@@ -474,7 +468,7 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 	btVector3 gravity_drop = m_up * downVelocity; 
 	m_targetPosition -= (step_drop + gravity_drop);*/
 
-	btVector3 orig_position = m_targetPosition;
+	const btVector3 orig_position = m_targetPosition;
 
 	btScalar downVelocity = (m_verticalVelocity < 0 ? -m_verticalVelocity : 0) * dt;
 
@@ -495,7 +489,7 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 	callback2.m_collisionFilterGroup = getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup;
 	callback2.m_collisionFilterMask = getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask;
 
-	while (1)
+	while (true)
 	{
 		start.setIdentity();
 		end.setIdentity();
@@ -532,7 +526,7 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 			}
 		}
 
-		btScalar downVelocity2 = (m_verticalVelocity < 0 ? -m_verticalVelocity : 0) * dt;
+		const btScalar downVelocity2 = (m_verticalVelocity < 0 ? -m_verticalVelocity : 0) * dt;
 		bool has_hit;
 		if (bounce_fix == true)
 			has_hit = (callback.hasHit() || callback2.hasHit()) && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject);
@@ -562,7 +556,7 @@ void btKinematicCharacterController::stepDown(btCollisionWorld* collisionWorld, 
 	if ((m_ghostObject->hasContactResponse() && (callback.hasHit() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))) || runonce == true)
 	{
 		// we dropped a fraction of the height -> hit floor
-		btScalar fraction = (m_currentPosition.getY() - callback.m_hitPointWorld.getY()) / 2;
+		const btScalar fraction = (m_currentPosition.getY() - callback.m_hitPointWorld.getY()) / 2;
 
 		//printf("hitpoint: %g - pos %g\n", callback.m_hitPointWorld.getY(), m_currentPosition.getY());
 
@@ -646,12 +640,12 @@ void btKinematicCharacterController::setLinearVelocity(const btVector3& velocity
 	// HACK: if we are moving in the direction of the up, treat it as a jump :(
 	if (m_walkDirection.length2() > 0)
 	{
-		btVector3 w = velocity.normalized();
-		btScalar c = w.dot(m_up);
+		const btVector3 w = velocity.normalized();
+		const btScalar c = w.dot(m_up);
 		if (c != 0)
 		{
 			//there is a component in walkdirection for vertical velocity
-			btVector3 upComponent = m_up * (btSin(SIMD_HALF_PI - btAcos(c)) * m_walkDirection.length());
+			const btVector3 upComponent = m_up * (btSin(SIMD_HALF_PI - btAcos(c)) * m_walkDirection.length());
 			m_walkDirection -= upComponent;
 			m_verticalVelocity = (c < 0 ? -1 : 1) * upComponent.length();
 
@@ -722,9 +716,9 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 		btTransform xform;
 		xform = m_ghostObject->getWorldTransform();
 
-		btQuaternion rot(m_AngVel.normalized(), m_AngVel.length() * dt);
+		const btQuaternion rot(m_AngVel.normalized(), m_AngVel.length() * dt);
 
-		btQuaternion orn = rot * xform.getRotation();
+		const btQuaternion orn = rot * xform.getRotation();
 
 		xform.setRotation(orn);
 		m_ghostObject->setWorldTransform(xform);
@@ -892,7 +886,8 @@ void btKinematicCharacterController::jump(const btVector3& v)
 
 void btKinematicCharacterController::setGravity(const btVector3& gravity)
 {
-	if (gravity.length2() > 0) setUpVector(-gravity);
+	if (gravity.length2() > 0)
+		setUpVector(-gravity);
 
 	m_gravity = gravity.length();
 }
@@ -972,7 +967,8 @@ void btKinematicCharacterController::setUpVector(const btVector3& up)
 	else
 		m_up = btVector3(0, 0, 0);
 
-	if (!m_ghostObject) return;
+	if (!m_ghostObject)
+		return;
 	btQuaternion rot = getRotation(m_up, u);
 
 	//set orientation with new up
@@ -987,8 +983,7 @@ btQuaternion btKinematicCharacterController::getRotation(btVector3& v0, btVector
 {
 	if (v0.length2() == 0 || v1.length2() == 0)
 	{
-		btQuaternion q;
-		return q;
+		return btQuaternion{};
 	}
 
 	return shortestArcQuatNormalize2(v0, v1);

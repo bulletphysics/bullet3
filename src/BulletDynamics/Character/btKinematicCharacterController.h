@@ -95,9 +95,9 @@ protected:
 	bool full_drop;
 	bool bounce_fix;
 
-	btVector3 computeReflectionDirection(const btVector3& direction, const btVector3& normal);
-	btVector3 parallelComponent(const btVector3& direction, const btVector3& normal);
-	btVector3 perpindicularComponent(const btVector3& direction, const btVector3& normal);
+	static btVector3 computeReflectionDirection(const btVector3& direction, const btVector3& normal);
+	static btVector3 parallelComponent(const btVector3& direction, const btVector3& normal);
+	static btVector3 perpindicularComponent(const btVector3& direction, const btVector3& normal);
 
 	bool recoverFromPenetration(btCollisionWorld * collisionWorld);
 	void stepUp(btCollisionWorld * collisionWorld);
@@ -105,7 +105,7 @@ protected:
 	void stepForwardAndStrafe(btCollisionWorld * collisionWorld, const btVector3& walkMove);
 	void stepDown(btCollisionWorld * collisionWorld, btScalar dt);
 
-	virtual bool needsCollision(const btCollisionObject* body0, const btCollisionObject* body1);
+	virtual bool needsCollision(const btCollisionObject* body0, const btCollisionObject* body1) const;
 
 	void setUpVector(const btVector3& up);
 
@@ -115,7 +115,7 @@ public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btKinematicCharacterController(btPairCachingGhostObject * ghostObject, btConvexShape * convexShape, btScalar stepHeight, const btVector3& up = btVector3(1.0, 0.0, 0.0));
-	~btKinematicCharacterController();
+	~btKinematicCharacterController() = default;
 
 	///btActionInterface interface
 	virtual void updateAction(btCollisionWorld * collisionWorld, btScalar deltaTime)
@@ -187,7 +187,7 @@ public:
 	void setMaxPenetrationDepth(btScalar d);
 	btScalar getMaxPenetrationDepth() const;
 
-	btPairCachingGhostObject* getGhostObject();
+	btPairCachingGhostObject* getGhostObject() const;
 	void setUseGhostSweepTest(bool useGhostObjectSweepTest)
 	{
 		m_useGhostObjectSweepTest = useGhostObjectSweepTest;
