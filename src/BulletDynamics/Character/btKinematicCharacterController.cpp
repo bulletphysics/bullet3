@@ -131,34 +131,33 @@ btVector3 btKinematicCharacterController::perpindicularComponent(const btVector3
 	return direction - parallelComponent(direction, normal);
 }
 
-btKinematicCharacterController::btKinematicCharacterController(btPairCachingGhostObject* ghostObject, btConvexShape* convexShape, btScalar stepHeight, const btVector3& up)
+btKinematicCharacterController::btKinematicCharacterController(btPairCachingGhostObject* ghostObject, btConvexShape* convexShape, btScalar stepHeight, const btVector3& up) : m_ghostObject(ghostObject),
+	m_convexShape(convexShape),
+	m_maxPenetrationDepth(0.2),
+	m_verticalVelocity(0),
+	m_verticalOffset(0),
+	m_fallSpeed(55),     // Terminal velocity of a sky diver in m/s.
+	m_jumpSpeed(10),     // ?
+	m_SetjumpSpeed(m_jumpSpeed),
+	m_gravity(9.8 * 3),  // 3G acceleration.
+	m_turnAngle(btScalar(0)),
+	m_addedMargin(0.02),
+	m_currentStepOffset(0),
+	m_linearDamping(btScalar(0)),
+	m_angularDamping(btScalar(0)),
+	m_wasOnGround(false),
+	m_wasJumping(false),
+	m_useGhostObjectSweepTest(true),
+	m_useWalkDirection(true),  // use walk direction by default, legacy behavior
+	m_velocityTimeInterval(0),
+	m_interpolateUp(true),
+	full_drop(false),
+	bounce_fix(false)
 {
-	m_ghostObject = ghostObject;
 	m_up.setValue(0, 0, 1);
 	m_jumpAxis.setValue(0, 0, 1);
-	m_addedMargin = 0.02;
 	m_walkDirection.setValue(0, 0, 0);
 	m_AngVel.setValue(0, 0, 0);
-	m_useGhostObjectSweepTest = true;
-	m_turnAngle = btScalar(0);
-	m_convexShape = convexShape;
-	m_useWalkDirection = true;  // use walk direction by default, legacy behavior
-	m_velocityTimeInterval = 0;
-	m_verticalVelocity = 0;
-	m_verticalOffset = 0;
-	m_gravity = 9.8 * 3;  // 3G acceleration.
-	m_fallSpeed = 55;     // Terminal velocity of a sky diver in m/s.
-	m_jumpSpeed = 10;     // ?
-	m_SetjumpSpeed = m_jumpSpeed;
-	m_wasOnGround = false;
-	m_wasJumping = false;
-	m_interpolateUp = true;
-	m_currentStepOffset = 0;
-	m_maxPenetrationDepth = 0.2;
-	full_drop = false;
-	bounce_fix = false;
-	m_linearDamping = btScalar(0);
-	m_angularDamping = btScalar(0);
 
 	setUp(up);
 	setStepHeight(stepHeight);
