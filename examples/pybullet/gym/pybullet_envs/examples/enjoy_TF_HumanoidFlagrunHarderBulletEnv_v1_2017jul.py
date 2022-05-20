@@ -53,7 +53,7 @@ def demo_run():
       score += r
       frame += 1
 
-      still_open = env.render("human")
+      still_open = env.render(mode="human")
 
       if still_open == False:
         return

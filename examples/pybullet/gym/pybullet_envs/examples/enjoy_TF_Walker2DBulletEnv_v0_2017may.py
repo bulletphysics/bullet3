@@ -50,7 +50,7 @@ def main():
       score += r
       frame += 1
 
-      still_open = env.render("human")
+      still_open = env.render(mode="human")
       if still_open == False:
         return
       if not done: continue
