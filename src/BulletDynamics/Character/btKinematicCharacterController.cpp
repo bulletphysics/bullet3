@@ -92,7 +92,7 @@ public:
 		btScalar dotUp = m_up.dot(hitNormalWorld);
 		if (dotUp < m_minSlopeDot)
 		{
-			return btScalar(1.0);
+			return btScalar(1);
 		}
 
 		return ClosestConvexResultCallback::addSingleResult(convexResult, normalInWorldSpace);
@@ -214,7 +214,7 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 		for (int j = 0; j < m_manifoldArray.size(); j++)
 		{
 			btPersistentManifold* manifold = m_manifoldArray[j];
-			const btScalar directionSign = manifold->getBody0() == m_ghostObject ? btScalar(-1.0) : btScalar(1.0);
+			const btScalar directionSign = manifold->getBody0() == m_ghostObject ? btScalar(-1) : btScalar(1);
 			for (int p = 0; p < manifold->getNumContacts(); p++)
 			{
 				const btManifoldPoint& pt = manifold->getContactPoint(p);
@@ -879,7 +879,7 @@ void btKinematicCharacterController::jump(const btVector3& v)
 	m_rigidBody->getMotionState()->getWorldTransform (xform);
 	btVector3 up = xform.getBasis()[1];
 	up.normalize ();
-	btScalar magnitude = (btScalar(1.0)/m_rigidBody->getInvMass()) * btScalar(8.0);
+	btScalar magnitude = (btScalar(1)/m_rigidBody->getInvMass()) * btScalar(8);
 	m_rigidBody->applyCentralImpulse (up * magnitude);
 #endif
 }
