@@ -512,7 +512,7 @@ public:
 			currentPtr += BT_HEADER_LENGTH;
 			for (int i = 0; i < m_chunkPtrs.size(); i++)
 			{
-				int curLength = sizeof(btChunk) + m_chunkPtrs[i]->m_length;
+				int curLength = (int)sizeof(btChunk) + m_chunkPtrs[i]->m_length;
 				memcpy(currentPtr, m_chunkPtrs[i], curLength);
 				btAlignedFree(m_chunkPtrs[i]);
 				currentPtr += curLength;
