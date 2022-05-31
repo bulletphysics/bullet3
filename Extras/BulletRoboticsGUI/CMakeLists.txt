@@ -109,7 +109,7 @@ SET(BulletRoboticsGUI_SRCS ${BulletRoboticsGUI_INCLUDES}
 	../../examples/SharedMemory/PhysicsServerExample.cpp
 	../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp
 	../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp		
-    ../../examples/RobotSimulator/b3RobotSimulatorClientAPI.cpp
+	../../examples/RobotSimulator/b3RobotSimulatorClientAPI.cpp
 )
 
 IF(BUILD_CLSOCKET)
