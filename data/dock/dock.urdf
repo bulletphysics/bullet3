@@ -90,4 +90,18 @@
         <radius>0.5</radius>
       </sonar>
     </sensor>
+
+	<sensor type="rfidtag" name="dock_rfid_tag">
+		<inertial>
+			<origin xyz="0.16919 0.14919 0.280" rpy="0.0 0.0 0.349" />
+		</inertial>
+		<rfidtag/>
+	</sensor>
+
+	<sensor type="rfid" name="dock_rfid">
+		<inertial>
+			<origin xyz="0.16919 0.14919 0.280" rpy="0.0 0.0 0.349" />
+		</inertial>
+		<rfid/>
+	</sensor>
 </robot>
