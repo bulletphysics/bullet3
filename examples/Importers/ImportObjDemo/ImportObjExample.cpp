@@ -15,6 +15,8 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
+#include "../src/BulletCollision/Gimpact/btGImpactShape.h"
+
 class ImportObjSetup : public CommonRigidBodyBase
 {
 	std::string m_fileName;
@@ -44,7 +46,7 @@ ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper, const char* fi
 	}
 	else
 	{
-		m_fileName = "cube.obj";  //"sponza_closed.obj";//sphere8.obj";
+		m_fileName = "SESTAVADILYCATIA.OBJ";  //"sponza_closed.obj";//sphere8.obj";
 	}
 }
 
@@ -52,7 +54,7 @@ ImportObjSetup::~ImportObjSetup()
 {
 }
 
-int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer)
+int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btBvhTriangleMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans)
 {
 	int shapeId = -1;
 
@@ -73,6 +75,38 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 										  meshData.m_gfxShape->m_numIndices,
 										  B3_GL_TRIANGLES,
 										  textureIndex);
+
+		////////////////////////
+		btTriangleIndexVertexArray* meshInterface = new btTriangleIndexVertexArray();
+		btIndexedMesh part;
+
+		part.m_vertexBase = (const unsigned char*)&meshData.m_gfxShape->m_vertices->at(0).xyzw[0];
+		part.m_vertexStride = sizeof(float) * 4 + sizeof(float) * 3 + sizeof(float) * 2;
+		part.m_numVertices = meshData.m_gfxShape->m_numvertices;
+		part.m_triangleIndexBase = (const unsigned char*)&meshData.m_gfxShape->m_indices->at(0);
+		part.m_triangleIndexStride = sizeof(int) * 3;
+		part.m_numTriangles = meshData.m_gfxShape->m_numIndices / 3;
+		part.m_indexType = PHY_INTEGER;
+		part.m_vertexType = PHY_FLOAT;
+
+		meshInterface->addIndexedMesh(part, PHY_INTEGER);
+
+		bool useQuantizedAabbCompression = true;
+
+		if (staticShape)
+			*staticShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
+		if (dynamicShape)
+		{
+			*dynamicShape = new btGImpactMeshShape(meshInterface);
+
+			{
+				btScalar mass(10.);
+				importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
+			}
+		}
+		
+		////////////////////////
+
 		delete meshData.m_gfxShape;
 		if (!meshData.m_isCached)
 		{
@@ -87,23 +121,38 @@ void ImportObjSetup::initPhysics()
 	m_guiHelper->setUpAxis(2);
 	this->createEmptyDynamicsWorld();
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
+
+	///create a few basic rigid bodies
+	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+
+	btTransform groundTransform;
+	groundTransform.setIdentity();
+	groundTransform.setOrigin(btVector3(0, -50, 0));
+
+	{
+		btScalar mass(0.);
+		//createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
+	}
 
 	btTransform trans;
 	trans.setIdentity();
-	trans.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI));
+	trans.setOrigin(btVector3(0, 0, 5));
 	btVector3 position = trans.getOrigin();
 	btQuaternion orn = trans.getRotation();
 
 	btVector3 scaling(1, 1, 1);
 	btVector4 color(1, 1, 1,1);
 
-	int shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface());
+	btBvhTriangleMeshShape* staticMeshShape;
+	btGImpactMeshShape* dynamicMeshShape;
+	int shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans);
 	if (shapeId >= 0)
 	{
 		//int id =
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 	}
+	//m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
 CommonExampleInterface* ImportObjCreateFunc(struct CommonExampleOptions& options)
