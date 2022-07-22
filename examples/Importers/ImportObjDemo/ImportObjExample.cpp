@@ -17,9 +17,12 @@
 
 #include "../src/BulletCollision/Gimpact/btGImpactShape.h"
 
+#include <memory>
+
 class ImportObjSetup : public CommonRigidBodyBase
 {
 	std::string m_fileName;
+	std::vector<GLInstanceGraphicsShape*> graphicsShapes;
 
 public:
 	ImportObjSetup(struct GUIHelperInterface* helper, const char* fileName);
@@ -46,15 +49,20 @@ ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper, const char* fi
 	}
 	else
 	{
-		m_fileName = "SESTAVADILYCATIA.OBJ";  //"sponza_closed.obj";//sphere8.obj";
+		m_fileName = "klima.obj";  //"sponza_closed.obj";//sphere8.obj";
 	}
 }
 
 ImportObjSetup::~ImportObjSetup()
 {
+	for (auto shape : graphicsShapes)
+	{
+		if (shape)
+			delete shape;
+	}
 }
 
-int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btBvhTriangleMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans)
+int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btBvhTriangleMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans, std::vector<GLInstanceGraphicsShape*>& graphicsShapes)
 {
 	int shapeId = -1;
 
@@ -94,20 +102,30 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 		bool useQuantizedAabbCompression = true;
 
 		if (staticShape)
+		{
 			*staticShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
+
+			{
+				btScalar mass(0.0);
+				importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
+			}
+		}
 		if (dynamicShape)
 		{
 			*dynamicShape = new btGImpactMeshShape(meshInterface);
 
 			{
-				btScalar mass(10.);
+				btScalar mass(1.0);
+				btVector3 localInertia(0, 0, 0);
+				(*dynamicShape)->calculateLocalInertia(mass, localInertia);
+				(*dynamicShape)->updateBound();
 				importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 		}
 		
 		////////////////////////
 
-		delete meshData.m_gfxShape;
+		graphicsShapes.push_back(meshData.m_gfxShape);
 		if (!meshData.m_isCached)
 		{
 			delete meshData.m_textureImage1;
@@ -120,36 +138,44 @@ void ImportObjSetup::initPhysics()
 {
 	m_guiHelper->setUpAxis(2);
 	this->createEmptyDynamicsWorld();
+	m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
 
 	///create a few basic rigid bodies
-	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+	//btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
 
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0, -50, 0));
+	//btTransform groundTransform;
+	//groundTransform.setIdentity();
+	//groundTransform.setOrigin(btVector3(0, -50, 0));
 
-	{
-		btScalar mass(0.);
+	//{
+		//btScalar mass(0.);
 		//createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
-	}
+	//}
 
 	btTransform trans;
 	trans.setIdentity();
-	trans.setOrigin(btVector3(0, 0, 5));
+	trans.setOrigin(btVector3(-20, 0, 0));
 	btVector3 position = trans.getOrigin();
 	btQuaternion orn = trans.getRotation();
 
 	btVector3 scaling(1, 1, 1);
 	btVector4 color(1, 1, 1,1);
 
+	int shapeId = -1;
+
 	btBvhTriangleMeshShape* staticMeshShape;
-	btGImpactMeshShape* dynamicMeshShape;
-	int shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans);
+	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ", m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes);
 	if (shapeId >= 0)
 	{
-		//int id =
+		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
+	}
+
+	btGImpactMeshShape* dynamicMeshShape;
+	shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans, graphicsShapes);
+	if (shapeId >= 0)
+	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 	}
 	//m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
