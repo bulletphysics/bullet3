@@ -333,13 +333,23 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 					m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
 					//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
 					btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-					btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
-					m_dynamicsWorld->addConstraint(p2p, true);
-					m_pickedConstraint = p2p;
-					btScalar mousePickClamping = 30.f;
-					p2p->m_setting.m_impulseClamp = mousePickClamping;
-					//very weak constraint for picking
-					p2p->m_setting.m_tau = 0.001f;
+					
+					btTransform frameInA, frameInB;
+					frameInA = btTransform::getIdentity();
+					frameInA.setOrigin(pickPos);
+					frameInB = btTransform::getIdentity();
+					frameInB.setOrigin(localPivot);
+					auto constr6dof = new btGeneric6DofConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
+					m_dynamicsWorld->addConstraint(constr6dof, true);
+					m_pickedConstraint = constr6dof;
+
+					//btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
+					//m_dynamicsWorld->addConstraint(p2p, true);
+					//m_pickedConstraint = p2p;
+					//btScalar mousePickClamping = 30.f;
+					//p2p->m_setting.m_impulseClamp = mousePickClamping;
+					////very weak constraint for picking
+					//p2p->m_setting.m_tau = 0.001f;
 				}
 			}
 
@@ -356,7 +366,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	{
 		if (m_pickedBody && m_pickedConstraint)
 		{
-			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickedConstraint);
+			btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pickedConstraint);
 			if (pickCon)
 			{
 				//keep it at the same picking distance
@@ -368,7 +378,13 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 				dir *= m_oldPickingDist;
 
 				newPivotB = rayFromWorld + dir;
-				pickCon->setPivotB(newPivotB);
+
+				btVector3 localPivot = m_pickedBody->getCenterOfMassTransform().inverse() * newPivotB;
+				btTransform frameInA, frameInB = pickCon->getFrameOffsetB();
+				frameInA = btTransform::getIdentity();
+				frameInA.setOrigin(newPivotB);
+
+				pickCon->setFrames(frameInA, frameInB);
 				return true;
 			}
 		}
