@@ -65,7 +65,7 @@ ImportObjSetup::~ImportObjSetup()
 	}
 }
 
-int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btBvhTriangleMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans, std::vector<GLInstanceGraphicsShape*>& graphicsShapes, int& userIndex)
+int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btGImpactMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans, std::vector<GLInstanceGraphicsShape*>& graphicsShapes, int& userIndex)
 {
 	int shapeId = -1;
 
@@ -106,11 +106,13 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 
 		if (staticShape)
 		{
-			*staticShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
+			*staticShape = new btGImpactMeshShape(meshInterface);
 
 			{
 				btScalar mass(0.0);
 				auto body = importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
+				(*staticShape)->updateBound();
+				//(*staticShape)->setMargin(0.07f);
 				body->setUserIndex(userIndex++);
 			}
 		}
@@ -122,6 +124,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btVector3 localInertia(0, 0, 0);
 				(*dynamicShape)->calculateLocalInertia(mass, localInertia);
 				(*dynamicShape)->updateBound();
+				//(*dynamicShape)->setMargin(0.07f);
 				auto body = importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				body->setUserIndex(userIndex++);
 			}
@@ -186,7 +189,7 @@ void ImportObjSetup::initPhysics()
 	int shapeId = -1;
 	int userIndex = 0;
 
-	btBvhTriangleMeshShape* staticMeshShape;
+	btGImpactMeshShape* staticMeshShape;
 	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ", m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex);
 	if (shapeId >= 0)
 	{
