@@ -16,6 +16,7 @@
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
 #include "../src/BulletCollision/Gimpact/btGImpactShape.h"
+#include "../src/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 
 #include <memory>
 
@@ -155,6 +156,8 @@ void ImportObjSetup::initPhysics()
 {
 	m_guiHelper->setUpAxis(2);
 	this->createEmptyDynamicsWorld();
+	btCollisionDispatcher* dispatcher = static_cast<btCollisionDispatcher*>(m_dynamicsWorld->getDispatcher());
+	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 	m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
