@@ -38,6 +38,8 @@ public:
 		float targetPos[3] = {-2, -2, -2};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
+
+	//void renderScene() override;
 };
 
 ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper, const char* fileName)
@@ -62,7 +64,7 @@ ImportObjSetup::~ImportObjSetup()
 	}
 }
 
-int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btBvhTriangleMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans, std::vector<GLInstanceGraphicsShape*>& graphicsShapes)
+int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btBvhTriangleMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans, std::vector<GLInstanceGraphicsShape*>& graphicsShapes, int& userIndex)
 {
 	int shapeId = -1;
 
@@ -107,19 +109,20 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 
 			{
 				btScalar mass(0.0);
-				importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
+				auto body = importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
+				body->setUserIndex(userIndex++);
 			}
 		}
 		if (dynamicShape)
 		{
 			*dynamicShape = new btGImpactMeshShape(meshInterface);
-
 			{
 				btScalar mass(1.0);
 				btVector3 localInertia(0, 0, 0);
 				(*dynamicShape)->calculateLocalInertia(mass, localInertia);
 				(*dynamicShape)->updateBound();
-				importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
+				auto body = importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
+				body->setUserIndex(userIndex++);
 			}
 		}
 		
@@ -133,6 +136,20 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 	}
 	return shapeId;
 }
+
+//void ImportObjSetup::renderScene()
+//{
+//	if (m_dynamicsWorld)
+//	{
+//		{
+//			m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
+//		}
+//
+//		{
+//			m_guiHelper->render(m_dynamicsWorld);
+//		}
+//	}
+//}
 
 void ImportObjSetup::initPhysics()
 {
@@ -164,16 +181,17 @@ void ImportObjSetup::initPhysics()
 	btVector4 color(1, 1, 1,1);
 
 	int shapeId = -1;
+	int userIndex = 0;
 
 	btBvhTriangleMeshShape* staticMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ", m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes);
+	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ", m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 	}
 
 	btGImpactMeshShape* dynamicMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans, graphicsShapes);
+	shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans, graphicsShapes, userIndex);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
