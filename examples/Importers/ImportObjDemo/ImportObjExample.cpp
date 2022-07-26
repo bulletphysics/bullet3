@@ -112,7 +112,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btScalar mass(0.0);
 				auto body = importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				(*staticShape)->updateBound();
-				(*staticShape)->setMargin(0.1f);
+				(*staticShape)->setMargin(0.01f);
 				body->setUserIndex(userIndex++);
 			}
 		}
@@ -124,7 +124,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btVector3 localInertia(0, 0, 0);
 				(*dynamicShape)->calculateLocalInertia(mass, localInertia);
 				(*dynamicShape)->updateBound();
-				(*dynamicShape)->setMargin(0.1f);
+				(*dynamicShape)->setMargin(0.01f);
 				auto body = importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				body->setUserIndex(userIndex++);
 			}
@@ -162,6 +162,7 @@ void ImportObjSetup::initPhysics()
 	btCollisionDispatcher* dispatcher = static_cast<btCollisionDispatcher*>(m_dynamicsWorld->getDispatcher());
 	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 	m_dynamicsWorld->setGravity(btVector3(0,0,0));
+	m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
 
@@ -179,7 +180,7 @@ void ImportObjSetup::initPhysics()
 
 	btTransform trans;
 	trans.setIdentity();
-	//trans.setOrigin(btVector3(-20, 0, 0));
+	trans.setOrigin(btVector3(-20, 0, 0));
 	btVector3 position = trans.getOrigin();
 	btQuaternion orn = trans.getRotation();
 
@@ -190,14 +191,14 @@ void ImportObjSetup::initPhysics()
 	int userIndex = 0;
 
 	btGImpactMeshShape* staticMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2(/*"SESTAVADILYCATIA.OBJ"*/ "bunny.obj", m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex);
+	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 	}
 
 	btGImpactMeshShape* dynamicMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2(/*m_fileName*/ "cube.obj", m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans, graphicsShapes, userIndex);
+	shapeId = loadAndRegisterMeshFromFile2(m_fileName /*"cube.obj"*/, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans, graphicsShapes, userIndex);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);

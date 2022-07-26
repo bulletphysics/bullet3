@@ -74,7 +74,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	{
 		if (m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(deltaTime);
+			m_dynamicsWorld->stepSimulation(deltaTime, 1, 1.0f / 240.0f);
 		}
 	}
 
@@ -339,7 +339,52 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 					frameInA.setOrigin(pickPos);
 					frameInB = btTransform::getIdentity();
 					frameInB.setOrigin(localPivot);
-					auto constr6dof = new btGeneric6DofConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
+					if (m_pickedConstraint)
+					{
+						m_dynamicsWorld->removeConstraint(m_pickedConstraint);
+						delete m_pickedConstraint;
+						m_pickedConstraint = nullptr;
+					}
+					// Beware of btGeneric6DofSpring2Constraint, it seems broken (random nonsensical rotations even when all DOFs are fixed)
+					auto constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
+					//constr6dof->setLinearLowerLimit(btVector3(-0.1f, -0.1f, -0.1f));
+					//constr6dof->setLinearUpperLimit(btVector3(0.1f, 0.1f, 0.1f));
+					//constr6dof->setAngularLowerLimit(btVector3(0.1f, 0.1f, 0.1f));
+					//constr6dof->setAngularUpperLimit(btVector3(0.1f, 0.1f, 0.1f));
+					
+					constr6dof->setLimit(0, -10.0, 10.0);
+					constr6dof->setLimit(1, -10.0, 10.0);
+					constr6dof->setLimit(2, -10.0, 10.0);
+					constr6dof->setLimit(3, -0.5f, 0.5f);
+					constr6dof->setLimit(4, -0.5f, 0.5f);
+					constr6dof->setLimit(5, -0.5f, 0.5f);
+					constr6dof->enableSpring(0, true);
+					constr6dof->enableSpring(1, true);
+					constr6dof->enableSpring(2, true);
+					constr6dof->enableSpring(3, true);
+					constr6dof->enableSpring(4, true);
+					constr6dof->enableSpring(5, true);
+					constr6dof->setStiffness(0, 1);
+					constr6dof->setStiffness(1, 1);
+					constr6dof->setStiffness(2, 1);
+					constr6dof->setStiffness(3, 1);
+					constr6dof->setStiffness(4, 1);
+					constr6dof->setStiffness(5, 1);
+					constr6dof->setDamping(0, 1);
+					constr6dof->setDamping(1, 1);
+					constr6dof->setDamping(2, 1);
+					constr6dof->setDamping(3, 1);
+					constr6dof->setDamping(4, 1);
+					constr6dof->setDamping(5, 1);
+					//constr6dof->setEquilibriumPoint(0, 0);
+					constr6dof->setDbgDrawSize(btScalar(2.f));
+					//constr6dof->
+					//for (int i = 0; i < 6; ++i)
+					//{
+					//	constr6dof->enableSpring(i, true);
+					//	constr6dof->setStiffness(i, 5000000.0f);
+					//	constr6dof->setDamping(i, 5000000.0f);
+					//}
 					m_dynamicsWorld->addConstraint(constr6dof, true);
 					m_pickedConstraint = constr6dof;
 
@@ -380,9 +425,11 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 				newPivotB = rayFromWorld + dir;
 
 				btVector3 localPivot = m_pickedBody->getCenterOfMassTransform().inverse() * newPivotB;
-				btTransform frameInA, frameInB = pickCon->getFrameOffsetB();
+				btTransform frameInA, frameInB;
 				frameInA = btTransform::getIdentity();
 				frameInA.setOrigin(newPivotB);
+				frameInB = btTransform::getIdentity();
+				frameInB.setOrigin(pickCon->getFrameOffsetB().getOrigin());
 
 				pickCon->setFrames(frameInA, frameInB);
 				return true;
