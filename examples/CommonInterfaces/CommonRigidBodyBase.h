@@ -74,7 +74,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	{
 		if (m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(deltaTime, 1, 1.0f / 240.0f);
+			m_dynamicsWorld->stepSimulation(deltaTime, 1, 1.0f / 60.0f);
 		}
 	}
 
@@ -397,6 +397,9 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 				dir *= m_oldPickingDist;
 
 				newPivotB = rayFromWorld + dir;
+
+				printf("%f %f %f\n", m_pickedBody->getCenterOfMassTransform().getOrigin().x(), m_pickedBody->getCenterOfMassTransform().getOrigin().y(),
+					   m_pickedBody->getCenterOfMassTransform().getOrigin().z());
 
 				btVector3 localPivot = m_pickedBody->getCenterOfMassTransform().inverse() * newPivotB;
 				btTransform frameInA, frameInB;

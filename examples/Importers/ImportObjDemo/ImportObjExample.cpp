@@ -130,7 +130,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 
 				btTransform frameInA, frameInB;
 				frameInA = btTransform::getIdentity();
-				frameInA.setOrigin(btVector3(-10, 3, 5));
+				frameInA.setOrigin(btVector3(-13.458580, 2.908945, 3.210221));
 				frameInB = btTransform::getIdentity();
 				auto constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
 
@@ -202,7 +202,7 @@ void ImportObjSetup::initPhysics()
 	trans.setOrigin(btVector3(-20, 0, 0));
 	btTransform trans2;
 	trans2.setIdentity();
-	trans2.setOrigin(btVector3(-10, 3, 6));
+	trans2.setOrigin(btVector3(-13.458580, 2.908945, 5.210221));
 	btVector3 position = trans.getOrigin();
 	btQuaternion orn = trans.getRotation();
 
