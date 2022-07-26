@@ -65,7 +65,7 @@ ImportObjSetup::~ImportObjSetup()
 	}
 }
 
-int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btGImpactMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans, std::vector<GLInstanceGraphicsShape*>& graphicsShapes, int& userIndex)
+int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer, btGImpactMeshShape** dynamicShape, btGImpactMeshShape** staticShape, ImportObjSetup& importObjSetup, btTransform trans, std::vector<GLInstanceGraphicsShape*>& graphicsShapes, int& userIndex, btDiscreteDynamicsWorld* m_dynamicsWorld)
 {
 	int shapeId = -1;
 
@@ -127,6 +127,25 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				(*dynamicShape)->setMargin(0.01f);
 				auto body = importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				body->setUserIndex(userIndex++);
+
+				btTransform frameInA, frameInB;
+				frameInA = btTransform::getIdentity();
+				frameInA.setOrigin(btVector3(-10, 3, 5));
+				frameInB = btTransform::getIdentity();
+				auto constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
+
+				for (int i = 0; i < 3; ++i)
+					constr6dof->setLimit(i, -10.0, 10.0);
+				for (int i = 0; i < 3; ++i)
+					constr6dof->setLimit(3 + i, -0.5f, 0.5f);
+				for (int i = 0; i < 6; ++i)
+				{
+					constr6dof->enableSpring(i, true);
+					constr6dof->setStiffness(i, 1);
+					constr6dof->setDamping(i, 1);
+				}
+				constr6dof->setDbgDrawSize(btScalar(2.f));
+				m_dynamicsWorld->addConstraint(constr6dof, true);
 			}
 		}
 		
@@ -181,6 +200,9 @@ void ImportObjSetup::initPhysics()
 	btTransform trans;
 	trans.setIdentity();
 	trans.setOrigin(btVector3(-20, 0, 0));
+	btTransform trans2;
+	trans2.setIdentity();
+	trans2.setOrigin(btVector3(-10, 3, 6));
 	btVector3 position = trans.getOrigin();
 	btQuaternion orn = trans.getRotation();
 
@@ -191,14 +213,14 @@ void ImportObjSetup::initPhysics()
 	int userIndex = 0;
 
 	btGImpactMeshShape* staticMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex);
+	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex, m_dynamicsWorld);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 	}
 
 	btGImpactMeshShape* dynamicMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2(m_fileName /*"cube.obj"*/, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans, graphicsShapes, userIndex);
+	shapeId = loadAndRegisterMeshFromFile2(m_fileName /*"cube.obj"*/, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans2, graphicsShapes, userIndex, m_dynamicsWorld);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
