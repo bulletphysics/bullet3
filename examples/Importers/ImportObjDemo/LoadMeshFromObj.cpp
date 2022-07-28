@@ -38,6 +38,8 @@ std::string LoadFromCachedOrFromObj(
 	const char* mtl_basepath,
 	struct CommonFileIOInterface* fileIO)
 {
+	b3EnableFileCaching(0);
+
 	CachedObjResult* resultPtr = gCachedObjResults[filename];
 	if (resultPtr)
 	{

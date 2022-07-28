@@ -86,6 +86,8 @@ public:
 
 	//! Test if triangles could collide
 	bool overlap_test_conservative(const btPrimitiveTriangle& other);
+	bool overlap_test(const btPrimitiveTriangle& other) const;
+	bool validity_test() const;
 
 	//! Calcs the plane which is paralele to the edge and perpendicular to the triangle plane
 	/*!

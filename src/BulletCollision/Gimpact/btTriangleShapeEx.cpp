@@ -84,6 +84,49 @@ bool btPrimitiveTriangle::overlap_test_conservative(const btPrimitiveTriangle& o
 	return true;
 }
 
+bool btPrimitiveTriangle::overlap_test(const btPrimitiveTriangle& other) const
+{
+	btScalar total_margin = m_margin + other.m_margin;
+	// classify points on other triangle
+	btScalar dis0 = bt_distance_point_plane(m_plane, other.m_vertices[0]) - total_margin;
+
+	btScalar dis1 = bt_distance_point_plane(m_plane, other.m_vertices[1]) - total_margin;
+
+	btScalar dis2 = bt_distance_point_plane(m_plane, other.m_vertices[2]) - total_margin;
+
+	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
+	if (dis0 < 0.0f && dis1 < 0.0f && dis2 < 0.0f) return false;
+
+	// classify points on this triangle
+	dis0 = bt_distance_point_plane(other.m_plane, m_vertices[0]) - total_margin;
+
+	dis1 = bt_distance_point_plane(other.m_plane, m_vertices[1]) - total_margin;
+
+	dis2 = bt_distance_point_plane(other.m_plane, m_vertices[2]) - total_margin;
+
+	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
+	if (dis0 < 0.0f && dis1 < 0.0f && dis2 < 0.0f) return false;
+
+	return true;
+}
+
+bool btPrimitiveTriangle::validity_test() const
+{
+	const btScalar epsilon = SIMD_EPSILON * SIMD_EPSILON;
+	if ((m_vertices[0] - m_vertices[1]).length2() < epsilon)
+		return false;
+	if ((m_vertices[0] - m_vertices[2]).length2() < epsilon)
+		return false;
+	if ((m_vertices[1] - m_vertices[2]).length2() < epsilon)
+		return false;
+
+	if ((m_vertices[1] - m_vertices[0]).cross(m_vertices[2] - m_vertices[0]).length2() < epsilon)
+		return false;
+
+	return true;
+
+}
+
 int btPrimitiveTriangle::clip_triangle(btPrimitiveTriangle& other, btVector3* clipped_points)
 {
 	// edge 0

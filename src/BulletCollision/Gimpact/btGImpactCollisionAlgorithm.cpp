@@ -378,12 +378,14 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 		ptri0.applyTransform(orgtrans0);
 		ptri1.applyTransform(orgtrans1);
 
+		if (ptri0.validity_test() && ptri1.validity_test())
+		{
 		//build planes
 		ptri0.buildTriPlane();
 		ptri1.buildTriPlane();
 		// test conservative
 
-		if (ptri0.overlap_test_conservative(ptri1))
+			if (ptri0.overlap_test(ptri1))
 		{
 			if (ptri0.find_triangle_collision_clip_method(ptri1, contact_data))
 			{
@@ -396,6 +398,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 									-contact_data.m_penetration_depth);
 				}
 			}
+		}
 		}
 
 #ifdef TRI_COLLISION_PROFILING
