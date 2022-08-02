@@ -1,4 +1,4 @@
-/*! \file btGImpactTriangleShape.h
+﻿/*! \file btGImpactTriangleShape.h
 \author Francisco Leon Najera
 */
 /*
@@ -88,24 +88,24 @@ bool btPrimitiveTriangle::overlap_test(const btPrimitiveTriangle& other) const
 {
 	btScalar total_margin = m_margin + other.m_margin;
 	// classify points on other triangle
-	btScalar dis0 = bt_distance_point_plane(m_plane, other.m_vertices[0]) - total_margin;
+	btScalar dis0 = bt_distance_point_plane(m_plane, other.m_vertices[0]);
 
-	btScalar dis1 = bt_distance_point_plane(m_plane, other.m_vertices[1]) - total_margin;
+	btScalar dis1 = bt_distance_point_plane(m_plane, other.m_vertices[1]);
 
-	btScalar dis2 = bt_distance_point_plane(m_plane, other.m_vertices[2]) - total_margin;
+	btScalar dis2 = bt_distance_point_plane(m_plane, other.m_vertices[2]);
 
-	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
-	if (dis0 < 0.0f && dis1 < 0.0f && dis2 < 0.0f) return false;
+	if ((dis0 - total_margin) > 0.0f && (dis1 - total_margin) > 0.0f && (dis2 - total_margin) > 0.0f) return false;
+	if ((dis0 + total_margin) < 0.0f && (dis1 + total_margin) < 0.0f && (dis2 + total_margin) < 0.0f) return false;
 
 	// classify points on this triangle
-	dis0 = bt_distance_point_plane(other.m_plane, m_vertices[0]) - total_margin;
+	dis0 = bt_distance_point_plane(other.m_plane, m_vertices[0]);
 
-	dis1 = bt_distance_point_plane(other.m_plane, m_vertices[1]) - total_margin;
+	dis1 = bt_distance_point_plane(other.m_plane, m_vertices[1]);
 
-	dis2 = bt_distance_point_plane(other.m_plane, m_vertices[2]) - total_margin;
+	dis2 = bt_distance_point_plane(other.m_plane, m_vertices[2]);
 
-	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
-	if (dis0 < 0.0f && dis1 < 0.0f && dis2 < 0.0f) return false;
+	if ((dis0 - total_margin) > 0.0f && (dis1 - total_margin) > 0.0f && (dis2 - total_margin) > 0.0f) return false;
+	if ((dis0 + total_margin) < 0.0f && (dis1 + total_margin) < 0.0f && (dis2 + total_margin) < 0.0f) return false;
 
 	return true;
 }
@@ -200,7 +200,7 @@ bool btPrimitiveTriangle::intersectSegmentTriangle(btVector3 p, const btVector3&
 	return true;  //*/
 }
 
-bool btPrimitiveTriangle::find_triangle_collision_vrut_method(const btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts)
+bool btPrimitiveTriangle::find_triangle_collision_alt_method(const btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts)
 {
 	btVector3 startPoint, endPoint;
 
@@ -392,6 +392,370 @@ bool btPrimitiveTriangle::find_triangle_collision_vrut_method(const btPrimitiveT
 	return bCollide;
 }
 
+bool btPrimitiveTriangle::segmentSegmentDistance(const btVector3& p1, const btVector3& p2, const btVector3& s1, const btVector3& s2,
+							btScalar& tp_out, btScalar& ts_out, btVector3& p_closest_out, btVector3& s_closest_out, btScalar& dist_sq_out, btScalar max_distance_sq)
+{
+	// http://geomalgorithms.com/a07-_distance.html
+
+	btVector3 u = p2 - p1;
+	btVector3 v = s2 - s1;
+	btVector3 w = p1 - s1;
+	btScalar a = u.dot(u);
+	btScalar b = u.dot(v);
+	btScalar c = v.dot(v);
+	btScalar d = u.dot(w);
+	btScalar e = v.dot(w);
+
+	btScalar denom = a * c - b * b;  // = |u x v| ^ 2
+
+	// tp = tp_numer / tp_denom, ts = ts_numer / ts_denom
+	btScalar tp_numer, ts_numer, tp_denom, ts_denom;
+
+	// Compute tp and ts as if it was a line and check its distance. If it is larger than max distance,
+	// than there is no need to compute the rest
+	tp_numer = b * e - c * d;
+	tp_denom = denom;
+	ts_numer = a * e - b * d;
+	ts_denom = denom;
+	if (max_distance_sq < FLT_MAX)
+	{
+		btScalar lines_dist_denom_sq = (w * denom + u * tp_numer - v * ts_numer).length2();
+		if (lines_dist_denom_sq > (max_distance_sq * denom * denom))
+			return false;  // The lines are too far
+	}
+
+	if (denom < SIMD_EPSILON)
+	{
+		// Segments are parallel. Choose p1 as the closest point on p1-p2 and then check whether
+		// it is the closest point from the other segment
+		tp_numer = 0.0f;
+		tp_denom = 1.0f;
+		ts_numer = e;
+		ts_denom = c;
+	}
+	else
+	{
+		// Segments are not parallel, compute the closest points (on lines first)
+
+		// Use tp_numer and tp_denom as if the segments were lines
+
+		// Check whether tp is in interval [0, 1] and adjust it and ts if it is not
+		if (tp_numer < 0.0f)
+		{
+			tp_numer = 0.0;
+			ts_numer = e;
+			ts_denom = c;
+		}
+		else if (tp_numer > tp_denom)
+		{
+			tp_numer = tp_denom;
+			ts_numer = e + b;
+			ts_denom = c;
+		}
+		else
+		{
+			// Use ts_numer and ts_denom as if the segments were lines
+		}
+	}
+
+	// Now, check whether ts is in interval [0,1]
+	if (ts_numer < 0.0f)
+	{
+		ts_numer = 0.0;
+
+		// Recompute tp. tp should be -d/a, check whether it is in interval [0,1]
+		tp_numer = -d;
+		if (tp_numer < 0.0f)
+		{
+			tp_numer = 0.0f;
+		}
+		else if (tp_numer > a)
+		{
+			tp_numer = tp_denom;
+		}
+		else
+		{
+			tp_denom = a;
+		}
+	}
+	else if (ts_numer > ts_denom)
+	{
+		ts_numer = ts_denom;
+
+		// Recompute tp. tp should be (-d+b)/a, check whether it is in interval [0,1]
+		tp_numer = b - d;
+		if (tp_numer < 0.0f)
+		{
+			tp_numer = 0.0f;
+		}
+		else if (tp_numer > a)
+		{
+			tp_numer = tp_denom;
+		}
+		else
+		{
+			tp_denom = a;
+		}
+	}
+	else
+	{
+		// ts is OK, and so is tp
+	}
+
+	// Be careful to divide by really small numbers.
+	btScalar ts = (fabs(ts_numer) < SIMD_EPSILON) ? 0.0f : (ts_numer / ts_denom);
+	btScalar tp = (fabs(tp_numer) < SIMD_EPSILON) ? 0.0f : (tp_numer / tp_denom);
+
+	// Compute the distance
+	btVector3 p_closest = p1 + u * tp;
+	btVector3 s_closest = s1 + v * ts;
+	btScalar dist_sq = (p_closest - s_closest).length2();
+
+	if (dist_sq <= max_distance_sq)
+	{
+		tp_out = tp;
+		ts_out = ts;
+		p_closest_out = p_closest;
+		s_closest_out = s_closest;
+		dist_sq_out = dist_sq;
+		return true;
+	}
+	else
+		return false;
+}
+
+bool btPrimitiveTriangle::pointTriangleDistance(const btVector3& q, const btVector3& p1, const btVector3& p2, const btVector3& p3,
+						   btScalar& tp_out, btScalar& ts_out, btVector3& closest_out, btScalar& dist_sq_out, btScalar max_distance_sq)
+{
+	// According to http://web.mit.edu/ehliu/Public/Darmofal/DistancePoint3Triangle3.pdf
+	btVector3 P = q;
+	btVector3 B = p1;
+	btVector3 E0 = p2 - p1;
+	btVector3 E1 = p3 - p1;
+	btVector3 W = B - P;
+	btScalar a = E0.dot(E0);
+	btScalar b = E0.dot(E1);
+	btScalar c = E1.dot(E1);
+	btScalar d = E0.dot(W);
+	btScalar e = E1.dot(W);
+	//btScalar f = W.Dot(W);
+
+	btScalar det = a * c - b * b;  // = |u x v| ^ 2
+	btScalar s = b * e - c * d;
+	btScalar t = b * d - a * e;
+
+	// Use s and t as if it was a plane check the distance. If it is larger than max distance,
+	// than there is no need to compute the rest.
+	if (max_distance_sq < FLT_MAX)
+	{
+		btScalar dist_det_sq = ((B - q) * det + E0 * s + E1 * t).length2();
+		if (dist_det_sq > (max_distance_sq * det * det))
+			return false;  // The point is too far
+	}
+
+	// Q(s,t) = as^2 + 2bst + ct^2 + 2ds + 2et + f
+
+	if ((s + t) <= det)
+	{
+		if (s < 0.0f)
+		{
+			if (t < 0.0f)
+			{
+				// region 4
+
+				// Grad(Q) = 2(as+bt+d,bs+ct+e)
+				// (1,0)*Grad(Q(0,0)) = (1,0)*(d,e) = d
+				// (0,1)*Grad(Q(0,0)) = (0,1)*(d,e) = e
+				// min in (0,0) if both grads are >= 0
+				// min on edge t=0 if (1,0)*Grad(Q(0,0)) < 0
+				// min on edge s=0 otherwise
+				if (d < 0.0f)  // minimum on edge t=0
+				{
+					// Like in region 5, but d is already < 0
+					s = (-d >= a) ? 1.0f : (-d / a);
+					t = 0.0f;
+				}
+				else if (e < 0.0f)
+				{
+					// Like in region 3, but e is already < 0
+					s = 0.0f;
+					t = (-e >= c) ? 1.0f : (-e / c);
+				}
+				else
+				{
+					s = 0.0f;
+					t = 0.0f;
+				}
+			}
+			else
+			{
+				// region 3
+				// F(t) = Q(0,t) = ct^2 + 2et + f
+				// F�(t)/2 = ct+e
+				// F�(T) = 0 when T = -e/c
+				s = 0.0f;
+				t = (e >= 0.0f) ? 0.0f : ((-e >= c) ? 1.0f : (-e / c));
+			}
+		}
+		else if (t < 0.0f)
+		{
+			// region 5
+			// F(s) = Q(s,0) = as^2 + 2ds + f
+			// F�(s)/2 = as+d
+			// F�(S) = 0 when S = -d/a
+			s = (d >= 0.0f) ? 0.0f : ((-d >= a) ? 1.0f : (-d / a));
+			t = 0.0f;
+		}
+		else
+		{
+			// region 0
+			s /= det;
+			t /= det;
+		}
+	}
+	else
+	{
+		if (s < 0.0f)
+		{
+			// region 2
+
+			// Grad(Q) = 2(as+bt+d,bs+ct+e)
+			// (0,-1)*Grad(Q(0,1)) = (0,-1)*(b+d,c+e) = -(c+e)
+			// (1,-1)*Grad(Q(0,1)) = (1,-1)*(b+d,c+e) = (b+d)-(c+e)
+			// min on edge s+t=1 if (1,-1)*Grad(Q(0,1)) < 0
+			// min on edge s=0 otherwise
+			btScalar tmp0 = b + d;
+			btScalar tmp1 = c + e;
+			if (tmp1 > tmp0)  // minimum on edge s+t=1
+			{
+				btScalar numer = tmp1 - tmp0;
+				btScalar denom = a - 2.0f * b + c;
+				s = ((numer >= denom) ? 1.0f : (numer / denom));
+				t = 1.0f - s;
+			}
+			else  // minimum on edge s=0
+			{
+				s = 0.0f;
+				t = (tmp1 <= 0.0f) ? 1.0f : ((e >= 0.0f) ? 0.0f : (-e / c));
+			}
+		}
+		else if (t < 0.0f)
+		{
+			// region 6
+
+			// Grad(Q) = 2(as+bt+d,bs+ct+e)
+			// (-1,0)*Grad(Q(1,0)) = (-1,0)*(a+d,b+e) = -(a+d)
+			// (-1,1)*Grad(Q(1,0)) = (-1,1)*(a+d,b+e) = (b+e)-(a+d)
+			// min on edge s+t=1 if (-1,1)*Grad(Q(1,0)) < 0
+			// min on edge t=0 otherwise
+			btScalar tmp0 = b + e;
+			btScalar tmp1 = a + d;
+			if (tmp1 > tmp0)  // minimum on edge s+t=1
+			{
+				btScalar numer = tmp1 - tmp0;
+				btScalar denom = a - 2.0f * b + c;
+				t = ((numer >= denom) ? 1.0f : (numer / denom));
+				s = 1.0f - t;
+			}
+			else  // minimum on edge t=0
+			{
+				s = (tmp1 <= 0.0f) ? 1.0f : ((d >= 0.0f) ? 0.0f : (-d / a));
+				t = 0.0f;
+			}
+		}
+		else
+		{
+			// region 1
+			// F(s) = Q(s,1-s) = (a-2b+c)s^2 + 2(b-c+d-e)s + (c+2e+f)
+			// F�(s)/2 = (a-2b+c)s + (b-c+d-e)
+			// F�(S) = 0 when S = (c+e-b-d)/(a-2b+c)
+			// a-2b+c = |E0-E1|^2 > 0, so only sign of c+e-b-d need be considered
+			//
+			// Note: F(t) = trying Q(1-t,t) = a(1-t)^2 + 2b(1-t)t + ct^2 + 2d(1-t) + 2et + f =
+			//			= at^2 - 2at + a + 2bt - 2bt^2 + ct^2 + 2d - 2dt + 2et + f =
+			//			= (a-2b+c)t^2 + 2(-a+b-d+e)t + (a+2d+f)
+			// F'(t)/2 = (a-2b+c)t + (-a+b-d+e)
+			// F'(T) = 0 when T = (a-b+d-e)/(a-2b+c)
+
+			btScalar numer = c + e - b - d;
+			if (numer <= 0.0f)
+			{
+				s = 0.0f;
+			}
+			else
+			{
+				btScalar denom = a - 2.0f * b + c;  // positive quantity
+				s = ((numer >= denom) ? 1.0f : (numer / denom));
+			}
+			t = 1.0f - s;
+		}
+	}
+
+	btScalar tp = s;
+	btScalar ts = t;
+
+	// Compute the distance
+	btVector3 closest = B + E0 * tp + E1 * ts;
+	btScalar dist_sq = (closest - q).length2();
+
+	if (dist_sq <= max_distance_sq)
+	{
+		tp_out = tp;
+		ts_out = ts;
+		closest_out = closest;
+		dist_sq_out = dist_sq;
+		return true;
+	}
+	else
+		return false;
+}
+
+bool btPrimitiveTriangle::triangle_triangle_distance(const btPrimitiveTriangle& b, btScalar& dist_sq_out, btVector3& a_closest_out, btVector3& b_closest_out,
+	float max_distance_sq)
+{
+	btVector3 a_closest, b_closest;
+	GIM_TRIANGLE_CONTACT contact;
+
+	if (find_triangle_collision_alt_method(b, contact))
+	{
+		dist_sq_out = 0.0f;
+		a_closest = contact.m_points[0], b_closest = contact.m_points[1];
+		a_closest_out = a_closest;
+		b_closest_out = b_closest;
+		return true;
+	}
+
+	// The triangles don't collide, the distance is the closest of 9 ExE and 6 VxF distances
+	btScalar curr_dist_sq = max_distance_sq, tp, ts;
+	this->m_vertices[1], b.m_vertices[0];
+	segmentSegmentDistance(this->m_vertices[0], this->m_vertices[1], b.m_vertices[0], b.m_vertices[1], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[1], this->m_vertices[2], b.m_vertices[0], b.m_vertices[1], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[2], this->m_vertices[0], b.m_vertices[0], b.m_vertices[1], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[0], this->m_vertices[1], b.m_vertices[1], b.m_vertices[2], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[1], this->m_vertices[2], b.m_vertices[1], b.m_vertices[2], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[2], this->m_vertices[0], b.m_vertices[1], b.m_vertices[2], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[0], this->m_vertices[1], b.m_vertices[2], b.m_vertices[0], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[1], this->m_vertices[2], b.m_vertices[2], b.m_vertices[0], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+	segmentSegmentDistance(this->m_vertices[2], this->m_vertices[0], b.m_vertices[2], b.m_vertices[0], tp, ts, a_closest, b_closest, curr_dist_sq, curr_dist_sq);
+
+	if (pointTriangleDistance(this->m_vertices[0], b.m_vertices[0], b.m_vertices[1], b.m_vertices[2], tp, ts, b_closest, curr_dist_sq, curr_dist_sq)) a_closest = this->m_vertices[0];
+	if (pointTriangleDistance(this->m_vertices[1], b.m_vertices[0], b.m_vertices[1], b.m_vertices[2], tp, ts, b_closest, curr_dist_sq, curr_dist_sq)) a_closest = this->m_vertices[1];
+	if (pointTriangleDistance(this->m_vertices[2], b.m_vertices[0], b.m_vertices[1], b.m_vertices[2], tp, ts, b_closest, curr_dist_sq, curr_dist_sq)) a_closest = this->m_vertices[2];
+	if (pointTriangleDistance(b.m_vertices[0], this->m_vertices[0], this->m_vertices[1], this->m_vertices[2], tp, ts, a_closest, curr_dist_sq, curr_dist_sq)) b_closest = b.m_vertices[0];
+	if (pointTriangleDistance(b.m_vertices[1], this->m_vertices[0], this->m_vertices[1], this->m_vertices[2], tp, ts, a_closest, curr_dist_sq, curr_dist_sq)) b_closest = b.m_vertices[1];
+	if (pointTriangleDistance(b.m_vertices[2], this->m_vertices[0], this->m_vertices[1], this->m_vertices[2], tp, ts, a_closest, curr_dist_sq, curr_dist_sq)) b_closest = b.m_vertices[2];
+
+	if (curr_dist_sq < max_distance_sq)
+	{
+		dist_sq_out = curr_dist_sq;
+		a_closest_out = a_closest;
+		b_closest_out = b_closest;
+		return true;
+	}
+	else
+		return false;
+}
+
 bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts)
 {
 	btScalar margin = m_margin + other.m_margin;
@@ -442,7 +806,38 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 	{
 		contacts.copy_from(contacts1);
 	}
+
 	return true;
+}
+
+bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts)
+{
+	btScalar margin = m_margin + other.m_margin;
+
+	contacts.m_point_count = 0;
+	btScalar dist_sq_out, dist;
+	btVector3 a_closest_out, b_closest_out;
+	auto ret = triangle_triangle_distance(other, dist_sq_out, a_closest_out, b_closest_out);
+	dist = sqrtf(dist_sq_out);
+	if (ret && dist_sq_out != 0.0 && dist < margin)
+	{
+		// In the margin zone. No actual penetration yet.
+		btVector3 dir = (a_closest_out - b_closest_out).normalized();
+		contacts.m_point_count = 1;
+		contacts.m_points[0] = a_closest_out;
+		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
+		// Inversion so that bigger distance means smaller impulse.
+		contacts.m_penetration_depth = 0.01 / ((a_closest_out - b_closest_out).length() + 0.1);
+
+		return true;
+	}
+	else if (ret && dist_sq_out == 0.0)
+	{
+		// Actual triangle penetration. Fallback to the original method for now. Possible TODO.
+		return find_triangle_collision_clip_method(other, contacts);
+	}
+
+	return false;
 }
 
 ///class btTriangleShapeEx: public btTriangleShape

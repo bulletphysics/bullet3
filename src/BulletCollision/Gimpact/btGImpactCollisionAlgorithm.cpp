@@ -362,7 +362,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 	const int* pair_pointer = pairs;
 
-	int dbgCnt = 0;
 	while (pair_count--)
 	{
 		m_triface0 = *(pair_pointer);
@@ -387,7 +386,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 			if (ptri0.overlap_test(ptri1))
 			{
-				if (ptri0.find_triangle_collision_clip_method(ptri1, contact_data))
+				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data))
 				{
 					int j = contact_data.m_point_count;
 					while (j--)
@@ -396,7 +395,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 										contact_data.m_points[j],
 										contact_data.m_separating_normal,
 										-contact_data.m_penetration_depth);
-						dbgCnt++;
 					}
 				}
 			}
@@ -406,8 +404,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 		bt_end_gim02_tri_time();
 #endif
 	}
-
-	printf("addContactPoint called %d times\n", dbgCnt);
 
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();
@@ -454,7 +450,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 
 	if (pairset.size() == 0) return;
 
-	printf("pairset.size() %d\n", pairset.size());
+	//printf("pairset.size() %d\n", pairset.size());
 
 	if (shape0->getGImpactShapeType() == CONST_GIMPACT_TRIMESH_SHAPE_PART &&
 		shape1->getGImpactShapeType() == CONST_GIMPACT_TRIMESH_SHAPE_PART)

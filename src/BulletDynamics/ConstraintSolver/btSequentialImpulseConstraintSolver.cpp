@@ -311,7 +311,7 @@ static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
 		}
 		bodyA.internalApplyPushImpulse(c.m_contactNormal1 * bodyA.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 		bodyB.internalApplyPushImpulse(c.m_contactNormal2 * bodyB.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
-		printf("c.m_contactNormal2 %f %f %f\n", c.m_contactNormal2.x(), c.m_contactNormal2.y(), c.m_contactNormal2.z());
+		//printf("c.m_contactNormal2 %f %f %f\n", c.m_contactNormal2.x(), c.m_contactNormal2.y(), c.m_contactNormal2.z());
 	}
 	return deltaImpulse * (1. / c.m_jacDiagABInv);
 }

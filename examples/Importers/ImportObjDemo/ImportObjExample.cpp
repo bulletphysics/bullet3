@@ -128,7 +128,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btScalar mass(0.0);
 				auto body = importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				(*staticShape)->updateBound();
-				(*staticShape)->setMargin(0.0500000f);
+				(*staticShape)->setMargin(0.05f);
 				body->setUserIndex(userIndex++);
 			}
 		}
@@ -140,18 +140,19 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btVector3 localInertia(0, 0, 0);
 				(*dynamicShape)->calculateLocalInertia(mass, localInertia);
 				(*dynamicShape)->updateBound();
-				(*dynamicShape)->setMargin(0.050000f);
+				(*dynamicShape)->setMargin(0.05f);
 				auto body = importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				body->setUserIndex(userIndex++);
+				body->setSleepingThresholds(0, 0);
 
 				/*btTransform frameInA, frameInB;
 				frameInA = btTransform::getIdentity();
-				frameInA.setOrigin(btVector3(-13.458580, 2.908945, 4.210221));
+				frameInA.setOrigin(btVector3(-13.658580, 2.908945, 3.510221));
 				frameInB = btTransform::getIdentity();
 				auto constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
 
 				for (int i = 0; i < 3; ++i)
-					constr6dof->setLimit(i, -10.0, 10.0);
+					constr6dof->setLimit(i, -5.0, 5.0);
 				for (int i = 0; i < 3; ++i)
 					constr6dof->setLimit(3 + i, -0.5f, 0.5f);
 				for (int i = 0; i < 6; ++i)
