@@ -16,7 +16,7 @@ struct SimpleOpenGL3App : public CommonGraphicsApp
 	virtual void setBackgroundColor(float red, float green, float blue);
 	virtual void setMp4Fps(int fps);
 
-	SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina = true, int windowType = 0, int renderDevice = -1, int maxNumObjectCapacity = 128 * 1024, int maxShapeCapacityInBytes = 1024 * 1024 * 1024);
+	SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina = true, int windowType = 0, int renderDevice = -1, int maxNumObjectCapacity = 128 * 1024, int maxShapeCapacityInBytes = 1524 * 1024 * 1024);
 
 	virtual ~SimpleOpenGL3App();
 

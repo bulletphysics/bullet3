@@ -1997,6 +1997,8 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 	b3Clamp(lineWidth, (float)lineWidthRange[0], (float)lineWidthRange[1]);
 	glLineWidth(lineWidth);
 
+	glDisable(GL_DEPTH_TEST);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -2047,6 +2049,9 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 	glPointSize(1);
 	b3Assert(glGetError() == GL_NO_ERROR);
 	glUseProgram(0);
+
+	glEnable(GL_DEPTH_TEST);
+	b3Assert(glGetError() == GL_NO_ERROR);
 }
 
 void GLInstancingRenderer::drawLine(const double fromIn[4], const double toIn[4], const double colorIn[4], double lineWidthIn)

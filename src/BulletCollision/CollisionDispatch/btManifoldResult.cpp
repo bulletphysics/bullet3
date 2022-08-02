@@ -171,15 +171,18 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		newPt.m_index1 = m_index1;
 	}
 	//printf("depth=%f\n",depth);
+	//printf("newPt normalOnBInWorld %f %f %f depth %f ", normalOnBInWorld.x(), normalOnBInWorld.y(), normalOnBInWorld.z(), depth);
 	///@todo, check this for any side effects
 	if (insertIndex >= 0)
 	{
 		//const btManifoldPoint& oldPoint = m_manifoldPtr->getContactPoint(insertIndex);
 		m_manifoldPtr->replaceContactPoint(newPt, insertIndex);
+		//printf("replace\n");
 	}
 	else
 	{
 		insertIndex = m_manifoldPtr->addManifoldPoint(newPt);
+		//printf("add\n");
 	}
 
 	//User can override friction and/or restitution

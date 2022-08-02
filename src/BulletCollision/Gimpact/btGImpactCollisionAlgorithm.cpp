@@ -362,6 +362,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 	const int* pair_pointer = pairs;
 
+	int dbgCnt = 0;
 	while (pair_count--)
 	{
 		m_triface0 = *(pair_pointer);
@@ -372,7 +373,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 		shape1->getPrimitiveTriangle(m_triface1, ptri1);
 
 #ifdef TRI_COLLISION_PROFILING
-		bt_begin_gim02_tri_time();
+			bt_begin_gim02_tri_time();
 #endif
 
 		ptri0.applyTransform(orgtrans0);
@@ -380,31 +381,33 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 		if (ptri0.validity_test() && ptri1.validity_test())
 		{
-		//build planes
-		ptri0.buildTriPlane();
-		ptri1.buildTriPlane();
-		// test conservative
+			//build planes
+			ptri0.buildTriPlane();
+			ptri1.buildTriPlane();
 
 			if (ptri0.overlap_test(ptri1))
-		{
-			if (ptri0.find_triangle_collision_clip_method(ptri1, contact_data))
 			{
-				int j = contact_data.m_point_count;
-				while (j--)
+				if (ptri0.find_triangle_collision_clip_method(ptri1, contact_data))
 				{
-					addContactPoint(body0Wrap, body1Wrap,
-									contact_data.m_points[j],
-									contact_data.m_separating_normal,
-									-contact_data.m_penetration_depth);
+					int j = contact_data.m_point_count;
+					while (j--)
+					{
+						addContactPoint(body0Wrap, body1Wrap,
+										contact_data.m_points[j],
+										contact_data.m_separating_normal,
+										-contact_data.m_penetration_depth);
+						dbgCnt++;
+					}
 				}
 			}
-		}
 		}
 
 #ifdef TRI_COLLISION_PROFILING
 		bt_end_gim02_tri_time();
 #endif
 	}
+
+	printf("addContactPoint called %d times\n", dbgCnt);
 
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();
@@ -450,6 +453,8 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset);
 
 	if (pairset.size() == 0) return;
+
+	printf("pairset.size() %d\n", pairset.size());
 
 	if (shape0->getGImpactShapeType() == CONST_GIMPACT_TRIMESH_SHAPE_PART &&
 		shape1->getGImpactShapeType() == CONST_GIMPACT_TRIMESH_SHAPE_PART)

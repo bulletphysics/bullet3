@@ -12,7 +12,7 @@
 
 #include "../OpenGLWindow/SimpleCamera.h"
 
-#define BT_LINE_BATCH_SIZE 512
+#define BT_LINE_BATCH_SIZE 1
 
 struct MyDebugVec3
 {
@@ -84,7 +84,7 @@ public:
 
 	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 	{
-		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
+		drawLine(PointOnB, PointOnB + normalOnB * distance * 1000.0, color);
 		btVector3 ncolor(0, 0, 0);
 		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
 	}

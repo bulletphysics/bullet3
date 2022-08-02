@@ -18,6 +18,13 @@
 #include "../src/BulletCollision/Gimpact/btGImpactShape.h"
 #include "../src/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 
+
+#include "BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h"
+#include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+
 #include <memory>
 
 class ImportObjSetup : public CommonRigidBodyBase
@@ -30,6 +37,7 @@ public:
 	virtual ~ImportObjSetup();
 
 	virtual void initPhysics();
+	void stepSimulation(float deltaTime) override;
 
 	virtual void resetCamera()
 	{
@@ -62,6 +70,14 @@ ImportObjSetup::~ImportObjSetup()
 	{
 		if (shape)
 			delete shape;
+	}
+}
+
+void ImportObjSetup::stepSimulation(float deltaTime)
+{
+	if (m_dynamicsWorld)
+	{
+		m_dynamicsWorld->stepSimulation(deltaTime, 1, 1.0f / 240.0f);
 	}
 }
 
@@ -112,7 +128,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btScalar mass(0.0);
 				auto body = importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				(*staticShape)->updateBound();
-				(*staticShape)->setMargin(0.01f);
+				(*staticShape)->setMargin(0.0500000f);
 				body->setUserIndex(userIndex++);
 			}
 		}
@@ -124,13 +140,13 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btVector3 localInertia(0, 0, 0);
 				(*dynamicShape)->calculateLocalInertia(mass, localInertia);
 				(*dynamicShape)->updateBound();
-				(*dynamicShape)->setMargin(0.01f);
+				(*dynamicShape)->setMargin(0.050000f);
 				auto body = importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				body->setUserIndex(userIndex++);
 
-				btTransform frameInA, frameInB;
+				/*btTransform frameInA, frameInB;
 				frameInA = btTransform::getIdentity();
-				frameInA.setOrigin(btVector3(-13.458580, 2.908945, 3.210221));
+				frameInA.setOrigin(btVector3(-13.458580, 2.908945, 4.210221));
 				frameInB = btTransform::getIdentity();
 				auto constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
 
@@ -145,7 +161,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 					constr6dof->setDamping(i, 1);
 				}
 				constr6dof->setDbgDrawSize(btScalar(2.f));
-				m_dynamicsWorld->addConstraint(constr6dof, true);
+				m_dynamicsWorld->addConstraint(constr6dof, true);*/
 			}
 		}
 		
@@ -177,13 +193,39 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 void ImportObjSetup::initPhysics()
 {
 	m_guiHelper->setUpAxis(2);
-	this->createEmptyDynamicsWorld();
+	//this->createEmptyDynamicsWorld();
+
+	///collision configuration contains default setup for memory, collision setup
+	m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	//m_collisionConfiguration->setConvexConvexMultipointIterations();
+
+	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
+
+	m_broadphase = new btDbvtBroadphase();
+
+	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
+
+	/////// uncomment the corresponding line to test a solver.
+	//m_solver = new btSequentialImpulseConstraintSolver;
+	//m_solver = new btNNCGConstraintSolver;
+	//m_solver = new btMLCPSolver(new btSolveProjectedGaussSeidel());
+	//m_solver = new btMLCPSolver(new btDantzigSolver());
+	//m_solver = new btMLCPSolver(new btLemkeSolver());
+
+	//m_solver = sol;
+
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
+
+	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
+
 	btCollisionDispatcher* dispatcher = static_cast<btCollisionDispatcher*>(m_dynamicsWorld->getDispatcher());
 	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 	m_dynamicsWorld->setGravity(btVector3(0,0,0));
-	m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
+	//m_dynamicsWorld->getSolverInfo().m_numIterations = 1000;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
+	//m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
 
 	///create a few basic rigid bodies
 	//btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
@@ -212,6 +254,19 @@ void ImportObjSetup::initPhysics()
 	int shapeId = -1;
 	int userIndex = 0;
 
+	///create a few basic rigid bodies
+	//btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+	//groundShape->setMargin(0.0001f);
+
+	//btTransform groundTransform;
+	//groundTransform.setIdentity();
+	//groundTransform.setOrigin(btVector3(0, 0, -50));
+
+	//{
+	//	btScalar mass(0.);
+	//	createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
+	//}
+
 	btGImpactMeshShape* staticMeshShape;
 	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex, m_dynamicsWorld);
 	if (shapeId >= 0)
@@ -219,13 +274,14 @@ void ImportObjSetup::initPhysics()
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 	}
 
+	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+
 	btGImpactMeshShape* dynamicMeshShape;
 	shapeId = loadAndRegisterMeshFromFile2(m_fileName /*"cube.obj"*/, m_guiHelper->getRenderInterface(), &dynamicMeshShape, nullptr, *this, trans2, graphicsShapes, userIndex, m_dynamicsWorld);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 	}
-	//m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
 CommonExampleInterface* ImportObjCreateFunc(struct CommonExampleOptions& options)

@@ -29,6 +29,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
 	struct GUIHelperInterface* m_guiHelper;
+	btGeneric6DofSpringConstraint* constr6dof = nullptr;
 
 	CommonRigidBodyBase(struct GUIHelperInterface* helper)
 		: m_broadphase(0),
@@ -346,10 +347,10 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 						m_pickedConstraint = nullptr;
 					}
 					// Beware of btGeneric6DofSpring2Constraint, it seems broken (random nonsensical rotations even when all DOFs are fixed)
-					auto constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
+					constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
 					
 					for (int i = 0; i < 3; ++i)
-						constr6dof->setLimit(i, -10.0, 10.0);
+						constr6dof->setLimit(i, -1.0, 1.0);
 					for (int i = 0; i < 3; ++i)
 						constr6dof->setLimit(3 + i, -0.5f, 0.5f);
 					for (int i = 0; i < 6; ++i)
@@ -398,8 +399,8 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 
 				newPivotB = rayFromWorld + dir;
 
-				printf("%f %f %f\n", m_pickedBody->getCenterOfMassTransform().getOrigin().x(), m_pickedBody->getCenterOfMassTransform().getOrigin().y(),
-					   m_pickedBody->getCenterOfMassTransform().getOrigin().z());
+				//printf("%f %f %f\n", m_pickedBody->getCenterOfMassTransform().getOrigin().x(), m_pickedBody->getCenterOfMassTransform().getOrigin().y(),
+				//	   m_pickedBody->getCenterOfMassTransform().getOrigin().z());
 
 				btVector3 localPivot = m_pickedBody->getCenterOfMassTransform().inverse() * newPivotB;
 				btTransform frameInA, frameInB;

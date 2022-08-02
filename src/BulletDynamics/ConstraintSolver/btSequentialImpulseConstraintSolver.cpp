@@ -47,6 +47,7 @@ int gNumSplitImpulseRecoveries = 0;
 static btScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 	btScalar deltaImpulse = c.m_rhs - btScalar(c.m_appliedImpulse) * c.m_cfm;
+	//printf("A c.m_rhs %f btScalar(c.m_appliedImpulse) %f c.m_cfm %f\n", c.m_rhs, btScalar(c.m_appliedImpulse), c.m_cfm);
 	const btScalar deltaVel1Dotn = c.m_contactNormal1.dot(bodyA.internalGetDeltaLinearVelocity()) + c.m_relpos1CrossNormal.dot(bodyA.internalGetDeltaAngularVelocity());
 	const btScalar deltaVel2Dotn = c.m_contactNormal2.dot(bodyB.internalGetDeltaLinearVelocity()) + c.m_relpos2CrossNormal.dot(bodyB.internalGetDeltaAngularVelocity());
 
@@ -79,6 +80,7 @@ static btScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolverBody
 static btScalar gResolveSingleConstraintRowLowerLimit_scalar_reference(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 	btScalar deltaImpulse = c.m_rhs - btScalar(c.m_appliedImpulse) * c.m_cfm;
+	//printf("B c.m_rhs %f btScalar(c.m_appliedImpulse) %f c.m_cfm %f\n", c.m_rhs, btScalar(c.m_appliedImpulse), c.m_cfm);
 	const btScalar deltaVel1Dotn = c.m_contactNormal1.dot(bodyA.internalGetDeltaLinearVelocity()) + c.m_relpos1CrossNormal.dot(bodyA.internalGetDeltaAngularVelocity());
 	const btScalar deltaVel2Dotn = c.m_contactNormal2.dot(bodyB.internalGetDeltaLinearVelocity()) + c.m_relpos2CrossNormal.dot(bodyB.internalGetDeltaAngularVelocity());
 
@@ -309,6 +311,7 @@ static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
 		}
 		bodyA.internalApplyPushImpulse(c.m_contactNormal1 * bodyA.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 		bodyB.internalApplyPushImpulse(c.m_contactNormal2 * bodyB.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
+		printf("c.m_contactNormal2 %f %f %f\n", c.m_contactNormal2.x(), c.m_contactNormal2.y(), c.m_contactNormal2.z());
 	}
 	return deltaImpulse * (1. / c.m_jacDiagABInv);
 }

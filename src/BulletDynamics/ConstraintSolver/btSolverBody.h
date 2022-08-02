@@ -245,6 +245,7 @@ btSolverBody
 		if (m_originalBody)
 		{
 			m_deltaLinearVelocity += linearComponent * impulseMagnitude * m_linearFactor;
+			//printf("m_deltaLinearVelocity %f %f %f linearComponent %f %f %f impulseMagnitude %f\n", m_deltaLinearVelocity.x(), m_deltaLinearVelocity.y(), m_deltaLinearVelocity.z(), linearComponent.x(), linearComponent.y(), linearComponent.z(), impulseMagnitude);
 			m_deltaAngularVelocity += angularComponent * (impulseMagnitude * m_angularFactor);
 		}
 	}

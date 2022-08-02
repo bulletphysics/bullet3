@@ -119,6 +119,8 @@ public:
 	\pre this triangle and other must have their triangles calculated
 	*/
 	bool find_triangle_collision_clip_method(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts);
+	static bool intersectSegmentTriangle(btVector3 p, const btVector3& q, const btPrimitiveTriangle& triangle, btVector3& C);
+	bool find_triangle_collision_vrut_method(const btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts);
 };
 
 //! Helper class for colliding Bullet Triangle Shapes

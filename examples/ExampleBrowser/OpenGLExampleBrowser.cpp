@@ -135,7 +135,7 @@ static bool enable_experimental_opencl = false;
 static bool gEnableDefaultKeyboardShortcuts = true;
 static bool gEnableDefaultMousePicking = true;
 
-int gDebugDrawFlags = 0;
+int gDebugDrawFlags = btIDebugDraw::DBG_DrawContactPoints;
 static bool pauseSimulation = false;
 static bool singleStepSimulation = false;
 int midiBaseIndex = 176;
@@ -1255,10 +1255,8 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			}
 			BT_PROFILE("Render Scene");
 			sCurrentDemo->renderScene();
-		}
-		else
-		{
-			B3_PROFILE("physicsDebugDraw");
+
+			//B3_PROFILE("physicsDebugDraw");
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			sCurrentDemo->physicsDebugDraw(gDebugDrawFlags);
 		}
