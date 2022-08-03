@@ -353,11 +353,16 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 						constr6dof->setLimit(i, -1.0, 1.0);
 					for (int i = 0; i < 3; ++i)
 						constr6dof->setLimit(3 + i, -0.5f, 0.5f);
+
+					btScalar fps = 1.f / m_dynamicsWorld->getSolverInfo().m_timeStep;
+					btScalar numIterations = m_dynamicsWorld->getSolverInfo().m_numIterations;
+					btScalar myDamping = 10.0;
+					btScalar b3Damping = (1.0 / myDamping) / (fps / numIterations);
 					for (int i = 0; i < 6; ++i)
 					{
 						constr6dof->enableSpring(i, true);
-						constr6dof->setStiffness(i, 1);
-						constr6dof->setDamping(i, 1);
+						constr6dof->setStiffness(i, 20);
+						constr6dof->setDamping(i, b3Damping);
 					}
 					constr6dof->setDbgDrawSize(btScalar(2.f));
 					m_dynamicsWorld->addConstraint(constr6dof, true);
