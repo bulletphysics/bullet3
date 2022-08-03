@@ -274,6 +274,7 @@ btSolverBody
 			if (m_pushVelocity[0] != 0.f || m_pushVelocity[1] != 0 || m_pushVelocity[2] != 0 || m_turnVelocity[0] != 0.f || m_turnVelocity[1] != 0 || m_turnVelocity[2] != 0)
 			{
 				//	btQuaternion orn = m_worldTransform.getRotation();
+				//printf("m_pushVelocity %f %f %f\n", m_pushVelocity.x(), m_pushVelocity.y(), m_pushVelocity.z());
 				btTransformUtil::integrateTransform(m_worldTransform, m_pushVelocity, m_turnVelocity * splitImpulseTurnErp, timeStep, newTransform);
 				m_worldTransform = newTransform;
 			}

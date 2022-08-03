@@ -821,19 +821,24 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 	dist = sqrtf(dist_sq_out);
 	if (ret && dist_sq_out != 0.0 && dist < margin)
 	{
-		// In the margin zone. No actual penetration yet.
-		btVector3 dir = (a_closest_out - b_closest_out).normalized();
+		// In the margin zone. No actual penetration yet. Calculating m_separating_normal is very easy thanks to this.
+		btVector3 dir = (a_closest_out - b_closest_out) / dist;
 		contacts.m_point_count = 1;
 		contacts.m_points[0] = a_closest_out;
 		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
-		// Inversion so that bigger distance means smaller impulse.
-		contacts.m_penetration_depth = 0.01 / ((a_closest_out - b_closest_out).length() + 0.1);
+		constexpr btScalar recoveryStrengthFactor = 0.2;
+		const btScalar maxDepth = margin * recoveryStrengthFactor;
+		// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
+		btScalar depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
+		contacts.m_penetration_depth = depth > 0.0 ? depth : 0.0;
+		//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
 
 		return true;
 	}
 	else if (ret && dist_sq_out == 0.0)
 	{
 		// Actual triangle penetration. Fallback to the original method for now. Possible TODO.
+		//printf("find_triangle_collision_clip_method\n");
 		return find_triangle_collision_clip_method(other, contacts);
 	}
 

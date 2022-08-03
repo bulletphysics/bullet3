@@ -147,7 +147,7 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 
 				/*btTransform frameInA, frameInB;
 				frameInA = btTransform::getIdentity();
-				frameInA.setOrigin(btVector3(-13.658580, 2.908945, 3.510221));
+				frameInA.setOrigin(btVector3(-13.558580, 2.908945, 3.510221));
 				frameInB = btTransform::getIdentity();
 				auto constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
 
@@ -224,6 +224,7 @@ void ImportObjSetup::initPhysics()
 	btCollisionDispatcher* dispatcher = static_cast<btCollisionDispatcher*>(m_dynamicsWorld->getDispatcher());
 	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 	m_dynamicsWorld->setGravity(btVector3(0,0,0));
+	//m_dynamicsWorld->getSolverInfo().m_splitImpulse = 0;
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 1000;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	//m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
