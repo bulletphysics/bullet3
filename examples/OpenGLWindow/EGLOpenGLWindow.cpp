@@ -248,8 +248,20 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		exit(EXIT_FAILURE);
 	}
 
+	EGLint egl_context_attribs[] = {
+		EGL_CONTEXT_MAJOR_VERSION,
+		3,
+		EGL_CONTEXT_MINOR_VERSION,
+		3,
+		EGL_CONTEXT_OPENGL_PROFILE_MASK,
+		EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+		EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE,
+		EGL_TRUE,
+		EGL_NONE,
+	};
+
 	m_data->egl_context = eglCreateContext(
-		m_data->egl_display, m_data->egl_config, EGL_NO_CONTEXT, NULL);
+		m_data->egl_display, m_data->egl_config, EGL_NO_CONTEXT, egl_context_attribs);
 	if (!m_data->egl_context)
 	{
 		fprintf(stderr, "Unable to create EGL context (eglError: %d)\n", eglGetError());
