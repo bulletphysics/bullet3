@@ -151,8 +151,10 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "TestHingeTorque", "Apply a torque in the hinge axis. This example uses a btHingeConstraint and btRigidBody. The setup is similar to the multi body example TestJointTorque.",
 					 TestHingeTorqueCreateFunc),
 		//	ExampleEntry(0,"What's new in 2.83"),
+	
 		ExampleEntry(1, "6DofSpring2", "Show the use of the btGeneric6DofSpring2Constraint. This is a replacement of the btGeneric6DofSpringConstraint, it has various improvements. This includes improved spring implementation and better control over the restitution (bounce) when the constraint hits its limits.",
 					 Dof6Spring2CreateFunc),
+	
 		ExampleEntry(1, "6DofSpringQuat", "The btGeneric6DofSpringConstraintQuaternion class is based on btGeneric6DofSpring2Constraint. This class was made to provide more control over spring joint \"equilibrium\" rotation using quaternions(left and center) instead of Euler Axes(right).This makes it useful for \"puppeteering\" joint controlled active ragdolls. The current set equilibrium rotation is X:0 Y:90 Z:45. Take a look at the DOF6SpringQuatSetup.cpp file to learn more.",
 					 Dof6SpringQuatCreateFunc),
 		ExampleEntry(1, "Motor Demo", "Dynamic control the target velocity of a motor of a btHingeConstraint. This demo makes use of the 'internal tick callback'. You can press W for wireframe, C and L to visualize constraint frame and limits.", MotorControlCreateFunc),
