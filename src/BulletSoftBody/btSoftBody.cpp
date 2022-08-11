@@ -2817,7 +2817,7 @@ static void getBarycentric(const btVector3& p, const btVector3& a, const btVecto
 	btScalar d21 = v2.dot(v1);
 	btScalar denom = d00 * d11 - d01 * d01;
 	// In the case of a degenerate triangle, pick a vertex.
-	if (denom == btScalar(0.0)) 
+	if (btFabs(denom) < SIMD_EPSILON) 
 	{
 		bary.setY(btScalar(0.0));
 		bary.setZ(btScalar(0.0));
