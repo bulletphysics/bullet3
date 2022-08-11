@@ -2816,6 +2816,16 @@ static void getBarycentric(const btVector3& p, btVector3& a, btVector3& b, btVec
 	btScalar d20 = v2.dot(v0);
 	btScalar d21 = v2.dot(v1);
 	btScalar denom = d00 * d11 - d01 * d01;
+	if (denom == btScalar(0.0)) 
+	{
+		bary.setY(btScalar(0.0));
+		bary.setZ(btScalar(0.0));
+	} 
+	else 
+	{
+		bary.setY((d11 * d20 - d01 * d21) / denom);
+		bary.setZ((d00 * d21 - d01 * d20) / denom);
+  	}
 	bary.setY((d11 * d20 - d01 * d21) / denom);
 	bary.setZ((d00 * d21 - d01 * d20) / denom);
 	bary.setX(btScalar(1) - bary.getY() - bary.getZ());
