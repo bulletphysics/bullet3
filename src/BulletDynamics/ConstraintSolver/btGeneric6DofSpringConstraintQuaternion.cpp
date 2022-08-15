@@ -82,7 +82,7 @@ int btGeneric6DofSpringConstraintQuaternion::setAngularLimitsQuaternion(btConstr
 
 	btQuaternion local_equilibrium_rotation_quat = btQuaternion(m_angularLimits[1].m_equilibriumPoint, m_angularLimits[0].m_equilibriumPoint, m_angularLimits[2].m_equilibriumPoint);
 
-	btQuaternion rotation_change = local_equilibrium_rotation_quat * current_rotation_local_quat.inverse();
+	btQuaternion rotation_change = local_equilibrium_rotation_quat * current_rotation_local_quat.inverse();	///PHOBOSS: I got this from DMGregory here: https://gamedev.stackexchange.com/questions/182850/rotate-rigidbody-to-face-away-from-camera-with-addtorque/182873#182873
 
 	///btScalar angle = rotation_change.getAngleShortestPath();
 	btScalar angle = 0.0;                ///PHOBOSS: this is more robust for some reason
