@@ -246,7 +246,7 @@ void ImportObjSetup::initPhysics()
 	trans.setOrigin(btVector3(-20, 0, 0));
 	btTransform trans2;
 	trans2.setIdentity();
-	trans2.setOrigin(btVector3(-13.458580, 2.908945, 5.210221));
+	trans2.setOrigin(btVector3(-27.95, 0, 3.210221));
 	btVector3 position = trans.getOrigin();
 	btQuaternion orn = trans.getRotation();
 
@@ -270,7 +270,7 @@ void ImportObjSetup::initPhysics()
 	//}
 
 	btGImpactMeshShape* staticMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex, m_dynamicsWorld);
+	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA3.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex, m_dynamicsWorld);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);

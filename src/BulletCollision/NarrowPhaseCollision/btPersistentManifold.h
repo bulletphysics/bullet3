@@ -28,6 +28,7 @@ struct btCollisionObjectFloatData;
 
 ///maximum contact breaking and merging threshold
 extern btScalar gContactBreakingThreshold;
+extern btScalar gMarginZoneRecoveryStrengthFactor;
 
 #ifndef SWIG
 class btPersistentManifold;

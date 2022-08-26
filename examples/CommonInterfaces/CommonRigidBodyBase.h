@@ -29,7 +29,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
 	struct GUIHelperInterface* m_guiHelper;
-	btGeneric6DofSpringConstraint* constr6dof = nullptr;
+	btGeneric6DofSpring2Constraint* constr6dof = nullptr;
 
 	CommonRigidBodyBase(struct GUIHelperInterface* helper)
 		: m_broadphase(0),
@@ -346,10 +346,10 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 						delete m_pickedConstraint;
 						m_pickedConstraint = nullptr;
 					}
-					// Beware of btGeneric6DofSpring2Constraint, it seems broken (random nonsensical rotations even when all DOFs are fixed)
-					constr6dof = new btGeneric6DofSpringConstraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB, true);
+
+					constr6dof = new btGeneric6DofSpring2Constraint(btGeneric6DofConstraint::getFixedBody(), *body, frameInA, frameInB);
 					
-					for (int i = 0; i < 3; ++i)
+					/*for (int i = 0; i < 3; ++i)
 						constr6dof->setLimit(i, -1.0, 1.0);
 					for (int i = 0; i < 3; ++i)
 						constr6dof->setLimit(3 + i, -0.5f, 0.5f);
@@ -363,18 +363,31 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 						constr6dof->enableSpring(i, true);
 						constr6dof->setStiffness(i, 20);
 						constr6dof->setDamping(i, b3Damping);
+					}*/
+
+					for (int i = 0; i < 6; ++i)
+						constr6dof->setLimit(i, 0.001f, -0.001f);  // All DOFs are free (lo > hi) and spring loaded
+
+					// Beware - increasing this makes the spring less rubbery but also increases the chance of an interlocking penetration
+					btScalar angStrength = 100.0;
+					btScalar linStrength = 100.0;
+
+					for (int i = 0; i < 3; ++i)
+					{
+						constr6dof->enableSpring(i, true);
+						constr6dof->setStiffness(i, linStrength);
+						constr6dof->setDamping(i, linStrength);
 					}
+					for (int i = 3; i < 6; ++i)
+					{
+						constr6dof->enableSpring(i, true);
+						constr6dof->setStiffness(i, angStrength);
+						constr6dof->setDamping(i, angStrength);
+					}
+
 					constr6dof->setDbgDrawSize(btScalar(2.f));
 					m_dynamicsWorld->addConstraint(constr6dof, true);
 					m_pickedConstraint = constr6dof;
-
-					//btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
-					//m_dynamicsWorld->addConstraint(p2p, true);
-					//m_pickedConstraint = p2p;
-					//btScalar mousePickClamping = 30.f;
-					//p2p->m_setting.m_impulseClamp = mousePickClamping;
-					////very weak constraint for picking
-					//p2p->m_setting.m_tau = 0.001f;
 				}
 			}
 
@@ -391,7 +404,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	{
 		if (m_pickedBody && m_pickedConstraint)
 		{
-			btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>(m_pickedConstraint);
+			btGeneric6DofSpring2Constraint* pickCon = static_cast<btGeneric6DofSpring2Constraint*>(m_pickedConstraint);
 			if (pickCon)
 			{
 				//keep it at the same picking distance

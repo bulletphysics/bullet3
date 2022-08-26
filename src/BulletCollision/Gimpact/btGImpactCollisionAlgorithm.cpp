@@ -344,6 +344,8 @@ void btGImpactCollisionAlgorithm::collide_gjk_triangles(const btCollisionObjectW
 	shape1->unlockChildShapes();
 }
 
+int dbg = 0;
+
 void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectWrapper* body0Wrap,
 														const btCollisionObjectWrapper* body1Wrap,
 														const btGImpactMeshShapePart* shape0,
@@ -386,7 +388,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 			if (ptri0.overlap_test(ptri1))
 			{
-				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data))
+				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor))
 				{
 					int j = contact_data.m_point_count;
 					while (j--)
@@ -404,6 +406,11 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 		bt_end_gim02_tri_time();
 #endif
 	}
+
+	/*btVector3 nor;
+	if (m_manifoldPtr->getNumContacts() > 0)
+		nor = m_manifoldPtr->getContactPoint(0).m_normalWorldOnB;
+	printf("Tried to add %d cps, actual contacts %d normal %f %f %f\n", dbg, m_manifoldPtr->getNumContacts(), nor.x(), nor.y(), nor.z());*/
 
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();

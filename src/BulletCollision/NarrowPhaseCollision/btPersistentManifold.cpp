@@ -24,6 +24,7 @@ subject to the following restrictions:
 #endif
 
 btScalar gContactBreakingThreshold = btScalar(0.02);
+btScalar gMarginZoneRecoveryStrengthFactor = btScalar(0.2);
 ContactDestroyedCallback gContactDestroyedCallback = 0;
 ContactProcessedCallback gContactProcessedCallback = 0;
 ContactStartedCallback gContactStartedCallback = 0;

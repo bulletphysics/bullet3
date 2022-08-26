@@ -810,7 +810,7 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 	return true;
 }
 
-bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts)
+bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor)
 {
 	btScalar margin = m_margin + other.m_margin;
 
@@ -826,8 +826,7 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		contacts.m_point_count = 1;
 		contacts.m_points[0] = a_closest_out;
 		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
-		constexpr btScalar recoveryStrengthFactor = 0.2;
-		const btScalar maxDepth = margin * recoveryStrengthFactor;
+		const btScalar maxDepth = margin * marginZoneRecoveryStrengthFactor;
 		// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
 		btScalar depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
 		contacts.m_penetration_depth = depth > 0.0 ? depth : 0.0;
