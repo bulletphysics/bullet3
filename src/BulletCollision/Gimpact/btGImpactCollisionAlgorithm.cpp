@@ -355,6 +355,12 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
 
+	btVector3 aabbMin0, aabbMax0, aabbMin1, aabbMax1, center0, center1;
+	shape0->getAabb(orgtrans0, aabbMin0, aabbMax0);
+	shape1->getAabb(orgtrans1, aabbMin1, aabbMax1);
+	center0 = (aabbMin0 + aabbMax0) / 2.0;
+	center1 = (aabbMin1 + aabbMax1) / 2.0;
+
 	btPrimitiveTriangle ptri0;
 	btPrimitiveTriangle ptri1;
 	GIM_TRIANGLE_CONTACT contact_data;
@@ -388,7 +394,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 			if (ptri0.overlap_test(ptri1))
 			{
-				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor))
+				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, center0, center1))
 				{
 					int j = contact_data.m_point_count;
 					while (j--)

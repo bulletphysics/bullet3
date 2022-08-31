@@ -121,7 +121,8 @@ public:
 	bool find_triangle_collision_clip_method(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts);
 	static bool intersectSegmentTriangle(btVector3 p, const btVector3& q, const btPrimitiveTriangle& triangle, btVector3& C);
 	bool find_triangle_collision_alt_method(const btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts);
-	bool find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor);
+	bool find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
+												  const btVector3& thisPos, const btVector3& otherPos);
 	static bool pointTriangleDistance(const btVector3& q, const btVector3& p1, const btVector3& p2, const btVector3& p3,
 													btScalar& tp_out, btScalar& ts_out, btVector3& closest_out, btScalar& dist_sq_out, btScalar max_distance_sq = FLT_MAX);
 	static bool segmentSegmentDistance(const btVector3& p1, const btVector3& p2, const btVector3& s1, const btVector3& s2,
