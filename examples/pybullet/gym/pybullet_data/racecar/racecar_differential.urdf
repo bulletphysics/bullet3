@@ -349,14 +349,14 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.0005 0.0005 0.001" filename="differential/diff_ring.stl"/>
+        <mesh scale="0.0005 0.0005 0.001" filename="../differential/diff_ring.stl"/>
       </geometry>
       <material name="green"/>
     </visual>
      <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_carrier.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_carrier.stl"/>
       </geometry>
       <material name="green"/>
     </visual>
@@ -389,7 +389,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_spider.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_spider.stl"/>
       </geometry>
       <material name="red"/>
     </visual>
@@ -428,7 +428,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_spider.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_spider.stl"/>
       </geometry>
       <material name="brown"/>
     </visual>
@@ -468,7 +468,7 @@
     <visual>
       <origin rpy="1.570795 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_side.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_side.stl"/>
       </geometry>
       <material name="white"/>
     </visual>
@@ -504,7 +504,7 @@
     <visual>
       <origin rpy="-1.570795 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_side.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_side.stl"/>
       </geometry>
       <material name="white"/>
     </visual>
@@ -540,14 +540,14 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.0005 0.0005 0.001" filename="differential/diff_ring.stl"/>
+        <mesh scale="0.0005 0.0005 0.001" filename="../differential/diff_ring.stl"/>
       </geometry>
       <material name="green"/>
     </visual>
      <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_carrier.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_carrier.stl"/>
       </geometry>
       <material name="green"/>
     </visual>
@@ -580,7 +580,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_spider.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_spider.stl"/>
       </geometry>
       <material name="red"/>
     </visual>
@@ -619,7 +619,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_spider.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_spider.stl"/>
       </geometry>
       <material name="brown"/>
     </visual>
@@ -657,7 +657,7 @@
     <visual>
       <origin rpy="1.570795 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_side.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_side.stl"/>
       </geometry>
       <material name="white"/>
     </visual>
@@ -693,7 +693,7 @@
     <visual>
       <origin rpy="-1.570795 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="differential/diff_side.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="../differential/diff_side.stl"/>
       </geometry>
       <material name="white"/>
     </visual>
