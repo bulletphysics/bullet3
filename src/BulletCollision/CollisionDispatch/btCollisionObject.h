@@ -51,6 +51,7 @@ btCollisionObject
 {
 protected:
 	btTransform m_worldTransform;
+	btTransform m_previousWorldTransform;
 
 	///m_interpolationWorldTransform is used for CCD and interpolation
 	///it can be either previous or future (predicted) transform
@@ -386,6 +387,21 @@ public:
 		return m_worldTransform;
 	}
 
+	btTransform& getPreviousWorldTransform()
+	{
+		return m_previousWorldTransform;
+	}
+
+	const btTransform& getPreviousWorldTransform() const
+	{
+		return m_previousWorldTransform;
+	}
+
+	void updatePreviousWorldTransform()
+	{
+		m_previousWorldTransform = m_worldTransform;
+	}
+
 	void setWorldTransform(const btTransform& worldTrans)
 	{
 		m_updateRevision++;
@@ -620,6 +636,7 @@ struct	btCollisionObjectDoubleData
 	char					*m_name;
 
 	btTransformDoubleData	m_worldTransform;
+	btTransformDoubleData	m_previousWorldTransform;
 	btTransformDoubleData	m_interpolationWorldTransform;
 	btVector3DoubleData		m_interpolationLinearVelocity;
 	btVector3DoubleData		m_interpolationAngularVelocity;
