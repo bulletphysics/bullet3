@@ -39,14 +39,14 @@
   <link name="link_base">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/base.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/base.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="White"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/base_vhacd.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/base_vhacd.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -59,14 +59,14 @@
   <link name="link1">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link1.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link1.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="White"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/link1_vhacd.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/link1_vhacd.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -87,7 +87,7 @@
   <link name="link2">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link2.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link2.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="White"/>
@@ -95,7 +95,7 @@
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/link2_vhacd2.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/link2_vhacd2.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -116,14 +116,14 @@
   <link name="link3">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link3.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link3.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="White"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/link3_vhacd.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/link3_vhacd.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -144,14 +144,14 @@
   <link name="link4">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link4.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link4.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="White"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/link4_vhacd.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/link4_vhacd.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -172,14 +172,14 @@
   <link name="link5">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link5.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link5.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="White"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/link5_vhacd.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/link5_vhacd.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -200,14 +200,14 @@
   <link name="link6">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link6.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link6.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="Silver"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link6.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link6.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>

@@ -47,14 +47,14 @@
   <link name="link_base">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/base.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/base.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0.0 0.0 -0.09103"/>
       <material name="Blue"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/base_vhacd.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/base_vhacd.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0.0 0.0 -0.09103"/>
     </collision>

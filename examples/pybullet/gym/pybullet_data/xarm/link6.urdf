@@ -48,14 +48,14 @@
   <link name="link6">
     <visual>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/visual/link6.stl"/>
+        <mesh filename="xarm_description/meshes/xarm6/visual/link6.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <material name="Silver"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://xarm_description/meshes/xarm6/collision/link6_vhacd.obj"/>
+        <mesh filename="xarm_description/meshes/xarm6/collision/link6_vhacd.obj"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
