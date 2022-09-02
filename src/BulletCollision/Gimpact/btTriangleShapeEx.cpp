@@ -812,7 +812,7 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 
 bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
 																   const btTransform& thisTransform, const btTransform& otherTransform,
-																   const btTransform& thisTransformPrev, const btTransform& otherTransformPrev)
+																   const btTransform& thisTransformFuture, const btTransform& otherTransformFuture)
 {
 	btScalar margin = m_margin + other.m_margin;
 
@@ -849,16 +849,16 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 			// Triangles penetrate. Let's try to go back a little to "emulate" the state when they were not penetrating.
 			// Still better than to do find_triangle_collision_clip_method
 
-			if (!(thisTransform == thisTransformPrev) || !(otherTransform == otherTransformPrev))
+			if (!(thisTransform == thisTransformFuture) || !(otherTransform == otherTransformFuture))
 			{
-				t = 1.0 - (retryCount / static_cast<btScalar>(maxRetryCount));
-				printf("t %f\n", t);
+				t = -(retryCount / static_cast<btScalar>(maxRetryCount));
+				//printf("t %f\n", t);
 
-				interpTransformThis.setOrigin(thisTransformPrev.getOrigin().lerp(thisTransform.getOrigin(), t));
-				interpTransformOther.setOrigin(otherTransformPrev.getOrigin().lerp(otherTransform.getOrigin(), t));
+				interpTransformThis.setOrigin(thisTransform.getOrigin().lerp(thisTransformFuture.getOrigin(), t));
+				interpTransformOther.setOrigin(otherTransform.getOrigin().lerp(otherTransformFuture.getOrigin(), t));
 
-				interpTransformThis.setRotation(thisTransformPrev.getRotation().slerp(thisTransform.getRotation(), t));
-				interpTransformOther.setRotation(otherTransformPrev.getRotation().slerp(otherTransform.getRotation(), t));
+				interpTransformThis.setRotation(thisTransform.getRotation().slerp(thisTransformFuture.getRotation(), t));
+				interpTransformOther.setRotation(otherTransform.getRotation().slerp(otherTransformFuture.getRotation(), t));
 
 				*this = thisBackup;
 				other = otherBackup;
