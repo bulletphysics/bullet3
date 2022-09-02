@@ -1,4 +1,3 @@
-
 <?xml version="1.0" ?>
 <robot name="husky_robot" xmlns:xacro="http://ros.org/wiki/xacro">
   <material name="White">
