@@ -52,6 +52,11 @@ btCollisionObject
 protected:
 	btTransform m_worldTransform;
 
+	// TODO why does adding another btTransform (statically - without dynamic allocation) cause crashes? Like if there was some limit of how
+	// many bytes can yet be added. One or two btVector3s work. But 3 (like Matrix3x3) btVector3s already cause crashes. Anything bigger also crashes.
+	// Adding one uint8_t works, so it doesn't seem alignment related.
+	btTransform* m_previousWorldTransform;
+
 	///m_interpolationWorldTransform is used for CCD and interpolation
 	///it can be either previous or future (predicted) transform
 	btTransform m_interpolationWorldTransform;
@@ -599,6 +604,21 @@ public:
 			return checkCollideWithOverride(co);
 
 		return true;
+	}
+
+	btTransform& getPreviousWorldTransform()
+	{
+		return *m_previousWorldTransform;
+	}
+
+	const btTransform& getPreviousWorldTransform() const
+	{
+		return *m_previousWorldTransform;
+	}
+
+	void updatePreviousWorldTransform()
+	{
+		*m_previousWorldTransform = m_worldTransform;
 	}
 
 	virtual int calculateSerializeBufferSize() const;

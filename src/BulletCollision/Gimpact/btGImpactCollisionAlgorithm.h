@@ -57,6 +57,7 @@ protected:
 	btPersistentManifold* m_manifoldPtr;
 	btManifoldResult* m_resultOut;
 	const btDispatcherInfo* m_dispatchInfo;
+	static const unsigned maxPushbackRetryCount = 10;
 	int m_triface0;
 	int m_part0;
 	int m_triface1;

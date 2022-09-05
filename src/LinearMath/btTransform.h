@@ -210,6 +210,14 @@ public:
 	void deSerializeDouble(const struct btTransformDoubleData& dataIn);
 
 	void deSerializeFloat(const struct btTransformFloatData& dataIn);
+
+	bool isSameFuzzy(const btTransform& xform)
+	{
+		return (m_origin - xform.m_origin).fuzzyZero() &&
+			(m_basis.getColumn(0) - xform.m_basis.getColumn(0)).fuzzyZero() &&
+			   (m_basis.getColumn(1) - xform.m_basis.getColumn(1)).fuzzyZero() &&
+			   (m_basis.getColumn(2) - xform.m_basis.getColumn(2)).fuzzyZero();
+	}
 };
 
 SIMD_FORCE_INLINE btVector3
