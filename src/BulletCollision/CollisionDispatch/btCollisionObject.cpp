@@ -52,13 +52,10 @@ btCollisionObject::btCollisionObject()
 {
 	m_worldTransform.setIdentity();
 	m_interpolationWorldTransform.setIdentity();
-	m_previousWorldTransform = new btTransform;
-	m_previousWorldTransform->setIdentity();
 }
 
 btCollisionObject::~btCollisionObject()
 {
-	delete m_previousWorldTransform;
 }
 
 void btCollisionObject::setActivationState(int newState) const

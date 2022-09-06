@@ -811,22 +811,24 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 }
 
 bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
-																   const btPrimitiveTriangle& thisBackup, const btPrimitiveTriangle& otherBackup, unsigned& retryCount,
-																   const btTransform thisInterpTransform[], const btTransform otherInterpTransform[], const unsigned maxRetryCount)
+																   const btTransform& thisTransform, const btTransform& otherTransform,
+																   const btTransform& thisTransformFuture, const btTransform& otherTransformFuture)
 {
 	btScalar margin = m_margin + other.m_margin;
 
 	contacts.m_point_count = 0;
-	btScalar dist_sq_out, dist;
+	btScalar dist_sq_out, dist, t = 1.0;
 	btVector3 a_closest_out, b_closest_out;
 	bool ret = false;
-	btPrimitiveTriangle thisBackupWithTransform = *this, otherBackupWithTransform = other;
+	unsigned retryCount = 0;
+	const unsigned maxRetryCount = 10;
+	btPrimitiveTriangle thisBackup = *this, otherBackup = other;
 	btTransform interpTransformThis, interpTransformOther;
-	bool fistrTry = true;
 	do
 	{
 		ret = triangle_triangle_distance(other, dist_sq_out, a_closest_out, b_closest_out);
 		dist = sqrtf(dist_sq_out);
+		++retryCount;
 		if (ret && dist_sq_out != 0.0 && dist < margin)
 		{
 			// In the margin zone. No actual penetration yet. Calculating m_separating_normal is very easy thanks to this.
@@ -838,7 +840,7 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 			// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
 			btScalar depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
 			contacts.m_penetration_depth = depth > 0.0 ? depth : 0.0;
-			printf("contacts.m_separating_normal %f %f %f\n", contacts.m_separating_normal.x(), contacts.m_separating_normal.y(), contacts.m_separating_normal.z());
+			//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
 
 			return true;
 		}
@@ -846,26 +848,35 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		{
 			// Triangles penetrate. Let's try to go back a little to "emulate" the state when they were not penetrating.
 			// Still better than to do find_triangle_collision_clip_method
-			if (retryCount >= maxRetryCount)
-				retryCount = maxRetryCount - 1;
-			printf("retryCount %d\n", retryCount);
-			*this = thisBackup;
-			other = otherBackup;
-			applyTransform(thisInterpTransform[retryCount]);
-			other.applyTransform(otherInterpTransform[retryCount]);
 
-			buildTriPlane();
-			other.buildTriPlane();
-			if (!fistrTry)
-				++retryCount;
-			fistrTry = false;
+			if (!(thisTransform == thisTransformFuture) || !(otherTransform == otherTransformFuture))
+			{
+				t = -(retryCount / static_cast<btScalar>(maxRetryCount));
+				//printf("t %f\n", t);
+
+				interpTransformThis.setOrigin(thisTransform.getOrigin().lerp(thisTransformFuture.getOrigin(), t));
+				interpTransformOther.setOrigin(otherTransform.getOrigin().lerp(otherTransformFuture.getOrigin(), t));
+
+				interpTransformThis.setRotation(thisTransform.getRotation().slerp(thisTransformFuture.getRotation(), t));
+				interpTransformOther.setRotation(otherTransform.getRotation().slerp(otherTransformFuture.getRotation(), t));
+
+				*this = thisBackup;
+				other = otherBackup;
+				applyTransform(interpTransformThis);
+				other.applyTransform(interpTransformOther);
+
+				buildTriPlane();
+				other.buildTriPlane();
+			}
+			else
+				retryCount = maxRetryCount;
 		}
 	} while (ret && dist_sq_out == 0.0 && retryCount < maxRetryCount);
 
 	if (ret && dist_sq_out == 0.0)
 	{
 		// Triangle penetration. Fallback to the original method. Pray that the shapes don't have the normals flipped or something similar.
-		return thisBackupWithTransform.find_triangle_collision_clip_method(otherBackupWithTransform, contacts);
+		return thisBackup.find_triangle_collision_clip_method(otherBackup, contacts);
 	}
 
 	return false;

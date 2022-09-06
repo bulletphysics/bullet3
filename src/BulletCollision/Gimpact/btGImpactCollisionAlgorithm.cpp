@@ -344,68 +344,22 @@ void btGImpactCollisionAlgorithm::collide_gjk_triangles(const btCollisionObjectW
 	shape1->unlockChildShapes();
 }
 
+int dbg = 0;
+
 void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectWrapper* body0Wrap,
 														const btCollisionObjectWrapper* body1Wrap,
 														const btGImpactMeshShapePart* shape0,
 														const btGImpactMeshShapePart* shape1,
 														const int* pairs, int pair_count)
 {
-	bool isStatic0 = body0Wrap->getCollisionObject()->isStaticObject();
-	bool isStatic1 = body1Wrap->getCollisionObject()->isStaticObject();
-
-	btTransform prevtrans0 = isStatic0 ? body0Wrap->getWorldTransform() : body0Wrap->getCollisionObject()->getPreviousWorldTransform();
-	btTransform prevtrans1 = isStatic1 ? body1Wrap->getWorldTransform() : body1Wrap->getCollisionObject()->getPreviousWorldTransform();
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
-	btVector3 motionVector0 = (prevtrans0.getOrigin() - orgtrans0.getOrigin()) * 1.0;
-	btVector3 motionVector1 = (prevtrans1.getOrigin() - orgtrans1.getOrigin()) * 1.0;
-	prevtrans0.setOrigin(prevtrans0.getOrigin() + motionVector0);
-	prevtrans1.setOrigin(prevtrans1.getOrigin() + motionVector1);
-	
-	btTransform interpTransform0[maxPushbackRetryCount];
-	btTransform interpTransform1[maxPushbackRetryCount];
 
-	bool isSame0 = prevtrans0.isSameFuzzy(orgtrans0);
-	bool isSame1 = prevtrans1.isSameFuzzy(orgtrans1);
-	bool doInterpolation = !isSame0 || !isSame1;
-	unsigned pushbackCounter = 0;
+	btTransform futuretrans0 = body0Wrap->getCollisionObject()->getInterpolationWorldTransform();
+	btTransform futuretrans1 = body1Wrap->getCollisionObject()->getInterpolationWorldTransform();
 
-	if (doInterpolation)
-	{
-		for (unsigned i = 0; i < maxPushbackRetryCount; ++i)
-		{
-			btScalar t = (i / static_cast<btScalar>(maxPushbackRetryCount));
-
-			if (isSame0)
-			{
-				interpTransform0[i] = orgtrans0;
-			}
-			else
-			{
-				interpTransform0[i].setOrigin(orgtrans0.getOrigin().lerp(prevtrans0.getOrigin(), t));
-				interpTransform0[i].setRotation(orgtrans0.getRotation().slerp(prevtrans0.getRotation(), t));
-			}
-
-			if (isSame1)
-			{
-				interpTransform1[i] = orgtrans1;
-			}
-			else
-			{
-				interpTransform1[i].setOrigin(orgtrans1.getOrigin().lerp(prevtrans1.getOrigin(), t));
-				interpTransform1[i].setRotation(orgtrans1.getRotation().slerp(prevtrans1.getRotation(), t));
-			}
-
-			//printf("%d this current %f %f %f future %f %f %f interp %f %f %f\n", i, orgtrans1.getOrigin().x(), orgtrans1.getOrigin().y(), orgtrans1.getOrigin().z(),
-			//	   futuretrans1.getOrigin().x(), futuretrans1.getOrigin().y(), futuretrans1.getOrigin().z(),
-			//	   interpTransform1[i].getOrigin().x(), interpTransform1[i].getOrigin().y(), interpTransform1[i].getOrigin().z());
-		}
-	}
-	else
-		pushbackCounter = maxPushbackRetryCount;
-
-	btPrimitiveTriangle ptri0, ptri0Backup;
-	btPrimitiveTriangle ptri1, ptri1Backup;
+	btPrimitiveTriangle ptri0;
+	btPrimitiveTriangle ptri1;
 	GIM_TRIANGLE_CONTACT contact_data;
 
 	shape0->lockChildShapes();
@@ -421,8 +375,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 		shape0->getPrimitiveTriangle(m_triface0, ptri0);
 		shape1->getPrimitiveTriangle(m_triface1, ptri1);
-		ptri0Backup = ptri0;
-		ptri1Backup = ptri1;
 
 #ifdef TRI_COLLISION_PROFILING
 			bt_begin_gim02_tri_time();
@@ -439,9 +391,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 			if (ptri0.overlap_test(ptri1))
 			{
-				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor,
-																   ptri0Backup, ptri1Backup, pushbackCounter,
-															interpTransform0, interpTransform1, maxPushbackRetryCount))
+				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, orgtrans0, orgtrans1,
+																   futuretrans0, futuretrans1))
 				{
 					int j = contact_data.m_point_count;
 					while (j--)

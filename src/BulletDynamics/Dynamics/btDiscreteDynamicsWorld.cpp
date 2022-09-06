@@ -948,16 +948,6 @@ void btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 	}
 }
 
-void btDiscreteDynamicsWorld::savePreviousTransforms(btRigidBody** bodies, int numBodies)
-{
-	btTransform predictedTrans;
-	for (int i = 0; i < numBodies; i++)
-	{
-		btRigidBody* body = bodies[i];
-		body->updatePreviousWorldTransform();
-	}
-}
-
 void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, int numBodies, btScalar timeStep)
 {
 	btTransform predictedTrans;
@@ -1056,13 +1046,6 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 
 void btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
-	{
-		BT_PROFILE("savePreviousTransforms");
-		if (m_nonStaticRigidBodies.size() > 0)
-		{
-			savePreviousTransforms(&m_nonStaticRigidBodies[0], m_nonStaticRigidBodies.size());
-		}
-	}
 	BT_PROFILE("integrateTransforms");
 	if (m_nonStaticRigidBodies.size() > 0)
 	{

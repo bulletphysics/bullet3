@@ -70,7 +70,7 @@ protected:
 	btSpinMutex m_predictiveManifoldsMutex;  // used to synchronize threads creating predictive contacts
 
 	virtual void predictUnconstraintMotion(btScalar timeStep);
-	void savePreviousTransforms(btRigidBody * *bodies, int numBodies);
+
 	void integrateTransformsInternal(btRigidBody * *bodies, int numBodies, btScalar timeStep);  // can be called in parallel
 	virtual void integrateTransforms(btScalar timeStep);
 
