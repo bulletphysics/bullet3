@@ -811,7 +811,7 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 }
 
 bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
-																   const btVector3& thisPos, const btVector3& otherPos)
+																   const btVector3& thisPos, const btVector3& otherPos, bool thisIsStatic, bool otherIsStatic)
 {
 	btScalar margin = m_margin + other.m_margin;
 
@@ -837,7 +837,6 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 			btScalar depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
 			contacts.m_penetration_depth = depth > 0.0 ? depth : 0.0;
 			//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
-
 			return true;
 		}
 		else if (ret && dist_sq_out == 0.0)
@@ -851,13 +850,19 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 
 			for (int i = 0; i < 3; ++i)
 			{
-				m_vertices[i] -= thisPos;
-				m_vertices[i] *= shrinkFactor;
-				m_vertices[i] += thisPos;
+				if (!thisIsStatic)
+				{
+					m_vertices[i] -= thisPos;
+					m_vertices[i] *= shrinkFactor;
+					m_vertices[i] += thisPos;
+				}
 
-				other.m_vertices[i] -= otherPos;
-				other.m_vertices[i] *= shrinkFactor;
-				other.m_vertices[i] += otherPos;
+				if (!otherIsStatic)
+				{
+					other.m_vertices[i] -= otherPos;
+					other.m_vertices[i] *= shrinkFactor;
+					other.m_vertices[i] += otherPos;
+				}
 			}
 			buildTriPlane();
 			other.buildTriPlane();

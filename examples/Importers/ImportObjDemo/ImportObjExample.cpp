@@ -127,8 +127,8 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 			{
 				btScalar mass(0.0);
 				auto body = importObjSetup.createRigidBody(mass, trans, *staticShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
-				(*staticShape)->updateBound();
 				(*staticShape)->setMargin(0.05f);
+				(*staticShape)->updateBound();
 				body->setUserIndex(userIndex++);
 			}
 		}
@@ -139,8 +139,8 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 				btScalar mass(1.0);
 				btVector3 localInertia(0, 0, 0);
 				(*dynamicShape)->calculateLocalInertia(mass, localInertia);
-				(*dynamicShape)->updateBound();
 				(*dynamicShape)->setMargin(0.05f);
+				(*dynamicShape)->updateBound();
 				auto body = importObjSetup.createRigidBody(mass, trans, *dynamicShape, btVector4(1.0f, 1.0f, 1.0f, 1.0f));
 				body->setUserIndex(userIndex++);
 				body->setSleepingThresholds(0, 0);
