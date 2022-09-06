@@ -465,7 +465,6 @@ public:
 	b3CollisionShapeData *m_rootCollisionShape;
 	char *m_name;
 	b3TransformDoubleData m_worldTransform;
-	b3TransformDoubleData m_previousWorldTransform;
 	b3TransformDoubleData m_interpolationWorldTransform;
 	b3Vector3DoubleData m_interpolationLinearVelocity;
 	b3Vector3DoubleData m_interpolationAngularVelocity;
@@ -497,7 +496,6 @@ public:
 	b3CollisionShapeData *m_rootCollisionShape;
 	char *m_name;
 	b3TransformFloatData m_worldTransform;
-	b3TransformFloatData m_previousWorldTransform;
 	b3TransformFloatData m_interpolationWorldTransform;
 	b3Vector3FloatData m_interpolationLinearVelocity;
 	b3Vector3FloatData m_interpolationAngularVelocity;

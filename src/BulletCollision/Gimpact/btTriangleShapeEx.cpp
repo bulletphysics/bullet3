@@ -811,24 +811,20 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 }
 
 bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
-																   const btTransform& thisTransform, const btTransform& otherTransform,
-																   const btTransform& thisTransformPrev, const btTransform& otherTransformPrev)
+																   const btVector3& thisPos, const btVector3& otherPos)
 {
 	btScalar margin = m_margin + other.m_margin;
 
 	contacts.m_point_count = 0;
-	btScalar dist_sq_out, dist, t = 1.0;
+	btScalar dist_sq_out, dist;
 	btVector3 a_closest_out, b_closest_out;
 	bool ret = false;
 	unsigned retryCount = 0;
-	const unsigned maxRetryCount = 10;
-	btPrimitiveTriangle thisBackup = *this, otherBackup = other;
-	btTransform interpTransformThis, interpTransformOther;
+	btPrimitiveTriangle thisBackup, otherBackup;
 	do
 	{
 		ret = triangle_triangle_distance(other, dist_sq_out, a_closest_out, b_closest_out);
 		dist = sqrtf(dist_sq_out);
-		++retryCount;
 		if (ret && dist_sq_out != 0.0 && dist < margin)
 		{
 			// In the margin zone. No actual penetration yet. Calculating m_separating_normal is very easy thanks to this.
@@ -846,32 +842,28 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		}
 		else if (ret && dist_sq_out == 0.0)
 		{
-			// Triangles penetrate. Let's try to go back a little to "emulate" the state when they were not penetrating.
+			// Triangles penetrate. Let's try to shrink the shapes a little to "emulate" the state when they were not penetrating.
 			// Still better than to do find_triangle_collision_clip_method
+			thisBackup = *this;
+			otherBackup = other;
 
-			if (!(thisTransform == thisTransformPrev) || !(otherTransform == otherTransformPrev))
+			btScalar shrinkFactor = 0.999;
+
+			for (int i = 0; i < 3; ++i)
 			{
-				t = 1.0 - (retryCount / static_cast<btScalar>(maxRetryCount));
-				printf("t %f\n", t);
+				m_vertices[i] -= thisPos;
+				m_vertices[i] *= shrinkFactor;
+				m_vertices[i] += thisPos;
 
-				interpTransformThis.setOrigin(thisTransformPrev.getOrigin().lerp(thisTransform.getOrigin(), t));
-				interpTransformOther.setOrigin(otherTransformPrev.getOrigin().lerp(otherTransform.getOrigin(), t));
-
-				interpTransformThis.setRotation(thisTransformPrev.getRotation().slerp(thisTransform.getRotation(), t));
-				interpTransformOther.setRotation(otherTransformPrev.getRotation().slerp(otherTransform.getRotation(), t));
-
-				*this = thisBackup;
-				other = otherBackup;
-				applyTransform(interpTransformThis);
-				other.applyTransform(interpTransformOther);
-
-				buildTriPlane();
-				other.buildTriPlane();
+				other.m_vertices[i] -= otherPos;
+				other.m_vertices[i] *= shrinkFactor;
+				other.m_vertices[i] += otherPos;
 			}
-			else
-				retryCount = maxRetryCount;
+			buildTriPlane();
+			other.buildTriPlane();
 		}
-	} while (ret && dist_sq_out == 0.0 && retryCount < maxRetryCount);
+		++retryCount;
+	} while (ret && dist_sq_out == 0.0 && retryCount < 10);
 
 	if (ret && dist_sq_out == 0.0)
 	{

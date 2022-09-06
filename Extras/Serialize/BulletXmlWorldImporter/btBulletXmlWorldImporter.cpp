@@ -469,7 +469,6 @@ void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(XMLNode* pParent)
 	{
 		SET_POINTER_VALUE(n, rbData->m_collisionObjectData, m_collisionShape, void*);
 		SET_TRANSFORM_VALUE(n, &rbData->m_collisionObjectData, m_worldTransform);
-		SET_TRANSFORM_VALUE(n, &rbData->m_collisionObjectData, m_previousWorldTransform);
 		SET_TRANSFORM_VALUE(n, &rbData->m_collisionObjectData, m_interpolationWorldTransform);
 		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_interpolationLinearVelocity)
 		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_interpolationAngularVelocity)
