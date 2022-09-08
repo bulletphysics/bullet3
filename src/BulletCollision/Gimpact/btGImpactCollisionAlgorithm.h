@@ -136,6 +136,9 @@ protected:
 						 const btVector3& normal,
 						 btScalar distance);
 
+	void addEmptyManifold(const btCollisionObjectWrapper* body0Wrap,
+						 const btCollisionObjectWrapper* body1Wrap);
+
 	//! Collision routines
 	//!@{
 
@@ -166,7 +169,7 @@ protected:
 		const btTransform& trans0,
 		const btTransform& trans1,
 		const btGImpactShapeInterface* shape0,
-		const btGImpactShapeInterface* shape1, btPairSet& pairset);
+		const btGImpactShapeInterface* shape1, btPairSet& pairset, bool findOnlyFirstPair);
 
 	void gimpact_vs_shape_find_pairs(
 		const btTransform& trans0,

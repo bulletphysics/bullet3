@@ -204,6 +204,12 @@ void btGImpactCollisionAlgorithm::addContactPoint(const btCollisionObjectWrapper
 	m_resultOut->addContactPoint(normal, point, distance);
 }
 
+void btGImpactCollisionAlgorithm::addEmptyManifold(const btCollisionObjectWrapper* body0Wrap,
+					  const btCollisionObjectWrapper* body1Wrap)
+{
+	checkManifold(body0Wrap, body1Wrap);
+}
+
 void btGImpactCollisionAlgorithm::shape_vs_shape_collision(
 	const btCollisionObjectWrapper* body0Wrap,
 	const btCollisionObjectWrapper* body1Wrap,
@@ -243,11 +249,11 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 	const btTransform& trans0,
 	const btTransform& trans1,
 	const btGImpactShapeInterface* shape0,
-	const btGImpactShapeInterface* shape1, btPairSet& pairset)
+	const btGImpactShapeInterface* shape1, btPairSet& pairset, bool findOnlyFirstPair)
 {
 	if (shape0->hasBoxSet() && shape1->hasBoxSet())
 	{
-		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset);
+		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair);
 	}
 	else
 	{
@@ -343,8 +349,6 @@ void btGImpactCollisionAlgorithm::collide_gjk_triangles(const btCollisionObjectW
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();
 }
-
-int dbg = 0;
 
 void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectWrapper* body0Wrap,
 														const btCollisionObjectWrapper* body1Wrap,
@@ -459,11 +463,25 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
 
+	bool findOnlyFirstPair = body0Wrap->getCollisionObject()->isToleratingInitialCollisionsAll() || body1Wrap->getCollisionObject()->isToleratingInitialCollisionsAll();
+	if (body0Wrap->getCollisionObject()->isToleratingCertainInitialCollisions() || body1Wrap->getCollisionObject()->isToleratingCertainInitialCollisions())
+	{
+		bool check0 = body0Wrap->getCollisionObject()->checkIsTolerated(body1Wrap->getCollisionObject());
+		bool check1 = body1Wrap->getCollisionObject()->checkIsTolerated(body0Wrap->getCollisionObject());
+		findOnlyFirstPair = (check0 || check1);
+	}
+
 	btPairSet pairset;
 
-	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset);
+	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset, findOnlyFirstPair);
 
 	if (pairset.size() == 0) return;
+
+	if (findOnlyFirstPair)
+	{
+		addEmptyManifold(body0Wrap, body1Wrap);
+		return;
+	}
 
 	//printf("pairset.size() %d\n", pairset.size());
 

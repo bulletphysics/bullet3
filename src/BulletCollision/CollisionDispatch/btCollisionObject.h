@@ -117,6 +117,7 @@ protected:
 	int m_checkCollideWith;
 
 	btAlignedObjectArray<const btCollisionObject*> m_objectsWithoutCollisionCheck;
+	btAlignedObjectArray<const btCollisionObject*> m_objectsWithToleratedCollision;
 
 	///internal update revision number. It will be increased when the object changes. This allows some subsystems to perform lazy evaluation.
 	int m_updateRevision;
@@ -214,6 +215,21 @@ public:
 		return (m_collisionFlags & CF_NO_CONTACT_RESPONSE) == 0;
 	}
 
+	bool isToleratingInitialCollisionsAll() const
+	{
+		return m_objectsWithToleratedCollision.size() == 1 && m_objectsWithToleratedCollision[0] == nullptr;
+	}
+
+	bool isToleratingCertainInitialCollisions() const
+	{
+		return m_objectsWithToleratedCollision.size() > 1;
+	}
+
+	bool isToleratingInitialCollisions() const
+	{
+		return m_objectsWithToleratedCollision.size() >= 1;
+	}
+
 	btCollisionObject();
 
 	virtual ~btCollisionObject();
@@ -271,6 +287,34 @@ public:
 			return false;
 		}
 		return true;
+	}
+
+	void setToleratedCollisionAll()
+	{
+		m_objectsWithToleratedCollision.clear();
+		m_objectsWithToleratedCollision.push_back(nullptr);
+	}
+
+	void setToleratedCollisionNone()
+	{
+		m_objectsWithToleratedCollision.clear();
+	}
+
+	void setToleratedCollisionSome(const btCollisionObject* co)
+	{
+		if (m_objectsWithToleratedCollision.size() == 0)
+			m_objectsWithToleratedCollision.push_back(nullptr);
+		m_objectsWithToleratedCollision.push_back(co);
+	}
+
+	bool checkIsTolerated(const btCollisionObject* co) const
+	{
+		int index = m_objectsWithToleratedCollision.findLinearSearch(co);
+		if (index < m_objectsWithToleratedCollision.size())
+		{
+			return true;
+		}
+		return false;
 	}
 
 	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions.
