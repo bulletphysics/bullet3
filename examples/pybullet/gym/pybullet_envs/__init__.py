@@ -3,7 +3,7 @@ from gym.envs.registration import registry, make, spec
 
 
 def register(id, *args, **kvargs):
-  if id in registry.env_specs:
+  if id in registry.keys():
     return
   else:
     return gym.envs.registration.register(id, *args, **kvargs)
