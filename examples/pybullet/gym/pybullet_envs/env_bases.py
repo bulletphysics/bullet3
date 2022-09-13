@@ -22,12 +22,12 @@ class MJCFBaseBulletEnv(gym.Env):
 
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 60}
 
-  def __init__(self, robot, render=False):
+  def __init__(self, robot, render_mode=False):
     self.scene = None
     self.physicsClientId = -1
     self.ownsPhysicsClient = 0
     self.camera = Camera(self)
-    self.isRender = render
+    self.isRender = render_mode
     self.robot = robot
     self.seed()
     self._cam_dist = 3
@@ -86,7 +86,7 @@ class MJCFBaseBulletEnv(gym.Env):
     dump = 0
     s = self.robot.reset(self._p)
     self.potential = self.robot.calc_potential()
-    return s
+    return s, {}
 
   def camera_adjust(self):
     pass

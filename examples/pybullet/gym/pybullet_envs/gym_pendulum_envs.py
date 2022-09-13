@@ -40,7 +40,7 @@ class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
       done = np.abs(self.robot.theta) > .2
     self.rewards = [float(reward)]
     self.HUD(state, a, done)
-    return state, sum(self.rewards), done, {}
+    return state, sum(self.rewards), done, False, {}
 
   def camera_adjust(self):
     self.camera.move_and_look_at(0, 1.2, 1.0, 0, 0, 0.5)
@@ -86,7 +86,7 @@ class InvertedDoublePendulumBulletEnv(MJCFBaseBulletEnv):
     done = self.robot.pos_y + 0.3 <= 1
     self.rewards = [float(alive_bonus), float(-dist_penalty), float(-vel_penalty)]
     self.HUD(state, a, done)
-    return state, sum(self.rewards), done, {}
+    return state, sum(self.rewards), done, False, {}
 
   def camera_adjust(self):
     self.camera.move_and_look_at(0, 1.2, 1.2, 0, 0, 0.5)

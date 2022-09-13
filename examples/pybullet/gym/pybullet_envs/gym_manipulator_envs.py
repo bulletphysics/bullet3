@@ -6,9 +6,9 @@ from robot_manipulators import Reacher, Pusher, Striker, Thrower
 
 class ReacherBulletEnv(MJCFBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = Reacher()
-    MJCFBaseBulletEnv.__init__(self, self.robot, render)
+    MJCFBaseBulletEnv.__init__(self, self.robot, render_mode)
 
   def create_single_player_scene(self, bullet_client):
     return SingleRobotEmptyScene(bullet_client, gravity=0.0, timestep=0.0165, frame_skip=1)
@@ -46,9 +46,9 @@ class ReacherBulletEnv(MJCFBaseBulletEnv):
 
 class PusherBulletEnv(MJCFBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = Pusher()
-    MJCFBaseBulletEnv.__init__(self, self.robot, render)
+    MJCFBaseBulletEnv.__init__(self, self.robot, render_mode)
 
   def create_single_player_scene(self, bullet_client):
     return SingleRobotEmptyScene(bullet_client, gravity=9.81, timestep=0.0020, frame_skip=5)
@@ -105,9 +105,9 @@ class PusherBulletEnv(MJCFBaseBulletEnv):
 
 class StrikerBulletEnv(MJCFBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = Striker()
-    MJCFBaseBulletEnv.__init__(self, self.robot, render)
+    MJCFBaseBulletEnv.__init__(self, self.robot, render_mode)
     self._striked = False
     self._min_strike_dist = np.inf
     self.strike_threshold = 0.1
@@ -186,9 +186,9 @@ class StrikerBulletEnv(MJCFBaseBulletEnv):
 
 class ThrowerBulletEnv(MJCFBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = Thrower()
-    MJCFBaseBulletEnv.__init__(self, self.robot, render)
+    MJCFBaseBulletEnv.__init__(self, self.robot, render_mode)
 
   def create_single_player_scene(self, bullet_client):
     return SingleRobotEmptyScene(bullet_client, gravity=0.0, timestep=0.0020, frame_skip=5)
@@ -245,7 +245,7 @@ class ThrowerBulletEnv(MJCFBaseBulletEnv):
         float(stuck_joint_cost), reward_dist, 0.002 * reward_ctrl
     ]
     self.HUD(state, a, False)
-    return state, sum(self.rewards), False, {}
+    return state, sum(self.rewards), False, False, {}
 
   def camera_adjust(self):
     x, y, z = self.robot.fingertip.pose().xyz()
