@@ -129,7 +129,7 @@ def main(argv):
             actions.append(action)
             
             #time.sleep(1)
-            obs, r, done, _ = env.step(action)
+            obs, r, done, _, _ = env.step(action)
             totalr += r
             steps += 1
             

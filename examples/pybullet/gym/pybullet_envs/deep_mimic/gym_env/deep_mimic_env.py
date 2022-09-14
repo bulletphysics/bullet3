@@ -31,7 +31,7 @@ class HumanoidDeepBulletEnv(gym.Env):
   """Base Gym environment for DeepMimic."""
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False, arg_file='', test_mode=False,
+  def __init__(self, render_mode=False, arg_file='', test_mode=False,
                time_step=1./240,
                rescale_actions=True,
                rescale_observations=True):
@@ -53,7 +53,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._p = None
     self._time_step = time_step
     self._internal_env = None
-    self._renders = renders
+    self._renders = render_mode
     self._discrete_actions = False
     self._arg_file = arg_file
     self._render_height = 400
@@ -168,7 +168,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     done = self._internal_env.is_episode_end()
     
     info = {}
-    return state, reward, done, info
+    return state, reward, done, False, info
 
   def reset(self):
     # use the initialization strategy
@@ -198,7 +198,7 @@ class HumanoidDeepBulletEnv(gym.Env):
       mean = -self._state_offset
       std = 1./self._state_scale
       state = (state - mean) / (std + 1e-8)
-    return state
+    return state, {}
 
   def render(self, mode='human', close=False):
     if mode == "human":
@@ -257,21 +257,21 @@ class HumanoidDeepBulletEnv(gym.Env):
 class HumanoidDeepMimicBackflipBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, render_mode=False):
     # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_backflip_args.txt")
+    HumanoidDeepBulletEnv.__init__(self, render_mode, arg_file="run_humanoid3d_backflip_args.txt")
 
 
 class HumanoidDeepMimicWalkBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, render_mode=False):
     # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_walk_args.txt")
+    HumanoidDeepBulletEnv.__init__(self, render_mode, arg_file="run_humanoid3d_walk_args.txt")
 
 class CartPoleContinuousBulletEnv5(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, render_mode=False):
     # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="")
+    HumanoidDeepBulletEnv.__init__(self, render_mode, arg_file="")

@@ -49,7 +49,7 @@ def test(args):
   print("action=")
   print(action)
   for i in range(args.steps):
-    obs, rewards, done, _ = env.step(action)
+    obs, rewards, done, _, _ = env.step(action)
     if (args.rgb):
       print(env.render(mode="rgb_array"))
     print("obs=")

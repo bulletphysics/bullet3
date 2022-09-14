@@ -393,7 +393,7 @@ class LocomotionGymEnv(gym.Env):
 
     
     self._last_reset_time = self._clock()
-    return self._get_observation()
+    return self._get_observation(), {}
 
   def _wait_for_rendering(self):
     # Sleep, otherwise the computation takes less time than real time,
@@ -498,7 +498,7 @@ class LocomotionGymEnv(gym.Env):
     self._env_step_counter += 1
     # TODO(b/161941829): terminate removed for now, change terminate to other
     # names.
-    return self._get_observation(), reward, done, {}
+    return self._get_observation(), reward, done, False, {}
 
   def step(self, action):
     """Step forward the simulation, given the action.

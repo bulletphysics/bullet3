@@ -47,7 +47,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
                motor_kp=1.0,
                motor_kd=0.015,
                remove_default_joint_damping=True,
-               render=False,
+               render_mode=False,
                num_steps_to_log=1000,
                accurate_motor_model_enabled=True,
                use_angle_in_observation=True,
@@ -74,7 +74,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
       motor_kp: The P gain of the motor.
       motor_kd: The D gain of the motor.
       remove_default_joint_damping: Whether to remove the default joint damping.
-      render: Whether to render the simulation.
+      render_mode: Whether to render the simulation.
       num_steps_to_log: The max number of control steps in one episode. If the
         number of steps is over num_steps_to_log, the environment will still
         be running, but only first num_steps_to_log will be recorded in logging.
@@ -103,7 +103,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
                          control_latency=control_latency,
                          pd_latency=pd_latency,
                          on_rack=on_rack,
-                         render=render,
+                         render_mode=render_mode,
                          hard_reset=hard_reset,
                          num_steps_to_log=num_steps_to_log,
                          env_randomizer=env_randomizer,

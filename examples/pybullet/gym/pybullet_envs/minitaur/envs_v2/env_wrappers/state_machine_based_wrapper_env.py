@@ -281,7 +281,7 @@ class StateMachineBasedWrapperEnv(object):
     while time_since_transition < state_duration / 2.0:
       ik_actions = self._move_com(action[1:3], time_since_transition,
                                   state_duration)
-      _, reward, done, _ = self._gym_env.step(ik_actions)
+      _, reward, done, _, _ = self._gym_env.step(ik_actions)
       sum_reward += reward
       step_num += 1
       time_since_transition = self.robot.GetTimeSinceReset(
@@ -293,7 +293,7 @@ class StateMachineBasedWrapperEnv(object):
     while time_since_transition < state_duration:
       ik_actions = self._move_leg(action[0], time_since_transition,
                                   state_duration)
-      _, reward, done, _ = self._gym_env.step(ik_actions)
+      _, reward, done, _, _ = self._gym_env.step(ik_actions)
       sum_reward += reward
       step_num += 1
       time_since_transition = self.robot.GetTimeSinceReset(
@@ -305,7 +305,7 @@ class StateMachineBasedWrapperEnv(object):
 
     state_machine_observation = self._state_machine_observation()
 
-    return state_machine_observation, sum_reward, done, _
+    return state_machine_observation, sum_reward, done, False, {}
 
   def reset(self):
     """Reset the simulation and state machine states."""
@@ -318,4 +318,4 @@ class StateMachineBasedWrapperEnv(object):
 
     state_machine_observation = self._state_machine_observation()
 
-    return state_machine_observation
+    return state_machine_observation, {}

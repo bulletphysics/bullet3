@@ -53,7 +53,7 @@ class TrajectoryGeneratorWrapperEnv(object):
     if getattr(self._trajectory_generator, 'reset'):
       self._trajectory_generator.reset()
     observation = self._gym_env.reset(initial_motor_angles, reset_duration)
-    return self._modify_observation(observation)
+    return self._modify_observation(observation), {}
 
   def step(self, action):
     """Steps the wrapped environment.
@@ -76,6 +76,6 @@ class TrajectoryGeneratorWrapperEnv(object):
     new_action = self._trajectory_generator.get_action(
         self._gym_env.robot.GetTimeSinceReset(), action)
 
-    original_observation, reward, done, _ = self._gym_env.step(new_action)
+    original_observation, reward, done, _, _ = self._gym_env.step(new_action)
 
-    return self._modify_observation(original_observation), reward, done, _
+    return self._modify_observation(original_observation), reward, done, False, {}

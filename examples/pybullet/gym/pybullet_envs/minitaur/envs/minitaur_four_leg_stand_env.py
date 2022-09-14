@@ -43,7 +43,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
                on_rack=False,
                motor_kp=1.0,
                motor_kd=0.02,
-               render=False,
+               render_mode=False,
                env_randomizer=None,
                use_angular_velocity_in_observation=False,
                use_motor_angle_in_observation=False,
@@ -79,7 +79,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
         that its walking gait is clearer to visualize.
       motor_kp: The P gain of the motor.
       motor_kd: The D gain of the motor.
-      render: Whether to render the simulation.
+      render_mode: Whether to render the simulation.
       env_randomizer: An instance (or a list) of EnvRanzomier(s) that can
         randomize the environment during when env.reset() is called and add
         perturbations when env.step() is called.
@@ -111,7 +111,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
                          control_latency=control_latency,
                          pd_latency=pd_latency,
                          on_rack=on_rack,
-                         render=render,
+                         render_mode=render_mode,
                          env_randomizer=env_randomizer,
                          reflection=False,
                          log_path=log_path)
@@ -146,7 +146,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     self._pybullet_client.resetBasePositionAndOrientation(0, [0, 0, 0], [0, 0, 0, 1])
     super(MinitaurFourLegStandEnv, self).reset(initial_motor_angles=initial_motor_angles,
                                                reset_duration=0.5)
-    return self._get_observation()
+    return self._get_observation(), {}
 
   def step(self, action):
     """Step forward the simulation, given the action.
@@ -214,7 +214,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
                                             self._env_step_counter)
     if done:
       self.minitaur.Terminate()
-    return np.array(self._get_observation()), reward, done, {}
+    return np.array(self._get_observation()), reward, done, False, {}
 
   def _convert_from_leg_model(self, leg_pose):
     motor_pose = np.zeros(NUM_MOTORS)

@@ -38,7 +38,7 @@ def run_example(num_max_steps=_NUM_STEPS):
 
   for _ in range(num_max_steps):
     action = policy.act(observation)
-    _, _, done, _ = env.step(action)
+    _, _, done, _, _ = env.step(action)
     if done:
       break
 

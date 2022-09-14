@@ -42,14 +42,14 @@ def demo_run():
     frame = 0
     score = 0
     restart_delay = 0
-    obs = env.reset()
+    obs, _ = env.reset()
 
     while 1:
       if (gui):
         time.sleep(1. / 60)
 
       a = pi.act(obs)
-      obs, r, done, _ = env.step(a)
+      obs, r, done, _, _ = env.step(a)
       score += r
       frame += 1
 

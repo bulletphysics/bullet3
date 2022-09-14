@@ -48,7 +48,7 @@ def ResetPoseExample(log_path=None):
   steps = 10000
   environment = minitaur_gym_env.MinitaurGymEnv(
       urdf_version=minitaur_gym_env.DERPY_V0_URDF_VERSION,
-      render=True,
+      render_mode=True,
       leg_model_enabled=False,
       motor_velocity_limit=np.inf,
       pd_control_enabled=True,
@@ -58,7 +58,7 @@ def ResetPoseExample(log_path=None):
       log_path=log_path)
   action = [math.pi / 2] * 8
   for _ in range(steps):
-    _, _, done, _ = environment.step(action)
+    _, _, done, _, _ = environment.step(action)
     time.sleep(1. / 100.)
     if done:
       break
@@ -77,7 +77,7 @@ def MotorOverheatExample(log_path=None):
 
   environment = minitaur_gym_env.MinitaurGymEnv(
       urdf_version=minitaur_gym_env.DERPY_V0_URDF_VERSION,
-      render=True,
+      render_mode=True,
       leg_model_enabled=False,
       motor_velocity_limit=np.inf,
       motor_overheat_protection=True,
@@ -100,7 +100,7 @@ def MotorOverheatExample(log_path=None):
     current_row = [t]
     current_row.extend(action)
 
-    observation, _, _, _ = environment.step(action)
+    observation, _, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
     time.sleep(1. / 100.)
@@ -123,7 +123,7 @@ def SineStandExample(log_path=None):
   """
   environment = minitaur_gym_env.MinitaurGymEnv(
       urdf_version=minitaur_gym_env.RAINBOW_DASH_V0_URDF_VERSION,
-      render=True,
+      render_mode=True,
       leg_model_enabled=False,
       motor_velocity_limit=np.inf,
       motor_overheat_protection=True,
@@ -147,7 +147,7 @@ def SineStandExample(log_path=None):
     action = [math.sin(speed * t) * amplitude + math.pi / 2] * 8
     current_row.extend(action)
 
-    observation, _, _, _ = environment.step(action)
+    observation, _, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
     time.sleep(1. / 100.)
@@ -165,7 +165,7 @@ def SinePolicyExample(log_path=None):
   """
   environment = minitaur_gym_env.MinitaurGymEnv(
       urdf_version=minitaur_gym_env.DERPY_V0_URDF_VERSION,
-      render=True,
+      render_mode=True,
       motor_velocity_limit=np.inf,
       pd_control_enabled=True,
       hard_reset=False,
@@ -197,7 +197,7 @@ def SinePolicyExample(log_path=None):
     a3 = math.sin(t * speed) * amplitude2
     a4 = math.sin(t * speed + math.pi) * amplitude2
     action = [a1, a2, a2, a1, a3, a4, a4, a3]
-    _, reward, done, _ = environment.step(action)
+    _, reward, done, _, _ = environment.step(action)
     time.sleep(1. / 100.)
 
     sum_reward += reward

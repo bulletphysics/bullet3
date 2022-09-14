@@ -77,7 +77,7 @@ def main(argv):
         _PMTG_SWING_VS_STANCE
     ]
     action = residual + tg_params
-    _, reward, done, _ = env.step(action)
+    _, reward, done, _, _ = env.step(action)
     sum_reward += reward
 
 

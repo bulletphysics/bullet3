@@ -70,7 +70,7 @@ class MockEnvironment(object):
     reward = self._current_reward()
     done = self.steps[-1] >= self.durations[-1]
     info = {}
-    return observ, reward, done, info
+    return observ, reward, done, False, info
 
   def reset(self):
     duration = self._random.randint(self._min_duration, self._max_duration + 1)

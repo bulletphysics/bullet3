@@ -87,12 +87,12 @@ class BatchEnv(object):
     else:
       transitions = [env.step(action, blocking=False) for env, action in zip(self._envs, actions)]
       transitions = [transition() for transition in transitions]
-    observs, rewards, dones, infos = zip(*transitions)
+    observs, rewards, dones, _, infos = zip(*transitions)
     observ = np.stack(observs)
     reward = np.stack(rewards)
     done = np.stack(dones)
     info = tuple(infos)
-    return observ, reward, done, info
+    return observ, reward, done, _, info
 
   def reset(self, indices=None):
     """Reset the environment and convert the resulting observation.
@@ -111,7 +111,7 @@ class BatchEnv(object):
       observs = [self._envs[index].reset(blocking=False) for index in indices]
       observs = [observ() for observ in observs]
     observ = np.stack(observs)
-    return observ
+    return observ, {}
 
   def close(self):
     """Send close messages to the external process and join them."""

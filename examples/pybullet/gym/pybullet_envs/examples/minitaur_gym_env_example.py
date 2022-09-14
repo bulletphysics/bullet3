@@ -18,7 +18,7 @@ def ResetPoseExample():
   """An example that the minitaur stands still using the reset pose."""
   steps = 1000
   randomizer = (minitaur_env_randomizer.MinitaurEnvRandomizer())
-  environment = minitaur_gym_env.MinitaurBulletEnv(render=True,
+  environment = minitaur_gym_env.MinitaurBulletEnv(render_mode=True,
                                                    leg_model_enabled=False,
                                                    motor_velocity_limit=np.inf,
                                                    pd_control_enabled=True,
@@ -28,7 +28,7 @@ def ResetPoseExample():
                                                    hard_reset=False)
   action = [math.pi / 2] * 8
   for _ in range(steps):
-    _, _, done, _ = environment.step(action)
+    _, _, done, _, _ = environment.step(action)
     if done:
       break
   environment.reset()
@@ -41,7 +41,7 @@ def MotorOverheatExample():
   torques. The overheat protection will be triggered in ~1 sec.
   """
 
-  environment = minitaur_gym_env.MinitaurBulletEnv(render=True,
+  environment = minitaur_gym_env.MinitaurBulletEnv(render_mode=True,
                                                    leg_model_enabled=False,
                                                    motor_velocity_limit=np.inf,
                                                    motor_overheat_protection=True,
@@ -63,7 +63,7 @@ def MotorOverheatExample():
     current_row = [t]
     current_row.extend(action)
 
-    observation, _, _, _ = environment.step(action)
+    observation, _, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
   environment.reset()
@@ -76,7 +76,7 @@ def SineStandExample():
   periodically in both simulation and experiment. We compare the measured motor
   trajectories, torques and gains.
   """
-  environment = minitaur_gym_env.MinitaurBulletEnv(render=True,
+  environment = minitaur_gym_env.MinitaurBulletEnv(render_mode=True,
                                                    leg_model_enabled=False,
                                                    motor_velocity_limit=np.inf,
                                                    motor_overheat_protection=True,
@@ -99,7 +99,7 @@ def SineStandExample():
     action = [math.sin(speed * t) * amplitude + math.pi / 2] * 8
     current_row.extend(action)
 
-    observation, _, _, _ = environment.step(action)
+    observation, _, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
 
@@ -109,7 +109,7 @@ def SineStandExample():
 def SinePolicyExample():
   """An example of minitaur walking with a sine gait."""
   randomizer = (minitaur_env_randomizer.MinitaurEnvRandomizer())
-  environment = minitaur_gym_env.MinitaurBulletEnv(render=True,
+  environment = minitaur_gym_env.MinitaurBulletEnv(render_mode=True,
                                                    motor_velocity_limit=np.inf,
                                                    pd_control_enabled=True,
                                                    hard_reset=False,
@@ -141,7 +141,7 @@ def SinePolicyExample():
     a3 = math.sin(t * speed) * amplitude2
     a4 = math.sin(t * speed + math.pi) * amplitude2
     action = [a1, a2, a2, a1, a3, a4, a4, a3]
-    _, reward, done, _ = environment.step(action)
+    _, reward, done, _, _ = environment.step(action)
     sum_reward += reward
     if done:
       break

@@ -53,7 +53,7 @@ class FixedSteptimeWrapperEnv(object):
     self._last_reset_time = time.time()
     self._last_step_time = time.time()
     self._step_counter = 0
-    return obs
+    return obs, {}
 
   def step(self, action):
     """Steps the wrapped environment.

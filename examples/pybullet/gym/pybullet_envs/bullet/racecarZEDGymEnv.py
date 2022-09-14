@@ -28,7 +28,7 @@ class RacecarZEDGymEnv(gym.Env):
                actionRepeat=10,
                isEnableSelfCollision=True,
                isDiscrete=False,
-               renders=True):
+               render_mode=True):
     print("init")
     self._timeStep = 0.01
     self._urdfRoot = urdfRoot
@@ -36,7 +36,7 @@ class RacecarZEDGymEnv(gym.Env):
     self._isEnableSelfCollision = isEnableSelfCollision
     self._ballUniqueId = -1
     self._envStepCounter = 0
-    self._renders = renders
+    self._renders = render_mode
     self._width = 100
     self._height = 10
 
@@ -94,7 +94,7 @@ class RacecarZEDGymEnv(gym.Env):
     for i in range(100):
       self._p.stepSimulation()
     self._observation = self.getExtendedObservation()
-    return np.array(self._observation)
+    return np.array(self._observation), {}
 
   def __del__(self):
     self._p = 0
@@ -165,7 +165,7 @@ class RacecarZEDGymEnv(gym.Env):
     done = self._termination()
     #print("len=%r" % len(self._observation))
 
-    return np.array(self._observation), reward, done, {}
+    return np.array(self._observation), reward, done, False, {}
 
   def render(self, mode='human', close=False):
     if mode != "rgb_array":

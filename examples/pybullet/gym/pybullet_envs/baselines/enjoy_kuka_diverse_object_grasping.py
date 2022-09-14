@@ -37,11 +37,11 @@ class ContinuousDownwardBiasPolicy(object):
 
 def main():
 
-  env = KukaDiverseObjectEnv(renders=True, isDiscrete=False)
+  env = KukaDiverseObjectEnv(render_mode=True, isDiscrete=False)
   policy = ContinuousDownwardBiasPolicy()
 
   while True:
-    obs, done = env.reset(), False
+    obs, _, done = env.reset(), False
     print("===================================")
     print("obs")
     print(obs)
@@ -51,7 +51,7 @@ def main():
       act = policy.sample_action(obs, .1)
       print("Action")
       print(act)
-      obs, rew, done, _ = env.step([0, 0, 0, 0, 0])
+      obs, rew, done, _, _ = env.step([0, 0, 0, 0, 0])
       episode_rew += rew
     print("Episode reward", episode_rew)
 

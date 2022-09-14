@@ -98,7 +98,7 @@ class TestEnv(gym.Env):
                                renderer=p.ER_BULLET_HARDWARE_OPENGL)
     #renderer=pybullet.ER_TINY_RENDERER)
     self._observation = img_arr[2]
-    return np.array(self._observation), 0, 0, {}
+    return np.array(self._observation), 0, 0, False, {}
 
   def seed(self, seed=None):
     pass
