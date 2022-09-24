@@ -948,6 +948,37 @@ void btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 	}
 }
 
+void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int numBodies)
+{
+	int numManifolds = getDispatcher()->getNumManifolds();
+	bool anyCollisions = false;
+	btAlignedObjectArray<const btCollisionObject*> colliders; // TODO perhaps something more savory than an array
+	for (int i = 0; i < numManifolds; i++)
+	{
+		btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
+
+		int numContacts = contactManifold->getNumContacts();
+		if (numContacts > 0)
+		{
+			colliders.push_back(contactManifold->getBody0());
+			colliders.push_back(contactManifold->getBody1());
+		}
+	}
+	for (int i = 0; i < numBodies; i++)
+	{
+		btRigidBody* body = bodies[i];
+		if (colliders.findLinearSearch2(body) == -1)
+		{
+			//printf("updating safe pos for %d\n", body->getUserIndex());
+			body->updateLastSafeWorldTransform();
+		}
+		else
+		{
+			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
+		}
+	}
+}
+
 void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, int numBodies, btScalar timeStep)
 {
 	btTransform predictedTrans;
@@ -1046,6 +1077,14 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 
 void btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
+	{
+		BT_PROFILE("savePreviousTransforms");
+		if (m_nonStaticRigidBodies.size() > 0)
+		{
+			saveLastSafeTransforms(&m_nonStaticRigidBodies[0], m_nonStaticRigidBodies.size());
+		}
+	}
+
 	BT_PROFILE("integrateTransforms");
 	if (m_nonStaticRigidBodies.size() > 0)
 	{

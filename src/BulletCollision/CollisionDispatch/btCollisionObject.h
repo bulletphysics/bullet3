@@ -51,6 +51,7 @@ btCollisionObject
 {
 protected:
 	btTransform m_worldTransform;
+	btTransform m_lastSafeWorldTransform;
 
 	///m_interpolationWorldTransform is used for CCD and interpolation
 	///it can be either previous or future (predicted) transform
@@ -428,6 +429,21 @@ public:
 	const btTransform& getWorldTransform() const
 	{
 		return m_worldTransform;
+	}
+
+	btTransform& getLastSafeWorldTransform()
+	{
+		return m_lastSafeWorldTransform;
+	}
+
+	const btTransform& getLastSafeWorldTransform() const
+	{
+		return m_lastSafeWorldTransform;
+	}
+
+	void updateLastSafeWorldTransform()
+	{
+		m_lastSafeWorldTransform = m_worldTransform;
 	}
 
 	void setWorldTransform(const btTransform& worldTrans)

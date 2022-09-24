@@ -51,6 +51,7 @@ btCollisionObject::btCollisionObject()
 	  m_updateRevision(0)
 {
 	m_worldTransform.setIdentity();
+	m_lastSafeWorldTransform.setIdentity();
 	m_interpolationWorldTransform.setIdentity();
 }
 

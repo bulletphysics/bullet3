@@ -810,70 +810,38 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 	return true;
 }
 
-bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
-																   const btVector3& thisPos, const btVector3& otherPos, bool thisIsStatic, bool otherIsStatic)
+bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor)
 {
 	btScalar margin = m_margin + other.m_margin;
 
 	contacts.m_point_count = 0;
-	btScalar dist_sq_out, dist;
+	btScalar dist_sq_out, dist, t = 1.0;
 	btVector3 a_closest_out, b_closest_out;
 	bool ret = false;
-	unsigned retryCount = 0;
-	btPrimitiveTriangle thisBackup, otherBackup;
-	do
+	
+	ret = triangle_triangle_distance(other, dist_sq_out, a_closest_out, b_closest_out);
+	dist = sqrtf(dist_sq_out);
+	if (ret && dist_sq_out != 0.0 && dist < margin)
 	{
-		ret = triangle_triangle_distance(other, dist_sq_out, a_closest_out, b_closest_out);
-		dist = sqrtf(dist_sq_out);
-		if (ret && dist_sq_out != 0.0 && dist < margin)
-		{
-			// In the margin zone. No actual penetration yet. Calculating m_separating_normal is very easy thanks to this.
-			btVector3 dir = (a_closest_out - b_closest_out) / dist;
-			contacts.m_point_count = 1;
-			contacts.m_points[0] = a_closest_out;
-			contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
-			const btScalar maxDepth = margin * marginZoneRecoveryStrengthFactor;
-			// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
-			btScalar depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
-			contacts.m_penetration_depth = depth > 0.0 ? depth : 0.0;
-			//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
-			return true;
-		}
-		else if (ret && dist_sq_out == 0.0)
-		{
-			// Triangles penetrate. Let's try to shrink the shapes a little to "emulate" the state when they were not penetrating.
-			// Still better than to do find_triangle_collision_clip_method
-			thisBackup = *this;
-			otherBackup = other;
-
-			btScalar shrinkFactor = 0.999;
-
-			for (int i = 0; i < 3; ++i)
-			{
-				if (!thisIsStatic)
-				{
-					m_vertices[i] -= thisPos;
-					m_vertices[i] *= shrinkFactor;
-					m_vertices[i] += thisPos;
-				}
-
-				if (!otherIsStatic)
-				{
-					other.m_vertices[i] -= otherPos;
-					other.m_vertices[i] *= shrinkFactor;
-					other.m_vertices[i] += otherPos;
-				}
-			}
-			buildTriPlane();
-			other.buildTriPlane();
-		}
-		++retryCount;
-	} while (ret && dist_sq_out == 0.0 && retryCount < 10);
-
-	if (ret && dist_sq_out == 0.0)
+		// In the margin zone. No actual penetration yet. Calculating m_separating_normal is very easy thanks to this.
+		btVector3 dir = (a_closest_out - b_closest_out) / dist;
+		contacts.m_point_count = 1;
+		contacts.m_points[0] = a_closest_out;
+		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
+		const btScalar maxDepth = margin * marginZoneRecoveryStrengthFactor;
+		// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
+		btScalar depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
+		contacts.m_penetration_depth = depth > 0.0 ? depth : 0.0;
+		//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
+		return true;
+	}
+	else if (ret && dist_sq_out == 0.0)
 	{
-		// Triangle penetration. Fallback to the original method. Pray that the shapes don't have the normals flipped or something similar.
-		return thisBackup.find_triangle_collision_clip_method(otherBackup, contacts);
+		// Triangle penetration
+		contacts.m_point_count = 1;
+		contacts.m_separating_normal = btVector4(0.0, 0.0, 0.0, 0.0);
+		contacts.m_penetration_depth = 1.0;
+		return true;
 	}
 
 	return false;
