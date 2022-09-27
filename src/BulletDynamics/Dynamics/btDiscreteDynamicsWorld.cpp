@@ -951,7 +951,6 @@ void btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int numBodies)
 {
 	int numManifolds = getDispatcher()->getNumManifolds();
-	bool anyCollisions = false;
 	btAlignedObjectArray<const btCollisionObject*> penetratingColliders; // TODO perhaps something more savory than an array
 	for (int i = 0; i < numManifolds; i++)
 	{
@@ -978,6 +977,12 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 		}
 		else
 		{
+			// We got into the penetration which I consider to be an invalid state. In this case, top priority for me is unstuck. So I clear
+			// all the forces and velocities. The contact forces created later will do the unstuck.
+			body->clearForces();
+			btVector3 zeroVector(0.0, 0.0, 0.0);
+			body->setLinearVelocity(zeroVector);
+			body->setAngularVelocity(zeroVector);
 			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
 		}
 	}

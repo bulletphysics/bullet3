@@ -270,7 +270,7 @@ void ImportObjSetup::initPhysics()
 	//}
 
 	btGImpactMeshShape* staticMeshShape;
-	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA3.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex, m_dynamicsWorld);
+	shapeId = loadAndRegisterMeshFromFile2("SESTAVADILYCATIA.OBJ" /*"bunny.obj"*/, m_guiHelper->getRenderInterface(), nullptr, &staticMeshShape, *this, trans, graphicsShapes, userIndex, m_dynamicsWorld);
 	if (shapeId >= 0)
 	{
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId, position, orn, color, scaling);
