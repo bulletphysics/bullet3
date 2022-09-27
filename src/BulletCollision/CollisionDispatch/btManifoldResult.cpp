@@ -132,6 +132,9 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 	newPt.m_positionWorldOnA = pointA;
 	newPt.m_positionWorldOnB = pointInWorld;
 
+	if (depth < 0.0)
+		newPt.m_contactPointFlags |= BT_CONTACT_FLAG_PENETRATING;
+
 	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
 
 	newPt.m_combinedFriction = gCalculateCombinedFrictionCallback(m_body0Wrap->getCollisionObject(), m_body1Wrap->getCollisionObject());

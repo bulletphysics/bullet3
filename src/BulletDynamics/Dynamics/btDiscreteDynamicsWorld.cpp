@@ -952,22 +952,26 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 {
 	int numManifolds = getDispatcher()->getNumManifolds();
 	bool anyCollisions = false;
-	btAlignedObjectArray<const btCollisionObject*> colliders; // TODO perhaps something more savory than an array
+	btAlignedObjectArray<const btCollisionObject*> penetratingColliders; // TODO perhaps something more savory than an array
 	for (int i = 0; i < numManifolds; i++)
 	{
 		btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
 
 		int numContacts = contactManifold->getNumContacts();
-		if (numContacts > 0)
+		for (int j = 0; j < numContacts; ++j)
 		{
-			colliders.push_back(contactManifold->getBody0());
-			colliders.push_back(contactManifold->getBody1());
+			auto cp = contactManifold->getContactPoint(j);
+			if (cp.m_contactPointFlags & BT_CONTACT_FLAG_PENETRATING)
+			{
+				penetratingColliders.push_back(contactManifold->getBody0());
+				penetratingColliders.push_back(contactManifold->getBody1());
+			}
 		}
 	}
 	for (int i = 0; i < numBodies; i++)
 	{
 		btRigidBody* body = bodies[i];
-		if (colliders.findLinearSearch2(body) == -1)
+		if (penetratingColliders.findLinearSearch2(body) == -1)
 		{
 			//printf("updating safe pos for %d\n", body->getUserIndex());
 			body->updateLastSafeWorldTransform();
