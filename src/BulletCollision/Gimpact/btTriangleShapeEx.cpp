@@ -810,7 +810,9 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 	return true;
 }
 
-bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor)
+bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
+																   const btTransform& thisTransformLastSafe, const btTransform& otherTransformLastSafe,
+																   const btPrimitiveTriangle& thisBackup, const btPrimitiveTriangle& otherBackup)
 {
 	btScalar margin = m_margin + other.m_margin;
 
@@ -818,29 +820,46 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 	btScalar dist_sq_out, dist, t = 1.0;
 	btVector3 a_closest_out, b_closest_out;
 	bool ret = false;
+	const btScalar maxDepth = margin * marginZoneRecoveryStrengthFactor;
+
+	auto create_contact = [&]() {
+		btVector3 dir = (a_closest_out - b_closest_out) / dist;
+		contacts.m_point_count = 1;
+		contacts.m_points[0] = a_closest_out;
+		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
+		// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
+		contacts.m_penetration_depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
+		//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
+	};
 	
 	ret = triangle_triangle_distance(other, dist_sq_out, a_closest_out, b_closest_out);
 	dist = sqrtf(dist_sq_out);
 	if (ret && dist_sq_out != 0.0 && dist < margin)
 	{
 		// In the margin zone. No actual penetration yet. Calculating m_separating_normal is very easy thanks to this.
-		btVector3 dir = (a_closest_out - b_closest_out) / dist;
-		contacts.m_point_count = 1;
-		contacts.m_points[0] = a_closest_out;
-		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
-		const btScalar maxDepth = margin * marginZoneRecoveryStrengthFactor;
-		// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
-		btScalar depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
-		contacts.m_penetration_depth = depth > 0.0 ? depth : 0.0;
-		//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
+		create_contact();
 		return true;
 	}
 	else if (ret && dist_sq_out == 0.0)
 	{
-		// Triangle penetration
-		contacts.m_point_count = 1;
-		contacts.m_separating_normal = btVector4(0.0, 0.0, 0.0, 0.0);
-		contacts.m_penetration_depth = 1.0;
+		// Triangle penetration. Use the last safe transforms.
+		auto thisLastSafe = thisBackup;
+		auto otherLastSafe = otherBackup;
+		auto& deleteme = thisTransformLastSafe;
+		auto& deleteme2 = otherTransformLastSafe;
+		//printf("this safe: %f %f %f , %f %f %f %f\n", deleteme.getOrigin().x(), deleteme.getOrigin().y(), deleteme.getOrigin().z(), deleteme.getRotation().getAngle(), deleteme.getRotation().getAxis().x(), deleteme.getRotation().getAxis().y(), deleteme.getRotation().getAxis().z());
+		//printf("other safe: %f %f %f , %f %f %f %f\n", deleteme2.getOrigin().x(), deleteme2.getOrigin().y(), deleteme2.getOrigin().z(), deleteme2.getRotation().getAngle(), deleteme2.getRotation().getAxis().x(), deleteme2.getRotation().getAxis().y(), deleteme2.getRotation().getAxis().z());
+		thisLastSafe.applyTransform(thisTransformLastSafe);
+		otherLastSafe.applyTransform(otherTransformLastSafe);
+		thisLastSafe.buildTriPlane();
+		otherLastSafe.buildTriPlane();
+
+		ret = thisLastSafe.triangle_triangle_distance(otherLastSafe, dist_sq_out, a_closest_out, b_closest_out);
+		btAssert(!(ret && dist_sq_out == 0.0)); // Since we use the safe positions, nothing should be penetrating
+		dist = sqrtf(dist_sq_out);
+		create_contact();
+		contacts.m_penetration_depth = -maxDepth;  // Mark it as penetration by making it negative
+
 		return true;
 	}
 

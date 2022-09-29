@@ -109,6 +109,13 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		//	if (depth > m_manifoldPtr->getContactProcessingThreshold())
 		return;
 
+	bool penetration = false;
+	if (depth > 0.0)
+	{
+		penetration = true;
+		depth = -depth;
+	}
+
 	bool isSwapped = m_manifoldPtr->getBody0() != m_body0Wrap->getCollisionObject();
 	bool isNewCollision = m_manifoldPtr->getNumContacts() == 0;
 
@@ -131,8 +138,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 	btManifoldPoint newPt(localA, localB, normalOnBInWorld, depth);
 	newPt.m_positionWorldOnA = pointA;
 	newPt.m_positionWorldOnB = pointInWorld;
-
-	if (depth < 0.0)
+	if (penetration)
 		newPt.m_contactPointFlags |= BT_CONTACT_FLAG_PENETRATING;
 
 	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);

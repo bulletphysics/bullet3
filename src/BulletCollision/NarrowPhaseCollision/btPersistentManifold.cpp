@@ -199,6 +199,9 @@ int btPersistentManifold::getCacheEntry(const btManifoldPoint& newPoint) const
 	{
 		const btManifoldPoint& mp = m_pointCache[i];
 
+		if (mp.m_contactPointFlags & BT_CONTACT_FLAG_PENETRATING) // Never overwrite contact that is penetrating. The information about penetration must not be lost.
+			continue;
+
 		btVector3 diffA = mp.m_localPointA - newPoint.m_localPointA;
 		const btScalar distToManiPoint = diffA.dot(diffA);
 		if (distToManiPoint < shortestDist)

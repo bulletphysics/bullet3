@@ -970,19 +970,23 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 	for (int i = 0; i < numBodies; i++)
 	{
 		btRigidBody* body = bodies[i];
+		if (body->isStaticObject())
+			continue;
 		if (penetratingColliders.findLinearSearch2(body) == -1)
 		{
-			//printf("updating safe pos for %d\n", body->getUserIndex());
+			//printf("DO updating safe pos for %d\n", body->getUserIndex(), numManifolds);
 			body->updateLastSafeWorldTransform();
+			auto& deleteme = body->getLastSafeWorldTransform();
+			//printf("safe: %f %f %f , %f %f %f %f\n", deleteme.getOrigin().x(), deleteme.getOrigin().y(), deleteme.getOrigin().z(), deleteme.getRotation().getAngle(), deleteme.getRotation().getAxis().x(), deleteme.getRotation().getAxis().y(), deleteme.getRotation().getAxis().z());
 		}
 		else
 		{
 			// We got into the penetration which I consider to be an invalid state. In this case, top priority for me is unstuck. So I clear
 			// all the forces and velocities. The contact forces created later will do the unstuck.
-			body->clearForces();
+			/*body->clearForces();
 			btVector3 zeroVector(0.0, 0.0, 0.0);
 			body->setLinearVelocity(zeroVector);
-			body->setAngularVelocity(zeroVector);
+			body->setAngularVelocity(zeroVector);*/
 			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
 		}
 	}

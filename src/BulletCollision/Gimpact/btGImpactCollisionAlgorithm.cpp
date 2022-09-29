@@ -358,6 +358,14 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 {
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
+
+	bool isStatic0 = body0Wrap->getCollisionObject()->isStaticObject();
+	bool isStatic1 = body1Wrap->getCollisionObject()->isStaticObject();
+	if (isStatic0 && isStatic1)
+		return;
+
+	btTransform lastSafeTrans0 = isStatic0 ? orgtrans0 : body0Wrap->getCollisionObject()->getLastSafeWorldTransform();
+	btTransform lastSafeTrans1 = isStatic1 ? orgtrans1 : body1Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	
 	btPrimitiveTriangle ptri0;
 	btPrimitiveTriangle ptri1;
@@ -381,6 +389,9 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 			bt_begin_gim02_tri_time();
 #endif
 
+		btPrimitiveTriangle ptri0Backup = ptri0;
+		btPrimitiveTriangle ptri1Backup = ptri1;
+
 		ptri0.applyTransform(orgtrans0);
 		ptri1.applyTransform(orgtrans1);
 
@@ -392,7 +403,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 			if (ptri0.overlap_test(ptri1))
 			{
-				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor))
+				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
+																   lastSafeTrans1, ptri0Backup, ptri1Backup))
 				{
 					int j = contact_data.m_point_count;
 					while (j--)
