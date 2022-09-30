@@ -330,13 +330,16 @@ void btRaycastVehicle::updateVehicle(btScalar step)
 			btScalar proj2 = fwd.dot(vel);
 
 			wheel.m_deltaRotation = (proj2 * step) / (wheel.m_wheelsRadius);
-			wheel.m_rotation += wheel.m_deltaRotation;
+			// wheel spin when skidding
+			wheel.m_deltaRotation += (wheel.m_engineForce * wheel.m_skidInfo * step) / wheel.m_wheelsRadius * btScalar(0.01);
 		}
 		else
 		{
-			wheel.m_rotation += wheel.m_deltaRotation;
+			// wheel spin when no contact
+			wheel.m_deltaRotation += (wheel.m_engineForce * step) / wheel.m_wheelsRadius * btScalar(0.001);
 		}
 
+		wheel.m_rotation += wheel.m_deltaRotation;
 		wheel.m_deltaRotation *= btScalar(0.99);  //damping of rotation when not in contact
 	}
 }
