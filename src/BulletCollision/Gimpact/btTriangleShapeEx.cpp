@@ -847,8 +847,6 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		auto otherLastSafe = otherBackup;
 		auto& deleteme = thisTransformLastSafe;
 		auto& deleteme2 = otherTransformLastSafe;
-		//printf("this safe: %f %f %f , %f %f %f %f\n", deleteme.getOrigin().x(), deleteme.getOrigin().y(), deleteme.getOrigin().z(), deleteme.getRotation().getAngle(), deleteme.getRotation().getAxis().x(), deleteme.getRotation().getAxis().y(), deleteme.getRotation().getAxis().z());
-		//printf("other safe: %f %f %f , %f %f %f %f\n", deleteme2.getOrigin().x(), deleteme2.getOrigin().y(), deleteme2.getOrigin().z(), deleteme2.getRotation().getAngle(), deleteme2.getRotation().getAxis().x(), deleteme2.getRotation().getAxis().y(), deleteme2.getRotation().getAxis().z());
 		thisLastSafe.applyTransform(thisTransformLastSafe);
 		otherLastSafe.applyTransform(otherTransformLastSafe);
 		thisLastSafe.buildTriPlane();
@@ -858,7 +856,7 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		btAssert(!(ret && dist_sq_out == 0.0)); // Since we use the safe positions, nothing should be penetrating
 		dist = sqrtf(dist_sq_out);
 		create_contact();
-		contacts.m_penetration_depth = -maxDepth;  // Mark it as penetration by making it negative
+		contacts.m_penetration_depth = -maxDepth * 10.0;  // Mark it as penetration by making it negative
 
 		return true;
 	}

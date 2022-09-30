@@ -105,16 +105,16 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 	btAssert(m_manifoldPtr);
 	//order in manifold needs to match
 
-	if (depth > m_manifoldPtr->getContactBreakingThreshold())
-		//	if (depth > m_manifoldPtr->getContactProcessingThreshold())
-		return;
-
 	bool penetration = false;
 	if (depth > 0.0)
 	{
 		penetration = true;
 		depth = -depth;
 	}
+
+	if (depth > m_manifoldPtr->getContactBreakingThreshold())
+		//	if (depth > m_manifoldPtr->getContactProcessingThreshold())
+		return;
 
 	bool isSwapped = m_manifoldPtr->getBody0() != m_body0Wrap->getCollisionObject();
 	bool isNewCollision = m_manifoldPtr->getNumContacts() == 0;

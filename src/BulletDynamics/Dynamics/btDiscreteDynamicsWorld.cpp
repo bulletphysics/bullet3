@@ -476,6 +476,8 @@ void btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 
 	getSolverInfo().m_timeStep = timeStep;
 
+	updateLastSafeTransforms();
+
 	///solve contact and other joint constraints
 	solveConstraints(getSolverInfo());
 
@@ -950,8 +952,16 @@ void btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 
 void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int numBodies)
 {
+	for (int i = 0; i < numBodies; i++)
+	{
+		btRigidBody* body = bodies[i];
+		if (body->isStaticObject())
+			continue;
+		body->setProximityHint(BT_LARGE_FLOAT);
+	}
+
 	int numManifolds = getDispatcher()->getNumManifolds();
-	btAlignedObjectArray<const btCollisionObject*> penetratingColliders; // TODO perhaps something more savory than an array
+	btAlignedObjectArray<const btCollisionObject*> penetratingColliders;  // TODO perhaps something more savory than an array
 	for (int i = 0; i < numManifolds; i++)
 	{
 		btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
@@ -960,13 +970,37 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 		for (int j = 0; j < numContacts; ++j)
 		{
 			auto cp = contactManifold->getContactPoint(j);
-			if (cp.m_contactPointFlags & BT_CONTACT_FLAG_PENETRATING)
+			bool penetration = cp.m_contactPointFlags & BT_CONTACT_FLAG_PENETRATING;
+			if (penetration)
 			{
 				penetratingColliders.push_back(contactManifold->getBody0());
 				penetratingColliders.push_back(contactManifold->getBody1());
 			}
+			btScalar totalMargin = contactManifold->getBody0()->getCollisionShape()->getMargin() + contactManifold->getBody1()->getCollisionShape()->getMargin();
+			btScalar maxDepth = totalMargin * gMarginZoneRecoveryStrengthFactor;
+			btScalar newProx = totalMargin - ((cp.getDistance() * totalMargin) / maxDepth);
+			//printf("newProx %f\n", newProx);
+			newProx = penetration ? -newProx : newProx;
+			if (!penetration)
+			{
+				newProx /= totalMargin;
+				newProx -= 0.99;
+			}
+			if (!contactManifold->getBody0()->isStaticObject())
+			{
+				auto b0 = const_cast<btCollisionObject*>(contactManifold->getBody0());
+				if (newProx < contactManifold->getBody0()->getProximityHint())
+					b0->setProximityHint(newProx);
+			}
+			if (!contactManifold->getBody1()->isStaticObject())
+			{
+				auto b1 = const_cast<btCollisionObject*>(contactManifold->getBody1());
+				if (newProx < contactManifold->getBody1()->getProximityHint())
+					b1->setProximityHint(newProx);
+			}
 		}
 	}
+
 	for (int i = 0; i < numBodies; i++)
 	{
 		btRigidBody* body = bodies[i];
@@ -976,17 +1010,11 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 		{
 			//printf("DO updating safe pos for %d\n", body->getUserIndex(), numManifolds);
 			body->updateLastSafeWorldTransform();
-			auto& deleteme = body->getLastSafeWorldTransform();
-			//printf("safe: %f %f %f , %f %f %f %f\n", deleteme.getOrigin().x(), deleteme.getOrigin().y(), deleteme.getOrigin().z(), deleteme.getRotation().getAngle(), deleteme.getRotation().getAxis().x(), deleteme.getRotation().getAxis().y(), deleteme.getRotation().getAxis().z());
 		}
 		else
 		{
-			// We got into the penetration which I consider to be an invalid state. In this case, top priority for me is unstuck. So I clear
-			// all the forces and velocities. The contact forces created later will do the unstuck.
-			/*body->clearForces();
-			btVector3 zeroVector(0.0, 0.0, 0.0);
-			body->setLinearVelocity(zeroVector);
-			body->setAngularVelocity(zeroVector);*/
+			// We got into the penetration which I consider to be an invalid state. In this case, top priority for me is unstuck.
+			// So typically all the joints will be relaxed by the library user based on the getProximityHint() value.
 			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
 		}
 	}
@@ -1088,16 +1116,17 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 	}
 }
 
-void btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
+void btDiscreteDynamicsWorld::updateLastSafeTransforms()
 {
-	{
 		BT_PROFILE("savePreviousTransforms");
 		if (m_nonStaticRigidBodies.size() > 0)
 		{
 			saveLastSafeTransforms(&m_nonStaticRigidBodies[0], m_nonStaticRigidBodies.size());
 		}
-	}
+}
 
+void btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
+{
 	BT_PROFILE("integrateTransforms");
 	if (m_nonStaticRigidBodies.size() > 0)
 	{
