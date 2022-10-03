@@ -957,7 +957,6 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 		btRigidBody* body = bodies[i];
 		if (body->isStaticObject())
 			continue;
-		body->setProximityHint(BT_LARGE_FLOAT);
 	}
 
 	int numManifolds = getDispatcher()->getNumManifolds();
@@ -976,28 +975,6 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 				penetratingColliders.push_back(contactManifold->getBody0());
 				penetratingColliders.push_back(contactManifold->getBody1());
 			}
-			btScalar totalMargin = contactManifold->getBody0()->getCollisionShape()->getMargin() + contactManifold->getBody1()->getCollisionShape()->getMargin();
-			btScalar maxDepth = totalMargin * gMarginZoneRecoveryStrengthFactor;
-			btScalar newProx = totalMargin - ((cp.getDistance() * totalMargin) / maxDepth);
-			//printf("newProx %f\n", newProx);
-			newProx = penetration ? -newProx : newProx;
-			if (!penetration)
-			{
-				newProx /= totalMargin;
-				newProx -= 0.99;
-			}
-			if (!contactManifold->getBody0()->isStaticObject())
-			{
-				auto b0 = const_cast<btCollisionObject*>(contactManifold->getBody0());
-				if (newProx < contactManifold->getBody0()->getProximityHint())
-					b0->setProximityHint(newProx);
-			}
-			if (!contactManifold->getBody1()->isStaticObject())
-			{
-				auto b1 = const_cast<btCollisionObject*>(contactManifold->getBody1());
-				if (newProx < contactManifold->getBody1()->getProximityHint())
-					b1->setProximityHint(newProx);
-			}
 		}
 	}
 
@@ -1014,8 +991,15 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 		else
 		{
 			// We got into the penetration which I consider to be an invalid state. In this case, top priority for me is unstuck.
-			// So typically all the joints will be relaxed by the library user based on the getProximityHint() value.
+			// For now I zero the velocities which seems to work fine for meshes of normal size. For smaller
+			// meshes, there seems to be some momentum accumulation somewhere because it takes a while
+			// before they start rotating in opposite direction. Will look into that later. Probably has something to do
+			// with the hand constraint being weaker on small meshes.
 			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
+			btVector3 zeroVec(0.0, 0.0, 0.0);
+			body->setLinearVelocity(zeroVec);
+			body->setAngularVelocity(zeroVec);
+			
 		}
 	}
 }

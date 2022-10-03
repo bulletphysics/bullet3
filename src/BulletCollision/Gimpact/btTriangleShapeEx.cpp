@@ -856,7 +856,7 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		btAssert(!(ret && dist_sq_out == 0.0)); // Since we use the safe positions, nothing should be penetrating
 		dist = sqrtf(dist_sq_out);
 		create_contact();
-		contacts.m_penetration_depth = -maxDepth * 10.0;  // Mark it as penetration by making it negative
+		contacts.m_penetration_depth = -maxDepth;  // Mark it as penetration by making it negative
 
 		return true;
 	}

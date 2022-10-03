@@ -120,8 +120,6 @@ protected:
 	btAlignedObjectArray<const btCollisionObject*> m_objectsWithoutCollisionCheck;
 	btAlignedObjectArray<const btCollisionObject*> m_objectsWithToleratedCollision;
 
-	btScalar m_proximityHint;
-
 	///internal update revision number. It will be increased when the object changes. This allows some subsystems to perform lazy evaluation.
 	int m_updateRevision;
 
@@ -452,16 +450,6 @@ public:
 	{
 		m_updateRevision++;
 		m_worldTransform = worldTrans;
-	}
-
-	btScalar getProximityHint() const
-	{
-		return m_proximityHint;
-	}
-
-	void setProximityHint(btScalar proximityHint)
-	{
-		m_proximityHint = proximityHint;
 	}
 
 	SIMD_FORCE_INLINE btBroadphaseProxy* getBroadphaseHandle()
