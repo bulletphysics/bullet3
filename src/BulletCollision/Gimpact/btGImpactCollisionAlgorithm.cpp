@@ -31,6 +31,11 @@ Concave-Concave Collision
 #include "btContactProcessing.h"
 #include "LinearMath/btQuickprof.h"
 
+#include <chrono>
+#include <algorithm>
+#include <execution>
+#include <span>
+
 //! Class for accessing the plane equation
 class btPlaneShape : public btStaticPlaneShape
 {
@@ -366,62 +371,64 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 	btTransform lastSafeTrans0 = isStatic0 ? orgtrans0 : body0Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	btTransform lastSafeTrans1 = isStatic1 ? orgtrans1 : body1Wrap->getCollisionObject()->getLastSafeWorldTransform();
-	
-	btPrimitiveTriangle ptri0;
-	btPrimitiveTriangle ptri1;
-	GIM_TRIANGLE_CONTACT contact_data;
 
 	shape0->lockChildShapes();
 	shape1->lockChildShapes();
 
-	const int* pair_pointer = pairs;
+	auto pair_pointer = reinterpret_cast<const std::pair<int, int>*>(pairs);
 
-	while (pair_count--)
-	{
-		m_triface0 = *(pair_pointer);
-		m_triface1 = *(pair_pointer + 1);
-		pair_pointer += 2;
+	auto addStart = std::chrono::steady_clock::now();
 
-		shape0->getPrimitiveTriangle(m_triface0, ptri0);
-		shape1->getPrimitiveTriangle(m_triface1, ptri1);
+	printf("pair_count %d\n", pair_count);
 
-#ifdef TRI_COLLISION_PROFILING
-			bt_begin_gim02_tri_time();
-#endif
-
-		btPrimitiveTriangle ptri0Backup = ptri0;
-		btPrimitiveTriangle ptri1Backup = ptri1;
-
-		ptri0.applyTransform(orgtrans0);
-		ptri1.applyTransform(orgtrans1);
-
-		if (ptri0.validity_test() && ptri1.validity_test())
+	std::span pairSpan(pair_pointer, pair_count / 2);
+	std::mutex writeMutex;
+	std::for_each(std::execution::par, pairSpan.begin(), pairSpan.end(), [&](const std::pair<int, int> pair)
 		{
-			//build planes
-			ptri0.buildTriPlane();
-			ptri1.buildTriPlane();
+			btPrimitiveTriangle ptri0;
+			btPrimitiveTriangle ptri1;
+			GIM_TRIANGLE_CONTACT contact_data;
 
-			if (ptri0.overlap_test(ptri1))
+			m_triface0 = pair.first;
+			m_triface1 = pair.second;
+
+			shape0->getPrimitiveTriangle(m_triface0, ptri0);
+			shape1->getPrimitiveTriangle(m_triface1, ptri1);
+
+			btPrimitiveTriangle ptri0Backup = ptri0;
+			btPrimitiveTriangle ptri1Backup = ptri1;
+
+			ptri0.applyTransform(orgtrans0);
+			ptri1.applyTransform(orgtrans1);
+
+			if (ptri0.validity_test() && ptri1.validity_test())
 			{
-				if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
-																   lastSafeTrans1, ptri0Backup, ptri1Backup))
+				//build planes
+				ptri0.buildTriPlane();
+				ptri1.buildTriPlane();
+
+				if (ptri0.overlap_test(ptri1))
 				{
-					int j = contact_data.m_point_count;
-					while (j--)
+					if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
+																		lastSafeTrans1, ptri0Backup, ptri1Backup))
 					{
-						addContactPoint(body0Wrap, body1Wrap,
-										contact_data.m_points[j],
-										contact_data.m_separating_normal,
-										-contact_data.m_penetration_depth);
+						int j = contact_data.m_point_count;
+						std::lock_guard<std::mutex> guard(writeMutex);
+						while (j--)
+						{
+							addContactPoint(body0Wrap, body1Wrap,
+											contact_data.m_points[j],
+											contact_data.m_separating_normal,
+											-contact_data.m_penetration_depth);
+						}
 					}
 				}
 			}
-		}
+		});
 
-#ifdef TRI_COLLISION_PROFILING
-		bt_end_gim02_tri_time();
-#endif
-	}
+	auto addEnd = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(addEnd - addStart);
+	printf("while took %d us\n", duration.count());
 
 	/*btVector3 nor;
 	if (m_manifoldPtr->getNumContacts() > 0)
@@ -483,7 +490,11 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 
 	if (findOnlyFirstPair)
 	{
+		shape0->lockChildShapes();
+		shape1->lockChildShapes();
 		addEmptyManifold(body0Wrap, body1Wrap);
+		shape0->unlockChildShapes();
+		shape1->unlockChildShapes();
 		return;
 	}
 
