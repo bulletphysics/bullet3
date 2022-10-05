@@ -252,11 +252,6 @@ SET(BulletCollision_HDRS
 	${NarrowPhaseCollision_HDRS}
 )
 
-IF (NOT MSVC)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
-ELSE (NOT MSVC)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20")
-ENDIF (NOT MSVC)
 
 ADD_LIBRARY(BulletCollision ${BulletCollision_SRCS} ${BulletCollision_HDRS})
 SET_TARGET_PROPERTIES(BulletCollision PROPERTIES VERSION ${BULLET_VERSION})
