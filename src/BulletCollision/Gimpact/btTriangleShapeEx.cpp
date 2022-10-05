@@ -845,8 +845,6 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		// Triangle penetration. Use the last safe transforms.
 		auto thisLastSafe = thisBackup;
 		auto otherLastSafe = otherBackup;
-		auto& deleteme = thisTransformLastSafe;
-		auto& deleteme2 = otherTransformLastSafe;
 		thisLastSafe.applyTransform(thisTransformLastSafe);
 		otherLastSafe.applyTransform(otherTransformLastSafe);
 		thisLastSafe.buildTriPlane();
