@@ -995,11 +995,13 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 			// meshes, there seems to be some momentum accumulation somewhere because it takes a while
 			// before they start rotating in opposite direction. Will look into that later. Probably has something to do
 			// with the hand constraint being weaker on small meshes.
+			// Another added safety mechanism against being stuck is to teleport the mesh into the safe position. This is
+			// ofcourse questionable if there are other dynamic objects in the vicinity, but such scenarios are rare in my case.
 			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
 			btVector3 zeroVec(0.0, 0.0, 0.0);
 			body->setLinearVelocity(zeroVec);
 			body->setAngularVelocity(zeroVec);
-			
+			body->setWorldTransform(body->getLastSafeWorldTransform());
 		}
 	}
 }
