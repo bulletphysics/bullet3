@@ -823,7 +823,10 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 	const btScalar maxDepth = margin * marginZoneRecoveryStrengthFactor;
 
 	auto create_contact = [&]() {
-		btVector3 dir = (a_closest_out - b_closest_out) / dist;
+		btVector3 diff = a_closest_out - b_closest_out;
+		if (dist == 0.0)
+			dist = diff.length();
+		btVector3 dir = diff / dist;
 		contacts.m_point_count = 1;
 		contacts.m_points[0] = a_closest_out;
 		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
