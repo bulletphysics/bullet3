@@ -985,8 +985,9 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 			continue;
 		if (penetratingColliders.findLinearSearch2(body) == -1)
 		{
-			//printf("DO updating safe pos for %d\n", body->getUserIndex(), numManifolds);
+			//printf("DO updating safe pos for %d\n", body->getUserIndex());
 			body->updateLastSafeWorldTransform();
+			body->setCollisionFlags(body->getCollisionFlags() & (~btCollisionObject::CF_IS_PENETRATING));
 		}
 		else
 		{
@@ -1001,7 +1002,16 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 			btVector3 zeroVec(0.0, 0.0, 0.0);
 			body->setLinearVelocity(zeroVec);
 			body->setAngularVelocity(zeroVec);
-			body->setWorldTransform(body->getLastSafeWorldTransform());
+			btTransform dst = body->getLastSafeWorldTransform();
+			btTransform src = body->getWorldTransform();
+			// We sacrifice few iterations to move to the safe position only gradually. This significantly reduces the jitter of
+			// jumping between the safe and stuck positions. The unstuck position will be much closer to the real point of contact.
+			constexpr btScalar speedOfConvergenceToSafe = 0.1;
+			btVector3 interpOrigin = src.getOrigin().lerp(dst.getOrigin(), speedOfConvergenceToSafe);
+			btQuaternion interpRot = src.getRotation().slerp(dst.getRotation(), speedOfConvergenceToSafe);
+			btTransform interp(interpRot, interpOrigin);
+			body->setWorldTransform(interp);
+			body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_IS_PENETRATING);
 		}
 	}
 }
