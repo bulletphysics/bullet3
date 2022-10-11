@@ -35,6 +35,7 @@ Concave-Concave Collision
 #include <algorithm>
 #include <execution>
 #include <span>
+#include <list>
 
 //! Class for accessing the plane equation
 class btPlaneShape : public btStaticPlaneShape
@@ -262,7 +263,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair);
 		auto end = std::chrono::steady_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		printf("find_collision took %lld us\n", duration.count());
+		//printf("find_collision took %lld us\n", duration.count());
 	}
 	else
 	{
@@ -383,72 +384,23 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	shape0->lockChildShapes();
 	shape1->lockChildShapes();
 
-	auto pair_count_backup = pair_count;
-
 	printf("pair_count %d\n", pair_count);
 
-	auto addStart = std::chrono::steady_clock::now();
-
+	struct IntermediateResult
 	{
-		const int* pair_pointer = pairs;
-
-		while (pair_count--)
-		{
-			m_triface0 = *(pair_pointer);
-			m_triface1 = *(pair_pointer + 1);
-			pair_pointer += 2;
-
-			shape0->getPrimitiveTriangle(m_triface0, ptri0);
-			shape1->getPrimitiveTriangle(m_triface1, ptri1);
-
-			btPrimitiveTriangle ptri0Backup = ptri0;
-			btPrimitiveTriangle ptri1Backup = ptri1;
-
-			ptri0.applyTransform(orgtrans0);
-			ptri1.applyTransform(orgtrans1);
-
-			if (ptri0.validity_test() && ptri1.validity_test())
-			{
-				//build planes
-				ptri0.buildTriPlane();
-				ptri1.buildTriPlane();
-
-				if (ptri0.overlap_test(ptri1))
-				{
-					if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
-																	   lastSafeTrans1, ptri0Backup, ptri1Backup))
-					{
-						int j = contact_data.m_point_count;
-						while (j--)
-						{
-							addContactPoint(body0Wrap, body1Wrap,
-											contact_data.m_points[j],
-											contact_data.m_separating_normal,
-											-contact_data.m_penetration_depth);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	auto addEnd = std::chrono::steady_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(addEnd - addStart);
-	printf("old loop took %lld us\n", duration.count());
-
-	addStart = std::chrono::steady_clock::now();
+		btVector3 point, normal;
+		btScalar depth;
+	};
 
 	{
 		auto pair_pointer = reinterpret_cast<const std::pair<int, int>*>(pairs);
-		std::span pairSpan(pair_pointer, pair_count_backup / 2);
+		std::span pairSpan(pair_pointer, pair_count);
 
-		if (pairSpan.size() > intermediateResults.size())
-			intermediateResults.resize(pairSpan.size());
-		memset(&intermediateResults[0], 0, sizeof(intermediateResults[0]) * intermediateResults.size());
-
+		std::list<IntermediateResult> intermediateResults;
+		std::mutex writeMutex;
+		
 		std::for_each(std::execution::par_unseq, pairSpan.begin(), pairSpan.end(), [&](const std::pair<int, int>& pair)
-			{
-				int index = &pair - &pairSpan[0];
+		{
 				btPrimitiveTriangle ptri0;
 				btPrimitiveTriangle ptri1;
 				GIM_TRIANGLE_CONTACT contact_data;
@@ -482,28 +434,20 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 								intermediateResult.point = contact_data.m_points[0];
 								intermediateResult.normal = contact_data.m_separating_normal;
 								intermediateResult.depth = -contact_data.m_penetration_depth;
-								intermediateResult.used = true;
-								intermediateResults[index] = intermediateResult;
+								std::lock_guard<std::mutex> guard(writeMutex);
+								intermediateResults.push_back(intermediateResult);
 							}
 						}
 					}
-				}
-			});
+				} });
 
 		for (const auto& ir : intermediateResults)
 		{
-			if (ir.used)
-			{
-				addContactPoint(body0Wrap, body1Wrap,
-								ir.point,
-								ir.normal,
-								ir.depth);
-			}
+			addContactPoint(body0Wrap, body1Wrap,
+							ir.point,
+							ir.normal,
+							ir.depth);
 		}
-
-		addEnd = std::chrono::steady_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::microseconds>(addEnd - addStart);
-		printf("new loop took %lld us\n", duration.count());
 	}
 
 	shape0->unlockChildShapes();

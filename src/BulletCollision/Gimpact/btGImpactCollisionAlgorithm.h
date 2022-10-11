@@ -64,14 +64,6 @@ protected:
 	int m_triface1;
 	int m_part1;
 
-	struct IntermediateResult
-	{
-		bool used;
-		btVector3 point, normal;
-		btScalar depth;
-	};
-	std::vector<IntermediateResult> intermediateResults;
-
 	//! Creates a new contact point
 	SIMD_FORCE_INLINE btPersistentManifold* newContactManifold(const btCollisionObject* body0, const btCollisionObject* body1)
 	{
