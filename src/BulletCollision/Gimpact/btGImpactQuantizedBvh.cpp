@@ -24,6 +24,10 @@ subject to the following restrictions:
 #include "btGImpactQuantizedBvh.h"
 #include "LinearMath/btQuickprof.h"
 
+#include <list>
+#include <algorithm>
+#include <execution>
+
 #ifdef TRI_COLLISION_PROFILING
 btClock g_q_tree_clock;
 
@@ -466,6 +470,149 @@ static void _find_quantized_collision_pairs_recursive(
 	}      // else if node0 is not a leaf
 }
 
+//stack collision routine
+static void _find_quantized_collision_pairs(
+	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1,
+	btPairSet* collision_pairs,
+	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
+	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
+{
+	std::list<std::pair<int, int>> pairStack;
+	pairStack.push_back({node0, node1});
+	std::mutex colPairsMtx, pairStackMtx;
+	std::atomic_bool anyHit(false);
+	std::for_each(std::execution::par, pairStack.begin(), pairStack.end(), 
+		[&boxset0, &boxset1, &trans_cache_1to0, &complete_primitive_tests, &findOnlyFirstPair, &colPairsMtx,
+				   &pairStackMtx, &anyHit, &collision_pairs, &pairStack](const std::pair<int, int>& pair)
+		{
+			int node0 = pair.first, node1 = pair.second;
+			if (_quantized_node_collision(
+			boxset0, boxset1, trans_cache_1to0, node0, node1, complete_primitive_tests) && !(findOnlyFirstPair && anyHit.load()))
+			{
+				if (boxset0->isLeafNode(node0))
+				{
+					if (boxset1->isLeafNode(node1))
+					{
+						// collision result
+						anyHit.store(true);
+						std::lock_guard<std::mutex> guard(colPairsMtx);
+						collision_pairs->push_pair(
+							boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+					}
+					else
+					{
+						// TODO check why complete_primitive_tests was always false here and below!
+						std::lock_guard<std::mutex> guard(pairStackMtx);
+						pairStack.push_back({node0, boxset1->getLeftNode(node1)});
+						pairStack.push_back({node0, boxset1->getRightNode(node1)});
+					}
+				}
+				else
+				{
+					if (boxset1->isLeafNode(node1))
+					{
+						std::lock_guard<std::mutex> guard(pairStackMtx);
+						pairStack.push_back({boxset0->getLeftNode(node0), node1});
+						pairStack.push_back({boxset0->getRightNode(node0), node1});
+					}
+					else
+					{
+						std::lock_guard<std::mutex> guard(pairStackMtx);
+						pairStack.push_back({boxset0->getLeftNode(node0), boxset1->getLeftNode(node1)});
+						pairStack.push_back({boxset0->getLeftNode(node0), boxset1->getRightNode(node1)});
+						pairStack.push_back({boxset0->getRightNode(node0), boxset1->getLeftNode(node1)});
+						pairStack.push_back({boxset0->getRightNode(node0), boxset1->getRightNode(node1)});		
+					}
+				}
+			}
+		});
+
+
+
+
+	if (_quantized_node_collision(
+			boxset0, boxset1, trans_cache_1to0,
+			node0, node1, complete_primitive_tests) == false) return;  //avoid colliding internal nodes
+
+	if (findOnlyFirstPair && collision_pairs->size() > 0)
+		return;
+
+	if (boxset0->isLeafNode(node0))
+	{
+		if (boxset1->isLeafNode(node1))
+		{
+			// collision result
+			collision_pairs->push_pair(
+				boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+			return;
+		}
+		else
+		{
+			//collide left recursive
+
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+
+			//collide right recursive
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				node0, boxset1->getRightNode(node1), false, findOnlyFirstPair);
+		}
+	}
+	else
+	{
+		if (boxset1->isLeafNode(node1))
+		{
+			//collide left recursive
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair);
+
+			//collide right recursive
+
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				boxset0->getRightNode(node0), node1, false, findOnlyFirstPair);
+		}
+		else
+		{
+			//collide left0 left1
+
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+
+			//collide left0 right1
+
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+
+			//collide right0 left1
+
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+
+			//collide right0 right1
+
+			_find_quantized_collision_pairs_recursive(
+				boxset0, boxset1,
+				collision_pairs, trans_cache_1to0,
+				boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+
+		}  // else if node1 is not a leaf
+	}      // else if node0 is not a leaf
+}
+
 void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0, const btTransform& trans0,
 										   const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 										   btPairSet& collision_pairs, bool findOnlyFirstPair)
@@ -480,7 +627,10 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	bt_begin_gim02_q_tree_time();
 #endif  //TRI_COLLISION_PROFILING
 
-	_find_quantized_collision_pairs_recursive(
+	/*_find_quantized_collision_pairs_recursive(
+		boxset0, boxset1,
+		&collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);*/
+	_find_quantized_collision_pairs(
 		boxset0, boxset1,
 		&collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
 #ifdef TRI_COLLISION_PROFILING
