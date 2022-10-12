@@ -854,7 +854,11 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		otherLastSafe.buildTriPlane();
 
 		ret = thisLastSafe.triangle_triangle_distance(otherLastSafe, dist_sq_out, a_closest_out, b_closest_out);
-		btAssert(!(ret && dist_sq_out == 0.0)); // Since we use the safe positions, nothing should be penetrating
+		// Since we use the safe positions, nothing should be penetrating. This assert is very useful for testing if some change in code
+		// didn't mess things up, but in a more complex scenario where there is another movable which places itself into the first's safe zone,
+		// this assert should be commented out.
+		btAssert(!(ret && dist_sq_out == 0.0));
+
 		dist = sqrtf(dist_sq_out);
 		create_contact();
 		contacts.m_penetration_depth = -maxDepth;  // Mark it as penetration by making it negative

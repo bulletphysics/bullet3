@@ -259,10 +259,10 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 {
 	if (shape0->hasBoxSet() && shape1->hasBoxSet())
 	{
-		auto start = std::chrono::steady_clock::now();
+		//auto start = std::chrono::steady_clock::now();
 		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair);
-		auto end = std::chrono::steady_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		//auto end = std::chrono::steady_clock::now();
+		//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 		//printf("find_collision took %lld us\n", duration.count());
 	}
 	else
