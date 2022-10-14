@@ -40,3 +40,10 @@ CTestTestFile.cmake
 .vscode/
 .idea/
 cmake-build-debug/
+/data/SESTAVADILYCATIA.OBJ.mtl
+/data/SESTAVADILYCATIA.OBJ
+/data/klima.OBJ.mtl
+/data/klima.OBJ
+/.vs
+/out/build/x64-Debug
+/data/plane3ds2.obj

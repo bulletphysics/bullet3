@@ -28,6 +28,9 @@ subject to the following restrictions:
 #include "btQuantization.h"
 #include "btGImpactQuantizedBvhStructs.h"
 
+#include "ctpl_stl.h"
+#include <atomic>
+
 class GIM_QUANTIZED_BVH_NODE_ARRAY : public btAlignedObjectArray<BT_QUANTIZED_BVH_NODE>
 {
 };
@@ -148,6 +151,50 @@ public:
 	//!@}
 };
 
+struct btThreadPoolForBvh
+{
+private:
+	std::mutex waitForTerminationMutex;
+	std::condition_variable waitForTermination;
+public:
+	std::atomic<uint16_t> runningThreadCount;
+	std::mutex colPairsMtx;
+	unsigned int poolThreadCount;
+	ctpl::thread_pool pool;
+
+	btThreadPoolForBvh() : runningThreadCount(0), poolThreadCount(std::thread::hardware_concurrency()), pool(poolThreadCount)
+	{
+	}
+
+	void WaitForTermination()
+	{
+		std::unique_lock<std::mutex> lck(waitForTerminationMutex);
+		waitForTermination.wait(lck, [this]()
+								{ return runningThreadCount == 0;
+			});
+	}
+
+	class ThreadEndCounter
+	{
+		bool count;
+		btThreadPoolForBvh* pool;
+
+	public:
+		explicit ThreadEndCounter(btThreadPoolForBvh* pool, bool count) : pool(pool), count(count)
+		{
+		}
+		~ThreadEndCounter()
+		{
+			if (count && pool)
+			{
+				std::lock_guard<std::mutex> lck(pool->waitForTerminationMutex);
+				--pool->runningThreadCount;
+				pool->waitForTermination.notify_one();
+			}
+		}
+	};
+};
+
 //! Structure for containing Boxes
 /*!
 This class offers an structure for managing a box tree of primitives.
@@ -164,6 +211,7 @@ protected:
 	void refit();
 
 public:
+
 	//! this constructor doesn't build the tree. you must call	buildSet
 	btGImpactQuantizedBvh()
 	{
@@ -292,7 +340,7 @@ public:
 
 	static void find_collision(const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 							   const btGImpactQuantizedBvh* boxset2, const btTransform& trans2,
-							   btPairSet& collision_pairs, bool findOnlyFirstPair);
+							   btPairSet& collision_pairs, bool findOnlyFirstPair, btThreadPoolForBvh* threadPool);
 };
 
 #endif  // GIM_BOXPRUNING_H_INCLUDED

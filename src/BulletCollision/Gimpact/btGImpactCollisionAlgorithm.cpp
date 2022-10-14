@@ -191,11 +191,14 @@ btGImpactCollisionAlgorithm::btGImpactCollisionAlgorithm(const btCollisionAlgori
 {
 	m_manifoldPtr = NULL;
 	m_convex_algorithm = NULL;
+	m_threadPool = ci.m_parallel ? new btThreadPoolForBvh : nullptr;
 }
 
 btGImpactCollisionAlgorithm::~btGImpactCollisionAlgorithm()
 {
 	clearCache();
+	if (m_threadPool)
+		delete m_threadPool;
 }
 
 void btGImpactCollisionAlgorithm::addContactPoint(const btCollisionObjectWrapper* body0Wrap,
@@ -259,11 +262,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 {
 	if (shape0->hasBoxSet() && shape1->hasBoxSet())
 	{
-		//auto start = std::chrono::steady_clock::now();
-		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair);
-		//auto end = std::chrono::steady_clock::now();
-		//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		//printf("find_collision took %lld us\n", duration.count());
+		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair, m_threadPool);
 	}
 	else
 	{
@@ -911,9 +910,10 @@ btScalar btGImpactCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* b
 ///////////////////////////////////// REGISTERING ALGORITHM //////////////////////////////////////////////
 
 //! Use this function for register the algorithm externally
-void btGImpactCollisionAlgorithm::registerAlgorithm(btCollisionDispatcher* dispatcher)
+void btGImpactCollisionAlgorithm::registerAlgorithm(btCollisionDispatcher* dispatcher, bool parallel)
 {
 	static btGImpactCollisionAlgorithm::CreateFunc s_gimpact_cf;
+	s_gimpact_cf.m_parallel = parallel;
 
 	int i;
 

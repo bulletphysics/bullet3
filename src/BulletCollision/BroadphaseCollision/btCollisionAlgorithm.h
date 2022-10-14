@@ -44,6 +44,7 @@ struct btCollisionAlgorithmConstructionInfo
 
 	btDispatcher* m_dispatcher1;
 	btPersistentManifold* m_manifold;
+	bool m_parallel = false;
 
 	//	int	getDispatcherId();
 };

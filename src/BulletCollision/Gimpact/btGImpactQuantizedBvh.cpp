@@ -24,9 +24,9 @@ subject to the following restrictions:
 #include "btGImpactQuantizedBvh.h"
 #include "LinearMath/btQuickprof.h"
 
-#include "ctpl_stl.h"
+//#include "cvmarkersobj.h"
 
-#include <list>
+using namespace Concurrency;
 
 #ifdef TRI_COLLISION_PROFILING
 btClock g_q_tree_clock;
@@ -380,76 +380,39 @@ SIMD_FORCE_INLINE bool _quantized_node_collision(
 	//	return box0.has_collision(box1);
 }
 
-std::atomic<uint16_t> runningThreadCount = 0;
-std::mutex colPairsMtx;
-std::recursive_mutex poolMtx;
-ctpl::thread_pool pool(32);
-std::list<std::future<void>> results;
-
-class ThreadCounter
-{
-	bool count;
-
-public:
-	explicit ThreadCounter(bool count) : count(count)
-	{
-	}
-	~ThreadCounter()
-	{
-		if (count)
-		{
-			--runningThreadCount;
-			printf("end of thread %d\n", std::this_thread::get_id());
-		}
-	}
-};
-
-template <typename T> class MyGuard
-{
-	T& m;
-	std::chrono::time_point<std::chrono::steady_clock> startTime;
-public:
-	MyGuard(T& m) : m(m)
-	{
-		startTime = std::chrono::steady_clock::now();
-		m.lock();
-		auto endTime = std::chrono::steady_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-		printf("wait for lock took %lld us\n", duration.count());
-	}
-	~MyGuard()
-	{
-		m.unlock();
-	}
-};
-
 //stackless recursive collision routine
-static void _find_quantized_collision_pairs_recursive(
+static void _find_quantized_collision_pairs_recursive(btThreadPoolForBvh* threadPool,
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, int maxThreadCount, btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair, bool parallel, int level)
+	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair, bool parallel, int level/*, diagnostic::marker_series* series*/)
 {
+	//series->write_message(diagnostic::normal_importance, level, "node0 %d, node1 %d, level %d", node0, node1, level);
+
 	auto func = [=](int, bool threadStarted)
 	{
-		ThreadCounter threadCounter(threadStarted);
-		if (threadStarted)
-			printf("start of thread %d, threads in flight %d \n", std::this_thread::get_id(), runningThreadCount.load());
-		printf("begin on thread %d, level %d, node0 %d, node1 %d\n", std::this_thread::get_id(), level, node0, node1);
+		btThreadPoolForBvh::ThreadEndCounter threadCounter(threadPool, threadStarted);
+		
 		if (_quantized_node_collision(
 				boxset0, boxset1, trans_cache_1to0,
 				node0, node1, complete_primitive_tests) == false)
 		{
-			printf("no col on thread %d, level %d, node0 %d, node1 %d\n", std::this_thread::get_id(), level, node0, node1);
+			//series->write_message(diagnostic::normal_importance, level, "no col node0 %d, node1 %d, level %d", node0, node1, level);
 			return;  //avoid colliding internal nodes
 		}
-		printf("_quantized_node_collision ended on thread %d, level %d, node0 %d, node1 %d\n", std::this_thread::get_id(), level, node0, node1);
 
 		if (findOnlyFirstPair)
 		{
-			MyGuard<std::mutex> guard(colPairsMtx);
-			if (collision_pairs->size() > 0)
+			int pairCount = 0;
+			if (threadPool)
 			{
-				printf("found first on thread %d, level %d, node0 %d, node1 %d\n", std::this_thread::get_id(), level, node0, node1);
+				std::lock_guard<std::mutex> guard(threadPool->colPairsMtx);
+				pairCount = collision_pairs->size();
+			}
+			else
+				pairCount = collision_pairs->size();
+			if (pairCount > 0)
+			{
+				//series->write_message(diagnostic::normal_importance, level, "found first node0 %d, node1 %d, level %d", node0, node1, level);
 				return;
 			}
 		}
@@ -459,26 +422,32 @@ static void _find_quantized_collision_pairs_recursive(
 			if (boxset1->isLeafNode(node1))
 			{
 				// collision result
-				MyGuard<std::mutex> guard(colPairsMtx);
-				collision_pairs->push_pair(
-					boxset0->getNodeData(node0), boxset1->getNodeData(node1));
-				printf("found leaf col on thread %d, level %d, node0 %d, node1 %d\n", std::this_thread::get_id(), level, node0, node1);
+				if (threadPool)
+				{
+					std::lock_guard guard(threadPool->colPairsMtx);
+					collision_pairs->push_pair(
+						boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+				}
+				else
+					collision_pairs->push_pair(
+						boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+				//series->write_message(diagnostic::normal_importance, level, "found leaf col node0 %d, node1 %d, level %d", node0, node1, level);
 				return;
 			}
 			else
 			{
 				//collide left recursive
 
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1);
+					node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide right recursive
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					node0, boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1);
+					node0, boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 			}
 		}
 		else
@@ -487,53 +456,52 @@ static void _find_quantized_collision_pairs_recursive(
 			{
 				//collide left recursive
 
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair, parallel, level + 1);
+					boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					boxset0->getRightNode(node0), node1, false, findOnlyFirstPair, parallel, level + 1);
+					boxset0->getRightNode(node0), node1, false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 			}
 			else
 			{
 				//collide left0 left1
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1);
+					boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide left0 right1
 
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1);
+					boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide right0 left1
 
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1);
+					boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide right0 right1
 
-				_find_quantized_collision_pairs_recursive(
+				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-					boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1);
+					boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 			}  // else if node1 is not a leaf
 		}      // else if node0 is not a leaf
-		printf("end on thread %d, level %d, node0 %d, node1 %d\n", std::this_thread::get_id(), level, node0, node1);
+		//series->write_message(diagnostic::normal_importance, level, "end node0 %d, node1 %d, level %d", node0, node1, level);
 	};
-	MyGuard<std::recursive_mutex> guard(poolMtx);
-	if (parallel && runningThreadCount < maxThreadCount && !(level % 3) && level > 0)
+	if (parallel && threadPool && threadPool->runningThreadCount < maxThreadCount && level > 2)
 	{
-		++runningThreadCount;
-		pool.push(func, true);
+		++threadPool->runningThreadCount;
+		threadPool->pool.push(func, true);
 	}
 	else
 	{
@@ -543,7 +511,7 @@ static void _find_quantized_collision_pairs_recursive(
 
 void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0, const btTransform& trans0,
 										   const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
-										   btPairSet& collision_pairs, bool findOnlyFirstPair)
+										   btPairSet& collision_pairs, bool findOnlyFirstPair, btThreadPoolForBvh* threadPool)
 {
 	if (boxset0->getNodeCount() == 0 || boxset1->getNodeCount() == 0) return;
 
@@ -555,33 +523,37 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	bt_begin_gim02_q_tree_time();
 #endif  //TRI_COLLISION_PROFILING
 
-	collision_pairs.clear();
+	//auto start = std::chrono::steady_clock::now();
 
-	auto start = std::chrono::steady_clock::now();
-
-	_find_quantized_collision_pairs_recursive(
-		boxset0, boxset1, 0,
-		&collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair, false, 0);
-
-	auto end = std::chrono::steady_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	printf("_find_quantized_collision_pairs_recursive took %lld us size %d ##########################################\n", duration.count(), collision_pairs.size());
-
-	collision_pairs.clear();
-	runningThreadCount = 0;
-
-	// TODO do the parallel versions conditionally!
-	start = std::chrono::steady_clock::now();
-	_find_quantized_collision_pairs_recursive(
-		boxset0, boxset1, 32 /*TODO fix*/, &collision_pairs,
-		trans_cache_1to0, 0, 0, true, findOnlyFirstPair, true, 0);
-	while (runningThreadCount > 0)
+	if (!threadPool)
 	{
-	};
+		//diagnostic::marker_series series0("col pairs serial");
+		//diagnostic::span span(series0, diagnostic::high_importance, 10, "serial topmost");
+		_find_quantized_collision_pairs_recursive(nullptr,
+			boxset0, boxset1, 0,
+			&collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair, false, 0/*, &series0*/);
+	}
 
-	end = std::chrono::steady_clock::now();
-	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	printf("_find_quantized_collision_pairs took %lld us size %d *******************************************\n", duration.count(), collision_pairs.size());
+	//auto end = std::chrono::steady_clock::now();
+	//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	//printf("_find_quantized_collision_pairs_recursive took %lld us size %d ##########################################\n", duration.count(), collision_pairs.size());
+
+	if (threadPool)
+	{
+		collision_pairs.clear();
+		threadPool->runningThreadCount = 0;
+		//diagnostic::marker_series series1("col pairs parallel");
+		//diagnostic::span span(series1, diagnostic::high_importance, 10, "parallel topmost");
+		//start = std::chrono::steady_clock::now();
+		_find_quantized_collision_pairs_recursive(threadPool,
+			boxset0, boxset1, threadPool->poolThreadCount /*TODO fix*/, &collision_pairs,
+			trans_cache_1to0, 0, 0, true, findOnlyFirstPair, true, 0/*, &series1*/);
+		threadPool->WaitForTermination();
+	}
+
+	//end = std::chrono::steady_clock::now();
+	//duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	//printf("_find_quantized_collision_pairs took %lld us size %d *******************************************\n", duration.count(), collision_pairs.size());
 #ifdef TRI_COLLISION_PROFILING
 	bt_end_gim02_q_tree_time();
 #endif  //TRI_COLLISION_PROFILING
