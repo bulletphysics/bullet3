@@ -55,7 +55,6 @@ btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 class btGImpactCollisionAlgorithm : public btActivatingCollisionAlgorithm
 {
 protected:
-	btThreadPoolForBvh* m_threadPool;
 	btCollisionAlgorithm* m_convex_algorithm;
 	btPersistentManifold* m_manifoldPtr;
 	btManifoldResult* m_resultOut;
@@ -209,17 +208,17 @@ public:
 
 	struct CreateFunc : public btCollisionAlgorithmCreateFunc
 	{
-		bool m_parallel = false;
 		virtual btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo& ci, const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap)
 		{
 			void* mem = ci.m_dispatcher1->allocateCollisionAlgorithm(sizeof(btGImpactCollisionAlgorithm));
-			ci.m_parallel = m_parallel;
 			return new (mem) btGImpactCollisionAlgorithm(ci, body0Wrap, body1Wrap);
 		}
 	};
 
+	static btThreadPoolForBvh* m_threadPool;
+
 	//! Use this function for register the algorithm externally
-	static void registerAlgorithm(btCollisionDispatcher* dispatcher, bool parallel);
+	static void registerAlgorithm(btCollisionDispatcher* dispatcher);
 #ifdef TRI_COLLISION_PROFILING
 	//! Gets the average time in miliseconds of tree collisions
 	static float getAverageTreeCollisionTime();

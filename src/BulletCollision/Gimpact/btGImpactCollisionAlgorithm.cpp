@@ -191,14 +191,11 @@ btGImpactCollisionAlgorithm::btGImpactCollisionAlgorithm(const btCollisionAlgori
 {
 	m_manifoldPtr = NULL;
 	m_convex_algorithm = NULL;
-	m_threadPool = ci.m_parallel ? new btThreadPoolForBvh : nullptr;
 }
 
 btGImpactCollisionAlgorithm::~btGImpactCollisionAlgorithm()
 {
 	clearCache();
-	if (m_threadPool)
-		delete m_threadPool;
 }
 
 void btGImpactCollisionAlgorithm::addContactPoint(const btCollisionObjectWrapper* body0Wrap,
@@ -907,13 +904,14 @@ btScalar btGImpactCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* b
 	return 1.f;
 }
 
+btThreadPoolForBvh* btGImpactCollisionAlgorithm::m_threadPool = nullptr;
+
 ///////////////////////////////////// REGISTERING ALGORITHM //////////////////////////////////////////////
 
 //! Use this function for register the algorithm externally
-void btGImpactCollisionAlgorithm::registerAlgorithm(btCollisionDispatcher* dispatcher, bool parallel)
+void btGImpactCollisionAlgorithm::registerAlgorithm(btCollisionDispatcher* dispatcher)
 {
 	static btGImpactCollisionAlgorithm::CreateFunc s_gimpact_cf;
-	s_gimpact_cf.m_parallel = parallel;
 
 	int i;
 
