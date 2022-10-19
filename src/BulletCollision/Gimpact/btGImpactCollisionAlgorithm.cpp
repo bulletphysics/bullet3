@@ -380,7 +380,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	shape0->lockChildShapes();
 	shape1->lockChildShapes();
 
-	printf("pair_count %d\n", pair_count);
+	//printf("pair_count %d\n", pair_count);
 
 	struct IntermediateResult
 	{
