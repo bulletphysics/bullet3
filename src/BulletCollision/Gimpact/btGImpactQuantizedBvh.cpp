@@ -543,8 +543,7 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 
 		//series0.write_message(diagnostic::normal_importance, 0, "end ser %d us", duration.count());
 	}
-
-	if (threadPool)
+	else
 	{
 		//collision_pairs.clear();
 		threadPool->runningThreadCount = 0;
