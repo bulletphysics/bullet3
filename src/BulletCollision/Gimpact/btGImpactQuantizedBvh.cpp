@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "btGImpactQuantizedBvh.h"
 #include "LinearMath/btQuickprof.h"
 
-#include "cvmarkersobj.h"
+//#include "cvmarkersobj.h"
 
 using namespace Concurrency;
 
