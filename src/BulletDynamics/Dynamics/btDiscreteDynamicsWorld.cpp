@@ -1011,6 +1011,8 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 			btQuaternion interpRot = src.getRotation().slerp(dst.getRotation(), speedOfConvergenceToSafe);
 			btTransform interp(interpRot, interpOrigin);
 			body->setWorldTransform(interp);
+			if (!m_forceUpdateAllAabbs)
+				updateSingleAabb(body);
 			body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_IS_PENETRATING);
 		}
 	}
