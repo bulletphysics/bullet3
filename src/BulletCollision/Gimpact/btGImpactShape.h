@@ -39,7 +39,8 @@ subject to the following restrictions:
 #include "btGImpactQuantizedBvh.h"  // box tree class
 
 //! declare Quantized trees, (you can change to float based trees)
-typedef btGImpactQuantizedBvh btGImpactBoxSet;
+//typedef btGImpactQuantizedBvh btGImpactBoxSet;
+typedef btGImpactBvh btGImpactBoxSet;
 
 enum eGIMPACT_SHAPE_TYPE
 {

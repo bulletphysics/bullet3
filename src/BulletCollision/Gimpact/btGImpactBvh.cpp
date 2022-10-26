@@ -340,7 +340,7 @@ bool btGImpactBvh::rayQuery(
 }
 
 SIMD_FORCE_INLINE bool _node_collision(
-	btGImpactBvh* boxset0, btGImpactBvh* boxset1,
+	const btGImpactBvh* boxset0, const btGImpactBvh* boxset1,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, bool complete_primitive_tests)
 {
@@ -356,7 +356,7 @@ SIMD_FORCE_INLINE bool _node_collision(
 
 //stackless recursive collision routine
 static void _find_collision_pairs_recursive(
-	btGImpactBvh* boxset0, btGImpactBvh* boxset1,
+	const btGImpactBvh* boxset0, const btGImpactBvh* boxset1,
 	btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, bool complete_primitive_tests)
@@ -441,9 +441,9 @@ static void _find_collision_pairs_recursive(
 	}      // else if node0 is not a leaf
 }
 
-void btGImpactBvh::find_collision(btGImpactBvh* boxset0, const btTransform& trans0,
-								  btGImpactBvh* boxset1, const btTransform& trans1,
-								  btPairSet& collision_pairs)
+void btGImpactBvh::find_collision(const btGImpactBvh* boxset0, const btTransform& trans0,
+										   const btGImpactBvh* boxset1, const btTransform& trans1,
+										   btPairSet& collision_pairs, bool findOnlyFirstPair)
 {
 	if (boxset0->getNodeCount() == 0 || boxset1->getNodeCount() == 0) return;
 
