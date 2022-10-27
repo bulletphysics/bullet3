@@ -26,6 +26,9 @@ subject to the following restrictions:
 
 #include "LinearMath/btTransform.h"
 
+#include <vector>
+#include <tuple>
+
 ///Swap numbers
 #define BT_SWAP_NUMBERS(a, b) \
 	{                         \
@@ -215,6 +218,22 @@ public:
 
 #define BOX_PLANE_EPSILON 0.000001f
 
+struct DbgStruct
+{
+	FILE *fh;
+	int &index_dbg;
+	std::vector<btVector3> &box_vertices;
+	std::vector<std::tuple<int, int, int>> &box_indices;
+	DbgStruct() = delete;
+	DbgStruct(FILE *fh,
+			  int &index_dbg,
+			  std::vector<btVector3> & box_vertices,
+			  std::vector<std::tuple<int, int, int>> &box_indices) : fh(fh), index_dbg(index_dbg), box_vertices(box_vertices), box_indices(box_indices)
+	{
+	
+	}
+};
+
 //! Axis aligned box
 ATTRIBUTE_ALIGNED16(class)
 btAABB
@@ -222,6 +241,10 @@ btAABB
 public:
 	btVector3 m_min;
 	btVector3 m_max;
+	int prim_index;
+	btVector3 orig0;
+	btVector3 orig1;
+	btVector3 orig2;
 
 	btAABB()
 	{
@@ -265,7 +288,7 @@ public:
 		m_max[2] += margin;
 	}
 
-	btAABB(const btAABB &other) : m_min(other.m_min), m_max(other.m_max)
+	btAABB(const btAABB &other) : m_min(other.m_min), m_max(other.m_max), prim_index(other.prim_index), orig0(other.orig0), orig1(other.orig1), orig2(other.orig2)
 	{
 	}
 
@@ -335,7 +358,7 @@ public:
 	SIMD_FORCE_INLINE void calc_from_triangle_margin(
 		const CLASS_POINT &V1,
 		const CLASS_POINT &V2,
-		const CLASS_POINT &V3, btScalar margin)
+		const CLASS_POINT &V3, btScalar margin, int prim_index)
 	{
 		m_min[0] = BT_MIN3(V1[0], V2[0], V3[0]);
 		m_min[1] = BT_MIN3(V1[1], V2[1], V3[1]);
@@ -353,6 +376,12 @@ public:
 		m_max[0] += margin;
 		m_max[1] += margin;
 		m_max[2] += margin;
+
+		this->prim_index = prim_index;
+		orig0 = V1;
+		orig1 = V2;
+		orig2 = V3;
+
 	}
 
 	//! Apply a transform to an AABB
@@ -515,14 +544,104 @@ public:
 		return has_collision(tbox);
 	}
 
+	void static collect_dbg_box(const btVector3 &min, const btVector3 &max, const btTransform &tran, DbgStruct* dbgStruct)
+	{
+		if (!dbgStruct)
+			return;
+		btVector3 vert[8];
+		vert[0] = min;
+		vert[1] = min;
+		vert[1].setX(max.x());
+		vert[2] = min;
+		vert[2].setX(max.x());
+		vert[2].setY(max.y());
+		vert[3] = min;
+		vert[3].setY(max.y());
+		vert[4] = vert[0];
+		vert[4].setZ(max.z());
+		vert[5] = vert[1];
+		vert[5].setZ(max.z());
+		vert[6] = vert[2];
+		vert[6].setZ(max.z());
+		vert[7] = vert[3];
+		vert[7].setZ(max.z());
+
+		for (int i = 0; i < 8; ++i)
+		{
+			vert[i] = tran(vert[i]);
+			dbgStruct->box_vertices.push_back(vert[i]);
+			//fprintf(fh, "\tv %f %f %f\n", vert[i].x(), vert[i].y(), vert[i].z());
+		}
+
+		int indices[12][3] = {
+			{1, 3, 2},
+			{1, 4, 3},
+			{5, 6, 7},
+			{5, 7, 8},
+			{1, 2, 6},
+			{1, 6, 5},
+			{2, 3, 7},
+			{2, 7, 6},
+			{3, 8, 7},
+			{3, 4, 8},
+			{4, 1, 5},
+			{4, 5, 8}};
+
+		for (int i = 0; i < 12; ++i)
+		{
+			dbgStruct->box_indices.push_back({dbgStruct->index_dbg + indices[i][0], dbgStruct->index_dbg + indices[i][1], dbgStruct->index_dbg + indices[i][2]});
+			//fprintf(fh, "\tf %d %d %d\n", index_dbg + indices[i][0], index_dbg + indices[i][1], index_dbg + indices[i][2]);
+		}
+		dbgStruct->index_dbg += 8;
+	}
+
+	void static collect_dbg_tri(const btAABB &box0, const btTransform &tran0, const btAABB &box1, const btTransform &tran1, DbgStruct *dbgStruct)
+	{
+		if (!dbgStruct)
+			return;
+
+			btVector3 org00 = tran0(box0.orig0);
+			btVector3 org01 = tran0(box0.orig1);
+			btVector3 org02 = tran0(box0.orig2);
+			btVector3 org10 = tran1(box1.orig0);
+			btVector3 org11 = tran1(box1.orig1);
+			btVector3 org12 = tran1(box1.orig2);
+			dbgStruct->box_vertices.push_back(org00);
+			dbgStruct->box_vertices.push_back(org01);
+			dbgStruct->box_vertices.push_back(org02);
+			dbgStruct->box_vertices.push_back(org10);
+			dbgStruct->box_vertices.push_back(org11);
+			dbgStruct->box_vertices.push_back(org12);
+
+			dbgStruct->box_indices.push_back({dbgStruct->index_dbg + 1, dbgStruct->index_dbg + 2, dbgStruct->index_dbg + 3});
+			dbgStruct->box_indices.push_back({dbgStruct->index_dbg + 4, dbgStruct->index_dbg + 5, dbgStruct->index_dbg + 6});
+			dbgStruct->index_dbg += 6;
+	}
+
+	static void write_box(DbgStruct* dbgStruct)
+	{
+		if (!dbgStruct)
+			return;
+		for (auto &v : dbgStruct->box_vertices)
+		{
+			fprintf(dbgStruct->fh, "\tv %f %f %f\n", v.x(), v.y(), v.z());
+		}
+		for (auto &i : dbgStruct->box_indices)
+		{
+			fprintf(dbgStruct->fh, "\tf %d %d %d\n", std::get<0>(i), std::get<1>(i), std::get<2>(i));
+		}
+	}
+
 	//! transcache is the transformation cache from box to this AABB
 	SIMD_FORCE_INLINE bool overlapping_trans_cache(
-		const btAABB &box, const BT_BOX_BOX_TRANSFORM_CACHE &transcache, bool fulltest) const
+		const btAABB &box, const BT_BOX_BOX_TRANSFORM_CACHE &transcache, bool fulltest, DbgStruct* dbgStruct) const
 	{
-		auto min0 = transcache.debug0(this->m_min);
-		auto max0 = transcache.debug0(this->m_max);
-		auto min1 = transcache.debug1(box.m_min);
-		auto max1 = transcache.debug1(box.m_max);
+		//auto min0 = transcache.debug0(this->m_min);
+		//auto max0 = transcache.debug0(this->m_max);
+		//collect_dbg_box(this->m_min, this->m_max, transcache.debug0, dbgStruct);
+		collect_dbg_tri(*this, transcache.debug0, box, transcache.debug1, dbgStruct);
+		//auto min1 = transcache.debug1(box.m_min);
+		//auto max1 = transcache.debug1(box.m_max);
 
 		//Taken from OPCODE
 		btVector3 ea, eb;  //extends

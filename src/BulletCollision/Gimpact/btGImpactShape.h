@@ -665,7 +665,7 @@ public:
 			get_primitive_triangle(prim_index, triangle);
 			primbox.calc_from_triangle_margin(
 				triangle.m_vertices[0],
-				triangle.m_vertices[1], triangle.m_vertices[2], triangle.m_margin);
+				triangle.m_vertices[1], triangle.m_vertices[2], triangle.m_margin, prim_index);
 		}
 
 		virtual void get_primitive_triangle(int prim_index, btPrimitiveTriangle& triangle) const
