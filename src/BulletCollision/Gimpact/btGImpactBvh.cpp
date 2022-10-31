@@ -23,8 +23,6 @@ subject to the following restrictions:
 #include "btGImpactBvh.h"
 #include "LinearMath/btQuickprof.h"
 
-#include <string>
-
 #ifdef TRI_COLLISION_PROFILING
 
 btClock g_tree_clock;
@@ -344,14 +342,14 @@ bool btGImpactBvh::rayQuery(
 SIMD_FORCE_INLINE bool _node_collision(
 	const btGImpactBvh* boxset0, const btGImpactBvh* boxset1,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, bool complete_primitive_tests, DbgStruct *dbgStruct)
+	int node0, int node1, bool complete_primitive_tests)
 {
 	btAABB box0;
 	boxset0->getNodeBound(node0, box0);
 	btAABB box1;
 	boxset1->getNodeBound(node1, box1);
 
-	return box0.overlapping_trans_cache(box1, trans_cache_1to0, complete_primitive_tests, dbgStruct);
+	return box0.overlapping_trans_cache(box1, trans_cache_1to0, complete_primitive_tests);
 	//	box1.appy_transform_trans_cache(trans_cache_1to0);
 	//	return box0.has_collision(box1);
 }
@@ -361,20 +359,16 @@ static void _find_collision_pairs_recursive(
 	const btGImpactBvh* boxset0, const btGImpactBvh* boxset1,
 	btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, bool complete_primitive_tests, DbgStruct* dbgStruct)
+	int node0, int node1, bool complete_primitive_tests)
 {
 	if (_node_collision(
 			boxset0, boxset1, trans_cache_1to0,
-			node0, node1, complete_primitive_tests, nullptr) == false) return;  //avoid colliding internal nodes
+			node0, node1, complete_primitive_tests) == false) return;  //avoid colliding internal nodes
 
 	if (boxset0->isLeafNode(node0))
 	{
 		if (boxset1->isLeafNode(node1))
 		{
-			_node_collision(
-				boxset0, boxset1, trans_cache_1to0,
-				node0, node1, complete_primitive_tests, dbgStruct);
-
 			// collision result
 			collision_pairs->push_pair(
 				boxset0->getNodeData(node0), boxset1->getNodeData(node1));
@@ -387,13 +381,13 @@ static void _find_collision_pairs_recursive(
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				node0, boxset1->getLeftNode(node1), false, dbgStruct);
+				node0, boxset1->getLeftNode(node1), false);
 
 			//collide right recursive
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				node0, boxset1->getRightNode(node1), false, dbgStruct);
+				node0, boxset1->getRightNode(node1), false);
 		}
 	}
 	else
@@ -404,14 +398,14 @@ static void _find_collision_pairs_recursive(
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				boxset0->getLeftNode(node0), node1, false, dbgStruct);
+				boxset0->getLeftNode(node0), node1, false);
 
 			//collide right recursive
 
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				boxset0->getRightNode(node0), node1, false, dbgStruct);
+				boxset0->getRightNode(node0), node1, false);
 		}
 		else
 		{
@@ -420,38 +414,32 @@ static void _find_collision_pairs_recursive(
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, dbgStruct);
+				boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false);
 
 			//collide left0 right1
 
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, dbgStruct);
+				boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false);
 
 			//collide right0 left1
 
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, dbgStruct);
+				boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false);
 
 			//collide right0 right1
 
 			_find_collision_pairs_recursive(
 				boxset0, boxset1,
 				collision_pairs, trans_cache_1to0,
-				boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, dbgStruct);
+				boxset0->getRightNode(node0), boxset1->getRightNode(node1), false);
 
 		}  // else if node1 is not a leaf
 	}      // else if node0 is not a leaf
 }
-
-int index_dbg;
-std::vector<btVector3> box_vertices;
-std::vector<std::tuple<int, int, int>> box_indices;
-DbgStruct dbgStruct(nullptr, index_dbg, box_vertices, box_indices);
-int cnt = 0;
 
 void btGImpactBvh::find_collision(const btGImpactBvh* boxset0, const btTransform& trans0,
 										   const btGImpactBvh* boxset1, const btTransform& trans1,
@@ -466,20 +454,10 @@ void btGImpactBvh::find_collision(const btGImpactBvh* boxset0, const btTransform
 #ifdef TRI_COLLISION_PROFILING
 	bt_begin_gim02_tree_time();
 #endif  //TRI_COLLISION_PROFILING
-	std::string fileName = "dbg";
-	fileName += std::to_string(cnt++);
-	fileName += ".obj";
-	dbgStruct.fh = fopen(fileName.c_str(), "w");
-	dbgStruct.index_dbg = 0;
-	dbgStruct.box_indices.clear();
-	dbgStruct.box_vertices.clear();
-	fprintf(dbgStruct.fh, "o box_dbg\n");
+
 	_find_collision_pairs_recursive(
 		boxset0, boxset1,
-		&collision_pairs, trans_cache_1to0, 0, 0, true, &dbgStruct);
-	btAABB::write_box(&dbgStruct);
-	fflush(dbgStruct.fh);
-	fclose(dbgStruct.fh);
+		&collision_pairs, trans_cache_1to0, 0, 0, true);
 #ifdef TRI_COLLISION_PROFILING
 	bt_end_gim02_tree_time();
 #endif  //TRI_COLLISION_PROFILING

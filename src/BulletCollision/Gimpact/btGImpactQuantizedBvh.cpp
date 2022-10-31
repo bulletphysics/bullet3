@@ -375,7 +375,7 @@ SIMD_FORCE_INLINE bool _quantized_node_collision(
 	btAABB box1;
 	boxset1->getNodeBound(node1, box1);
 
-	return box0.overlapping_trans_cache(box1, trans_cache_1to0, complete_primitive_tests, nullptr);
+	return box0.overlapping_trans_cache(box1, trans_cache_1to0, complete_primitive_tests);
 	//	box1.appy_transform_trans_cache(trans_cache_1to0);
 	//	return box0.has_collision(box1);
 }
