@@ -155,8 +155,6 @@ public:
 	btVector3 m_T1to0;    //!< Transforms translation of model1 to model 0
 	btMatrix3x3 m_R1to0;  //!< Transforms Rotation of model1 to model 0, equal  to R0' * R1
 	btMatrix3x3 m_AR;     //!< Absolute value of m_R1to0
-	btTransform debug0;
-	btTransform debug1;
 
 	SIMD_FORCE_INLINE void calc_absolute_matrix()
 	{
@@ -190,9 +188,6 @@ public:
 		m_R1to0 = temp_trans.getBasis();
 
 		calc_absolute_matrix();
-
-		debug0 = trans0;
-		debug1 = trans1;
 	}
 
 	//! Calcs the full invertion of the matrices. Useful for scaling matrices
@@ -519,11 +514,6 @@ public:
 	SIMD_FORCE_INLINE bool overlapping_trans_cache(
 		const btAABB &box, const BT_BOX_BOX_TRANSFORM_CACHE &transcache, bool fulltest) const
 	{
-		auto min0 = transcache.debug0(this->m_min);
-		auto max0 = transcache.debug0(this->m_max);
-		auto min1 = transcache.debug1(box.m_min);
-		auto max1 = transcache.debug1(box.m_max);
-
 		//Taken from OPCODE
 		btVector3 ea, eb;  //extends
 		btVector3 ca, cb;  //extends

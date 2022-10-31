@@ -445,13 +445,13 @@ static void _find_quantized_collision_pairs_recursive(btThreadPoolForBvh* thread
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  node0, boxset1->getLeftNode(node1), complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide right recursive
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  node0, boxset1->getRightNode(node1), complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					node0, boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 			}
 		}
 		else
@@ -463,12 +463,12 @@ static void _find_quantized_collision_pairs_recursive(btThreadPoolForBvh* thread
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  boxset0->getLeftNode(node0), node1, complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  boxset0->getRightNode(node0), node1, complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					boxset0->getRightNode(node0), node1, false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 			}
 			else
 			{
@@ -476,28 +476,28 @@ static void _find_quantized_collision_pairs_recursive(btThreadPoolForBvh* thread
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide left0 right1
 
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  boxset0->getLeftNode(node0), boxset1->getRightNode(node1), complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide right0 left1
 
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  boxset0->getRightNode(node0), boxset1->getLeftNode(node1), complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 
 				//collide right0 right1
 
 				_find_quantized_collision_pairs_recursive(threadPool,
 					boxset0, boxset1,
 					maxThreadCount, collision_pairs, trans_cache_1to0,
-														  boxset0->getRightNode(node0), boxset1->getRightNode(node1), complete_primitive_tests, findOnlyFirstPair, parallel, level + 1 /*, series*/);
+					boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair, parallel, level + 1/*, series*/);
 			}  // else if node1 is not a leaf
 		}      // else if node0 is not a leaf
 		//series->write_message(diagnostic::normal_importance, level, "end node0 %d, node1 %d, level %d", node0, node1, level);
