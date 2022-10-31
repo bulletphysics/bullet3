@@ -259,7 +259,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 {
 	if (shape0->hasBoxSet() && shape1->hasBoxSet())
 	{
-		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair, m_threadPool);
+		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair);
 	}
 	else
 	{
