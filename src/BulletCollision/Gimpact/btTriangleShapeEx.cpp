@@ -869,57 +869,6 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 	return false;
 }
 
-bool btPrimitiveTriangle::isNarrowAndNotAlignedToCardinalDir() const
-{
-	// TODO handle also caps, not just needles
-	btVector3 edge[] = {m_vertices[0] - m_vertices[1], m_vertices[0] - m_vertices[2], m_vertices[1] - m_vertices[2]};
-	btScalar edgeLenSq[3];
-
-	const btScalar threshold = 0.02;
-	const btScalar invThreshold = 1.0 / threshold;
-	const btVector3 xDir(1.0, 0.0, 0.0);
-	const btVector3 yDir(0.0, 1.0, 0.0);
-	const btVector3 zDir(0.0, 0.0, 1.0);
-
-	for (int i = 0; i < 4; ++i)
-	{
-		if (i < 4)
-			edgeLenSq[i] = edge[i].length2();
-		if (i > 0)
-		{
-			int longEdge = -1;
-			btScalar ratio = edgeLenSq[i] / edgeLenSq[i - 1];
-			if (ratio < threshold)
-			{
-				longEdge = i - 1;
-			}
-			if (ratio > invThreshold)
-			{
-				longEdge = i;
-			}
-			if (longEdge != -1)
-			{
-				btScalar len = edge[longEdge].length(); // TODO use some approximation
-				btVector3 normLongEdge = edge[longEdge] / len;
-				if (fabs(normLongEdge.dot(xDir)) < 0.9)
-				{
-					return true;
-				}
-				if (fabs(normLongEdge.dot(yDir)) < 0.9)
-				{
-					return true;
-				}
-				if (fabs(normLongEdge.dot(zDir)) < 0.9)
-				{
-					return true;
-				}
-				return false;
-			}
-		}
-	}
-	return false;
-}
-
 ///class btTriangleShapeEx: public btTriangleShape
 
 bool btTriangleShapeEx::overlap_test_conservative(const btTriangleShapeEx& other)

@@ -130,7 +130,6 @@ public:
 													 btScalar& tp_out, btScalar& ts_out, btVector3& p_closest_out, btVector3& s_closest_out, btScalar& dist_sq_out, btScalar max_distance_sq = FLT_MAX);
 	bool triangle_triangle_distance(const btPrimitiveTriangle& b, btScalar& dist_sq_out, btVector3& a_closest_out, btVector3& b_closest_out,
 														 float max_distance_sq = FLT_MAX);
-	bool isNarrowAndNotAlignedToCardinalDir() const;
 };
 
 //! Helper class for colliding Bullet Triangle Shapes
