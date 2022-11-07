@@ -370,6 +370,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	if (isStatic0 && isStatic1)
 		return;
 
+	bool doUnstuck = (isStatic0 ? body1Wrap : body0Wrap)->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK;
 	btTransform lastSafeTrans0 = isStatic0 ? orgtrans0 : body0Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	btTransform lastSafeTrans1 = isStatic1 ? orgtrans1 : body1Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	
@@ -423,7 +424,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 					if (ptri0.overlap_test(ptri1))
 					{
 						if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
-																			lastSafeTrans1, ptri0Backup, ptri1Backup))
+																		   lastSafeTrans1, ptri0Backup, ptri1Backup, doUnstuck))
 						{
 							if (contact_data.m_point_count >= 1)
 							{

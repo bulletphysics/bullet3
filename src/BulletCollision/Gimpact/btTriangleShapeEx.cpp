@@ -812,7 +812,7 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 
 bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTriangle& other, GIM_TRIANGLE_CONTACT& contacts, btScalar marginZoneRecoveryStrengthFactor,
 																   const btTransform& thisTransformLastSafe, const btTransform& otherTransformLastSafe,
-																   const btPrimitiveTriangle& thisBackup, const btPrimitiveTriangle& otherBackup)
+																   const btPrimitiveTriangle& thisBackup, const btPrimitiveTriangle& otherBackup, bool doUnstuck)
 {
 	btScalar margin = m_margin + other.m_margin;
 
@@ -831,7 +831,10 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		contacts.m_points[0] = a_closest_out;
 		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
 		// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
-		contacts.m_penetration_depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
+		if (fabs(margin) < SIMD_EPSILON)
+			contacts.m_penetration_depth = dist;
+		else
+			contacts.m_penetration_depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
 		//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
 	};
 	
@@ -846,22 +849,30 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 	else if (ret && dist_sq_out == 0.0)
 	{
 		// Triangle penetration. Use the last safe transforms.
-		auto thisLastSafe = thisBackup;
-		auto otherLastSafe = otherBackup;
-		thisLastSafe.applyTransform(thisTransformLastSafe);
-		otherLastSafe.applyTransform(otherTransformLastSafe);
-		thisLastSafe.buildTriPlane();
-		otherLastSafe.buildTriPlane();
+		if (doUnstuck)
+		{
+			auto thisLastSafe = thisBackup;
+			auto otherLastSafe = otherBackup;
+			thisLastSafe.applyTransform(thisTransformLastSafe);
+			otherLastSafe.applyTransform(otherTransformLastSafe);
+			thisLastSafe.buildTriPlane();
+			otherLastSafe.buildTriPlane();
 
-		ret = thisLastSafe.triangle_triangle_distance(otherLastSafe, dist_sq_out, a_closest_out, b_closest_out);
-		// Since we use the safe positions, nothing should be penetrating. This assert is very useful for testing if some change in code
-		// didn't mess things up, but in a more complex scenario where there is another movable which places itself into the first's safe zone,
-		// this assert should be commented out.
-		btAssert(!(ret && dist_sq_out == 0.0));
+			ret = thisLastSafe.triangle_triangle_distance(otherLastSafe, dist_sq_out, a_closest_out, b_closest_out);
+			// Since we use the safe positions, nothing should be penetrating. This assert is very useful for testing if some change in code
+			// didn't mess things up, but in a more complex scenario where there is another movable which places itself into the first's safe zone,
+			// this assert should be commented out.
+			btAssert(!(ret && dist_sq_out == 0.0));
 
-		dist = sqrtf(dist_sq_out);
-		create_contact();
-		contacts.m_penetration_depth = -maxDepth;  // Mark it as penetration by making it negative
+			dist = sqrtf(dist_sq_out);
+			create_contact();
+			contacts.m_penetration_depth = -maxDepth;  // Mark it as penetration by making it negative
+		}
+		else
+		{
+			find_triangle_collision_clip_method(other, contacts);
+			contacts.m_penetration_depth = -contacts.m_penetration_depth;
+		}
 
 		return true;
 	}

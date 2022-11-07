@@ -999,20 +999,23 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 			// Another added safety mechanism against being stuck is to teleport the mesh into the safe position. This is
 			// ofcourse questionable if there are other dynamic objects in the vicinity, but such scenarios are rare in my case.
 			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
-			btVector3 zeroVec(0.0, 0.0, 0.0);
-			body->setLinearVelocity(zeroVec);
-			body->setAngularVelocity(zeroVec);
-			btTransform dst = body->getLastSafeWorldTransform();
-			btTransform src = body->getWorldTransform();
-			// We sacrifice few iterations to move to the safe position only gradually. This significantly reduces the jitter of
-			// jumping between the safe and stuck positions. The unstuck position will be much closer to the real point of contact.
-			constexpr btScalar speedOfConvergenceToSafe = 0.1;
-			btVector3 interpOrigin = src.getOrigin().lerp(dst.getOrigin(), speedOfConvergenceToSafe);
-			btQuaternion interpRot = src.getRotation().slerp(dst.getRotation(), speedOfConvergenceToSafe);
-			btTransform interp(interpRot, interpOrigin);
-			body->setWorldTransform(interp);
-			if (!m_forceUpdateAllAabbs)
-				updateSingleAabb(body);
+			if (body->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK)
+			{
+				btVector3 zeroVec(0.0, 0.0, 0.0);
+				body->setLinearVelocity(zeroVec);
+				body->setAngularVelocity(zeroVec);
+				btTransform dst = body->getLastSafeWorldTransform();
+				btTransform src = body->getWorldTransform();
+				// We sacrifice few iterations to move to the safe position only gradually. This significantly reduces the jitter of
+				// jumping between the safe and stuck positions. The unstuck position will be much closer to the real point of contact.
+				constexpr btScalar speedOfConvergenceToSafe = 0.1;
+				btVector3 interpOrigin = src.getOrigin().lerp(dst.getOrigin(), speedOfConvergenceToSafe);
+				btQuaternion interpRot = src.getRotation().slerp(dst.getRotation(), speedOfConvergenceToSafe);
+				btTransform interp(interpRot, interpOrigin);
+				body->setWorldTransform(interp);
+				if (!m_forceUpdateAllAabbs)
+					updateSingleAabb(body);
+			}
 			body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_IS_PENETRATING);
 		}
 	}
