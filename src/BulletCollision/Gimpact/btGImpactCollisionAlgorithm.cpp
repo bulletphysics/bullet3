@@ -34,8 +34,8 @@ Concave-Concave Collision
 #include <chrono>
 #include <algorithm>
 #include <execution>
-#include <span>
 #include <list>
+#include <map>
 
 //! Class for accessing the plane equation
 class btPlaneShape : public btStaticPlaneShape
@@ -356,6 +356,90 @@ void btGImpactCollisionAlgorithm::collide_gjk_triangles(const btCollisionObjectW
 	shape1->unlockChildShapes();
 }
 
+int frameCnt = 0;
+void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<int, int>>& pairSpan, const btTransform& orgtrans0, const btTransform& orgtrans1,
+											  const btGImpactMeshShapePart* shape0, const btGImpactMeshShapePart* shape1)
+{
+	std::map<int, int> occurrences, occurrences2;
+	std::multimap<int, int> occurrences_rev, occurrences_rev2;
+	for (int i = 0; i < pairSpan.size(); ++i)
+	{
+		occurrences[pairSpan[i].first]++;
+		occurrences2[pairSpan[i].second]++;
+	}
+	for (auto elem : occurrences)
+	{
+		occurrences_rev.insert({elem.second, elem.first});
+	}
+	for (auto elem : occurrences2)
+	{
+		occurrences_rev2.insert({elem.second, elem.first});
+	}
+	int writeSize = 10000;
+	bool write = occurrences_rev.size() > writeSize;
+	FILE* fh = nullptr;
+	std::string fname = "dbg";
+	fname += std::to_string(frameCnt++) + "_" + std::to_string(occurrences_rev.size()) + "_" + std::to_string(occurrences_rev2.size()) + "_" + std::to_string(pairSpan.size()) + ".obj";
+	if (write)
+		fh = fopen(fname.c_str(), "w");
+	int maxOccur = 1;
+	if (!occurrences_rev.empty())
+	{
+		maxOccur = occurrences_rev.rbegin()->first;
+	}
+	for (auto elemIter = occurrences_rev.rbegin(); elemIter != occurrences_rev.rend(); ++elemIter)
+	{
+		btPrimitiveTriangle ptri0;
+		btPrimitiveTriangle ptri1;
+
+		shape0->getPrimitiveTriangle(elemIter->second, ptri0);
+		ptri0.applyTransform(orgtrans0);
+		if (fh)
+		{
+			btScalar occur = elemIter->first / (btScalar)maxOccur;
+			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[0].x(), ptri0.m_vertices[0].y(), ptri0.m_vertices[0].z(), occur, occur, occur);
+			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[1].x(), ptri0.m_vertices[1].y(), ptri0.m_vertices[1].z(), occur, occur, occur);
+			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[2].x(), ptri0.m_vertices[2].y(), ptri0.m_vertices[2].z(), occur, occur, occur);
+		}
+	}
+	maxOccur = 1;
+	if (!occurrences_rev2.empty())
+	{
+		maxOccur = occurrences_rev2.rbegin()->first;
+	}
+	for (auto elemIter = occurrences_rev2.rbegin(); elemIter != occurrences_rev2.rend(); ++elemIter)
+	{
+		btPrimitiveTriangle ptri0;
+		btPrimitiveTriangle ptri1;
+
+		shape1->getPrimitiveTriangle(elemIter->second, ptri0);
+		ptri0.applyTransform(orgtrans1);
+		if (fh)
+		{
+			btScalar occur = elemIter->first / (btScalar)maxOccur;
+			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[0].x(), ptri0.m_vertices[0].y(), ptri0.m_vertices[0].z(), occur, occur, occur);
+			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[1].x(), ptri0.m_vertices[1].y(), ptri0.m_vertices[1].z(), occur, occur, occur);
+			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[2].x(), ptri0.m_vertices[2].y(), ptri0.m_vertices[2].z(), occur, occur, occur);
+		}
+	}
+
+	int fcnt = 1;
+	for (auto elemIter = occurrences_rev.rbegin(); elemIter != occurrences_rev.rend(); ++elemIter)
+	{
+		if (fh)
+			fprintf(fh, "f %d %d %d\n", fcnt, fcnt + 1, fcnt + 2);
+		fcnt += 3;
+	}
+	for (auto elemIter = occurrences_rev2.rbegin(); elemIter != occurrences_rev2.rend(); ++elemIter)
+	{
+		if (fh)
+			fprintf(fh, "f %d %d %d\n", fcnt, fcnt + 1, fcnt + 2);
+		fcnt += 3;
+	}
+	if (fh)
+		fclose(fh);
+}
+
 void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectWrapper* body0Wrap,
 														const btCollisionObjectWrapper* body1Wrap,
 														const btGImpactMeshShapePart* shape0,
@@ -373,15 +457,11 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	bool doUnstuck = (isStatic0 ? body1Wrap : body0Wrap)->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK;
 	btTransform lastSafeTrans0 = isStatic0 ? orgtrans0 : body0Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	btTransform lastSafeTrans1 = isStatic1 ? orgtrans1 : body1Wrap->getCollisionObject()->getLastSafeWorldTransform();
-	
-	btPrimitiveTriangle ptri0;
-	btPrimitiveTriangle ptri1;
-	GIM_TRIANGLE_CONTACT contact_data;
 
 	shape0->lockChildShapes();
 	shape1->lockChildShapes();
 
-	//printf("pair_count %d\n", pair_count);
+	printf("pair_count %d\n", pair_count);
 
 	struct IntermediateResult
 	{
@@ -392,6 +472,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	{
 		auto pair_pointer = reinterpret_cast<const std::pair<int, int>*>(pairs);
 		std::span pairSpan(pair_pointer, pair_count);
+
+		debug_pairs(pairSpan, orgtrans0, orgtrans1, shape0, shape1);
 
 		std::list<IntermediateResult> intermediateResults;
 		std::mutex writeMutex;
