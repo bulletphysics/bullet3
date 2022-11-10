@@ -25,6 +25,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 
 //#include "cvmarkersobj.h"
+#include <map>
 
 using namespace Concurrency;
 
@@ -462,6 +463,14 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 		//auto start = std::chrono::steady_clock::now();
 		//series0.write_message(diagnostic::normal_importance, 0, "start ser");
 		_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+
+		std::map<int, int> occurrences, occurrences_rev;
+		for (int i = 0; i < collision_pairs.size(); ++i)
+			occurrences[collision_pairs[i].m_index1]++;
+		for (auto elem : occurrences)
+		{
+			occurrences_rev.insert({elem.second, elem.first});
+		}
 
 		//auto end = std::chrono::steady_clock::now();
 		//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);

@@ -320,6 +320,12 @@ public:
 		return m_primitive_manager->is_trimesh();
 	}
 
+	//! clear nodes
+	SIMD_FORCE_INLINE void clearNodes()
+	{
+		m_box_tree.clearNodes();
+	}
+
 	//! node count
 	SIMD_FORCE_INLINE int getNodeCount() const
 	{

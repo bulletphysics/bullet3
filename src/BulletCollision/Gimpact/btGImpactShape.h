@@ -155,6 +155,9 @@ public:
 	{
 		localScaling = scaling;
 		postUpdate();
+		// This forces rebuild instead of refit. Because scaling changes the global bounding box used for quantization and this global bounding box was
+		// not updated in refit. Naturally this is not needed if a non-quantized bvh is used.
+		m_box_set.clearNodes();
 	}
 
 	virtual const btVector3& getLocalScaling() const
@@ -823,6 +826,9 @@ public:
 	{
 		m_primitive_manager.m_scale = scaling;
 		postUpdate();
+		// This forces rebuild instead of refit. Because scaling changes the global bounding box used for quantization and this global bounding box was
+		// not updated in refit. Naturally this is not needed if a non-quantized bvh is used.
+		m_box_set.clearNodes();
 	}
 
 	virtual const btVector3& getLocalScaling() const
