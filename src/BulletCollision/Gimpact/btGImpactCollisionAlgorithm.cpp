@@ -383,6 +383,7 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 	if (write)
 		fh = fopen(fname.c_str(), "w");
 	int maxOccur = 1;
+	int bboxCnt = 0;
 	if (!occurrences_rev.empty())
 	{
 		maxOccur = occurrences_rev.rbegin()->first;
@@ -423,6 +424,26 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 		}
 	}
 
+	if (!occurrences_rev.empty())
+	{
+		auto elemIter = occurrences_rev.rbegin();
+		btAABB box0;
+		shape0->getBoxSet()->getNodeBound(elemIter->second, box0);
+
+		if (fh)
+		{
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_max.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_max.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_max.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_max.z());
+		}
+		++bboxCnt;
+	}
+
 	int fcnt = 1;
 	for (auto elemIter = occurrences_rev.rbegin(); elemIter != occurrences_rev.rend(); ++elemIter)
 	{
@@ -435,6 +456,28 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 		if (fh)
 			fprintf(fh, "f %d %d %d\n", fcnt, fcnt + 1, fcnt + 2);
 		fcnt += 3;
+	}
+	for (int b = 0; b < bboxCnt; ++b)
+	{
+		if (fh)
+		{
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
+			fcnt += 2;
+		}
 	}
 	if (fh)
 		fclose(fh);
