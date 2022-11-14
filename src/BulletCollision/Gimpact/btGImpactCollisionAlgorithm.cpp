@@ -360,6 +360,9 @@ int frameCnt = 0;
 void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<int, int>>& pairSpan, const btTransform& orgtrans0, const btTransform& orgtrans1,
 											  const btGImpactMeshShapePart* shape0, const btGImpactMeshShapePart* shape1)
 {
+	BT_BOX_BOX_TRANSFORM_CACHE trans_cache_1to0;
+	trans_cache_1to0.calc_from_homogenic(orgtrans0, orgtrans1);
+
 	std::map<int, int> occurrences, occurrences2;
 	std::multimap<int, int> occurrences_rev, occurrences_rev2;
 	for (int i = 0; i < pairSpan.size(); ++i)
@@ -378,8 +381,9 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 	int writeSize = 10000;
 	bool write = occurrences_rev.size() > writeSize;
 	FILE* fh = nullptr;
-	std::string fname = "dbg";
-	fname += std::to_string(frameCnt++) + "_" + std::to_string(occurrences_rev.size()) + "_" + std::to_string(occurrences_rev2.size()) + "_" + std::to_string(pairSpan.size()) + ".obj";
+	std::string fname;
+	std::string fname_base = std::to_string(frameCnt++) + "_" + std::to_string(occurrences_rev.size()) + "_" + std::to_string(occurrences_rev2.size()) + "_" + std::to_string(pairSpan.size());
+	fname = "dbg" + fname_base + ".obj";
 	if (write)
 		fh = fopen(fname.c_str(), "w");
 	int maxOccur = 1;
@@ -393,8 +397,8 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 		btPrimitiveTriangle ptri0;
 		btPrimitiveTriangle ptri1;
 
-		shape0->getPrimitiveTriangle(elemIter->second, ptri0);
-		ptri0.applyTransform(orgtrans0);
+		auto faceIndex = elemIter->second;
+		shape0->getPrimitiveTriangle(faceIndex, ptri0);
 		if (fh)
 		{
 			btScalar occur = elemIter->first / (btScalar)maxOccur;
@@ -414,7 +418,10 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 		btPrimitiveTriangle ptri1;
 
 		shape1->getPrimitiveTriangle(elemIter->second, ptri0);
-		ptri0.applyTransform(orgtrans1);
+		btTransform tran;
+		tran.setOrigin(trans_cache_1to0.m_T1to0);
+		tran.setBasis(trans_cache_1to0.m_R1to0);
+		ptri0.applyTransform(tran);
 		if (fh)
 		{
 			btScalar occur = elemIter->first / (btScalar)maxOccur;
@@ -422,26 +429,6 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[1].x(), ptri0.m_vertices[1].y(), ptri0.m_vertices[1].z(), occur, occur, occur);
 			fprintf(fh, "v %f %f %f %f %f %f\n", ptri0.m_vertices[2].x(), ptri0.m_vertices[2].y(), ptri0.m_vertices[2].z(), occur, occur, occur);
 		}
-	}
-
-	if (!occurrences_rev.empty())
-	{
-		auto elemIter = occurrences_rev.rbegin();
-		btAABB box0;
-		shape0->getBoxSet()->getNodeBound(elemIter->second, box0);
-
-		if (fh)
-		{
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_max.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_max.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_max.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_max.z());
-		}
-		++bboxCnt;
 	}
 
 	int fcnt = 1;
@@ -457,26 +444,56 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 			fprintf(fh, "f %d %d %d\n", fcnt, fcnt + 1, fcnt + 2);
 		fcnt += 3;
 	}
+	if (fh)
+		fclose(fh);
+
+	if (write)
+	{
+		fname = "dbg" + fname_base + "_bbox.obj";
+		fh = fopen(fname.c_str(), "w");
+	}
+	fcnt = 1;
+	if (!occurrences_rev.empty())
+	{
+		auto elemIter = occurrences_rev.rbegin();
+		btAABB box0;
+		btTransform tr;
+		tr.setIdentity();
+		int faceIndex = elemIter->second;
+		shape0->getChildAabb(faceIndex, tr, box0.m_min, box0.m_max);
+
+		if (fh)
+		{
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_min.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_max.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_max.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_max.z());
+			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_max.z());
+		}
+		++bboxCnt;
+	}
 	for (int b = 0; b < bboxCnt; ++b)
 	{
 		if (fh)
 		{
 			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
-			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
-			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
-			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
-			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
-			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
-			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
-			fprintf(fh, "l %d %d\n", fcnt, fcnt + 1);
-			fcnt += 2;
+			fprintf(fh, "l %d %d\n", fcnt + 1, fcnt + 2);
+			fprintf(fh, "l %d %d\n", fcnt + 2, fcnt + 3);
+			fprintf(fh, "l %d %d\n", fcnt + 3, fcnt);
+
+			fprintf(fh, "l %d %d\n", fcnt + 4, fcnt + 5);
+			fprintf(fh, "l %d %d\n", fcnt + 5, fcnt + 6);
+			fprintf(fh, "l %d %d\n", fcnt + 6, fcnt + 7);
+			fprintf(fh, "l %d %d\n", fcnt + 7, fcnt + 4);
+
+			fprintf(fh, "l %d %d\n", fcnt, fcnt + 4);
+			fprintf(fh, "l %d %d\n", fcnt + 1, fcnt + 5);
+			fprintf(fh, "l %d %d\n", fcnt + 2, fcnt + 6);
+			fprintf(fh, "l %d %d\n", fcnt + 3, fcnt + 7);
+			fcnt += 8;
 		}
 	}
 	if (fh)
