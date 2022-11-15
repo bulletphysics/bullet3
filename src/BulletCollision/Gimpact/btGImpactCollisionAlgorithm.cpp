@@ -381,7 +381,7 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 	{
 		occurrences_rev2.insert({elem.second, elem.first});
 	}
-	int writeSize = 10000;
+	int writeSize = 1;
 	bool write = occurrences_rev.size() > writeSize;
 	FILE* fh = nullptr;
 	std::string fname;
@@ -567,7 +567,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 		auto pair_pointer = reinterpret_cast<const std::pair<int, int>*>(pairs);
 		std::span pairSpan(pair_pointer, pair_count);
 
-		debug_pairs(pairSpan, orgtrans0, orgtrans1, shape0, shape1);
+		//debug_pairs(pairSpan, orgtrans0, orgtrans1, shape0, shape1);
 
 		std::list<IntermediateResult> intermediateResults;
 		std::mutex writeMutex;
@@ -613,6 +613,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 						}
 					}
 				} });
+
+		printf("col_count %d\n", intermediateResults.size());
 
 		for (const auto& ir : intermediateResults)
 		{

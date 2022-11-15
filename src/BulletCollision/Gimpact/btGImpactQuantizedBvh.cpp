@@ -26,7 +26,8 @@ subject to the following restrictions:
 
 //#include "cvmarkersobj.h"
 
-using namespace Concurrency;
+
+//using namespace Concurrency;
 
 #ifdef TRI_COLLISION_PROFILING
 btClock g_q_tree_clock;
@@ -443,6 +444,71 @@ static void _find_quantized_collision_pairs_recursive(
 	}      // else if node0 is not a leaf
 }
 
+//Breadth-first collision routine. Just recursion from the function above converted to a queue based loop.
+static void _find_quantized_collision_pairs(
+	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1,
+	btPairSet* collision_pairs,
+	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
+	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
+{
+	std::queue<std::pair<int, int>> pairQueue;
+	bool collisionFound = false;
+	pairQueue.push({node0, node1});
+	while (!pairQueue.empty())
+	{
+		auto pair = pairQueue.front();
+		pairQueue.pop();
+		int node0 = pair.first, node1 = pair.second;
+		if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+		{
+			// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
+			// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
+			// Work in this function is not embarrassingly parallel. It was challenging to feed the threads with enough work while trying to parrallelize it.
+			collision_pairs->push_pair(
+				boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+			continue;
+		}
+		if (_quantized_node_collision(
+				boxset0, boxset1, trans_cache_1to0, node0, node1, complete_primitive_tests) &&
+			!(findOnlyFirstPair && collisionFound))
+		{
+			if (boxset0->isLeafNode(node0))
+			{
+				if (boxset1->isLeafNode(node1))
+				{
+					// collision result
+					if (findOnlyFirstPair)
+					{
+						collision_pairs->push_pair(
+							boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+					}
+					collisionFound = true;
+				}
+				else
+				{
+					pairQueue.push({node0, boxset1->getLeftNode(node1)});
+					pairQueue.push({node0, boxset1->getRightNode(node1)});
+				}
+			}
+			else
+			{
+				if (boxset1->isLeafNode(node1))
+				{
+					pairQueue.push({boxset0->getLeftNode(node0), node1});
+					pairQueue.push({boxset0->getRightNode(node0), node1});
+				}
+				else
+				{
+					pairQueue.push({boxset0->getLeftNode(node0), boxset1->getLeftNode(node1)});
+					pairQueue.push({boxset0->getLeftNode(node0), boxset1->getRightNode(node1)});
+					pairQueue.push({boxset0->getRightNode(node0), boxset1->getLeftNode(node1)});
+					pairQueue.push({boxset0->getRightNode(node0), boxset1->getRightNode(node1)});
+				}
+			}
+		}
+	}
+}
+
 void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0, const btTransform& trans0,
 										   const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 										   btPairSet& collision_pairs, bool findOnlyFirstPair)
@@ -461,7 +527,8 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 		//diagnostic::span span(series0, diagnostic::high_importance, 10, "serial topmost %d %d", boxset0->getNodeCount(), boxset1->getNodeCount());
 		//auto start = std::chrono::steady_clock::now();
 		//series0.write_message(diagnostic::normal_importance, 0, "start ser");
-		_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+		//_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+		_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
 
 		//auto end = std::chrono::steady_clock::now();
 		//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
