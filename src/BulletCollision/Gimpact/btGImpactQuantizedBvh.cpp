@@ -413,9 +413,9 @@ static void _find_quantized_collision_pairs_recursive(
 		else
 		{
 			//collide left recursive
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), true, findOnlyFirstPair);
 			//collide right recursive
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), true, findOnlyFirstPair);
 		}
 	}
 	else
@@ -423,22 +423,22 @@ static void _find_quantized_collision_pairs_recursive(
 		if (boxset1->isLeafNode(node1))
 		{
 			//collide left recursive
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair);
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, true, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, true, findOnlyFirstPair);
 		}
 		else
 		{
 			//collide left0 left1
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), true, findOnlyFirstPair);
 
 			//collide left0 right1
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), true, findOnlyFirstPair);
 
 			//collide right0 left1
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), true, findOnlyFirstPair);
 
 			//collide right0 right1
-			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), true, findOnlyFirstPair);
 		}  // else if node1 is not a leaf
 	}      // else if node0 is not a leaf
 }

@@ -36,6 +36,7 @@ Concave-Concave Collision
 #include <execution>
 #include <list>
 #include <map>
+#include <array>
 
 //! Class for accessing the plane equation
 class btPlaneShape : public btStaticPlaneShape
@@ -357,6 +358,8 @@ void btGImpactCollisionAlgorithm::collide_gjk_triangles(const btCollisionObjectW
 }
 
 int frameCnt = 0;
+// Designed to be used with MeshLab. The generated dbg file is opened there and then the dbg_*_bbox bounding box file is imported into the same scene.
+// I could not get MeshLab to import both triangles and lines in one file - therefore two files are generated.
 void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<int, int>>& pairSpan, const btTransform& orgtrans0, const btTransform& orgtrans1,
 											  const btGImpactMeshShapePart* shape0, const btGImpactMeshShapePart* shape1)
 {
@@ -456,24 +459,55 @@ void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<in
 	if (!occurrences_rev.empty())
 	{
 		auto elemIter = occurrences_rev.rbegin();
-		btAABB box0;
+		int faceIndex = elemIter->second;
 		btTransform tr;
 		tr.setIdentity();
-		int faceIndex = elemIter->second;
-		shape0->getChildAabb(faceIndex, tr, box0.m_min, box0.m_max);
+		btVector3 col(1.0f, 0.0f, 0.0f);
 
-		if (fh)
+		auto addBBoxVerts = [&](const btGImpactMeshShapePart* shp, int face, btTransform& t, const btVector3& color)
 		{
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_min.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_min.y(), box0.m_max.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_min.y(), box0.m_max.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_max.x(), box0.m_max.y(), box0.m_max.z());
-			fprintf(fh, "v %f %f %f\n", box0.m_min.x(), box0.m_max.y(), box0.m_max.z());
+			btTransform trUnused;
+			trUnused.setIdentity();
+			btAABB box0;
+			shp->getChildAabb(face, trUnused, box0.m_min, box0.m_max);
+			std::array<btVector3, 8> verts;
+			verts[0] = btVector3(box0.m_min.x(), box0.m_min.y(), box0.m_min.z());
+			verts[1] = btVector3(box0.m_max.x(), box0.m_min.y(), box0.m_min.z());
+			verts[2] = btVector3(box0.m_max.x(), box0.m_max.y(), box0.m_min.z());
+			verts[3] = btVector3(box0.m_min.x(), box0.m_max.y(), box0.m_min.z());
+			verts[4] = btVector3(box0.m_min.x(), box0.m_min.y(), box0.m_max.z());
+			verts[5] = btVector3(box0.m_max.x(), box0.m_min.y(), box0.m_max.z());
+			verts[6] = btVector3(box0.m_max.x(), box0.m_max.y(), box0.m_max.z());
+			verts[7] = btVector3(box0.m_min.x(), box0.m_max.y(), box0.m_max.z());
+			for (auto& v : verts)
+			{
+				v = t(v);
+			}
+			if (fh)
+			{
+				for (auto& v : verts)
+					fprintf(fh, "v %f %f %f %f %f %f\n", v.x(), v.y(), v.z(), color.x(), color.y(), color.z());
+			}
+			++bboxCnt;
+		};
+
+		addBBoxVerts(shape0, faceIndex, tr, col);
+
+		std::list<int> opposingFaces;
+		for (int i = 0; i < pairSpan.size(); ++i)
+		{
+			if (pairSpan[i].first == faceIndex)
+			{
+				opposingFaces.push_back(pairSpan[i].second);
+			}
 		}
-		++bboxCnt;
+		tr.setOrigin(trans_cache_1to0.m_T1to0);
+		tr.setBasis(trans_cache_1to0.m_R1to0);
+		col = btVector3(0.0f, 0.0f, 1.0f);
+		for (auto oppFace : opposingFaces)
+		{
+			addBBoxVerts(shape1, oppFace, tr, col);
+		}
 	}
 	for (int b = 0; b < bboxCnt; ++b)
 	{
