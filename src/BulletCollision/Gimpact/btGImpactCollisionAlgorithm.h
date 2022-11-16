@@ -43,7 +43,6 @@ class btDispatcher;
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 #include <vector>
-#include <span>
 
 //! Collision Algorithm for GImpact Shapes
 /*!
@@ -64,6 +63,7 @@ protected:
 	int m_part0;
 	int m_triface1;
 	int m_part1;
+	btPairSet pairset;
 
 	//! Creates a new contact point
 	SIMD_FORCE_INLINE btPersistentManifold* newContactManifold(const btCollisionObject* body0, const btCollisionObject* body1)
@@ -156,9 +156,6 @@ protected:
 							   const btGImpactMeshShapePart* shape0,
 							   const btGImpactMeshShapePart* shape1,
 							   const int* pairs, int pair_count);
-
-	void debug_pairs(const std::span<const std::pair<int, int>>& pairSpan, const btTransform& orgtrans0, const btTransform& orgtrans1,
-					 const btGImpactMeshShapePart* shape0, const btGImpactMeshShapePart* shape1);
 
 	void shape_vs_shape_collision(
 		const btCollisionObjectWrapper* body0,

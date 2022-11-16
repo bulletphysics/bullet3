@@ -387,6 +387,12 @@ static void _find_quantized_collision_pairs_recursive(
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
 {
+	if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+	{
+		collision_pairs->push_pair(
+			boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+		return;
+	}
 	if (_quantized_node_collision(
 			boxset0, boxset1, trans_cache_1to0,
 			node0, node1, complete_primitive_tests) == false)
@@ -407,8 +413,11 @@ static void _find_quantized_collision_pairs_recursive(
 		if (boxset1->isLeafNode(node1))
 		{
 			// collision result
-			collision_pairs->push_pair(
-				boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+			if (findOnlyFirstPair)
+			{
+				collision_pairs->push_pair(
+					boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+			}
 			return;
 		}
 		else
@@ -444,7 +453,8 @@ static void _find_quantized_collision_pairs_recursive(
 	}      // else if node0 is not a leaf
 }
 
-//Breadth-first collision routine. Just recursion from the function above converted to a queue based loop.
+// Breadth-first collision routine. Just recursion from the function above converted to a queue based loop.
+// Currently it seems that the performance is worse than in _find_quantized_collision_pairs_recursive
 static void _find_quantized_collision_pairs(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1,
 	btPairSet* collision_pairs,
@@ -527,8 +537,8 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 		//diagnostic::span span(series0, diagnostic::high_importance, 10, "serial topmost %d %d", boxset0->getNodeCount(), boxset1->getNodeCount());
 		//auto start = std::chrono::steady_clock::now();
 		//series0.write_message(diagnostic::normal_importance, 0, "start ser");
-		//_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
-		_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+		_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+		//_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
 
 		//auto end = std::chrono::steady_clock::now();
 		//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);

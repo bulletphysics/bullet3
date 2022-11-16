@@ -37,6 +37,7 @@ Concave-Concave Collision
 #include <list>
 #include <map>
 #include <array>
+#include <span>
 
 //! Class for accessing the plane equation
 class btPlaneShape : public btStaticPlaneShape
@@ -360,7 +361,7 @@ void btGImpactCollisionAlgorithm::collide_gjk_triangles(const btCollisionObjectW
 int frameCnt = 0;
 // Designed to be used with MeshLab. The generated dbg file is opened there and then the dbg_*_bbox bounding box file is imported into the same scene.
 // I could not get MeshLab to import both triangles and lines in one file - therefore two files are generated.
-void btGImpactCollisionAlgorithm::debug_pairs(const std::span<const std::pair<int, int>>& pairSpan, const btTransform& orgtrans0, const btTransform& orgtrans1,
+void debug_pairs(const std::span<const std::pair<int, int>>& pairSpan, const btTransform& orgtrans0, const btTransform& orgtrans1,
 											  const btGImpactMeshShapePart* shape0, const btGImpactMeshShapePart* shape1)
 {
 	BT_BOX_BOX_TRANSFORM_CACHE trans_cache_1to0;
@@ -543,6 +544,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
 
+	//printf("pair_count %d\n", pair_count);
+
 	bool isStatic0 = body0Wrap->getCollisionObject()->isStaticObject();
 	bool isStatic1 = body1Wrap->getCollisionObject()->isStaticObject();
 	if (isStatic0 && isStatic1)
@@ -554,8 +557,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 	shape0->lockChildShapes();
 	shape1->lockChildShapes();
-
-	printf("pair_count %d\n", pair_count);
 
 	struct IntermediateResult
 	{
@@ -614,7 +615,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 					}
 				} });
 
-		printf("col_count %d\n", intermediateResults.size());
+		//printf("col_count %zd\n", intermediateResults.size());
 
 		for (const auto& ir : intermediateResults)
 		{
@@ -672,7 +673,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 		findOnlyFirstPair = (check0 || check1);
 	}
 
-	btPairSet pairset;
+	pairset.resize(0);
 
 	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset, findOnlyFirstPair);
 
