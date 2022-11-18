@@ -30,24 +30,28 @@ subject to the following restrictions:
 #include "btTriangleShapeEx.h"
 #include "btGImpactBvhStructs.h"
 
-//! A pairset array
-class btPairSet : public btAlignedObjectArray<GIM_PAIR>
-{
-public:
-	btPairSet()
-	{
-		reserve(32);
-	}
-	inline void push_pair(int index1, int index2)
-	{
-		push_back(GIM_PAIR(index1, index2));
-	}
+#include <vector>
 
-	inline void push_pair_inv(int index1, int index2)
-	{
-		push_back(GIM_PAIR(index2, index1));
-	}
-};
+typedef std::vector<GIM_PAIR> btPairSet;
+
+//! A pairset array
+//class btPairSet : public btAlignedObjectArray<GIM_PAIR>
+//{
+//public:
+//	btPairSet()
+//	{
+//		reserve(32);
+//	}
+//	inline void push_pair(int index1, int index2)
+//	{
+//		push_back(GIM_PAIR(index1, index2));
+//	}
+//
+//	inline void push_pair_inv(int index1, int index2)
+//	{
+//		push_back(GIM_PAIR(index2, index1));
+//	}
+//};
 
 class GIM_BVH_DATA_ARRAY : public btAlignedObjectArray<GIM_BVH_DATA>
 {

@@ -370,8 +370,8 @@ static void _find_collision_pairs_recursive(
 		if (boxset1->isLeafNode(node1))
 		{
 			// collision result
-			collision_pairs->push_pair(
-				boxset0->getNodeData(node0), boxset1->getNodeData(node1));
+			collision_pairs->push_back(
+				{boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 			return;
 		}
 		else

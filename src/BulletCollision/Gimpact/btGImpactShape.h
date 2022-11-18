@@ -815,6 +815,7 @@ public:
 	{
 		m_primitive_manager.m_margin = margin;
 		postUpdate();
+		m_box_set.clearNodes();
 	}
 
 	SIMD_FORCE_INLINE btScalar getMargin() const

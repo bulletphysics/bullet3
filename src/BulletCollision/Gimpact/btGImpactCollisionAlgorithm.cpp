@@ -280,7 +280,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 
 				if (boxshape1.has_collision(boxshape0))
 				{
-					pairset.push_pair(i, j);
+					pairset.push_back({i, j});
 				}
 			}
 		}
@@ -382,7 +382,7 @@ void debug_pairs(const std::span<const std::pair<int, int>>& pairSpan, const btT
 	{
 		occurrences_rev2.insert({elem.second, elem.first});
 	}
-	int writeSize = 1;
+	int writeSize = 10000;
 	bool write = occurrences_rev.size() > writeSize;
 	FILE* fh = nullptr;
 	std::string fname;
@@ -541,6 +541,9 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 														const btGImpactMeshShapePart* shape1,
 														const int* pairs, int pair_count)
 {
+
+	//auto start = std::chrono::steady_clock::now();
+
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
 
@@ -575,45 +578,46 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 		
 		std::for_each(std::execution::par, pairSpan.begin(), pairSpan.end(), [&](const std::pair<int, int>& pair)
 		{
-				btPrimitiveTriangle ptri0;
-				btPrimitiveTriangle ptri1;
-				GIM_TRIANGLE_CONTACT contact_data;
-				IntermediateResult intermediateResult;
+			btPrimitiveTriangle ptri0;
+			btPrimitiveTriangle ptri1;
+			GIM_TRIANGLE_CONTACT contact_data;
+			IntermediateResult intermediateResult;
 
-				m_triface0 = pair.first;
-				m_triface1 = pair.second;
+			m_triface0 = pair.first;
+			m_triface1 = pair.second;
 
-				shape0->getPrimitiveTriangle(m_triface0, ptri0);
-				shape1->getPrimitiveTriangle(m_triface1, ptri1);
+			shape0->getPrimitiveTriangle(m_triface0, ptri0);
+			shape1->getPrimitiveTriangle(m_triface1, ptri1);
 
-				btPrimitiveTriangle ptri0Backup = ptri0;
-				btPrimitiveTriangle ptri1Backup = ptri1;
+			btPrimitiveTriangle ptri0Backup = ptri0;
+			btPrimitiveTriangle ptri1Backup = ptri1;
 
-				ptri0.applyTransform(orgtrans0);
-				ptri1.applyTransform(orgtrans1);
+			ptri0.applyTransform(orgtrans0);
+			ptri1.applyTransform(orgtrans1);
 
-				if (ptri0.validity_test() && ptri1.validity_test())
+			if (ptri0.validity_test() && ptri1.validity_test())
+			{
+				//build planes
+				ptri0.buildTriPlane();
+				ptri1.buildTriPlane();
+
+				if (ptri0.overlap_test(ptri1))
 				{
-					//build planes
-					ptri0.buildTriPlane();
-					ptri1.buildTriPlane();
-
-					if (ptri0.overlap_test(ptri1))
+					if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
+																		lastSafeTrans1, ptri0Backup, ptri1Backup, doUnstuck))
 					{
-						if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
-																		   lastSafeTrans1, ptri0Backup, ptri1Backup, doUnstuck))
+						if (contact_data.m_point_count >= 1)
 						{
-							if (contact_data.m_point_count >= 1)
-							{
-								intermediateResult.point = contact_data.m_points[0];
-								intermediateResult.normal = contact_data.m_separating_normal;
-								intermediateResult.depth = -contact_data.m_penetration_depth;
-								std::lock_guard<std::mutex> guard(writeMutex);
-								intermediateResults.push_back(intermediateResult);
-							}
+							intermediateResult.point = contact_data.m_points[0];
+							intermediateResult.normal = contact_data.m_separating_normal;
+							intermediateResult.depth = -contact_data.m_penetration_depth;
+							std::lock_guard<std::mutex> guard(writeMutex);
+							intermediateResults.push_back(intermediateResult);
 						}
 					}
-				} });
+				}
+			}
+		});
 
 		//printf("col_count %zd\n", intermediateResults.size());
 
@@ -628,6 +632,11 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();
+
+	//auto end = std::chrono::steady_clock::now();
+	//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	//printf("collide_sat_triangles took %lld us\n", duration.count());
+
 }
 
 void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
@@ -673,7 +682,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 		findOnlyFirstPair = (check0 || check1);
 	}
 
-	pairset.resize(0);
+	pairset.clear();
 
 	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset, findOnlyFirstPair);
 
