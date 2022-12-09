@@ -73,7 +73,7 @@ void btGImpactMeshShapePart::unlockChildShapes() const
 #endif
 }
 
-//#define CALC_EXACT_INERTIA 1
+#define CALC_EXACT_INERTIA 1
 
 void btGImpactCompoundShape::calculateLocalInertia(btScalar mass, btVector3& inertia) const
 {
