@@ -387,7 +387,14 @@ static void _find_quantized_collision_pairs_recursive(
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
 {
-	if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+	if (findOnlyFirstPair)
+	{
+		if (collision_pairs->size() > 0)
+		{
+			return;
+		}
+	}
+	else if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
 	{
 		// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
 		// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
@@ -399,14 +406,6 @@ static void _find_quantized_collision_pairs_recursive(
 			node0, node1, complete_primitive_tests) == false)
 	{
 		return;  //avoid colliding internal nodes
-	}
-
-	if (findOnlyFirstPair)
-	{
-		if (collision_pairs->size() > 0)
-		{
-			return;
-		}
 	}
 
 	if (boxset0->isLeafNode(node0))

@@ -166,6 +166,13 @@ public:
 		CF_ANISOTROPIC_ROLLING_FRICTION = 2
 	};
 
+	enum class InitialCollisionTolerance
+	{
+		NONE,
+		LOW_DETAIL,
+		HIGH_DETAIL
+	};
+
 	SIMD_FORCE_INLINE bool mergesSimulationIslands() const
 	{
 		///static objects, kinematic and object without contact response don't merge islands
@@ -218,9 +225,23 @@ public:
 		return (m_collisionFlags & CF_NO_CONTACT_RESPONSE) == 0;
 	}
 
-	bool isToleratingInitialCollisionsAll() const
+	bool isToleratingInitialCollisionsAll(bool& lowDetail) const
 	{
-		return m_objectsWithToleratedCollision.size() == 1 && m_objectsWithToleratedCollision[0] == nullptr;
+		if (m_objectsWithToleratedCollision.size() == 1)
+		{
+			if (m_objectsWithToleratedCollision[0] == nullptr)
+			{
+				lowDetail = false;
+				return true;
+			}
+			else if (m_objectsWithToleratedCollision[0] == reinterpret_cast<const btCollisionObject*>(~0))
+			{
+				lowDetail = true;
+				return true;
+			}
+		}
+		lowDetail = false;
+		return false;
 	}
 
 	bool isToleratingCertainInitialCollisions() const
@@ -292,10 +313,10 @@ public:
 		return true;
 	}
 
-	void setToleratedCollisionAll()
+	void setToleratedCollisionAll(InitialCollisionTolerance tolerance)
 	{
 		m_objectsWithToleratedCollision.clear();
-		m_objectsWithToleratedCollision.push_back(nullptr);
+		m_objectsWithToleratedCollision.push_back(tolerance == InitialCollisionTolerance::HIGH_DETAIL ? nullptr : reinterpret_cast<const btCollisionObject*>(~0));
 	}
 
 	void setToleratedCollisionNone()
@@ -303,10 +324,10 @@ public:
 		m_objectsWithToleratedCollision.clear();
 	}
 
-	void setToleratedCollisionSome(const btCollisionObject* co)
+	void setToleratedCollisionSome(InitialCollisionTolerance tolerance, const btCollisionObject * co)
 	{
 		if (m_objectsWithToleratedCollision.size() == 0)
-			m_objectsWithToleratedCollision.push_back(nullptr);
+			m_objectsWithToleratedCollision.push_back(tolerance == InitialCollisionTolerance::HIGH_DETAIL ? nullptr : reinterpret_cast<const btCollisionObject*>(~0));
 		m_objectsWithToleratedCollision.push_back(co);
 	}
 

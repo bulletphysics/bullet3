@@ -674,12 +674,23 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
 
-	bool findOnlyFirstPair = body0Wrap->getCollisionObject()->isToleratingInitialCollisionsAll() || body1Wrap->getCollisionObject()->isToleratingInitialCollisionsAll();
+	bool lowDetail0, lowDetail1;
+	bool findOnlyFirstPair = body0Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail0) ||
+							 body1Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail1);
 	if (body0Wrap->getCollisionObject()->isToleratingCertainInitialCollisions() || body1Wrap->getCollisionObject()->isToleratingCertainInitialCollisions())
 	{
 		bool check0 = body0Wrap->getCollisionObject()->checkIsTolerated(body1Wrap->getCollisionObject());
 		bool check1 = body1Wrap->getCollisionObject()->checkIsTolerated(body0Wrap->getCollisionObject());
 		findOnlyFirstPair = (check0 || check1);
+	}
+
+	if (findOnlyFirstPair && (lowDetail0 || lowDetail1))
+	{
+		// There already was some collision with some other body and the details are low. No need to waste time checking with this and the remaining bodies
+		if (getLastManifold() != 0)
+		{
+			return;
+		}
 	}
 
 	pairset.clear();
