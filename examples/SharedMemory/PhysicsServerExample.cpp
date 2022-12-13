@@ -2799,6 +2799,20 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 			}
 		}
 	}
+
+	for (int i = m_multiThreadedHelper->m_userDebugPoints.size() - 1; i >= 0; i--)
+	{
+		if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime)
+		{
+			m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime -= deltaTime;
+			if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime <= 0)
+			{
+				m_multiThreadedHelper->m_userDebugPoints.swap(i, m_multiThreadedHelper->m_userDebugPoints.size() - 1);
+				m_multiThreadedHelper->m_userDebugPoints.pop_back();
+			}
+		}
+	}
+
 	updateGraphics();
 
 

@@ -91,7 +91,7 @@ p.connect(p.SHARED_MEMORY) #or (p.TCP, "localhost", 6667) or (p.UDP, "192.168.86
 
 **Linux and Mac OSX gnu make**
 
-Make sure cmake is installed (sudo apt-get install cmake, brew install cmake, or https://cmake.org)
+Make sure gcc and cmake is installed (`sudo apt-get install build-essential` and `sudo apt-get install cmake` for Linux, `brew install cmake` for Mac, or https://cmake.org)
 
 In a terminal type:
 ```
