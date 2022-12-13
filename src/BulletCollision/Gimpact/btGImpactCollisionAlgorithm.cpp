@@ -687,7 +687,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	if (findOnlyFirstPair && (lowDetail0 || lowDetail1))
 	{
 		// There already was some collision with some other body and the details are low. No need to waste time checking with this and the remaining bodies
-		if (getLastManifold() != 0)
+		if (m_dispatcher->getNumManifolds() != 0)
 		{
 			return;
 		}
