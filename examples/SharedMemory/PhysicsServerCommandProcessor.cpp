@@ -5718,6 +5718,54 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processRequestTetraMeshDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_REQUEST_MESH_DATA");
+	serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_FAILED;
+	serverStatusOut.m_numDataStreamBytes = 0;
+	int sizeInBytes = 0;
+
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestMeshDataArgs.m_bodyUniqueId);
+	if (bodyHandle)
+	{
+		int totalBytesPerTetra = sizeof(btVector3) * 4;
+		btVector3* verticesOut = (btVector3*)bufferServerToClient;
+		const btCollisionShape* colShape = 0;
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+
+		if (bodyHandle->m_softBody)
+		{
+			btSoftBody* psb = bodyHandle->m_softBody;
+			
+			int numTetra = psb->m_tetras.size();
+			int maxNumnumVertecies = bufferSizeInBytes / totalBytesPerTetra - 1;
+			int numVerticesRemaining = numTetra * 4 - clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			int verticesCopied = btMin(maxNumnumVertecies, numVerticesRemaining);
+			for (int i = 0; i < verticesCopied; i += 4)
+			{
+				const btSoftBody::Tetra& n = psb->m_tetras[i / 4];
+
+				verticesOut[i].setValue(n.m_n[0].m_x.x(), n.m_n[0].m_x.y(), n.m_n[0].m_x.z());
+				verticesOut[i+1].setValue(n.m_n[1].m_x.x(), n.m_n[1].m_x.y(), n.m_n[1].m_x.z());
+				verticesOut[i+2].setValue(n.m_n[2].m_x.x(), n.m_n[2].m_x.y(), n.m_n[2].m_x.z());
+				verticesOut[i+3].setValue(n.m_n[3].m_x.x(), n.m_n[3].m_x.y(), n.m_n[3].m_x.z());
+			}
+			sizeInBytes = verticesCopied * sizeof(btVector3);
+			serverStatusOut.m_type = CMD_REQUEST_TETRA_MESH_DATA_COMPLETED;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
+			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = numVerticesRemaining - verticesCopied;
+		}
+#endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	}
+
+	serverStatusOut.m_numDataStreamBytes = sizeInBytes;
+
+	return hasStatus;
+}
+
 bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -15118,6 +15166,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		case CMD_REQUEST_MESH_DATA:
 		{
 			hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+		case CMD_REQUEST_TETRA_MESH_DATA:
+		{
+			hasStatus = processRequestTetraMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 		case CMD_RESET_MESH_DATA:
