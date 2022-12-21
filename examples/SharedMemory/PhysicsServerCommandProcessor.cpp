@@ -5726,7 +5726,7 @@ bool PhysicsServerCommandProcessor::processRequestTetraMeshDataCommand(const str
 	serverStatusOut.m_numDataStreamBytes = 0;
 	int sizeInBytes = 0;
 
-	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestMeshDataArgs.m_bodyUniqueId);
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_resetTetraMeshDataArgs.m_bodyUniqueId);
 	if (bodyHandle)
 	{
 		int totalBytesPerTetra = sizeof(btVector3) * 4;
@@ -5741,16 +5741,16 @@ bool PhysicsServerCommandProcessor::processRequestTetraMeshDataCommand(const str
 			
 			int numTetra = psb->m_tetras.size();
 			int maxNumnumVertecies = bufferSizeInBytes / totalBytesPerTetra - 1;
-			int numVerticesRemaining = numTetra * 4 - clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			int numVerticesRemaining = numTetra * 4 - clientCmd.m_resetTetraMeshDataArgs.m_startingVertex;
 			int verticesCopied = btMin(maxNumnumVertecies, numVerticesRemaining);
 			for (int i = 0; i < verticesCopied; i += 4)
 			{
 				const btSoftBody::Tetra& n = psb->m_tetras[i / 4];
 
-				verticesOut[i].setValue(n.m_n[0].m_x.x(), n.m_n[0].m_x.y(), n.m_n[0].m_x.z());
-				verticesOut[i+1].setValue(n.m_n[1].m_x.x(), n.m_n[1].m_x.y(), n.m_n[1].m_x.z());
-				verticesOut[i+2].setValue(n.m_n[2].m_x.x(), n.m_n[2].m_x.y(), n.m_n[2].m_x.z());
-				verticesOut[i+3].setValue(n.m_n[3].m_x.x(), n.m_n[3].m_x.y(), n.m_n[3].m_x.z());
+				verticesOut[i].setValue(n.m_n[0]->m_x.x(), n.m_n[0]->m_x.y(), n.m_n[0]->m_x.z());
+				verticesOut[i+1].setValue(n.m_n[1]->m_x.x(), n.m_n[1]->m_x.y(), n.m_n[1]->m_x.z());
+				verticesOut[i+2].setValue(n.m_n[2]->m_x.x(), n.m_n[2]->m_x.y(), n.m_n[2]->m_x.z());
+				verticesOut[i+3].setValue(n.m_n[3]->m_x.x(), n.m_n[3]->m_x.y(), n.m_n[3]->m_x.z());
 			}
 			sizeInBytes = verticesCopied * sizeof(btVector3);
 			serverStatusOut.m_type = CMD_REQUEST_TETRA_MESH_DATA_COMPLETED;

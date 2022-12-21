@@ -486,6 +486,12 @@ struct b3MeshData
 	struct b3MeshVertex* m_vertices;
 };
 
+struct b3TetraMeshData
+{
+	int m_numVertices;
+	struct b3MeshVertex* m_vertices;
+};
+
 struct b3OpenGLVisualizerCameraInfo
 {
 	int m_width;

@@ -1525,6 +1525,24 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClie
 	return 0;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3GetTetraMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	if (cl)
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_REQUEST_TETRA_MESH_DATA;
+		command->m_updateFlags = 0;
+		command->m_resetTetraMeshDataArgs.m_startingVertex = 0;
+		command->m_resetTetraMeshDataArgs.m_bodyUniqueId = bodyUniqueId;
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
 B3_SHARED_API void b3GetMeshDataSetCollisionShapeIndex(b3SharedMemoryCommandHandle commandHandle, int shapeIndex)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
