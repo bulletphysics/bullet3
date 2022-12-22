@@ -1567,6 +1567,18 @@ B3_SHARED_API void b3GetMeshDataSetFlags(b3SharedMemoryCommandHandle commandHand
 	}
 }
 
+B3_SHARED_API void b3GetTetraMeshDataSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_TETRA_MESH_DATA);
+	if (command->m_type == CMD_REQUEST_TETRA_MESH_DATA)
+	{
+		command->m_updateFlags = B3_TETRA_MESH_DATA_FLAGS;
+		command->m_requestMeshDataArgs.m_flags = flags;
+	}
+}
+
 B3_SHARED_API void b3GetMeshDataSimulationMesh(b3SharedMemoryCommandHandle commandHandle)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
@@ -1589,6 +1601,15 @@ B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3Mesh
 	if (cl)
 	{
 		cl->getCachedMeshData(meshData);
+	}
+}
+
+B3_SHARED_API void b3GetTetraMeshData(b3PhysicsClientHandle physClient, struct b3TetraMeshData* meshData)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	if (cl)
+	{
+		cl->getCachedTetraMeshData(meshData);
 	}
 }
 

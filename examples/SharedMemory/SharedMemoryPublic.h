@@ -486,6 +486,11 @@ struct b3MeshData
 	struct b3MeshVertex* m_vertices;
 };
 
+enum eTetraMeshDataEnum
+{
+	B3_TETRA_MESH_DATA_FLAGS=2,
+};
+
 struct b3TetraMeshData
 {
 	int m_numVertices;

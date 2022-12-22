@@ -9196,7 +9196,7 @@ static PyObject* pybullet_getTetraMeshData(PyObject* self, PyObject* args, PyObj
 	b3PhysicsClientHandle sm = 0;
 	b3SharedMemoryCommandHandle command;
 	b3SharedMemoryStatusHandle statusHandle;
-	struct b3MeshData meshData;
+	struct b3TetraMeshData meshData;
 	int statusType;
 	int flags = -1;
 
@@ -9215,7 +9215,7 @@ static PyObject* pybullet_getTetraMeshData(PyObject* self, PyObject* args, PyObj
 	command = b3GetTetraMeshDataCommandInit(sm, bodyUniqueId);
 	if (flags >= 0)
 	{
-		b3GetMeshDataSetFlags(command, flags);
+		b3GetTetraMeshDataSetFlags(command, flags);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -9225,7 +9225,7 @@ static PyObject* pybullet_getTetraMeshData(PyObject* self, PyObject* args, PyObj
 		int i;
 		PyObject* pyVertexData;
 		PyObject* pyListMeshData = PyTuple_New(2);
-		b3GetMeshData(sm, &meshData);
+		b3GetTetraMeshData(sm, &meshData);
 		PyTuple_SetItem(pyListMeshData, 0, PyInt_FromLong(meshData.m_numVertices));
 		pyVertexData = PyTuple_New(meshData.m_numVertices);
 		PyTuple_SetItem(pyListMeshData, 1, pyVertexData);
@@ -9242,7 +9242,7 @@ static PyObject* pybullet_getTetraMeshData(PyObject* self, PyObject* args, PyObj
 		return pyListMeshData;
 	}
 
-	PyErr_SetString(SpamError, "getMeshData failed");
+	PyErr_SetString(SpamError, "getTetraMeshData failed");
 	return NULL;
 }
 
@@ -12701,6 +12701,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getMeshData", (PyCFunction)pybullet_getMeshData, METH_VARARGS | METH_KEYWORDS,
 	 "Get mesh data. Returns vertices etc from the mesh."},
+
+	{"getTetraMeshData", (PyCFunction)pybullet_getTetraMeshData, METH_VARARGS | METH_KEYWORDS,
+	 "Get mesh data. Returns tetra from the mesh."},
 
 	{"resetMeshData", (PyCFunction)pybullet_resetMeshData, METH_VARARGS | METH_KEYWORDS,
 	 "Reset mesh data. Only implemented for deformable bodies."},
