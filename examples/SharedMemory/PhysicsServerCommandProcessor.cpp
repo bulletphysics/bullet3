@@ -5678,22 +5678,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			}
             bool requestVelocity = clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY;
 
-
-
-			int numTetra = psb->m_tetras.size();
-			int maxNumnumVertecies = bufferSizeInBytes / totalBytesPerVertex - 1;
-			int numVerticesRemaining = numTetra * 4;
-			int verticesCopied = btMin(maxNumnumVertecies, numVerticesRemaining);
-			for (int i = 0; i < verticesCopied; i += 4)
-			{
-				const btSoftBody::Tetra& n = psb->m_tetras[i/4];
-				verticesOut[i].setValue(n.m_n[0]->m_x.x(), n.m_n[0]->m_x.y(), n.m_n[0]->m_x.z());
-				verticesOut[i+1].setValue(n.m_n[1]->m_x.x(), n.m_n[1]->m_x.y(), n.m_n[1]->m_x.z());
-				verticesOut[i+2].setValue(n.m_n[2]->m_x.x(), n.m_n[2]->m_x.y(), n.m_n[2]->m_x.z());
-				verticesOut[i+3].setValue(n.m_n[3]->m_x.x(), n.m_n[3]->m_x.y(), n.m_n[3]->m_x.z());
-			}
-
-			/*
+			
 			int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
 			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -5720,7 +5705,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
                     }
 				}
 			}
-			*/
+			
 
 			sizeInBytes = verticesCopied * sizeof(btVector3);
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
