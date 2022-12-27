@@ -9202,7 +9202,7 @@ static PyObject* pybullet_getTetraMeshData(PyObject* self, PyObject* args, PyObj
 
 	int physicsClientId = 0;
 	static char* kwlist[] = {"bodyUniqueId",  "flags", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|iiii", kwlist, &bodyUniqueId,  &flags , &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|iii", kwlist, &bodyUniqueId,  &flags , &physicsClientId))
 	{
 		return NULL;
 	}
