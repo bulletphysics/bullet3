@@ -689,6 +689,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 		// There already was some collision with some other body and the details are low. No need to waste time checking with this and the remaining bodies
 		if (m_dispatcher->getNumManifolds() != 0)
 		{
+			printf("skipping ui %d\n", body0Wrap->getCollisionObject()->getUserIndex());
 			return;
 		}
 	}
@@ -697,7 +698,13 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 
 	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset, findOnlyFirstPair);
 
-	if (pairset.size() == 0) return;
+	if (pairset.size() == 0 && body0Wrap->getCollisionObject()->getUserIndex() == 60)
+		int dbg = 0;
+
+	printf("ui %d pss %d\n", body0Wrap->getCollisionObject()->getUserIndex(), pairset.size());
+
+	if (pairset.size() == 0)
+		return;
 
 	if (findOnlyFirstPair)
 	{

@@ -222,6 +222,7 @@ void btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pa
 	{
 		BT_PROFILE("processAllOverlappingPairs");
 		pairCache->processAllOverlappingPairs(&collisionCallback, dispatcher, dispatchInfo);
+		printf("------------\n");
 	}
 
 	//m_blockedForChanges = false;
