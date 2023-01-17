@@ -212,12 +212,6 @@ void btGImpactCollisionAlgorithm::addContactPoint(const btCollisionObjectWrapper
 	m_resultOut->addContactPoint(normal, point, distance);
 }
 
-void btGImpactCollisionAlgorithm::addEmptyManifold(const btCollisionObjectWrapper* body0Wrap,
-					  const btCollisionObjectWrapper* body1Wrap)
-{
-	checkManifold(body0Wrap, body1Wrap);
-}
-
 void btGImpactCollisionAlgorithm::shape_vs_shape_collision(
 	const btCollisionObjectWrapper* body0Wrap,
 	const btCollisionObjectWrapper* body1Wrap,
@@ -675,8 +669,9 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
 
 	bool lowDetail0, lowDetail1;
-	bool findOnlyFirstPair = body0Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail0) ||
-							 body1Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail1);
+	bool isTol0 = body0Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail0);
+	bool isTol1 = body1Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail1);
+	bool findOnlyFirstPair = isTol0 || isTol1;
 	if (body0Wrap->getCollisionObject()->isToleratingCertainInitialCollisions() || body1Wrap->getCollisionObject()->isToleratingCertainInitialCollisions())
 	{
 		bool check0 = body0Wrap->getCollisionObject()->checkIsTolerated(body1Wrap->getCollisionObject());
@@ -686,9 +681,15 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 
 	if (findOnlyFirstPair && (lowDetail0 || lowDetail1))
 	{
-		// There already was some collision with some other body and the details are low. No need to waste time checking with this and the remaining bodies
-		if (m_dispatcher->getNumManifolds() != 0)
+		const btCollisionObject* checked = nullptr;
+		if (isTol0)
+			checked = body0Wrap->getCollisionObject();
+		else if (isTol1)
+			checked = body1Wrap->getCollisionObject();
+		auto& participants = isTol0 ? m_dispatcher->getInitialCollisionParticipants0() : m_dispatcher->getInitialCollisionParticipants1();
+		if (checked && participants.find(checked) != participants.end())
 		{
+			// There already was some collision with some other body and the details are low. No need to waste time checking with this and the remaining bodies
 			printf("skipping ui %d\n", body0Wrap->getCollisionObject()->getUserIndex());
 			return;
 		}
@@ -708,7 +709,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 
 	if (findOnlyFirstPair)
 	{
-		addEmptyManifold(body0Wrap, body1Wrap);
+		m_dispatcher->addInitialCollisionParticipant({body0Wrap->getCollisionObject(), body1Wrap->getCollisionObject()});
 		return;
 	}
 

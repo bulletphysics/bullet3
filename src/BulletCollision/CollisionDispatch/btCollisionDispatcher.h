@@ -58,6 +58,9 @@ protected:
 
 	btCollisionConfiguration* m_collisionConfiguration;
 
+	btInitialCollisionParticipants initialCollisionParticipants;
+	btInitialCollisionParticipantsSingle initialCollisionParticipants0, initialCollisionParticipants1;
+
 public:
 	enum DispatcherFlags
 	{
@@ -80,6 +83,28 @@ public:
 	void registerCollisionCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
 
 	void registerClosestPointsCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
+
+	void addInitialCollisionParticipant(btInitialCollisionParticipants::value_type pair) override
+	{
+		initialCollisionParticipants.insert(pair);
+		initialCollisionParticipants0.insert(pair.first);
+		initialCollisionParticipants1.insert(pair.second);
+	}
+
+	const btInitialCollisionParticipants& getInitialCollisionParticipants() const override
+	{
+		return initialCollisionParticipants;
+	}
+
+	const btInitialCollisionParticipantsSingle& getInitialCollisionParticipants0() const override
+	{
+		return initialCollisionParticipants0;
+	}
+
+	const btInitialCollisionParticipantsSingle& getInitialCollisionParticipants1() const override
+	{
+		return initialCollisionParticipants1;
+	}
 
 	int getNumManifolds() const
 	{

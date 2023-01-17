@@ -139,9 +139,6 @@ protected:
 						 const btVector3& normal,
 						 btScalar distance);
 
-	void addEmptyManifold(const btCollisionObjectWrapper* body0Wrap,
-						 const btCollisionObjectWrapper* body1Wrap);
-
 	//! Collision routines
 	//!@{
 

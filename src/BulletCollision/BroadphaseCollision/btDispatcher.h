@@ -17,6 +17,8 @@ subject to the following restrictions:
 #define BT_DISPATCHER_H
 #include "LinearMath/btScalar.h"
 
+#include <set>
+
 class btCollisionAlgorithm;
 struct btBroadphaseProxy;
 class btRigidBody;
@@ -76,6 +78,9 @@ enum ebtDispatcherQueryType
 class btDispatcher
 {
 public:
+	typedef std::set<std::pair<const btCollisionObject*, const btCollisionObject*>> btInitialCollisionParticipants;
+	typedef std::set<const btCollisionObject*> btInitialCollisionParticipantsSingle;
+
 	virtual ~btDispatcher();
 
 	virtual btCollisionAlgorithm* findAlgorithm(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, btPersistentManifold* sharedManifold, ebtDispatcherQueryType queryType) = 0;
@@ -105,6 +110,14 @@ public:
 	virtual void* allocateCollisionAlgorithm(int size) = 0;
 
 	virtual void freeCollisionAlgorithm(void* ptr) = 0;
+
+	virtual void addInitialCollisionParticipant(btInitialCollisionParticipants::value_type pair) = 0;
+
+	virtual const btInitialCollisionParticipants& getInitialCollisionParticipants() const = 0;
+
+	virtual const btInitialCollisionParticipantsSingle& getInitialCollisionParticipants0() const = 0;
+
+	virtual const btInitialCollisionParticipantsSingle& getInitialCollisionParticipants1() const = 0;
 };
 
 #endif  //BT_DISPATCHER_H
