@@ -1144,6 +1144,13 @@ struct b3RequestMeshDataArgs
 	int m_flags;
 };
 
+struct b3RequestTetraMeshDataArgs
+{
+	int m_bodyUniqueId;
+	int m_startingVertex;
+	int m_flags;
+};
+
 struct b3ResetMeshDataArgs
 {
 	int m_bodyUniqueId;
@@ -1219,8 +1226,9 @@ struct SharedMemoryCommand
 		struct UserDataRequestArgs m_removeUserDataRequestArgs;
 		struct b3CollisionFilterArgs m_collisionFilterArgs;
 		struct b3RequestMeshDataArgs m_requestMeshDataArgs;
+		struct b3RequestTetraMeshDataArgs m_requestTetraMeshDataArgs;
 		struct b3ResetMeshDataArgs m_resetMeshDataArgs;
-
+		struct b3RequestTetraMeshDataArgs m_resetTetraMeshDataArgs;
 	};
 };
 

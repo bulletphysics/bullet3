@@ -2802,7 +2802,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;  //need to check if there are artifacts with frictionERP
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
-	if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD) 
+	if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD)
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 128;
 	}
@@ -5677,7 +5677,8 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 				separateRenderMesh = (psb->m_renderNodes.size() != 0);
 			}
             bool requestVelocity = clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY;
-            
+
+			
 			int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
 			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -5704,6 +5705,8 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
                     }
 				}
 			}
+			
+
 			sizeInBytes = verticesCopied * sizeof(btVector3);
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
@@ -5711,6 +5714,51 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = numVerticesRemaining - verticesCopied;
 		}
 #endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	}
+
+	serverStatusOut.m_numDataStreamBytes = sizeInBytes;
+
+	return hasStatus;
+}
+
+bool PhysicsServerCommandProcessor::processRequestTetraMeshDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_REQUEST_TETRA_MESH_DATA");
+	serverStatusOut.m_type = CMD_REQUEST_TETRA_MESH_DATA_FAILED;
+	serverStatusOut.m_numDataStreamBytes = 0;
+	int sizeInBytes = 0;
+
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_resetTetraMeshDataArgs.m_bodyUniqueId);
+	if (bodyHandle)
+	{
+		int totalBytesPerVertex = sizeof(btVector3);
+		btVector3* verticesOut = (btVector3*)bufferServerToClient;
+		const btCollisionShape* colShape = 0;
+
+		if (bodyHandle->m_softBody)
+		{
+			btSoftBody* psb = bodyHandle->m_softBody;
+			
+			int numTetra = psb->m_tetras.size();
+			int maxNumnumVertecies = bufferSizeInBytes / totalBytesPerVertex - 1;
+			int numVerticesRemaining = numTetra * 4;
+			int verticesCopied = btMin(maxNumnumVertecies, numVerticesRemaining);
+			for (int i = 0; i < verticesCopied; i += 4)
+			{
+				const btSoftBody::Tetra& n = psb->m_tetras[i/4];
+				verticesOut[i].setValue(n.m_n[0]->m_x.x(), n.m_n[0]->m_x.y(), n.m_n[0]->m_x.z());
+				verticesOut[i+1].setValue(n.m_n[1]->m_x.x(), n.m_n[1]->m_x.y(), n.m_n[1]->m_x.z());
+				verticesOut[i+2].setValue(n.m_n[2]->m_x.x(), n.m_n[2]->m_x.y(), n.m_n[2]->m_x.z());
+				verticesOut[i+3].setValue(n.m_n[3]->m_x.x(), n.m_n[3]->m_x.y(), n.m_n[3]->m_x.z());
+			}
+
+			sizeInBytes = verticesCopied * sizeof(btVector3);
+			serverStatusOut.m_type = CMD_REQUEST_TETRA_MESH_DATA_COMPLETED;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
+			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = numVerticesRemaining - verticesCopied;
+		}
 	}
 
 	serverStatusOut.m_numDataStreamBytes = sizeInBytes;
@@ -8187,7 +8235,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 }
 
 bool RequestFiltered(const struct SharedMemoryCommand& clientCmd, int& linkIndexA, int& linkIndexB, int& objectIndexA, int& objectIndexB, bool& swap){
-   
+
     if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
     {
         if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexA)
@@ -8232,7 +8280,7 @@ bool RequestFiltered(const struct SharedMemoryCommand& clientCmd, int& linkIndex
     {
         return true;
     }
-    
+
     return false;
 }
 
@@ -8313,21 +8361,26 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 	{
 		return false;
 	}
-	int numSoftbodyContact = 0;
-	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
-	{
-		numSoftbodyContact += deformWorld->getSoftBodyArray()[i]->m_faceRigidContacts.size();
-	}
-	int num_contact_points = m_data->m_cachedContactPoints.size();
-	m_data->m_cachedContactPoints.reserve(num_contact_points + numSoftbodyContact);
 
 	for (int i = deformWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
 	{
 		btSoftBody* psb = deformWorld->getSoftBodyArray()[i];
+		btAlignedObjectArray<b3ContactPointData> distinctContactPoints;
+		btAlignedObjectArray<btSoftBody::Node*> nodesInContact;
 		for (int c = 0; c < psb->m_faceRigidContacts.size(); c++)
 		{
 			const btSoftBody::DeformableFaceRigidContact* contact = &psb->m_faceRigidContacts[c];
-			//convert rigidbody contact
+			// calculate normal and tangent impulse
+			btVector3 impulse = contact->m_cti.m_impulse;
+			btVector3 impulseNormal = impulse.dot(contact->m_cti.m_normal) * contact->m_cti.m_normal;
+			btVector3 impulseTangent = impulse - impulseNormal;
+			// get node in contact
+			int contactNodeIdx = contact->m_bary.maxAxis();
+			btSoftBody::Node* node = contact->m_face->m_n[contactNodeIdx];
+			// check if node is already in the list
+			int idx = nodesInContact.findLinearSearch2(node);
+
+			//apply the filter, if the user provides it
 			int linkIndexA = -1;
 			int linkIndexB = -1;
 			int objectIndexA = psb->getUserIndex2();
@@ -8344,8 +8397,6 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 				linkIndexB = mblB->m_link;
 				objectIndexB = mblB->m_multiBody->getUserIndex2();
 			}
-
-			//apply the filter, if the user provides it
 			bool swap = false;
 			if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
 			{
@@ -8391,37 +8442,87 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 			{
 				continue;
 			}
-			b3ContactPointData pt;
-			pt.m_bodyUniqueIdA = objectIndexA;
-			pt.m_bodyUniqueIdB = objectIndexB;
-			pt.m_contactDistance = contact->m_cti.m_offset;
-			pt.m_contactFlags = 0;
-			pt.m_linkIndexA = linkIndexA;
-			pt.m_linkIndexB = linkIndexB;
-			for (int j = 0; j < 3; j++)
+
+			if (idx < 0)
 			{
-				if (swap)
+				// add new node and contact point
+				nodesInContact.push_back(node);
+				b3ContactPointData pt;
+				pt.m_bodyUniqueIdA = objectIndexA;
+				pt.m_bodyUniqueIdB = objectIndexB;
+				pt.m_contactDistance = -contact->m_cti.m_offset;
+				pt.m_contactFlags = 0;
+				pt.m_linkIndexA = linkIndexA;
+				pt.m_linkIndexB = linkIndexB;
+				for (int j = 0; j < 3; j++)
 				{
-					pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
-					pt.m_positionOnAInWS[j] = contact->m_cti.m_normal[j];
-					pt.m_positionOnBInWS[j] = -contact->m_cti.m_normal[j];
+					if (swap)
+					{
+						pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
+						pt.m_positionOnAInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
+						pt.m_positionOnBInWS[j] = node->m_x[j];
+					}
+					else
+					{
+						pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
+						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
+						pt.m_positionOnAInWS[j] = node->m_x[j];
+						pt.m_positionOnBInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+					}
 				}
-				else
+				pt.m_normalForce = (impulseNormal / m_data->m_physicsDeltaTime).norm();
+				pt.m_linearFrictionForce1 = (impulseTangent.dot(contact->t1) * contact->t1 / m_data->m_physicsDeltaTime).norm();
+				pt.m_linearFrictionForce2 = (impulseTangent.dot(contact->t2) * contact->t2 / m_data->m_physicsDeltaTime).norm();
+				for (int j = 0; j < 3; j++)
 				{
-					pt.m_contactNormalOnBInWS[j] = contact->m_cti.m_normal[j];
-					pt.m_positionOnAInWS[j] = -contact->m_cti.m_normal[j];
-					pt.m_positionOnBInWS[j] = contact->m_cti.m_normal[j];
+					pt.m_linearFrictionDirection1[j] = contact->t1[j];
+					pt.m_linearFrictionDirection2[j] = contact->t2[j];
 				}
+				distinctContactPoints.push_back(pt);
 			}
-			pt.m_normalForce = 1;
-			pt.m_linearFrictionForce1 = 0;
-			pt.m_linearFrictionForce2 = 0;
-			for (int j = 0; j < 3; j++)
+			else
 			{
-				pt.m_linearFrictionDirection1[j] = 0;
-				pt.m_linearFrictionDirection2[j] = 0;
+				// add values to existing contact point
+				b3ContactPointData* pt = &distinctContactPoints[idx];
+				// current normal force of node
+				btVector3 normalForce = btVector3(btScalar(pt->m_contactNormalOnBInWS[0]),
+												  btScalar(pt->m_contactNormalOnBInWS[1]),
+												  btScalar(pt->m_contactNormalOnBInWS[2])) * pt->m_normalForce;
+				// add normal force of additional node contact
+				btScalar swapFactor = swap ? -1.0 : 1.0;
+				normalForce += swapFactor * contact->m_cti.m_normal * (impulseNormal / m_data->m_physicsDeltaTime).norm();
+				// get magnitude of normal force
+				pt->m_normalForce = normalForce.norm();
+				// get direction of normal force
+				if (!normalForce.fuzzyZero())
+				{
+					// normalize for unit vectors if above numerical threshold
+					normalForce.normalize();
+					for (int j = 0; j < 3; j++)
+					{
+						pt->m_contactNormalOnBInWS[j] = normalForce[j];
+					}
+				}
+
+				// add magnitudes of tangential forces in existing directions
+				btVector3 linearFrictionDirection1 = btVector3(btScalar(pt->m_linearFrictionDirection1[0]),
+															   btScalar(pt->m_linearFrictionDirection1[1]),
+															   btScalar(pt->m_linearFrictionDirection1[2]));
+				btVector3 linearFrictionDirection2 = btVector3(btScalar(pt->m_linearFrictionDirection2[0]),
+															   btScalar(pt->m_linearFrictionDirection2[1]),
+															   btScalar(pt->m_linearFrictionDirection2[2]));
+				pt->m_linearFrictionForce1 = (impulseTangent.dot(linearFrictionDirection1) * linearFrictionDirection1 / m_data->m_physicsDeltaTime).norm();
+				pt->m_linearFrictionForce2 = (impulseTangent.dot(linearFrictionDirection2) * linearFrictionDirection2 / m_data->m_physicsDeltaTime).norm();
 			}
-			m_data->m_cachedContactPoints.push_back(pt);
+		}
+
+		int num_contact_points = m_data->m_cachedContactPoints.size() + distinctContactPoints.size();
+		m_data->m_cachedContactPoints.reserve(num_contact_points);
+		// add points to contact points cache
+		for (int p = 0; p < distinctContactPoints.size(); p++)
+		{
+			m_data->m_cachedContactPoints.push_back(distinctContactPoints[p]);
 		}
 	}
 #endif
@@ -9929,7 +10030,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 				softWorld->addSoftBody(rsb);
 			}
 		}
-		
+
 		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
 		bodyHandle->m_softBody = rsb;
@@ -9980,7 +10081,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 			float scaling[4] = { 1,1,1,1 };
  			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid1, position, orientation, color, scaling);
 			rsb->setUserIndex(instanceUid);
-			
+
 			if (m_data->m_enableTinyRenderer)
 			{
 				int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
@@ -10080,7 +10181,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 				}
 			}
 		}
-		
+
 
 
 		btAlignedObjectArray<btVector3> vertices;
@@ -10093,7 +10194,7 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 
 			for (int i = 0; i < rsb->m_faces.size(); i++)  // Foreach face
 			{
-				
+
 				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
 				{
 					int currentIndex = i * 3 + k;
@@ -15065,6 +15166,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		case CMD_REQUEST_MESH_DATA:
 		{
 			hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+		case CMD_REQUEST_TETRA_MESH_DATA:
+		{
+			hasStatus = processRequestTetraMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 		case CMD_RESET_MESH_DATA:
