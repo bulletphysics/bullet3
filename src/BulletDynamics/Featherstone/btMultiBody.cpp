@@ -936,7 +936,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			if (m_useGyroTerm)
 				zeroAccSpatFrc[i + 1].addAngular(spatVel[i + 1].getAngular().cross(m_links[i].m_inertiaLocal * spatVel[i + 1].getAngular()));
 			//
-			zeroAccSpatFrc[i + 1].addLinear(m_links[i].m_mass * spatVel[i + 1].getAngular().cross(spatVel[i + 1].getLinear()));
+                        if (!isConstraintPass)
+      				zeroAccSpatFrc[i + 1].addLinear(m_links[i].m_mass * spatVel[i + 1].getAngular().cross(spatVel[i + 1].getLinear()));
 			//
 			//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
 			////clamp parent's omega
