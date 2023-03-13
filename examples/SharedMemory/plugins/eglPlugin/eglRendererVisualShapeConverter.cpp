@@ -92,8 +92,8 @@ struct EGLRendererObjectArray
 //#define START_WIDTH 2560
 //#define START_HEIGHT 2048
 
-#define START_WIDTH 1024
-#define START_HEIGHT 768
+#define START_WIDTH (1024*4)
+#define START_HEIGHT (1024*4)
 
 struct btHashVisual
 {
