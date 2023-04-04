@@ -658,7 +658,7 @@ void btSequentialImpulseConstraintSolver::setupTorsionalFrictionConstraint(btSol
 		btScalar sum = 0;
 		sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
 		sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
-		solverConstraint.m_jacDiagABInv = btScalar(1.) / sum;
+		solverConstraint.m_jacDiagABInv = btFuzzyZero(sum) ? btScalar(0.) : (btScalar(1.) / sum);
 	}
 
 	{
