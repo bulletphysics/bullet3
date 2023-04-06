@@ -222,7 +222,7 @@ void ImportObjSetup::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
 	btCollisionDispatcher* dispatcher = static_cast<btCollisionDispatcher*>(m_dynamicsWorld->getDispatcher());
-	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher, true);
+	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 	m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	//m_dynamicsWorld->getSolverInfo().m_splitImpulse = 0;
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 1000;
