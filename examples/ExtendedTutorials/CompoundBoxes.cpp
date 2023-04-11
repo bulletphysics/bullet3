@@ -101,7 +101,7 @@ void CompoundBoxesExample::initPhysics()
 #else
 		// recompute the shift to make sure the compound shape is re-aligned
 		for (int i = 0; i < compoundShape->getNumChildShapes(); i++)
-			compound2->addChildShape(compoundShape->getChildTransform(i) * principal.inverse(),
+			compound2->addChildShape(principal.inverse() * compoundShape->getChildTransform(i),
 									 compoundShape->getChildShape(i));
 #endif
 		delete compoundShape;
