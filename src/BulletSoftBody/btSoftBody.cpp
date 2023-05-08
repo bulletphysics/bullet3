@@ -1043,6 +1043,20 @@ btVector3 btSoftBody::getLinearVelocity()
 	return total_mass == 0 ? total_momentum : total_momentum / total_mass;
 }
 
+btVector3 btSoftBody::getAngularVelocity()
+{
+	btVector3 total_momentum = btVector3(0, 0, 0);
+	btVector3 com = getCenterOfMass();
+	for (int i = 0; i < m_nodes.size(); ++i)
+	{
+		btScalar mass = m_nodes[i].m_im == 0 ? 0 : 1.0 / m_nodes[i].m_im;
+		btVector3 r = m_nodes[i].m_x - com; 
+		total_momentum += mass * r.cross(m_nodes[i].m_v);
+	}
+	btScalar total_mass = getTotalMass();
+	return total_mass == 0 ? total_momentum : total_momentum / total_mass;
+}
+
 //
 void btSoftBody::setLinearVelocity(const btVector3& linVel)
 {
