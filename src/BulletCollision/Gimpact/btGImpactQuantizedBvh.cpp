@@ -24,6 +24,8 @@ subject to the following restrictions:
 #include "btGImpactQuantizedBvh.h"
 #include "LinearMath/btQuickprof.h"
 
+#include <tbb/tbb.h>
+
 //#include "cvmarkersobj.h"
 
 
@@ -530,18 +532,19 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	bt_begin_gim02_q_tree_time();
 #endif  //TRI_COLLISION_PROFILING
 
-		//diagnostic::marker_series series0("col pairs serial");
-		//diagnostic::span span(series0, diagnostic::high_importance, 10, "serial topmost %d %d", boxset0->getNodeCount(), boxset1->getNodeCount());
-		//auto start = std::chrono::steady_clock::now();
-		//series0.write_message(diagnostic::normal_importance, 0, "start ser");
-		_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
-		//_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+	//diagnostic::marker_series series0("col pairs serial");
+	//diagnostic::span span(series0, diagnostic::high_importance, 10, "serial topmost %d %d", boxset0->getNodeCount(), boxset1->getNodeCount());
+	auto start = std::chrono::steady_clock::now();
+	//series0.write_message(diagnostic::normal_importance, 0, "start ser");
 
-		//auto end = std::chrono::steady_clock::now();
-		//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		//printf("_find_quantized_collision_pairs_recursive took %lld us\n", duration.count());
+	_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+	//_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
 
-		//series0.write_message(diagnostic::normal_importance, 0, "end ser %d us", duration.count());
+	auto end = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	printf("_find_quantized_collision_pairs_recursive took %lld us\n", duration.count());
+
+	//series0.write_message(diagnostic::normal_importance, 0, "end ser %d us", duration.count());
 #ifdef TRI_COLLISION_PROFILING
 	bt_end_gim02_q_tree_time();
 #endif  //TRI_COLLISION_PROFILING

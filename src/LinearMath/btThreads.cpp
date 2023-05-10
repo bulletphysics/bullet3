@@ -36,7 +36,6 @@ subject to the following restrictions:
 // use Intel Threading Building Blocks for thread management
 #define __TBB_NO_IMPLICIT_LINKAGE 1
 #include <tbb/tbb.h>
-#include <tbb/task_scheduler_init.h>
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 
@@ -558,26 +557,19 @@ public:
 class btTaskSchedulerTBB : public btITaskScheduler
 {
 	int m_numThreads;
-	tbb::task_scheduler_init* m_tbbSchedulerInit;
 
 public:
 	btTaskSchedulerTBB() : btITaskScheduler("IntelTBB")
 	{
 		m_numThreads = 0;
-		m_tbbSchedulerInit = NULL;
 	}
 	~btTaskSchedulerTBB()
 	{
-		if (m_tbbSchedulerInit)
-		{
-			delete m_tbbSchedulerInit;
-			m_tbbSchedulerInit = NULL;
-		}
 	}
 
 	virtual int getMaxNumThreads() const BT_OVERRIDE
 	{
-		return tbb::task_scheduler_init::default_num_threads();
+		return tbb::info::default_concurrency();
 	}
 	virtual int getNumThreads() const BT_OVERRIDE
 	{
@@ -586,13 +578,6 @@ public:
 	virtual void setNumThreads(int numThreads) BT_OVERRIDE
 	{
 		m_numThreads = (std::max)(1, (std::min)(int(BT_MAX_THREAD_COUNT), numThreads));
-		if (m_tbbSchedulerInit)
-		{
-			// destroys all previous threads
-			delete m_tbbSchedulerInit;
-			m_tbbSchedulerInit = NULL;
-		}
-		m_tbbSchedulerInit = new tbb::task_scheduler_init(m_numThreads);
 		m_savedThreadCounter = 0;
 		if (m_isActive)
 		{

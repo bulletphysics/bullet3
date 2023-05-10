@@ -448,17 +448,17 @@ ADD_CUSTOM_COMMAND(
 
 IF (BULLET2_USE_TBB_MULTITHREADING AND WIN32)
     # add a post build command to copy some dlls to the executable directory
-    set(TBB_VC_VER "vc12")
-    set(TBB_VC_ARCH "ia32")
+    set(TBB_VC_VER "vc14")
+    set(TBB_VC_ARCH "intel64")
     # assume 32-bit build in VC12 for now
     # checks can be added here at a later time
     ADD_CUSTOM_COMMAND(TARGET App_ExampleBrowser POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${BULLET2_TBB_INCLUDE_DIR}/../bin/${TBB_VC_ARCH}/${TBB_VC_VER}/tbb.dll"
+        "${BULLET2_TBB_INCLUDE_DIR}/../redist/${TBB_VC_ARCH}/${TBB_VC_VER}/tbb12.dll"
         $<TARGET_FILE_DIR:App_ExampleBrowser>)
     ADD_CUSTOM_COMMAND(TARGET App_ExampleBrowser POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${BULLET2_TBB_INCLUDE_DIR}/../bin/${TBB_VC_ARCH}/${TBB_VC_VER}/tbbmalloc.dll"
+        "${BULLET2_TBB_INCLUDE_DIR}/../redist/${TBB_VC_ARCH}/${TBB_VC_VER}/tbbmalloc.dll"
         $<TARGET_FILE_DIR:App_ExampleBrowser>)
 ENDIF (BULLET2_USE_TBB_MULTITHREADING AND WIN32)
 

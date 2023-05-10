@@ -536,7 +536,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 														const int* pairs, int pair_count)
 {
 
-	//auto start = std::chrono::steady_clock::now();
+	auto start = std::chrono::steady_clock::now();
 
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
@@ -627,9 +627,9 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();
 
-	//auto end = std::chrono::steady_clock::now();
-	//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	//printf("collide_sat_triangles took %lld us\n", duration.count());
+	auto end = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	printf("collide_sat_triangles took %lld us\n", duration.count());
 
 }
 
