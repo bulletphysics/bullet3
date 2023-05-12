@@ -251,11 +251,11 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 	const btTransform& trans0,
 	const btTransform& trans1,
 	const btGImpactShapeInterface* shape0,
-	const btGImpactShapeInterface* shape1, btPairSet& pairset, bool findOnlyFirstPair)
+	const btGImpactShapeInterface* shape1, btPairSet& pairset, btPairSet& pairset2, bool findOnlyFirstPair)
 {
 	if (shape0->hasBoxSet() && shape1->hasBoxSet())
 	{
-		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, findOnlyFirstPair);
+		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, pairset2, findOnlyFirstPair);
 	}
 	else
 	{
@@ -695,8 +695,9 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	}
 
 	pairset.clear();
+	pairset2.clear();
 
-	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset, findOnlyFirstPair);
+	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset, pairset2, findOnlyFirstPair);
 
 	if (pairset.size() == 0)
 		return;

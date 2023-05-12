@@ -384,7 +384,7 @@ public:
 
 	static void find_collision(const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 							   const btGImpactQuantizedBvh* boxset2, const btTransform& trans2,
-							   btPairSet& collision_pairs, bool findOnlyFirstPair);
+							   btPairSet& collision_pairs, btPairSet& collision_pairs2, bool findOnlyFirstPair);
 };
 
 #endif  // GIM_BOXPRUNING_H_INCLUDED

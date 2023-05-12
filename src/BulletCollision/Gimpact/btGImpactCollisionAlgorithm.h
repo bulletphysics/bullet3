@@ -64,6 +64,7 @@ protected:
 	int m_triface1;
 	int m_part1;
 	btPairSet pairset;
+	btPairSet pairset2;
 
 	//! Creates a new contact point
 	SIMD_FORCE_INLINE btPersistentManifold* newContactManifold(const btCollisionObject* body0, const btCollisionObject* body1)
@@ -169,7 +170,7 @@ protected:
 		const btTransform& trans0,
 		const btTransform& trans1,
 		const btGImpactShapeInterface* shape0,
-		const btGImpactShapeInterface* shape1, btPairSet& pairset, bool findOnlyFirstPair);
+		const btGImpactShapeInterface* shape1, btPairSet& pairset, btPairSet& pairset2, bool findOnlyFirstPair);
 
 	void gimpact_vs_shape_find_pairs(
 		const btTransform& trans0,
