@@ -8450,7 +8450,7 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 				b3ContactPointData pt;
 				pt.m_bodyUniqueIdA = objectIndexA;
 				pt.m_bodyUniqueIdB = objectIndexB;
-				pt.m_contactDistance = -contact->m_cti.m_offset;
+				pt.m_contactDistance = contact->m_cti.m_offset;
 				pt.m_contactFlags = 0;
 				pt.m_linkIndexA = linkIndexA;
 				pt.m_linkIndexB = linkIndexB;
@@ -8459,7 +8459,7 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 					if (swap)
 					{
 						pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
-						pt.m_positionOnAInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+						pt.m_positionOnAInWS[j] = node->m_x[j] + pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
 						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
 						pt.m_positionOnBInWS[j] = node->m_x[j];
 					}
