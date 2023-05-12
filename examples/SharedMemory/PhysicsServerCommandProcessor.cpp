@@ -8461,6 +8461,7 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 						pt.m_contactNormalOnBInWS[j] = -contact->m_cti.m_normal[j];
 						pt.m_positionOnAInWS[j] = node->m_x[j] + pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
 						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
+						// pt.m_contactNormalOnBInWS[j] points away from B.
 						pt.m_positionOnBInWS[j] = node->m_x[j];
 					}
 					else
@@ -8469,6 +8470,7 @@ bool PhysicsServerCommandProcessor::processRequestDeformableContactpointHelper(c
 						// node is force application point, therefore node position is contact point (not contact->m_contactPoint, because not equal to node)
 						pt.m_positionOnAInWS[j] = node->m_x[j];
 						pt.m_positionOnBInWS[j] = node->m_x[j] - pt.m_contactDistance * pt.m_contactNormalOnBInWS[j]; // not really precise because of margins in btSoftBody.cpp:line 2912
+						// pt.m_contactNormalOnBInWS[j] points away from B, so need to flip the sign to point to B.
 					}
 				}
 				pt.m_normalForce = (impulseNormal / m_data->m_physicsDeltaTime).norm();
