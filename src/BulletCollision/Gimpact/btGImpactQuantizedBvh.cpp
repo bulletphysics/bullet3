@@ -464,86 +464,95 @@ static void _find_quantized_collision_pairs_recursive(
 	}      // else if node0 is not a leaf
 }
 
-// Breadth-first collision routine. Just recursion from the function above converted to a queue based loop.
-// Currently it seems that the performance is worse than in _find_quantized_collision_pairs_recursive
 static void _find_quantized_collision_pairs(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1,
 	btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
 {
-	std::stack<std::tuple<int, int, bool>> pairQueue;
-	pairQueue.push({node0, node1, complete_primitive_tests});
-	while (!pairQueue.empty())
+	if (findOnlyFirstPair)
 	{
-		auto pair = pairQueue.top();
-		pairQueue.pop();
-		int node0 = std::get<0>(pair), node1 = std::get<1>(pair);
-		bool complete_primitive_tests_local = std::get<2>(pair);
-		//printf("n0 %d n1 %d\n", node0, node1);
-		if (findOnlyFirstPair)
-		{
-			if (collision_pairs->size() > 0)
-			{
-				//printf("b1\n");
-				continue;
-			}
-		}
-		else if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
-		{
-			// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
-			// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
-			// Work in this function is not embarrassingly parallel. It was challenging to feed the threads with enough work while trying to parrallelize it.
-			collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
-			//printf("b2\n");
-			continue;
-		}
-
-		if (_quantized_node_collision(
-				boxset0, boxset1, trans_cache_1to0,
-				node0, node1, complete_primitive_tests_local) == false)
-		{
-			//printf("b3\n");
-			continue;  //avoid colliding internal nodes
-		}
-
-		if (boxset0->isLeafNode(node0))
-		{
-			if (boxset1->isLeafNode(node1))
-			{
-				// collision result
-				if (findOnlyFirstPair)
-				{
-					//printf("b4\n");
-					collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
-				}
-				continue;
-			}
-			else
-			{
-				//printf("b5\n");
-				pairQueue.push({node0, boxset1->getRightNode(node1), false});
-				pairQueue.push({node0, boxset1->getLeftNode(node1), false});
-			}
-		}
-		else
-		{
-			if (boxset1->isLeafNode(node1))
-			{
-				//printf("b6\n");
-				pairQueue.push({boxset0->getRightNode(node0), node1, false});
-				pairQueue.push({boxset0->getLeftNode(node0), node1, false});
-			}
-			else
-			{
-				//printf("b7\n");
-				pairQueue.push({boxset0->getRightNode(node0), boxset1->getRightNode(node1), false});
-				pairQueue.push({boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false});
-				pairQueue.push({boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false});
-				pairQueue.push({boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false});
-			}
-		}
+		printf("FINDONLYFIRSTPAIR\n");
+		return;
 	}
+	std::mutex collision_pairs_mutex;
+	typedef std::tuple<int, int, bool> ElemType;
+	std::vector<ElemType> tupleElem;
+	tupleElem.push_back({node0, node1, complete_primitive_tests});
+
+	tbb::parallel_for_each(
+		tupleElem.begin(), tupleElem.end(),
+		[findOnlyFirstPair, boxset0, boxset1, trans_cache_1to0, collision_pairs, &collision_pairs_mutex](ElemType& elem, tbb::feeder<ElemType>& feeder)
+		{
+			int node0 = std::get<0>(elem), node1 = std::get<1>(elem);
+			bool complete_primitive_tests_local = std::get<2>(elem);
+			//printf("n0 %d n1 %d\n", node0, node1);
+			if (findOnlyFirstPair)
+			{
+				//std::lock_guard<std::mutex> guard(collision_pairs_mutex);
+				if (collision_pairs->size() > 0)
+				{
+					//printf("b1\n");
+					return;
+				}
+			}
+			else if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+			{
+				// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
+				// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
+				// Work in this function is not embarrassingly parallel. It was challenging to feed the threads with enough work while trying to parrallelize it.
+				//std::lock_guard<std::mutex> guard(collision_pairs_mutex);
+				//collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+				//printf("b2\n");
+				return;
+			}
+
+			if (_quantized_node_collision(
+					boxset0, boxset1, trans_cache_1to0,
+					node0, node1, complete_primitive_tests_local) == false)
+			{
+				//printf("b3\n");
+				return;  //avoid colliding internal nodes
+			}
+
+			if (boxset0->isLeafNode(node0))
+			{
+				if (boxset1->isLeafNode(node1))
+				{
+					// collision result
+					if (findOnlyFirstPair)
+					{
+						//printf("b4\n");
+						//std::lock_guard<std::mutex> guard(collision_pairs_mutex);
+						//collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+					}
+					return;
+				}
+				else
+				{
+					//printf("b5\n");
+					feeder.add({node0, boxset1->getLeftNode(node1), false});
+					feeder.add({node0, boxset1->getRightNode(node1), false});
+				}
+			}
+			else
+			{
+				if (boxset1->isLeafNode(node1))
+				{
+					//printf("b6\n");
+					feeder.add({boxset0->getLeftNode(node0), node1, false});
+					feeder.add({boxset0->getRightNode(node0), node1, false});
+				}
+				else
+				{
+					//printf("b7\n");
+					feeder.add({boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false});
+					feeder.add({boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false});
+					feeder.add({boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false});
+					feeder.add({boxset0->getRightNode(node0), boxset1->getRightNode(node1), false});
+				}
+			}
+		});
 }
 
 void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0, const btTransform& trans0,

@@ -570,7 +570,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 		std::list<IntermediateResult> intermediateResults;
 		std::mutex writeMutex;
 		
-		std::for_each(std::execution::par, pairSpan.begin(), pairSpan.end(), [&](const std::pair<int, int>& pair)
+		std::for_each(std::execution::seq, pairSpan.begin(), pairSpan.end(), [&](const std::pair<int, int>& pair)
 		{
 			btPrimitiveTriangle ptri0;
 			btPrimitiveTriangle ptri1;
