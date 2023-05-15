@@ -25,6 +25,8 @@ subject to the following restrictions:
 #include "LinearMath/btQuickprof.h"
 
 #include <tbb/tbb.h>
+#include <stack>
+#include <tuple>
 
 //#include "cvmarkersobj.h"
 
@@ -389,10 +391,12 @@ static void _find_quantized_collision_pairs_recursive(
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
 {
+	//printf("n0 %d n1 %d\n", node0, node1);
 	if (findOnlyFirstPair)
 	{
 		if (collision_pairs->size() > 0)
 		{
+			//printf("b1\n");
 			return;
 		}
 	}
@@ -401,12 +405,14 @@ static void _find_quantized_collision_pairs_recursive(
 		// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
 		// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
 		collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+		//printf("b2\n");
 		return;
 	}
 	if (_quantized_node_collision(
 			boxset0, boxset1, trans_cache_1to0,
 			node0, node1, complete_primitive_tests) == false)
 	{
+		//printf("b3\n");
 		return;  //avoid colliding internal nodes
 	}
 
@@ -417,12 +423,14 @@ static void _find_quantized_collision_pairs_recursive(
 			// collision result
 			if (findOnlyFirstPair)
 			{
+				//printf("b4\n");
 				collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 			}
 			return;
 		}
 		else
 		{
+			//printf("b5\n");
 			//collide left recursive
 			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair);
 			//collide right recursive
@@ -434,11 +442,13 @@ static void _find_quantized_collision_pairs_recursive(
 		if (boxset1->isLeafNode(node1))
 		{
 			//collide left recursive
+			//printf("b6\n");
 			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair);
 			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, false, findOnlyFirstPair);
 		}
 		else
 		{
+			//printf("b7\n");
 			//collide left0 left1
 			_find_quantized_collision_pairs_recursive(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
 
@@ -462,17 +472,20 @@ static void _find_quantized_collision_pairs(
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
 {
-	std::queue<std::pair<int, int>> pairQueue;
-	pairQueue.push({node0, node1});
+	std::stack<std::tuple<int, int, bool>> pairQueue;
+	pairQueue.push({node0, node1, complete_primitive_tests});
 	while (!pairQueue.empty())
 	{
-		auto pair = pairQueue.front();
+		auto pair = pairQueue.top();
 		pairQueue.pop();
-		int node0 = pair.first, node1 = pair.second;
+		int node0 = std::get<0>(pair), node1 = std::get<1>(pair);
+		bool complete_primitive_tests_local = std::get<2>(pair);
+		//printf("n0 %d n1 %d\n", node0, node1);
 		if (findOnlyFirstPair)
 		{
 			if (collision_pairs->size() > 0)
 			{
+				//printf("b1\n");
 				continue;
 			}
 		}
@@ -482,13 +495,15 @@ static void _find_quantized_collision_pairs(
 			// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
 			// Work in this function is not embarrassingly parallel. It was challenging to feed the threads with enough work while trying to parrallelize it.
 			collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+			//printf("b2\n");
 			continue;
 		}
 
 		if (_quantized_node_collision(
 				boxset0, boxset1, trans_cache_1to0,
-			node0, node1, complete_primitive_tests) == false)
+				node0, node1, complete_primitive_tests_local) == false)
 		{
+			//printf("b3\n");
 			continue;  //avoid colliding internal nodes
 		}
 
@@ -499,29 +514,33 @@ static void _find_quantized_collision_pairs(
 				// collision result
 				if (findOnlyFirstPair)
 				{
+					//printf("b4\n");
 					collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 				}
 				continue;
 			}
 			else
 			{
-				pairQueue.push({node0, boxset1->getRightNode(node1)});
-				pairQueue.push({node0, boxset1->getLeftNode(node1)});
+				//printf("b5\n");
+				pairQueue.push({node0, boxset1->getRightNode(node1), false});
+				pairQueue.push({node0, boxset1->getLeftNode(node1), false});
 			}
 		}
 		else
 		{
 			if (boxset1->isLeafNode(node1))
 			{
-				pairQueue.push({boxset0->getRightNode(node0), node1});
-				pairQueue.push({boxset0->getLeftNode(node0), node1});
+				//printf("b6\n");
+				pairQueue.push({boxset0->getRightNode(node0), node1, false});
+				pairQueue.push({boxset0->getLeftNode(node0), node1, false});
 			}
 			else
 			{
-				pairQueue.push({boxset0->getRightNode(node0), boxset1->getRightNode(node1)});
-				pairQueue.push({boxset0->getRightNode(node0), boxset1->getLeftNode(node1)});
-				pairQueue.push({boxset0->getLeftNode(node0), boxset1->getRightNode(node1)});
-				pairQueue.push({boxset0->getLeftNode(node0), boxset1->getLeftNode(node1)});
+				//printf("b7\n");
+				pairQueue.push({boxset0->getRightNode(node0), boxset1->getRightNode(node1), false});
+				pairQueue.push({boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false});
+				pairQueue.push({boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false});
+				pairQueue.push({boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false});
 			}
 		}
 	}
@@ -546,7 +565,9 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	auto start = std::chrono::steady_clock::now();
 	//series0.write_message(diagnostic::normal_importance, 0, "start ser");
 
+	printf("_find_quantized_collision_pairs_recursive start\n");
 	_find_quantized_collision_pairs_recursive(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+	printf("_find_quantized_collision_pairs_recursive end\n");
 	//_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
 
 	auto end = std::chrono::steady_clock::now();
@@ -556,7 +577,9 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 
 	start = std::chrono::steady_clock::now();
 
+	printf("_find_quantized_collision_pairs start\n");
 	_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs2, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
+	printf("_find_quantized_collision_pairs end\n");
 
 	end = std::chrono::steady_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
