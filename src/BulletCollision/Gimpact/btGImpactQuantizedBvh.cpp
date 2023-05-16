@@ -463,7 +463,7 @@ static void _find_quantized_collision_pairs_recursive_ser(
 		}  // else if node1 is not a leaf
 	}      // else if node0 is not a leaf
 }
-
+volatile int debugCnt = 0;
 static void _find_quantized_collision_pairs_recursive_par_dbg(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
@@ -490,6 +490,7 @@ static void _find_quantized_collision_pairs_recursive_par_dbg(
 		// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
 		//collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 		//printf("b2\n");
+		++debugCnt;
 		return;
 	}
 	if (_quantized_node_collision(
@@ -509,6 +510,7 @@ static void _find_quantized_collision_pairs_recursive_par_dbg(
 			{
 				//printf("b4\n");
 				//collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+				++debugCnt;
 			}
 			return;
 		}
@@ -572,10 +574,11 @@ static void _find_quantized_collision_pairs_recursive_par_dbg(
 	}      // else if node0 is not a leaf
 }
 
+constexpr int serlevel = 2;
 static void _find_quantized_collision_pairs_recursive_ser_dbg(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
+	int node0, int node1, int level, bool complete_primitive_tests, bool findOnlyFirstPair)
 {
 
 	if (findOnlyFirstPair)
@@ -624,10 +627,20 @@ static void _find_quantized_collision_pairs_recursive_ser_dbg(
 		else
 		{
 			//printf("b5\n");
-			//collide left recursive
-			_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair);
-			//collide right recursive
-			_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			if (level < serlevel)
+			{
+				//collide left recursive
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair);
+				//collide right recursive
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair);
+			}
+			else
+			{
+				//collide left recursive
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+				//collide right recursive
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			}
 		}
 	}
 	else
@@ -636,23 +649,48 @@ static void _find_quantized_collision_pairs_recursive_ser_dbg(
 		{
 			//collide left recursive
 			//printf("b6\n");
-			_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair);
-			_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, false, findOnlyFirstPair);
+			if (level < serlevel)
+			{
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair);
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair);
+			}
+			else
+			{
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair);
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, false, findOnlyFirstPair);
+			}
 		}
 		else
 		{
 			//printf("b7\n");
-			//collide left0 left1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+			if (level < serlevel)
+			{
+				//collide left0 left1
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair);
 
-			//collide left0 right1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+				//collide left0 right1
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair);
 
-			//collide right0 left1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+				//collide right0 left1
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair);
 
-			//collide right0 right1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+				//collide right0 right1
+				_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair);
+			}
+			else
+			{
+				//collide left0 left1
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+
+				//collide left0 right1
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+
+				//collide right0 left1
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+
+				//collide right0 right1
+				_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			}
 		}  // else if node1 is not a leaf
 	}      // else if node0 is not a leaf
 }
@@ -866,16 +904,16 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 
 	
 
-	printf("_find_quantized_collision_pairs start\n");
-	start = std::chrono::steady_clock::now();
-	_find_quantized_collision_pairs_recursive_par_dbg(boxset0, boxset1, &collision_pairs2, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
-	end = std::chrono::steady_clock::now();
-	printf("_find_quantized_collision_pairs end\n");
+	//printf("_find_quantized_collision_pairs start\n");
+	//start = std::chrono::steady_clock::now();
+	//_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1,&collision_pairs2, trans_cache_1to0, 0, 0, 0, true, findOnlyFirstPair);
+	//end = std::chrono::steady_clock::now();
+	//printf("_find_quantized_collision_pairs end\n");
 
 	
-	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	printf("_find_quantized_collision_pairs took %lld us\n", duration.count());
-	printf("size %lld\n", collision_pairs2.size());
+	//duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	//printf("_find_quantized_collision_pairs took %lld us\n", duration.count());
+	//printf("size %lld\n", collision_pairs2.size());
 
 	//series0.write_message(diagnostic::normal_importance, 0, "end ser %d us", duration.count());
 #ifdef TRI_COLLISION_PROFILING
