@@ -574,7 +574,8 @@ static void _find_quantized_collision_pairs_recursive_par_dbg(
 	}      // else if node0 is not a leaf
 }
 
-constexpr int serlevel = 0;
+constexpr int launchlevelstart = 1, launchlevelend = 3;
+std::atomic_char8_t launchInFlight = 0;
 static void _find_quantized_collision_pairs_recursive_ser_dbg(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
@@ -627,18 +628,22 @@ static void _find_quantized_collision_pairs_recursive_ser_dbg(
 		else
 		{
 			//printf("b5\n");
-			if (level == serlevel)
+			if (level > 1 && launchInFlight <= 3)
 			{
 				tbb::parallel_invoke(
 					[=]
 					{
 						//collide left recursive
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					},
 					[=]
 					{
 						//collide right recursive
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					});
 			}
 			else
@@ -656,16 +661,20 @@ static void _find_quantized_collision_pairs_recursive_ser_dbg(
 		{
 			//collide left recursive
 			//printf("b6\n");
-			if (level == serlevel)
+			if (level > 1 && launchInFlight <= 3)
 			{
 				tbb::parallel_invoke(
 					[=]
 					{
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					},
 					[=]
 					{
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					});
 			}
 			else
@@ -677,28 +686,36 @@ static void _find_quantized_collision_pairs_recursive_ser_dbg(
 		else
 		{
 			//printf("b7\n");
-			if (level == serlevel)
+			if (level > 1 && launchInFlight <= 3)
 			{
 				tbb::parallel_invoke(
 					[=]
 					{
 						//collide left0 left1
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					},
 					[=]
 					{
 						//collide left0 right1
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					},
 					[=]
 					{
 						//collide right0 left1
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					},
 					[=]
 					{
 						//collide right0 right1
+						++launchInFlight;
 						_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair);
+						--launchInFlight;
 					});
 			}
 			else
@@ -927,7 +944,7 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	printf("size %lld\n", collision_pairs.size());
 
 	
-
+	launchInFlight = 0;
 	printf("_find_quantized_collision_pairs start\n");
 	start = std::chrono::steady_clock::now();
 	_find_quantized_collision_pairs_recursive_ser_dbg(boxset0, boxset1,&collision_pairs2, trans_cache_1to0, 0, 0, 0, true, findOnlyFirstPair);
