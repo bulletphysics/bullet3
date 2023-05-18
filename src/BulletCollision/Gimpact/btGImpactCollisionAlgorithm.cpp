@@ -251,11 +251,11 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 	const btTransform& trans0,
 	const btTransform& trans1,
 	const btGImpactShapeInterface* shape0,
-	const btGImpactShapeInterface* shape1, btPairSet& pairset, btPairSet& pairset2, bool findOnlyFirstPair)
+	const btGImpactShapeInterface* shape1, tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet, btPairSet& auxPairSet, bool findOnlyFirstPair)
 {
 	if (shape0->hasBoxSet() && shape1->hasBoxSet())
 	{
-		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, pairset, pairset2, findOnlyFirstPair);
+		btGImpactBoxSet::find_collision(shape0->getBoxSet(), trans0, shape1->getBoxSet(), trans1, perThreadPairSet, auxPairSet, findOnlyFirstPair);
 	}
 	else
 	{
@@ -274,7 +274,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 
 				if (boxshape1.has_collision(boxshape0))
 				{
-					pairset.push_back({i, j});
+					auxPairSet.push_back({i, j});
 				}
 			}
 		}
@@ -533,7 +533,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 														const btCollisionObjectWrapper* body1Wrap,
 														const btGImpactMeshShapePart* shape0,
 														const btGImpactMeshShapePart* shape1,
-														const int* pairs, int pair_count)
+														const tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet,
+														const btPairSet& auxPairSet)
 {
 
 	auto start = std::chrono::steady_clock::now();
@@ -562,23 +563,20 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 	};
 
 	{
-		auto pair_pointer = reinterpret_cast<const std::pair<int, int>*>(pairs);
-		std::span pairSpan(pair_pointer, pair_count);
 
 		//debug_pairs(pairSpan, orgtrans0, orgtrans1, shape0, shape1);
 
 		std::list<IntermediateResult> intermediateResults;
 		std::mutex writeMutex;
-		
-		std::for_each(std::execution::seq, pairSpan.begin(), pairSpan.end(), [&](const std::pair<int, int>& pair)
-		{
+
+		auto pairEval = [&](const GIM_PAIR& pair) {
 			btPrimitiveTriangle ptri0;
 			btPrimitiveTriangle ptri1;
 			GIM_TRIANGLE_CONTACT contact_data;
 			IntermediateResult intermediateResult;
 
-			m_triface0 = pair.first;
-			m_triface1 = pair.second;
+			m_triface0 = pair.m_index1;
+			m_triface1 = pair.m_index2;
 
 			shape0->getPrimitiveTriangle(m_triface0, ptri0);
 			shape1->getPrimitiveTriangle(m_triface1, ptri1);
@@ -598,7 +596,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 				if (ptri0.overlap_test(ptri1))
 				{
 					if (ptri0.find_triangle_collision_alt_method_outer(ptri1, contact_data, gMarginZoneRecoveryStrengthFactor, lastSafeTrans0,
-																		lastSafeTrans1, ptri0Backup, ptri1Backup, doUnstuck))
+																	   lastSafeTrans1, ptri0Backup, ptri1Backup, doUnstuck))
 					{
 						if (contact_data.m_point_count >= 1)
 						{
@@ -611,7 +609,19 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 					}
 				}
 			}
-		});
+		};
+		
+		for (auto perThreadIter = perThreadPairSet.begin(); perThreadIter != perThreadPairSet.end(); ++perThreadIter)
+		{
+			for (auto pairIter = perThreadIter->begin(); pairIter != perThreadIter->end(); ++pairIter)
+			{
+				pairEval(*pairIter);
+			}
+		}
+		for (auto pairIter = auxPairSet.begin(); pairIter != auxPairSet.end(); ++pairIter)
+		{
+			pairEval(*pairIter);
+		}
 
 		//printf("col_count %zd\n", intermediateResults.size());
 
@@ -694,12 +704,15 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 		}
 	}
 
-	pairset.clear();
-	pairset2.clear();
+	auxPairSet.clear();
+	perThreadPairSet.clear();
 
-	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, pairset, pairset2, findOnlyFirstPair);
+	gimpact_vs_gimpact_find_pairs(orgtrans0, orgtrans1, shape0, shape1, perThreadPairSet, auxPairSet, findOnlyFirstPair);
 
-	if (pairset.size() == 0)
+	size_t pairsCount = 0;
+	for (auto perThreadIter = perThreadPairSet.begin(); perThreadIter != perThreadPairSet.end(); ++perThreadIter)
+		pairsCount += perThreadIter->size();
+	if (pairsCount == 0)
 		return;
 
 	if (findOnlyFirstPair)
@@ -719,7 +732,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 #ifdef BULLET_TRIANGLE_COLLISION
 		collide_gjk_triangles(body0Wrap, body1Wrap, shapepart0, shapepart1, &pairset[0].m_index1, pairset.size());
 #else
-		collide_sat_triangles(body0Wrap, body1Wrap, shapepart0, shapepart1, &pairset[0].m_index1, pairset.size());
+		collide_sat_triangles(body0Wrap, body1Wrap, shapepart0, shapepart1, perThreadPairSet, auxPairSet);
 #endif
 
 		return;
@@ -736,34 +749,33 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	bool child_has_transform0 = shape0->childrenHasTransform();
 	bool child_has_transform1 = shape1->childrenHasTransform();
 
-	int i = pairset.size();
-	while (i--)
-	{
-		GIM_PAIR* pair = &pairset[i];
-		m_triface0 = pair->m_index1;
-		m_triface1 = pair->m_index2;
-		const btCollisionShape* colshape0 = retriever0.getChildShape(m_triface0);
-		const btCollisionShape* colshape1 = retriever1.getChildShape(m_triface1);
-
-		btTransform tr0 = body0Wrap->getWorldTransform();
-		btTransform tr1 = body1Wrap->getWorldTransform();
-
-		if (child_has_transform0)
+	for (auto perThreadIter = perThreadPairSet.begin(); perThreadIter != perThreadPairSet.end(); ++perThreadIter)
+		for (auto pairsetIter = perThreadIter->rbegin(); pairsetIter != perThreadIter->rend(); ++pairsetIter) // TODO I think the reverse iterator is not needed. Try it.
 		{
-			tr0 = orgtrans0 * shape0->getChildTransform(m_triface0);
+			m_triface0 = pairsetIter->m_index1;
+			m_triface1 = pairsetIter->m_index2;
+			const btCollisionShape* colshape0 = retriever0.getChildShape(m_triface0);
+			const btCollisionShape* colshape1 = retriever1.getChildShape(m_triface1);
+
+			btTransform tr0 = body0Wrap->getWorldTransform();
+			btTransform tr1 = body1Wrap->getWorldTransform();
+
+			if (child_has_transform0)
+			{
+				tr0 = orgtrans0 * shape0->getChildTransform(m_triface0);
+			}
+
+			if (child_has_transform1)
+			{
+				tr1 = orgtrans1 * shape1->getChildTransform(m_triface1);
+			}
+
+			btCollisionObjectWrapper ob0(body0Wrap, colshape0, body0Wrap->getCollisionObject(), tr0, m_part0, m_triface0);
+			btCollisionObjectWrapper ob1(body1Wrap, colshape1, body1Wrap->getCollisionObject(), tr1, m_part1, m_triface1);
+
+			//collide two convex shapes
+			convex_vs_convex_collision(&ob0, &ob1, colshape0, colshape1);
 		}
-
-		if (child_has_transform1)
-		{
-			tr1 = orgtrans1 * shape1->getChildTransform(m_triface1);
-		}
-
-		btCollisionObjectWrapper ob0(body0Wrap, colshape0, body0Wrap->getCollisionObject(), tr0, m_part0, m_triface0);
-		btCollisionObjectWrapper ob1(body1Wrap, colshape1, body1Wrap->getCollisionObject(), tr1, m_part1, m_triface1);
-
-		//collide two convex shapes
-		convex_vs_convex_collision(&ob0, &ob1, colshape0, colshape1);
-	}
 
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();

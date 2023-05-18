@@ -43,6 +43,7 @@ class btDispatcher;
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
 #include <vector>
+#include <tbb/tbb.h>
 
 //! Collision Algorithm for GImpact Shapes
 /*!
@@ -63,8 +64,8 @@ protected:
 	int m_part0;
 	int m_triface1;
 	int m_part1;
-	btPairSet pairset;
-	btPairSet pairset2;
+	btPairSet auxPairSet;
+	tbb::enumerable_thread_specific<btPairSet> perThreadPairSet;
 
 	//! Creates a new contact point
 	SIMD_FORCE_INLINE btPersistentManifold* newContactManifold(const btCollisionObject* body0, const btCollisionObject* body1)
@@ -153,7 +154,8 @@ protected:
 							   const btCollisionObjectWrapper* body1Wrap,
 							   const btGImpactMeshShapePart* shape0,
 							   const btGImpactMeshShapePart* shape1,
-							   const int* pairs, int pair_count);
+							   const tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet,
+							   const btPairSet& auxPairSet);
 
 	void shape_vs_shape_collision(
 		const btCollisionObjectWrapper* body0,
@@ -170,7 +172,7 @@ protected:
 		const btTransform& trans0,
 		const btTransform& trans1,
 		const btGImpactShapeInterface* shape0,
-		const btGImpactShapeInterface* shape1, btPairSet& pairset, btPairSet& pairset2, bool findOnlyFirstPair);
+		const btGImpactShapeInterface* shape1, tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet, btPairSet& auxPairSet, bool findOnlyFirstPair);
 
 	void gimpact_vs_shape_find_pairs(
 		const btTransform& trans0,

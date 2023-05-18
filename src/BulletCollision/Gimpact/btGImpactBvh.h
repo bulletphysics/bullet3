@@ -31,8 +31,9 @@ subject to the following restrictions:
 #include "btGImpactBvhStructs.h"
 
 #include <vector>
+#include <list>
 
-typedef std::vector<GIM_PAIR> btPairSet;
+typedef std::list<GIM_PAIR> btPairSet;
 
 //! A pairset array
 //class btPairSet : public btAlignedObjectArray<GIM_PAIR>

@@ -24,7 +24,6 @@ subject to the following restrictions:
 #include "btGImpactQuantizedBvh.h"
 #include "LinearMath/btQuickprof.h"
 
-#include <tbb/tbb.h>
 #include <stack>
 #include <tuple>
 
@@ -612,7 +611,7 @@ static void _find_quantized_collision_pairs_stack_par(
 
 // This is the most promising candidate so far
 static void _find_quantized_collision_pairs_recursive_par(
-	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, tbb::combinable<btPairSet>& pairsCombinable,
+	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, tbb::enumerable_thread_specific<btPairSet>& pairsEnumerable,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 	int node0, int node1, int level, bool complete_primitive_tests, bool findOnlyFirstPair, std::atomic<bool>& firstPairFound)
 {
@@ -629,7 +628,7 @@ static void _find_quantized_collision_pairs_recursive_par(
 	{
 		// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
 		// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
-		pairsCombinable.local().push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+		pairsEnumerable.local().push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 		return;
 	}
 	if (_quantized_node_collision(
@@ -647,7 +646,7 @@ static void _find_quantized_collision_pairs_recursive_par(
 			if (findOnlyFirstPair)
 			{
 				firstPairFound = true;
-				pairsCombinable.local().push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+				pairsEnumerable.local().push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 			}
 			return;
 		}
@@ -656,23 +655,23 @@ static void _find_quantized_collision_pairs_recursive_par(
 			if (level < threadLaunchStopLevel)
 			{
 				tbb::parallel_invoke(
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
 						//collide left recursive
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 					},
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
 						//collide right recursive
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 					});
 			}
 			else
 			{
 				//collide left recursive
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 				//collide right recursive
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 			}
 		}
 	}
@@ -684,19 +683,19 @@ static void _find_quantized_collision_pairs_recursive_par(
 			if (level < threadLaunchStopLevel)
 			{
 				tbb::parallel_invoke(
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
 					},
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
 					});
 			}
 			else
 			{
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
 			}
 		}
 		else
@@ -704,47 +703,45 @@ static void _find_quantized_collision_pairs_recursive_par(
 			if (level < threadLaunchStopLevel)
 			{
 				tbb::parallel_invoke(
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
 						//collide left0 left1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 					},
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
 						//collide left0 right1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 					},
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
 						//collide right0 left1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 					},
-					[&pairsCombinable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
 					{
 						//collide right0 right1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 					});
 			}
 			else
 			{
 				//collide left0 left1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 				//collide left0 right1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 				//collide right0 left1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 				//collide right0 right1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
 			}
 		}  // else if node1 is not a leaf
 	}      // else if node0 is not a leaf
 }
 
-volatile int deleteme = 0;
-
 void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0, const btTransform& trans0,
 										   const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
-										   btPairSet& collision_pairs, btPairSet& collision_pairs2, bool findOnlyFirstPair)
+										   tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet, btPairSet& auxPairSet, bool findOnlyFirstPair)
 {
 	if (boxset0->getNodeCount() == 0 || boxset1->getNodeCount() == 0) return;
 
@@ -761,42 +758,20 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	
 	//series0.write_message(diagnostic::normal_importance, 0, "start ser");
 
-	printf("_find_quantized_collision_pairs_recursive start\n");
-	auto start = std::chrono::steady_clock::now();
-	_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
-	auto end = std::chrono::steady_clock::now();
-	printf("_find_quantized_collision_pairs_recursive end\n");
-	//_find_quantized_collision_pairs(boxset0, boxset1, &collision_pairs, trans_cache_1to0, 0, 0, true, findOnlyFirstPair);
-	
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	printf("_find_quantized_collision_pairs_recursive took %lld us\n", duration.count());
-	printf("size %lld\n", collision_pairs.size());
-
-	
 	printf("_find_quantized_collision_pairs_recursive_par start\n");
-	start = std::chrono::steady_clock::now();
-	tbb::combinable<btPairSet> pairsCombinable;
+	auto start = std::chrono::steady_clock::now();
 	std::atomic<bool> firstPairFound = false;
-	_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsCombinable, trans_cache_1to0, 0, 0, 0, true, findOnlyFirstPair, firstPairFound);
-	if (collision_pairs.size() == 640897)
-	{
-		++deleteme;
-	}
-	collision_pairs2 = pairsCombinable.combine([](const btPairSet& a, const btPairSet& b)
-		{
-			++deleteme;
-			btPairSet retVal/* = a*/;
-			retVal.push_back({1, 1});
-			//retVal.insert(retVal.end(), b.begin(), b.end());
-			return retVal;
-		});
-	end = std::chrono::steady_clock::now();
+	_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, perThreadPairSet, trans_cache_1to0, 0, 0, 0, true, findOnlyFirstPair, firstPairFound);
+	auto end = std::chrono::steady_clock::now();
 	printf("_find_quantized_collision_pairs_recursive_par end\n");
 
 	
-	duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	printf("_find_quantized_collision_pairs_recursive_par took %lld us\n", duration.count());
-	printf("size %lld\n", collision_pairs2.size());
+	size_t size = 0;
+	for (const auto& pairs : perThreadPairSet)
+		size += pairs.size();
+	printf("size %lld\n", size);
 
 	//series0.write_message(diagnostic::normal_importance, 0, "end ser %d us", duration.count());
 #ifdef TRI_COLLISION_PROFILING

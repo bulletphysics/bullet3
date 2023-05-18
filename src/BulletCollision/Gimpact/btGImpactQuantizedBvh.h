@@ -30,6 +30,7 @@ subject to the following restrictions:
 
 #include "ctpl_stl.h"
 #include <atomic>
+#include <tbb/tbb.h>
 
 class GIM_QUANTIZED_BVH_NODE_ARRAY : public btAlignedObjectArray<BT_QUANTIZED_BVH_NODE>
 {
@@ -384,7 +385,7 @@ public:
 
 	static void find_collision(const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 							   const btGImpactQuantizedBvh* boxset2, const btTransform& trans2,
-							   btPairSet& collision_pairs, btPairSet& collision_pairs2, bool findOnlyFirstPair);
+							   tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet, btPairSet& auxPairSet, bool findOnlyFirstPair);
 };
 
 #endif  // GIM_BOXPRUNING_H_INCLUDED
