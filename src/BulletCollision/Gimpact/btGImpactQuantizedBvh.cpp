@@ -609,131 +609,146 @@ static void _find_quantized_collision_pairs_stack_par(
 		});
 }
 
-// This is the most promising candidate so far
-static void _find_quantized_collision_pairs_recursive_par(
-	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, tbb::enumerable_thread_specific<btPairSet>& pairsEnumerable,
-	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, int level, bool complete_primitive_tests, bool findOnlyFirstPair, std::atomic<bool>& firstPairFound)
+struct GroupedParams
 {
-	constexpr int threadLaunchStopLevel = 11;
-
-	if (findOnlyFirstPair)
+	const btGImpactQuantizedBvh* boxset0;
+	const btGImpactQuantizedBvh* boxset1;
+	tbb::enumerable_thread_specific<btPairSet>& pairsEnumerable;
+	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0;
+	bool findOnlyFirstPair;
+	std::atomic<bool>& firstPairFound;
+	int threadLaunchStopLevel;
+	GroupedParams(const btGImpactQuantizedBvh* boxset0,
+				  const btGImpactQuantizedBvh* boxset1,
+				  tbb::enumerable_thread_specific<btPairSet> & pairsEnumerable,
+				  const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
+				  bool findOnlyFirstPair,
+				  std::atomic<bool>& firstPairFound,
+				  int threadLaunchStopLevel) : boxset0(boxset0), boxset1(boxset1), pairsEnumerable(pairsEnumerable), trans_cache_1to0(trans_cache_1to0), findOnlyFirstPair(findOnlyFirstPair), firstPairFound(firstPairFound), threadLaunchStopLevel(threadLaunchStopLevel)
 	{
-		if (firstPairFound)
+	}
+};
+
+// This is the most promising candidate so far
+static void _find_quantized_collision_pairs_recursive_par(GroupedParams& groupedParams, int node0, int node1, int level, bool complete_primitive_tests)
+{
+	if (groupedParams.findOnlyFirstPair)
+	{
+		if (groupedParams.firstPairFound)
 		{
 			return;
 		}
 	}
-	else if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+	else if (!groupedParams.findOnlyFirstPair && groupedParams.boxset0->isLeafNode(node0) && groupedParams.boxset1->isLeafNode(node1))
 	{
 		// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
 		// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
-		pairsEnumerable.local().push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+		groupedParams.pairsEnumerable.local().push_back({groupedParams.boxset0->getNodeData(node0), groupedParams.boxset1->getNodeData(node1)});
 		return;
 	}
 	if (_quantized_node_collision(
-			boxset0, boxset1, trans_cache_1to0,
+			groupedParams.boxset0, groupedParams.boxset1, groupedParams.trans_cache_1to0,
 			node0, node1, complete_primitive_tests) == false)
 	{
 		return;  //avoid colliding internal nodes
 	}
 
-	if (boxset0->isLeafNode(node0))
+	if (groupedParams.boxset0->isLeafNode(node0))
 	{
-		if (boxset1->isLeafNode(node1))
+		if (groupedParams.boxset1->isLeafNode(node1))
 		{
 			// collision result
-			if (findOnlyFirstPair)
+			if (groupedParams.findOnlyFirstPair)
 			{
-				firstPairFound = true;
-				pairsEnumerable.local().push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
+				groupedParams.firstPairFound = true;
+				groupedParams.pairsEnumerable.local().push_back({groupedParams.boxset0->getNodeData(node0), groupedParams.boxset1->getNodeData(node1)});
 			}
 			return;
 		}
 		else
 		{
-			if (level < threadLaunchStopLevel)
+			if (level < groupedParams.threadLaunchStopLevel)
 			{
 				tbb::parallel_invoke(
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
 						//collide left recursive
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, node0, groupedParams.boxset1->getLeftNode(node1), level + 1, false);
 					},
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
 						//collide right recursive
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, node0, groupedParams.boxset1->getRightNode(node1), level + 1, false);
 					});
 			}
 			else
 			{
 				//collide left recursive
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, node0, groupedParams.boxset1->getLeftNode(node1), level + 1, false);
 				//collide right recursive
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, node0, boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, node0, groupedParams.boxset1->getRightNode(node1), level + 1, false);
 			}
 		}
 	}
 	else
 	{
-		if (boxset1->isLeafNode(node1))
+		if (groupedParams.boxset1->isLeafNode(node1))
 		{
 			//collide left recursive
-			if (level < threadLaunchStopLevel)
+			if (level < groupedParams.threadLaunchStopLevel)
 			{
 				tbb::parallel_invoke(
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getLeftNode(node0), node1, level + 1, false);
 					},
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getRightNode(node0), node1, level + 1, false);
 					});
 			}
 			else
 			{
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), node1, level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getLeftNode(node0), node1, level + 1, false);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getRightNode(node0), node1, level + 1, false);
 			}
 		}
 		else
 		{
-			if (level < threadLaunchStopLevel)
+			if (level < groupedParams.threadLaunchStopLevel)
 			{
 				tbb::parallel_invoke(
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
 						//collide left0 left1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getLeftNode(node0), groupedParams.boxset1->getLeftNode(node1), level + 1, false);
 					},
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
 						//collide left0 right1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getLeftNode(node0), groupedParams.boxset1->getRightNode(node1), level + 1, false);
 					},
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
 						//collide right0 left1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getRightNode(node0), groupedParams.boxset1->getLeftNode(node1), level + 1, false);
 					},
-					[&pairsEnumerable, boxset0, boxset1, trans_cache_1to0, node0, node1, level, findOnlyFirstPair, &firstPairFound]
+					[&groupedParams, node0, node1, level]
 					{
 						//collide right0 right1
-						_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+						_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getRightNode(node0), groupedParams.boxset1->getRightNode(node1), level + 1, false);
 					});
 			}
 			else
 			{
 				//collide left0 left1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getLeftNode(node0), groupedParams.boxset1->getLeftNode(node1), level + 1, false);
 				//collide left0 right1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getLeftNode(node0), groupedParams.boxset1->getRightNode(node1), level + 1, false);
 				//collide right0 left1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getRightNode(node0), groupedParams.boxset1->getLeftNode(node1), level + 1, false);
 				//collide right0 right1
-				_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, pairsEnumerable, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), level + 1, false, findOnlyFirstPair, firstPairFound);
+				_find_quantized_collision_pairs_recursive_par(groupedParams, groupedParams.boxset0->getRightNode(node0), groupedParams.boxset1->getRightNode(node1), level + 1, false);
 			}
 		}  // else if node1 is not a leaf
 	}      // else if node0 is not a leaf
@@ -761,7 +776,14 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	printf("_find_quantized_collision_pairs_recursive_par start\n");
 	auto start = std::chrono::steady_clock::now();
 	std::atomic<bool> firstPairFound = false;
-	_find_quantized_collision_pairs_recursive_par(boxset0, boxset1, perThreadPairSet, trans_cache_1to0, 0, 0, 0, true, findOnlyFirstPair, firstPairFound);
+	auto boxset0Depth = std::log2(boxset0->getNodeCount() + 1);
+	auto boxset1Depth = std::log2(boxset1->getNodeCount() + 1);
+	// It has been empirically observed that the best performance is obtained when the stop level is half of total tree depth.
+	// It needs to be verified yet if this holds also for different CPU core count. This was tested only on a cpu with 32 logical cores.
+	auto threadLaunchStopLevel = static_cast<int>(max(boxset0Depth, boxset1Depth) / 2);
+	printf("threadLaunchStopLevel %d\n", threadLaunchStopLevel);
+	GroupedParams groupedParams(boxset0, boxset1, perThreadPairSet, trans_cache_1to0, findOnlyFirstPair, firstPairFound, threadLaunchStopLevel);
+	_find_quantized_collision_pairs_recursive_par(groupedParams, 0, 0, 0, true);
 	auto end = std::chrono::steady_clock::now();
 	printf("_find_quantized_collision_pairs_recursive_par end\n");
 
