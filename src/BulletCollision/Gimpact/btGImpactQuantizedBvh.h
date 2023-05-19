@@ -27,6 +27,7 @@ subject to the following restrictions:
 #include "btGImpactBvh.h"
 #include "btQuantization.h"
 #include "btGImpactQuantizedBvhStructs.h"
+#include "btGImpactCollisionAlgorithmEval.h"
 
 #include "ctpl_stl.h"
 #include <atomic>
@@ -385,7 +386,8 @@ public:
 
 	static void find_collision(const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 							   const btGImpactQuantizedBvh* boxset2, const btTransform& trans2,
-							   tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet, btPairSet& auxPairSet, bool findOnlyFirstPair);
+							   tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults, btPairSet& auxPairSet, bool findOnlyFirstPair,
+							   const btGimpactVsGimpactGroupedParams& grpParams);
 };
 
 #endif  // GIM_BOXPRUNING_H_INCLUDED

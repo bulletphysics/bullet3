@@ -80,6 +80,7 @@ SET(BulletCollision_SRCS
 	Gimpact/btGenericPoolAllocator.cpp
 	Gimpact/btGImpactBvh.cpp
 	Gimpact/btGImpactCollisionAlgorithm.cpp
+	Gimpact/btGImpactCollisionAlgorithmEval.cpp
 	Gimpact/btGImpactQuantizedBvh.cpp
 	Gimpact/btGImpactShape.cpp
 	Gimpact/btTriangleShapeEx.cpp
@@ -201,6 +202,7 @@ SET(Gimpact_HDRS
 	Gimpact/btGImpactBvhStructs.h
 	Gimpact/btGImpactBvh.h
 	Gimpact/btGImpactCollisionAlgorithm.h
+	Gimpact/btGImpactCollisionAlgorithmEval.h
 	Gimpact/btGImpactMassUtil.h
 	Gimpact/btGImpactQuantizedBvhStructs.h
 	Gimpact/btGImpactQuantizedBvh.h

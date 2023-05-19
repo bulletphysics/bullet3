@@ -41,6 +41,7 @@ class btDispatcher;
 #include "BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
+#include "btGImpactCollisionAlgorithmEval.h"
 
 #include <vector>
 #include <tbb/tbb.h>
@@ -53,9 +54,11 @@ btCollisionDispatcher * dispatcher = static_cast<btCollisionDispatcher *>(m_dyna
 btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
  \endcode
 */
+
 class btGImpactCollisionAlgorithm : public btActivatingCollisionAlgorithm
 {
 protected:
+
 	btCollisionAlgorithm* m_convex_algorithm;
 	btPersistentManifold* m_manifoldPtr;
 	btManifoldResult* m_resultOut;
@@ -65,7 +68,7 @@ protected:
 	int m_triface1;
 	int m_part1;
 	btPairSet auxPairSet;
-	tbb::enumerable_thread_specific<btPairSet> perThreadPairSet;
+	tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>> perThreadIntermediateResults;
 
 	//! Creates a new contact point
 	SIMD_FORCE_INLINE btPersistentManifold* newContactManifold(const btCollisionObject* body0, const btCollisionObject* body1)
@@ -150,11 +153,23 @@ protected:
 							   const btGImpactMeshShapePart* shape1,
 							   const int* pairs, int pair_count);
 
-	void collide_sat_triangles(const btCollisionObjectWrapper* body0Wrap,
+	void collide_sat_triangles_pre(const btCollisionObjectWrapper* body0Wrap,
+							   const btCollisionObjectWrapper* body1Wrap,
+							   const btGImpactMeshShapePart* shape0,
+								   const btGImpactMeshShapePart* shape1,
+								   btGimpactVsGimpactGroupedParams& grpParams);
+
+	void collide_sat_triangles_post(const tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>* perThreadIntermediateResults,
+									const std::list<btGImpactIntermediateResult>* intermediateResults,
+								   const btCollisionObjectWrapper* body0Wrap,
+								   const btCollisionObjectWrapper* body1Wrap,
+								   const btGImpactMeshShapePart* shape0,
+								   const btGImpactMeshShapePart* shape1);
+
+	void collide_sat_triangles_aux(const btCollisionObjectWrapper* body0Wrap,
 							   const btCollisionObjectWrapper* body1Wrap,
 							   const btGImpactMeshShapePart* shape0,
 							   const btGImpactMeshShapePart* shape1,
-							   const tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet,
 							   const btPairSet& auxPairSet);
 
 	void shape_vs_shape_collision(
@@ -169,10 +184,12 @@ protected:
 									const btCollisionShape* shape1);
 
 	void gimpact_vs_gimpact_find_pairs(
+		const btGimpactVsGimpactGroupedParams& grpParams,
 		const btTransform& trans0,
 		const btTransform& trans1,
-		const btGImpactShapeInterface* shape0,
-		const btGImpactShapeInterface* shape1, tbb::enumerable_thread_specific<btPairSet>& perThreadPairSet, btPairSet& auxPairSet, bool findOnlyFirstPair);
+		tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults,
+		btPairSet& auxPairSet,
+		bool findOnlyFirstPair);
 
 	void gimpact_vs_shape_find_pairs(
 		const btTransform& trans0,
