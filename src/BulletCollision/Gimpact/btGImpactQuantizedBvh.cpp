@@ -780,9 +780,9 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	std::atomic<bool> firstPairFound = false;
 	auto boxset0Depth = std::log2(boxset0->getNodeCount() + 1);
 	auto boxset1Depth = std::log2(boxset1->getNodeCount() + 1);
-	// It has been empirically observed that the best performance is obtained when the stop level is half of total tree depth.
+	// It has been empirically observed that the best performance is obtained when the stop level is three quarters of total tree depth.
 	// It needs to be verified yet if this holds also for different CPU core count. This was tested only on a cpu with 32 logical cores.
-	auto threadLaunchStopLevel = static_cast<int>(max(boxset0Depth, boxset1Depth) / 2);
+	auto threadLaunchStopLevel = static_cast<int>(max(boxset0Depth, boxset1Depth) / 1.5);
 	GroupedParams groupedParams(boxset0, boxset1, perThreadIntermediateResults, trans_cache_1to0, findOnlyFirstPair, firstPairFound, threadLaunchStopLevel, grpParams);
 	_find_quantized_collision_pairs_recursive_par(groupedParams, 0, 0, 0, true);
 	auto end = std::chrono::steady_clock::now();
@@ -794,9 +794,9 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 		size += pairs.size();
 	if (size > 0)
 	{
-		printf("threadLaunchStopLevel %d\n", threadLaunchStopLevel);
+		//printf("threadLaunchStopLevel %d\n", threadLaunchStopLevel);
 		printf("_find_quantized_collision_pairs_recursive_par took %lld us\n", duration.count());
-		printf("size %lld\n", size);
+		//printf("size %lld\n", size);
 	}
 
 	//series0.write_message(diagnostic::normal_importance, 0, "end ser %d us", duration.count());
