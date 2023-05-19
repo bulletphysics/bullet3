@@ -537,8 +537,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 														const btPairSet& auxPairSet)
 {
 
-	auto start = std::chrono::steady_clock::now();
-
 	btTransform orgtrans0 = body0Wrap->getWorldTransform();
 	btTransform orgtrans1 = body1Wrap->getWorldTransform();
 
@@ -558,7 +556,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 	struct IntermediateResult
 	{
-		btVector3 point, normal;
+		btVector3 point;
+		btVector3 normal;
 		btScalar depth;
 	};
 
@@ -566,14 +565,12 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 
 		//debug_pairs(pairSpan, orgtrans0, orgtrans1, shape0, shape1);
 
-		std::list<IntermediateResult> intermediateResults;
-		std::mutex writeMutex;
+		tbb::enumerable_thread_specific<std::list<IntermediateResult>> perThreadIntermediateResults;
 
 		auto pairEval = [&](const GIM_PAIR& pair) {
 			btPrimitiveTriangle ptri0;
 			btPrimitiveTriangle ptri1;
 			GIM_TRIANGLE_CONTACT contact_data;
-			IntermediateResult intermediateResult;
 
 			m_triface0 = pair.m_index1;
 			m_triface1 = pair.m_index2;
@@ -600,46 +597,48 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles(const btCollisionObjectW
 					{
 						if (contact_data.m_point_count >= 1)
 						{
-							intermediateResult.point = contact_data.m_points[0];
-							intermediateResult.normal = contact_data.m_separating_normal;
-							intermediateResult.depth = -contact_data.m_penetration_depth;
-							std::lock_guard<std::mutex> guard(writeMutex);
-							intermediateResults.push_back(intermediateResult);
+							perThreadIntermediateResults.local().push_back({contact_data.m_points[0], contact_data.m_separating_normal, -contact_data.m_penetration_depth});
 						}
 					}
 				}
 			}
 		};
 		
-		for (auto perThreadIter = perThreadPairSet.begin(); perThreadIter != perThreadPairSet.end(); ++perThreadIter)
-		{
-			for (auto pairIter = perThreadIter->begin(); pairIter != perThreadIter->end(); ++pairIter)
-			{
-				pairEval(*pairIter);
-			}
-		}
-		for (auto pairIter = auxPairSet.begin(); pairIter != auxPairSet.end(); ++pairIter)
-		{
-			pairEval(*pairIter);
-		}
+		auto start = std::chrono::steady_clock::now();
+
+		tbb::parallel_for_each(perThreadPairSet.begin(), perThreadPairSet.end(), [pairEval](const btPairSet& pairSet)
+							   {
+			tbb::parallel_for_each(pairSet.begin(), pairSet.end(), [pairEval](const GIM_PAIR& pair) {
+				pairEval(pair);
+			});
+		});
+
+		auto end = std::chrono::steady_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		printf("pairEvals took %lld us\n", duration.count());
 
 		//printf("col_count %zd\n", intermediateResults.size());
 
-		for (const auto& ir : intermediateResults)
+		start = std::chrono::steady_clock::now();
+
+		for (const auto& perThreadIntermediateResult : perThreadIntermediateResults)
 		{
-			addContactPoint(body0Wrap, body1Wrap,
-							ir.point,
-							ir.normal,
-							ir.depth);
+			for (const auto& ir : perThreadIntermediateResult)
+			{
+				addContactPoint(body0Wrap, body1Wrap,
+								ir.point,
+								ir.normal,
+								ir.depth);
+			}
 		}
+
+		end = std::chrono::steady_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		printf("addContactPoints took %lld us\n", duration.count());
 	}
 
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();
-
-	auto end = std::chrono::steady_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	printf("collide_sat_triangles took %lld us\n", duration.count());
 
 }
 
