@@ -67,6 +67,8 @@ public:
 
 	virtual void getCachedMeshData(struct b3MeshData* meshData) = 0;
 
+	virtual void getCachedTetraMeshData(struct b3TetraMeshData* meshData) = 0;
+
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData) = 0;
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData) = 0;

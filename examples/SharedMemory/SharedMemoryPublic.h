@@ -118,6 +118,8 @@ enum EnumSharedMemoryClientCommand
 	
 	CMD_PERFORM_COLLISION_DETECTION,
 	CMD_RESET_MESH_DATA,
+
+	CMD_REQUEST_TETRA_MESH_DATA,
 	//don't go beyond this command!
 	CMD_MAX_CLIENT_COMMANDS,
 };
@@ -244,6 +246,9 @@ enum EnumSharedMemoryServerStatus
 	CMD_PERFORM_COLLISION_DETECTION_COMPLETED,
 	CMD_RESET_MESH_DATA_COMPLETED,
 	CMD_RESET_MESH_DATA_FAILED,
+
+	CMD_REQUEST_TETRA_MESH_DATA_COMPLETED,
+	CMD_REQUEST_TETRA_MESH_DATA_FAILED,
 	//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
 	CMD_MAX_SERVER_COMMANDS
 };
@@ -476,6 +481,17 @@ enum eMeshDataEnum
 };
 
 struct b3MeshData
+{
+	int m_numVertices;
+	struct b3MeshVertex* m_vertices;
+};
+
+enum eTetraMeshDataEnum
+{
+	B3_TETRA_MESH_DATA_FLAGS=2,
+};
+
+struct b3TetraMeshData
 {
 	int m_numVertices;
 	struct b3MeshVertex* m_vertices;
