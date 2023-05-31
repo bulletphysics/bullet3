@@ -38,6 +38,8 @@ struct btGImpactIntermediateResult
 	btScalar depth;
 };
 
+typedef tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>> ThreadLocalGImpactResult;
+
 class btGImpactMeshShapePart;
 
 struct btGimpactVsGimpactGroupedParams
@@ -51,6 +53,7 @@ struct btGimpactVsGimpactGroupedParams
 	bool doUnstuck;
 	int &triface0;
 	int &triface1;
+	int previouslyFoundPairCount;
 	btGimpactVsGimpactGroupedParams(int& triface0, int& triface1) : triface0(triface0), triface1(triface1) {}
 };
 
@@ -58,7 +61,7 @@ struct btGImpactPairEval
 {
 	static bool EvalPair(const GIM_PAIR& pair,
 						 btGimpactVsGimpactGroupedParams& grpParams,
-						 tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>* perThreadIntermediateResults,
+						 ThreadLocalGImpactResult* perThreadIntermediateResults,
 						 std::list<btGImpactIntermediateResult>* intermediateResults);
 };
 

@@ -60,6 +60,7 @@ protected:
 
 	btInitialCollisionParticipants initialCollisionParticipants;
 	btInitialCollisionParticipantsSingle initialCollisionParticipants0, initialCollisionParticipants1;
+	btPreviouslyFoundPairMap previouslyFoundPairCount;
 
 public:
 	enum DispatcherFlags
@@ -89,6 +90,16 @@ public:
 		initialCollisionParticipants.insert(pair);
 		initialCollisionParticipants0.insert(pair.first);
 		initialCollisionParticipants1.insert(pair.second);
+	}
+
+	void addFoundPairCount(btPreviouslyFoundPairMap::key_type key, btPreviouslyFoundPairMap::mapped_type value) override
+	{
+		previouslyFoundPairCount.insert_or_assign(key, value);
+	}
+
+	const btPreviouslyFoundPairMap& getPreviouslyFoundPairCount() const override
+	{
+		return previouslyFoundPairCount;
 	}
 
 	const btInitialCollisionParticipants& getInitialCollisionParticipants() const override

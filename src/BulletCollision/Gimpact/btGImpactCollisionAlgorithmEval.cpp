@@ -3,7 +3,7 @@
 
 bool btGImpactPairEval::EvalPair(const GIM_PAIR& pair,
 								 btGimpactVsGimpactGroupedParams& grpParams,
-						 tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>* perThreadIntermediateResults,
+						 ThreadLocalGImpactResult* perThreadIntermediateResults,
 						 std::list<btGImpactIntermediateResult>* intermediateResults)
 {
 	btPrimitiveTriangle ptri0;

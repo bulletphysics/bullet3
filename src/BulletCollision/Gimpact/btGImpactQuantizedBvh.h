@@ -386,7 +386,8 @@ public:
 
 	static void find_collision(const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 							   const btGImpactQuantizedBvh* boxset2, const btTransform& trans2,
-							   tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults, btPairSet& auxPairSet, bool findOnlyFirstPair,
+							   ThreadLocalGImpactResult& perThreadIntermediateResults, btPairSet& auxPairSet,
+							   bool findOnlyFirstPair,
 							   const btGimpactVsGimpactGroupedParams& grpParams);
 };
 

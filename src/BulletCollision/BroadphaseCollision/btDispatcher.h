@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "LinearMath/btScalar.h"
 
 #include <set>
+#include <map>
 
 class btCollisionAlgorithm;
 struct btBroadphaseProxy;
@@ -80,6 +81,7 @@ class btDispatcher
 public:
 	typedef std::set<std::pair<const btCollisionObject*, const btCollisionObject*>> btInitialCollisionParticipants;
 	typedef std::set<const btCollisionObject*> btInitialCollisionParticipantsSingle;
+	typedef std::map<std::pair<int, int>, int> btPreviouslyFoundPairMap;
 
 	virtual ~btDispatcher();
 
@@ -118,6 +120,10 @@ public:
 	virtual const btInitialCollisionParticipantsSingle& getInitialCollisionParticipants0() const = 0;
 
 	virtual const btInitialCollisionParticipantsSingle& getInitialCollisionParticipants1() const = 0;
+
+	virtual void addFoundPairCount(btPreviouslyFoundPairMap::key_type key, btPreviouslyFoundPairMap::mapped_type value) = 0;
+
+	virtual const btPreviouslyFoundPairMap& getPreviouslyFoundPairCount() const = 0;
 };
 
 #endif  //BT_DISPATCHER_H

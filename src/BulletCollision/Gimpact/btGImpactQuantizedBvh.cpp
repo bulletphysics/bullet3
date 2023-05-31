@@ -613,7 +613,7 @@ struct GroupedParams
 {
 	const btGImpactQuantizedBvh* boxset0;
 	const btGImpactQuantizedBvh* boxset1;
-	tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults;
+	ThreadLocalGImpactResult& perThreadIntermediateResults;
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0;
 	bool findOnlyFirstPair;
 	std::atomic<bool>& firstPairFound;
@@ -621,7 +621,7 @@ struct GroupedParams
 	btGimpactVsGimpactGroupedParams grpParams;
 	GroupedParams(const btGImpactQuantizedBvh* boxset0,
 				  const btGImpactQuantizedBvh* boxset1,
-				  tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults,
+				  ThreadLocalGImpactResult& perThreadIntermediateResults,
 				  const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
 				  bool findOnlyFirstPair,
 				  std::atomic<bool>& firstPairFound,
@@ -758,7 +758,8 @@ static void _find_quantized_collision_pairs_recursive_par(GroupedParams& grouped
 
 void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0, const btTransform& trans0,
 										   const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
-										   tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults, btPairSet& auxPairSet, bool findOnlyFirstPair,
+										   ThreadLocalGImpactResult& perThreadIntermediateResults, btPairSet& auxPairSet,
+										   bool findOnlyFirstPair,
 										   const btGimpactVsGimpactGroupedParams& grpParams)
 {
 	if (boxset0->getNodeCount() == 0 || boxset1->getNodeCount() == 0) return;
@@ -783,6 +784,10 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	// It has been empirically observed that the best performance is obtained when the stop level is three quarters of total tree depth.
 	// It needs to be verified yet if this holds also for different CPU core count. This was tested only on a cpu with 32 logical cores.
 	auto threadLaunchStopLevel = static_cast<int>(max(boxset0Depth, boxset1Depth) / 1.5);
+	// The tbb parallel calls increase the _find_quantized_collision_pairs_recursive_par duration from about 1us to anything between 20-80us,
+	// so the tbb parallel calls pay off only when there are at least some triangle leaves visited in the BVHs
+	if (grpParams.previouslyFoundPairCount <= 0 || findOnlyFirstPair)
+		threadLaunchStopLevel = 0;
 	GroupedParams groupedParams(boxset0, boxset1, perThreadIntermediateResults, trans_cache_1to0, findOnlyFirstPair, firstPairFound, threadLaunchStopLevel, grpParams);
 	_find_quantized_collision_pairs_recursive_par(groupedParams, 0, 0, 0, true);
 	//auto end = std::chrono::steady_clock::now();
@@ -794,9 +799,9 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	//	size += pairs.size();
 	//if (size > 0)
 	//{
-		//printf("threadLaunchStopLevel %d\n", threadLaunchStopLevel);
-		//printf("_find_quantized_collision_pairs_recursive_par took %lld us\n", duration.count());
-		//printf("size %lld\n", size);
+	//	printf("boxset0Depth %f boxset1Depth %f threadLaunchStopLevel %d grpParams.previouslyFoundPairCount %d\n", boxset0Depth, boxset1Depth, threadLaunchStopLevel, grpParams.previouslyFoundPairCount);
+	//	printf("_find_quantized_collision_pairs_recursive_par took %lld us\n", duration.count());
+	//	printf("size %lld\n", size);
 	//}
 
 	//series0.write_message(diagnostic::normal_importance, 0, "end ser %d us", duration.count());

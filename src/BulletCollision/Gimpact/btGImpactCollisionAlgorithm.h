@@ -68,7 +68,7 @@ protected:
 	int m_triface1;
 	int m_part1;
 	btPairSet auxPairSet;
-	tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>> perThreadIntermediateResults;
+	ThreadLocalGImpactResult perThreadIntermediateResults;
 
 	//! Creates a new contact point
 	SIMD_FORCE_INLINE btPersistentManifold* newContactManifold(const btCollisionObject* body0, const btCollisionObject* body1)
@@ -159,7 +159,7 @@ protected:
 								   const btGImpactMeshShapePart* shape1,
 								   btGimpactVsGimpactGroupedParams& grpParams);
 
-	void collide_sat_triangles_post(const tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>* perThreadIntermediateResults,
+	void collide_sat_triangles_post(const ThreadLocalGImpactResult* perThreadIntermediateResults,
 									const std::list<btGImpactIntermediateResult>* intermediateResults,
 								   const btCollisionObjectWrapper* body0Wrap,
 								   const btCollisionObjectWrapper* body1Wrap,
@@ -187,7 +187,7 @@ protected:
 		const btGimpactVsGimpactGroupedParams& grpParams,
 		const btTransform& trans0,
 		const btTransform& trans1,
-		tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults,
+		ThreadLocalGImpactResult& perThreadIntermediateResults,
 		btPairSet& auxPairSet,
 		bool findOnlyFirstPair);
 

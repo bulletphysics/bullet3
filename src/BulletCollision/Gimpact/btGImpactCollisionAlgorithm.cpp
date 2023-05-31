@@ -251,7 +251,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 	const btGimpactVsGimpactGroupedParams& grpParams,
 	const btTransform& trans0,
 	const btTransform& trans1,
-	tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>& perThreadIntermediateResults, btPairSet& auxPairSet, bool findOnlyFirstPair)
+	ThreadLocalGImpactResult& perThreadIntermediateResults, btPairSet& auxPairSet, bool findOnlyFirstPair)
 {
 	if (grpParams.shape0->hasBoxSet() && grpParams.shape1->hasBoxSet())
 	{
@@ -551,12 +551,23 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_pre(const btCollisionObj
 	grpParams.doUnstuck = (isStatic0 ? body1Wrap : body0Wrap)->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK;
 	grpParams.lastSafeTrans0 = isStatic0 ? grpParams.orgtrans0 : body0Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	grpParams.lastSafeTrans1 = isStatic1 ? grpParams.orgtrans1 : body1Wrap->getCollisionObject()->getLastSafeWorldTransform();
+	
+	const auto& prevPairsMap = m_dispatcher->getPreviouslyFoundPairCount();
+	auto pairCountIter = prevPairsMap.find({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()});
+	if (pairCountIter != prevPairsMap.end())
+	{
+		grpParams.previouslyFoundPairCount = pairCountIter->second;
+	}
+	else
+	{
+		grpParams.previouslyFoundPairCount = 0;
+	}
 
 	shape0->lockChildShapes();
 	shape1->lockChildShapes();
 }
 
-void btGImpactCollisionAlgorithm::collide_sat_triangles_post(const tbb::enumerable_thread_specific<std::list<btGImpactIntermediateResult>>* perThreadIntermediateResults,
+void btGImpactCollisionAlgorithm::collide_sat_triangles_post(const ThreadLocalGImpactResult* perThreadIntermediateResults,
 															 const std::list<btGImpactIntermediateResult>* intermediateResults,
 															const btCollisionObjectWrapper* body0Wrap,
 															const btCollisionObjectWrapper* body1Wrap,
@@ -564,6 +575,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_post(const tbb::enumerab
 															const btGImpactMeshShapePart* shape1)
 {
 	if (perThreadIntermediateResults)
+	{
+		int pairCount = 0;
 		for (const auto& perThreadIntermediateResult : *perThreadIntermediateResults)
 		{
 			for (const auto& ir : perThreadIntermediateResult)
@@ -572,9 +585,13 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_post(const tbb::enumerab
 								ir.point,
 								ir.normal,
 								ir.depth);
+				++pairCount;
 			}
 		}
+		m_dispatcher->addFoundPairCount({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()}, pairCount);
+	}
 	if (intermediateResults)
+	{
 		for (const auto& ir : *intermediateResults)
 		{
 			addContactPoint(body0Wrap, body1Wrap,
@@ -582,6 +599,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_post(const tbb::enumerab
 							ir.normal,
 							ir.depth);
 		}
+	}
 
 	shape0->unlockChildShapes();
 	shape1->unlockChildShapes();
