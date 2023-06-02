@@ -273,9 +273,9 @@ IF (BULLET2_USE_TBB_MULTITHREADING)
     SET (BULLET2_TBB_INCLUDE_DIR "not found" CACHE PATH "Directory for Intel TBB includes.")
     SET (BULLET2_TBB_LIB_DIR "not found" CACHE PATH "Directory for Intel TBB libraries.")
 
-
-	set(DEBUG_TBB_LIB_FILENAME "tbb12_debug.lib")
-	set(RELEASE_TBB_LIB_FILENAME "tbb12.lib")
+	get_filename_component(TBB_FILENAME "${TBB_LIBRARY}" NAME_WLE)
+	set(DEBUG_TBB_LIB_FILENAME "${TBB_FILENAME}_debug.lib")
+	set(RELEASE_TBB_LIB_FILENAME "${TBB_FILENAME}.lib")
 	get_filename_component(TBB_PATH "${TBB_LIBRARY}" DIRECTORY)
     find_library(TBBMALLOC_LIBRARY tbbmalloc PATHS ${BULLET2_TBB_LIB_DIR})
     ADD_DEFINITIONS("-DBT_USE_TBB=1")
