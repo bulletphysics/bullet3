@@ -643,8 +643,6 @@ static void _find_quantized_collision_pairs_recursive_par(GroupedParams& grouped
 	}
 	else if (!groupedParams.findOnlyFirstPair && groupedParams.boxset0->isLeafNode(node0) && groupedParams.boxset1->isLeafNode(node1))
 	{
-		// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
-		// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
 		btGImpactPairEval::EvalPair({groupedParams.boxset0->getNodeData(node0), groupedParams.boxset1->getNodeData(node1)}, groupedParams.grpParams, &groupedParams.perThreadIntermediateResults, nullptr);
 		return;
 	}
