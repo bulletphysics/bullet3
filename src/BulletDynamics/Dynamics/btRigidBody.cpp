@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 
 //'temporarily' global variables
-btScalar gDeactivationTime = btScalar(2.);
+btScalar gDeactivationTime = btScalar(0.1);
 bool gDisableDeactivation = false;
 static int uniqueId = 0;
 
