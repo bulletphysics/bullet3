@@ -121,9 +121,9 @@ public:
 
 	virtual const btInitialCollisionParticipantsSingle& getInitialCollisionParticipants1() const = 0;
 
-	virtual void addFoundPairCount(btPreviouslyFoundPairMap::key_type key, btPreviouslyFoundPairMap::mapped_type value) = 0;
+	virtual void addPreviouslyConsumedTime(btPreviouslyFoundPairMap::key_type key, btPreviouslyFoundPairMap::mapped_type value) = 0;
 
-	virtual const btPreviouslyFoundPairMap& getPreviouslyFoundPairCount() const = 0;
+	virtual const btPreviouslyFoundPairMap& getPreviouslyConsumedTime() const = 0;
 };
 
 #endif  //BT_DISPATCHER_H

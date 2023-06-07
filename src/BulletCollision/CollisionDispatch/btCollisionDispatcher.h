@@ -60,7 +60,7 @@ protected:
 
 	btInitialCollisionParticipants initialCollisionParticipants;
 	btInitialCollisionParticipantsSingle initialCollisionParticipants0, initialCollisionParticipants1;
-	btPreviouslyFoundPairMap previouslyFoundPairCount;
+	btPreviouslyFoundPairMap previouslyConsumedTime;
 
 public:
 	enum DispatcherFlags
@@ -92,14 +92,14 @@ public:
 		initialCollisionParticipants1.insert(pair.second);
 	}
 
-	void addFoundPairCount(btPreviouslyFoundPairMap::key_type key, btPreviouslyFoundPairMap::mapped_type value) override
+	void addPreviouslyConsumedTime(btPreviouslyFoundPairMap::key_type key, btPreviouslyFoundPairMap::mapped_type value) override
 	{
-		previouslyFoundPairCount.insert_or_assign(key, value);
+		previouslyConsumedTime.insert_or_assign(key, value);
 	}
 
-	const btPreviouslyFoundPairMap& getPreviouslyFoundPairCount() const override
+	const btPreviouslyFoundPairMap& getPreviouslyConsumedTime() const override
 	{
-		return previouslyFoundPairCount;
+		return previouslyConsumedTime;
 	}
 
 	const btInitialCollisionParticipants& getInitialCollisionParticipants() const override

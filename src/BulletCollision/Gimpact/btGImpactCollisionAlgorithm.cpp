@@ -552,15 +552,15 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_pre(const btCollisionObj
 	grpParams.lastSafeTrans0 = isStatic0 ? grpParams.orgtrans0 : body0Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	grpParams.lastSafeTrans1 = isStatic1 ? grpParams.orgtrans1 : body1Wrap->getCollisionObject()->getLastSafeWorldTransform();
 	
-	const auto& prevPairsMap = m_dispatcher->getPreviouslyFoundPairCount();
-	auto pairCountIter = prevPairsMap.find({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()});
-	if (pairCountIter != prevPairsMap.end())
+	const auto& prevTimeMap = m_dispatcher->getPreviouslyConsumedTime();
+	auto timeIter = prevTimeMap.find({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()});
+	if (timeIter != prevTimeMap.end())
 	{
-		grpParams.previouslyFoundPairCount = pairCountIter->second;
+		grpParams.previouslyConsumedTime = timeIter->second;
 	}
 	else
 	{
-		grpParams.previouslyFoundPairCount = 0;
+		grpParams.previouslyConsumedTime = 0;
 	}
 
 	shape0->lockChildShapes();
@@ -576,7 +576,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_post(const ThreadLocalGI
 {
 	if (perThreadIntermediateResults)
 	{
-		int pairCount = 0;
 		for (const auto& perThreadIntermediateResult : *perThreadIntermediateResults)
 		{
 			for (const auto& ir : perThreadIntermediateResult)
@@ -585,10 +584,8 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_post(const ThreadLocalGI
 								ir.point,
 								ir.normal,
 								ir.depth);
-				++pairCount;
 			}
 		}
-		m_dispatcher->addFoundPairCount({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()}, pairCount);
 	}
 	if (intermediateResults)
 	{
@@ -693,7 +690,12 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 		const btGImpactMeshShapePart* shapepart1 = static_cast<const btGImpactMeshShapePart*>(shape1);
 		collide_sat_triangles_pre(body0Wrap, body1Wrap, shapepart0, shapepart1, grpParams);
 	}
+
+	auto start = std::chrono::steady_clock::now();
 	gimpact_vs_gimpact_find_pairs(grpParams, grpParams.orgtrans0, grpParams.orgtrans1, perThreadIntermediateResults, auxPairSet, findOnlyFirstPair);
+	auto end = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	m_dispatcher->addPreviouslyConsumedTime({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()}, duration.count());
 
 	size_t pairsCount = 0;
 	for (auto perThreadIter = perThreadIntermediateResults.begin(); perThreadIter != perThreadIntermediateResults.end(); ++perThreadIter)

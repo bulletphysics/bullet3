@@ -53,7 +53,7 @@ struct btGimpactVsGimpactGroupedParams
 	bool doUnstuck;
 	int &triface0;
 	int &triface1;
-	int previouslyFoundPairCount;
+	int previouslyConsumedTime;
 	btGimpactVsGimpactGroupedParams(int& triface0, int& triface1) : triface0(triface0), triface1(triface1) {}
 };
 
