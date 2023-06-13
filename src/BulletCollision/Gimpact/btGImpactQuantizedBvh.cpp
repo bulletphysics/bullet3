@@ -775,7 +775,7 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	
 	//series0.write_message(diagnostic::normal_importance, 0, "start ser");
 
-	auto start = std::chrono::steady_clock::now();
+	//auto start = std::chrono::steady_clock::now();
 	std::atomic<bool> firstPairFound = false;
 	auto boxset0Depth = std::log2(boxset0->getNodeCount() + 1);
 	auto boxset1Depth = std::log2(boxset1->getNodeCount() + 1);
@@ -789,17 +789,17 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 		threadLaunchStopLevel = 0;
 	GroupedParams groupedParams(boxset0, boxset1, perThreadIntermediateResults, trans_cache_1to0, findOnlyFirstPair, firstPairFound, threadLaunchStopLevel, grpParams);
 	_find_quantized_collision_pairs_recursive_par(groupedParams, 0, 0, 0, true);
-	auto end = std::chrono::steady_clock::now();
+	//auto end = std::chrono::steady_clock::now();
 
 	
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	//size_t size = 0;
 	//for (const auto& pairs : perThreadIntermediateResults)
 	//	size += pairs.size();
 	//if (size > 0)
 	//{
 	//	printf("boxset0Depth %f boxset1Depth %f threadLaunchStopLevel %d grpParams.previouslyConsumedTime %d\n", boxset0Depth, boxset1Depth, threadLaunchStopLevel, grpParams.previouslyConsumedTime);
-		printf("_find_quantized_collision_pairs_recursive_par took %lld us\n", duration.count());
+	//	printf("_find_quantized_collision_pairs_recursive_par took %lld us\n", duration.count());
 	//	printf("size %lld\n", size);
 	//}
 

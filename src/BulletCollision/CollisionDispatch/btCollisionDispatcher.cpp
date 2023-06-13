@@ -224,9 +224,9 @@ void btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pa
 		initialCollisionParticipants.clear();
 		initialCollisionParticipants0.clear();
 		initialCollisionParticipants1.clear();
-		printf("processAllOverlappingPairs START\n");
+		//printf("processAllOverlappingPairs START\n");
 		pairCache->processAllOverlappingPairs(&collisionCallback, dispatcher, dispatchInfo);
-		printf("processAllOverlappingPairs END\n");
+		//printf("processAllOverlappingPairs END\n");
 	}
 
 	//m_blockedForChanges = false;
