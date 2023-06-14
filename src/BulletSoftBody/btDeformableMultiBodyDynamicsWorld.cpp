@@ -743,3 +743,40 @@ int btDeformableMultiBodyDynamicsWorld::stepSimulation(btScalar timeStep, int ma
 
 	return numSimulationSubSteps;
 }
+
+
+void btDeformableMultiBodyDynamicsWorld::serializeSoftBodies(btSerializer* serializer)
+{
+	int i;
+	//serialize all collision objects
+	for (i = 0; i < m_collisionObjects.size(); i++)
+	{
+		btCollisionObject* colObj = m_collisionObjects[i];
+		if (colObj->getInternalType() & btCollisionObject::CO_SOFT_BODY)
+		{
+			int len = colObj->calculateSerializeBufferSize();
+			btChunk* chunk = serializer->allocate(len, 1);
+			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
+			serializer->finalizeChunk(chunk, structType, BT_SOFTBODY_CODE, colObj);
+		}
+	}
+}
+
+void btDeformableMultiBodyDynamicsWorld::serialize(btSerializer* serializer)
+{
+	serializer->startSerialization();
+
+	serializeDynamicsWorldInfo(serializer);
+
+	serializeSoftBodies(serializer);
+
+	serializeMultiBodies(serializer);
+
+	serializeRigidBodies(serializer);
+
+	serializeCollisionObjects(serializer);
+
+	serializeContactManifolds(serializer);
+
+	serializer->finishSerialization();
+}
