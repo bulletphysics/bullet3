@@ -7,6 +7,8 @@
 #include "BulletDynamics/Featherstone/btMultiBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletSoftBody/btSoftBody.h"
+#include "BulletSoftBody/btSoftBodyData.h"
 
 struct btMultiBodyWorldImporterInternalData
 {
@@ -283,6 +285,12 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 		//convert all multibodies
 		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 		{
+			printf("DAN: Using double precision\n"); 
+			printf("DAN: Number of multibodies: %d\n", bulletFile2->m_multiBodies.size()); 
+			printf("DAN: Number of softbodies: %d\n", bulletFile2->m_softBodies.size()); 
+			printf("DAN: Number of rigid bodies: %d\n", bulletFile2->m_rigidBodies.size()); 
+			printf("DAN: Number of contact manifolds: %d\n", bulletFile2->m_contactManifolds.size()); 
+			printf("DAN: Number of collision objects: %d\n", bulletFile2->m_collisionObjects.size()); 
 			//for (int i = 0; i < bulletFile2->m_multiBodies.size(); i++)
 			for (int i = bulletFile2->m_multiBodies.size() - 1; i >= 0; i--)
 			{
@@ -364,11 +372,81 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 			{
 				syncContactManifolds((btPersistentManifoldDoubleData**)&bulletFile2->m_contactManifolds[0], bulletFile2->m_contactManifolds.size(), m_data);
 			}
+
+
+			// Deserialize and update the softbody
+			// TODO figure out how to distinguish between double and float precision
+			for (int i = bulletFile2->m_softBodies.size() - 1; i >= 0; i--)
+			{
+				btSoftBodyData* sbd = (btSoftBodyData*)bulletFile2->m_softBodies[i];
+				int foundSb = -1;
+				int uid = sbd->m_collisionObjectData.m_uniqueId;
+				printf("DAN: sbd uid: %i\n", uid);
+				printf("DAN: Number of collision objects: %d\n", m_data->m_mbDynamicsWorld->getNumCollisionObjects());
+				printf("DAN: Number of multibodies: %d\n", m_data->m_mbDynamicsWorld->getNumMultibodies());
+				printf("DAN: Number of collision objects (non-mb world): %d\n", m_dynamicsWorld->getNumCollisionObjects());
+			
+				for (int i = 0; i < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); i++)
+				{
+					printf("DAN: i = %i, broadphase = %i\n", i, m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId);
+					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId)
+					{
+						foundSb = i;
+						break;
+					}
+				}
+				printf("DAN: foundSb: %i\n", foundSb);
+
+				// HARDCODING THIS. TODO REMOVE THIS!! Just to see if finding the softbody is the issue
+				// foundSb = i+1; // (commented out for now)
+
+
+				if (foundSb >= 0)
+				{
+					btSoftBody* sb = btSoftBody::upcast(m_data->m_mbDynamicsWorld->getCollisionObjectArray()[foundSb]);
+					if (sb)
+					{
+						// Deserialize data for each node and update the softbody's nodes with the saved info
+						for (int i = 0; i < sbd->m_numNodes; i++){
+							btVector3 pos, prev_pos, vel, force, normal; 
+							pos.deSerializeFloat(sbd->m_nodes[i].m_position);
+							prev_pos.deSerializeFloat(sbd->m_nodes[i].m_previousPosition);
+							vel.deSerializeFloat(sbd->m_nodes[i].m_velocity);
+							force.deSerializeFloat(sbd->m_nodes[i].m_accumulatedForce);
+							normal.deSerializeFloat(sbd->m_nodes[i].m_normal);
+							// TODO: see if the other serialized attributes for the nodes need to be reset. i.e.
+							// m_pad, m_material, m_inverseMass, m_area, m_attach
+							sb->m_nodes[i].m_x = pos; 
+							sb->m_nodes[i].m_q = prev_pos;
+							sb->m_nodes[i].m_v = vel; 
+							sb->m_nodes[i].m_f = force;
+							sb->m_nodes[i].m_n = normal; 
+
+						}
+						// TODO: see if other attributes of the softbody data needs updating other than nodes. i.e.
+						// anchors, clusters, collisionObjectData, config, faces, joints, links, materials, nodes, 
+						// numJoints, numAnchors, numClusters, numFaces, numJoints, numLinks, numMaterials, numNodes, 
+						// numTetrahedra, pose, tetrahedra				
+					}
+					else
+					{
+						printf("btMultiBodyWorldImporter::convertAllObjects error: cannot find btSoftBody with bodyUniqueId %d\n", uid);
+						result = false;
+					}
+				}
+				else
+				{
+					printf("Error in btMultiBodyWorldImporter::convertAllObjects: didn't find bodyUniqueId: %d\n", uid);
+					result = false;
+				}
+			}
+
 		}
 		else
 		{
 			//single precision version
 			//for (int i = 0; i < bulletFile2->m_multiBodies.size(); i++)
+			printf("DAN: Using single precision\n"); 
 			for (int i = bulletFile2->m_multiBodies.size() - 1; i >= 0; i--)
 			{
 				btMultiBodyFloatData* mbd = (btMultiBodyFloatData*)bulletFile2->m_multiBodies[i];

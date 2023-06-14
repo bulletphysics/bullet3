@@ -747,18 +747,17 @@ int btDeformableMultiBodyDynamicsWorld::stepSimulation(btScalar timeStep, int ma
 
 void btDeformableMultiBodyDynamicsWorld::serializeSoftBodies(btSerializer* serializer)
 {
+	printf("DAN: Number of softbodies in deformable world: %d\n", m_softBodies.size());
 	int i;
 	//serialize all collision objects
-	for (i = 0; i < m_collisionObjects.size(); i++)
+	for (i = 0; i < m_softBodies.size(); i++)
 	{
-		btCollisionObject* colObj = m_collisionObjects[i];
-		if (colObj->getInternalType() & btCollisionObject::CO_SOFT_BODY)
-		{
-			int len = colObj->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len, 1);
-			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
-			serializer->finalizeChunk(chunk, structType, BT_SOFTBODY_CODE, colObj);
-		}
+		btSoftBody* psb = m_softBodies[i];
+		std::cout << "DAN: Serializing soft body object" << std::endl; 
+		int len = psb->calculateSerializeBufferSize();
+		btChunk* chunk = serializer->allocate(len, 1);
+		const char* structType = psb->serialize(chunk->m_oldPtr, serializer);
+		serializer->finalizeChunk(chunk, structType, BT_SOFTBODY_CODE, psb);
 	}
 }
 

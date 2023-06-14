@@ -14854,6 +14854,7 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 			bParse::btBulletFile* bulletFile = m_data->m_savedStates[clientCmd.m_loadStateArguments.m_stateId].m_bulletFile;
 			if (bulletFile)
 			{
+				std::cout << "DAN: Restoring objects" << std::endl; 
 				ok = importer->convertAllObjects(bulletFile);
 			}
 		}

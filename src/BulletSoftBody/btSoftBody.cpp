@@ -4337,6 +4337,11 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 {
 	btSoftBodyData* sbd = (btSoftBodyData*)dataBuffer;
 
+	// TODO: figure out if this is needed. 
+	// Seems like this did not solve the issue when this was included
+	// sbd->m_collisionObjectData.m_uniqueId = m_broadphaseHandle->m_uniqueId;
+	// printf("Serializing softbody: ID = %i", m_broadphaseHandle->m_uniqueId);
+
 	btCollisionObject::serialize(&sbd->m_collisionObjectData, serializer);
 
 	btHashMap<btHashPtr, int> m_nodeIndexMap;
