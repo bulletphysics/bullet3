@@ -266,6 +266,14 @@ public:
 	void deSerialize(const struct btPersistentManifoldFloatData* manifoldDataPtr);
 };
 
+inline int getIslandId(const btPersistentManifold* lhs)
+{
+	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->getBody0());
+	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->getBody1());
+	int islandId = rcolObj0->getIslandTag() >= 0 ? rcolObj0->getIslandTag() : rcolObj1->getIslandTag();
+	return islandId;
+}
+
 // clang-format off
 
 struct btPersistentManifoldDoubleData

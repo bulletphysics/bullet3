@@ -57,14 +57,6 @@ btSimulationIslandManagerMt::~btSimulationIslandManagerMt()
 	m_freeIslands.resize(0);
 }
 
-inline int getIslandId(const btPersistentManifold* lhs)
-{
-	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->getBody0());
-	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->getBody1());
-	int islandId = rcolObj0->getIslandTag() >= 0 ? rcolObj0->getIslandTag() : rcolObj1->getIslandTag();
-	return islandId;
-}
-
 SIMD_FORCE_INLINE int btGetConstraintIslandId1(const btTypedConstraint* lhs)
 {
 	const btCollisionObject& rcolObj0 = lhs->getRigidBodyA();

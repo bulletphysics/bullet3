@@ -164,15 +164,6 @@ void btSimulationIslandManager::storeIslandActivationState(btCollisionWorld* col
 
 #endif  //STATIC_SIMULATION_ISLAND_OPTIMIZATION
 
-inline int getIslandId(const btPersistentManifold* lhs)
-{
-	int islandId;
-	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->getBody0());
-	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->getBody1());
-	islandId = rcolObj0->getIslandTag() >= 0 ? rcolObj0->getIslandTag() : rcolObj1->getIslandTag();
-	return islandId;
-}
-
 /// function object that routes calls to operator<
 class btPersistentManifoldSortPredicate
 {
