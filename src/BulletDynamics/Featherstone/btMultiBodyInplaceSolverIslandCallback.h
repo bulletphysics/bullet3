@@ -19,23 +19,14 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "btMultiBodyConstraintSolver.h"
 
-SIMD_FORCE_INLINE int btGetConstraintIslandId2(const btTypedConstraint* lhs)
-{
-    int islandId;
-    
-    const btCollisionObject& rcolObj0 = lhs->getRigidBodyA();
-    const btCollisionObject& rcolObj1 = lhs->getRigidBodyB();
-    islandId = rcolObj0.getIslandTag() >= 0 ? rcolObj0.getIslandTag() : rcolObj1.getIslandTag();
-    return islandId;
-}
 class btSortConstraintOnIslandPredicate2
 {
 public:
     bool operator()(const btTypedConstraint* lhs, const btTypedConstraint* rhs) const
     {
         int rIslandId0, lIslandId0;
-        rIslandId0 = btGetConstraintIslandId2(rhs);
-        lIslandId0 = btGetConstraintIslandId2(lhs);
+        rIslandId0 = btGetConstraintIslandId(rhs);
+        lIslandId0 = btGetConstraintIslandId(lhs);
         return lIslandId0 < rIslandId0;
     }
 };
@@ -151,7 +142,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
             
             for (i = 0; i < m_numConstraints; i++)
             {
-                if (btGetConstraintIslandId2(m_sortedConstraints[i]) == islandId)
+                if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
                 {
                     startConstraint = &m_sortedConstraints[i];
                     break;
@@ -160,7 +151,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
             //count the number of constraints in this island
             for (; i < m_numConstraints; i++)
             {
-                if (btGetConstraintIslandId2(m_sortedConstraints[i]) == islandId)
+                if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
                 {
                     numCurConstraints++;
                 }

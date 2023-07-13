@@ -326,6 +326,14 @@ public:
 	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
 };
 
+SIMD_FORCE_INLINE int btGetConstraintIslandId(const btTypedConstraint* lhs)
+{
+	const btCollisionObject& rcolObj0 = lhs->getRigidBodyA();
+	const btCollisionObject& rcolObj1 = lhs->getRigidBodyB();
+	int islandId = rcolObj0.getIslandTag() >= 0 ? rcolObj0.getIslandTag() : rcolObj1.getIslandTag();
+	return islandId;
+}
+
 // returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits
 // all arguments should be normalized angles (i.e. in range [-SIMD_PI, SIMD_PI])
 SIMD_FORCE_INLINE btScalar btAdjustAngleToLimits(btScalar angleInRadians, btScalar angleLowerLimitInRadians, btScalar angleUpperLimitInRadians)
