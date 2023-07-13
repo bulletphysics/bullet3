@@ -266,7 +266,8 @@ public:
 	void deSerialize(const struct btPersistentManifoldFloatData* manifoldDataPtr);
 };
 
-inline int getIslandId(const btPersistentManifold* lhs)
+template <typename T>
+inline int getIslandId(const T* lhs)
 {
 	const btCollisionObject* rcolObj0 = static_cast<const btCollisionObject*>(lhs->getBody0());
 	const btCollisionObject* rcolObj1 = static_cast<const btCollisionObject*>(lhs->getBody1());
