@@ -17,6 +17,8 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 
+btScalar btCollisionObject::gFrictionOverride = -1.0;
+
 btCollisionObject::btCollisionObject()
 	: m_interpolationLinearVelocity(0.f, 0.f, 0.f),
 	  m_interpolationAngularVelocity(0.f, 0.f, 0.f),

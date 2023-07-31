@@ -128,6 +128,8 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
+	static btScalar gFrictionOverride;
+
 	enum CollisionFlags
 	{
 		CF_DYNAMIC_OBJECT = 0,
@@ -392,7 +394,7 @@ public:
 	}
 	btScalar getFriction() const
 	{
-		return m_friction;
+		return gFrictionOverride != -1.0 ? gFrictionOverride : m_friction;
 	}
 
 	void setRollingFriction(btScalar frict)
