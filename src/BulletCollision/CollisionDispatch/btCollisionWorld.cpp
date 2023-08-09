@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"        //for raycasting
 #include "BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h"  //for raycasting
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"     //for raycasting
+#include "BulletCollision/Gimpact/btGImpactShape.h"                        //for raycasting
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
@@ -478,12 +479,20 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 				BridgeTriangleRaycastCallback rcb(rayFromLocal, rayToLocal, &resultCallback, collisionObjectWrap->getCollisionObject(), concaveShape, colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 
-				btVector3 rayAabbMinLocal = rayFromLocal;
-				rayAabbMinLocal.setMin(rayToLocal);
-				btVector3 rayAabbMaxLocal = rayFromLocal;
-				rayAabbMaxLocal.setMax(rayToLocal);
+				if (collisionShape->getShapeType() == GIMPACT_SHAPE_PROXYTYPE)
+				{
+					btGImpactMeshShape* gImpactMeshShape = (btGImpactMeshShape*)collisionShape;
+					gImpactMeshShape->processAllTrianglesRay(&rcb, rayFromLocal, rayToLocal);
+				}
+				else
+				{
+					btVector3 rayAabbMinLocal = rayFromLocal;
+					rayAabbMinLocal.setMin(rayToLocal);
+					btVector3 rayAabbMaxLocal = rayFromLocal;
+					rayAabbMaxLocal.setMax(rayToLocal);
 
-				concaveShape->processAllTriangles(&rcb, rayAabbMinLocal, rayAabbMaxLocal);
+					concaveShape->processAllTriangles(&rcb, rayAabbMinLocal, rayAabbMaxLocal);
+				}
 			}
 		}
 		else
