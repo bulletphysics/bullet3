@@ -71,7 +71,7 @@ protected:
 
 	virtual void predictUnconstraintMotion(btScalar timeStep);
 
-	void saveLastSafeTransforms(btRigidBody * *bodies, int numBodies);
+	void processLastSafeTransforms(btRigidBody * *bodies, int numBodies);
 
 	void integrateTransformsInternal(btRigidBody * *bodies, int numBodies, btScalar timeStep);  // can be called in parallel
 	virtual void integrateTransforms(btScalar timeStep);

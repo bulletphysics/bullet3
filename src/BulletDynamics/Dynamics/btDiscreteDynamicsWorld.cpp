@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
+#include "BulletCollision/Gimpact/btBoxCollision.h"
 #include "LinearMath/btTransformUtil.h"
 #include "LinearMath/btQuickprof.h"
 
@@ -45,6 +46,9 @@ subject to the following restrictions:
 #include "LinearMath/btMotionState.h"
 
 #include "LinearMath/btSerializer.h"
+
+#include <vector>
+#include <stack>
 
 #if 0
 btAlignedObjectArray<btVector3> debugContacts;
@@ -950,15 +954,8 @@ void btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 	}
 }
 
-void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int numBodies)
+void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, int numBodies)
 {
-	for (int i = 0; i < numBodies; i++)
-	{
-		btRigidBody* body = bodies[i];
-		if (body->isStaticObject())
-			continue;
-	}
-
 	int numManifolds = getDispatcher()->getNumManifolds();
 	btAlignedObjectArray<const btCollisionObject*> penetratingColliders;  // TODO perhaps something more savory than an array
 	for (int i = 0; i < numManifolds; i++)
@@ -978,45 +975,82 @@ void btDiscreteDynamicsWorld::saveLastSafeTransforms(btRigidBody** bodies, int n
 		}
 	}
 
+	std::vector<bool> bodyAlreadyUnstuck(numBodies, false);
+	std::stack<btRigidBody*> bodyStack;
+	bool nothingStuck = true;
+
 	for (int i = 0; i < numBodies; i++)
 	{
 		btRigidBody* body = bodies[i];
 		if (body->isStaticObject())
 			continue;
-		if (penetratingColliders.findLinearSearch2(body) == -1)
-		{
-			//printf("DO updating safe pos for %d\n", body->getUserIndex());
-			body->updateLastSafeWorldTransform();
-			body->setCollisionFlags(body->getCollisionFlags() & (~btCollisionObject::CF_IS_PENETRATING));
-		}
-		else
+		if (penetratingColliders.findLinearSearch2(body) != -1 && body->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK)
 		{
 			// We got into the penetration which I consider to be an invalid state. In this case, top priority for me is unstuck.
 			// For now I zero the velocities which seems to work fine for meshes of normal size. For smaller
 			// meshes, there seems to be some momentum accumulation somewhere because it takes a while
 			// before they start rotating in opposite direction. Will look into that later. Probably has something to do
 			// with the hand constraint being weaker on small meshes.
-			// Another added safety mechanism against being stuck is to teleport the mesh into the safe position. This is
-			// ofcourse questionable if there are other dynamic objects in the vicinity, but such scenarios are rare in my case.
-			//printf("NOT updating safe pos for %d\n", body->getUserIndex());
-			if (body->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK)
+			// Another added safety mechanism against being stuck is to teleport the mesh into the safe position.
+			bodyStack.push(body);
+			nothingStuck = false;
+		}
+		else
+		{
+			body->setCollisionFlags(body->getCollisionFlags() & (~btCollisionObject::CF_IS_PENETRATING));
+		}
+	}
+
+	while (!bodyStack.empty())
+	{
+		btRigidBody* body = bodyStack.top();
+		bodyStack.pop();
+		if (body->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK)
+		{
+			for (int i = 0; i < numBodies; i++)
 			{
+				btRigidBody* surroundingBody = bodies[i];
+				if (surroundingBody->isStaticObject() || surroundingBody->getLastSafeWorldTransform() == btTransform::getIdentity() ||
+					bodyAlreadyUnstuck[i])
+					continue;
+				btAABB bodyAabb, surroundingBodyAabb;
+				body->getAabb(bodyAabb.m_min, bodyAabb.m_max);
+				surroundingBody->getAabb(surroundingBodyAabb.m_min, surroundingBodyAabb.m_max);
+				// This is a rough culling of bodies affected by the body from the stack being stuck
+				if (!bodyAabb.has_collision(surroundingBodyAabb))
+					continue;
 				btVector3 zeroVec(0.0, 0.0, 0.0);
-				body->setLinearVelocity(zeroVec);
-				body->setAngularVelocity(zeroVec);
-				btTransform dst = body->getLastSafeWorldTransform();
-				btTransform src = body->getWorldTransform();
+				surroundingBody->setLinearVelocity(zeroVec);
+				surroundingBody->setAngularVelocity(zeroVec);
+				btTransform dst = surroundingBody->getLastSafeWorldTransform();
+				btTransform src = surroundingBody->getWorldTransform();
 				// We sacrifice few iterations to move to the safe position only gradually. This significantly reduces the jitter of
 				// jumping between the safe and stuck positions. The unstuck position will be much closer to the real point of contact.
 				constexpr btScalar speedOfConvergenceToSafe = 0.1;
 				btVector3 interpOrigin = src.getOrigin().lerp(dst.getOrigin(), speedOfConvergenceToSafe);
 				btQuaternion interpRot = src.getRotation().slerp(dst.getRotation(), speedOfConvergenceToSafe);
 				btTransform interp(interpRot, interpOrigin);
-				body->setWorldTransform(interp);
+				surroundingBody->setWorldTransform(interp);
 				if (!m_forceUpdateAllAabbs)
-					updateSingleAabb(body);
+					updateSingleAabb(surroundingBody);
+				bodyAlreadyUnstuck[i] = true;
+				// If a stuck situation happens, we play it safe and propagate the unstucking even based on rough aabb tests. Let's see if it is
+				// acceptable for our use case
+				bodyStack.push(surroundingBody);
 			}
-			body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_IS_PENETRATING);
+		}
+		body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_IS_PENETRATING);
+	}
+
+	// Safe transforms are saved only if nothing is stuck so that the safe transforms are a coherent previous state
+	if (nothingStuck)
+	{
+		for (int i = 0; i < numBodies; i++)
+		{
+			btRigidBody* body = bodies[i];
+			if (body->isStaticObject())
+				continue;
+			body->updateLastSafeWorldTransform();
 		}
 	}
 }
@@ -1122,7 +1156,7 @@ void btDiscreteDynamicsWorld::updateLastSafeTransforms()
 		BT_PROFILE("savePreviousTransforms");
 		if (m_nonStaticRigidBodies.size() > 0)
 		{
-			saveLastSafeTransforms(&m_nonStaticRigidBodies[0], m_nonStaticRigidBodies.size());
+			processLastSafeTransforms(&m_nonStaticRigidBodies[0], m_nonStaticRigidBodies.size());
 		}
 }
 
