@@ -967,7 +967,9 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 		{
 			auto cp = contactManifold->getContactPoint(j);
 			bool penetration = cp.m_contactPointFlags & BT_CONTACT_FLAG_PENETRATING;
-			if (penetration)
+			bool phaseThrough = (contactManifold->getBody0()->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE) ||
+								(contactManifold->getBody1()->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE);
+			if (penetration && !phaseThrough)
 			{
 				penetratingColliders.push_back(contactManifold->getBody0());
 				penetratingColliders.push_back(contactManifold->getBody1());
