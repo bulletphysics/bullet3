@@ -543,8 +543,6 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_pre(const btCollisionObj
 
 	bool isStatic0 = body0Wrap->getCollisionObject()->isStaticObject();
 	bool isStatic1 = body1Wrap->getCollisionObject()->isStaticObject();
-	if (isStatic0 && isStatic1)
-		return;
 
 	grpParams.shape0 = shape0;
 	grpParams.shape1 = shape1;
@@ -655,6 +653,8 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	bool lowDetail0, lowDetail1;
 	bool isTol0 = body0Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail0);
 	bool isTol1 = body1Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail1);
+	bool isGhost0 = body0Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE;
+	bool isGhost1 = body1Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE;
 	bool findOnlyFirstPair = isTol0 || isTol1;
 	if (body0Wrap->getCollisionObject()->isToleratingCertainInitialCollisions() || body1Wrap->getCollisionObject()->isToleratingCertainInitialCollisions())
 	{
@@ -662,6 +662,8 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 		bool check1 = body1Wrap->getCollisionObject()->checkIsTolerated(body0Wrap->getCollisionObject());
 		findOnlyFirstPair = (check0 || check1);
 	}
+	bool generateManifoldForGhost = isGhost0 || isGhost1;
+	findOnlyFirstPair |= generateManifoldForGhost;
 
 	if (findOnlyFirstPair && (lowDetail0 || lowDetail1))
 	{
@@ -703,7 +705,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	if (pairsCount == 0)
 		return;
 
-	if (findOnlyFirstPair)
+	if (findOnlyFirstPair && !generateManifoldForGhost)
 	{
 		m_dispatcher->addInitialCollisionParticipant({body0Wrap->getCollisionObject(), body1Wrap->getCollisionObject()});
 		return;
