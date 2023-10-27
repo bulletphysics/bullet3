@@ -171,7 +171,11 @@ struct spinlock
 			{
 				// Issue X86 PAUSE or ARM YIELD instruction to reduce contention between
 				// hyper-threads
+#ifdef _M_ARM64
+				__yield();
+#else
 				_mm_pause();
+#endif
 			}
 		}
 	}
