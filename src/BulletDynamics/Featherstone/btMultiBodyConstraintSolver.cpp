@@ -1380,14 +1380,15 @@ void btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 				{
 					applyAnisotropicFriction(colObj0, cp.m_lateralFrictionDir1, btCollisionObject::CF_ANISOTROPIC_FRICTION);
 					applyAnisotropicFriction(colObj1, cp.m_lateralFrictionDir1, btCollisionObject::CF_ANISOTROPIC_FRICTION);
-					btMultiBodySolverConstraint& frictionConstraint = addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir1, cp.m_appliedImpulseLateral1, manifold, frictionIndex, cp, colObj0, colObj1, relaxation, infoGlobal);
+					addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir1, cp.m_appliedImpulseLateral1, manifold, frictionIndex, cp, colObj0, colObj1, relaxation, infoGlobal);
 
 					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 					{
 						applyAnisotropicFriction(colObj0, cp.m_lateralFrictionDir2, btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						applyAnisotropicFriction(colObj1, cp.m_lateralFrictionDir2, btCollisionObject::CF_ANISOTROPIC_FRICTION);
-					  btMultiBodySolverConstraint& frictionConstraintB = addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir2, cp.m_appliedImpulseLateral2, manifold, frictionIndex, cp, colObj0, colObj1, relaxation, infoGlobal);
-
+                        btMultiBodySolverConstraint& frictionConstraintB = addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir2, cp.m_appliedImpulseLateral2, manifold, frictionIndex, cp, colObj0, colObj1, relaxation, infoGlobal);
+                        // frictionConstraintB is at index [m_multiBodyFrictionContactConstraints.size() - 1]
+                        btMultiBodySolverConstraint& frictionConstraint = m_multiBodyFrictionContactConstraints[m_multiBodyFrictionContactConstraints.size() - 2];
 
                         btScalar m1 = frictionConstraint.m_jacDiagABInv;
                         btScalar m2 = frictionConstraintB.m_jacDiagABInv;
