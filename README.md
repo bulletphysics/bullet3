@@ -14,6 +14,13 @@ At the current moment in time this is the home of the bullet physics the c++ lib
 * If you have a github account, feel free to use the ![built-in discussions](https://github.com/bulletphysics/bullet3/discussions)
 * You can also use the long standing ![forum](https://pybullet.org/Bullet/phpBB3/)
 
+## Index
+* [Bullet C++](#bullet-c)
+* [pybullet](#pybullet)
+* [Running Examples](#running-examples)
+* [Contributing](#contributing)
+* [License](#license)
+
 ---
 
 # Bullet C++
@@ -51,12 +58,8 @@ The Bullet port in vcpkg is kept up to date by Microsoft team members and commun
 
 ## Examples
 
-The main thing you'll want to look at is the BulletExampleBrowser executable which can be found under examples/ExampleBrowser.
-It contains a gui allowing you to select various other examples and view them.
 
-## Contributors and Coding Style information
 
-https://docs.google.com/document/d/1u9vyzPtrVoVhYqQOGNWUgjRbfwfCdIts_NzmvgiJ144/edit
 
 ---
 
@@ -126,7 +129,11 @@ p.connect(p.SHARED_MEMORY) #or (p.TCP, "localhost", 6667) or (p.UDP, "192.168.86
 ```
 </details>
 
-## Examples
+
+# Running Examples
+
+The main thing you'll want to look at is the BulletExampleBrowser executable which can be found under examples/ExampleBrowser.
+It contains a gui allowing you to select various other examples and view them.
 
 The App_ExampleBrowser executables will be located in the bin folder.
 You can just run it though a terminal/command prompt, or by clicking it.
@@ -143,7 +150,7 @@ You can just run it though a terminal/command prompt, or by clicking it.
 You can use mouse picking to grab objects. When holding the ALT or CONTROL key, you have Maya style camera mouse controls.
 Press F1 to create a series of screenshots. Hit ESCAPE to exit the demo app.
 
-## Experimental [OpenCL](https://www.khronos.org/opencl/) [GPGPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) support
+# Experimental [OpenCL](https://www.khronos.org/opencl/) [GPGPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) support
 
 The entire collision detection and rigid body dynamics can be executed on the GPU.
 
@@ -154,7 +161,12 @@ on a laptop GPU but performance will not likely be very good. Note that
 often an OpenCL drivers fails to compile a kernel. Some unit tests exist to
 track down the issue, but more work is required to cover all OpenCL kernels.
 
-## License
+# Contributing
+
+Please read: https://docs.google.com/document/d/1u9vyzPtrVoVhYqQOGNWUgjRbfwfCdIts_NzmvgiJ144/edit
+
+
+# License
 
 All source code files are licensed under the permissive zlib license
 (http://opensource.org/licenses/Zlib) unless marked differently in a particular folder/file.
