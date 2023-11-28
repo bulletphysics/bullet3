@@ -47,8 +47,10 @@ class btSerializer;
 #define MAX_SUBTREE_SIZE_IN_BYTES 2048
 
 // 10 gives the potential for 1024 parts, with at most 2^21 (2097152) (minus one
+// 4 gives the potential for 16 parts, each with 2^27 triangles (134217728)
 // actually) triangles each (since the sign bit is reserved
-#define MAX_NUM_PARTS_IN_BITS 10
+//#define MAX_NUM_PARTS_IN_BITS 10
+#define MAX_NUM_PARTS_IN_BITS 4
 
 ///btQuantizedBvhNode is a compressed aabb node, 16 bytes.
 ///Node can be used for leafnode or internal node. Leafnodes can point to 32-bit triangle index (non-negative range).

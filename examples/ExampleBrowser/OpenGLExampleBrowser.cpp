@@ -885,6 +885,20 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	sUseOpenGL2 = args.CheckCmdLineFlag("opengl2");
 	args.GetCmdLineArgument("render_device", gRenderDevice);
 	args.GetCmdLineArgument("window_backend", gWindowBackend);
+
+	int max_num_object_capacity = 128 * 1024;
+	int max_shape_capacity_in_bytes = 128 * 1024 * 1024;
+	if (args.CheckCmdLineFlag("max_num_object_capacity"))
+	{
+		args.GetCmdLineArgument("max_num_object_capacity", max_num_object_capacity);
+	}
+
+	if (args.CheckCmdLineFlag("max_shape_capacity_in_bytes"))
+	{
+		args.GetCmdLineArgument("max_shape_capacity_in_bytes", max_shape_capacity_in_bytes);
+	}
+
+
 #else
 	sUseOpenGL2 = true;
 #endif
@@ -914,7 +928,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	{
 		char title[1024];
 		sprintf(title, "%s using OpenGL3+ %s %s", appTitle, glContext, optMode);
-		simpleApp = new SimpleOpenGL3App(title, width, height, gAllowRetina, gWindowBackend, gRenderDevice);
+		simpleApp = new SimpleOpenGL3App(title, width, height, gAllowRetina, gWindowBackend, gRenderDevice, max_num_object_capacity, max_shape_capacity_in_bytes);
 		s_app = simpleApp;
 	}
 #endif
