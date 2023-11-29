@@ -47,7 +47,7 @@ ADD_LIBRARY(BulletExampleBrowserLib
 
 SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES SOVERSION ${BULLET_VERSION})
-IF (BUILD_SHARED_LIBS)
+IF (BULLET_BUILD_SHARED_LIBS)
 		IF (WIN32)
                 TARGET_LINK_LIBRARIES(
                         BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
@@ -70,7 +70,7 @@ IF (BUILD_SHARED_LIBS)
                         )
         ENDIF(APPLE)
 	ENDIF(WIN32)
-ENDIF(BUILD_SHARED_LIBS)
+ENDIF(BULLET_BUILD_SHARED_LIBS)
 
 INSTALL(TARGETS BulletExampleBrowserLib
         RUNTIME DESTINATION bin

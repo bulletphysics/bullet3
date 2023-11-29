@@ -26,9 +26,15 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 SET(CLAMP_VELOCITIES "0" CACHE STRING "Clamp rigid bodies' velocity to this value, if larger than zero. Useful to prevent floating point errors or in general runaway velocities in complex scenarios")
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
-OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
+OPTION(BULLET_BUILD_SHARED_LIBS "Use shared libraries" ${BUILD_SHARED_LIBS})
 OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" ON)
 OPTION(USE_OPENVR "Use OpenVR for virtual reality" OFF)
+
+if(BULLET_BUILD_SHARED_LIBS)
+	set(BULLET_BUILD_TYPE SHARED)
+else()
+	set(BULLET_BUILD_TYPE STATIC)
+endif()
 
 OPTION(ENABLE_VHACD "Use VHACD in BulletRobotics and pybullet" ON)
 
@@ -374,9 +380,9 @@ IF(BUILD_PYBULLET)
 	ENDIF()
 
 	IF(WIN32)
-		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
+		SET(BULLET_BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
 	ELSE(WIN32)
-		SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
+		SET(BULLET_BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
 	ENDIF(WIN32)
 
 	IF(APPLE)
