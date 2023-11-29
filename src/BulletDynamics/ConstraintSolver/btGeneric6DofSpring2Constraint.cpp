@@ -653,7 +653,7 @@ void btGeneric6DofSpring2Constraint::calculateJacobi(btRotationalLimitMotor2* li
 		// get vector from bodyB to frameB in WCS
 		relB = m_calculatedTransformB.getOrigin() - transB.getOrigin();
 		// same for bodyA
-		relA = m_calculatedTransformA.getOrigin() - transA.getOrigin();
+		relA = m_calculatedTransformB.getOrigin() - transA.getOrigin();
 		tmpA = relA.cross(ax1);
 		tmpB = relB.cross(ax1);
 		if (m_hasStaticBody && (!rotAllowed))
