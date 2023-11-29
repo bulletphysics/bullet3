@@ -26,6 +26,9 @@
 #include "../Collision/CollisionTutorialBullet2.h"
 #include "../GyroscopicDemo/GyroscopicSetup.h"
 #include "../Constraints/Dof6Spring2Setup.h"
+
+#include "../Constraints/DOF6SpringQuatSetup.h"
+
 #include "../Constraints/ConstraintPhysicsSetup.h"
 #include "../MultiBody/TestJointTorqueSetup.h"
 #include "../MultiBody/Pendulum.h"
@@ -152,6 +155,8 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "6DofSpring2", "Show the use of the btGeneric6DofSpring2Constraint. This is a replacement of the btGeneric6DofSpringConstraint, it has various improvements. This includes improved spring implementation and better control over the restitution (bounce) when the constraint hits its limits.",
 					 Dof6Spring2CreateFunc),
 
+		ExampleEntry(1, "6DofSpringQuat", "The btGeneric6DofSpringConstraintQuaternion class is based on btGeneric6DofSpring2Constraint. This class was made to provide more control over spring joint \"equilibrium\" rotation using quaternions(left and center) instead of Euler Axes(right).This makes it useful for \"puppeteering\" joint controlled active ragdolls. The current set equilibrium rotation is X:0 Y:90 Z:45. Take a look at the DOF6SpringQuatSetup.cpp file to learn more.",
+					 Dof6SpringQuatCreateFunc),
 		ExampleEntry(1, "Motor Demo", "Dynamic control the target velocity of a motor of a btHingeConstraint. This demo makes use of the 'internal tick callback'. You can press W for wireframe, C and L to visualize constraint frame and limits.", MotorControlCreateFunc),
 
 		ExampleEntry(1, "Gyroscopic", "Show the Dzhanibekov effect using various settings of the gyroscopic term. You can select the gyroscopic term computation using btRigidBody::setFlags, with arguments BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT (using explicit integration, which adds energy and can lead to explosions), BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD, BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY. If you don't set any of these flags, there is no gyroscopic term used.", GyroscopicCreateFunc),

@@ -19,6 +19,7 @@
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.cpp"
 #include "BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.cpp"
+#include "BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraintQuaternion.cpp"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.cpp"
 #include "BulletDynamics/MLCPSolvers/btDantzigLCP.cpp"
