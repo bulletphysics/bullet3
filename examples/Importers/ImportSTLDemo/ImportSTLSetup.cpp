@@ -62,9 +62,6 @@ void ImportSTLSetup::initPhysics()
 		return;
 	}
 
-	btVector3 shift(0, 0, 0);
-	//	int index=10;
-
 	{
 		b3BulletDefaultFileIO fileIO;
 		GLInstanceGraphicsShape* gfxShape = LoadMeshFromSTL(relativeFileName,&fileIO);
