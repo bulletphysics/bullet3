@@ -22,7 +22,7 @@ def main(argv):
   config = utility.load_config(LOG_DIR)
   policy_layers = config.policy_layers
   value_layers = config.value_layers
-  env = config.env(render=True)
+  env = config.env(render_mode=True)
   network = config.network
 
   with tf.Session() as sess:
@@ -34,10 +34,10 @@ def main(argv):
                                              checkpoint=os.path.join(LOG_DIR, CHECKPOINT))
 
     sum_reward = 0
-    observation = env.reset()
+    observation, _ = env.reset()
     while True:
       action = agent.get_action([observation])
-      observation, reward, done, _ = env.step(action[0])
+      observation, reward, done, _, _ = env.step(action[0])
       time.sleep(0.002)
       sum_reward += reward
       if done:

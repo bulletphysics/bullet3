@@ -10,7 +10,7 @@ import time
 
 def main():
 
-  environment = KukaGymEnv(renders=True, isDiscrete=False, maxSteps=10000000)
+  environment = KukaGymEnv(render_mode=True, isDiscrete=False, maxSteps=10000000)
 
   motorsIds = []
   #motorsIds.append(environment._p.addUserDebugParameter("posX",0.4,0.75,0.537))

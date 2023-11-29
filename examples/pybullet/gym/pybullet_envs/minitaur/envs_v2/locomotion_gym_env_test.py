@@ -91,7 +91,7 @@ class LocomotionGymEnvTest(unittest.TestCase):
     steps = 1000
     action_dim = len(env.action_space.high)
     for _ in range(steps):
-      observations, reward, done, _ = env.step([desired_motor_angle] *
+      observations, reward, done, _, _ = env.step([desired_motor_angle] *
                                                action_dim)
       observations = env_utils.flatten_observations(observations)
 
@@ -112,7 +112,7 @@ class LocomotionGymEnvTest(unittest.TestCase):
     steps = 2
     action_dim = len(env.action_space.high)
     for _ in range(steps):
-      _, reward, _, _ = env.step([desired_motor_angle] * action_dim)
+      _, reward, _, _, _ = env.step([desired_motor_angle] * action_dim)
     self.assertEqual(reward, steps)
 
   def test_except_on_invalid_config(self):

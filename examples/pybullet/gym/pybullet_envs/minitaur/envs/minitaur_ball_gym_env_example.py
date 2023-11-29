@@ -10,19 +10,19 @@ import minitaur_ball_gym_env
 
 def FollowBallManualPolicy():
   """An example of a minitaur following a ball."""
-  env = minitaur_ball_gym_env.MinitaurBallGymEnv(render=True,
+  env = minitaur_ball_gym_env.MinitaurBallGymEnv(render_mode=True,
                                                  pd_control_enabled=True,
                                                  on_rack=False)
-  observation = env.reset()
+  observation, _ = env.reset()
   sum_reward = 0
   steps = 100000
   for _ in range(steps):
     action = [math.tanh(observation[0] * 4)]
-    observation, reward, done, _ = env.step(action)
+    observation, reward, done, _, _ = env.step(action)
     sum_reward += reward
     if done:
       tf.logging.info("Return is {}".format(sum_reward))
-      observation = env.reset()
+      observation, _ = env.reset()
       sum_reward = 0
 
 

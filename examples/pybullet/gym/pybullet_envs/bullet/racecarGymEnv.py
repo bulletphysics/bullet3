@@ -28,7 +28,7 @@ class RacecarGymEnv(gym.Env):
                actionRepeat=50,
                isEnableSelfCollision=True,
                isDiscrete=False,
-               renders=False):
+               render_mode=False):
     print("init")
     self._timeStep = 0.01
     self._urdfRoot = urdfRoot
@@ -37,7 +37,7 @@ class RacecarGymEnv(gym.Env):
     self._observation = []
     self._ballUniqueId = -1
     self._envStepCounter = 0
-    self._renders = renders
+    self._renders = render_mode
     self._isDiscrete = isDiscrete
     if self._renders:
       self._p = bc.BulletClient(connection_mode=pybullet.GUI)
@@ -88,7 +88,7 @@ class RacecarGymEnv(gym.Env):
     for i in range(100):
       self._p.stepSimulation()
     self._observation = self.getExtendedObservation()
-    return np.array(self._observation)
+    return np.array(self._observation), {}
 
   def __del__(self):
     self._p = 0
@@ -135,7 +135,7 @@ class RacecarGymEnv(gym.Env):
     done = self._termination()
     #print("len=%r" % len(self._observation))
 
-    return np.array(self._observation), reward, done, {}
+    return np.array(self._observation), reward, done, False, {}
 
   def render(self, mode='human', close=False):
     if mode != "rgb_array":

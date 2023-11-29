@@ -81,7 +81,7 @@ if __name__ == "__main__":
             episode_length = 0
             while not done:
                 action, _ = model.predict(obs, deterministic=True)
-                obs, reward, done, _info = env.step(action)
+                obs, reward, done, _, _info = env.step(action)
                 episode_reward += reward
 
                 episode_length += 1

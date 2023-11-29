@@ -198,7 +198,7 @@ class PmtgWrapperEnv(object):
       initial_motor_angles = robot_pose_utils.convert_leg_pose_to_motor_angles(
           self._gym_env.robot_class, [0, 0, 0] * 4)
     observation = self._gym_env.reset(initial_motor_angles, reset_duration)
-    return self._modify_observation(observation)
+    return self._modify_observation(observation), {}
 
   def step(self, action):
     """Steps the wrapped environment.
@@ -246,11 +246,11 @@ class PmtgWrapperEnv(object):
     else:
       action_motor_space = robot_pose_utils.convert_leg_pose_to_motor_angles(
           self._gym_env.robot_class, action_total)
-    original_observation, reward, done, _ = self._gym_env.step(
+    original_observation, reward, done, _, _ = self._gym_env.step(
         action_motor_space)
 
     return self._modify_observation(original_observation), np.float32(
-        reward), done, _
+        reward), done, False, {}
 
   def _get_observation_bounds(self):
     """Get the bounds of the observation added from the trajectory generator.

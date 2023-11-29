@@ -162,12 +162,12 @@ class MinitaurExtendedEnv(MinitaurReactiveEnv):
     self._past_actions[self._counter] = action
     self._counter += 1
 
-    next_obs, _, done, info = super(MinitaurExtendedEnv, self).step(action)
+    next_obs, _, done, _, info = super(MinitaurExtendedEnv, self).step(action)
 
     reward = self.reward()
     info.update(base_reward=reward)
 
-    return next_obs, reward, done, info
+    return next_obs, reward, done, False, info
 
   def terminate(self):
     """The helper function to terminate the environment."""

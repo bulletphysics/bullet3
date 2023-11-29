@@ -38,7 +38,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
                self_collision_enabled=True,
                motor_velocity_limit=np.inf,
                pd_control_enabled=False,
-               render=False):
+               render_mode=False):
     """Initialize the minitaur standing up gym environment.
 
     Args:
@@ -48,7 +48,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
       self_collision_enabled: Whether to enable self collision in the sim.
       motor_velocity_limit: The velocity limit of each motor.
       pd_control_enabled: Whether to use PD controller for each motor.
-      render: Whether to render the simulation.
+      render_mode: Whether to render the simulation.
     """
     super(MinitaurStandGymEnv, self).__init__(urdf_root=urdf_root,
                                               action_repeat=action_repeat,
@@ -58,7 +58,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
                                               pd_control_enabled=pd_control_enabled,
                                               accurate_motor_model_enabled=True,
                                               motor_overheat_protection=True,
-                                              render=render)
+                                              render_mode=render_mode)
     # Set the action dimension to 1, and reset the action space.
     action_dim = 1
     action_high = np.array([self._action_bound] * action_dim)

@@ -102,7 +102,7 @@ class InGraphEnv(object):
         [self._observ.assign(observ),
          self._reward.assign(0),
          self._done.assign(False)]):
-      return tf.identity(observ)
+      return tf.identity(observ), {}
 
   @property
   def observ(self):

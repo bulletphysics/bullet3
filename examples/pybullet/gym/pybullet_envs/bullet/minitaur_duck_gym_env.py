@@ -70,7 +70,7 @@ class MinitaurBulletDuckEnv(gym.Env):
       motor_overheat_protection=True,
       hard_reset=True,
       on_rack=False,
-      render=False,
+      render_mode=False,
       kd_for_pd_controllers=0.3,
       env_randomizer=minitaur_env_randomizer.MinitaurEnvRandomizer()):
     """Initialize the minitaur gym environment.
@@ -104,7 +104,7 @@ class MinitaurBulletDuckEnv(gym.Env):
       on_rack: Whether to place the minitaur on rack. This is only used to debug
         the walking gait. In this mode, the minitaur's base is hanged midair so
         that its walking gait is clearer to visualize.
-      render: Whether to render the simulation.
+      render_mode: Whether to render the simulation.
       kd_for_pd_controllers: kd value for the pd controllers of the motors
       env_randomizer: An EnvRandomizer to randomize the physical properties
         during reset().
@@ -117,7 +117,7 @@ class MinitaurBulletDuckEnv(gym.Env):
     self._motor_velocity_limit = motor_velocity_limit
     self._observation = []
     self._env_step_counter = 0
-    self._is_render = render
+    self._is_render = render_mode
     self._last_base_position = [0, 0, 0]
     self._distance_weight = distance_weight
     self._energy_weight = energy_weight
@@ -213,7 +213,7 @@ class MinitaurBulletDuckEnv(gym.Env):
         if self._pd_control_enabled or self._accurate_motor_model_enabled:
           self.minitaur.ApplyAction([math.pi / 2] * 8)
         self._pybullet_client.stepSimulation()
-    return self._noisy_observation()
+    return self._noisy_observation(), {}
 
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
@@ -263,7 +263,7 @@ class MinitaurBulletDuckEnv(gym.Env):
     self._env_step_counter += 1
     reward = self._reward()
     done = self._termination()
-    return np.array(self._noisy_observation()), reward, done, {}
+    return np.array(self._noisy_observation()), reward, done, False, {}
 
   def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":

@@ -28,7 +28,7 @@ class KukaGymEnv(gym.Env):
                urdfRoot=pybullet_data.getDataPath(),
                actionRepeat=1,
                isEnableSelfCollision=True,
-               renders=False,
+               render_mode=False,
                isDiscrete=False,
                maxSteps=1000):
     #print("KukaGymEnv __init__")
@@ -39,7 +39,7 @@ class KukaGymEnv(gym.Env):
     self._isEnableSelfCollision = isEnableSelfCollision
     self._observation = []
     self._envStepCounter = 0
-    self._renders = renders
+    self._renders = render_mode
     self._maxSteps = maxSteps
     self.terminated = 0
     self._cam_dist = 1.3
@@ -95,7 +95,7 @@ class KukaGymEnv(gym.Env):
     self._envStepCounter = 0
     p.stepSimulation()
     self._observation = self.getExtendedObservation()
-    return np.array(self._observation)
+    return np.array(self._observation), {}
 
   def __del__(self):
     p.disconnect()
@@ -184,7 +184,7 @@ class KukaGymEnv(gym.Env):
 
     #print("len=%r" % len(self._observation))
 
-    return np.array(self._observation), reward, done, {}
+    return np.array(self._observation), reward, done, False, {}
 
   def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":

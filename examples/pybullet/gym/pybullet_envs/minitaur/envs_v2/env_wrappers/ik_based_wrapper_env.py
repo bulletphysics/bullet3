@@ -104,6 +104,6 @@ class IKBasedWrapperEnv(object):
 
     desired_joint_angles = self._joint_angles_from_toe_positions_and_base_pose(
         ik_actions=action)
-    observation, reward, done, _ = self._gym_env.step(desired_joint_angles)
+    observation, reward, done, _, _ = self._gym_env.step(desired_joint_angles)
 
-    return observation, reward, done, _
+    return observation, reward, done, False, {}

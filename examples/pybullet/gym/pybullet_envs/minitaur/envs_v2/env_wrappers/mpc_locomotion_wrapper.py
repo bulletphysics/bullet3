@@ -610,7 +610,7 @@ class MPCLocomotionWrapper(object):
     self._fill_observations(obs)
     self._observation = obs
 
-    return obs, reward, done, info
+    return obs, reward, done, False, info
 
   def _extract_action(self, action, name):
     return action[self.
@@ -775,7 +775,7 @@ class MPCLocomotionWrapper(object):
 
       actions = self._combine_swing_stance_action(swing_action, stance_action)
 
-      obs, rew, done, info = self._gym_env.step(actions)
+      obs, rew, done, _, info = self._gym_env.step(actions)
       if self._stance_controller.qp_solver_fail:
         done = True
       total_reward += rew

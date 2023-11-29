@@ -46,7 +46,7 @@ def main(argv):
         motor_kd=FLAGS.motor_kd,
         remove_default_joint_damping=True,
         leg_model_enabled=False,
-        render=True,
+        render_mode=True,
         on_rack=False,
         accurate_motor_model_enabled=True,
         log_path=FLAGS.log_path)

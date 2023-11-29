@@ -287,7 +287,7 @@ class MultiagentMobilityGymEnv(locomotion_gym_env.LocomotionGymEnv):
     for s in self.all_sensors():
       s.on_reset(self)
 
-    return self._get_observation()
+    return self._get_observation(), {}
 
   def get_robot(self, name):
     for robot in self.robots:
@@ -396,7 +396,7 @@ class MultiagentMobilityGymEnv(locomotion_gym_env.LocomotionGymEnv):
     if done:
       for robot in self._robots:
         robot.Terminate()
-    return self._get_observation(), reward, done, {}
+    return self._get_observation(), reward, done, False, {}
 
   def render(self, mode='rgb_array'):
     if mode != 'rgb_array':

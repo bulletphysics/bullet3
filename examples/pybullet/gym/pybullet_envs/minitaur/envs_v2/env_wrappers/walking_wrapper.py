@@ -106,7 +106,7 @@ class WalkingWrapper(object):
     # just recreate the controller.
     self._controller = _setup_controller(self._gym_env.robot)
     self._controller.reset()
-    return obs
+    return obs, {}
 
   def __getattr__(self, attr):
     return getattr(self._gym_env, attr)
@@ -128,7 +128,7 @@ class WalkingWrapper(object):
     for _ in range(self._action_repeat):
       self._controller.update()
       hybrid_action = self._controller.get_action()
-      obs, reward, done, info = self._gym_env.step(hybrid_action)
+      obs, reward, done, _, info = self._gym_env.step(hybrid_action)
       if done:
         break
-    return obs, reward, done, info
+    return obs, reward, done, False, info

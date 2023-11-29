@@ -227,5 +227,5 @@ class StepBasedCurriculumWrapperEnv(object):
     self.set_scene_params()
     self._gym_env.reset(*args, **kwargs)
 
-    return self._get_observation()
+    return self._get_observation(), {}
 

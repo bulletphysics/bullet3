@@ -33,7 +33,7 @@ class PyBulletSimGymEnv(gym.Env):
 
   def __init__(self,
                pybullet_sim_factory=boxstack_pybullet_sim,
-               render=True,
+               render_mode=True,
                render_sleep=False,
                debug_visualization=True,
                hard_reset=False,
@@ -55,7 +55,7 @@ class PyBulletSimGymEnv(gym.Env):
     self._action_repeat = action_repeat
     self._num_bullet_solver_iterations = num_bullet_solver_iterations
     self._env_step_counter = 0
-    self._is_render = render
+    self._is_render = render_mode
     self._debug_visualization = debug_visualization
     self._render_sleep = render_sleep
     self._render_width = render_width
@@ -125,7 +125,7 @@ class PyBulletSimGymEnv(gym.Env):
     #self._pybullet_client.resetDebugVisualizerCamera(
     #    self._cam_dist, self._cam_yaw, self._cam_pitch, [0, 0, 0])
 
-    return self._get_observation()
+    return self._get_observation(), {}
 
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
@@ -167,7 +167,7 @@ class PyBulletSimGymEnv(gym.Env):
     self._env_step_counter += 1
     reward = self._reward()
     done = self._termination()
-    return np.array(self._get_observation()), reward, done, {}
+    return np.array(self._get_observation()), reward, done, False, {}
 
   def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":

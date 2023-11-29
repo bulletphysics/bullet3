@@ -22,7 +22,7 @@ def ResetPoseExample(steps):
 
   environment = pybullet_sim_gym_env.PyBulletSimGymEnv(pybullet_sim_factory=boxstack_pybullet_sim,
                                                        debug_visualization=False,
-                                                       render=True,
+                                                       render_mode=True,
                                                        action_repeat=30)
   action = [math.pi / 2] * 8
 
@@ -31,7 +31,7 @@ def ResetPoseExample(steps):
   for _ in range(steps):
     print(_)
     startsim = time.time()
-    _, _, done, _ = environment.step(action)
+    _, _, done, _, _ = environment.step(action)
     stopsim = time.time()
     startrender = time.time()
     #environment.render(mode='rgb_array')

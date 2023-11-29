@@ -171,6 +171,6 @@ class PmtgInplaceWrapperEnv(object):
     new_action = action_tg_motor_space + action_residual
     if self._num_actions == _LAIKAGO_NUM_ACTIONS:
       new_action += self._init_pose
-    original_observation, reward, done, _ = self._gym_env.step(new_action)
+    original_observation, reward, done, _, _ = self._gym_env.step(new_action)
 
-    return self._modify_observation(original_observation), reward, done, _
+    return self._modify_observation(original_observation), reward, done, False, {}

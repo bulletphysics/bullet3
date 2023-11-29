@@ -27,7 +27,7 @@ while (1):
   #  env.reset()
   #action=[0]*36
   action = env.env.action_space.sample()
-  state, reward, done, info = env.step(action)
+  state, reward, done, _, info = env.step(action)
   #env.render(mode='rgb_array')
   if done:
     env.reset()

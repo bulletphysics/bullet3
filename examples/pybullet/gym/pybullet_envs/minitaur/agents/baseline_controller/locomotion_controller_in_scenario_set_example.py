@@ -162,7 +162,7 @@ def _test_stability(max_time=5, render=False, test_generator=None):
       controller.update()
       hybrid_action = controller.get_action()
 
-      _, _, done, _ = env.step(hybrid_action)
+      _, _, done, _, _ = env.step(hybrid_action)
       if done:
         break
     print(f"Scene name: flat ground. Random push: {FLAGS.add_random_push}. "

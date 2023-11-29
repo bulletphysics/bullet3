@@ -43,7 +43,7 @@ class ObservationDictionaryToArrayWrapper(gym.Env):
     observation = self._gym_env.reset(
         initial_motor_angles=initial_motor_angles,
         reset_duration=reset_duration)
-    return self._flatten_observation(observation)
+    return self._flatten_observation(observation), {}
 
   def step(self, action):
     """Steps the wrapped environment.
@@ -55,8 +55,8 @@ class ObservationDictionaryToArrayWrapper(gym.Env):
       The tuple containing the flattened observation, the reward, the epsiode
         end indicator.
     """
-    observation_dict, reward, done, _ = self._gym_env.step(action)
-    return self._flatten_observation(observation_dict), reward, done, _
+    observation_dict, reward, done, _, _ = self._gym_env.step(action)
+    return self._flatten_observation(observation_dict), reward, done, False, {}
 
   def render(self, mode='human'):
     return self._gym_env.render(mode)

@@ -22,7 +22,7 @@ def callback(lcl, glb):
 
 def main():
 
-  env = RacecarGymEnv(renders=False, isDiscrete=True)
+  env = RacecarGymEnv(render_mode=False, isDiscrete=True)
   model = deepq.models.mlp([64])
   act = deepq.learn(env,
                     q_func=model,

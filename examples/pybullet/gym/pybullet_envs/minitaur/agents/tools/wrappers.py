@@ -41,11 +41,11 @@ class AutoReset(object):
 
   def step(self, action):
     if self._done:
-      observ, reward, done, info = self._env.reset(), 0.0, False, {}
+      observ, reward, done, _, info = self._env.reset(), 0.0, False, {}
     else:
-      observ, reward, done, info = self._env.step(action)
+      observ, reward, done, _, info = self._env.step(action)
     self._done = done
-    return observ, reward, done, info
+    return observ, reward, done, _, info
 
   def reset(self):
     self._done = False
@@ -67,10 +67,10 @@ class ActionRepeat(object):
     total_reward = 0
     current_step = 0
     while current_step < self._amount and not done:
-      observ, reward, done, info = self._env.step(action)
+      observ, reward, done, _, info = self._env.step(action)
       total_reward += reward
       current_step += 1
-    return observ, total_reward, done, info
+    return observ, total_reward, done, _, info
 
 
 class RandomStart(object):
@@ -88,11 +88,11 @@ class RandomStart(object):
     random_steps = np.random.randint(0, self._max_steps)
     for _ in range(random_steps):
       action = self._env.action_space.sample()
-      observ, unused_reward, done, unused_info = self._env.step(action)
+      observ, unused_reward, done, _, unused_info = self._env.step(action)
       if done:
         tf.logging.warning('Episode ended during random start.')
         return self.reset()
-    return observ
+    return observ, {}
 
 
 class FrameHistory(object):
@@ -136,17 +136,17 @@ class FrameHistory(object):
     return gym.spaces.Box(low, high)
 
   def step(self, action):
-    observ, reward, done, info = self._env.step(action)
+    observ, reward, done, _, info = self._env.step(action)
     self._step += 1
     self._buffer[self._step % self._capacity] = observ
     observ = self._select_frames()
-    return observ, reward, done, info
+    return observ, reward, done, _, info
 
   def reset(self):
     observ = self._env.reset()
     self._buffer = np.repeat(observ[None, ...], self._capacity, 0)
     self._step = 0
-    return self._select_frames()
+    return self._select_frames(), {}
 
   def _select_frames(self):
     indices = [(self._step - index) % self._capacity for index in self._past_indices]
@@ -174,15 +174,15 @@ class FrameDelta(object):
     return gym.spaces.Box(low, high)
 
   def step(self, action):
-    observ, reward, done, info = self._env.step(action)
+    observ, reward, done, _, info = self._env.step(action)
     delta = observ - self._last
     self._last = observ
-    return delta, reward, done, info
+    return delta, reward, done, _, info
 
   def reset(self):
     observ = self._env.reset()
     self._last = observ
-    return observ
+    return observ, {}
 
 
 class RangeNormalize(object):
@@ -223,16 +223,16 @@ class RangeNormalize(object):
   def step(self, action):
     if self._should_normalize_action:
       action = self._denormalize_action(action)
-    observ, reward, done, info = self._env.step(action)
+    observ, reward, done, _, info = self._env.step(action)
     if self._should_normalize_observ:
       observ = self._normalize_observ(observ)
-    return observ, reward, done, info
+    return observ, reward, done, _, info
 
   def reset(self):
     observ = self._env.reset()
     if self._should_normalize_observ:
       observ = self._normalize_observ(observ)
-    return observ
+    return observ, {}
 
   def _denormalize_action(self, action):
     min_ = self._env.action_space.low
@@ -284,12 +284,12 @@ class LimitDuration(object):
   def step(self, action):
     if self._step is None:
       raise RuntimeError('Must reset environment.')
-    observ, reward, done, info = self._env.step(action)
+    observ, reward, done, _, info = self._env.step(action)
     self._step += 1
     if self._step >= self._duration:
       done = True
       self._step = None
-    return observ, reward, done, info
+    return observ, reward, done, _, info
 
   def reset(self):
     self._step = 0
@@ -497,10 +497,10 @@ class ConvertTo32Bit(object):
     Returns:
       Converted observation, converted reward, done flag, and info object.
     """
-    observ, reward, done, info = self._env.step(action)
+    observ, reward, done, _, info = self._env.step(action)
     observ = self._convert_observ(observ)
     reward = self._convert_reward(reward)
-    return observ, reward, done, info
+    return observ, reward, done, _, info
 
   def reset(self):
     """Reset the environment and convert the resulting observation.
@@ -510,7 +510,7 @@ class ConvertTo32Bit(object):
     """
     observ = self._env.reset()
     observ = self._convert_observ(observ)
-    return observ
+    return observ, {}
 
   def _convert_observ(self, observ):
     """Convert the observation to 32 bits.

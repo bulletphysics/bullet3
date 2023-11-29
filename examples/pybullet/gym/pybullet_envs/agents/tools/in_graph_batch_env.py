@@ -120,7 +120,7 @@ class InGraphBatchEnv(object):
         tf.scatter_update(self._reward, indices, reward),
         tf.scatter_update(self._done, indices, done)
     ]):
-      return tf.identity(observ)
+      return tf.identity(observ), {}
 
   @property
   def observ(self):

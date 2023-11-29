@@ -16,7 +16,7 @@ def main():
   act = deepq.load("cartpole_model.pkl")
 
   while True:
-    obs, done = env.reset(), False
+    obs, _, done = env.reset(), False
     print("obs")
     print(obs)
     print("type(obs)")
@@ -28,7 +28,7 @@ def main():
       o = obs[None]
       aa = act(o)
       a = aa[0]
-      obs, rew, done, _ = env.step(a)
+      obs, rew, done, _, _ = env.step(a)
       episode_rew += rew
       time.sleep(1. / 240.)
     print("Episode reward", episode_rew)

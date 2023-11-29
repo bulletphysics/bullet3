@@ -35,7 +35,7 @@ def feed_forward_only_control_example(log_path=None):
       control_time_step=0.006,
       action_repeat=6,
       env_randomizer=None,
-      render=True)
+      render_mode=True)
 
   np.random.seed(100)
   avg_reward = 0
@@ -50,7 +50,7 @@ def feed_forward_only_control_example(log_path=None):
       action[1] = -upitch - uroll
       action[2] = upitch + uroll
       action[3] = -upitch + uroll
-      observation, reward, done, _ = environment.step(action)
+      observation, reward, done, _, _ = environment.step(action)
       sum_reward += reward
       if done:
         break

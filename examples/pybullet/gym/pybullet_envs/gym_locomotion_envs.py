@@ -7,13 +7,13 @@ from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, Human
 
 class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
-  def __init__(self, robot, render=False):
+  def __init__(self, robot, render_mode=False):
     # print("WalkerBase::__init__ start")
     self.camera_x = 0
     self.walk_target_x = 1e3  # kilometer away
     self.walk_target_y = 0
     self.stateId = -1
-    MJCFBaseBulletEnv.__init__(self, robot, render)
+    MJCFBaseBulletEnv.__init__(self, robot, render_mode)
 
 
   def create_single_player_scene(self, bullet_client):
@@ -123,7 +123,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
     self.HUD(state, a, done)
     self.reward += sum(self.rewards)
 
-    return state, sum(self.rewards), bool(done), {}
+    return state, sum(self.rewards), bool(done), False, {}
 
   def camera_adjust(self):
     x, y, z = self.robot.body_real_xyz
@@ -134,23 +134,23 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
 class HopperBulletEnv(WalkerBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = Hopper()
-    WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    WalkerBaseBulletEnv.__init__(self, self.robot, render_mode)
 
 
 class Walker2DBulletEnv(WalkerBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = Walker2D()
-    WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    WalkerBaseBulletEnv.__init__(self, self.robot, render_mode)
 
 
 class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = HalfCheetah()
-    WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    WalkerBaseBulletEnv.__init__(self, self.robot, render_mode)
 
   def _isDone(self):
     return False
@@ -158,19 +158,19 @@ class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
 
 class AntBulletEnv(WalkerBaseBulletEnv):
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = Ant()
-    WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    WalkerBaseBulletEnv.__init__(self, self.robot, render_mode)
 
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
 
-  def __init__(self, robot=None, render=False):
+  def __init__(self, robot=None, render_mode=False):
     if robot is None:
       self.robot = Humanoid()
     else:
       self.robot = robot
-    WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    WalkerBaseBulletEnv.__init__(self, self.robot, render_mode)
     self.electricity_cost = 4.25 * WalkerBaseBulletEnv.electricity_cost
     self.stall_torque_cost = 4.25 * WalkerBaseBulletEnv.stall_torque_cost
 
@@ -178,9 +178,9 @@ class HumanoidBulletEnv(WalkerBaseBulletEnv):
 class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
   random_yaw = True
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = HumanoidFlagrun()
-    HumanoidBulletEnv.__init__(self, self.robot, render)
+    HumanoidBulletEnv.__init__(self, self.robot, render_mode)
 
   def create_single_player_scene(self, bullet_client):
     s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)
@@ -191,10 +191,10 @@ class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
 class HumanoidFlagrunHarderBulletEnv(HumanoidBulletEnv):
   random_lean = True  # can fall on start
 
-  def __init__(self, render=False):
+  def __init__(self, render_mode=False):
     self.robot = HumanoidFlagrunHarder()
     self.electricity_cost /= 4  # don't care that much about electricity, just stand up!
-    HumanoidBulletEnv.__init__(self, self.robot, render)
+    HumanoidBulletEnv.__init__(self, self.robot, render_mode)
 
   def create_single_player_scene(self, bullet_client):
     s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)

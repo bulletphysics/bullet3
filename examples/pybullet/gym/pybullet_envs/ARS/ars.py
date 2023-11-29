@@ -73,7 +73,7 @@ def ExploreWorker(rank, childPipe, envname, args):
         normalizer.observe(state)
         state = normalizer.normalize(state)
         action = policy.evaluate(state, delta, direction, hp)
-        state, reward, done, _ = env.step(action)
+        state, reward, done, _, _ = env.step(action)
         reward = max(min(reward, 1), -1)
         sum_rewards += reward
         num_plays += 1
@@ -154,7 +154,7 @@ def explore(env, normalizer, policy, direction, delta, hp):
     normalizer.observe(state)
     state = normalizer.normalize(state)
     action = policy.evaluate(state, delta, direction, hp)
-    state, reward, done, _ = env.step(action)
+    state, reward, done, _, _ = env.step(action)
     reward = max(min(reward, 1), -1)
     sum_rewards += reward
     num_plays += 1

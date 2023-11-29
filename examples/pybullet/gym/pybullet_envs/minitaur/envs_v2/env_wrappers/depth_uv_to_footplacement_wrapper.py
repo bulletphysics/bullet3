@@ -115,7 +115,7 @@ class DepthUVToFootPlacementWrapper(object):
     obs["LastAction"] = self.last_action
 
     self._observation = obs
-    return self._observation
+    return self._observation, {}
 
   def _move_kinematic(self):
     """Move robot kinematically.
@@ -148,7 +148,7 @@ class DepthUVToFootPlacementWrapper(object):
           wheeled_robot_base_sim.BODY_ACTION_NAME:
               joint_pose,
       }
-      obs, _, _, info = self._gym_env.step(action)
+      obs, _, _, _, info = self._gym_env.step(action)
     return obs, info
 
   def _move_com_dynamic(self, swing_foot_id, num_control_steps):
@@ -183,7 +183,7 @@ class DepthUVToFootPlacementWrapper(object):
       joint_pose = np.array(
           self.robot.motor_angles_from_foot_positions(
               toe_positions_over_time, position_in_world_frame=False)[1])
-      obs, _, _, info = self._gym_env.step(joint_pose)
+      obs, _, _, _, info = self._gym_env.step(joint_pose)
       self._update_com_visualization()
     return obs, info
 
@@ -216,7 +216,7 @@ class DepthUVToFootPlacementWrapper(object):
           self.robot.motor_angles_from_foot_positions(
               toe_positions_over_time, position_in_world_frame=False)[1])
 
-      obs, _, _, info = self._gym_env.step(joint_pose)
+      obs, _, _, _, info = self._gym_env.step(joint_pose)
     return obs, info
 
   def _move_dynamic(self):
@@ -273,7 +273,7 @@ class DepthUVToFootPlacementWrapper(object):
     obs["toe_position"] = current_end_effector_pos
     obs["vision"] = self.task.get_depth_image_for_foot()
     self._observation = obs
-    return obs, reward, done, info
+    return obs, reward, done, False, info
 
   def _construct_foot_trajectories(self, alpha, swing_foot_start_position,
                                    swing_foot_destination,
