@@ -1192,6 +1192,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	b3Assert(totalUsed < m_data->m_maxShapeCapacityInBytes);
 	if (totalUsed >= m_data->m_maxShapeCapacityInBytes)
 	{
+		b3Warning("Can't register shape, Buffer Limit Exceeded");
 		return -1;
 	}
 
