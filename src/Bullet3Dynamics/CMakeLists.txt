@@ -30,6 +30,7 @@ SET(Bullet3Dynamics_HDRS
 )
 
 ADD_LIBRARY(Bullet3Dynamics ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
+target_include_directories(Bullet3Dynamics PUBLIC ${BULLET_PHYSICS_SOURCE_DIR}/src)
 if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Dynamics Bullet3Collision)
 endif ()
