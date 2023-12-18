@@ -1055,11 +1055,15 @@ void btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 			solverConstraint.m_frictionIndex = m_tmpSolverContactFrictionConstraintPool.size();
 
-			if ((cp.m_combinedRollingFriction > 0.f) && (rollingFriction > 0))
+			if (rollingFriction > 0)
 			{
+                if (cp.m_combinedSpinningFriction > 0.f)
 				{
 					addTorsionalFrictionConstraint(cp.m_normalWorldOnB, solverBodyIdA, solverBodyIdB, frictionIndex, cp, cp.m_combinedSpinningFriction, rel_pos1, rel_pos2, colObj0, colObj1, relaxation);
-					btVector3 axis0, axis1;
+                }
+                if (cp.m_combinedRollingFriction > 0.f)
+                {
+                    btVector3 axis0, axis1;
 					btPlaneSpace1(cp.m_normalWorldOnB, axis0, axis1);
 					axis0.normalize();
 					axis1.normalize();
@@ -1074,8 +1078,8 @@ void btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					if (axis1.length() > 0.001)
 						addTorsionalFrictionConstraint(axis1, solverBodyIdA, solverBodyIdB, frictionIndex, cp,
 							cp.m_combinedRollingFriction, rel_pos1, rel_pos2, colObj0, colObj1, relaxation);
-					}
-				}
+                }
+            }
 
 			///Bullet has several options to set the friction directions
 			///By default, each contact has only a single friction direction that is recomputed automatically very frame
