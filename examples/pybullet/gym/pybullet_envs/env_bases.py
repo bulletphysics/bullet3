@@ -127,7 +127,7 @@ class MJCFBaseBulletEnv(gym.Env):
     else:
       px = np.array([[[255,255,255,255]]*self._render_width]*self._render_height, dtype=np.uint8)
     rgb_array = np.array(px, dtype=np.uint8)
-    rgb_array = np.reshape(np.array(px), (self._render_height, self._render_width, -1))
+    rgb_array = np.reshape(rgb_array, (self._render_height, self._render_width, -1))
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
 
