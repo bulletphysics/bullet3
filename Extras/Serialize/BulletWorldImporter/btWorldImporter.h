@@ -105,7 +105,7 @@ protected:
 
 	char* duplicateName(const char* name);
 
-	btCollisionShape* convertCollisionShape(btCollisionShapeData* shapeData);
+	btCollisionShape* convertCollisionShape(btCollisionShapeData* shapeData, bool isDouble = false);
 
 	void convertConstraintBackwardsCompatible281(btTypedConstraintData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
 	void convertConstraintFloat(btTypedConstraintFloatData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);

@@ -239,7 +239,7 @@ void btCollisionWorldImporter::deleteAllData()
 	m_doubleVertexArrays.clear();
 }
 
-btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionShapeData* shapeData)
+btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionShapeData* shapeData, bool isDouble)
 {
 	btCollisionShape* shape = 0;
 
@@ -261,7 +261,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 			btScaledTriangleMeshShapeData* scaledMesh = (btScaledTriangleMeshShapeData*)shapeData;
 			btCollisionShapeData* colShapeData = (btCollisionShapeData*)&scaledMesh->m_trimeshShapeData;
 			colShapeData->m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;
-			btCollisionShape* childShape = convertCollisionShape(colShapeData);
+			btCollisionShape* childShape = convertCollisionShape(colShapeData, isDouble);
 			btBvhTriangleMeshShape* meshShape = (btBvhTriangleMeshShape*)childShape;
 			btVector3 localScaling;
 			localScaling.deSerializeFloat(scaledMesh->m_localScaling);
@@ -297,9 +297,17 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 		//so deal with this
 		case CAPSULE_SHAPE_PROXYTYPE:
 		{
-			btCapsuleShapeData* capData = (btCapsuleShapeData*)shapeData;
+			int upAxis = 0;
+			if(isDouble)
+			{
+				upAxis = ((btCapsuleShapeDoubleData*)shapeData)->m_upAxis;
+			}
+			else
+			{
+				upAxis = ((btCapsuleShapeFloatData*)shapeData)->m_upAxis;
+			}
 
-			switch (capData->m_upAxis)
+			switch (upAxis)
 			{
 				case 0:
 				{
@@ -324,7 +332,14 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 			if (shape)
 			{
 				btCapsuleShape* cap = (btCapsuleShape*)shape;
-				cap->deSerializeFloat(capData);
+				if(isDouble)
+				{
+					cap->deSerialize((btCapsuleShapeDoubleData*)shapeData);
+				}
+				else
+				{
+					cap->deSerialize((btCapsuleShapeFloatData*)shapeData);
+				}
 			}
 			break;
 		}
@@ -335,12 +350,23 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 		case MULTI_SPHERE_SHAPE_PROXYTYPE:
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 		{
-			btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 			btVector3 implicitShapeDimensions;
-			implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 			btVector3 localScaling;
-			localScaling.deSerializeFloat(bsd->m_localScaling);
-			btVector3 margin(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			btVector3 margin;
+			if(isDouble)
+			{
+				btConvexInternalShapeDoubleData* bsd = (btConvexInternalShapeDoubleData*)shapeData;
+				implicitShapeDimensions.deSerializeDouble(bsd->m_implicitShapeDimensions);
+				localScaling.deSerializeDouble(bsd->m_localScaling);
+				margin = btVector3(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			}
+			else
+			{
+				btConvexInternalShapeFloatData* bsd = (btConvexInternalShapeFloatData*)shapeData;
+				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
+				localScaling.deSerializeFloat(bsd->m_localScaling);
+				margin = btVector3(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			}
 			switch (shapeData->m_shapeType)
 			{
 				case BOX_SHAPE_PROXYTYPE:
@@ -359,9 +385,18 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 
 				case CYLINDER_SHAPE_PROXYTYPE:
 				{
-					btCylinderShapeData* cylData = (btCylinderShapeData*)shapeData;
 					btVector3 halfExtents = implicitShapeDimensions + margin;
-					switch (cylData->m_upAxis)
+					int upAxis = 0;
+					if(isDouble)
+					{
+						upAxis = ((btCylinderShapeDoubleData*)shapeData)->m_upAxis;
+					}
+					else
+					{
+						upAxis = ((btCylinderShapeFloatData*)shapeData)->m_upAxis;
+					}
+
+					switch (upAxis)
 					{
 						case 0:
 						{
@@ -388,9 +423,18 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 				}
 				case CONE_SHAPE_PROXYTYPE:
 				{
-					btConeShapeData* conData = (btConeShapeData*)shapeData;
 					btVector3 halfExtents = implicitShapeDimensions;  //+margin;
-					switch (conData->m_upIndex)
+					int upIndex = 0;
+					if(isDouble)
+					{
+						upIndex = ((btConeShapeDoubleData*)shapeData)->m_upIndex;
+					}
+					else
+					{
+						upIndex = ((btConeShapeFloatData*)shapeData)->m_upIndex;
+					}
+
+					switch (upIndex)
 					{
 						case 0:
 						{
@@ -417,8 +461,15 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 				}
 				case MULTI_SPHERE_SHAPE_PROXYTYPE:
 				{
-					btMultiSphereShapeData* mss = (btMultiSphereShapeData*)bsd;
-					int numSpheres = mss->m_localPositionArraySize;
+					int numSpheres = 0;
+					if(isDouble)
+					{
+						numSpheres = ((btMultiSphereShapeDoubleData*)shapeData)->m_localPositionArraySize;
+					}
+					else
+					{
+						numSpheres = ((btMultiSphereShapeFloatData*)shapeData)->m_localPositionArraySize;
+					}
 
 					btAlignedObjectArray<btVector3> tmpPos;
 					btAlignedObjectArray<btScalar> radii;
@@ -427,8 +478,18 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 					int i;
 					for (i = 0; i < numSpheres; i++)
 					{
-						tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
-						radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						if(isDouble)
+						{
+							btMultiSphereShapeDoubleData* mss = (btMultiSphereShapeDoubleData*)shapeData;
+							tmpPos[i].deSerializeDouble(mss->m_localPositionArrayPtr[i].m_pos);
+							radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						}
+						else
+						{
+							btMultiSphereShapeFloatData* mss = (btMultiSphereShapeFloatData*)shapeData;
+							tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
+							radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						}
 					}
 					shape = createMultiSphereShape(&tmpPos[0], &radii[0], numSpheres);
 					break;
@@ -438,32 +499,36 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 					//	int sz = sizeof(btConvexHullShapeData);
 					//	int sz2 = sizeof(btConvexInternalShapeData);
 					//	int sz3 = sizeof(btCollisionShapeData);
-					btConvexHullShapeData* convexData = (btConvexHullShapeData*)bsd;
-					int numPoints = convexData->m_numUnscaledPoints;
+					int numPoints = 0;
+					if(isDouble)
+					{
+						numPoints = ((btConvexHullShapeDoubleData*)shapeData)->m_numUnscaledPoints;
+					}
+					else
+					{
+						numPoints = ((btConvexHullShapeFloatData*)shapeData)->m_numUnscaledPoints;
+					}
 
 					btAlignedObjectArray<btVector3> tmpPoints;
 					tmpPoints.resize(numPoints);
 					int i;
 					for (i = 0; i < numPoints; i++)
 					{
-#ifdef BT_USE_DOUBLE_PRECISION
-						if (convexData->m_unscaledPointsDoublePtr)
-							tmpPoints[i].deSerialize(convexData->m_unscaledPointsDoublePtr[i]);
-						if (convexData->m_unscaledPointsFloatPtr)
-							tmpPoints[i].deSerializeFloat(convexData->m_unscaledPointsFloatPtr[i]);
-#else
-						if (convexData->m_unscaledPointsFloatPtr)
-							tmpPoints[i].deSerialize(convexData->m_unscaledPointsFloatPtr[i]);
-						if (convexData->m_unscaledPointsDoublePtr)
-							tmpPoints[i].deSerializeDouble(convexData->m_unscaledPointsDoublePtr[i]);
-#endif  //BT_USE_DOUBLE_PRECISION
+						if(isDouble)
+						{
+							tmpPoints[i].deSerialize(((btConvexHullShapeDoubleData*)shapeData)->m_unscaledPointsPtr[i]);
+						}
+						else
+						{
+							tmpPoints[i].deSerialize(((btConvexHullShapeFloatData*)shapeData)->m_unscaledPointsPtr[i]);
+						}
 					}
 					btConvexHullShape* hullShape = createConvexHullShape();
 					for (i = 0; i < numPoints; i++)
 					{
 						hullShape->addPoint(tmpPoints[i]);
 					}
-					hullShape->setMargin(bsd->m_collisionMargin);
+					hullShape->setMargin(margin.x());
 					//hullShape->initializePolyhedralFeatures();
 					shape = hullShape;
 					break;
@@ -476,10 +541,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 
 			if (shape)
 			{
-				shape->setMargin(bsd->m_collisionMargin);
-
-				btVector3 localScaling;
-				localScaling.deSerializeFloat(bsd->m_localScaling);
+				shape->setMargin(margin.x());
 				shape->setLocalScaling(localScaling);
 			}
 			break;
@@ -560,7 +622,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 
 				btCollisionShapeData* cd = compoundData->m_childShapePtr[i].m_childShape;
 
-				btCollisionShape* childShape = convertCollisionShape(cd);
+				btCollisionShape* childShape = convertCollisionShape(cd, isDouble);
 				if (childShape)
 				{
 					btTransform localTransform;
