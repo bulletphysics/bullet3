@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 ///The string split C code is by Lars Wirzenius
 ///See http://stackoverflow.com/questions/2531605/how-to-split-a-string-with-a-delimiter-larger-than-one-single-char
 

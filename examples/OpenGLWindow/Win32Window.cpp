@@ -12,6 +12,11 @@ subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
 //Originally written by Erwin Coumans
 
 #include "Win32Window.h"

@@ -20,6 +20,11 @@ misrepresented as being the original software.
 */
 
 /*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
+/*
 GJK-EPA collision solver by Nathanael Presson, 2008
 */
 #ifndef BT_GJK_EPA2_H

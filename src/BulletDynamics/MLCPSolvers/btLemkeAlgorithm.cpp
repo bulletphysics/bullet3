@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 //The original version is here
 //https://code.google.com/p/mbsim-env/source/browse/trunk/kernel/mbsim/numerics/linear_complementarity_problem/lemke_algorithm.cc
 //This file is re-distributed under the ZLib license, with permission of the original author

@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #ifndef B3_BULLET_FILE_H
 #define B3_BULLET_FILE_H
 

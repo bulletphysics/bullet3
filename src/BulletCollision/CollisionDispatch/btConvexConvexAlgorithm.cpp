@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 ///Specialized capsule-capsule collision algorithm has been added for Bullet 2.75 release to increase ragdoll performance
 ///If you experience problems with capsule-capsule collision, try to define BT_DISABLE_CAPSULE_CAPSULE_COLLIDER and report it in the Bullet forums
 ///with reproduction case

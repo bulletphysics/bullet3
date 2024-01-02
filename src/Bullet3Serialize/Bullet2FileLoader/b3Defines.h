@@ -16,6 +16,11 @@
 *    misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
+
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
 #ifndef __B_DEFINES_H__
 #define __B_DEFINES_H__
 

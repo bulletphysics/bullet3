@@ -13,6 +13,11 @@ subject to the following restrictions:
 */
 
 /*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
+/*
 StackAlloc extracted from GJK-EPA collision solver by Nathanael Presson
 Nov.2006
 */

@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 ///btBox2dBox2dCollisionAlgorithm, with modified b2CollidePolygons routines from the Box2D library.
 ///The modifications include: switching from b2Vec to btVector3, redefinition of b2Dot, b2Cross
 

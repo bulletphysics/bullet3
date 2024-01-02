@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 /// 2009 March: btGeneric6DofConstraint refactored by Roman Ponomarev
 /// Added support for generic constraint solver through getInfo1/getInfo2 methods
 

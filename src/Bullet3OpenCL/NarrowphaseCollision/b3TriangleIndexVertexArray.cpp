@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #include "b3TriangleIndexVertexArray.h"
 
 b3TriangleIndexVertexArray::b3TriangleIndexVertexArray(int numTriangles, int* triangleIndexBase, int triangleIndexStride, int numVertices, b3Scalar* vertexBase, int vertexStride)

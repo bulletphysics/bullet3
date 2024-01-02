@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 //enable B3_SOLVER_DEBUG if you experience solver crashes
 //#define B3_SOLVER_DEBUG
 //#define COMPUTE_IMPULSE_DENOM 1

@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 ///btDbvtBroadphase implementation by Nathanael Presson
 #ifndef BT_DBVT_BROADPHASE_H
 #define BT_DBVT_BROADPHASE_H

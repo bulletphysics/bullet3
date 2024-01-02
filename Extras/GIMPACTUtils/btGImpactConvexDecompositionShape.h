@@ -21,6 +21,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #ifndef GIMPACT_CONVEX_DECOMPOSITION_SHAPE_H
 #define GIMPACT_CONVEX_DECOMPOSITION_SHAPE_H
 

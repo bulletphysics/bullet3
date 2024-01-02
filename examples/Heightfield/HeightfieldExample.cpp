@@ -14,6 +14,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #include "HeightfieldExample.h"		// always include our own header first!
 
 #include "btBulletDynamicsCommon.h"

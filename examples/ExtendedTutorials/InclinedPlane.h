@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #ifndef ET_INCLINED_PLANE_EXAMPLE_H
 #define ET_INCLINED_PLANE_EXAMPLE_H
 

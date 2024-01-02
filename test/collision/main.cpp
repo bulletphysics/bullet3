@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 ///Original author: Erwin Coumans, October 2014
 ///Initial version of this low-level GJK/EPA/MPR convex-convex collision test
 ///You can provide your own support function in combination with the template functions

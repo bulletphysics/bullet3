@@ -16,6 +16,11 @@
 *    misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
+
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
 // Auto generated from Bullet/Extras/HeaderGenerator/bulletGenerate.py
 #ifndef __BULLET2_H__
 #define __BULLET2_H__

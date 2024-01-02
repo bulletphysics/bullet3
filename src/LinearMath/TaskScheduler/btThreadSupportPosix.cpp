@@ -14,6 +14,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #if BT_THREADSAFE && !defined(_WIN32)
 
 #include "LinearMath/btScalar.h"

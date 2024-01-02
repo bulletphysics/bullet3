@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #include "btConvex2dShape.h"
 
 btConvex2dShape::btConvex2dShape(btConvexShape* convexChildShape) : btConvexShape(), m_childConvexShape(convexChildShape)

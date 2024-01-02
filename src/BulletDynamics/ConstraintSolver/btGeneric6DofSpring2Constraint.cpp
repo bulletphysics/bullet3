@@ -14,6 +14,11 @@ subject to the following restrictions:
 */
 
 /*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
+/*
 2014 May: btGeneric6DofSpring2Constraint is created from the original (2.82.2712) btGeneric6DofConstraint by Gabor Puhr and Tamas Umenhoffer
 Pros:
 - Much more accurate and stable in a lot of situation. (Especially when a sleeping chain of RBs connected with 6dof2 is pulled)

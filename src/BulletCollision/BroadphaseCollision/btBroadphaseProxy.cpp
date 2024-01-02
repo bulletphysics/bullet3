@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #include "btBroadphaseProxy.h"
 
 BT_NOT_EMPTY_FILE  // fix warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library

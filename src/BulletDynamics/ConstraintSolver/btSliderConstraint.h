@@ -14,6 +14,11 @@ subject to the following restrictions:
 */
 
 /*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
+/*
 Added by Roman Ponomarev (rponom@gmail.com)
 April 04, 2008
 

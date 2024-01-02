@@ -13,6 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+This is a modified version of the Bullet Continuous Collision Detection and Physics Library
+*/
+
+
 #include "BulletCollision/CollisionShapes/btBox2dShape.h"
 #include "BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h"
 #include "BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h"
