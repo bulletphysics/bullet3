@@ -239,7 +239,7 @@ static plCollisionWorldHandle gCollisionWorldHandle = 0;
 
 static void* gUserData = 0;
 
-void Bullet2NearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
+bool Bullet2NearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
 {
 	btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 	btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
@@ -250,6 +250,7 @@ void Bullet2NearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher&
 		gTmpFilter(gCollisionSdk, gCollisionWorldHandle, gUserData, obA, obB);
 		gNearCallbackCount++;
 	}
+	return false;
 }
 
 void Bullet2CollisionSdk::collideWorld(plCollisionWorldHandle worldHandle,

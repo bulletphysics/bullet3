@@ -213,8 +213,7 @@ public:
 
 	virtual bool processOverlap(btBroadphasePair& pair)
 	{
-		(*m_dispatcher->getNearCallback())(pair, *m_dispatcher, m_dispatchInfo);
-		return false;
+		return (*m_dispatcher->getNearCallback())(pair, *m_dispatcher, m_dispatchInfo);
 	}
 };
 
@@ -238,12 +237,13 @@ void btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pa
 }
 
 //by default, Bullet will use this near callback
-void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
+bool btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
 {
 	btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 	btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
 
-	if (dispatcher.needsCollision(colObj0, colObj1))
+	bool needsCollision = dispatcher.needsCollision(colObj0, colObj1);
+	if (needsCollision)
 	{
 		btCollisionObjectWrapper obj0Wrap(0, colObj0->getCollisionShape(), colObj0, colObj0->getWorldTransform(), -1, -1);
 		btCollisionObjectWrapper obj1Wrap(0, colObj1->getCollisionShape(), colObj1, colObj1->getWorldTransform(), -1, -1);
@@ -273,6 +273,7 @@ void btCollisionDispatcher::defaultNearCallback(btBroadphasePair& collisionPair,
 			}
 		}
 	}
+	return !needsCollision;
 }
 
 void* btCollisionDispatcher::allocateCollisionAlgorithm(int size)
