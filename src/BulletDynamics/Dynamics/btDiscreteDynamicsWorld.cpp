@@ -962,7 +962,7 @@ void btDiscreteDynamicsWorld::createPredictiveContacts(btScalar timeStep)
 void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, int numBodies)
 {
 	int numManifolds = getDispatcher()->getNumManifolds();
-	btAlignedObjectArray<const btCollisionObject*> penetratingColliders;  // TODO perhaps something more savory than an array
+	std::map<const btCollisionObject*, const btCollisionObject*> penetratingColliders;
 	for (int i = 0; i < numManifolds; i++)
 	{
 		btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
@@ -976,22 +976,33 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 								(contactManifold->getBody1()->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE);
 			if (penetration && !phaseThrough)
 			{
-				penetratingColliders.push_back(contactManifold->getBody0());
-				penetratingColliders.push_back(contactManifold->getBody1());
+				penetratingColliders.insert({contactManifold->getBody0(), contactManifold->getBody1()});
+				penetratingColliders.insert({contactManifold->getBody1(), contactManifold->getBody0()});
 			}
 		}
 	}
 
 	std::vector<bool> bodyAlreadyUnstuck(numBodies, false);
-	std::stack<btRigidBody*> bodyStack;
+
+	struct StackElem
+	{
+		btRigidBody* body;
+		const btCollisionObject* opposingBody;
+		bool original;
+	};
+
+	std::stack<StackElem> bodyStack;
 	bool nothingStuck = true;
+	// Higher stuckCounterIncrementRate than stuckCounterDecrementRate makes gaps without a stuck state less important
+	constexpr auto stuckCounterMax = 15, stuckCounterIncrementRate = 2, stuckCounterDecrementRate = 1;
 
 	for (int i = 0; i < numBodies; i++)
 	{
 		btRigidBody* body = bodies[i];
 		if (body->isStaticObject())
 			continue;
-		if (penetratingColliders.findLinearSearch2(body) != -1 && body->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK)
+		auto penColIter = penetratingColliders.find(body);
+		if (penColIter != penetratingColliders.end() && (body->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK))
 		{
 			// We got into the penetration which I consider to be an invalid state. In this case, top priority for me is unstuck.
 			// For now I zero the velocities which seems to work fine for meshes of normal size. For smaller
@@ -999,18 +1010,26 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 			// before they start rotating in opposite direction. Will look into that later. Probably has something to do
 			// with the hand constraint being weaker on small meshes.
 			// Another added safety mechanism against being stuck is to teleport the mesh into the safe position.
-			bodyStack.push(body);
+			bodyStack.push({body, penColIter->second, true});
 			nothingStuck = false;
 		}
 		else
 		{
 			body->setCollisionFlags(body->getCollisionFlags() & (~btCollisionObject::CF_IS_PENETRATING));
+			auto stuckCounter = body->getUserIndex2() - stuckCounterDecrementRate;
+			if (stuckCounter >= 0)
+			{
+				body->setUserIndex2(stuckCounter);
+			}
 		}
 	}
 
 	while (!bodyStack.empty())
 	{
-		btRigidBody* body = bodyStack.top();
+		auto elem = bodyStack.top();
+		auto body = elem.body;
+		auto opposingBody = elem.opposingBody;
+		bool original = elem.original;
 		bodyStack.pop();
 		if (body->getCollisionFlags() & btCollisionObject::CF_DO_UNSTUCK)
 		{
@@ -1041,9 +1060,23 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 				if (!m_forceUpdateAllAabbs)
 					updateSingleAabb(surroundingBody);
 				bodyAlreadyUnstuck[i] = true;
+
+				if (original && body == surroundingBody && opposingBody)
+				{
+					// Body is having difficulties staying unstuck with that opposing body, let's blacklist it. This could be improved upon but beware that
+					// I was unsuccessful trying to force sleeping instead of blacklisting.
+					auto stuckCounter = surroundingBody->getUserIndex2() + stuckCounterIncrementRate;
+					surroundingBody->setUserIndex2(stuckCounter);
+					if (stuckCounter >= stuckCounterMax)
+					{
+						if (surroundingBody->checkCollideWithOverride(opposingBody))
+							surroundingBody->setIgnoreCollisionCheck(opposingBody, true);
+						surroundingBody->setUserIndex2(stuckCounterMax);
+					}
+				}
 				// If a stuck situation happens, we play it safe and propagate the unstucking even based on rough aabb tests. Let's see if it is
 				// acceptable for our use case
-				bodyStack.push(surroundingBody);
+				bodyStack.push({surroundingBody, nullptr, false});
 			}
 		}
 		body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_IS_PENETRATING);
