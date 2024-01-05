@@ -994,7 +994,7 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 	std::stack<StackElem> bodyStack;
 	bool nothingStuck = true;
 	// Higher stuckCounterIncrementRate than stuckCounterDecrementRate makes gaps without a stuck state less important
-	constexpr auto stuckCounterMax = 15, stuckCounterIncrementRate = 2, stuckCounterDecrementRate = 1;
+	constexpr auto stuckCounterMax = 50, stuckCounterIncrementRate = 2, stuckCounterDecrementRate = 1;
 
 	for (int i = 0; i < numBodies; i++)
 	{
