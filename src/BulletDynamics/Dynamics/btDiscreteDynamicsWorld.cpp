@@ -993,8 +993,6 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 
 	std::stack<StackElem> bodyStack;
 	bool nothingStuck = true;
-	// Higher stuckCounterIncrementRate than stuckCounterDecrementRate makes gaps without a stuck state less important
-	constexpr auto stuckCounterMax = 50, stuckCounterIncrementRate = 2, stuckCounterDecrementRate = 1;
 
 	for (int i = 0; i < numBodies; i++)
 	{
@@ -1016,10 +1014,10 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 		else
 		{
 			body->setCollisionFlags(body->getCollisionFlags() & (~btCollisionObject::CF_IS_PENETRATING));
-			auto stuckCounter = body->getUserIndex2() - stuckCounterDecrementRate;
-			if (stuckCounter >= 0)
+			auto stuckTestCounter = body->getUserIndex2();
+			if (stuckTestCounter > 0)
 			{
-				body->setUserIndex2(stuckCounter);
+				body->setUserIndex2(stuckTestCounter - 1);
 			}
 		}
 	}
@@ -1061,18 +1059,12 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 					updateSingleAabb(surroundingBody);
 				bodyAlreadyUnstuck[i] = true;
 
-				if (original && body == surroundingBody && opposingBody)
+				if (original && body == surroundingBody && opposingBody && body->getUserIndex2() > 0)
 				{
-					// Body is having difficulties staying unstuck with that opposing body, let's blacklist it. This could be improved upon but beware that
-					// I was unsuccessful trying to force sleeping instead of blacklisting.
-					auto stuckCounter = surroundingBody->getUserIndex2() + stuckCounterIncrementRate;
-					surroundingBody->setUserIndex2(stuckCounter);
-					if (stuckCounter >= stuckCounterMax)
-					{
-						if (surroundingBody->checkCollideWithOverride(opposingBody))
-							surroundingBody->setIgnoreCollisionCheck(opposingBody, true);
-						surroundingBody->setUserIndex2(stuckCounterMax);
-					}
+					// Body is having difficulties staying unstuck with that opposing body, tolerate the opposing body otherwise some severe slowdowns could be
+					// experienced - these are a TODO too, they should not cause such gradual performance deterioration.
+					surroundingBody->setUserIndex2(0);
+					surroundingBody->setToleratedCollisionSome(btCollisionObject::InitialCollisionTolerance::HIGH_DETAIL, opposingBody);
 				}
 				// If a stuck situation happens, we play it safe and propagate the unstucking even based on rough aabb tests. Let's see if it is
 				// acceptable for our use case
