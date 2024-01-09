@@ -451,7 +451,7 @@ btHullTriangle *HullLibrary::extrudable(btScalar epsilon)
 			t = m_tris[i];
 		}
 	}
-	return (t->rise > epsilon) ? t : NULL;
+	return (t && (t->rise > epsilon)) ? t : NULL;
 }
 
 int4 HullLibrary::FindSimplex(btVector3 *verts, int verts_count, btAlignedObjectArray<int> &allow)
