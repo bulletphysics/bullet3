@@ -1043,9 +1043,10 @@ void btDiscreteDynamicsWorld::processLastSafeTransforms(btRigidBody** bodies, in
 				// This is a rough culling of bodies affected by the body from the stack being stuck
 				if (!bodyAabb.has_collision(surroundingBodyAabb))
 					continue;
-				btVector3 zeroVec(0.0, 0.0, 0.0);
-				surroundingBody->setLinearVelocity(zeroVec);
-				surroundingBody->setAngularVelocity(zeroVec);
+				// Experimental disable of the velocity resets. Was causing bad stoppages in traditional dynamics scenes (bowling etc.)
+				//btVector3 zeroVec(0.0, 0.0, 0.0);
+				//surroundingBody->setLinearVelocity(zeroVec);
+				//surroundingBody->setAngularVelocity(zeroVec);
 				btTransform dst = surroundingBody->getLastSafeWorldTransform();
 				btTransform src = surroundingBody->getWorldTransform();
 				// We sacrifice few iterations to move to the safe position only gradually. This significantly reduces the jitter of
