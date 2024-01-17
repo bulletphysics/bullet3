@@ -234,6 +234,11 @@ int btPersistentManifold::addManifoldPoint(const btManifoldPoint& newPoint, bool
 #else
 		insertIndex = 0;
 #endif
+		if (insertIndex < 0)
+		{
+			printf("btPersistentManifold::addManifoldPoint insertIndex would have been -1\n");
+			insertIndex = 0;
+		}
 		clearUserCache(m_pointCache[insertIndex]);
 	}
 	else
