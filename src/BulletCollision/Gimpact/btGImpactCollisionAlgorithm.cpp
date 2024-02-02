@@ -704,10 +704,14 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	m_dispatcher->addPreviouslyConsumedTime({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()}, duration.count());
 
-	size_t pairsCount = 0;
+	bool pairsExist = false;
 	for (auto perThreadIter = perThreadIntermediateResults.begin(); perThreadIter != perThreadIntermediateResults.end(); ++perThreadIter)
-		pairsCount += perThreadIter->size();
-	if (pairsCount == 0)
+	{
+		pairsExist |= !perThreadIter->empty();
+		if (pairsExist)
+			break;
+	}
+	if (!pairsExist)
 		return;
 
 	if (findOnlyFirstPair && !generateManifoldForGhost)

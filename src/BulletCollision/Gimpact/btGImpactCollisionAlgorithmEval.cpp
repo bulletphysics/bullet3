@@ -39,7 +39,8 @@ bool btGImpactPairEval::EvalPair(const GIM_PAIR& pair,
 						perThreadIntermediateResults->local().push_back({contact_data.m_points[0], contact_data.m_separating_normal, -contact_data.m_penetration_depth});
 					if (intermediateResults)
 						intermediateResults->push_back({contact_data.m_points[0], contact_data.m_separating_normal, -contact_data.m_penetration_depth});
-					return true;
+					return contact_data.m_penetration_depth < 0.0; // TODO must return true only when there is a penetration
+					// TODO remove all the preciseToleranceReverification code, because with this all the tolerance checks will be precise enough
 				}
 			}
 		}
