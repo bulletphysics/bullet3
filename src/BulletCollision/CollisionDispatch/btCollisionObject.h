@@ -324,11 +324,17 @@ public:
 	{
 		m_objectsWithToleratedCollision.clear();
 		m_objectsWithToleratedCollision.push_back(tolerance == InitialCollisionTolerance::HIGH_DETAIL ? nullptr : reinterpret_cast<const btCollisionObject*>(~0));
+		setUserIndex2(0);
 	}
 
 	void setToleratedCollisionNone()
 	{
 		m_objectsWithToleratedCollision.clear();
+		// Setting the tolerance to none is a risky operation for bodies in tight places. Such body will be in a margin zone, so a force
+		// will be generated, which can push it into a stuck state in the opposite direction. Stuck states can cause severe slowdowns (to such extent that it is a TODO to investigate why they are so bad)
+		// in such places, so a stuck check counter is set - it is checked in btDiscreteDynamicsWorld::processLastSafeTransforms
+		constexpr auto stuckCheckCounter = 25;
+		setUserIndex2(stuckCheckCounter);
 	}
 
 	void setToleratedCollisionSome(InitialCollisionTolerance tolerance, const btCollisionObject * co)
@@ -336,6 +342,7 @@ public:
 		if (m_objectsWithToleratedCollision.size() == 0)
 			m_objectsWithToleratedCollision.push_back(tolerance == InitialCollisionTolerance::HIGH_DETAIL ? nullptr : reinterpret_cast<const btCollisionObject*>(~0));
 		m_objectsWithToleratedCollision.push_back(co);
+		setUserIndex2(0);
 	}
 
 	bool checkIsTolerated(const btCollisionObject* co) const
