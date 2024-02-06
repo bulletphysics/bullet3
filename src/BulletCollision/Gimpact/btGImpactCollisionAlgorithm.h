@@ -194,7 +194,7 @@ protected:
 		const btTransform& trans1,
 		ThreadLocalGImpactResult& perThreadIntermediateResults,
 		btPairSet& auxPairSet,
-		bool findOnlyFirstPair);
+		bool findOnlyFirstPenetratingPair);
 
 	void gimpact_vs_shape_find_pairs(
 		const btTransform& trans0,

@@ -390,21 +390,22 @@ SIMD_FORCE_INLINE bool _quantized_node_collision(
 }
 
 // recursive collision routine
+// OUTDATED findOnlyFirstPenetratingPair behaviour
 static void _find_quantized_collision_pairs_recursive_ser(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1, btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
+	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPenetratingPair)
 {
-	if (findOnlyFirstPair)
+	if (findOnlyFirstPenetratingPair)
 	{
 		if (collision_pairs->size() > 0)
 		{
 			return;
 		}
 	}
-	else if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+	else if (!findOnlyFirstPenetratingPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
 	{
-		// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
+		// Leaf vs leaf test is not done now (except for the findOnlyFirstPenetratingPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
 		// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
 		collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 		return;
@@ -421,7 +422,7 @@ static void _find_quantized_collision_pairs_recursive_ser(
 		if (boxset1->isLeafNode(node1))
 		{
 			// collision result
-			if (findOnlyFirstPair)
+			if (findOnlyFirstPenetratingPair)
 			{
 				collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 			}
@@ -430,9 +431,9 @@ static void _find_quantized_collision_pairs_recursive_ser(
 		else
 		{
 			//collide left recursive
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getLeftNode(node1), false, findOnlyFirstPenetratingPair);
 			//collide right recursive
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, node0, boxset1->getRightNode(node1), false, findOnlyFirstPenetratingPair);
 		}
 	}
 	else
@@ -440,31 +441,32 @@ static void _find_quantized_collision_pairs_recursive_ser(
 		if (boxset1->isLeafNode(node1))
 		{
 			//collide left recursive
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, false, findOnlyFirstPair);
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), node1, false, findOnlyFirstPenetratingPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), node1, false, findOnlyFirstPenetratingPair);
 		}
 		else
 		{
 			//collide left0 left1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPenetratingPair);
 
 			//collide left0 right1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getLeftNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPenetratingPair);
 
 			//collide right0 left1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getLeftNode(node1), false, findOnlyFirstPenetratingPair);
 
 			//collide right0 right1
-			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPair);
+			_find_quantized_collision_pairs_recursive_ser(boxset0, boxset1, collision_pairs, trans_cache_1to0, boxset0->getRightNode(node0), boxset1->getRightNode(node1), false, findOnlyFirstPenetratingPair);
 		}  // else if node1 is not a leaf
 	}      // else if node0 is not a leaf
 }
 
+// OUTDATED findOnlyFirstPenetratingPair behaviour
 static void _find_quantized_collision_pairs_stack_ser(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1,
 	btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
+	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPenetratingPair)
 {
 	std::stack<std::tuple<int, int, bool>> pairStack;
 	pairStack.push({node0, node1, complete_primitive_tests});
@@ -475,16 +477,16 @@ static void _find_quantized_collision_pairs_stack_ser(
 		int node0 = std::get<0>(pair), node1 = std::get<1>(pair);
 		bool complete_primitive_tests_local = std::get<2>(pair);
 		
-		if (findOnlyFirstPair)
+		if (findOnlyFirstPenetratingPair)
 		{
 			if (collision_pairs->size() > 0)
 			{
 				continue;
 			}
 		}
-		else if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+		else if (!findOnlyFirstPenetratingPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
 		{
-			// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
+			// Leaf vs leaf test is not done now (except for the findOnlyFirstPenetratingPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
 			// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
 			// Work in this function is not embarrassingly parallel. It was challenging to feed the threads with enough work while trying to parrallelize it.
 			collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
@@ -503,7 +505,7 @@ static void _find_quantized_collision_pairs_stack_ser(
 			if (boxset1->isLeafNode(node1))
 			{
 				// collision result
-				if (findOnlyFirstPair)
+				if (findOnlyFirstPenetratingPair)
 				{
 					collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
 				}
@@ -536,11 +538,12 @@ static void _find_quantized_collision_pairs_stack_ser(
 // Do not use yet. The scheduler gets swamped because there is no level cutoff for parallelization. Also result writeback
 // should be handled using thread local storage. Please note that vector is used instead of a stack. tbb::parallel_for_each probably couldn't handle a stack.
 // TODO use a list instead of vector. Should be faster.
+// OUTDATED findOnlyFirstPenetratingPair behaviour
 static void _find_quantized_collision_pairs_stack_par(
 	const btGImpactQuantizedBvh* boxset0, const btGImpactQuantizedBvh* boxset1,
 	btPairSet* collision_pairs,
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPair)
+	int node0, int node1, bool complete_primitive_tests, bool findOnlyFirstPenetratingPair)
 {
 	std::mutex collision_pairs_mutex;
 	typedef std::tuple<int, int, bool> ElemType;
@@ -549,11 +552,11 @@ static void _find_quantized_collision_pairs_stack_par(
 
 	tbb::parallel_for_each(
 		tupleElem.begin(), tupleElem.end(),
-		[findOnlyFirstPair, boxset0, boxset1, trans_cache_1to0, collision_pairs, &collision_pairs_mutex](ElemType& elem, tbb::feeder<ElemType>& feeder)
+		[findOnlyFirstPenetratingPair, boxset0, boxset1, trans_cache_1to0, collision_pairs, &collision_pairs_mutex](ElemType& elem, tbb::feeder<ElemType>& feeder)
 		{
 			int node0 = std::get<0>(elem), node1 = std::get<1>(elem);
 			bool complete_primitive_tests_local = std::get<2>(elem);
-			if (findOnlyFirstPair)
+			if (findOnlyFirstPenetratingPair)
 			{
 				std::lock_guard<std::mutex> guard(collision_pairs_mutex);
 				if (collision_pairs->size() > 0)
@@ -561,9 +564,9 @@ static void _find_quantized_collision_pairs_stack_par(
 					return;
 				}
 			}
-			else if (!findOnlyFirstPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
+			else if (!findOnlyFirstPenetratingPair && boxset0->isLeafNode(node0) && boxset1->isLeafNode(node1))
 			{
-				// Leaf vs leaf test is not done now (except for the findOnlyFirstPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
+				// Leaf vs leaf test is not done now (except for the findOnlyFirstPenetratingPair mode), but deferred to be done in the parallelized for loop in collide_sat_triangles.
 				// The assumption is that the tri vs tri test is comparable in complexity to the aabb vs obb test. So we should not loose much and gain significantly from the parallelization.
 				// Work in this function is not embarrassingly parallel. It was challenging to feed the threads with enough work while trying to parrallelize it.
 				std::lock_guard<std::mutex> guard(collision_pairs_mutex);
@@ -583,7 +586,7 @@ static void _find_quantized_collision_pairs_stack_par(
 				if (boxset1->isLeafNode(node1))
 				{
 					// collision result
-					if (findOnlyFirstPair)
+					if (findOnlyFirstPenetratingPair)
 					{
 						std::lock_guard<std::mutex> guard(collision_pairs_mutex);
 						collision_pairs->push_back({boxset0->getNodeData(node0), boxset1->getNodeData(node1)});
@@ -620,18 +623,18 @@ struct GroupedParams
 	const btGImpactQuantizedBvh* boxset1;
 	ThreadLocalGImpactResult& perThreadIntermediateResults;
 	const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0;
-	bool findOnlyFirstPair;
-	std::atomic<bool>& firstPairFound;
+	bool findOnlyFirstPenetratingPair;
+	std::atomic<bool>& firstPenetratingPairFound;
 	int threadLaunchStopLevel;
 	btGimpactVsGimpactGroupedParams grpParams;
 	GroupedParams(const btGImpactQuantizedBvh* boxset0,
 				  const btGImpactQuantizedBvh* boxset1,
 				  ThreadLocalGImpactResult& perThreadIntermediateResults,
 				  const BT_BOX_BOX_TRANSFORM_CACHE& trans_cache_1to0,
-				  bool findOnlyFirstPair,
-				  std::atomic<bool>& firstPairFound,
+				  bool findOnlyFirstPenetratingPair,
+				  std::atomic<bool>& firstPenetratingPairFound,
 				  int threadLaunchStopLevel,
-				  const btGimpactVsGimpactGroupedParams& grpParams) : boxset0(boxset0), boxset1(boxset1), perThreadIntermediateResults(perThreadIntermediateResults), trans_cache_1to0(trans_cache_1to0), findOnlyFirstPair(findOnlyFirstPair), firstPairFound(firstPairFound), threadLaunchStopLevel(threadLaunchStopLevel), grpParams(grpParams)
+				  const btGimpactVsGimpactGroupedParams& grpParams) : boxset0(boxset0), boxset1(boxset1), perThreadIntermediateResults(perThreadIntermediateResults), trans_cache_1to0(trans_cache_1to0), findOnlyFirstPenetratingPair(findOnlyFirstPenetratingPair), firstPenetratingPairFound(firstPenetratingPairFound), threadLaunchStopLevel(threadLaunchStopLevel), grpParams(grpParams)
 	{
 	}
 };
@@ -639,16 +642,16 @@ struct GroupedParams
 // This is the most promising candidate so far
 static void _find_quantized_collision_pairs_recursive_par(GroupedParams& groupedParams, int node0, int node1, int level, bool complete_primitive_tests)
 {
-	if (groupedParams.findOnlyFirstPair)
+	if (groupedParams.findOnlyFirstPenetratingPair)
 	{
-		if (groupedParams.firstPairFound)
+		if (groupedParams.firstPenetratingPairFound)
 		{
 			return;
 		}
 	}
-	else if (!groupedParams.findOnlyFirstPair && groupedParams.boxset0->isLeafNode(node0) && groupedParams.boxset1->isLeafNode(node1))
+	else if (!groupedParams.findOnlyFirstPenetratingPair && groupedParams.boxset0->isLeafNode(node0) && groupedParams.boxset1->isLeafNode(node1))
 	{
-		btGImpactPairEval::EvalPair({groupedParams.boxset0->getNodeData(node0), groupedParams.boxset1->getNodeData(node1)}, groupedParams.grpParams, &groupedParams.perThreadIntermediateResults, nullptr);
+		btGImpactPairEval::EvalPair({groupedParams.boxset0->getNodeData(node0), groupedParams.boxset1->getNodeData(node1)}, groupedParams.grpParams, groupedParams.findOnlyFirstPenetratingPair, &groupedParams.perThreadIntermediateResults, nullptr);
 		return;
 	}
 	if (_quantized_node_collision(
@@ -663,10 +666,10 @@ static void _find_quantized_collision_pairs_recursive_par(GroupedParams& grouped
 		if (groupedParams.boxset1->isLeafNode(node1))
 		{
 			// collision result
-			if (groupedParams.findOnlyFirstPair)
+			if (groupedParams.findOnlyFirstPenetratingPair)
 			{
-				if (btGImpactPairEval::EvalPair({groupedParams.boxset0->getNodeData(node0), groupedParams.boxset1->getNodeData(node1)}, groupedParams.grpParams, &groupedParams.perThreadIntermediateResults, nullptr))
-					groupedParams.firstPairFound = true;
+				if (btGImpactPairEval::EvalPair({groupedParams.boxset0->getNodeData(node0), groupedParams.boxset1->getNodeData(node1)}, groupedParams.grpParams, groupedParams.findOnlyFirstPenetratingPair, &groupedParams.perThreadIntermediateResults, nullptr))
+					groupedParams.firstPenetratingPairFound = true;
 			}
 			return;
 		}
@@ -762,7 +765,7 @@ static void _find_quantized_collision_pairs_recursive_par(GroupedParams& grouped
 void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0, const btTransform& trans0,
 										   const btGImpactQuantizedBvh* boxset1, const btTransform& trans1,
 										   ThreadLocalGImpactResult& perThreadIntermediateResults, btPairSet& auxPairSet,
-										   bool findOnlyFirstPair,
+										   bool findOnlyFirstPenetratingPair,
 										   const btGimpactVsGimpactGroupedParams& grpParams)
 {
 	if (boxset0->getNodeCount() == 0 || boxset1->getNodeCount() == 0) return;
@@ -781,7 +784,7 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	//series0.write_message(diagnostic::normal_importance, 0, "start ser");
 
 	//auto start = std::chrono::steady_clock::now();
-	std::atomic<bool> firstPairFound = false;
+	std::atomic<bool> firstPenetratingPairFound = false;
 	auto boxset0Depth = std::log2(boxset0->getNodeCount() + 1);
 	auto boxset1Depth = std::log2(boxset1->getNodeCount() + 1);
 	// It has been empirically observed that the best performance is obtained when the stop level is three quarters of total tree depth.
@@ -790,9 +793,9 @@ void btGImpactQuantizedBvh::find_collision(const btGImpactQuantizedBvh* boxset0,
 	// The tbb parallel calls increase the _find_quantized_collision_pairs_recursive_par duration from about 1us to anything between 20-80us,
 	// so the tbb parallel calls pay off only when there was at least some significant time spent in _find_quantized_collision_pairs_recursive_par
 	// previously
-	if (grpParams.previouslyConsumedTime <= 100 || findOnlyFirstPair)
+	if (grpParams.previouslyConsumedTime <= 100 || findOnlyFirstPenetratingPair)
 		threadLaunchStopLevel = 0;
-	GroupedParams groupedParams(boxset0, boxset1, perThreadIntermediateResults, trans_cache_1to0, findOnlyFirstPair, firstPairFound, threadLaunchStopLevel, grpParams);
+	GroupedParams groupedParams(boxset0, boxset1, perThreadIntermediateResults, trans_cache_1to0, findOnlyFirstPenetratingPair, firstPenetratingPairFound, threadLaunchStopLevel, grpParams);
 	_find_quantized_collision_pairs_recursive_par(groupedParams, 0, 0, 0, true);
 	//auto end = std::chrono::steady_clock::now();
 

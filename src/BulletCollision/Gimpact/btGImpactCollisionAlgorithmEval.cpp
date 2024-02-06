@@ -2,7 +2,7 @@
 #include "btGImpactShape.h"
 
 bool btGImpactPairEval::EvalPair(const GIM_PAIR& pair,
-								 btGimpactVsGimpactGroupedParams& grpParams,
+								 btGimpactVsGimpactGroupedParams& grpParams, bool findOnlyFirstPenetratingPair,
 						 ThreadLocalGImpactResult* perThreadIntermediateResults,
 						 std::list<btGImpactIntermediateResult>* intermediateResults)
 {
@@ -35,10 +35,16 @@ bool btGImpactPairEval::EvalPair(const GIM_PAIR& pair,
 			{
 				if (contact_data.m_point_count >= 1)
 				{
-					if (perThreadIntermediateResults)
-						perThreadIntermediateResults->local().push_back({contact_data.m_points[0], contact_data.m_separating_normal, -contact_data.m_penetration_depth});
-					if (intermediateResults)
-						intermediateResults->push_back({contact_data.m_points[0], contact_data.m_separating_normal, -contact_data.m_penetration_depth});
+					bool insert = true;
+					if (findOnlyFirstPenetratingPair && contact_data.m_penetration_depth > 0.0)
+						insert = false;
+					if (insert)
+					{
+						if (perThreadIntermediateResults)
+							perThreadIntermediateResults->local().push_back({contact_data.m_points[0], contact_data.m_separating_normal, -contact_data.m_penetration_depth});
+						if (intermediateResults)
+							intermediateResults->push_back({contact_data.m_points[0], contact_data.m_separating_normal, -contact_data.m_penetration_depth});
+					}
 					return contact_data.m_penetration_depth < 0.0;
 				}
 			}

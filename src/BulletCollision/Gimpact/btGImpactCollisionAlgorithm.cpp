@@ -256,11 +256,11 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact_find_pairs(
 	const btGimpactVsGimpactGroupedParams& grpParams,
 	const btTransform& trans0,
 	const btTransform& trans1,
-	ThreadLocalGImpactResult& perThreadIntermediateResults, btPairSet& auxPairSet, bool findOnlyFirstPair)
+	ThreadLocalGImpactResult& perThreadIntermediateResults, btPairSet& auxPairSet, bool findOnlyFirstPenetratingPair)
 {
 	if (grpParams.shape0->hasBoxSet() && grpParams.shape1->hasBoxSet())
 	{
-		btGImpactBoxSet::find_collision(grpParams.shape0->getBoxSet(), trans0, grpParams.shape1->getBoxSet(), trans1, perThreadIntermediateResults, auxPairSet, findOnlyFirstPair, grpParams);
+		btGImpactBoxSet::find_collision(grpParams.shape0->getBoxSet(), trans0, grpParams.shape1->getBoxSet(), trans1, perThreadIntermediateResults, auxPairSet, findOnlyFirstPenetratingPair, grpParams);
 	}
 	else
 	{
@@ -617,7 +617,7 @@ void btGImpactCollisionAlgorithm::collide_sat_triangles_aux(const btCollisionObj
 	std::list<btGImpactIntermediateResult> intermediateResults;
 	for (auto pairIter = auxPairSet.begin(); pairIter != auxPairSet.end(); ++pairIter)
 	{
-		btGImpactPairEval::EvalPair(*pairIter, grpParams, nullptr, &intermediateResults);
+		btGImpactPairEval::EvalPair(*pairIter, grpParams, false, nullptr, &intermediateResults);
 	}
 
 	collide_sat_triangles_post(nullptr, &intermediateResults, body0Wrap, body1Wrap, shape0, shape1);
@@ -660,17 +660,17 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	bool isTol1 = body1Wrap->getCollisionObject()->isToleratingInitialCollisionsAll(lowDetail1);
 	bool isGhost0 = body0Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE;
 	bool isGhost1 = body1Wrap->getCollisionObject()->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE;
-	bool findOnlyFirstPair = isTol0 || isTol1;
+	bool findOnlyFirstPenetratingPair = isTol0 || isTol1;
 	if (body0Wrap->getCollisionObject()->isToleratingCertainInitialCollisions() || body1Wrap->getCollisionObject()->isToleratingCertainInitialCollisions())
 	{
 		bool check0 = body0Wrap->getCollisionObject()->checkIsTolerated(body1Wrap->getCollisionObject());
 		bool check1 = body1Wrap->getCollisionObject()->checkIsTolerated(body0Wrap->getCollisionObject());
-		findOnlyFirstPair = (check0 || check1);
+		findOnlyFirstPenetratingPair = (check0 || check1);
 	}
 	bool generateManifoldForGhost = isGhost0 || isGhost1;
-	findOnlyFirstPair |= generateManifoldForGhost;
+	findOnlyFirstPenetratingPair |= generateManifoldForGhost;
 
-	if (findOnlyFirstPair && (lowDetail0 || lowDetail1))
+	if (findOnlyFirstPenetratingPair && (lowDetail0 || lowDetail1))
 	{
 		const btCollisionObject* checked = nullptr;
 		if (isTol0)
@@ -699,7 +699,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	}
 
 	auto start = std::chrono::steady_clock::now();
-	gimpact_vs_gimpact_find_pairs(grpParams, grpParams.orgtrans0, grpParams.orgtrans1, perThreadIntermediateResults, auxPairSet, findOnlyFirstPair);
+	gimpact_vs_gimpact_find_pairs(grpParams, grpParams.orgtrans0, grpParams.orgtrans1, perThreadIntermediateResults, auxPairSet, findOnlyFirstPenetratingPair);
 	auto end = std::chrono::steady_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	m_dispatcher->addPreviouslyConsumedTime({body0Wrap->getCollisionObject()->getUserIndex(), body1Wrap->getCollisionObject()->getUserIndex()}, duration.count());
@@ -714,7 +714,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_gimpact(
 	if (!pairsExist)
 		return;
 
-	if (findOnlyFirstPair && !generateManifoldForGhost)
+	if (findOnlyFirstPenetratingPair && !generateManifoldForGhost)
 	{
 		m_dispatcher->addInitialCollisionParticipant({body0Wrap->getCollisionObject(), body1Wrap->getCollisionObject()});
 		return;

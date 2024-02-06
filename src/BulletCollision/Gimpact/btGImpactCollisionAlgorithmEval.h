@@ -65,7 +65,7 @@ struct btGimpactVsGimpactGroupedParams
 struct btGImpactPairEval
 {
 	static bool EvalPair(const GIM_PAIR& pair,
-						 btGimpactVsGimpactGroupedParams& grpParams,
+						 btGimpactVsGimpactGroupedParams& grpParams, bool findOnlyFirstPenetratingPair,
 						 ThreadLocalGImpactResult* perThreadIntermediateResults,
 						 std::list<btGImpactIntermediateResult>* intermediateResults);
 };
