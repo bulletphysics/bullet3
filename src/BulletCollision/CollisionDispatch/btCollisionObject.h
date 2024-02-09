@@ -325,6 +325,10 @@ public:
 		m_objectsWithToleratedCollision.clear();
 		m_objectsWithToleratedCollision.push_back(tolerance == InitialCollisionTolerance::HIGH_DETAIL ? nullptr : reinterpret_cast<const btCollisionObject*>(~0));
 		setUserIndex2(0);
+		// Bodies with toleration enabled have to be always active. Otherwise the toleration logic does not work correctly. If it fell asleep, it would be filtered out in
+		// broadphase, resulting in initialCollisionParticipants being empty for it, which in turn would mean that the tolerance would be terminated in tickCallback even
+		// if it was penetrating something.
+		setActivationState(DISABLE_DEACTIVATION);
 	}
 
 	void setToleratedCollisionNone()
@@ -335,6 +339,8 @@ public:
 		// in such places, so a stuck check counter is set - it is checked in btDiscreteDynamicsWorld::processLastSafeTransforms
 		constexpr auto stuckCheckCounter = 25;
 		setUserIndex2(stuckCheckCounter);
+		// When the toleration is done, this returns the activation state to normal
+		forceActivationState(ACTIVE_TAG);
 	}
 
 	void setToleratedCollisionSome(InitialCollisionTolerance tolerance, const btCollisionObject * co)
@@ -343,6 +349,10 @@ public:
 			m_objectsWithToleratedCollision.push_back(tolerance == InitialCollisionTolerance::HIGH_DETAIL ? nullptr : reinterpret_cast<const btCollisionObject*>(~0));
 		m_objectsWithToleratedCollision.push_back(co);
 		setUserIndex2(0);
+		// Bodies with toleration enabled have to be always active. Otherwise the toleration logic does not work correctly. If it fell asleep, it would be filtered out in
+		// broadphase, resulting in initialCollisionParticipants being empty for it, which in turn would mean that the tolerance would be terminated in tickCallback even
+		// if it was penetrating something.
+		setActivationState(DISABLE_DEACTIVATION);
 	}
 
 	bool checkIsTolerated(const btCollisionObject* co) const
