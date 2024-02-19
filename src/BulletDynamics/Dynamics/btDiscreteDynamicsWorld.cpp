@@ -481,6 +481,11 @@ void btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 	///perform collision detection
 	performDiscreteCollisionDetection();
 
+	if (0 != m_internalPostDiscreteCollisionDetectionTickCallback)
+	{
+		(*m_internalPostDiscreteCollisionDetectionTickCallback)(this, timeStep);
+	}
+
 	calculateSimulationIslands();
 
 	getSolverInfo().m_timeStep = timeStep;
