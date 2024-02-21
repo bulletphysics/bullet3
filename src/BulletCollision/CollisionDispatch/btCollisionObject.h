@@ -282,6 +282,11 @@ public:
 		return m_collisionShape;
 	}
 
+	void setCheckCollideWith(bool checkCollideWith)
+	{
+		m_checkCollideWith = checkCollideWith;
+	}
+
 	void setIgnoreCollisionCheck(const btCollisionObject* co, bool ignoreCollisionCheck)
 	{
 		if (ignoreCollisionCheck)
@@ -297,7 +302,7 @@ public:
 		{
 			m_objectsWithoutCollisionCheck.remove(co);
 		}
-		m_checkCollideWith = m_objectsWithoutCollisionCheck.size() > 0;
+		//m_checkCollideWith = m_objectsWithoutCollisionCheck.size() > 0;
 	}
 
         int getNumObjectsWithoutCollision() const
