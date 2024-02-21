@@ -35,7 +35,10 @@ struct btCollisionShapeData;
 
 typedef btAlignedObjectArray<class btCollisionObject*> btCollisionObjectArray;
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btCollisionObjectData btCollisionObjectLongDoubleData
+#define btCollisionObjectDataName "btCollisionObjectLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btCollisionObjectData btCollisionObjectDoubleData
 #define btCollisionObjectDataName "btCollisionObjectDoubleData"
 #else
@@ -612,6 +615,40 @@ public:
 // clang-format off
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct	btCollisionObjectLongDoubleData
+{
+	void					*m_broadphaseHandle;
+	void					*m_collisionShape;
+	btCollisionShapeData	*m_rootCollisionShape;
+	char					*m_name;
+
+	btTransformLongDoubleData	m_worldTransform;
+	btTransformLongDoubleData	m_interpolationWorldTransform;
+	btVector3LongDoubleData		m_interpolationLinearVelocity;
+	btVector3LongDoubleData		m_interpolationAngularVelocity;
+	btVector3LongDoubleData		m_anisotropicFriction;
+	long double					m_contactProcessingThreshold;	
+	long double					m_deactivationTime;
+	long double					m_friction;
+	long double					m_rollingFriction;
+	long double                  m_contactDamping;
+	long double                  m_contactStiffness;
+	long double					m_restitution;
+	long double					m_hitFraction; 
+	long double					m_ccdSweptSphereRadius;
+	long double					m_ccdMotionThreshold;
+	int						m_hasAnisotropicFriction;
+	int						m_collisionFlags;
+	int						m_islandTag1;
+	int						m_companionId;
+	int						m_activationState1;
+	int						m_internalType;
+	int						m_checkCollideWith;
+	int						m_collisionFilterGroup;
+	int						m_collisionFilterMask;
+	int						m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
+};
+
 struct	btCollisionObjectDoubleData
 {
 	void					*m_broadphaseHandle;

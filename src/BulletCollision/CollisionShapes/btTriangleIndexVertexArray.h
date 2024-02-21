@@ -47,7 +47,9 @@ btIndexedMesh
 
 	btIndexedMesh()
 		: m_indexType(PHY_INTEGER),
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+		  m_vertexType(PHY_LONG_DOUBLE)
+#elif defined(BT_USE_DOUBLE_PRECISION)
 		  m_vertexType(PHY_DOUBLE)
 #else   // BT_USE_DOUBLE_PRECISION
 		  m_vertexType(PHY_FLOAT)

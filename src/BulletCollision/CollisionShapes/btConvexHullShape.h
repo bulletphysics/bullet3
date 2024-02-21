@@ -101,6 +101,7 @@ struct	btConvexHullShapeData
 
 	btVector3FloatData	*m_unscaledPointsFloatPtr;
 	btVector3DoubleData	*m_unscaledPointsDoublePtr;
+	btVector3LongDoubleData	*m_unscaledPointsLongDoublePtr;
 
 	int		m_numUnscaledPoints;
 	char m_padding3[4];

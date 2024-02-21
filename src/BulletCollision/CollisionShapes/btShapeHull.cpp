@@ -61,7 +61,10 @@ bool btShapeHull::buildHull(btScalar /*margin*/, int highres)
 	hd.mFlags = QF_TRIANGLES;
 	hd.mVcount = static_cast<unsigned int>(numSampleDirections);
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	hd.mVertices = &supportPoints[0];
+	hd.mVertexStride = sizeof(btVector3);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	hd.mVertices = &supportPoints[0];
 	hd.mVertexStride = sizeof(btVector3);
 #else

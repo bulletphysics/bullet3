@@ -18,7 +18,10 @@ subject to the following restrictions:
 
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btGearConstraintData btGearConstraintLongDoubleData
+#define btGearConstraintDataName "btGearConstraintLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btGearConstraintData btGearConstraintDoubleData
 #define btGearConstraintDataName "btGearConstraintDoubleData"
 #else
@@ -116,6 +119,16 @@ struct btGearConstraintDoubleData
 	double m_ratio;
 };
 
+struct btGearConstraintLongDoubleData
+{
+	btTypedConstraintLongDoubleData m_typeConstraintData;
+
+	btVector3LongDoubleData m_axisInA;
+	btVector3LongDoubleData m_axisInB;
+
+	long double m_ratio;
+};
+
 SIMD_FORCE_INLINE int btGearConstraint::calculateSerializeBufferSize() const
 {
 	return sizeof(btGearConstraintData);
@@ -133,7 +146,7 @@ SIMD_FORCE_INLINE const char* btGearConstraint::serialize(void* dataBuffer, btSe
 	gear->m_ratio = m_ratio;
 
 	// Fill padding with zeros to appease msan.
-#ifndef BT_USE_DOUBLE_PRECISION
+#if !defined(BT_USE_DOUBLE_PRECISION) && !defined(BT_USE_LONG_DOUBLE_PRECISION)
 	gear->m_padding[0] = 0;
 	gear->m_padding[1] = 0;
 	gear->m_padding[2] = 0;

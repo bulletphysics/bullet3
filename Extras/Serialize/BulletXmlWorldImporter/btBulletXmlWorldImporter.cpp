@@ -781,7 +781,9 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(XMLNode* pPare
 
 	for (int i = 0; i < m_rigidBodyData.size(); i++)
 	{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+		convertRigidBodyLongDouble(m_rigidBodyData[i]);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 		convertRigidBodyDouble(m_rigidBodyData[i]);
 #else
 		convertRigidBodyFloat(m_rigidBodyData[i]);

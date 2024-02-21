@@ -32,7 +32,10 @@ http://gimpact.sf.net
 
 class btRigidBody;
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btGeneric6DofConstraintData2 btGeneric6DofConstraintLongDoubleData2
+#define btGeneric6DofConstraintDataName "btGeneric6DofConstraintLongDoubleData2"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btGeneric6DofConstraintData2 btGeneric6DofConstraintDoubleData2
 #define btGeneric6DofConstraintDataName "btGeneric6DofConstraintDoubleData2"
 #else
@@ -578,6 +581,22 @@ struct btGeneric6DofConstraintDoubleData2
 
 	btVector3DoubleData m_angularUpperLimit;
 	btVector3DoubleData m_angularLowerLimit;
+
+	int m_useLinearReferenceFrameA;
+	int m_useOffsetForConstraintFrame;
+};
+
+struct btGeneric6DofConstraintLongDoubleData2
+{
+	btTypedConstraintLongDoubleData m_typeConstraintData;
+	btTransformLongDoubleData m_rbAFrame;  // constraint axii. Assumes z is hinge axis.
+	btTransformLongDoubleData m_rbBFrame;
+
+	btVector3LongDoubleData m_linearUpperLimit;
+	btVector3LongDoubleData m_linearLowerLimit;
+
+	btVector3LongDoubleData m_angularUpperLimit;
+	btVector3LongDoubleData m_angularLowerLimit;
 
 	int m_useLinearReferenceFrameA;
 	int m_useOffsetForConstraintFrame;

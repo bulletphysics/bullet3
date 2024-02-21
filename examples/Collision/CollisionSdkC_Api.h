@@ -7,7 +7,9 @@
 		int unused;             \
 	} * name
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+typedef long double plReal;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 typedef double plReal;
 #else
 typedef float plReal;

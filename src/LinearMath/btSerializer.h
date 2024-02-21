@@ -135,20 +135,26 @@ struct btBulletSerializedArrays
 	btBulletSerializedArrays()
 	{
 	}
+	btAlignedObjectArray<struct btQuantizedBvhLongDoubleData*> m_bvhsLongDouble;
 	btAlignedObjectArray<struct btQuantizedBvhDoubleData*> m_bvhsDouble;
 	btAlignedObjectArray<struct btQuantizedBvhFloatData*> m_bvhsFloat;
 	btAlignedObjectArray<struct btCollisionShapeData*> m_colShapeData;
+	btAlignedObjectArray<struct btDynamicsWorldLongDoubleData*> m_dynamicWorldInfoDataLongDouble;
 	btAlignedObjectArray<struct btDynamicsWorldDoubleData*> m_dynamicWorldInfoDataDouble;
 	btAlignedObjectArray<struct btDynamicsWorldFloatData*> m_dynamicWorldInfoDataFloat;
+	btAlignedObjectArray<struct btRigidBodyLongDoubleData*> m_rigidBodyDataLongDouble;
 	btAlignedObjectArray<struct btRigidBodyDoubleData*> m_rigidBodyDataDouble;
 	btAlignedObjectArray<struct btRigidBodyFloatData*> m_rigidBodyDataFloat;
+	btAlignedObjectArray<struct btCollisionObjectLongDoubleData*> m_collisionObjectDataLongDouble;
 	btAlignedObjectArray<struct btCollisionObjectDoubleData*> m_collisionObjectDataDouble;
 	btAlignedObjectArray<struct btCollisionObjectFloatData*> m_collisionObjectDataFloat;
 	btAlignedObjectArray<struct btTypedConstraintFloatData*> m_constraintDataFloat;
 	btAlignedObjectArray<struct btTypedConstraintDoubleData*> m_constraintDataDouble;
+	btAlignedObjectArray<struct btTypedConstraintLongDoubleData*> m_constraintDataLongDouble;
 	btAlignedObjectArray<struct btTypedConstraintData*> m_constraintData;  //for backwards compatibility
 	btAlignedObjectArray<struct btSoftBodyFloatData*> m_softBodyFloatData;
 	btAlignedObjectArray<struct btSoftBodyDoubleData*> m_softBodyDoubleData;
+	btAlignedObjectArray<struct btSoftBodyLongDoubleData*> m_softBodyLongDoubleData;
 };
 
 ///The btDefaultSerializer is the main Bullet serialization class.
@@ -452,7 +458,9 @@ public:
 
 	void writeHeader(unsigned char* buffer) const
 	{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+		memcpy(buffer, "BULLETld", 8);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 		memcpy(buffer, "BULLETd", 7);
 #else
 		memcpy(buffer, "BULLETf", 7);
@@ -786,7 +794,9 @@ struct btInMemorySerializer : public btDefaultSerializer
 		{
 			case BT_SOFTBODY_CODE:
 			{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+				m_arrays.m_softBodyLongDoubleData.push_back((btSoftBodyLongDoubleData*)chunk->m_oldPtr);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 				m_arrays.m_softBodyDoubleData.push_back((btSoftBodyDoubleData*)chunk->m_oldPtr);
 #else
 				m_arrays.m_softBodyFloatData.push_back((btSoftBodyFloatData*)chunk->m_oldPtr);
@@ -795,7 +805,9 @@ struct btInMemorySerializer : public btDefaultSerializer
 			}
 			case BT_COLLISIONOBJECT_CODE:
 			{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+				m_arrays.m_collisionObjectDataLongDouble.push_back((btCollisionObjectLongDoubleData*)chunk->m_oldPtr);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 				m_arrays.m_collisionObjectDataDouble.push_back((btCollisionObjectDoubleData*)chunk->m_oldPtr);
 #else   //BT_USE_DOUBLE_PRECISION
 				m_arrays.m_collisionObjectDataFloat.push_back((btCollisionObjectFloatData*)chunk->m_oldPtr);
@@ -804,7 +816,9 @@ struct btInMemorySerializer : public btDefaultSerializer
 			}
 			case BT_RIGIDBODY_CODE:
 			{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+				m_arrays.m_rigidBodyDataLongDouble.push_back((btRigidBodyLongDoubleData*)chunk->m_oldPtr);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 				m_arrays.m_rigidBodyDataDouble.push_back((btRigidBodyDoubleData*)chunk->m_oldPtr);
 #else
 				m_arrays.m_rigidBodyDataFloat.push_back((btRigidBodyFloatData*)chunk->m_oldPtr);
@@ -813,7 +827,9 @@ struct btInMemorySerializer : public btDefaultSerializer
 			};
 			case BT_CONSTRAINT_CODE:
 			{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+				m_arrays.m_constraintDataLongDouble.push_back((btTypedConstraintLongDoubleData*)chunk->m_oldPtr);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 				m_arrays.m_constraintDataDouble.push_back((btTypedConstraintDoubleData*)chunk->m_oldPtr);
 #else
 				m_arrays.m_constraintDataFloat.push_back((btTypedConstraintFloatData*)chunk->m_oldPtr);
@@ -822,7 +838,9 @@ struct btInMemorySerializer : public btDefaultSerializer
 			}
 			case BT_QUANTIZED_BVH_CODE:
 			{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+				m_arrays.m_bvhsLongDouble.push_back((btQuantizedBvhLongDoubleData*)chunk->m_oldPtr);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 				m_arrays.m_bvhsDouble.push_back((btQuantizedBvhDoubleData*)chunk->m_oldPtr);
 #else
 				m_arrays.m_bvhsFloat.push_back((btQuantizedBvhFloatData*)chunk->m_oldPtr);

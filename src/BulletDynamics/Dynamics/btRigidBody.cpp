@@ -490,7 +490,9 @@ const char* btRigidBody::serialize(void* dataBuffer, class btSerializer* seriali
 	rbd->m_angularSleepingThreshold = m_angularSleepingThreshold;
 
 	// Fill padding with zeros to appease msan.
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	memset(rbd->m_padding, 0, sizeof(rbd->m_padding));
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	memset(rbd->m_padding, 0, sizeof(rbd->m_padding));
 #endif
 
