@@ -48,11 +48,15 @@ struct btContactSolverInfo;
 struct btTypedConstraintData;
 struct btTypedConstraintFloatData;
 struct btTypedConstraintDoubleData;
+struct btTypedConstraintLongDoubleData;
 
+struct btRigidBodyLongDoubleData;
 struct btRigidBodyDoubleData;
 struct btRigidBodyFloatData;
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btRigidBodyData btRigidBodyLongDoubleData
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btRigidBodyData btRigidBodyDoubleData
 #else
 #define btRigidBodyData btRigidBodyFloatData
@@ -87,6 +91,7 @@ protected:
 
 	btAlignedObjectArray<btVector3FloatData*> m_floatVertexArrays;
 	btAlignedObjectArray<btVector3DoubleData*> m_doubleVertexArrays;
+	btAlignedObjectArray<btVector3LongDoubleData*> m_longDoubleVertexArrays;
 
 	btHashMap<btHashPtr, btOptimizedBvh*> m_bvhMap;
 	btHashMap<btHashPtr, btTriangleInfoMap*> m_timMap;
@@ -110,8 +115,10 @@ protected:
 	void convertConstraintBackwardsCompatible281(btTypedConstraintData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
 	void convertConstraintFloat(btTypedConstraintFloatData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
 	void convertConstraintDouble(btTypedConstraintDoubleData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
+	void convertConstraintLongDouble(btTypedConstraintLongDoubleData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
 	void convertRigidBodyFloat(btRigidBodyFloatData* colObjData);
 	void convertRigidBodyDouble(btRigidBodyDoubleData* colObjData);
+	void convertRigidBodyLongDouble(btRigidBodyLongDoubleData* colObjData);
 
 public:
 	btWorldImporter(btDynamicsWorld* world);

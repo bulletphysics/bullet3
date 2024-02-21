@@ -20,7 +20,10 @@ subject to the following restrictions:
 #include "btTypedConstraint.h"
 #include "btGeneric6DofConstraint.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btGeneric6DofSpringConstraintData2 btGeneric6DofSpringConstraintLongDoubleData2
+#define btGeneric6DofSpringConstraintDataName "btGeneric6DofSpringConstraintLongDoubleData2"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btGeneric6DofSpringConstraintData2 btGeneric6DofSpringConstraintDoubleData2
 #define btGeneric6DofSpringConstraintDataName "btGeneric6DofSpringConstraintDoubleData2"
 #else
@@ -108,6 +111,16 @@ struct btGeneric6DofSpringConstraintDoubleData2
 	double m_equilibriumPoint[6];
 	double m_springStiffness[6];
 	double m_springDamping[6];
+};
+
+struct btGeneric6DofSpringConstraintLongDoubleData2
+{
+	btGeneric6DofConstraintLongDoubleData2 m_6dofData;
+
+	int m_springEnabled[6];
+	long double m_equilibriumPoint[6];
+	long double m_springStiffness[6];
+	long double m_springDamping[6];
 };
 
 SIMD_FORCE_INLINE int btGeneric6DofSpringConstraint::calculateSerializeBufferSize() const

@@ -20,7 +20,10 @@ subject to the following restrictions:
 #include "btMinMax.h"
 #include "btAlignedAllocator.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btVector3Data btVector3LongDoubleData
+#define btVector3DataName "btVector3LongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btVector3Data btVector3DoubleData
 #define btVector3DataName "btVector3DoubleData"
 #else
@@ -692,6 +695,8 @@ public:
 
 	SIMD_FORCE_INLINE void serialize(struct btVector3Data & dataOut) const;
 
+	SIMD_FORCE_INLINE void deSerialize(const struct btVector3LongDoubleData& dataIn);
+
 	SIMD_FORCE_INLINE void deSerialize(const struct btVector3DoubleData& dataIn);
 
 	SIMD_FORCE_INLINE void deSerialize(const struct btVector3FloatData& dataIn);
@@ -703,6 +708,10 @@ public:
 	SIMD_FORCE_INLINE void serializeDouble(struct btVector3DoubleData & dataOut) const;
 
 	SIMD_FORCE_INLINE void deSerializeDouble(const struct btVector3DoubleData& dataIn);
+
+	SIMD_FORCE_INLINE void serializeLongDouble(struct btVector3LongDoubleData & dataOut) const;
+
+	SIMD_FORCE_INLINE void deSerializeLongDouble(const struct btVector3LongDoubleData& dataIn);
 
 	/**@brief returns index of maximum dot product between this and vectors in array[]
          * @param array The other vectors 
@@ -1207,7 +1216,26 @@ public:
 ///btSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
 SIMD_FORCE_INLINE void btSwapScalarEndian(const btScalar& sourceVal, btScalar& destVal)
 {
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	unsigned char* dest = (unsigned char*)&destVal;
+	const unsigned char* src = (const unsigned char*)&sourceVal;
+	dest[0] = src[15];
+	dest[1] = src[14];
+	dest[2] = src[13];
+	dest[3] = src[12];
+	dest[4] = src[11];
+	dest[5] = src[10];
+	dest[6] = src[9];
+	dest[7] = src[8];
+	dest[8] = src[7];
+	dest[9] = src[6];
+	dest[10] = src[5];
+	dest[11] = src[4];
+	dest[12] = src[3];
+	dest[13] = src[2];
+	dest[14] = src[1];
+	dest[15] = src[0];
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	unsigned char* dest = (unsigned char*)&destVal;
 	const unsigned char* src = (const unsigned char*)&sourceVal;
 	dest[0] = src[7];
@@ -1288,6 +1316,11 @@ struct btVector3DoubleData
 	double m_floats[4];
 };
 
+struct btVector3LongDoubleData
+{
+	long double m_floats[4];
+};
+
 SIMD_FORCE_INLINE void btVector3::serializeFloat(struct btVector3FloatData& dataOut) const
 {
 	///could also do a memcpy, check if it is worth it
@@ -1314,6 +1347,19 @@ SIMD_FORCE_INLINE void btVector3::deSerializeDouble(const struct btVector3Double
 		m_floats[i] = btScalar(dataIn.m_floats[i]);
 }
 
+SIMD_FORCE_INLINE void btVector3::serializeLongDouble(struct btVector3LongDoubleData& dataOut) const
+{
+	///could also do a memcpy, check if it is worth it
+	for (int i = 0; i < 4; i++)
+		dataOut.m_floats[i] = double(m_floats[i]);
+}
+
+SIMD_FORCE_INLINE void btVector3::deSerializeLongDouble(const struct btVector3LongDoubleData& dataIn)
+{
+	for (int i = 0; i < 4; i++)
+		m_floats[i] = btScalar(dataIn.m_floats[i]);
+}
+
 SIMD_FORCE_INLINE void btVector3::serialize(struct btVector3Data& dataOut) const
 {
 	///could also do a memcpy, check if it is worth it
@@ -1328,6 +1374,12 @@ SIMD_FORCE_INLINE void btVector3::deSerialize(const struct btVector3FloatData& d
 }
 
 SIMD_FORCE_INLINE void btVector3::deSerialize(const struct btVector3DoubleData& dataIn)
+{
+	for (int i = 0; i < 4; i++)
+		m_floats[i] = (btScalar)dataIn.m_floats[i];
+}
+
+SIMD_FORCE_INLINE void btVector3::deSerialize(const struct btVector3LongDoubleData& dataIn)
 {
 	for (int i = 0; i < 4; i++)
 		m_floats[i] = (btScalar)dataIn.m_floats[i];

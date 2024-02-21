@@ -41,6 +41,15 @@ inline int btIsDoublePrecision()
   #endif
 }
 
+inline int btIsLongDoublePrecision()
+{
+  #ifdef BT_USE_LONG_DOUBLE_PRECISION
+  return true;
+  #else
+  return false;
+  #endif
+}
+
 
 // The following macro "BT_NOT_EMPTY_FILE" can be put into a file
 // in order suppress the MS Visual C++ Linker warning 4221
@@ -306,7 +315,11 @@ inline int btIsDoublePrecision()
 
 
 ///The btScalar type abstracts floating point numbers, to easily switch between double and single floating point precision.
-#if defined(BT_USE_DOUBLE_PRECISION)
+#if defined(BT_USE_LONG_DOUBLE_PRECISION)
+	typedef long double btScalar;
+	//this number could be bigger in double precision
+	#define BT_LARGE_FLOAT 1e30
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	typedef double btScalar;
 	//this number could be bigger in double precision
 	#define BT_LARGE_FLOAT 1e30
@@ -532,7 +545,14 @@ inline int btIsDoublePrecision()
 #define btRecipSqrt(x) ((btScalar)(btScalar(1.0) / btSqrt(btScalar(x)))) /* reciprocal square root */
 #define btRecip(x) (btScalar(1.0) / btScalar(x))
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	#define SIMD_EPSILON LDBL_EPSILON
+	#define SIMD_INFINITY LDBL_MAX
+	#define BT_ONE 1.0
+	#define BT_ZERO 0.0
+	#define BT_TWO 2.0
+	#define BT_HALF 0.5
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	#define SIMD_EPSILON DBL_EPSILON
 	#define SIMD_INFINITY DBL_MAX
 	#define BT_ONE 1.0

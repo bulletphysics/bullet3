@@ -66,7 +66,9 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(
 	m_triangleInfoMap(0)
 {
 	// legacy constructor: Assumes PHY_FLOAT means btScalar.
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	if (hdt == PHY_FLOAT) hdt = PHY_LONG_DOUBLE;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	if (hdt == PHY_FLOAT) hdt = PHY_DOUBLE;
 #endif
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
@@ -81,7 +83,9 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 	// legacy constructor: support only btScalar or unsigned char data,
 	// and min height is zero.
 	PHY_ScalarType hdt = (useFloatData) ? PHY_FLOAT : PHY_UCHAR;
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	if (hdt == PHY_FLOAT) hdt = PHY_LONG_DOUBLE;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	if (hdt == PHY_FLOAT) hdt = PHY_DOUBLE;
 #endif
 	btScalar minHeight = 0.0f;

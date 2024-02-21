@@ -36,7 +36,10 @@ and swing 1 and 2 are along the z and y axes respectively.
 #include "btJacobianEntry.h"
 #include "btTypedConstraint.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btConeTwistConstraintData2 btConeTwistConstraintLongDoubleData
+#define btConeTwistConstraintDataName "btConeTwistConstraintLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btConeTwistConstraintData2 btConeTwistConstraintDoubleData
 #define btConeTwistConstraintDataName "btConeTwistConstraintDoubleData"
 #else
@@ -353,6 +356,23 @@ public:
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+};
+
+struct btConeTwistConstraintLongDoubleData
+{
+	btTypedConstraintLongDoubleData m_typeConstraintData;
+	btTransformLongDoubleData m_rbAFrame;
+	btTransformLongDoubleData m_rbBFrame;
+
+	//limits
+	long double m_swingSpan1;
+	long double m_swingSpan2;
+	long double m_twistSpan;
+	long double m_limitSoftness;
+	long double m_biasFactor;
+	long double m_relaxationFactor;
+
+	long double m_damping;
 };
 
 struct btConeTwistConstraintDoubleData

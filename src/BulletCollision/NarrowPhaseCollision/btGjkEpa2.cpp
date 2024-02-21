@@ -41,7 +41,11 @@ namespace gjkepa2_impl
 /* GJK	*/
 #define GJK_MAX_ITERATIONS 128
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define GJK_ACCURACY ((btScalar)1e-12)
+#define GJK_MIN_DISTANCE ((btScalar)1e-12)
+#define GJK_DUPLICATED_EPS ((btScalar)1e-12)
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define GJK_ACCURACY ((btScalar)1e-12)
 #define GJK_MIN_DISTANCE ((btScalar)1e-12)
 #define GJK_DUPLICATED_EPS ((btScalar)1e-12)
@@ -59,7 +63,11 @@ namespace gjkepa2_impl
 #define EPA_MAX_VERTICES 128
 #define EPA_MAX_ITERATIONS 255
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define EPA_ACCURACY ((btScalar)1e-12)
+#define EPA_PLANE_EPS ((btScalar)1e-14)
+#define EPA_INSIDE_EPS ((btScalar)1e-9)
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define EPA_ACCURACY ((btScalar)1e-12)
 #define EPA_PLANE_EPS ((btScalar)1e-14)
 #define EPA_INSIDE_EPS ((btScalar)1e-9)

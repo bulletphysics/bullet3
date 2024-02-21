@@ -31,7 +31,12 @@
 #include "LinearMath/btAlignedObjectArray.h"
 
 ///serialization data, don't change them if you are not familiar with the details of the serialization mechanisms
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btMultiBodyData btMultiBodyLongDoubleData
+#define btMultiBodyDataName "btMultiBodyLongDoubleData"
+#define btMultiBodyLinkData btMultiBodyLinkLongDoubleData
+#define btMultiBodyLinkDataName "btMultiBodyLinkLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btMultiBodyData btMultiBodyDoubleData
 #define btMultiBodyDataName "btMultiBodyDoubleData"
 #define btMultiBodyLinkData btMultiBodyLinkDoubleData
@@ -844,6 +849,43 @@ private:
 	bool m_kinematic_calculate_velocity;
 };
 
+struct btMultiBodyLinkLongDoubleData
+{
+	btQuaternionLongDoubleData m_zeroRotParentToThis;
+	btVector3LongDoubleData m_parentComToThisPivotOffset;
+	btVector3LongDoubleData m_thisPivotToThisComOffset;
+	btVector3LongDoubleData m_jointAxisTop[6];
+	btVector3LongDoubleData m_jointAxisBottom[6];
+
+	btVector3LongDoubleData m_linkInertia;  // inertia of the base (in local frame; diagonal)
+	btVector3LongDoubleData m_absFrameTotVelocityTop;
+	btVector3LongDoubleData m_absFrameTotVelocityBottom;
+	btVector3LongDoubleData m_absFrameLocVelocityTop;
+	btVector3LongDoubleData m_absFrameLocVelocityBottom;
+
+	long double m_linkMass;
+	int m_parentIndex;
+	int m_jointType;
+
+	int m_dofCount;
+	int m_posVarCount;
+	long double m_jointPos[7];
+	long double m_jointVel[6];
+	long double m_jointTorque[6];
+
+	long double m_jointDamping;
+	long double m_jointFriction;
+	long double m_jointLowerLimit;
+	long double m_jointUpperLimit;
+	long double m_jointMaxForce;
+	long double m_jointMaxVelocity;
+
+	char *m_linkName;
+	char *m_jointName;
+	btCollisionObjectLongDoubleData *m_linkCollider;
+	char *m_paddingPtr;
+};
+
 struct btMultiBodyLinkDoubleData
 {
 	btQuaternionDoubleData m_zeroRotParentToThis;
@@ -917,6 +959,22 @@ struct btMultiBodyLinkFloatData
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct btMultiBodyLongDoubleData
+{
+	btVector3LongDoubleData m_baseWorldPosition;
+	btQuaternionLongDoubleData m_baseWorldOrientation;
+	btVector3LongDoubleData m_baseLinearVelocity;
+	btVector3LongDoubleData m_baseAngularVelocity;
+	btVector3LongDoubleData m_baseInertia;  // inertia of the base (in local frame; diagonal)
+	long double m_baseMass;
+	int m_numLinks;
+	char m_padding[4];
+
+	char *m_baseName;
+	btMultiBodyLinkLongDoubleData *m_links;
+	btCollisionObjectLongDoubleData *m_baseCollider;
+};
+
 struct btMultiBodyDoubleData
 {
 	btVector3DoubleData m_baseWorldPosition;

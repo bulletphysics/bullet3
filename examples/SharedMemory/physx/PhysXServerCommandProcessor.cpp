@@ -2218,7 +2218,9 @@ bool PhysXServerCommandProcessor::processLoadURDFCommand(const struct SharedMemo
 				mbd->m_links = mbd->m_numLinks ? (btMultiBodyLinkData *)ser.getUniquePointer((void *)articulation) : 0;
 
 				// Fill padding with zeros to appease msan.
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+				memset(mbd->m_padding, 0, sizeof(mbd->m_padding));
+#elif defined(BT_USE_DOUBLE_PRECISION)
 				memset(mbd->m_padding, 0, sizeof(mbd->m_padding));
 #endif
 
