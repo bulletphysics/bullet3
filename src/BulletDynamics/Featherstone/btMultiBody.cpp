@@ -984,7 +984,11 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			//
 			hDof = spatInertia[i + 1] * m_links[i].m_axes[dof];
 			//
-			Y[m_links[i].m_dofOffset + dof] = m_links[i].m_jointTorque[dof] - m_links[i].m_axes[dof].dot(zeroAccSpatFrc[i + 1]) - spatCoriolisAcc[i].dot(hDof);
+			btScalar jointTorque = 0;
+			if (isConstraintPass) jointTorque = 0;
+			else jointTorque = m_links[i].m_jointTorque[dof];
+			Y[m_links[i].m_dofOffset + dof] = jointTorque - m_links[i].m_axes[dof].dot(zeroAccSpatFrc[i + 1]) - spatCoriolisAcc[i].dot(hDof);
+
 		}
 		for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
 		{
