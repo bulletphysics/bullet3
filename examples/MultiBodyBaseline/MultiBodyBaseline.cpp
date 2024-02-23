@@ -30,7 +30,6 @@ subject to the following restrictions:
 #include "MultiBodyBaseline.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
-#include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btDeformableBodySolver.h"
