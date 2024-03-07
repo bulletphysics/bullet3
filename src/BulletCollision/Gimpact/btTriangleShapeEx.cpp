@@ -28,6 +28,8 @@ This is a modified version of the Bullet Continuous Collision Detection and Phys
 
 #include "btTriangleShapeEx.h"
 
+#include <utility>
+
 void GIM_TRIANGLE_CONTACT::merge_points(const btVector4& plane,
 										btScalar margin, const btVector3* points, int point_count)
 {
@@ -820,6 +822,7 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 																   const btPrimitiveTriangle& thisBackup, const btPrimitiveTriangle& otherBackup, bool doUnstuck)
 {
 	btScalar margin = m_margin + other.m_margin;
+	btScalar marginEpsilon = margin / 40.0;
 
 	contacts.m_point_count = 0;
 	btScalar dist_sq_out, dist, t = 1.0;
@@ -835,11 +838,17 @@ bool btPrimitiveTriangle::find_triangle_collision_alt_method_outer(btPrimitiveTr
 		contacts.m_point_count = 1;
 		contacts.m_points[0] = a_closest_out;
 		contacts.m_separating_normal = btVector4(dir.x(), dir.y(), dir.z(), 1.0);
-		// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance means 0 depth.
 		if (fabs(margin) < SIMD_EPSILON)
 			contacts.m_penetration_depth = dist;
 		else
-			contacts.m_penetration_depth = -dist * ((1.0 / margin) * maxDepth) + maxDepth;
+		{
+			// Inversion so that smaller distance means bigger impulse, up to the maxDepth when distance is 0. Margin distance - marginEpsilon means 0 depth.
+			
+			// marginEpsilon helps preserving contacts in certain situations. Without it, the resulting impulse would push the body out of the margin completely,
+			// which would then result in 0 manifolds, so a much bigger impulse would be generated, which would create a noticeable jerk in motion back into the
+			// margin. This discontinuity would happen periodically. Observed on the Lemovka scene.
+			contacts.m_penetration_depth = std::max(-dist * ((1.0 / (margin - marginEpsilon)) * maxDepth) + maxDepth, 0.0);
+		}
 		//printf("contacts.m_penetration_depth %f\n", contacts.m_penetration_depth);
 	};
 	
