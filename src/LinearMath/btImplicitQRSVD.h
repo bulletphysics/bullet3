@@ -599,7 +599,8 @@ inline void process(btMatrix3x3& B, btMatrix3x3& U, btVector3& sigma, btMatrix3x
     sigma[other] = B[other][other];
     
     btMatrix2x2 B_sub, sigma_sub;
-    if (t == 0)
+    const bool isZero = t == 0;
+    if (isZero)
     {
         B_sub.m_00 = B[0][0];
         B_sub.m_10 = B[1][0];

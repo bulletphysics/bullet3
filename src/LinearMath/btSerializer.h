@@ -461,7 +461,8 @@ public:
 		int littleEndian = 1;
 		littleEndian = ((char*)&littleEndian)[0];
 
-		if (sizeof(void*) == 8)
+		const bool is64BitSystem = ((sizeof(void*) == 8));
+		if (is64BitSystem)
 		{
 			buffer[7] = '-';
 		}
