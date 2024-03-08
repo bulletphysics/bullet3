@@ -42,9 +42,9 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		fprintf(stderr, "Compile failed:\n%s\n", temp);
 		assert(0);
 		return 0;
-		glDeleteShader(hVertexShader);
-		glDeleteShader(hFragmentShader);
-		return (GLuint)0;
+		// glDeleteShader(hVertexShader);
+		// glDeleteShader(hFragmentShader);
+		// return (GLuint)0;
 	}
 
 	assert(glGetError() == GL_NO_ERROR);
@@ -60,9 +60,9 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		fprintf(stderr, "Compile failed:\n%s\n", temp);
 		assert(0);
 		exit(EXIT_FAILURE);
-		glDeleteShader(hVertexShader);
-		glDeleteShader(hFragmentShader);
-		return (GLuint)0;
+		// glDeleteShader(hVertexShader);
+		// glDeleteShader(hFragmentShader);
+		// return (GLuint)0;
 	}
 
 	assert(glGetError() == GL_NO_ERROR);

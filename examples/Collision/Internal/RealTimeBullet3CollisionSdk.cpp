@@ -446,10 +446,8 @@ int RealTimeBullet3CollisionSdk::collide(plCollisionWorldHandle worldHandle, plC
 				//					   [world->m_childShapes[colB.m_shapeIndex+j].m_shapeType](world,colAIndex,colA.m_shapeIndex+i,colBIndex,colB.m_shapeIndex+j,&contactCache);
 			}
 		}
-		return contactCache.numAddedPoints;
 	}
-
-	return 0;
+	return contactCache.numAddedPoints;
 }
 
 void RealTimeBullet3CollisionSdk::collideWorld(plCollisionWorldHandle worldHandle,

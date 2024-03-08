@@ -496,7 +496,7 @@ static SIMD_FORCE_INLINE bool coplanarAndInsideTest(const btScalar& k0, const bt
 		// inside test
 		return signDetermination1(k0, k1, k2, k3, face, node, dt);
 	}
-	return false;
+	// return false;
 }
 static SIMD_FORCE_INLINE bool conservativeCulling(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& mrg)
 {
@@ -530,14 +530,14 @@ static SIMD_FORCE_INLINE bool bernsteinVFTest(const btSoftBody::Face* face, cons
 	if (conservativeCulling(k0, k1, k2, k3, mrg))
 		return false;
 	return true;
-	if (diffSign(k2 - 2.0 * k1 + k0, k3 - 2.0 * k2 + k1))
-	{
-		btScalar k10, k20, k30, k21, k12;
-		btScalar t0 = (k2 - 2.0 * k1 + k0) / (k0 - 3.0 * k1 + 3.0 * k2 - k3);
-		deCasteljau(k0, k1, k2, k3, t0, k10, k20, k30, k21, k12);
-		return bernsteinVFTest(k0, k10, k20, k30, mrg, face, node, dt) || bernsteinVFTest(k30, k21, k12, k3, mrg, face, node, dt);
-	}
-	return coplanarAndInsideTest(k0, k1, k2, k3, face, node, dt);
+	// if (diffSign(k2 - 2.0 * k1 + k0, k3 - 2.0 * k2 + k1))
+	// {
+	// 	btScalar k10, k20, k30, k21, k12;
+	// 	btScalar t0 = (k2 - 2.0 * k1 + k0) / (k0 - 3.0 * k1 + 3.0 * k2 - k3);
+	// 	deCasteljau(k0, k1, k2, k3, t0, k10, k20, k30, k21, k12);
+	// 	return bernsteinVFTest(k0, k10, k20, k30, mrg, face, node, dt) || bernsteinVFTest(k30, k21, k12, k3, mrg, face, node, dt);
+	// }
+	// return coplanarAndInsideTest(k0, k1, k2, k3, face, node, dt);
 }
 
 static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, const btScalar& mrg, btVector3& bary)

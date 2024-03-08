@@ -400,5 +400,5 @@ int main(int argc, char** argv)
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 
-	return EXIT_SUCCESS;
+	// return EXIT_SUCCESS;
 }
