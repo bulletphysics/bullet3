@@ -1,8 +1,7 @@
+#define _USE_MATH_DEFINES
 #include "MathUtil.h"
 #include <time.h>
-#define _USE_MATH_DEFINES
 #include <math.h>
-
 
 int cMathUtil::Clamp(int val, int min, int max)
 {
