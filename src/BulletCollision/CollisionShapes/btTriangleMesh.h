@@ -57,8 +57,8 @@ public:
 
 	int getNumTriangles() const;
 
-	virtual void preallocateVertices(int numverts);
-	virtual void preallocateIndices(int numindices);
+	virtual void preallocateVertices(int numverts) override;
+	virtual void preallocateIndices(int numindices) override;
 
 	///findOrAddVertex is an internal method, use addTriangle instead
 	int findOrAddVertex(const btVector3& vertex, bool removeDuplicateVertices);

@@ -45,15 +45,15 @@ public:
 
 	btConcaveShape();
 
-	virtual ~btConcaveShape();
+	virtual ~btConcaveShape() override;
 
 	virtual void processAllTriangles(btTriangleCallback * callback, const btVector3& aabbMin, const btVector3& aabbMax) const = 0;
 
-	virtual btScalar getMargin() const
+	virtual btScalar getMargin() const override
 	{
 		return m_collisionMargin;
 	}
-	virtual void setMargin(btScalar collisionMargin)
+	virtual void setMargin(btScalar collisionMargin) override
 	{
 		m_collisionMargin = collisionMargin;
 	}

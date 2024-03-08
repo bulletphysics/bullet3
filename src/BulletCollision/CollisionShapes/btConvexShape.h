@@ -36,7 +36,7 @@ public:
 
 	btConvexShape();
 
-	virtual ~btConvexShape();
+	virtual ~btConvexShape() override;
 
 	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const = 0;
 
@@ -56,16 +56,16 @@ public:
 	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const = 0;
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const = 0;
+	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override = 0;
 
 	virtual void getAabbSlow(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const = 0;
 
-	virtual void setLocalScaling(const btVector3& scaling) = 0;
-	virtual const btVector3& getLocalScaling() const = 0;
+	virtual void setLocalScaling(const btVector3& scaling) override = 0;
+	virtual const btVector3& getLocalScaling() const override = 0;
 
-	virtual void setMargin(btScalar margin) = 0;
+	virtual void setMargin(btScalar margin) override = 0;
 
-	virtual btScalar getMargin() const = 0;
+	virtual btScalar getMargin() const override = 0;
 
 	virtual int getNumPreferredPenetrationDirections() const = 0;
 

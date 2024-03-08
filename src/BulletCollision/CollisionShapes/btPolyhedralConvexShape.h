@@ -32,7 +32,7 @@ public:
 
 	btPolyhedralConvexShape();
 
-	virtual ~btPolyhedralConvexShape();
+	virtual ~btPolyhedralConvexShape() override;
 
 	///optional method mainly used to generate multiple contact points by clipping polyhedral features (faces/edges)
 	///experimental/work-in-progress
@@ -47,10 +47,10 @@ public:
 
 	//brute force implementations
 
-	virtual btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const;
-	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const;
+	virtual btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const override;
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const override;
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const;
+	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const override;
 
 	virtual int getNumVertices() const = 0;
 	virtual int getNumEdges() const = 0;
@@ -96,9 +96,9 @@ public:
 		btTransformAabb(m_localAabbMin, m_localAabbMax, margin, trans, aabbMin, aabbMax);
 	}
 
-	virtual void setLocalScaling(const btVector3& scaling);
+	virtual void setLocalScaling(const btVector3& scaling) override;
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
+	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override;
 
 	void recalcLocalAabb();
 };

@@ -181,7 +181,7 @@ protected:
 	btAlignedObjectArray<btChunk*> m_chunkPtrs;
 
 protected:
-	virtual void* findPointer(void* oldPtr)
+	virtual void* findPointer(void* oldPtr) override
 	{
 		void** ptr = m_chunkP.find(oldPtr);
 		if (ptr && *ptr)
@@ -416,7 +416,7 @@ public:
 #endif  //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	}
 
-	virtual ~btDefaultSerializer()
+	virtual ~btDefaultSerializer() override
 	{
 		if (m_buffer && m_ownsBuffer)
 			btAlignedFree(m_buffer);
@@ -485,7 +485,7 @@ public:
 		buffer[11] = '6';
 	}
 
-	virtual void startSerialization()
+	virtual void startSerialization() override
 	{
 		m_uniqueIdGenerator = 1;
 		if (m_totalSize)
@@ -495,7 +495,7 @@ public:
 		}
 	}
 
-	virtual void finishSerialization()
+	virtual void finishSerialization() override
 	{
 		writeDNA();
 
@@ -532,7 +532,7 @@ public:
 		m_chunkPtrs.clear();
 	}
 
-	virtual void* getUniquePointer(void* oldPtr)
+	virtual void* getUniquePointer(void* oldPtr) override
 	{
 		btAssert(m_uniqueIdGenerator >= 0);
 		if (!oldPtr)
@@ -559,17 +559,17 @@ public:
 		return uid.m_ptr;
 	}
 
-	virtual const unsigned char* getBufferPointer() const
+	virtual const unsigned char* getBufferPointer() const override
 	{
 		return m_buffer;
 	}
 
-	virtual int getCurrentBufferSize() const
+	virtual int getCurrentBufferSize() const override
 	{
 		return m_currentSize;
 	}
 
-	virtual void finalizeChunk(btChunk* chunk, const char* structType, int chunkCode, void* oldPtr)
+	virtual void finalizeChunk(btChunk* chunk, const char* structType, int chunkCode, void* oldPtr) override
 	{
 		if (!(m_serializationFlags & BT_SERIALIZE_NO_DUPLICATE_ASSERT))
 		{
@@ -604,7 +604,7 @@ public:
 		return ptr;
 	}
 
-	virtual btChunk* allocate(size_t size, int numElements)
+	virtual btChunk* allocate(size_t size, int numElements) override
 	{
 		unsigned char* ptr = internalAlloc(int(size) * numElements + sizeof(btChunk));
 
@@ -621,7 +621,7 @@ public:
 		return chunk;
 	}
 
-	virtual const char* findNameForPointer(const void* ptr) const
+	virtual const char* findNameForPointer(const void* ptr) const override
 	{
 		const char* const* namePtr = m_nameMap.find(ptr);
 		if (namePtr && *namePtr)
@@ -629,12 +629,12 @@ public:
 		return 0;
 	}
 
-	virtual void registerNameForPointer(const void* ptr, const char* name)
+	virtual void registerNameForPointer(const void* ptr, const char* name) override
 	{
 		m_nameMap.insert(ptr, name);
 	}
 
-	virtual void serializeName(const char* name)
+	virtual void serializeName(const char* name) override
 	{
 		if (name)
 		{
@@ -662,21 +662,21 @@ public:
 		}
 	}
 
-	virtual int getSerializationFlags() const
+	virtual int getSerializationFlags() const override
 	{
 		return m_serializationFlags;
 	}
 
-	virtual void setSerializationFlags(int flags)
+	virtual void setSerializationFlags(int flags) override
 	{
 		m_serializationFlags = flags;
 	}
-	int getNumChunks() const
+	int getNumChunks() const override
 	{
 		return m_chunkPtrs.size();
 	}
 
-	const btChunk* getChunk(int chunkIndex) const
+	const btChunk* getChunk(int chunkIndex) const override
 	{
 		return m_chunkPtrs[chunkIndex];
 	}

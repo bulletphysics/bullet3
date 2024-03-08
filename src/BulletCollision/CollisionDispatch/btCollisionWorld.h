@@ -243,7 +243,7 @@ public:
 		btVector3 m_hitNormalWorld;
 		btVector3 m_hitPointWorld;
 
-		virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace)
+		virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace) override
 		{
 			//caller already does the filter on the m_closestHitFraction
 			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
@@ -281,7 +281,7 @@ public:
 		btAlignedObjectArray<btVector3> m_hitPointWorld;
 		btAlignedObjectArray<btScalar> m_hitFractions;
 
-		virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace)
+		virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace) override
 		{
 			m_collisionObject = rayResult.m_collisionObject;
 			m_collisionObjects.push_back(rayResult.m_collisionObject);
@@ -375,7 +375,7 @@ public:
 		btVector3 m_hitPointWorld;
 		const btCollisionObject* m_hitCollisionObject;
 
-		virtual btScalar addSingleResult(LocalConvexResult& convexResult, bool normalInWorldSpace)
+		virtual btScalar addSingleResult(LocalConvexResult& convexResult, bool normalInWorldSpace) override
 		{
 			//caller already does the filter on the m_closestHitFraction
 			btAssert(convexResult.m_hitFraction <= m_closestHitFraction);

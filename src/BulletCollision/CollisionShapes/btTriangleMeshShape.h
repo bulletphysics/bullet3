@@ -35,7 +35,7 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	virtual ~btTriangleMeshShape();
+	virtual ~btTriangleMeshShape() override;
 
 	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const;
 
@@ -47,14 +47,14 @@ public:
 
 	void recalcLocalAabb();
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
+	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override;
 
-	virtual void processAllTriangles(btTriangleCallback * callback, const btVector3& aabbMin, const btVector3& aabbMax) const;
+	virtual void processAllTriangles(btTriangleCallback * callback, const btVector3& aabbMin, const btVector3& aabbMax) const override;
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const;
+	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const override;
 
-	virtual void setLocalScaling(const btVector3& scaling);
-	virtual const btVector3& getLocalScaling() const;
+	virtual void setLocalScaling(const btVector3& scaling) override;
+	virtual const btVector3& getLocalScaling() const override;
 
 	btStridingMeshInterface* getMeshInterface()
 	{
@@ -76,7 +76,7 @@ public:
 	}
 
 	//debugging
-	virtual const char* getName() const { return "TRIANGLEMESH"; }
+	virtual const char* getName() const  override { return "TRIANGLEMESH"; }
 };
 
 #endif  //BT_TRIANGLE_MESH_SHAPE_H

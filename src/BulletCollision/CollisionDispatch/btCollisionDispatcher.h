@@ -81,17 +81,17 @@ public:
 
 	void registerClosestPointsCreateFunc(int proxyType0, int proxyType1, btCollisionAlgorithmCreateFunc* createFunc);
 
-	int getNumManifolds() const
+	int getNumManifolds() const override
 	{
 		return int(m_manifoldsPtr.size());
 	}
 
-	btPersistentManifold** getInternalManifoldPointer()
+	btPersistentManifold** getInternalManifoldPointer() override
 	{
 		return m_manifoldsPtr.size() ? &m_manifoldsPtr[0] : 0;
 	}
 
-	btPersistentManifold* getManifoldByIndexInternal(int index)
+	btPersistentManifold* getManifoldByIndexInternal(int index) override
 	{
 		btAssert(index>=0);
 		btAssert(index<m_manifoldsPtr.size());
@@ -107,21 +107,21 @@ public:
 
 	btCollisionDispatcher(btCollisionConfiguration* collisionConfiguration);
 
-	virtual ~btCollisionDispatcher();
+	virtual ~btCollisionDispatcher() override;
 
-	virtual btPersistentManifold* getNewManifold(const btCollisionObject* b0, const btCollisionObject* b1);
+	virtual btPersistentManifold* getNewManifold(const btCollisionObject* b0, const btCollisionObject* b1) override;
 
-	virtual void releaseManifold(btPersistentManifold* manifold);
+	virtual void releaseManifold(btPersistentManifold* manifold) override;
 
-	virtual void clearManifold(btPersistentManifold* manifold);
+	virtual void clearManifold(btPersistentManifold* manifold) override;
 
-	btCollisionAlgorithm* findAlgorithm(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, btPersistentManifold* sharedManifold, ebtDispatcherQueryType queryType);
+	btCollisionAlgorithm* findAlgorithm(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, btPersistentManifold* sharedManifold, ebtDispatcherQueryType queryType) override;
 
-	virtual bool needsCollision(const btCollisionObject* body0, const btCollisionObject* body1);
+	virtual bool needsCollision(const btCollisionObject* body0, const btCollisionObject* body1) override;
 
-	virtual bool needsResponse(const btCollisionObject* body0, const btCollisionObject* body1);
+	virtual bool needsResponse(const btCollisionObject* body0, const btCollisionObject* body1) override;
 
-	virtual void dispatchAllCollisionPairs(btOverlappingPairCache* pairCache, const btDispatcherInfo& dispatchInfo, btDispatcher* dispatcher);
+	virtual void dispatchAllCollisionPairs(btOverlappingPairCache* pairCache, const btDispatcherInfo& dispatchInfo, btDispatcher* dispatcher) override;
 
 	void setNearCallback(btNearCallback nearCallback)
 	{
@@ -136,9 +136,9 @@ public:
 	//by default, Bullet will use this near callback
 	static void defaultNearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo);
 
-	virtual void* allocateCollisionAlgorithm(int size);
+	virtual void* allocateCollisionAlgorithm(int size) override;
 
-	virtual void freeCollisionAlgorithm(void* ptr);
+	virtual void freeCollisionAlgorithm(void* ptr) override;
 
 	btCollisionConfiguration* getCollisionConfiguration()
 	{
@@ -155,12 +155,12 @@ public:
 		m_collisionConfiguration = config;
 	}
 
-	virtual btPoolAllocator* getInternalManifoldPool()
+	virtual btPoolAllocator* getInternalManifoldPool() override
 	{
 		return m_persistentManifoldPoolAllocator;
 	}
 
-	virtual const btPoolAllocator* getInternalManifoldPool() const
+	virtual const btPoolAllocator* getInternalManifoldPool() const override
 	{
 		return m_persistentManifoldPoolAllocator;
 	}

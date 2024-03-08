@@ -44,7 +44,7 @@ public:
 		return m_implicitShapeDimensions;  //scaling is included, margin is not
 	}
 
-	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const
+	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const override
 	{
 		btVector3 halfExtents = getHalfExtentsWithoutMargin();
 		btVector3 margin(getMargin(), getMargin(), getMargin());
@@ -55,7 +55,7 @@ public:
 						 btFsels(vec.z(), halfExtents.z(), -halfExtents.z()));
 	}
 
-	SIMD_FORCE_INLINE btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const
+	SIMD_FORCE_INLINE btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const override
 	{
 		const btVector3& halfExtents = getHalfExtentsWithoutMargin();
 
@@ -64,7 +64,7 @@ public:
 						 btFsels(vec.z(), halfExtents.z(), -halfExtents.z()));
 	}
 
-	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const override
 	{
 		const btVector3& halfExtents = getHalfExtentsWithoutMargin();
 
@@ -79,7 +79,7 @@ public:
 
 	btBoxShape(const btVector3& boxHalfExtents);
 
-	virtual void setMargin(btScalar collisionMargin)
+	virtual void setMargin(btScalar collisionMargin) override
 	{
 		//correct the m_implicitShapeDimensions for the margin
 		btVector3 oldMargin(getMargin(), getMargin(), getMargin());
@@ -89,7 +89,7 @@ public:
 		btVector3 newMargin(getMargin(), getMargin(), getMargin());
 		m_implicitShapeDimensions = implicitShapeDimensionsWithMargin - newMargin;
 	}
-	virtual void setLocalScaling(const btVector3& scaling)
+	virtual void setLocalScaling(const btVector3& scaling) override
 	{
 		btVector3 oldMargin(getMargin(), getMargin(), getMargin());
 		btVector3 implicitShapeDimensionsWithMargin = m_implicitShapeDimensions + oldMargin;
@@ -100,11 +100,11 @@ public:
 		m_implicitShapeDimensions = (unScaledImplicitShapeDimensionsWithMargin * m_localScaling) - oldMargin;
 	}
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
+	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override;
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const;
+	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const override;
 
-	virtual void getPlane(btVector3 & planeNormal, btVector3 & planeSupport, int i) const
+	virtual void getPlane(btVector3 & planeNormal, btVector3 & planeSupport, int i) const override
 	{
 		//this plane might not be aligned...
 		// btVector4 plane;
@@ -114,22 +114,22 @@ public:
 		(void)planeNormal; (void)planeSupport; (void)i;
 	}
 
-	virtual int getNumPlanes() const
+	virtual int getNumPlanes() const override
 	{
 		return 6;
 	}
 
-	virtual int getNumVertices() const
+	virtual int getNumVertices() const override
 	{
 		return 8;
 	}
 
-	virtual int getNumEdges() const
+	virtual int getNumEdges() const override
 	{
 		return 12;
 	}
 
-	virtual void getVertex(int i, btVector3& vtx) const
+	virtual void getVertex(int i, btVector3& vtx) const override
 	{
 		btVector3 halfExtents = getHalfExtentsWithMargin();
 
@@ -168,7 +168,7 @@ public:
 		}
 	}
 
-	virtual void getEdge(int i, btVector3& pa, btVector3& pb) const
+	virtual void getEdge(int i, btVector3& pa, btVector3& pb) const override
 	//virtual void getEdge(int i,Edge& edge) const
 	{
 		int edgeVert0 = 0;
@@ -234,7 +234,7 @@ public:
 		getVertex(edgeVert1, pb);
 	}
 
-	virtual bool isInside(const btVector3& pt, btScalar tolerance) const
+	virtual bool isInside(const btVector3& pt, btScalar tolerance) const override
 	{
 		btVector3 halfExtents = getHalfExtentsWithoutMargin();
 
@@ -251,17 +251,17 @@ public:
 	}
 
 	//debugging
-	virtual const char* getName() const
+	virtual const char* getName() const override
 	{
 		return "Box";
 	}
 
-	virtual int getNumPreferredPenetrationDirections() const
+	virtual int getNumPreferredPenetrationDirections() const override
 	{
 		return 6;
 	}
 
-	virtual void getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const
+	virtual void getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const override
 	{
 		switch (index)
 		{

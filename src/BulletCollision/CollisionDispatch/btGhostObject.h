@@ -39,7 +39,7 @@ protected:
 public:
 	btGhostObject();
 
-	virtual ~btGhostObject();
+	virtual ~btGhostObject() override;
 
 	void convexSweepTest(const class btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, btCollisionWorld::ConvexResultCallback& resultCallback, btScalar allowedCcdPenetration = 0.f) const;
 
@@ -100,12 +100,12 @@ class btPairCachingGhostObject : public btGhostObject
 public:
 	btPairCachingGhostObject();
 
-	virtual ~btPairCachingGhostObject();
+	virtual ~btPairCachingGhostObject() override;
 
 	///this method is mainly for expert/internal use only.
-	virtual void addOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btBroadphaseProxy* thisProxy = 0);
+	virtual void addOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btBroadphaseProxy* thisProxy = 0) override;
 
-	virtual void removeOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btDispatcher* dispatcher, btBroadphaseProxy* thisProxy = 0);
+	virtual void removeOverlappingObjectInternal(btBroadphaseProxy* otherProxy, btDispatcher* dispatcher, btBroadphaseProxy* thisProxy = 0) override;
 
 	btHashedOverlappingPairCache* getOverlappingPairCache()
 	{
@@ -121,11 +121,11 @@ public:
 	{
 	}
 
-	virtual ~btGhostPairCallback()
+	virtual ~btGhostPairCallback() override
 	{
 	}
 
-	virtual btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1)
+	virtual btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
 	{
 		btCollisionObject* colObj0 = (btCollisionObject*)proxy0->m_clientObject;
 		btCollisionObject* colObj1 = (btCollisionObject*)proxy1->m_clientObject;
@@ -138,7 +138,7 @@ public:
 		return 0;
 	}
 
-	virtual void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher)
+	virtual void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override
 	{
 		btCollisionObject* colObj0 = (btCollisionObject*)proxy0->m_clientObject;
 		btCollisionObject* colObj1 = (btCollisionObject*)proxy1->m_clientObject;
@@ -151,7 +151,7 @@ public:
 		return 0;
 	}
 
-	virtual void removeOverlappingPairsContainingProxy(btBroadphaseProxy* /*proxy0*/, btDispatcher* /*dispatcher*/)
+	virtual void removeOverlappingPairsContainingProxy(btBroadphaseProxy* /*proxy0*/, btDispatcher* /*dispatcher*/) override
 	{
 		btAssert(0);
 		//need to keep track of all ghost objects and call them here

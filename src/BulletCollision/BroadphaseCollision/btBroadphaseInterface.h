@@ -35,7 +35,7 @@ struct btBroadphaseRayCallback : public btBroadphaseAabbCallback
 	unsigned int m_signs[3];
 	btScalar m_lambda_max;
 
-	virtual ~btBroadphaseRayCallback() {}
+	virtual ~btBroadphaseRayCallback() override {}
 
 protected:
 	btBroadphaseRayCallback() {}

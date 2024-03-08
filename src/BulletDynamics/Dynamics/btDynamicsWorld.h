@@ -54,7 +54,7 @@ public:
 	{
 	}
 
-	virtual ~btDynamicsWorld()
+	virtual ~btDynamicsWorld() override
 	{
 	}
 
@@ -64,7 +64,7 @@ public:
 	///You can disable subdividing the timestep/substepping by passing maxSubSteps=0 as second argument to stepSimulation, but in that case you have to keep the timeStep constant.
 	virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.)) = 0;
 
-	virtual void debugDrawWorld() = 0;
+	virtual void debugDrawWorld() override {};
 
 	virtual void addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies = false)
 	{

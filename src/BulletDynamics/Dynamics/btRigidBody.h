@@ -170,7 +170,7 @@ public:
 	///To specify friction (etc) during rigid body construction, please use the other constructor (using btRigidBodyConstructionInfo)
 	btRigidBody(btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia = btVector3(0, 0, 0));
 
-	virtual ~btRigidBody()
+	virtual ~btRigidBody() override
 	{
 		//No constraints should point to this rigidbody
 		//Remove constraints from the dynamics world before you delete the related rigidbodies.
@@ -622,12 +622,12 @@ public:
 
 	///////////////////////////////////////////////
 
-	virtual int calculateSerializeBufferSize() const;
+	virtual int calculateSerializeBufferSize() const override;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const;
+	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const override;
 
-	virtual void serializeSingleObject(class btSerializer* serializer) const;
+	virtual void serializeSingleObject(class btSerializer* serializer) const override;
 };
 
 //@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData
