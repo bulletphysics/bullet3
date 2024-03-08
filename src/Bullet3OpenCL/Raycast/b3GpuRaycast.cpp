@@ -209,6 +209,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays, b3A
 						hitNormal = (hitPoint - bodies[b].m_pos).normalize();
 					}
 				}
+				// fallthrough
 				case SHAPE_CONVEX_HULL:
 				{
 					b3Transform convexWorldTransform;

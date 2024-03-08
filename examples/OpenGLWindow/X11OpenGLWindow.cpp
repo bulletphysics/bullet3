@@ -954,6 +954,7 @@ void X11OpenGLWindow::pumpMessage()
 			case ButtonRelease:
 				buttonState = 0;
 				//continue with ButtonPress code
+			// fallthrough
 			case ButtonPress:
 			{
 				//                printf("!");

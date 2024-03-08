@@ -1283,7 +1283,7 @@ void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 				return;
 			}
 		}
-		// lint -fallthrough
+		// fallthrough
 		case 1:
 		{
 			Vertex* v = originalVertices[start];
