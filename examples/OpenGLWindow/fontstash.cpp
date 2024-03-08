@@ -33,8 +33,6 @@
 #define ADDITIONAL_HEIGHT 2
 
 #define STB_TRUETYPE_IMPLEMENTATION
-#define STBTT_malloc(x, u) malloc(x)
-#define STBTT_free(x, u) free(x)
 #include "stb_image/stb_truetype.h"
 
 #define HASH_LUT_SIZE 256
