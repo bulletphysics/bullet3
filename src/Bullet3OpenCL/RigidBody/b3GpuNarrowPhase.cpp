@@ -21,7 +21,7 @@ b3GpuNarrowPhase::b3GpuNarrowPhase(cl_context ctx, cl_device_id device, cl_comma
 	m_data = new b3GpuNarrowPhaseInternalData();
 	m_data->m_currentContactBuffer = 0;
 
-	memset(m_data, 0, sizeof(b3GpuNarrowPhaseInternalData));
+	memset((void*)m_data, 0, sizeof(b3GpuNarrowPhaseInternalData));
 
 	m_data->m_config = config;
 

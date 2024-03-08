@@ -788,7 +788,7 @@ public:
 template <typename T>
 static inline void ZeroInitialize(T& value)
 {
-	memset(&value, 0, sizeof(T));
+	memset((void*)&value, 0, sizeof(T));
 }
 //
 template <typename T>

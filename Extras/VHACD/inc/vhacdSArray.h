@@ -66,7 +66,7 @@ public:
 		if (size > m_maxSize)
 		{
 			T* temp = new T[size];
-			memcpy(temp, Data(), m_size * sizeof(T));
+			memcpy((void*)temp, Data(), m_size * sizeof(T));
 			delete[] m_data;
 			m_data = temp;
 			m_maxSize = size;
@@ -84,7 +84,7 @@ public:
 		{
 			size_t maxSize = (m_maxSize << 1);
 			T* temp = new T[maxSize];
-			memcpy(temp, Data(), m_maxSize * sizeof(T));
+			memcpy((void*)temp, Data(), m_maxSize * sizeof(T));
 			delete[] m_data;
 			m_data = temp;
 			m_maxSize = maxSize;
@@ -130,7 +130,7 @@ public:
 			m_data = new T[m_maxSize];
 		}
 		m_size = rhs.m_size;
-		memcpy(Data(), rhs.Data(), m_size * sizeof(T));
+		memcpy((void*)Data(), rhs.Data(), m_size * sizeof(T));
 	}
 	void Initialize()
 	{

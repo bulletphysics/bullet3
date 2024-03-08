@@ -1562,7 +1562,7 @@ int bFile::getNextBlock(bChunkInd *dataChunk, const char *dataPtr, const int fla
 				B3_SWITCH_INT(chunk.nr);
 			}
 
-			memcpy(dataChunk, &chunk, sizeof(bChunkInd));
+			memcpy((void*)dataChunk, &chunk, sizeof(bChunkInd));
 		}
 		else
 		{
@@ -1579,7 +1579,7 @@ int bFile::getNextBlock(bChunkInd *dataChunk, const char *dataPtr, const int fla
 				B3_SWITCH_INT(c.nr);
 			}
 
-			memcpy(dataChunk, &c, sizeof(bChunkInd));
+			memcpy((void*)dataChunk, &c, sizeof(bChunkInd));
 		}
 	}
 	else
@@ -1619,7 +1619,7 @@ int bFile::getNextBlock(bChunkInd *dataChunk, const char *dataPtr, const int fla
 				B3_SWITCH_INT(chunk.nr);
 			}
 
-			memcpy(dataChunk, &chunk, sizeof(bChunkInd));
+			memcpy((void*)dataChunk, &chunk, sizeof(bChunkInd));
 		}
 		else
 		{
@@ -1635,7 +1635,7 @@ int bFile::getNextBlock(bChunkInd *dataChunk, const char *dataPtr, const int fla
 				B3_SWITCH_INT(c.dna_nr);
 				B3_SWITCH_INT(c.nr);
 			}
-			memcpy(dataChunk, &c, sizeof(bChunkInd));
+			memcpy((void*)dataChunk, &c, sizeof(bChunkInd));
 		}
 	}
 

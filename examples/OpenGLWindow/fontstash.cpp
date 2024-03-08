@@ -137,7 +137,7 @@ struct sth_stash* sth_create(int cachew, int cacheh, RenderCallbacks* renderCall
 		assert(0);
 		free(stash);
 	}
-	memset(texture, 0, sizeof(struct sth_texture));
+	memset((void*)texture, 0, sizeof(struct sth_texture));
 
 	// Create first texture for the cache.
 	stash->tw = cachew;
@@ -405,7 +405,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 						texture->next = (struct sth_texture*)malloc(sizeof(struct sth_texture));
 						texture = texture->next;
 						if (texture == NULL) goto error;
-						memset(texture, 0, sizeof(struct sth_texture));
+						memset((void*)texture, 0, sizeof(struct sth_texture));
 
 						stash->m_renderCallbacks->updateTexture(texture, 0, stash->tw, stash->th);
 					}

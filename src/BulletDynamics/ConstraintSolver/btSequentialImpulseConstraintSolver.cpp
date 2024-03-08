@@ -1176,7 +1176,7 @@ void btSequentialImpulseConstraintSolver::convertJoint(btSolverConstraint* curre
 
 	for (int j = 0; j < info1.m_numConstraintRows; j++)
 	{
-		memset(&currentConstraintRow[j], 0, sizeof(btSolverConstraint));
+		memset((void*)&currentConstraintRow[j], 0, sizeof(btSolverConstraint));
 		currentConstraintRow[j].m_lowerLimit = -SIMD_INFINITY;
 		currentConstraintRow[j].m_upperLimit = SIMD_INFINITY;
 		currentConstraintRow[j].m_appliedImpulse = 0.f;

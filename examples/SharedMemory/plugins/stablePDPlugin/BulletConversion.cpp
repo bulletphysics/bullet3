@@ -301,7 +301,7 @@ void btExtractJointBodyFromBullet(const btMultiBody* bulletMB, Eigen::MatrixXd& 
 	links.resize(bulletMB->getNumLinks() + baseLink);
 	for (int i = 0; i < links.size(); i++)
 	{
-		memset(&links[i], 0xffffffff, sizeof(TempLink));
+		memset((void*)&links[i], 0xffffffff, sizeof(TempLink));
 	}
 
 	int totalDofs = 0;
