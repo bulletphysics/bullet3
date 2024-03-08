@@ -1595,8 +1595,8 @@ bool BulletMJCFImporter::getLinkColor2(int linkIndex, struct UrdfMaterialColor& 
 					{
 						matCol = link->m_collisionArray[0].m_geometry.m_localMaterial.m_matColor;
 						hasLinkColor = true;
+						break;
 					}
-					break;
 				}
 			}
 		}
