@@ -9,7 +9,7 @@
 
 #define B3_DEBUG_SERIALIZE_CL
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4996)
 #endif
 #define B3_CL_MAX_ARG_SIZE 16

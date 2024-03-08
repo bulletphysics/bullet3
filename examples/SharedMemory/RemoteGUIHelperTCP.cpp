@@ -14,8 +14,9 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 
-#include "ActiveSocket.h"
 #include <string>
+#include "ActiveSocket.h"
+
 static unsigned int b3DeserializeInt3(const unsigned char* input)
 {
 	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];

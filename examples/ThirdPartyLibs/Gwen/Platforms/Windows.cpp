@@ -12,7 +12,9 @@
 #include <windows.h>
 
 #include <mmsystem.h>
+#if _MSC_VER
 #pragma comment(lib, "winmm.lib")
+#endif
 
 using namespace Gwen;
 using namespace Gwen::Platform;

@@ -1,7 +1,5 @@
 #include "PhysicsClientTCP.h"
 
-#include "ActiveSocket.h"
-
 #include <stdio.h>
 #include <string.h>
 #include "../Utils/b3Clock.h"
@@ -11,6 +9,7 @@
 #include <string>
 #include "Bullet3Common/b3Logging.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
+#include "ActiveSocket.h"
 
 unsigned int b3DeserializeInt2(const unsigned char* input)
 {

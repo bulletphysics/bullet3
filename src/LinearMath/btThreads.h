@@ -17,7 +17,7 @@ subject to the following restrictions:
 
 #include "btScalar.h"  // has definitions like SIMD_FORCE_INLINE
 
-#if defined(_MSC_VER) && _MSC_VER >= 1600
+#if (defined(_MSC_VER) && _MSC_VER >= 1600) || defined(__clang__)
 // give us a compile error if any signatures of overriden methods is changed
 #define BT_OVERRIDE override
 #endif
@@ -69,7 +69,7 @@ public:
 //
 SIMD_FORCE_INLINE void btMutexLock(btSpinMutex* mutex)
 {
-#if BT_THREADSAFE
+#if defined(BT_THREADSAFE) && BT_THREADSAFE!=0
 	mutex->lock();
 #else
 	(void)mutex;
@@ -78,7 +78,7 @@ SIMD_FORCE_INLINE void btMutexLock(btSpinMutex* mutex)
 
 SIMD_FORCE_INLINE void btMutexUnlock(btSpinMutex* mutex)
 {
-#if BT_THREADSAFE
+#if defined(BT_THREADSAFE) && BT_THREADSAFE!=0
 	mutex->unlock();
 #else
 	(void)mutex;
@@ -87,7 +87,7 @@ SIMD_FORCE_INLINE void btMutexUnlock(btSpinMutex* mutex)
 
 SIMD_FORCE_INLINE bool btMutexTryLock(btSpinMutex* mutex)
 {
-#if BT_THREADSAFE
+#if defined(BT_THREADSAFE) && BT_THREADSAFE!=0
 	return mutex->tryLock();
 #else
 	(void)mutex;

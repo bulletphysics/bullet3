@@ -38,8 +38,8 @@ static int maxShapeCapacityInBytes = 128 * 1024 * 1024;
 #include <cstdlib>
 
 #include <openvr.h>
-#include "strtools.h"
 #include "compat.h"
+#include "strtools.h"
 #include "lodepng.h"
 #include "Matrices.h"
 #include "pathtools.h"
