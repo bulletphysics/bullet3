@@ -6042,7 +6042,7 @@ B3_SHARED_API int b3StateLoggingSetLinkIndexA(b3SharedMemoryCommandHandle comman
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
-	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	b3Assert(command->m_type == CMD_STATE_LOGGING);
 	if (command->m_type == CMD_STATE_LOGGING)
 	{
 		command->m_updateFlags |= STATE_LOGGING_FILTER_LINK_INDEX_A;
@@ -6055,7 +6055,7 @@ B3_SHARED_API int b3StateLoggingSetLinkIndexB(b3SharedMemoryCommandHandle comman
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
-	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	b3Assert(command->m_type == CMD_STATE_LOGGING);
 	if (command->m_type == CMD_STATE_LOGGING)
 	{
 		command->m_updateFlags |= STATE_LOGGING_FILTER_LINK_INDEX_B;
@@ -6068,7 +6068,7 @@ B3_SHARED_API int b3StateLoggingSetBodyAUniqueId(b3SharedMemoryCommandHandle com
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
-	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	b3Assert(command->m_type == CMD_STATE_LOGGING);
 	if (command->m_type == CMD_STATE_LOGGING)
 	{
 		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A;
@@ -6081,7 +6081,7 @@ B3_SHARED_API int b3StateLoggingSetBodyBUniqueId(b3SharedMemoryCommandHandle com
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
-	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	b3Assert(command->m_type == CMD_STATE_LOGGING);
 	if (command->m_type == CMD_STATE_LOGGING)
 	{
 		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B;

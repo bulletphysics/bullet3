@@ -644,7 +644,7 @@ void SimpleOpenGL2Renderer::updateShape(int shapeIndex, const float* vertices, i
 {
 	SimpleGL2Shape* shape = m_data->m_shapes[shapeIndex];
 	int numvertices = shape->m_vertices.size();
-	b3Assert(numVertices = numvertices);
+	b3Assert(numVertices == numvertices);
 	if (numVertices != numvertices)
 		return;
 
