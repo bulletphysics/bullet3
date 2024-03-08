@@ -88,7 +88,7 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		float val = float(v);  //todo: specialize on template type
 		if (m_showValue)
 		{
-			char txt[1024];
+			char txt[1033];
 			safe_printf(txt, sizeof(txt), "%s : %.3f", m_variableName, val);
 			m_label->SetText(txt);
 		}

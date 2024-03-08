@@ -47,6 +47,7 @@ struct ShapeContainer
 b3HashMap<b3HashString, ShapeContainer> gMaterialNames;
 
 #define MAX_PATH_LEN 1024
+#define APPEND_SIZE 20
 
 std::string StripExtension(const std::string& sPath)
 {
@@ -86,10 +87,11 @@ int main(int argc, char* argv[])
 	}
 	bool mergeMaterials = args.CheckCmdLineFlag("mergeMaterials");
 
-	char fileNameWithPath[MAX_PATH_LEN];
+	char fileNameWithPath[MAX_PATH_LEN-APPEND_SIZE];
 	bool fileFound = (b3ResourcePath::findResourcePath(fileName, fileNameWithPath, MAX_PATH_LEN,0)) > 0;
-	char materialPrefixPath[MAX_PATH_LEN];
-	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN);
+	(void)fileFound;
+	char materialPrefixPath[MAX_PATH_LEN-APPEND_SIZE];
+	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN-APPEND_SIZE);
 
 	std::vector<bt_tinyobj::shape_t> shapes;
 	bt_tinyobj::attrib_t attribute;
