@@ -210,7 +210,7 @@ void b3PosixThreadSupport::waitForResponse(int* puiArgument0, int* puiArgument1)
 	spuStatus.m_status = 0;
 
 	// need to find an active spu
-	b3Assert(last >= 0);
+	b3Assert(last != size_t(-1));
 
 	*puiArgument0 = spuStatus.m_taskId;
 	*puiArgument1 = spuStatus.m_status;

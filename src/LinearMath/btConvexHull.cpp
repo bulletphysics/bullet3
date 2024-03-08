@@ -1092,7 +1092,7 @@ void HullLibrary::BringOutYourDead(const btVector3 *verts, unsigned int vcount, 
 	{
 		unsigned int v = indices[i];  // original array index
 
-		btAssert(v >= 0 && v < vcount);
+		btAssert(v < vcount);
 
 		if (usedIndices[static_cast<int>(v)])  // if already remapped
 		{
@@ -1114,7 +1114,7 @@ void HullLibrary::BringOutYourDead(const btVector3 *verts, unsigned int vcount, 
 
 			ocount++;  // increment output vert count
 
-			btAssert(ocount >= 0 && ocount <= vcount);
+			btAssert(ocount <= vcount);
 
 			usedIndices[static_cast<int>(v)] = ocount;  // assign new index remapping
 		}

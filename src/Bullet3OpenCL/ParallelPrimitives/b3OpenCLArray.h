@@ -100,7 +100,6 @@ public:
 
 	B3_FORCE_INLINE T at(size_t n) const
 	{
-		b3Assert(n >= 0);
 		b3Assert(n < size());
 		T elem;
 		copyToHostPointer(&elem, 1, n, true);

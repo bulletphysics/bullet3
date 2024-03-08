@@ -226,16 +226,16 @@ public:
 				  const size_t dim, const Vec3<double>& barycenter, const double (&rot)[3][3]);
 	unsigned char& GetVoxel(const size_t i, const size_t j, const size_t k)
 	{
-		assert(i < m_dim[0] || i >= 0);
-		assert(j < m_dim[0] || j >= 0);
-		assert(k < m_dim[0] || k >= 0);
+		assert(i < m_dim[0]);
+		assert(j < m_dim[0]);
+		assert(k < m_dim[0]);
 		return m_data[i + j * m_dim[0] + k * m_dim[0] * m_dim[1]];
 	}
 	const unsigned char& GetVoxel(const size_t i, const size_t j, const size_t k) const
 	{
-		assert(i < m_dim[0] || i >= 0);
-		assert(j < m_dim[0] || j >= 0);
-		assert(k < m_dim[0] || k >= 0);
+		assert(i < m_dim[0]);
+		assert(j < m_dim[0]);
+		assert(k < m_dim[0]);
 		return m_data[i + j * m_dim[0] + k * m_dim[0] * m_dim[1]];
 	}
 	const size_t GetNPrimitivesOnSurf() const { return m_numVoxelsOnSurface; }
@@ -373,7 +373,7 @@ void Volume::Voxelize(const T* const points, const unsigned int stridePoints, co
 			i = static_cast<size_t>(p[c][0] + 0.5);
 			j = static_cast<size_t>(p[c][1] + 0.5);
 			k = static_cast<size_t>(p[c][2] + 0.5);
-			assert(i < m_dim[0] && i >= 0 && j < m_dim[1] && j >= 0 && k < m_dim[2] && k >= 0);
+			assert(i < m_dim[0] && j < m_dim[1] && k < m_dim[2]);
 
 			if (c == 0)
 			{

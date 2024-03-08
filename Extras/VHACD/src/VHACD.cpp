@@ -1460,8 +1460,6 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 			const size_t addrI = (static_cast<int>(sqrt(nr)) - 1) >> 1;
 			const size_t p1 = addrI + 1;
 			const size_t p2 = addr - ((addrI * (addrI + 1)) >> 1);
-			assert(p1 >= 0);
-			assert(p2 >= 0);
 			assert(p1 < costSize);
 			assert(p2 < costSize);
 
@@ -1500,7 +1498,6 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 				ComputeConvexHull(m_convexHulls[p2], m_convexHulls[i], pts, &combinedCH);
 				costMatrix[rowIdx] = ComputeConcavity(volume1 + m_convexHulls[i]->ComputeVolume(), combinedCH.ComputeVolume(), m_volumeCH0);
 				rowIdx += i;
-				assert(rowIdx >= 0);
 			}
 
 			// Move the top column in to replace its space
@@ -1525,7 +1522,6 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 				{
 					costMatrix[rowIdx] = costMatrix[top_row++];
 					rowIdx += i;
-					assert(rowIdx >= 0);
 				}
 			}
 			costMatrix.Resize(erase_idx);

@@ -253,7 +253,7 @@ int btThreadSupportPosix::waitForResponse()
 	threadStatus.m_status = 0;
 
 	// need to find an active spu
-	btAssert(last >= 0);
+	btAssert(last != size_t(-1));
 	m_startedThreadsMask &= ~(UINT64(1) << last);
 
 	return last;

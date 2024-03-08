@@ -3346,7 +3346,7 @@ void HullLibrary::BringOutYourDead(const float *verts, unsigned int vcount, floa
 	{
 		unsigned int v = indices[i];  // original array index
 
-		assert(v >= 0 && v < vcount);
+		assert(v < vcount);
 
 		if (used[v])  // if already remapped
 		{
@@ -3362,7 +3362,7 @@ void HullLibrary::BringOutYourDead(const float *verts, unsigned int vcount, floa
 
 			ocount++;  // increment output vert count
 
-			assert(ocount >= 0 && ocount <= vcount);
+			assert(ocount <= vcount);
 
 			used[v] = ocount;  // assign new index remapping
 		}
