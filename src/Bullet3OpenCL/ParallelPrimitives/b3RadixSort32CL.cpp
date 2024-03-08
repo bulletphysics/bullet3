@@ -123,7 +123,7 @@ void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int s
 				printf("tables[%d]=%d]\n", i, tables[i]);
 			}
 		}
-#endif  //TEST \
+#endif  //TEST
 	//	prefix scan
 		int sum = 0;
 		for (int i = 0; i < NUM_TABLES; i++)

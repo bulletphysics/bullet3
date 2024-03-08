@@ -2217,8 +2217,8 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 #ifdef OLD_SHADOWMAP_INIT
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-#else   //OLD_SHADOWMAP_INIT                                                              \
-		//Reduce size of shadowMap if glTexImage2D call fails as may happen in some cases \
+#else   //OLD_SHADOWMAP_INIT                                                              
+		//Reduce size of shadowMap if glTexImage2D call fails as may happen in some cases
 		//https://github.com/bulletphysics/bullet3/issues/40
 
 			int size;

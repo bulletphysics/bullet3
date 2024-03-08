@@ -100,7 +100,7 @@ int b3OpenCLUtils_clewInit()
 	const char* cl = "OpenCL.dll";
 #elif defined __APPLE__
 	const char* cl = "/System/Library/Frameworks/OpenCL.framework/Versions/Current/OpenCL";
-#else  //presumable Linux? \
+#else  //presumable Linux?
 	   //linux (tested on Ubuntu 12.10 with Catalyst 13.4 beta drivers, not that there is no symbolic link from libOpenCL.so
 	const char* cl = "libOpenCL.so.1";
 	result = clewInit(cl);
