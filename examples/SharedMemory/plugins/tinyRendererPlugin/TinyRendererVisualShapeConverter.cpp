@@ -1554,7 +1554,7 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
 int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadTextureFile");
-	int width, height, n;
+	int width=0, height=0, n;
 	unsigned char* image = 0;
 	if (fileIO)
 	{

@@ -673,6 +673,7 @@ inline float btMprVec3PointTriDist2(const btVector3 *P,
 	if (btMprIsZero(div))
 	{
 		s = -1;
+		t = 0;
 	}
 	else
 	{

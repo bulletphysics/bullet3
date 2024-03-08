@@ -66,7 +66,7 @@ class btHashInt
 	int m_uid;
 
 public:
-	btHashInt()
+	btHashInt() : m_uid(0)
 	{
 	}
 

@@ -159,6 +159,9 @@ btKinematicCharacterController::btKinematicCharacterController(btPairCachingGhos
 	bounce_fix = false;
 	m_linearDamping = btScalar(0.0);
 	m_angularDamping = btScalar(0.0);
+	m_halfHeight = 0.0;
+	m_maxJumpHeight = 0.0;
+	m_touchingContact = false;
 
 	setUp(up);
 	setStepHeight(stepHeight);

@@ -351,7 +351,7 @@ long b3_maxdot_large(const float *vv, const float *vec, unsigned long count, flo
 	// process the last few points
 	if (count & 3)
 	{
-		float4 v0, v1, v2, x, y, z;
+		float4 v0, v1, v2, x = {}, y = {}, z = {};
 		switch (count & 3)
 		{
 			case 3:
@@ -746,7 +746,7 @@ long b3_mindot_large(const float *vv, const float *vec, unsigned long count, flo
 	// process the last few points
 	if (count & 3)
 	{
-		float4 v0, v1, v2, x, y, z;
+		float4 v0, v1, v2, x = {}, y = {}, z = {};
 		switch (count & 3)
 		{
 			case 3:

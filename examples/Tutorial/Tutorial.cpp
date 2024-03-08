@@ -388,7 +388,7 @@ public:
 
 			if (1)
 			{
-				int width, height, n;
+				int width=0, height=0, n;
 
 				const char* filename = "data/checker_huge.gif";
 				const unsigned char* image = 0;

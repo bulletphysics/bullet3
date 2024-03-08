@@ -725,7 +725,7 @@ bool CMainApplication::HandleInput()
 			//if (sPrevStates[unDevice].unPacketNum != state.unPacketNum)
 			if (m_pHMD->GetTrackedDeviceClass(unDevice) == vr::TrackedDeviceClass_HMD)
 			{
-				Matrix4 rotYtoZ = rotYtoZ.identity();
+				Matrix4 rotYtoZ = Matrix4();
 				//some Bullet apps (especially robotics related) require Z as up-axis)
 				if (m_app->getUpAxis() == 2)
 				{
@@ -1683,7 +1683,7 @@ void CMainApplication::RenderStereoTargets()
 
 	m_app->m_instancingRenderer->init();
 
-	Matrix4 rotYtoZ = rotYtoZ.identity();
+	Matrix4 rotYtoZ = Matrix4();
 
 	//some Bullet apps (especially robotics related) require Z as up-axis)
 	if (m_app->getUpAxis() == 2)

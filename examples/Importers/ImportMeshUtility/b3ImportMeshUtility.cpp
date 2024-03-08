@@ -94,7 +94,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 				
 				if (shape.material.diffuse_texname.length() > 0)
 				{
-					int width, height, n;
+					int width=0, height=0, n;
 					const char* filename = shape.material.diffuse_texname.c_str();
 					unsigned char* image = 0;
 

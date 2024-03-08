@@ -428,7 +428,7 @@ inline int b3ContactConvexConvexSAT(
 
 	b3ConvexPolyhedronData hullA, hullB;
 
-	b3Float4 sepNormalWorldSpace;
+	b3Float4 sepNormalWorldSpace = {};
 
 	b3Collidable colA = collidables[collidableIndexA];
 	hullA = convexShapes[colA.m_shapeIndex];

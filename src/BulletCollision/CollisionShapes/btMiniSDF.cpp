@@ -47,7 +47,8 @@ bool btMiniSDF::load(const char* data, int size)
 	btSdfDataStream ds(data, size);
 	{
 		double buf[6];
-		ds.read(buf);
+		if(ds.read(buf))
+		{
 		m_domain.m_min[0] = buf[0];
 		m_domain.m_min[1] = buf[1];
 		m_domain.m_min[2] = buf[2];
@@ -56,42 +57,50 @@ bool btMiniSDF::load(const char* data, int size)
 		m_domain.m_max[1] = buf[4];
 		m_domain.m_max[2] = buf[5];
 		m_domain.m_max[3] = 0;
+		}
 	}
 	{
 		unsigned int buf2[3];
-		ds.read(buf2);
+		if(ds.read(buf2))
+		{
 		m_resolution[0] = buf2[0];
 		m_resolution[1] = buf2[1];
 		m_resolution[2] = buf2[2];
+		}
 	}
 	{
 		double buf[3];
-		ds.read(buf);
+		if(ds.read(buf))
+		{
 		m_cell_size[0] = buf[0];
 		m_cell_size[1] = buf[1];
 		m_cell_size[2] = buf[2];
+		}
 	}
 	{
 		double buf[3];
-		ds.read(buf);
+		if(ds.read(buf))
+		{
 		m_inv_cell_size[0] = buf[0];
 		m_inv_cell_size[1] = buf[1];
 		m_inv_cell_size[2] = buf[2];
+		}
 	}
 	{
 		unsigned long long int cells;
-		ds.read(cells);
-		m_n_cells = cells;
+		if(ds.read(cells))
+			m_n_cells = cells;
 	}
 	{
 		unsigned long long int fields;
-		ds.read(fields);
-		m_n_fields = fields;
+		if(ds.read(fields))
+			m_n_fields = fields;
 	}
 
 	unsigned long long int nodes0;
 	std::size_t n_nodes0;
-	ds.read(nodes0);
+	if(ds.read(nodes0))
+	{
 	n_nodes0 = nodes0;
 	if (n_nodes0 > 1024 * 1024 * 1024)
 	{
@@ -101,7 +110,8 @@ bool btMiniSDF::load(const char* data, int size)
 	for (unsigned int i = 0; i < n_nodes0; i++)
 	{
 		unsigned long long int n_nodes1;
-		ds.read(n_nodes1);
+		if(ds.read(n_nodes1))
+		{
 		btAlignedObjectArray<double>& nodes = m_nodes[i];
 		nodes.resize(n_nodes1);
 		for (int j = 0; j < nodes.size(); j++)
@@ -109,40 +119,50 @@ bool btMiniSDF::load(const char* data, int size)
 			double& node = nodes[j];
 			ds.read(node);
 		}
+		}
+	}
 	}
 
 	unsigned long long int n_cells0;
-	ds.read(n_cells0);
+	if(ds.read(n_cells0))
+	{
 	m_cells.resize(n_cells0);
 	for (unsigned long long i = 0; i < n_cells0; i++)
 	{
 		unsigned long long int n_cells1;
 		btAlignedObjectArray<btCell32>& cells = m_cells[i];
-		ds.read(n_cells1);
+		if(ds.read(n_cells1))
+		{
 		cells.resize(n_cells1);
 		for (unsigned long long j = 0; j < n_cells1; j++)
 		{
 			btCell32& cell = cells[j];
 			ds.read(cell);
 		}
+		}
+	}
 	}
 
 	{
 		unsigned long long int n_cell_maps0;
-		ds.read(n_cell_maps0);
+		if(ds.read(n_cell_maps0))
+		{
 
 		m_cell_map.resize(n_cell_maps0);
 		for (unsigned long long i = 0; i < n_cell_maps0; i++)
 		{
 			unsigned long long int n_cell_maps1;
 			btAlignedObjectArray<unsigned int>& cell_maps = m_cell_map[i];
-			ds.read(n_cell_maps1);
+			if(ds.read(n_cell_maps1))
+			{
 			cell_maps.resize(n_cell_maps1);
 			for (unsigned long long j = 0; j < n_cell_maps1; j++)
 			{
 				unsigned int& cell_map = cell_maps[j];
 				ds.read(cell_map);
 			}
+			}
+		}
 		}
 	}
 

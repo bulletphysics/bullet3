@@ -89,7 +89,7 @@ void b3Clock::reset(bool zeroReference)
 #ifdef __CELLOS_LV2__
 		m_data->mStartTime = 0;
 #else
-		m_data->mStartTime = (struct timeval){0};
+		m_data->mStartTime = timeval();
 #endif
 #endif
 	}

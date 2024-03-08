@@ -4969,7 +4969,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 			{
 				int width;
 				int height;
-				btScalar minHeight, maxHeight;
+				btScalar minHeight=0, maxHeight=0;
 				PHY_ScalarType scalarType = PHY_FLOAT;
 				CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
 				const unsigned char* heightfieldData = 0;
@@ -14741,7 +14741,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 			}
 
 			{
-				int width, height, n;
+				int width = 0, height = 0, n;
 				unsigned char* imageData = 0;
 
 				CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();

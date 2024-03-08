@@ -354,8 +354,8 @@ void Volume::Voxelize(const T* const points, const unsigned int stridePoints, co
 
 	Vec3<double> p[3];
 	size_t i, j, k;
-	size_t i0, j0, k0;
-	size_t i1, j1, k1;
+	size_t i0 = 0, j0 = 0, k0 = 0;
+	size_t i1 = 0, j1 = 0, k1 = 0;
 	Vec3<double> boxcenter;
 	Vec3<double> pt;
 	const Vec3<double> boxhalfsize(0.5, 0.5, 0.5);

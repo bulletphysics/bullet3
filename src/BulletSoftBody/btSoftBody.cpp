@@ -524,6 +524,9 @@ void btSoftBody::appendAnchor(int node, btRigidBody* body, const btVector3& loca
 	a.m_local = localPivot;
 	a.m_node->m_battach = 1;
 	a.m_influence = influence;
+	a.m_c0.setZero();
+	a.m_c1 = btVector3(btScalar(0),btScalar(0),btScalar(0));
+	a.m_c2 = btScalar(0);
 	m_anchors.push_back(a);
 }
 

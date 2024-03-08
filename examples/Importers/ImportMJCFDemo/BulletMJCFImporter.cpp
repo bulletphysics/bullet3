@@ -519,7 +519,7 @@ struct BulletMJCFImporterInternalData
 		}
 		bool isLimited = lim == "true";
 
-		UrdfJointTypes ejtype;
+		UrdfJointTypes ejtype = (UrdfJointTypes)0;
 		if (jType)
 		{
 			std::string jointType = jType;

@@ -5,6 +5,7 @@
 #include "LinearMath/btQuickprof.h"
 #include <stdio.h>
 #include <algorithm>
+#include <cstring>
 
 #if BT_THREADSAFE
 
@@ -195,12 +196,13 @@ public:
 	{
 		m_jobMem = NULL;
 		m_jobMemSize = 0;
+		m_queueIsEmpty = true;
 		m_threadSupport = NULL;
 		m_queueLock = NULL;
 		m_headIndex = 0;
 		m_tailIndex = 0;
 		m_useSpinMutex = false;
-		(void)m_cachePadding;
+		memset(&m_cachePadding,0,sizeof(m_cachePadding));
 	}
 	~JobQueue()
 	{

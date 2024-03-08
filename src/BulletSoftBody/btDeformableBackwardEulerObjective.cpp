@@ -219,7 +219,7 @@ void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 	if (m_implicit)
 	{
 		// apply forces except gravity force
-		btVector3 gravity;
+		btVector3 gravity(btScalar(0),btScalar(0),btScalar(0));
 		for (int i = 0; i < m_lf.size(); ++i)
 		{
 			if (m_lf[i]->getForceType() == BT_GRAVITY_FORCE)

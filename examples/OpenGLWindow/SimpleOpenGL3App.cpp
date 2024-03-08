@@ -495,7 +495,7 @@ void SimpleOpenGL3App::drawText3D(const char* txt, float position[3], float orie
 	float posX = position[0];
 	float posY = position[1];
 	float posZ = position[2]; (void)posZ;
-	float winx, winy, winz;
+	float winx = 0, winy = 0, winz = 0;
 
 	if (optionFlag & CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera)
 	{

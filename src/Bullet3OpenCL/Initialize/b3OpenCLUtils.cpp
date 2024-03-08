@@ -615,7 +615,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 #ifdef _WIN32
 		//printf("searching for %s\n", binaryFileName);
 
-		FILETIME modtimeBinary;
+		FILETIME modtimeBinary = {};
 		CreateDirectoryA(sCachedBinaryPath, 0);
 		{
 			HANDLE binaryFileHandle = CreateFileA(binaryFileName, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
@@ -673,7 +673,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 				if (srcFileHandle != INVALID_HANDLE_VALUE)
 				{
-					FILETIME modtimeSrc;
+					FILETIME modtimeSrc = {};
 					if (GetFileTime(srcFileHandle, NULL, NULL, &modtimeSrc) == 0)
 					{
 						DWORD errorCode;

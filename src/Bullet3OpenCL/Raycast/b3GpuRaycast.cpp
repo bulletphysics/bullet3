@@ -186,6 +186,10 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays, b3A
 
 		int hitBodyIndex = -1;
 		b3Vector3 hitNormal;
+		hitNormal.m_floats[0] = 0.0f;
+		hitNormal.m_floats[1] = 0.0f;
+		hitNormal.m_floats[2] = 0.0f;
+		hitNormal.m_floats[3] = 0.0f;
 
 		for (int b = 0; b < numBodies; b++)
 		{

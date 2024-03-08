@@ -1882,7 +1882,7 @@ struct btSoftColliders
 			}
 
 			btVector3 o = node->m_x;
-			btVector3 p;
+			btVector3 p(btScalar(0),btScalar(0),btScalar(0));
 			btScalar d = SIMD_INFINITY;
 			ProjectOrigin(face->m_n[0]->m_x - o,
 						  face->m_n[1]->m_x - o,

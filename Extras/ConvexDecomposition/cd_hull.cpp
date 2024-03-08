@@ -3103,7 +3103,7 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 
 	vcount = 0;
 
-	float recip[3];
+	float recip[3] = {};
 
 	if (scale)
 	{
