@@ -491,7 +491,8 @@ CircularListElement<TMMTriangle> *ICHull::MakeConeFace(CircularListElement<TMMEd
 	CircularListElement<TMMEdge> *newEdges[2];
 	for (int i = 0; i < 2; ++i)
 	{
-		if (!(newEdges[i] = e->GetData().m_vertices[i]->GetData().m_duplicate))
+		newEdges[i] = e->GetData().m_vertices[i]->GetData().m_duplicate;
+		if (!newEdges[i])
 		{  // if the edge doesn't exits add it and mark the vertex as duplicated
 			newEdges[i] = m_mesh.AddEdge();
 			newEdges[i]->GetData().m_vertices[0] = e->GetData().m_vertices[i];
