@@ -119,9 +119,9 @@ public:
 	}
 
 	/**@brief Constructor from scalars 
-   * @param x X value
-   * @param y Y value 
-   * @param z Z value 
+   * @param _x X value
+   * @param _y Y value 
+   * @param _z Z value 
    */
 	SIMD_FORCE_INLINE btVector3(const btScalar& _x, const btScalar& _y, const btScalar& _z)
 	{
@@ -155,7 +155,7 @@ public:
 #endif  // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
 
 	/**@brief Add a vector to this one 
- * @param The vector to add to this one */
+ * @param v The vector to add to this one */
 	SIMD_FORCE_INLINE btVector3& operator+=(const btVector3& v)
 	{
 #if defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)
@@ -171,7 +171,7 @@ public:
 	}
 
 	/**@brief Subtract a vector from this one
-   * @param The vector to subtract */
+   * @param v The vector to subtract */
 	SIMD_FORCE_INLINE btVector3& operator-=(const btVector3& v)
 	{
 #if defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)
@@ -1190,10 +1190,10 @@ public:
 		}
 */
 	/**@brief Set the values 
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
 	{
