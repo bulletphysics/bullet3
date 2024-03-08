@@ -478,7 +478,8 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 	{
 		const string strOFF("OFF");
 		char temp[1024];
-		fscanf(fid, "%s", temp);
+		int len = fscanf(fid, "%s", temp);
+		(void)len;
 		if (string(temp) != strOFF)
 		{
 			logger.Log("Loading error: format not recognized \n");
@@ -490,30 +491,30 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 			int nv = 0;
 			int nf = 0;
 			int ne = 0;
-			fscanf(fid, "%i", &nv);
-			fscanf(fid, "%i", &nf);
-			fscanf(fid, "%i", &ne);
+			len = fscanf(fid, "%i", &nv);
+			len = fscanf(fid, "%i", &nf);
+			len = fscanf(fid, "%i", &ne);
 			points.resize(nv * 3);
 			triangles.resize(nf * 3);
 			const int np = nv * 3;
 			for (int p = 0; p < np; p++)
 			{
-				fscanf(fid, "%f", &(points[p]));
+				len = fscanf(fid, "%f", &(points[p]));
 			}
 			int s;
 			for (int t = 0, r = 0; t < nf; ++t)
 			{
-				fscanf(fid, "%i", &s);
+				len = fscanf(fid, "%i", &s);
 				if (s == 3)
 				{
-					fscanf(fid, "%i", &(triangles[r++]));
-					fscanf(fid, "%i", &(triangles[r++]));
-					fscanf(fid, "%i", &(triangles[r++]));
+					len = fscanf(fid, "%i", &(triangles[r++]));
+					len = fscanf(fid, "%i", &(triangles[r++]));
+					len = fscanf(fid, "%i", &(triangles[r++]));
 				}
 				else  // Fix me: support only triangular meshes
 				{
 					for (int h = 0; h < s; ++h)
-						fscanf(fid, "%i", &s);
+						len = fscanf(fid, "%i", &s);
 				}
 			}
 			fclose(fid);

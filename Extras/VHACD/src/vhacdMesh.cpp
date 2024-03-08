@@ -293,7 +293,8 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 	{
 		const std::string strOFF("OFF");
 		char temp[1024];
-		fscanf(fid, "%s", temp);
+		int len = fscanf(fid, "%s", temp);
+		(void)len;
 		if (std::string(temp) != strOFF)
 		{
 			fclose(fid);
@@ -304,18 +305,18 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 			int nv = 0;
 			int nf = 0;
 			int ne = 0;
-			fscanf(fid, "%i", &nv);
-			fscanf(fid, "%i", &nf);
-			fscanf(fid, "%i", &ne);
+			len = fscanf(fid, "%i", &nv);
+			len = fscanf(fid, "%i", &nf);
+			len = fscanf(fid, "%i", &ne);
 			m_points.Resize(nv);
 			m_triangles.Resize(nf);
 			Vec3<double> coord;
 			float x, y, z;
 			for (int p = 0; p < nv; p++)
 			{
-				fscanf(fid, "%f", &x);
-				fscanf(fid, "%f", &y);
-				fscanf(fid, "%f", &z);
+				len = fscanf(fid, "%f", &x);
+				len = fscanf(fid, "%f", &y);
+				len = fscanf(fid, "%f", &z);
 				m_points[p][0] = x;
 				m_points[p][1] = y;
 				m_points[p][2] = z;
@@ -323,12 +324,12 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 			int i, j, k, s;
 			for (int t = 0; t < nf; ++t)
 			{
-				fscanf(fid, "%i", &s);
+				len = fscanf(fid, "%i", &s);
 				if (s == 3)
 				{
-					fscanf(fid, "%i", &i);
-					fscanf(fid, "%i", &j);
-					fscanf(fid, "%i", &k);
+					len = fscanf(fid, "%i", &i);
+					len = fscanf(fid, "%i", &j);
+					len = fscanf(fid, "%i", &k);
 					m_triangles[t][0] = i;
 					if (invert)
 					{
@@ -344,7 +345,7 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 				else  // Fix me: support only triangular meshes
 				{
 					for (int h = 0; h < s; ++h)
-						fscanf(fid, "%i", &s);
+						len = fscanf(fid, "%i", &s);
 				}
 			}
 			fclose(fid);
