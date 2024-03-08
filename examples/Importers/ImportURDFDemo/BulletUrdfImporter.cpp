@@ -320,7 +320,7 @@ int BulletURDFImporter::getRootLinkIndex() const
 		return m_data->m_urdfParser.getModel().m_rootLinks[0]->m_linkIndex;
 	}
 	return -1;
-};
+}
 
 void BulletURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const
 {
@@ -527,7 +527,7 @@ bool BulletURDFImporter::getJointInfo3(int urdfLinkIndex, btTransform& parent2jo
 	}
 
 	return false;
-};
+}
 
 bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
 {
@@ -1535,7 +1535,7 @@ class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIn
 
 const struct UrdfModel* BulletURDFImporter::getUrdfModel() const {
 	return &m_data->m_urdfParser.getModel();
-};
+}
 
 const struct UrdfDeformable& BulletURDFImporter::getDeformableModel() const
 {

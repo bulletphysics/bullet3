@@ -883,6 +883,6 @@ inline int b3MprPenetration(int pairIndex, int bodyIndexA, int bodyIndexB,
 	};
 
 	return 0;
-};
+}
 
 #endif  //B3_MPR_PENETRATION_H

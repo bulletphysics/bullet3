@@ -268,7 +268,7 @@ int TriBoxOverlap(const Vec3<double>& boxcenter, const Vec3<double>& boxhalfsize
 				  const Vec3<double>& triver1, const Vec3<double>& triver2);
 template <class T>
 inline void ComputeAlignedPoint(const T* const /*points*/, const unsigned int /*idx*/, const Vec3<double>& /*barycenter*/,
-								const double (& /*rot*/)[3][3], Vec3<double>&  /*pt*/){};
+								const double (& /*rot*/)[3][3], Vec3<double>&  /*pt*/){}
 template <>
 inline void ComputeAlignedPoint<float>(const float* const points, const unsigned int idx, const Vec3<double>& barycenter, const double (&rot)[3][3], Vec3<double>& pt)
 {

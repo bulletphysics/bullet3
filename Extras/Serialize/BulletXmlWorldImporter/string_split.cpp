@@ -34,7 +34,7 @@ void split(btAlignedObjectArray<std::string> &pieces, const std::string &vector_
 	str_array_free(strArray);
 }
 
-};  // namespace bullet_utils
+}  // namespace bullet_utils
 
 /* Append an item to a dynamically allocated array of strings. On failure,
  return NULL, in which case the original array is intact. The item

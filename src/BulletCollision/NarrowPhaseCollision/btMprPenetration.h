@@ -861,7 +861,7 @@ inline int btMprPenetration(const btConvexTemplate &a, const btConvexTemplate &b
 	};
 
 	return result;
-};
+}
 
 template <typename btConvexTemplate, typename btMprDistanceTemplate>
 inline int btComputeMprPenetration(const btConvexTemplate &a, const btConvexTemplate &b, const btMprCollisionDescription &colDesc, btMprDistanceTemplate *distInfo)

@@ -335,7 +335,7 @@ struct UrdfModel
 namespace tinyxml2
 {
 class XMLElement;
-};
+}
 
 class UrdfParser
 {

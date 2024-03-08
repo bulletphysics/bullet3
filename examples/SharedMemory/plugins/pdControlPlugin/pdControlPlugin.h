@@ -24,7 +24,7 @@ extern "C"
 	B3_SHARED_API int preTickPluginCallback_pdControlPlugin(struct b3PluginContext* context);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif  //#define PID_CONTROL_PLUGIN_H

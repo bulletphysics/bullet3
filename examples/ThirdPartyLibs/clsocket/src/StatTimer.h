@@ -71,36 +71,36 @@
 class CStatTimer
 {
 public:
-	CStatTimer(){};
+	CStatTimer(){}
 
-	~CStatTimer(){};
+	~CStatTimer(){}
 
 	void Initialize()
 	{
 		memset(&m_startTime, 0, sizeof(struct timeval));
 		memset(&m_endTime, 0, sizeof(struct timeval));
-	};
+	}
 
-	struct timeval GetStartTime() { return m_startTime; };
-	void SetStartTime() { GET_CLOCK_COUNT(&m_startTime); };
+	struct timeval GetStartTime() { return m_startTime; }
+	void SetStartTime() { GET_CLOCK_COUNT(&m_startTime); }
 
-	struct timeval GetEndTime() { return m_endTime; };
-	void SetEndTime() { GET_CLOCK_COUNT(&m_endTime); };
+	struct timeval GetEndTime() { return m_endTime; }
+	void SetEndTime() { GET_CLOCK_COUNT(&m_endTime); }
 
-	uint32 GetMilliSeconds() { return (CalcTotalUSec() / MILLISECONDS_CONVERSION); };
-	uint32 GetMicroSeconds() { return (CalcTotalUSec()); };
-	uint32 GetSeconds() { return (CalcTotalUSec() / MICROSECONDS_CONVERSION); };
+	uint32 GetMilliSeconds() { return (CalcTotalUSec() / MILLISECONDS_CONVERSION); }
+	uint32 GetMicroSeconds() { return (CalcTotalUSec()); }
+	uint32 GetSeconds() { return (CalcTotalUSec() / MICROSECONDS_CONVERSION); }
 
 	uint32 GetCurrentTime()
 	{
 		struct timeval tmpTime;
 		GET_CLOCK_COUNT(&tmpTime);
 		return ((tmpTime.tv_sec * MICROSECONDS_CONVERSION) + tmpTime.tv_usec);
-	};
+	}
 
 private:
 	uint32 CalcTotalUSec() { return (((m_endTime.tv_sec - m_startTime.tv_sec) * MICROSECONDS_CONVERSION) +
-									 (m_endTime.tv_usec - m_startTime.tv_usec)); };
+									 (m_endTime.tv_usec - m_startTime.tv_usec)); }
 
 private:
 	struct timeval m_startTime;

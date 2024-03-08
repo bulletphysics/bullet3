@@ -23,7 +23,7 @@ btBoxShape::btBoxShape(const btVector3& boxHalfExtents)
 	m_implicitShapeDimensions = (boxHalfExtents * m_localScaling) - margin;
 
 	setSafeMargin(boxHalfExtents);
-};
+}
 
 void btBoxShape::getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
 {

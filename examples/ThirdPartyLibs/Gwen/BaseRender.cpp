@@ -48,7 +48,7 @@ void Base::DrawLinedRect(Gwen::Rect rect)
 
 	DrawFilledRect(Gwen::Rect(rect.x, rect.y, 1, rect.h));
 	DrawFilledRect(Gwen::Rect(rect.x + rect.w - 1, rect.y, 1, rect.h));
-};
+}
 
 void Base::DrawPixel(int x, int y)
 {

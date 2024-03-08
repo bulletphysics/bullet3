@@ -298,13 +298,13 @@ void OpenGL_DebugFont::StartClip()
 	glScissor(retinaScale * rect.x * Scale(), retinaScale * rect.y * Scale(), retinaScale * rect.w * Scale(), retinaScale * rect.h * Scale());
 	glEnable(GL_SCISSOR_TEST);
 	//glDisable( GL_SCISSOR_TEST );
-};
+}
 
 void OpenGL_DebugFont::EndClip()
 {
 	Flush();
 	glDisable(GL_SCISSOR_TEST);
-};
+}
 
 void OpenGL_DebugFont::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text)
 {

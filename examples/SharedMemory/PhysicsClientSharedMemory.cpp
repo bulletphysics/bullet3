@@ -523,7 +523,7 @@ void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool
 		info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
 	}
 	bodyJoints->m_jointInfo.push_back(info);
-};
+}
 
 const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 {

@@ -36,8 +36,8 @@ public:
 
 	Gwen::Rect m_ButtonRect;
 };
-};  // namespace Controls
-};  // namespace Gwen
+}  // namespace Controls
+}  // namespace Gwen
 
 using namespace Gwen;
 using namespace Gwen::Controls;

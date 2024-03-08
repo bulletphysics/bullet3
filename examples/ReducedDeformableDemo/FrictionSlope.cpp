@@ -162,7 +162,7 @@ namespace FrictionSlopeHelper
         ground->setLinearVelocity(btVector3(0, 0, 0));
         ground->setAngularVelocity(btVector3(0, 0, 0));
     }
-};
+}
 
 void FrictionSlope::initPhysics()
 {

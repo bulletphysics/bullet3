@@ -8,6 +8,6 @@ T urdfLexicalCast(const char* txt)
 {
 	double result = atof(txt);
 	return result;
-};
+}
 
 #endif

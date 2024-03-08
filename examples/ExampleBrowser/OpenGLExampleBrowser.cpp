@@ -534,7 +534,7 @@ static void saveCurrentSettings(int /*currentEntry*/, const char* startFileName)
 
 		fclose(f);
 	}
-};
+}
 
 static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& args)
 {
@@ -554,7 +554,7 @@ static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& ar
 		}
 		fclose(f);
 	}
-};
+}
 
 void MyComboBoxCallback(int comboId, const char* item)
 {

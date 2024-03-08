@@ -880,4 +880,4 @@ LoadObj(
 	return err.str();
 }
 
-};  // namespace bt_tinyobj
+}  // namespace bt_tinyobj

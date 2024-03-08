@@ -186,7 +186,7 @@ static unsigned int FloatFlip(float fl)
 	unsigned int f = *(unsigned int*)&fl;
 	unsigned int mask = -(int)(f >> 31) | 0x80000000;
 	return f ^ mask;
-};
+}
 
 void b3GpuSapBroadphase::init3dSap()
 {
@@ -251,17 +251,17 @@ static bool b3PairCmp(const b3Int4& p, const b3Int4& q)
 static bool operator==(const b3Int4& a, const b3Int4& b)
 {
 	return a.x == b.x && a.y == b.y;
-};
+}
 
 static bool operator<(const b3Int4& a, const b3Int4& b)
 {
 	return a.x < b.x || (a.x == b.x && a.y < b.y);
-};
+}
 
 static bool operator>(const b3Int4& a, const b3Int4& b)
 {
 	return a.x > b.x || (a.x == b.x && a.y > b.y);
-};
+}
 
 b3AlignedObjectArray<b3Int4> addedHostPairs;
 b3AlignedObjectArray<b3Int4> removedHostPairs;

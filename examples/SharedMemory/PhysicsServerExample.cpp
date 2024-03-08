@@ -64,7 +64,7 @@ static void loadCurrentSettingsVR(b3CommandLineArgs& args)
 		}
 		fclose(f);
 	}
-};
+}
 
 //remember the settings (you don't want to re-tune again and again...)
 
@@ -79,7 +79,7 @@ static void saveCurrentSettingsVR(const btVector3& VRTeleportPos1)
 		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
 		fclose(f);
 	}
-};
+}
 bool gDebugRenderToggle = false;
 void MotionThreadFunc(void* userPtr, void* lsMemory);
 void* MotionlsMemoryFunc();
@@ -134,7 +134,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperResetCamera,
 	eGUIHelperChangeGraphicsInstanceFlags,
 	eGUIHelperSetRgbBackground,
-	eGUIUserDebugAddPoints,
+	eGUIUserDebugAddPoints
 };
 
 #include <stdio.h>

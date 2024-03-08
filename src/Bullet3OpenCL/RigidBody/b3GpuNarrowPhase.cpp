@@ -676,7 +676,7 @@ cl_mem b3GpuNarrowPhase::getBodiesGpu()
 const struct b3RigidBodyData* b3GpuNarrowPhase::getBodiesCpu() const
 {
 	return &m_data->m_bodyBufferCPU->at(0);
-};
+}
 
 int b3GpuNarrowPhase::getNumBodiesGpu() const
 {

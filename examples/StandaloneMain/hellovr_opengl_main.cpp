@@ -293,7 +293,7 @@ CMainApplication::CMainApplication(int argc, char *argv[])
 	}
 	// other initialization tasks are done in BInit
 	memset(m_rDevClassChar, 0, sizeof(m_rDevClassChar));
-};
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Destructor

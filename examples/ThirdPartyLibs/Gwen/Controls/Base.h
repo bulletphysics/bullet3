@@ -30,7 +30,7 @@ namespace ControlsInternal
 class ColorDisplay;
 class Resizer;
 
-};  // namespace ControlsInternal
+}  // namespace ControlsInternal
 
 namespace Pos
 {
@@ -60,7 +60,7 @@ class Canvas;
 namespace Layout
 {
 class TableRow;
-};
+}
 
 class GWEN_EXPORT Base : public Event::Handler
 {

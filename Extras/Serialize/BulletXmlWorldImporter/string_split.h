@@ -27,7 +27,7 @@ subject to the following restrictions:
 namespace bullet_utils
 {
 void split(btAlignedObjectArray<std::string>& pieces, const std::string& vector_str, const std::string& separator);
-};
+}
 
 ///The string split C code is by Lars Wirzenius
 ///See http://stackoverflow.com/questions/2531605/how-to-split-a-string-with-a-delimiter-larger-than-one-single-char

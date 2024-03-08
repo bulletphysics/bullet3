@@ -94,6 +94,6 @@ LoadObj(
 	CommonFileIOInterface* fileIO);
 #endif
 
-};  // namespace bt_tinyobj
+}  // namespace bt_tinyobj
 
 #endif  // _BT_TINY_OBJ_LOADER_H
