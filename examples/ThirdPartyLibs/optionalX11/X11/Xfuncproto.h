@@ -132,11 +132,12 @@ in this Software without prior written authorization from The Open Group.
 
 /* requires xproto >= 7.0.22 - since this uses either gcc or C99 variable
    argument macros, must be only used inside #ifdef _X_NONNULL guards, as
-   many legacy X clients are compiled in C89 mode still. */
-#if defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 303)
-#define _X_NONNULL(args...) __attribute__((nonnull(args)))
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ - 0 >= 199901L) /* C99 */
+   many legacy X clients are compiled in C89 mode still.
+   For C++ variadic macros were introduced in C++11 */
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ - 0 >= 199901L)) || (defined(__cplusplus) && _cplusplus >= 201103L) /* C99 */
 #define _X_NONNULL(...)                                              /* */
+#elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 303)
+#define _X_NONNULL(args...) __attribute__((nonnull(args)))
 #endif
 
 /* requires xproto >= 7.0.22 */
