@@ -481,7 +481,7 @@ void btFractureDynamicsWorld::fractureCallback()
 		int f0 = m_fractureBodies.findLinearSearch((btFractureBody*)manifold->getBody0());
 		int f1 = m_fractureBodies.findLinearSearch((btFractureBody*)manifold->getBody1());
 
-		if (f0 == f1 == m_fractureBodies.size())
+		if ((f0 == f1) && (f1 == m_fractureBodies.size()))
 			continue;
 
 		if (f0 < m_fractureBodies.size())

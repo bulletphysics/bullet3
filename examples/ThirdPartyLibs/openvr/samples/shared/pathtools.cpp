@@ -640,7 +640,7 @@ bool Path_WriteBinaryFile(const std::string &strFilename, unsigned char *pData, 
 		fclose(f);
 	}
 
-	return written = nSize ? true : false;
+	return (written = nSize ? true : false);
 }
 
 std::string Path_ReadTextFile(const std::string &strFilename)
