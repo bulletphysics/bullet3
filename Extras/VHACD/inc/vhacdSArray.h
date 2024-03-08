@@ -42,11 +42,11 @@ public:
 	{
 		return m_size;
 	}
-	T* const Data()
+	T* Data()
 	{
 		return (m_maxSize == N) ? m_data0 : m_data;
 	}
-	const T* const Data() const
+	const T* Data() const
 	{
 		return (m_maxSize == N) ? m_data0 : m_data;
 	}

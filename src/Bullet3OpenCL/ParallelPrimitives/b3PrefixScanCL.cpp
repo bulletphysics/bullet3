@@ -45,7 +45,7 @@ T b3NextPowerOf2(T n)
 void b3PrefixScanCL::execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<unsigned int>& dst, int n, unsigned int* sum)
 {
 	//	b3Assert( data->m_option == EXCLUSIVE );
-	const unsigned int numBlocks = (const unsigned int)((n + BLOCK_SIZE * 2 - 1) / (BLOCK_SIZE * 2));
+	const unsigned int numBlocks = (unsigned int)((n + BLOCK_SIZE * 2 - 1) / (BLOCK_SIZE * 2));
 
 	dst.resize(src.size());
 	m_workBuffer->resize(src.size());

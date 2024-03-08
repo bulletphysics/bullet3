@@ -98,7 +98,7 @@ private:
 };
 
 template <typename T>
-const bool Colinear(const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c);
+bool Colinear(const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c);
 template <typename T>
 const T ComputeVolume4(const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c, const Vec3<T>& d);
 }  // namespace VHACD

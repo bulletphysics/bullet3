@@ -1687,9 +1687,9 @@ void TetrahedronSet::Convert(Mesh& mesh, const VOXEL_VALUE value) const
 		}
 	}
 }
-const double TetrahedronSet::ComputeVolume() const
+double TetrahedronSet::ComputeVolume() const
 {
-	const size_t nTetrahedra = m_tetrahedra.Size();
+	size_t nTetrahedra = m_tetrahedra.Size();
 	if (nTetrahedra == 0)
 		return 0.0;
 	double volume = 0.0;
@@ -1700,7 +1700,7 @@ const double TetrahedronSet::ComputeVolume() const
 	}
 	return volume / 6.0;
 }
-const double TetrahedronSet::ComputeMaxVolumeError() const
+double TetrahedronSet::ComputeMaxVolumeError() const
 {
 	const size_t nTetrahedra = m_tetrahedra.Size();
 	if (nTetrahedra == 0)
