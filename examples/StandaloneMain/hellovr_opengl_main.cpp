@@ -55,7 +55,7 @@ static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = {};
 #include "unistd.h"
 #endif
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 #ifdef __linux__
 #define APIENTRY
