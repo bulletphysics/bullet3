@@ -420,12 +420,13 @@ public:
 
 	virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
 	{
-		switch (command.m_type)
-		{
-		default:
-		{
-		}
-		}
+		(void)command;
+		// switch (command.m_type)
+		// {
+		// default:
+		// {
+		// }
+		// }
 		return true;
 	}
 
@@ -508,12 +509,13 @@ public:
 
 	virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
 	{
-		switch (command.m_type)
-		{
-		default:
-		{
-		}
-		}
+		(void)command;
+		// switch (command.m_type)
+		// {
+		// default:
+		// {
+		// }
+		// }
 		return true;
 	}
 
