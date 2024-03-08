@@ -114,7 +114,7 @@ btBroadphaseProxy
 	}
 
 	//used for memory pools
-	btBroadphaseProxy() : m_clientObject(0)
+	btBroadphaseProxy() : m_clientObject(0), m_collisionFilterGroup(0), m_collisionFilterMask(0), m_uniqueId(0)
 	{
 	}
 
@@ -122,6 +122,7 @@ btBroadphaseProxy
 		: m_clientObject(userPtr),
 		  m_collisionFilterGroup(collisionFilterGroup),
 		  m_collisionFilterMask(collisionFilterMask),
+		  m_uniqueId(0),
 		  m_aabbMin(aabbMin),
 		  m_aabbMax(aabbMax)
 	{

@@ -29,18 +29,18 @@ public:
 	// normal of the contact
 	btVector3 m_normal;
 
-	btDeformableContactConstraint(const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(false), m_normal(normal), m_infoGlobal(&infoGlobal)
+	btDeformableContactConstraint(const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(false), m_infoGlobal(&infoGlobal), m_normal(normal)
 	{
 	}
 
-	btDeformableContactConstraint(bool isStatic, const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(isStatic), m_normal(normal), m_infoGlobal(&infoGlobal)
+	btDeformableContactConstraint(bool isStatic, const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(isStatic), m_infoGlobal(&infoGlobal), m_normal(normal)
 	{
 	}
 
 	btDeformableContactConstraint() : m_static(false) {}
 
 	btDeformableContactConstraint(const btDeformableContactConstraint& other)
-		: m_static(other.m_static), m_normal(other.m_normal), m_infoGlobal(other.m_infoGlobal)
+		: m_static(other.m_static), m_infoGlobal(other.m_infoGlobal), m_normal(other.m_normal)
 	{
 	}
 
@@ -73,12 +73,12 @@ class btDeformableStaticConstraint : public btDeformableContactConstraint
 public:
 	btSoftBody::Node* m_node;
 
-	btDeformableStaticConstraint(btSoftBody::Node* node, const btContactSolverInfo& infoGlobal) : m_node(node), btDeformableContactConstraint(false, btVector3(0, 0, 0), infoGlobal)
+	btDeformableStaticConstraint(btSoftBody::Node* node, const btContactSolverInfo& infoGlobal) : btDeformableContactConstraint(false, btVector3(0, 0, 0), infoGlobal), m_node(node)
 	{
 	}
 	btDeformableStaticConstraint() {}
 	btDeformableStaticConstraint(const btDeformableStaticConstraint& other)
-		: m_node(other.m_node), btDeformableContactConstraint(other)
+		: btDeformableContactConstraint(other), m_node(other.m_node)
 	{
 	}
 

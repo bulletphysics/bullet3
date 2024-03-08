@@ -49,7 +49,7 @@ CommonExampleInterface *sExample;
 int sPrevPacketNum = 0;
 OpenGLGuiHelper *sGuiPtr = 0;
 
-static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = {0};
+static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = {};
 
 #if defined(POSIX)
 #include "unistd.h"
@@ -258,7 +258,8 @@ private:  // OpenGL bookkeeping
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
 CMainApplication::CMainApplication(int argc, char *argv[])
-	: m_app(NULL), m_hasContext(false), m_nWindowWidth(1280), m_nWindowHeight(720), m_unSceneProgramID(0), m_unLensProgramID(0), m_unControllerTransformProgramID(0), m_unRenderModelProgramID(0), m_pHMD(NULL), m_pRenderModels(NULL), m_bDebugOpenGL(false), m_bVerbose(false), m_bPerf(false), m_bVblank(false), m_bGlFinishHack(true), m_glControllerVertBuffer(0), m_unControllerVAO(0), m_unLensVAO(0), m_unSceneVAO(0), m_nSceneMatrixLocation(-1), m_nControllerMatrixLocation(-1), m_nRenderModelMatrixLocation(-1), m_iTrackedControllerCount(0), m_iTrackedControllerCount_Last(-1), m_iValidPoseCount(0), m_iValidPoseCount_Last(-1), m_iSceneVolumeInit(20), m_strPoseClasses(""), m_bShowCubes(false)
+	: m_bDebugOpenGL(false), m_bVerbose(false), m_bPerf(false), m_bVblank(false), m_bGlFinishHack(true), m_pHMD(NULL), m_pRenderModels(NULL), m_app(NULL), m_nWindowWidth(1280), m_nWindowHeight(720), m_hasContext(false), 
+	m_iTrackedControllerCount(0), m_iTrackedControllerCount_Last(-1), m_iValidPoseCount(0), m_iValidPoseCount_Last(-1), m_bShowCubes(false),m_strPoseClasses(""), m_iSceneVolumeInit(20), m_unSceneVAO(0), m_unLensVAO(0), m_glControllerVertBuffer(0), m_unControllerVAO(0), m_unSceneProgramID(0), m_unLensProgramID(0), m_unControllerTransformProgramID(0), m_unRenderModelProgramID(0), m_nSceneMatrixLocation(-1), m_nControllerMatrixLocation(-1), m_nRenderModelMatrixLocation(-1)
 {
 	(void)m_bPerf;
 

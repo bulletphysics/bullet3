@@ -47,7 +47,7 @@ class btMatrix2x2
 {
 public:
     btScalar m_00, m_01, m_10, m_11;
-    btMatrix2x2(): m_00(0), m_10(0), m_01(0), m_11(0)
+    btMatrix2x2(): m_00(0), m_01(0), m_10(0), m_11(0)
     {
     }
     btMatrix2x2(const btMatrix2x2& other): m_00(other.m_00),m_01(other.m_01),m_10(other.m_10),m_11(other.m_11)

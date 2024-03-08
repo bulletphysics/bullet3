@@ -31,9 +31,9 @@ public:
 	FixJointBoxes(GUIHelperInterface* helper, int options)
 		: m_guiHelper(helper),
 		  m_options(options),
-		  numCubes(30),
-		  cubeIds(numCubes, 0),
-		  solver(solverId)
+		  solver(solverId),
+			numCubes(30),
+			cubeIds(numCubes, 0)
 	{
 		(void)m_options;
 	}

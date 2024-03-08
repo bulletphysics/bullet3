@@ -16,9 +16,9 @@ struct Win32SharedMemorySegment
 	TCHAR m_szName[1024];
 
 	Win32SharedMemorySegment()
-		: m_hMapFile(0),
-		  m_buf(0),
-		  m_key(-1)
+		: m_key(-1),
+			m_hMapFile(0),
+			m_buf(0)
 	{
 		m_szName[0] = 0;
 	}

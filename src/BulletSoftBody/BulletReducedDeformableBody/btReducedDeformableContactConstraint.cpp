@@ -10,7 +10,7 @@ btReducedDeformableStaticConstraint::btReducedDeformableStaticConstraint(
 	const btVector3& dir,
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
-  : m_rsb(rsb), m_ri(ri), m_targetPos(x0), m_impulseDirection(dir), m_dt(dt), btDeformableStaticConstraint(node, infoGlobal)
+  : btDeformableStaticConstraint(node, infoGlobal), m_rsb(rsb), m_dt(dt), m_ri(ri), m_targetPos(x0), m_impulseDirection(dir)
 {
 	m_erp = 0.2;
 	m_appliedImpulse = 0;
@@ -61,7 +61,7 @@ btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstr
   const btSoftBody::DeformableRigidContact& c, 
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
-  : m_rsb(rsb), m_dt(dt), btDeformableRigidContactConstraint(c, infoGlobal)
+  : btDeformableRigidContactConstraint(c, infoGlobal), m_rsb(rsb), m_dt(dt)
 {
 	m_nodeQueryIndex = 0;
 	m_appliedNormalImpulse = 0;
@@ -323,7 +323,7 @@ btReducedDeformableNodeRigidContactConstraint::btReducedDeformableNodeRigidConta
   const btSoftBody::DeformableNodeRigidContact& contact, 
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
-  : m_node(contact.m_node), btReducedDeformableRigidContactConstraint(rsb, contact, infoGlobal, dt)
+  : btReducedDeformableRigidContactConstraint(rsb, contact, infoGlobal, dt), m_node(contact.m_node)
 {
 	m_contactNormalA = contact.m_cti.m_normal;
   m_contactNormalB = -contact.m_cti.m_normal;
@@ -540,7 +540,7 @@ btReducedDeformableFaceRigidContactConstraint::btReducedDeformableFaceRigidConta
   const btContactSolverInfo& infoGlobal,
 	btScalar dt, 
   bool useStrainLimiting)
-  : m_face(contact.m_face), m_useStrainLimiting(useStrainLimiting), btReducedDeformableRigidContactConstraint(rsb, contact, infoGlobal, dt)
+  : btReducedDeformableRigidContactConstraint(rsb, contact, infoGlobal, dt), m_face(contact.m_face), m_useStrainLimiting(useStrainLimiting)
 {}
 
 btVector3 btReducedDeformableFaceRigidContactConstraint::getVb() const
