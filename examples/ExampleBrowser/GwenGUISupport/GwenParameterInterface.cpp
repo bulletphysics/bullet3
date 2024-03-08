@@ -21,7 +21,7 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 	{
 	}
 
-	void onButtonPress(Gwen::Controls::Base* pControl)
+	void onButtonPress(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_callback)
 		{

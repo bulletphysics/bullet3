@@ -280,7 +280,7 @@ uint32 CSimpleSocket::GetWindowSize(uint32 nOptionName)
 	//-------------------------------------------------------------------------
 	// no socket given, return system default allocate our own new socket
 	//-------------------------------------------------------------------------
-	if (m_socket != CSimpleSocket::SocketError)
+	if (m_socket != (SOCKET)CSimpleSocket::SocketError)
 	{
 		socklen_t nLen = sizeof(nTcpWinSize);
 
@@ -310,9 +310,10 @@ uint32 CSimpleSocket::SetWindowSize(uint32 nOptionName, uint32 nWindowSize)
 	//-------------------------------------------------------------------------
 	// no socket given, return system default allocate our own new socket
 	//-------------------------------------------------------------------------
-	if (m_socket != CSimpleSocket::SocketError)
+	if (m_socket != (SOCKET)CSimpleSocket::SocketError)
 	{
 		nRetVal = SETSOCKOPT(m_socket, SOL_SOCKET, nOptionName, &nWindowSize, sizeof(nWindowSize));
+		(void)nRetVal;
 		TranslateSocketError();
 	}
 	else
@@ -488,7 +489,7 @@ bool CSimpleSocket::Close(void)
 // Shtudown()
 //
 //------------------------------------------------------------------------------
-bool CSimpleSocket::Shutdown(CShutdownMode nShutdown)
+bool CSimpleSocket::Shutdown(CShutdownMode /*nShutdown*/)
 {
 	CSocketError nRetVal = SocketEunknown;
 

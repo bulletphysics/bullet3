@@ -431,8 +431,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case 0x020e:  //WM_MOUSEWHEEL_LEFT_RIGHT
 		{
 			int zDelta = (short)HIWORD(wParam);
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			//m_cameraDistance -= zDelta*0.01;
 			if (sData && sData->m_wheelCallback)
 				(*sData->m_wheelCallback)(-float(zDelta) * 0.05f, 0);
@@ -442,8 +442,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case 0x020A:  //WM_MOUSEWHEEL:
 		{
 			int zDelta = (short)HIWORD(wParam);
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			//m_cameraDistance -= zDelta*0.01;
 			if (sData && sData->m_wheelCallback)
 				(*sData->m_wheelCallback)(0, float(zDelta) * 0.05f);
@@ -465,8 +465,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		case WM_RBUTTONUP:
 		{
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			sData->m_mouseRButton = 1;
 
 			if (sData && sData->m_mouseButtonCallback)
@@ -477,8 +477,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		case WM_RBUTTONDOWN:
 		{
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			sData->m_mouseRButton = 0;
 			if (sData && sData->m_mouseButtonCallback)
 				(*sData->m_mouseButtonCallback)(2, 1, sData->m_mouseXpos, sData->m_mouseYpos);
@@ -770,7 +770,7 @@ Win32Window::~Win32Window()
 	delete m_data;
 }
 
-void Win32Window::setRenderCallback(b3RenderCallback renderCallback)
+void Win32Window::setRenderCallback(b3RenderCallback /*renderCallback*/)
 {
 }
 
@@ -815,7 +815,7 @@ float Win32Window::getTimeInSeconds()
 	return 0.f;
 }
 
-void Win32Window::setDebugMessage(int x, int y, const char* message)
+void Win32Window::setDebugMessage(int /*x*/, int /*y*/, const char* /*message*/)
 {
 }
 

@@ -155,10 +155,11 @@ public:
 	virtual void getPlane(btVector3 & planeNormal, btVector3 & planeSupport, int i) const
 	{
 		//this plane might not be aligned...
-		btVector4 plane;
-		getPlaneEquation(plane, i);
-		planeNormal = btVector3(plane.getX(), plane.getY(), plane.getZ());
-		planeSupport = localGetSupportingVertex(-planeNormal);
+		// btVector4 plane;
+		// getPlaneEquation(plane, i);
+		// planeNormal = btVector3(plane.getX(), plane.getY(), plane.getZ());
+		// planeSupport = localGetSupportingVertex(-planeNormal);
+		(void)planeNormal;(void)planeSupport; (void)i;
 	}
 
 	const btVector3& getCentroid() const

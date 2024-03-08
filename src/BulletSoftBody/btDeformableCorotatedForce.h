@@ -48,7 +48,7 @@ public:
 		addScaledElasticForce(scale, force);
 	}
 
-	virtual void addScaledDampingForce(btScalar scale, TVStack& force)
+	virtual void addScaledDampingForce(btScalar /*scale*/, TVStack& /*force*/)
 	{
 	}
 
@@ -105,15 +105,15 @@ public:
 		}
 	}
 
-	virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
+	virtual void addScaledElasticForceDifferential(btScalar /*scale*/, const TVStack& /*dx*/, TVStack& /*df*/)
 	{
 	}
 
-	virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
+	virtual void addScaledDampingForceDifferential(btScalar /*scale*/, const TVStack& /*dv*/, TVStack& /*df*/)
 	{
 	}
 
-	virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA) {}
+	virtual void buildDampingForceDifferentialDiagonal(btScalar /*scale*/, TVStack& /*diagA*/) {}
 
 	virtual btDeformableLagrangianForceType getForceType()
 	{

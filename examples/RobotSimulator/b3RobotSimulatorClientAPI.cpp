@@ -149,6 +149,7 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 
 			sm = b3ConnectPhysicsUDP(hostName.c_str(), udpPort);
 #else
+			(void)udpPort;
 			b3Warning("UDP is not enabled in this build");
 #endif  //BT_ENABLE_ENET
 
@@ -164,6 +165,8 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 
 			sm = b3ConnectPhysicsTCP(hostName.c_str(), tcpPort);
 #else
+			(void)hostName;
+			(void)tcpPort;
 			b3Warning("TCP is not enabled in this pybullet build");
 #endif  //BT_ENABLE_CLSOCKET
 			break;

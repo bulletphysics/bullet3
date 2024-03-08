@@ -164,6 +164,7 @@ void Pendulum::stepSimulation(float deltaTime)
 	m_multiBody->addJointTorque(0, 20.0);
 #ifdef USE_GTEST
 	m_dynamicsWorld->stepSimulation(1. / 1000.0, 0);
+	(void)deltaTime;
 #else
 	m_dynamicsWorld->stepSimulation(deltaTime);
 #endif

@@ -112,7 +112,7 @@ public:
 	*/
 };
 
-static btScalar maxMotorImpulse = 4000.f;
+// static btScalar maxMotorImpulse = 4000.f;
 
 
 #ifndef M_PI
@@ -420,6 +420,7 @@ void Hinge2Vehicle::stepSimulation(float deltaTime)
 
 		int numSimSteps;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt, maxSimSubSteps);
+		(void)numSimSteps;
 
 		if (m_dynamicsWorld->getConstraintSolver()->getSolverType() == BT_MLCP_SOLVER)
 		{
@@ -583,11 +584,11 @@ bool Hinge2Vehicle::keyboardCallback(int key, int state)
 	return handled;
 }
 
-void Hinge2Vehicle::specialKeyboardUp(int key, int x, int y)
+void Hinge2Vehicle::specialKeyboardUp(int /*key*/, int /*x*/, int /*y*/)
 {
 }
 
-void Hinge2Vehicle::specialKeyboard(int key, int x, int y)
+void Hinge2Vehicle::specialKeyboard(int /*key*/, int /*x*/, int /*y*/)
 {
 }
 

@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -152,7 +152,7 @@ public:
 	{
 		m_robotSim.disconnect();
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_robotSim.stepSimulation();
 	}
@@ -166,15 +166,15 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

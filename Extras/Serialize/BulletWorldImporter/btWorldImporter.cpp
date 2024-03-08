@@ -1602,7 +1602,7 @@ void btWorldImporter::setDynamicsWorldInfo(const btVector3& gravity, const btCon
 	}
 }
 
-btRigidBody* btWorldImporter::createRigidBody(bool isDynamic, btScalar mass, const btTransform& startTransform, btCollisionShape* shape, const char* bodyName)
+btRigidBody* btWorldImporter::createRigidBody(bool /*isDynamic*/, btScalar mass, const btTransform& startTransform, btCollisionShape* shape, const char* bodyName)
 {
 	btVector3 localInertia;
 	localInertia.setZero();
@@ -1743,7 +1743,7 @@ btBvhTriangleMeshShape* btWorldImporter::createBvhTriangleMeshShape(btStridingMe
 	m_allocatedCollisionShapes.push_back(ts);
 	return ts;
 }
-btCollisionShape* btWorldImporter::createConvexTriangleMeshShape(btStridingMeshInterface* trimesh)
+btCollisionShape* btWorldImporter::createConvexTriangleMeshShape(btStridingMeshInterface* /*trimesh*/)
 {
 	return 0;
 }
@@ -1754,6 +1754,7 @@ btGImpactMeshShape* btWorldImporter::createGimpactShape(btStridingMeshInterface*
 	m_allocatedCollisionShapes.push_back(shape);
 	return shape;
 #else
+	(void)trimesh;
 	return 0;
 #endif
 }

@@ -56,7 +56,7 @@ B3_SHARED_API int preTickPluginCallback_pdControlPlugin(struct b3PluginContext* 
 	{
 		const MyPDControl& pdControl = obj->m_controllers[i];
 
-		int dof1 = 0;
+		// int dof1 = 0;
 		b3JointSensorState actualState;
 		if (obj->m_api.getJointState(pdControl.m_objectUniqueId, pdControl.m_linkIndex, &actualState))
 		{
@@ -67,7 +67,7 @@ B3_SHARED_API int preTickPluginCallback_pdControlPlugin(struct b3PluginContext* 
 				btScalar qdActual = actualState.m_jointVelocity;
 
 				btScalar positionError = (pdControl.m_desiredPosition - qActual);
-				double desiredVelocity = 0;
+				// double desiredVelocity = 0;
 				btScalar velocityError = (pdControl.m_desiredVelocity - qdActual);
 
 				btScalar force = pdControl.m_kp * positionError + pdControl.m_kd * velocityError;
@@ -95,7 +95,7 @@ B3_SHARED_API int executePluginCommand_pdControlPlugin(struct b3PluginContext* c
 		return -1;
 	}
 
-	int numObj = obj->m_api.getNumBodies();
+	// int numObj = obj->m_api.getNumBodies();
 	//printf("numObj = %d\n", numObj);
 
 	//protocol:

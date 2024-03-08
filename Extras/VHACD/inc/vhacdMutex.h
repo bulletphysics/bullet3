@@ -97,6 +97,7 @@ public:
 		VHACD_VERIFY(pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_RECURSIVE_NP) == 0);
 		VHACD_VERIFY(pthread_mutex_init(&m_mutex, &mutexAttr) == 0);
 		VHACD_VERIFY(pthread_mutexattr_destroy(&mutexAttr) == 0);
+		(void)mutexAttr;
 #endif
 	}
 	~Mutex(void)

@@ -459,7 +459,7 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
 }
 
 template <typename T, typename U>
-void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool verboseOutput)
+void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool /*verboseOutput*/)
 {
 	b3JointInfo info;
 	info.m_jointName[0] = 0;

@@ -127,18 +127,18 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 	if (m_maxAppliedImpulse == 0.f)
 		return;
 
-	const btScalar posError = 0;
+	// const btScalar posError = 0;
 	const btVector3 zero(0, 0, 0);
 
 	
-	btVector3 axis[3] = { btVector3(1, 0, 0), btVector3(0, 1, 0), btVector3(0, 0, 1) };
+	// btVector3 axis[3] = { btVector3(1, 0, 0), btVector3(0, 1, 0), btVector3(0, 0, 1) };
 	
 	btQuaternion currentQuat(m_bodyA->getJointPosMultiDof(m_linkA)[0],
 		m_bodyA->getJointPosMultiDof(m_linkA)[1],
 		m_bodyA->getJointPosMultiDof(m_linkA)[2],
 		m_bodyA->getJointPosMultiDof(m_linkA)[3]);
 
-	btQuaternion refQuat = m_desiredPosition;
+	// btQuaternion refQuat = m_desiredPosition;
 	btVector3 vTwist(0,0,1);
 	
 	btVector3 vConeNoTwist = quatRotate(currentQuat, vTwist);
@@ -199,13 +199,13 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 		}
 		
 
-		int dof = row;
+		// int dof = row;
 		
-		btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
-		btScalar desiredVelocity = this->m_desiredVelocity[row];
+		// btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
+		// btScalar desiredVelocity = this->m_desiredVelocity[row];
 		
-		double kd = m_use_multi_dof_params ? m_kd[row % 3] : m_kd[0];
-		btScalar velocityError = (desiredVelocity - currentVelocity) * kd;
+		// double kd = m_use_multi_dof_params ? m_kd[row % 3] : m_kd[0];
+		// btScalar velocityError = (desiredVelocity - currentVelocity) * kd;
 
 		btMatrix3x3 frameAworld;
 		frameAworld.setIdentity();

@@ -600,7 +600,7 @@ void b3GpuRigidBodyPipeline::writeAllInstancesToGpu()
 	m_data->m_gpuConstraints->copyFromHost(m_data->m_cpuConstraints);
 }
 
-int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userIndex, bool writeInstanceToGpu)
+int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int /*userIndex*/, bool writeInstanceToGpu)
 {
 	b3Vector3 aabbMin = b3MakeVector3(0, 0, 0), aabbMax = b3MakeVector3(0, 0, 0);
 

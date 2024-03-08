@@ -115,7 +115,7 @@ public:
 	///tell the task scheduler we are done with the SPU tasks
 	virtual void stopThreads();
 
-	virtual void setNumTasks(int numTasks) {}
+	virtual void setNumTasks(int /*numTasks*/) {}
 
 	virtual int getNumTasks() const
 	{

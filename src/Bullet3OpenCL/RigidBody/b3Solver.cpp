@@ -343,14 +343,14 @@ static __inline void solveFriction(b3GpuConstraint4& cs,
 struct SolveTask  // : public ThreadPool::Task
 {
 	SolveTask(b3AlignedObjectArray<b3RigidBodyData>& bodies, b3AlignedObjectArray<b3InertiaData>& shapes, b3AlignedObjectArray<b3GpuConstraint4>& constraints,
-			  int start, int nConstraints, int maxNumBatches, b3AlignedObjectArray<int>* wgUsedBodies, int curWgidx, b3AlignedObjectArray<int>* batchSizes, int cellIndex)
+			  int start, int nConstraints, int maxNumBatches, b3AlignedObjectArray<int>* /*wgUsedBodies*/, int curWgidx, b3AlignedObjectArray<int>* batchSizes, int cellIndex)
 		: m_bodies(bodies), m_shapes(shapes), m_constraints(constraints), m_batchSizes(batchSizes), m_cellIndex(cellIndex), m_curWgidx(curWgidx), m_start(start), m_nConstraints(nConstraints), m_solveFriction(true), m_maxNumBatches(maxNumBatches)
 	{
 	}
 
 	unsigned short int getType() { return 0; }
 
-	void run(int tIdx)
+	void run(int /*tIdx*/)
 	{
 		int offset = 0;
 		for (int ii = 0; ii < B3_MAX_NUM_BATCHES; ii++)
@@ -466,7 +466,7 @@ struct SolveTask  // : public ThreadPool::Task
 };
 
 void b3Solver::solveContactConstraintHost(b3OpenCLArray<b3RigidBodyData>* bodyBuf, b3OpenCLArray<b3InertiaData>* shapeBuf,
-										  b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n, int maxNumBatches, b3AlignedObjectArray<int>* batchSizes)
+										  b3OpenCLArray<b3GpuConstraint4>* constraint, void* /*additionalData*/, int n, int maxNumBatches, b3AlignedObjectArray<int>* batchSizes)
 {
 #if 0
 	{	
@@ -526,7 +526,7 @@ void b3Solver::solveContactConstraintHost(b3OpenCLArray<b3RigidBodyData>* bodyBu
 	//printf("------------------------\n");
 	b3AlignedObjectArray<unsigned int> offsetsHost;
 	m_offsets->copyToHost(offsetsHost);
-	static int frame = 0;
+	static int frame = 0; (void)frame;
 	bool useBatches = true;
 	if (useBatches)
 	{
@@ -636,8 +636,8 @@ void b3Solver::solveContactConstraintHost(b3OpenCLArray<b3RigidBodyData>* bodyBu
 	frame++;
 }
 
-void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* bodyBuf,
-						  const b3OpenCLArray<b3InertiaData>* shapeBuf,
+void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* /*bodyBuf*/,
+						  const b3OpenCLArray<b3InertiaData>* /*shapeBuf*/,
 						  b3OpenCLArray<b3GpuConstraint4>* constraint,
 						  b3OpenCLArray<unsigned int>* m_numConstraints,
 						  b3OpenCLArray<unsigned int>* m_offsets,
@@ -710,7 +710,7 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* bodyBuf,
 static bool verify = false;
 
 void b3Solver::solveContactConstraint(const b3OpenCLArray<b3RigidBodyData>* bodyBuf, const b3OpenCLArray<b3InertiaData>* shapeBuf,
-									  b3OpenCLArray<b3GpuConstraint4>* constraint, void* additionalData, int n, int maxNumBatches)
+									  b3OpenCLArray<b3GpuConstraint4>* constraint, void* /*additionalData*/, int n, int maxNumBatches)
 {
 	b3Int4 cdata = b3MakeInt4(n, 0, 0, 0);
 	{
@@ -866,7 +866,7 @@ void b3Solver::solveContactConstraint(const b3OpenCLArray<b3RigidBodyData>* body
 
 void b3Solver::convertToConstraints(const b3OpenCLArray<b3RigidBodyData>* bodyBuf,
 									const b3OpenCLArray<b3InertiaData>* shapeBuf,
-									b3OpenCLArray<b3Contact4>* contactsIn, b3OpenCLArray<b3GpuConstraint4>* contactCOut, void* additionalData,
+									b3OpenCLArray<b3Contact4>* contactsIn, b3OpenCLArray<b3GpuConstraint4>* contactCOut, void* /*additionalData*/,
 									int nContacts, const ConstraintCfg& cfg)
 {
 	//	b3OpenCLArray<b3GpuConstraint4>* constraintNative =0;
@@ -1030,16 +1030,16 @@ void b3Solver::sortContacts(  const b3OpenCLArray<b3RigidBodyData>* bodyBuf,
 }
 
 */
-void b3Solver::batchContacts(b3OpenCLArray<b3Contact4>* contacts, int nContacts, b3OpenCLArray<unsigned int>* nNative, b3OpenCLArray<unsigned int>* offsetsNative, int staticIdx)
+void b3Solver::batchContacts(b3OpenCLArray<b3Contact4>* contacts, int /*nContacts*/, b3OpenCLArray<unsigned int>* nNative, b3OpenCLArray<unsigned int>* offsetsNative, int staticIdx)
 {
 	int numWorkItems = 64 * B3_SOLVER_N_CELLS;
 	{
 		B3_PROFILE("batch generation");
 
-		b3Int4 cdata;
-		cdata.x = nContacts;
-		cdata.y = 0;
-		cdata.z = staticIdx;
+		// b3Int4 cdata;
+		// cdata.x = nContacts;
+		// cdata.y = 0;
+		// cdata.z = staticIdx;
 
 #ifdef BATCH_DEBUG
 		SolverDebugInfo* debugInfo = new SolverDebugInfo[numWorkItems];

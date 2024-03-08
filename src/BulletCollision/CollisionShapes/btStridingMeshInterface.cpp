@@ -24,7 +24,7 @@ void btStridingMeshInterface::InternalProcessAllTriangles(btInternalTriangleInde
 {
 	(void)aabbMin;
 	(void)aabbMax;
-	int numtotalphysicsverts = 0;
+	int numtotalphysicsverts = 0; (void)numtotalphysicsverts;
 	int part, graphicssubparts = getNumSubParts();
 	const unsigned char* vertexbase;
 	const unsigned char* indexbase;

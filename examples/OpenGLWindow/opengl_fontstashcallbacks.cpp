@@ -12,7 +12,7 @@
 #include "stb_image/stb_image_write.h"
 
 static unsigned int s_indexData[INDEX_COUNT];
-static GLuint s_indexArrayObject, s_indexBuffer;
+static GLuint /*s_indexArrayObject,*/ s_indexBuffer;
 static GLuint s_vertexArrayObject, s_vertexBuffer;
 
 OpenGL2RenderCallbacks::OpenGL2RenderCallbacks(GLPrimitiveRenderer* primRender)

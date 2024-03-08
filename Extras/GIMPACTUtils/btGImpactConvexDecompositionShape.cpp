@@ -192,7 +192,7 @@ btGImpactConvexDecompositionShape::~btGImpactConvexDecompositionShape()
 {
 	delete m_decomposition;
 }
-void btGImpactConvexDecompositionShape::processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const
+void btGImpactConvexDecompositionShape::processAllTriangles(btTriangleCallback* callback, const btVector3& /*aabbMin*/, const btVector3& /*aabbMax*/) const
 {
 	int part_count = m_trimeshInterfaces.size();
 	for (int part = 0; part < part_count; part++)

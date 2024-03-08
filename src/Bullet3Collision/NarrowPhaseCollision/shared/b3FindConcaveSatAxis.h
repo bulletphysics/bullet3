@@ -65,14 +65,14 @@ bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3
 						  b3Float4ConstArg DeltaC2,
 
 						  const b3Float4* verticesA,
-						  const b3Float4* uniqueEdgesA,
+						  const b3Float4* /*uniqueEdgesA*/,
 						  const b3GpuFace* facesA,
-						  const int* indicesA,
+						  const int* /*indicesA*/,
 
 						  __global const b3Float4* verticesB,
-						  __global const b3Float4* uniqueEdgesB,
-						  __global const b3GpuFace* facesB,
-						  __global const int* indicesB,
+						  __global const b3Float4* /*uniqueEdgesB*/,
+						  __global const b3GpuFace* /*facesB*/,
+						  __global const int* /*indicesB*/,
 						  b3Float4* sep,
 						  float* dmin)
 {
@@ -97,6 +97,7 @@ bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3
 */
 
 	int curPlaneTests = 0;
+	(void)curPlaneTests;
 	{
 		int numFacesA = hullA->m_numFaces;
 		// Test normals from hullA
@@ -297,12 +298,12 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 								  b3Float4ConstArg DeltaC2,
 								  const b3Float4* verticesA,
 								  const b3Float4* uniqueEdgesA,
-								  const b3GpuFace* facesA,
-								  const int* indicesA,
+								  const b3GpuFace* /*facesA*/,
+								  const int* /*indicesA*/,
 								  __global const b3Float4* verticesB,
 								  __global const b3Float4* uniqueEdgesB,
-								  __global const b3GpuFace* facesB,
-								  __global const int* indicesB,
+								  __global const b3GpuFace* /*facesB*/,
+								  __global const int* /*indicesB*/,
 								  b3Float4* sep,
 								  float* dmin,
 								  bool searchAllEdgeEdge)
@@ -315,6 +316,7 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 	//	int curPlaneTests=0;
 
 	int curEdgeEdge = 0;
+	(void)curEdgeEdge;
 	// Test edges
 	static int maxEdgeTests = 0;
 	int curEdgeTests = hullA->m_numUniqueEdges * hullB->m_numUniqueEdges;
@@ -362,6 +364,7 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 						float d1 = Max1 - Min0;
 						dist = d0 < d1 ? d0 : d1;
 						result = true;
+						(void)result;
 					}
 
 					if (dist < *dmin)
@@ -399,6 +402,7 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 						float d1 = Max1 - Min0;
 						dist = d0 < d1 ? d0 : d1;
 						result = true;
+						(void)result;
 					}
 
 					if (dist < *dmin)
@@ -425,7 +429,7 @@ inline int b3FindClippingFaces(b3Float4ConstArg separatingNormal,
 							   __global b3Float4* worldNormalsA1,
 							   __global b3Float4* worldVertsB1,
 							   int capacityWorldVerts,
-							   const float minDist, float maxDist,
+							   const float /*minDist*/, float /*maxDist*/,
 							   __global const b3Float4* verticesA,
 							   __global const b3GpuFace_t* facesA,
 							   __global const int* indicesA,
@@ -520,7 +524,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 												__global b3Vector3* worldVertsB1Out,
 												__global int* hasSeparatingNormals,
 												int vertexFaceCapacity,
-												int numConcavePairs,
+												int /*numConcavePairs*/,
 												int pairIdx)
 {
 	int i = pairIdx;
@@ -550,6 +554,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 
 	//	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 	int numActualConcaveConvexTests = 0;
+	(void)numActualConcaveConvexTests;
 
 	int f = concavePairs[i].z;
 

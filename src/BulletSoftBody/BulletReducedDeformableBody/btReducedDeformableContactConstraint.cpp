@@ -25,7 +25,7 @@ btReducedDeformableStaticConstraint::btReducedDeformableStaticConstraint(
 	m_rhs = (vel_error + m_erp * pos_error / m_dt) / m_impulseFactor;
 }
 
-btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
+btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 {
 	// target velocity of fixed constraint is 0
 	btVector3 deltaVa = getDeltaVa();
@@ -104,7 +104,7 @@ btVector3 btReducedDeformableRigidContactConstraint::getVa() const
 	return Va;
 }
 
-btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
+btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 {
 	// btVector3 Va = getVa();
 	// btVector3 deltaVa = Va - m_bufferVelocityA;
@@ -513,7 +513,7 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getSplitVb() const
 	return m_node->m_splitv;
 }
 
-btVector3 btReducedDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* node) const
+btVector3 btReducedDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* /*node*/) const
 {
 	return m_total_normal_dv + m_total_tangent_dv;
 }
@@ -573,7 +573,7 @@ btVector3 btReducedDeformableFaceRigidContactConstraint::getDv(const btSoftBody:
 	return face_dv * contact->m_weights[2];
 }
 
-void btReducedDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impulse)
+void btReducedDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& /*impulse*/)
 {
   //
 }

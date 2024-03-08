@@ -138,7 +138,7 @@ public:
 		}
 	}
 
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		double energy = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)
@@ -213,7 +213,9 @@ public:
 			{
 				continue;
 			}
+#ifdef USE_SVD
 			btScalar max_p = psb->m_cfg.m_maxStress;
+#endif
 			for (int j = 0; j < psb->m_tetras.size(); ++j)
 			{
 				btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -313,7 +315,7 @@ public:
 		}
 	}
 
-	virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA) {}
+	virtual void buildDampingForceDifferentialDiagonal(btScalar /*scale*/, TVStack& /*diagA*/) {}
 
 	virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
 	{

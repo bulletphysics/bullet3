@@ -212,7 +212,7 @@ IVHACD* CreateVHACD(void)
 {
 	return new VHACD();
 }
-bool VHACD::OCLInit(void* const oclDevice, IUserLogger* const logger)
+bool VHACD::OCLInit(void* const /*oclDevice*/, IUserLogger* const /*logger*/)
 {
 #ifdef CL_VERSION_1_1
 	m_oclDevice = (cl_device_id*)oclDevice;
@@ -353,7 +353,7 @@ bool VHACD::OCLInit(void* const oclDevice, IUserLogger* const logger)
 	return false;
 #endif  //CL_VERSION_1_1
 }
-bool VHACD::OCLRelease(IUserLogger* const logger)
+bool VHACD::OCLRelease(IUserLogger* const /*logger*/)
 {
 #ifdef CL_VERSION_1_1
 	cl_int error;
@@ -743,7 +743,7 @@ inline double ComputeConcavity(const double volume, const double volumeCH, const
 }
 
 //#define DEBUG_TEMP
-void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double volume, const SArray<Plane>& planes,
+void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double /*volume*/, const SArray<Plane>& planes,
 									 const Vec3<double>& preferredCuttingDirection, const double w, const double alpha, const double beta,
 									 const int convexhullDownsampling, const double progress0, const double progress1, Plane& bestPlane,
 									 double& minConcavity, const Parameters& params)

@@ -72,9 +72,9 @@ static const char* spPlatformVendor =
 #endif
 
 void MyFatalBreakAPPLE(const char* errstr,
-					   const void* private_info,
-					   size_t cb,
-					   void* user_data)
+					   const void* /*private_info*/,
+					   size_t /*cb*/,
+					   void* /*user_data*/)
 {
 	const char* patloc = strstr(errstr, "Warning");
 	//find out if it is a warning or error, exit if error
@@ -208,7 +208,7 @@ void b3OpenCLUtils_printPlatformInfo(cl_platform_id platform)
 	b3Printf("  CL_PLATFORM_VERSION: \t\t\t%s\n", platformInfo.m_platformVersion);
 }
 
-cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC, int preferredDeviceIndex, int preferredPlatformIndex)
+cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* /*pGLDC*/, int preferredDeviceIndex, int /*preferredPlatformIndex*/)
 {
 	cl_context retContext = 0;
 	cl_int ciErrNum = 0;
@@ -564,7 +564,7 @@ void b3OpenCLUtils_printDeviceInfo(cl_device_id device)
 static const char* strip2(const char* name, const char* pattern)
 {
 	size_t const patlen = strlen(pattern);
-	size_t patcnt = 0;
+	size_t patcnt = 0; (void)patcnt;
 	const char* oriptr;
 	const char* patloc;
 	// find how many times the pattern occurs in the original string
@@ -613,8 +613,6 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	if (clFileNameForCaching && !(disableBinaryCaching || gDebugSkipLoadingBinary || gDebugForceLoadingFromSource))
 	{
 #ifdef _WIN32
-		char* bla = 0;
-
 		//printf("searching for %s\n", binaryFileName);
 
 		FILETIME modtimeBinary;
@@ -760,6 +758,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			binary = (char*)malloc(sizeof(char) * binarySize);
 			int bytesRead;
 			bytesRead = fread(binary, sizeof(char), binarySize, file);
+			(void)bytesRead;
 			fclose(file);
 
 			m_cpProgram = clCreateProgramWithBinary(clContext, 1, &device, &binarySize, (const unsigned char**)&binary, 0, &status);
@@ -828,6 +827,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					kernelSrc = (char*)malloc(kernelSize + 1);
 					int readBytes;
 					readBytes = fread((void*)kernelSrc, 1, kernelSize, file);
+					(void)readBytes;
 					kernelSrc[kernelSize] = 0;
 					fclose(file);
 					kernelSource = kernelSrc;

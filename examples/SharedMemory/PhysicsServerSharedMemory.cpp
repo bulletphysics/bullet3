@@ -54,13 +54,13 @@ struct PhysicsServerSharedMemoryInternalData
 		serverCmd.m_timeStamp = timeStamp;
 		return serverCmd;
 	}
-	void submitServerStatus(SharedMemoryStatus& status, int blockIndex)
+	void submitServerStatus(SharedMemoryStatus& /*status*/, int blockIndex)
 	{
 		m_testBlocks[blockIndex]->m_numServerCommands++;
 	}
 };
 
-PhysicsServerSharedMemory::PhysicsServerSharedMemory(CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int bla)
+PhysicsServerSharedMemory::PhysicsServerSharedMemory(CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int /*bla*/)
 {
 	m_data = new PhysicsServerSharedMemoryInternalData();
 	m_data->m_commandProcessorCreator = commandProcessorCreator;

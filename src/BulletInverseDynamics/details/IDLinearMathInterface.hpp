@@ -136,7 +136,7 @@ public:
 		matxx::resize(rhs.rows(), rhs.cols());
 		*this = rhs;
 	}
-	mat3x(int rows, int cols) : matxx(3, cols)
+	mat3x(int /*rows*/, int cols) : matxx(3, cols)
 	{
 	}
 	void operator=(const mat3x& rhs)

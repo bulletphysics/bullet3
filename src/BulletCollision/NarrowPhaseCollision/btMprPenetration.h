@@ -162,7 +162,7 @@ inline int btMprVec3Eq(const btVector3 *a, const btVector3 *b)
 }
 
 template <typename btConvexTemplate>
-inline void btFindOrigin(const btConvexTemplate &a, const btConvexTemplate &b, const btMprCollisionDescription &colDesc, btMprSupport_t *center)
+inline void btFindOrigin(const btConvexTemplate &a, const btConvexTemplate &b, const btMprCollisionDescription & /*colDesc*/, btMprSupport_t *center)
 {
 	center->v1 = a.getObjectCenterInWorld();
 	center->v2 = b.getObjectCenterInWorld();
@@ -262,7 +262,7 @@ inline int portalReachTolerance(const btMprSimplex_t *portal,
 	return btMprEq(dot1, BT_MPR_TOLERANCE) || dot1 < BT_MPR_TOLERANCE;
 }
 
-inline int portalCanEncapsuleOrigin(const btMprSimplex_t *portal,
+inline int portalCanEncapsuleOrigin(const btMprSimplex_t * /*portal*/,
 									const btMprSupport_t *v4,
 									const btVector3 *dir)
 {
@@ -306,7 +306,7 @@ inline void btExpandPortal(btMprSimplex_t *portal,
 }
 template <typename btConvexTemplate>
 inline void btMprSupport(const btConvexTemplate &a, const btConvexTemplate &b,
-						 const btMprCollisionDescription &colDesc,
+						 const btMprCollisionDescription & /*colDesc*/,
 						 const btVector3 &dir, btMprSupport_t *supp)
 {
 	btVector3 separatingAxisInA = dir * a.getWorldTransform().getBasis();

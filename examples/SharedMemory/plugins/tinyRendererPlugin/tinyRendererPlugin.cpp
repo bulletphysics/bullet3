@@ -43,7 +43,7 @@ B3_SHARED_API int initPlugin_tinyRendererPlugin(struct b3PluginContext* context)
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
-B3_SHARED_API int executePluginCommand_tinyRendererPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
+B3_SHARED_API int executePluginCommand_tinyRendererPlugin(struct b3PluginContext* context, const struct b3PluginArguments* /*arguments*/)
 {
 	MyRendererPluginClass* obj = (MyRendererPluginClass*)context->m_userPointer;
 	if (obj->m_returnData==0)

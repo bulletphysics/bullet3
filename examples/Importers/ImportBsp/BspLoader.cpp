@@ -665,7 +665,7 @@ void BspLoader::swapBSPFile(void)
 	swapBlock((int *)&m_drawSurfaces[0], m_numDrawSurfaces * sizeof(m_drawSurfaces[0]));
 }
 
-bool BspLoader::findVectorByName(float *outvec, const char *name)
+bool BspLoader::findVectorByName(float *outvec, const char * /*name*/)
 {
 	const char *cl;
 	BSPVector3 origin;

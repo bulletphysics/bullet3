@@ -23,7 +23,7 @@ b3ConvexUtility::~b3ConvexUtility()
 {
 }
 
-bool b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices, int numPoints, bool mergeCoplanarTriangles)
+bool b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices, int numPoints, bool /*mergeCoplanarTriangles*/)
 {
 	b3ConvexHullComputer conv;
 	conv.compute(&orgVertices[0].getX(), sizeof(b3Vector3), numPoints, 0.f, 0.f);

@@ -640,7 +640,7 @@ bool SaveOFF(const string& fileName, const float* const& points, const int* cons
 }
 
 bool SaveOBJ(ofstream& fout, const double* const& points, const int* const& triangles, const unsigned int& nPoints,
-			 const unsigned int& nTriangles, const Material& material, IVHACD::IUserLogger& logger, int convexPart, int vertexOffset)
+			 const unsigned int& nTriangles, const Material& /*material*/, IVHACD::IUserLogger& logger, int convexPart, int vertexOffset)
 {
 	if (fout.is_open())
 	{

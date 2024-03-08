@@ -151,7 +151,7 @@ public:
 		}
 	}
 
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		double energy = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)
@@ -227,7 +227,9 @@ public:
 			{
 				continue;
 			}
+#if USE_SVD
 			btScalar max_p = psb->m_cfg.m_maxStress;
+#endif
 			for (int j = 0; j < psb->m_tetras.size(); ++j)
 			{
 				btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -282,7 +284,7 @@ public:
 		}
 	}
 
-	virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA) {}
+	virtual void buildDampingForceDifferentialDiagonal(btScalar /*scale*/, TVStack& /*diagA*/) {}
 
 	// The damping matrix is calculated using the time n state as described in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
 	virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
@@ -398,7 +400,7 @@ public:
 
 	// Let P be the first piola stress.
 	// This function calculates the dP = dP/dF * dF
-	void firstPiolaDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF, btMatrix3x3& dP)
+	void firstPiolaDifferential(const btSoftBody::TetraScratch& /*s*/, const btMatrix3x3& dF, btMatrix3x3& dP)
 	{
 		btScalar trace = (dF[0][0] + dF[1][1] + dF[2][2]);
 		dP = (dF + dF.transpose()) * m_mu + btMatrix3x3::getIdentity() * m_lambda * trace;
@@ -406,7 +408,7 @@ public:
 
 	// Let Q be the damping stress.
 	// This function calculates the dP = dQ/dF * dF
-	void firstPiolaDampingDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF, btMatrix3x3& dP)
+	void firstPiolaDampingDifferential(const btSoftBody::TetraScratch& /*s*/, const btMatrix3x3& dF, btMatrix3x3& dP)
 	{
 		btScalar mu_damp = m_damping_beta * m_mu;
 		btScalar lambda_damp = m_damping_beta * m_lambda;

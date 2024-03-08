@@ -26,6 +26,7 @@ public:
 		: m_guiHelper(helper),
 		  m_options(options)
 	{
+		(void)m_options;
 	}
 
 	virtual ~JointLimit()
@@ -70,7 +71,7 @@ public:
 	{
 		m_robotSim.disconnect();
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_robotSim.stepSimulation();
 	}
@@ -87,7 +88,7 @@ public:
 	{
 		return m_robotSim.mouseButtonCallback(button, state, x, y);
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

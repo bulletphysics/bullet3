@@ -387,6 +387,7 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 	btAlignedObjectArray<btCollisionObject*> removedObjects;
 
 	int numIslands = 0;
+	(void)numIslands;
 
 	for (startIslandIndex = 0; startIslandIndex < numElem; startIslandIndex = endIslandIndex)
 	{

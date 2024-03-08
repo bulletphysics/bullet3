@@ -36,11 +36,11 @@ void btContactConstraint::setContactManifold(btPersistentManifold* contactManifo
 	m_contactManifold = *contactManifold;
 }
 
-void btContactConstraint::getInfo1(btConstraintInfo1* info)
+void btContactConstraint::getInfo1(btConstraintInfo1* /*info*/)
 {
 }
 
-void btContactConstraint::getInfo2(btConstraintInfo2* info)
+void btContactConstraint::getInfo2(btConstraintInfo2* /*info*/)
 {
 }
 

@@ -90,9 +90,9 @@ public:
 		}
 	}
 
-	virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA) {}
+	virtual void buildDampingForceDifferentialDiagonal(btScalar /*scale*/, TVStack& /*diagA*/) {}
 
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		double energy = 0;
 		for (int i = 0; i < 3; ++i)

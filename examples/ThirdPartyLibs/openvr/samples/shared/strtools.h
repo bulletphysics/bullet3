@@ -80,13 +80,13 @@ inline errno_t strncpy_s(char *strDest, size_t numberOfElements, const char *str
 // truncated, but that is straightforward to fix if anybody actually needs the
 // return code.
 #include "string.h"
-inline void wcsncpy_s(wchar_t *strDest, size_t numberOfElements, const wchar_t *strSource, size_t count)
+inline void wcsncpy_s(wchar_t *strDest, size_t numberOfElements, const wchar_t *strSource, size_t /*count*/)
 {
 	wcsncpy(strDest, strSource, numberOfElements);
 	strDest[numberOfElements - 1] = '\0';
 }
 
-inline void strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t count)
+inline void strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t /*count*/)
 {
 	strncpy(strDest, strSource, numberOfElements);
 	strDest[numberOfElements - 1] = '\0';

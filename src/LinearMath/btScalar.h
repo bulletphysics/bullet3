@@ -150,7 +150,7 @@ inline int btIsDoublePrecision()
 			#define btAssert assert
 		#endif//_MSC_VER
 	#else
-		#define btAssert(x)
+		#define btAssert(x) (void)(x)
 	#endif
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
@@ -178,7 +178,7 @@ inline int btIsDoublePrecision()
 			#endif
 	
 		#else//BT_DEBUG
-				#define btAssert(x)
+				#define btAssert(x) (void)(x)
 		#endif//BT_DEBUG
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
@@ -200,7 +200,7 @@ inline int btIsDoublePrecision()
 	#ifdef BT_DEBUG
 			#define btAssert assert
 	#else
-			#define btAssert(x)
+			#define btAssert(x) (void)(x)
 	#endif
 			//btFullAssert is optional, slows down a lot
 			#define btFullAssert(x)
@@ -267,7 +267,7 @@ inline int btIsDoublePrecision()
 					#define btAssert assert
 				#endif//defined (__i386__) || defined (__x86_64__)
 				#else//defined(DEBUG) || defined (_DEBUG)
-					#define btAssert(x)
+					#define btAssert(x) (void)(x)
 				#endif//defined(DEBUG) || defined (_DEBUG)
 
 				//btFullAssert is optional, slows down a lot
@@ -292,7 +292,7 @@ inline int btIsDoublePrecision()
 				#if defined(DEBUG) || defined (_DEBUG)
 					#define btAssert assert
 				#else
-					#define btAssert(x)
+					#define btAssert(x) (void)(x)
 				#endif
 
 				//btFullAssert is optional, slows down a lot

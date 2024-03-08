@@ -24,7 +24,7 @@ GLRenderToTexture::GLRenderToTexture()
 #endif  //!defined(_WIN32) && !defined(__APPLE__)
 }
 
-void GLRenderToTexture::init(int width, int height, GLuint textureId, int renderTextureType)
+void GLRenderToTexture::init(int /*width*/, int /*height*/, GLuint textureId, int renderTextureType)
 {
 	m_renderTextureType = renderTextureType;
 

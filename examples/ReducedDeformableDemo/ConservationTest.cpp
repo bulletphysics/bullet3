@@ -29,7 +29,7 @@
 
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
-static int start_mode = 6;
+// static int start_mode = 6;
 static int num_modes = 20;
 
 class ConservationTest : public CommonDeformableBodyBase
@@ -38,8 +38,9 @@ class ConservationTest : public CommonDeformableBodyBase
     bool first_step;
 
     // get deformed shape
-    void getDeformedShape(btReducedDeformableBody* rsb, const int mode_n, const btScalar scale = 1)
+    void getDeformedShape(btReducedDeformableBody* rsb, const int /*mode_n*/, const btScalar scale = 1)
     {
+      (void)scale;
       // for (int i = 0; i < rsb->m_nodes.size(); ++i)
       //   for (int k = 0; k < 3; ++k)
       //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
@@ -75,7 +76,7 @@ public:
     void exitPhysics();
 
     // TODO: disable pick force, non-interactive for now.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 

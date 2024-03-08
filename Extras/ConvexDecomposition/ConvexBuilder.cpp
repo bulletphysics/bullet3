@@ -76,7 +76,7 @@ bool ConvexBuilder::isDuplicate(unsigned int i1, unsigned int i2, unsigned int i
 	return dcount == 3;
 }
 
-void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr, VertexLookup vc, UintVector &indices)
+void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr, VertexLookup vc, UintVector & /*indices*/)
 {
 	unsigned int *src = cr.mHullIndices;
 

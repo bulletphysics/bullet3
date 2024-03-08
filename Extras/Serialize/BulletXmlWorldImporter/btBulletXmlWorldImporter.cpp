@@ -367,7 +367,7 @@ void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(XMLNode* pParent)
 	m_pointerLookup.insert(cast.m_ptr, planeData);
 }
 
-void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(XMLNode* pParent)
+void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(XMLNode* /*pParent*/)
 {
 	btContactSolverInfo solverInfo;
 	//btVector3 gravity(0,0,0);

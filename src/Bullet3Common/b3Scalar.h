@@ -108,7 +108,7 @@ inline int b3GetVersion()
 #define b3Assert assert
 #endif  //_MSC_VER
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 //b3FullAssert is optional, slows down a lot
 #define b3FullAssert(x)
@@ -146,7 +146,7 @@ inline int b3GetVersion()
 #endif
 
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 //b3FullAssert is optional, slows down a lot
 #define b3FullAssert(x)
@@ -168,7 +168,7 @@ inline int b3GetVersion()
 #ifdef B3_DEBUG
 #define b3Assert assert
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 //b3FullAssert is optional, slows down a lot
 #define b3FullAssert(x)
@@ -231,7 +231,7 @@ inline int b3GetVersion()
 #define b3Assert assert
 #endif  //defined (__i386__) || defined (__x86_64__)
 #else   //defined(DEBUG) || defined (_DEBUG)
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif  //defined(DEBUG) || defined (_DEBUG)
 
 //b3FullAssert is optional, slows down a lot
@@ -256,7 +256,7 @@ inline int b3GetVersion()
 #if defined(DEBUG) || defined(_DEBUG)
 #define b3Assert assert
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 
 //b3FullAssert is optional, slows down a lot

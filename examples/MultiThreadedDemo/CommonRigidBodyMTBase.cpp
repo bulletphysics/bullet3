@@ -131,12 +131,12 @@ public:
 	}
 };
 
-static void profileBeginCallback(btDynamicsWorld* world, btScalar timeStep)
+static void profileBeginCallback(btDynamicsWorld* /*world*/, btScalar /*timeStep*/)
 {
 	gProfiler.begin(Profiler::kRecordInternalTimeStep);
 }
 
-static void profileEndCallback(btDynamicsWorld* world, btScalar timeStep)
+static void profileEndCallback(btDynamicsWorld* /*world*/, btScalar /*timeStep*/)
 {
 	gProfiler.end(Profiler::kRecordInternalTimeStep);
 }
@@ -355,10 +355,12 @@ static int gSolverMode = SOLVER_SIMD |
 						 // SOLVER_USE_2_FRICTION_DIRECTIONS |
 						 0;
 static btScalar gSliderSolverIterations = 10.0f;                                                        // should be int
+#if BT_THREADSAFE
 static btScalar gSliderNumThreads = 1.0f;                                                               // should be int
 static btScalar gSliderIslandBatchingThreshold = 0.0f;                                                  // should be int
 static btScalar gSliderMinBatchSize = btScalar(btSequentialImpulseConstraintSolverMt::s_minBatchSize);  // should be int
 static btScalar gSliderMaxBatchSize = btScalar(btSequentialImpulseConstraintSolverMt::s_maxBatchSize);  // should be int
+#endif
 static btScalar gSliderLeastSquaresResidualThreshold = 0.0f;
 
 ////////////////////////////////////
@@ -384,7 +386,7 @@ CommonRigidBodyMTBase::~CommonRigidBodyMTBase()
 {
 }
 
-static void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
+static void boolPtrButtonCallback(int /*buttonId*/, bool /*buttonState*/, void* userPointer)
 {
 	if (bool* val = static_cast<bool*>(userPointer))
 	{
@@ -411,7 +413,7 @@ static void toggleSolverModeCallback(int buttonId, bool buttonState, void* userP
 	}
 }
 
-void setSolverTypeComboBoxCallback(int combobox, const char* item, void* userPointer)
+void setSolverTypeComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < SOLVER_TYPE_COUNT; ++i)
@@ -424,9 +426,9 @@ void setSolverTypeComboBoxCallback(int combobox, const char* item, void* userPoi
 	}
 }
 
+#if BT_THREADSAFE
 static void setNumThreads(int numThreads)
 {
-#if BT_THREADSAFE
 	int newNumThreads = (std::min)(numThreads, int(BT_MAX_THREAD_COUNT));
 	int oldNumThreads = btGetTaskScheduler()->getNumThreads();
 	// only call when the thread count is different
@@ -434,10 +436,10 @@ static void setNumThreads(int numThreads)
 	{
 		btGetTaskScheduler()->setNumThreads(newNumThreads);
 	}
-#endif  // #if BT_THREADSAFE
 }
+#endif  // #if BT_THREADSAFE
 
-void setTaskSchedulerComboBoxCallback(int combobox, const char* item, void* userPointer)
+void setTaskSchedulerComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 #if BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);
@@ -452,10 +454,13 @@ void setTaskSchedulerComboBoxCallback(int combobox, const char* item, void* user
 			break;
 		}
 	}
+#else
+	(void)item;
+	(void)userPointer;
 #endif  // #if BT_THREADSAFE
 }
 
-void setBatchingMethodComboBoxCallback(int combobox, const char* item, void* userPointer)
+void setBatchingMethodComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 #if BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);
@@ -468,18 +473,21 @@ void setBatchingMethodComboBoxCallback(int combobox, const char* item, void* use
 			break;
 		}
 	}
+#else
+	(void)item;
+	(void)userPointer;
 #endif  // #if BT_THREADSAFE
 }
 
-static void setThreadCountCallback(float val, void* userPtr)
-{
 #if BT_THREADSAFE
+static void setThreadCountCallback(float /*val*/, void* /*userPtr*/)
+{
 	setNumThreads(int(gSliderNumThreads));
 	gSliderNumThreads = float(btGetTaskScheduler()->getNumThreads());
-#endif  // #if BT_THREADSAFE
 }
+#endif
 
-static void setSolverIterationCountCallback(float val, void* userPtr)
+static void setSolverIterationCountCallback(float /*val*/, void* userPtr)
 {
 	if (btDiscreteDynamicsWorld* world = reinterpret_cast<btDiscreteDynamicsWorld*>(userPtr))
 	{
@@ -487,26 +495,28 @@ static void setSolverIterationCountCallback(float val, void* userPtr)
 	}
 }
 
-static void setLargeIslandManifoldCountCallback(float val, void* userPtr)
+#if BT_THREADSAFE
+static void setLargeIslandManifoldCountCallback(float /*val*/, void* /*userPtr*/)
 {
 	btSequentialImpulseConstraintSolverMt::s_minimumContactManifoldsForBatching = int(gSliderIslandBatchingThreshold);
 }
 
-static void setMinBatchSizeCallback(float val, void* userPtr)
+static void setMinBatchSizeCallback(float /*val*/, void* /*userPtr*/)
 {
 	gSliderMaxBatchSize = (std::max)(gSliderMinBatchSize, gSliderMaxBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_minBatchSize = int(gSliderMinBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_maxBatchSize = int(gSliderMaxBatchSize);
 }
 
-static void setMaxBatchSizeCallback(float val, void* userPtr)
+static void setMaxBatchSizeCallback(float /*val*/, void* /*userPtr*/)
 {
 	gSliderMinBatchSize = (std::min)(gSliderMinBatchSize, gSliderMaxBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_minBatchSize = int(gSliderMinBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_maxBatchSize = int(gSliderMaxBatchSize);
 }
+#endif
 
-static void setLeastSquaresResidualThresholdCallback(float val, void* userPtr)
+static void setLeastSquaresResidualThresholdCallback(float /*val*/, void* userPtr)
 {
 	if (btDiscreteDynamicsWorld* world = reinterpret_cast<btDiscreteDynamicsWorld*>(userPtr))
 	{

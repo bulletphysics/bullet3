@@ -142,6 +142,7 @@ void RigidBodySoftContact::initPhysics()
 					btRigidBody* body;
 					body = createRigidBody(mass, startTransform, colShape);
 					//body->setAngularVelocity(btVector3(1,1,1));
+					(void)body;
 				}
 			}
 		}

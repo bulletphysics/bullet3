@@ -345,7 +345,7 @@ void InvertedPendulumPDControl::initPhysics()
 char fileName[1024];
 
 static btAlignedObjectArray<btScalar> qDesiredArray;
-void InvertedPendulumPDControl::stepSimulation(float deltaTime)
+void InvertedPendulumPDControl::stepSimulation(float /*deltaTime*/)
 {
 	static btScalar offset = -0.1 * SIMD_PI;
 

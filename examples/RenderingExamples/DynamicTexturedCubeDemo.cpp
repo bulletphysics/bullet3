@@ -66,7 +66,7 @@ public:
 		delete m_tinyVrGUI;
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -95,15 +95,15 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

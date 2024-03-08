@@ -71,7 +71,7 @@ struct ImportMJCFInternalData
 	btRigidBody* m_rb;
 };
 
-ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
+ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int /*option*/, const char* fileName)
 	: CommonMultiBodyBase(helper),
 	  m_grav(-10),
 	  m_upAxis(2)

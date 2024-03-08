@@ -102,6 +102,7 @@ void AllConstraintDemo::initPhysics()
 	groundTransform.setOrigin(btVector3(0, -56, 0));
 	btRigidBody* groundBody;
 	groundBody = createRigidBody(0, groundTransform, groundShape);
+	(void)groundBody;
 
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS));
 	m_collisionShapes.push_back(shape);
@@ -791,7 +792,7 @@ void AllConstraintDemo::displayCallback(void) {
 }
 #endif
 
-bool AllConstraintDemo::keyboardCallback(int key, int state)
+bool AllConstraintDemo::keyboardCallback(int key, int /*state*/)
 {
 	bool handled = false;
 

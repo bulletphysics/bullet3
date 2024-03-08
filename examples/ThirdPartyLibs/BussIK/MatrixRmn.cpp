@@ -906,7 +906,7 @@ void MatrixRmn::ConvertBidiagToDiagonal(MatrixRmn& U, MatrixRmn& V, VectorRn& w,
 // We use Givens rotations to "chase" the non-zero entry across the row; when it reaches the last
 //	column, it is finally zeroed away.
 // wPtr points to the zero entry on the diagonal.  sdPtr points to the non-zero superdiagonal entry on the same row.
-void MatrixRmn::ClearRowWithDiagonalZero(long firstBidiagIdx, long lastBidiagIdx, MatrixRmn& U, double* wPtr, double* sdPtr, double eps)
+void MatrixRmn::ClearRowWithDiagonalZero(long firstBidiagIdx, long lastBidiagIdx, MatrixRmn& U, double* wPtr, double* sdPtr, double /*eps*/)
 {
 	double curSd = *sdPtr;  // Value being chased across the row
 	*sdPtr = 0.0;

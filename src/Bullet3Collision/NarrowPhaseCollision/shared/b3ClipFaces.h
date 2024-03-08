@@ -64,7 +64,7 @@ int clipFaceGlobal(__global const b3Float4* pVtxIn, int numVertsIn, b3Float4Cons
 	return numVertsOut;
 }
 
-__kernel void clipFacesAndFindContactsKernel(__global const b3Float4* separatingNormals,
+__kernel void clipFacesAndFindContactsKernel(__global const b3Float4* /*separatingNormals*/,
 											 __global const int* hasSeparatingAxis,
 											 __global b3Int4* clippingFacesOut,
 											 __global b3Float4* worldVertsA1,

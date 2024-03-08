@@ -385,6 +385,7 @@ void btQuantizedBvh::walkStacklessTree(btNodeOverlapCallback* nodeCallback, cons
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 /*
@@ -439,7 +440,7 @@ void btQuantizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantize
 	}
 }
 
-void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex, int endNodeIndex) const
+void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int /*startNodeIndex*/, int /*endNodeIndex*/) const
 {
 	btAssert(!m_useQuantization);
 
@@ -525,6 +526,7 @@ void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCall
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 void btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex, int endNodeIndex) const
@@ -648,6 +650,7 @@ void btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 void btQuantizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback, unsigned short int* quantizedQueryAabbMin, unsigned short int* quantizedQueryAabbMax, int startNodeIndex, int endNodeIndex) const
@@ -710,6 +713,7 @@ void btQuantizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallb
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 //This traversal can be called from Playstation 3 SPU

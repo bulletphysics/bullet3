@@ -283,8 +283,8 @@ struct GLInstanceRendererInternalData* GLInstancingRenderer::getInternalData()
 
 static GLuint triangleShaderProgram;
 static GLint triangle_mvp_location = -1;
-static GLint triangle_vpos_location = -1;
-static GLint triangle_vUV_location = -1;
+// static GLint triangle_vpos_location = -1;
+// static GLint triangle_vUV_location = -1;
 static GLint triangle_vcol_location = -1;
 static GLuint triangleVertexBufferObject = 0;
 static GLuint triangleVertexArrayObject = 0;
@@ -527,7 +527,7 @@ void GLInstancingRenderer::writeSingleInstanceFlagsToCPU(int flags, int srcIndex
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int srcIndex = pg->m_internalInstanceIndex;
+	// int srcIndex = pg->m_internalInstanceIndex;
 
 	int shapeIndex = pg->m_shapeIndex;
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
@@ -609,7 +609,7 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* s
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int graphicsIndex = pg->m_internalInstanceIndex;
+	// int graphicsIndex = pg->m_internalInstanceIndex;
 
 	int totalNumInstances = 0;
 
@@ -635,7 +635,7 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* sp
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int srcIndex = pg->m_internalInstanceIndex;
+	// int srcIndex = pg->m_internalInstanceIndex;
 
 	int totalNumInstances = 0;
 
@@ -1854,9 +1854,9 @@ static void b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center, const 
 }
 
 
-void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex, int vertexLayout)
+void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex, int /*vertexLayout*/)
 {
-	int sz = sizeof(GfxVertexFormat0);
+	// int sz = sizeof(GfxVertexFormat0);
 
 	glActiveTexture(GL_TEXTURE0);
 	activateTexture(textureIndex);
@@ -1910,7 +1910,7 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	checkError("glVertexAttribDivisor");
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexVbo);
-	int indexBufferSizeInBytes = numIndices * sizeof(int);
+	// int indexBufferSizeInBytes = numIndices * sizeof(int);
 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(int), NULL, GL_DYNAMIC_DRAW);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, numIndices * sizeof(int), indices);

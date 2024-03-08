@@ -59,6 +59,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			ret = b3PhysicsParamSetTimeStep(command, timeStep);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
+			(void)ret;
 		}
 
 		{
@@ -254,6 +255,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			b3RequestCameraImageSetPixelResolution(command, width, height);
 			b3RequestCameraImageSelectRenderer(command, ER_BULLET_HARDWARE_OPENGL);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			(void)statusHandle;
 		}
 
 		if (b3CanSubmitCommand(sm))

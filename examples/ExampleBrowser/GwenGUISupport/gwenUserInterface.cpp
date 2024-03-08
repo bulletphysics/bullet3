@@ -23,14 +23,14 @@ public:
 	MyMenuItems() : Gwen::Controls::Base(0), m_fileOpenCallback(0)
 	{
 	}
-	void myQuitApp(Gwen::Controls::Base* pControl)
+	void myQuitApp(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_quitCallback)
 		{
 			(*m_quitCallback)();
 		}
 	}
-	void fileOpen(Gwen::Controls::Base* pControl)
+	void fileOpen(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_fileOpenCallback)
 		{
@@ -233,7 +233,7 @@ void GwenUserInterface::registerQuitCallback(b3QuitCallback callback)
 	m_data->m_menuItems->m_quitCallback = callback;
 }
 
-void GwenUserInterface::init(int width, int height, Gwen::Renderer::Base* renderer, float retinaScale)
+void GwenUserInterface::init(int width, int height, Gwen::Renderer::Base* renderer, float /*retinaScale*/)
 {
 	m_data->m_curYposition = 20;
 	//m_data->m_primRenderer = new GLPrimitiveRenderer(width,height);

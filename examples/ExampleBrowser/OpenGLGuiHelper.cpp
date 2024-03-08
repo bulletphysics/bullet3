@@ -82,18 +82,18 @@ public:
 		m_lineIndices.push_back(m_lineIndices.size());
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int /*lifeTime*/, const btVector3& color)
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
 		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
 	}
 
-	virtual void reportErrorWarning(const char* warningString)
+	virtual void reportErrorWarning(const char* /*warningString*/)
 	{
 	}
 
-	virtual void draw3dText(const btVector3& location, const char* textString)
+	virtual void draw3dText(const btVector3& /*location*/, const char* /*textString*/)
 	{
 	}
 
@@ -229,7 +229,7 @@ void OpenGLGuiHelper::setVRMode(bool vrMode)
 	m_data->m_vrSkipShadowPass = 0;
 }
 
-OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool useOpenGL2)
+OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool /*useOpenGL2*/)
 {
 	m_data = new OpenGLGuiHelperInternalData;
 	m_data->m_glApp = glApp;
@@ -280,7 +280,7 @@ public:
 		m_pIndicesOut = 0;
 	}
 
-	virtual void processTriangle(btVector3* tris, int partId, int triangleIndex)
+	virtual void processTriangle(btVector3* tris, int /*partId*/, int /*triangleIndex*/)
 	{
 		for (int k = 0; k < 3; k++)
 		{
@@ -295,7 +295,7 @@ public:
 				v.normal[l] = normal[l];
 			}
 			
-			btVector3 extents = m_aabbMax - m_aabbMin;
+			// btVector3 extents = m_aabbMax - m_aabbMin;
 			
 			v.uv[0] = (1.-((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0])))*m_textureScaling;
 			v.uv[1] = (1.-(v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]))*m_textureScaling;
@@ -341,7 +341,7 @@ void OpenGLGuiHelper::removeTexture(int textureUid)
 	m_data->m_glApp->m_renderer->removeTexture(textureUid);
 }
 
-void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int /*width*/, int /*height*/)
 {
 	bool flipPixelsY = true;
 	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, rgbTexels, flipPixelsY);
@@ -1107,7 +1107,7 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 	}
 }
 
-void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
+void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* /*rbWorld*/)
 {
 	if (m_data->m_vrMode)
 	{
@@ -1206,7 +1206,7 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		btVector3 camPos, camTarget;
 		getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
 		getRenderInterface()->getActiveCamera()->getCameraTargetPosition(camTarget);
-		btVector3 rayFrom = camPos;
+		// btVector3 rayFrom = camPos;
 		btVector3 rayForward = (camTarget - camPos);
 		rayForward.normalize();
 		float farPlane = 10000.f;
@@ -1256,8 +1256,8 @@ void OpenGLGuiHelper::setProjectiveTexture(bool useProjectiveTexture)
 
 void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
 										  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-										  float* depthBuffer, int depthBufferSizeInPixels,
-										  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+										  float* depthBuffer, int /*depthBufferSizeInPixels*/,
+										  int* segmentationMaskBuffer, int /*segmentationMaskBufferSizeInPixels*/,
 										  int startPixelIndex, int destinationWidth,
 										  int destinationHeight, int* numPixelsCopied)
 {

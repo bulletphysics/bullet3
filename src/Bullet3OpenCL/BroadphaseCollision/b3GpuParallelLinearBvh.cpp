@@ -15,6 +15,7 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 
 #include "b3GpuParallelLinearBvh.h"
+#include "kernels/parallelLinearBvhKernels.h"
 
 b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue) : m_queue(queue),
 																												  m_radixSorter(context, device, queue),

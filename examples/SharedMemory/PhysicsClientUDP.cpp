@@ -301,7 +301,7 @@ enum UDPCommandEnums
 
 };
 
-void UDPThreadFunc(void* userPtr, void* lsMemory)
+void UDPThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("UDPThreadFunc thread started\n");
 	//	UDPThreadLocalStorage* localStorage = (UDPThreadLocalStorage*)lsMemory;
@@ -324,6 +324,7 @@ void UDPThreadFunc(void* userPtr, void* lsMemory)
 			b3Clock::usleep(0);
 
 			deltaTimeInSeconds += double(clock.getTimeMicroseconds()) / 1000000.;
+			(void)deltaTimeInSeconds;
 
 			{
 				clock.reset();
@@ -371,6 +372,7 @@ void UDPThreadFunc(void* userPtr, void* lsMemory)
 						}
 						int res;
 						res = enet_peer_send(args->m_peer, 0, packet);
+						(void)res;
 						args->m_cs->lock();
 						args->m_hasCommand = false;
 						args->m_cs->unlock();
@@ -435,7 +437,7 @@ UdpNetworkedPhysicsProcessor::~UdpNetworkedPhysicsProcessor()
 	delete m_data;
 }
 
-bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& /*serverStatusOut*/, char* /*bufferServerToClient*/, int /*bufferSizeInBytes*/)
 {
 	if (gVerboseNetworkMessagesClient)
 	{
@@ -513,15 +515,15 @@ bool UdpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	return hasStatus;
 }
 
-void UdpNetworkedPhysicsProcessor::renderScene(int renderFlags)
+void UdpNetworkedPhysicsProcessor::renderScene(int /*renderFlags*/)
 {
 }
 
-void UdpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
+void UdpNetworkedPhysicsProcessor::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-void UdpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* guiHelper)
+void UdpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* /*guiHelper*/)
 {
 }
 

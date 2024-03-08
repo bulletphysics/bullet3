@@ -44,8 +44,6 @@ struct btSdfDataStream
 
 bool btMiniSDF::load(const char* data, int size)
 {
-	int fileSize = -1;
-
 	btSdfDataStream ds(data, size);
 	{
 		double buf[6];
@@ -468,7 +466,7 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 
 	btAlignedBox3d sd = subdomain(i);
 	i = i_;
-	btVector3 d = sd.m_max - sd.m_min;  //.diagonal().eval();
+	//btVector3 d = sd.m_max - sd.m_min;  //.diagonal().eval();
 
 	btVector3 denom = (sd.max() - sd.min());
 	btVector3 c0 = btVector3(2.0, 2.0, 2.0) / denom;

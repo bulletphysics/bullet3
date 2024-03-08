@@ -34,7 +34,7 @@ public:
 		for (int i = 0; i < b.size(); ++i)
 			b[i] = x[i];
 	}
-	virtual void reinitialize(bool nodeUpdated)
+	virtual void reinitialize(bool /*nodeUpdated*/)
 	{
 	}
 

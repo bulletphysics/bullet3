@@ -134,6 +134,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 #ifdef _MSC_VER
 			sprintf_s(relativeFileName, maxRelativeFileNameMaxLen, "%s%s", prefix[i], orgFileName);
 #else
+			(void)maxRelativeFileNameMaxLen;
 			sprintf(relativeFileName, "%s%s", prefix[i], orgFileName);
 #endif
 			f = fopen(relativeFileName, "rb");

@@ -58,7 +58,7 @@ const btVector3& btSdfCollisionShape::getLocalScaling() const
 {
 	return m_data->m_localScaling;
 }
-void btSdfCollisionShape::calculateLocalInertia(btScalar mass, btVector3& inertia) const
+void btSdfCollisionShape::calculateLocalInertia(btScalar /*mass*/, btVector3& inertia) const
 {
 	inertia.setValue(0, 0, 0);
 }
@@ -75,7 +75,7 @@ btScalar btSdfCollisionShape::getMargin() const
 	return m_data->m_margin;
 }
 
-void btSdfCollisionShape::processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const
+void btSdfCollisionShape::processAllTriangles(btTriangleCallback* /*callback*/, const btVector3& /*aabbMin*/, const btVector3& /*aabbMax*/) const
 {
 	//not yet
 }

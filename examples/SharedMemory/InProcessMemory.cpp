@@ -26,7 +26,7 @@ InProcessMemory::~InProcessMemory()
 	delete m_data;
 }
 
-void* InProcessMemory::allocateSharedMemory(int key, int size, bool allowCreation)
+void* InProcessMemory::allocateSharedMemory(int key, int size, bool /*allowCreation*/)
 {
 	void** ptrptr = m_data->m_memoryPointers[key];
 	if (ptrptr)

@@ -52,7 +52,7 @@ public:
 	void addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
 
     // TODO: disable pick force, non-interactive for now.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 

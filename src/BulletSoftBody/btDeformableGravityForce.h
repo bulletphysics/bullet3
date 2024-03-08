@@ -38,23 +38,23 @@ public:
 		addScaledGravityForce(scale, force);
 	}
 
-	virtual void addScaledDampingForce(btScalar scale, TVStack& force)
+	virtual void addScaledDampingForce(btScalar /*scale*/, TVStack& /*force*/)
 	{
 	}
 
-	virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
+	virtual void addScaledElasticForceDifferential(btScalar /*scale*/, const TVStack& /*dx*/, TVStack& /*df*/)
 	{
 	}
 
-	virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
+	virtual void addScaledDampingForceDifferential(btScalar /*scale*/, const TVStack& /*dv*/, TVStack& /*df*/)
 	{
 	}
 
-	virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA) {}
+	virtual void buildDampingForceDifferentialDiagonal(btScalar /*scale*/, TVStack& /*diagA*/) {}
 
 	virtual void addScaledGravityForce(btScalar scale, TVStack& force)
 	{
-		int numNodes = getNumNodes();
+		int numNodes = getNumNodes(); (void)numNodes;
 		btAssert(numNodes <= force.size());
 		for (int i = 0; i < m_softBodies.size(); ++i)
 		{
@@ -80,7 +80,7 @@ public:
 	}
 
 	// the gravitational potential energy
-	virtual double totalEnergy(btScalar dt)
+	virtual double totalEnergy(btScalar /*dt*/)
 	{
 		double e = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)

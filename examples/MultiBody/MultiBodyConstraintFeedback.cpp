@@ -346,7 +346,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 	}
 }
 
-void MultiBodyConstraintFeedbackSetup::stepSimulation(float deltaTime)
+void MultiBodyConstraintFeedbackSetup::stepSimulation(float /*deltaTime*/)
 {
 	//m_multiBody->addLinkForce(0,btVector3(100,100,100));
 	if (/* DISABLES CODE */ (0))  //m_once)

@@ -455,6 +455,7 @@ bool Path_IsAppBundle(const std::string &sPath)
 	[bundle release];
 	return bisAppBundle;
 #else
+	(void)sPath;
 	return false;
 #endif
 }

@@ -398,7 +398,7 @@ B3_SHARED_API int b3LoadSoftBodyAddMassSpringForce(b3SharedMemoryCommandHandle c
 	return 0;
 }
 
-B3_SHARED_API int b3LoadSoftBodyAddGravityForce(b3SharedMemoryCommandHandle commandHandle, double gravityX, double gravityY, double gravityZ)
+B3_SHARED_API int b3LoadSoftBodyAddGravityForce(b3SharedMemoryCommandHandle commandHandle, double /*gravityX*/, double /*gravityY*/, double /*gravityZ*/)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
@@ -738,7 +738,7 @@ B3_SHARED_API int b3PhysicsParamSetContactBreakingThreshold(b3SharedMemoryComman
 	return 0;
 }
 
-B3_SHARED_API int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHandle commandHandle, int maxNumCmdPer1ms)
+B3_SHARED_API int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHandle /*commandHandle*/, int /*maxNumCmdPer1ms*/)
 {
 	//obsolete command
 	return 0;
@@ -1400,7 +1400,7 @@ B3_SHARED_API int b3GetJointStateMultiDof(b3PhysicsClientHandle physClient, b3Sh
 }
 
 
-B3_SHARED_API int b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int linkIndex, b3LinkState* state)
+B3_SHARED_API int b3GetLinkState(b3PhysicsClientHandle /*physClient*/, b3SharedMemoryStatusHandle statusHandle, int linkIndex, b3LinkState* state)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
 	b3Assert(status);
@@ -2620,7 +2620,7 @@ B3_SHARED_API int b3CreatePoseCommandSetJointVelocityMultiDof(b3PhysicsClientHan
 }
 
 
-B3_SHARED_API int b3CreatePoseCommandSetJointVelocities(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, int numJointVelocities, const double* jointVelocities)
+B3_SHARED_API int b3CreatePoseCommandSetJointVelocities(b3PhysicsClientHandle /*physClient*/, b3SharedMemoryCommandHandle commandHandle, int numJointVelocities, const double* jointVelocities)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
@@ -4641,7 +4641,7 @@ B3_SHARED_API void b3ComputePositionFromViewMatrix(const float viewMatrix[16], f
 	b3Transform tinv = t.inverse();
 	b3Matrix3x3 basis = tinv.getBasis();
 	b3Vector3 origin = tinv.getOrigin();
-	b3Vector3 s = b3MakeVector3(basis[0][0], basis[1][0], basis[2][0]);
+	// b3Vector3 s = b3MakeVector3(basis[0][0], basis[1][0], basis[2][0]);
 	b3Vector3 u = b3MakeVector3(basis[0][1], basis[1][1], basis[2][1]);
 	b3Vector3 f = b3MakeVector3(-basis[0][2], -basis[1][2], -basis[2][2]);
 	b3Vector3 eye = origin;

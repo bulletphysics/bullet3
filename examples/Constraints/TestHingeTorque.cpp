@@ -41,7 +41,7 @@ TestHingeTorque::~TestHingeTorque()
 	}
 }
 
-void TestHingeTorque::stepSimulation(float deltaTime)
+void TestHingeTorque::stepSimulation(float /*deltaTime*/)
 {
 	if (0)  //m_once)
 	{

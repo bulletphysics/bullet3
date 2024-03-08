@@ -48,7 +48,7 @@ float calcRelVel(b3Float4ConstArg l0, b3Float4ConstArg l1, b3Float4ConstArg a0, 
 	return b3Dot3F4(l0, linVel0) + b3Dot3F4(a0, angVel0) + b3Dot3F4(l1, linVel1) + b3Dot3F4(a1, angVel1);
 }
 
-float calcJacCoeff(b3Float4ConstArg linear0, b3Float4ConstArg linear1, b3Float4ConstArg angular0, b3Float4ConstArg angular1,
+float calcJacCoeff(b3Float4ConstArg /*linear0*/, b3Float4ConstArg /*linear1*/, b3Float4ConstArg angular0, b3Float4ConstArg angular1,
 				   float invMass0, const b3Mat3x3* invInertia0, float invMass1, const b3Mat3x3* invInertia1)
 {
 	//	linear0,1 are normlized

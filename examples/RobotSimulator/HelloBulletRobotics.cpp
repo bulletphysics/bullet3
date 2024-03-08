@@ -1,7 +1,7 @@
 
 #include "b3RobotSimulatorClientAPI_NoGUI.h"
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 	b3RobotSimulatorClientAPI_NoGUI* sim = new b3RobotSimulatorClientAPI_NoGUI();
 

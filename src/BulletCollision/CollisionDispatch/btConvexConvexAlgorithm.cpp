@@ -422,8 +422,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				{
 				}
 
-				virtual void setShapeIdentifiersA(int partId0, int index0) {}
-				virtual void setShapeIdentifiersB(int partId1, int index1) {}
+				virtual void setShapeIdentifiersA(int /*partId0*/, int /*index0*/) {}
+				virtual void setShapeIdentifiersB(int /*partId1*/, int /*index1*/) {}
 				virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth)
 				{
 					m_hasContact = true;
@@ -450,8 +450,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				{
 				}
 
-				virtual void setShapeIdentifiersA(int partId0, int index0) {}
-				virtual void setShapeIdentifiersB(int partId1, int index1) {}
+				virtual void setShapeIdentifiersA(int /*partId0*/, int /*index0*/) {}
+				virtual void setShapeIdentifiersB(int /*partId1*/, int /*index1*/) {}
 				virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorldOrg, btScalar depthOrg)
 				{
 					m_reportedDistance = depthOrg;

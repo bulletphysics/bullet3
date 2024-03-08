@@ -261,7 +261,7 @@ struct BulletMJCFImporterInternalData
 		return 0;
 	}
 
-	void parseCompiler(XMLElement* root_xml, MJCFErrorLogger* logger)
+	void parseCompiler(XMLElement* root_xml, MJCFErrorLogger* /*logger*/)
 	{
 		const char* meshDirStr = root_xml->Attribute("meshdir");
 		if (meshDirStr)
@@ -282,7 +282,7 @@ struct BulletMJCFImporterInternalData
 		}
 	}
 
-	void parseAssets(XMLElement* root_xml, MJCFErrorLogger* logger)
+	void parseAssets(XMLElement* root_xml, MJCFErrorLogger* /*logger*/)
 	{
 		//		<mesh name="index0" 	file="index0.stl"/>
 		for (XMLElement* child_xml = root_xml->FirstChildElement(); child_xml; child_xml = child_xml->NextSiblingElement())
@@ -345,7 +345,7 @@ struct BulletMJCFImporterInternalData
 				// armature="1"
 				// damping="1"
 				// limited="true"
-				if (const char* conTypeStr = child_xml->Attribute("limited"))
+				if (/*const char* conTypeStr =*/ child_xml->Attribute("limited"))
 				{
 					defaults.m_defaultJointLimited = child_xml->Attribute("limited");
 				}
@@ -374,7 +374,7 @@ struct BulletMJCFImporterInternalData
 				{
 					defaults.m_defaultConDim = urdfLexicalCast<int>(conDimS);
 				}
-				int conDim = defaults.m_defaultConDim;
+				// int conDim = defaults.m_defaultConDim;
 
 				const char* frictionS = child_xml->Attribute("friction");
 				if (frictionS)
@@ -467,7 +467,7 @@ struct BulletMJCFImporterInternalData
 		return true;
 	}
 
-	bool parseJoint(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
+	bool parseJoint(MyMJCFDefaults& /*defaults*/, XMLElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
 	{
 		bool jointHandled = false;
 		const char* jType = link_xml->Attribute("type");
@@ -1002,7 +1002,7 @@ struct BulletMJCFImporterInternalData
 		return tr;
 	}
 
-	double computeVolume(const UrdfLink* linkPtr, MJCFErrorLogger* logger) const
+	double computeVolume(const UrdfLink* linkPtr, MJCFErrorLogger* /*logger*/) const
 	{
 		double totalVolume = 0;
 
@@ -1436,7 +1436,7 @@ BulletMJCFImporter::~BulletMJCFImporter()
 	delete m_data;
 }
 
-bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger, bool forceFixedBase)
+bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger, bool /*forceFixedBase*/)
 {
 	if (strlen(fileName) == 0)
 		return false;
@@ -1447,7 +1447,7 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 	b3FileUtils fu;
 
 	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-	bool fileFound = (m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024) > 0);
+	bool fileFound = m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024);
 	m_data->m_sourceFileName = relativeFileName;
 
 	std::string xml_string;
@@ -1612,7 +1612,7 @@ bool BulletMJCFImporter::getLinkColor2(int linkIndex, struct UrdfMaterialColor& 
 	return hasLinkColor;
 }
 
-bool BulletMJCFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
+bool BulletMJCFImporter::getLinkColor(int /*linkIndex*/, btVector4& /*colorRGBA*/) const
 {
 	//	UrdfLink* link = m_data->getLink(linkIndex);
 	return false;
@@ -2207,7 +2207,7 @@ int BulletMJCFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 				const UrdfVisual& vis = link->m_visualArray[v];
 				btTransform childTrans = vis.m_linkLocalFrame;
 				btHashString matName(vis.m_materialName.c_str());
-				UrdfMaterial* const* matPtr = model.m_materials[matName];
+				// UrdfMaterial* const* matPtr = model.m_materials[matName];
 
 				convertURDFToVisualShapeInternal(&vis, pathPrefix, inertialFrame.inverse() * childTrans, vertices, indices, textures);
 			}
@@ -2317,7 +2317,7 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(const bt_tinyobj::attrib
 	return compound;
 }
 
-class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
+class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIndex, const char* /*pathPrefix*/, const btTransform& localInertiaFrame) const
 {
 	btCompoundShape* compound = new btCompoundShape();
 	m_data->m_allocatedCollisionShapes.push_back(compound);

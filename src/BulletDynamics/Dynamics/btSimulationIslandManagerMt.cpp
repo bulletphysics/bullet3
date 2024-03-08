@@ -261,7 +261,7 @@ btSimulationIslandManagerMt::Island* btSimulationIslandManagerMt::allocateIsland
 	return island;
 }
 
-void btSimulationIslandManagerMt::buildIslands(btDispatcher* dispatcher, btCollisionWorld* collisionWorld)
+void btSimulationIslandManagerMt::buildIslands(btDispatcher* /*dispatcher*/, btCollisionWorld* collisionWorld)
 {
 	BT_PROFILE("buildIslands");
 
@@ -313,7 +313,6 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* dispatcher, btColli
 
 		if (allSleeping)
 		{
-			int idx;
 			for (idx = startIslandIndex; idx < endIslandIndex; idx++)
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
@@ -333,7 +332,6 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* dispatcher, btColli
 		}
 		else
 		{
-			int idx;
 			for (idx = startIslandIndex; idx < endIslandIndex; idx++)
 			{
 				int i = getUnionFind().getElement(idx).m_sz;

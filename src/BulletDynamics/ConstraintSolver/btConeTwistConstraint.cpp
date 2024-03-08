@@ -520,7 +520,7 @@ void btConeTwistConstraint::calcAngleInfo()
 	m_solveSwingLimit = false;
 
 	btVector3 b1Axis1(0, 0, 0), b1Axis2(0, 0, 0), b1Axis3(0, 0, 0);
-	btVector3 b2Axis1(0, 0, 0), b2Axis2(0, 0, 0);
+	btVector3 b2Axis1(0, 0, 0); // b2Axis2(0, 0, 0);
 
 	b1Axis1 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(0);
 	b2Axis1 = getRigidBodyB().getCenterOfMassTransform().getBasis() * this->m_rbBFrame.getBasis().getColumn(0);

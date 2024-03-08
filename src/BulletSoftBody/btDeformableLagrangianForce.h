@@ -66,11 +66,11 @@ public:
 	// add all damping forces
 	virtual void addScaledDampingForce(btScalar scale, TVStack& force) = 0;
 
-	virtual void addScaledHessian(btScalar scale) {}
+	virtual void addScaledHessian(btScalar /*scale*/) {}
 
 	virtual btDeformableLagrangianForceType getForceType() = 0;
 
-	virtual void reinitialize(bool nodeUpdated)
+	virtual void reinitialize(bool /*nodeUpdated*/)
 	{
 	}
 
@@ -352,13 +352,13 @@ public:
 	}
 
 	//
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		return 0;
 	}
 
 	//
-	virtual double totalDampingEnergy(btScalar dt)
+	virtual double totalDampingEnergy(btScalar /*dt*/)
 	{
 		return 0;
 	}

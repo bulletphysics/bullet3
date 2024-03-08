@@ -136,10 +136,10 @@ btThreadSupportPosix::~btThreadSupportPosix()
 #define NAMED_SEMAPHORES
 #endif
 
-static sem_t* createSem(const char* baseName)
+static sem_t* createSem(const char* /*baseName*/)
 {
-	static int semCount = 0;
 #ifdef NAMED_SEMAPHORES
+	static int semCount = 0;
 	/// Named semaphore begin
 	char name[32];
 	snprintf(name, 32, "/%8.s-%4.d-%4.4d", baseName, getpid(), semCount++);

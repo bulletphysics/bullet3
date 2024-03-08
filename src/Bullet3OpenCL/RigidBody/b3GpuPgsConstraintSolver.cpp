@@ -735,6 +735,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyIterations(b3OpenCLArr
 					}  //useGpu
 					batchOffset += numConstraintsInBatch;
 					constraintOffset += numConstraintsInBatch;
+					(void)constraintOffset;
 				}
 			}  //for (int iteration...
 
@@ -805,6 +806,7 @@ inline int b3GpuPgsConstraintSolver::sortConstraintByBatch3(b3BatchConstraint* c
 	int curBodyUsed = 0;
 
 	int numIter = 0;
+	(void)numIter;
 
 #if defined(_DEBUG)
 	for (int i = 0; i < numConstraints; i++)
@@ -943,7 +945,7 @@ void b3GpuPgsConstraintSolver::solveJoints(int numBodies, b3OpenCLArray<b3RigidB
 
 //b3AlignedObjectArray<b3RigidBodyData> testBodies;
 
-b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyData>* gpuBodies, b3OpenCLArray<b3InertiaData>* gpuInertias, int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints, int numConstraints, const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b3RigidBodyData>* gpuBodies, b3OpenCLArray<b3InertiaData>* /*gpuInertias*/, int numBodies, b3OpenCLArray<b3GpuGenericConstraint>* gpuConstraints, int numConstraints, const b3ContactSolverInfo& infoGlobal)
 {
 	B3_PROFILE("solveGroupCacheFriendlyFinish");
 	//	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();

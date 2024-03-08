@@ -185,7 +185,7 @@ void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff
 	m_data->m_hasLightSpecularCoeff = true;
 }
 
-static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
+static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdfPathPrefix*/, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
@@ -923,13 +923,13 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 				unsigned char* textureImage1 = 0;
 				int textureWidth = 0;
 				int textureHeight = 0;
-				bool isCached = false;
+				// bool isCached = false;
 				if (textures.size())
 				{
 					textureImage1 = textures[0].textureData1;
 					textureWidth = textures[0].m_width;
 					textureHeight = textures[0].m_height;
-					isCached = textures[0].m_isCached;
+					// isCached = textures[0].m_isCached;
 				}
 
 				{
@@ -960,7 +960,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 	return uniqueId;
 }
 
-int TinyRendererVisualShapeConverter::registerShapeAndInstance( const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
+int TinyRendererVisualShapeConverter::registerShapeAndInstance( const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int /*primitiveType*/, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
 {
 	btAlignedObjectArray<b3VisualShapeData>* shapes1 =
 		m_data->m_visualShapesMap[bodyUniqueId];
@@ -1084,7 +1084,6 @@ void TinyRendererVisualShapeConverter::changeInstanceFlags(int bodyUniqueId, int
 	{
 		return;
 	}
-	int start = -1;
 
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
@@ -1114,7 +1113,7 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 	{
 		return;
 	}
-	int start = -1;
+
 	for (int i = 0; i < shapes->size(); i++)
 	{
 		if (shapes->at(i).m_linkIndex == linkIndex)
@@ -1384,8 +1383,8 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 }
 
 void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-	float* depthBuffer, int depthBufferSizeInPixels,
-	int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
+	float* depthBuffer, int /*depthBufferSizeInPixels*/,
+	int* segmentationMaskBuffer, int /*segmentationMaskSizeInPixels*/,
 	int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
 {
 	int w = m_data->m_rgbColorBuffer.get_width();

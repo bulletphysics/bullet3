@@ -99,7 +99,7 @@ void KinematicRigidBodyExample::initPhysics()
 	{
 		btScalar mass(0.);
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
+		// bool isDynamic = (mass != 0.f);
 
 		btVector3 localInertia(0, 0, 0);
 

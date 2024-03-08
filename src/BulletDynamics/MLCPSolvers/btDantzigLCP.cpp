@@ -1226,7 +1226,7 @@ struct btLCP
 		  bool *_state, int *_findex, int *p, int *c, btScalar **Arows);
 	int getNub() const { return m_nub; }
 	void transfer_i_to_C(int i);
-	void transfer_i_to_N(int i) { m_nN++; }  // because we can assume C and N span 1:i-1
+	void transfer_i_to_N(int /*i*/) { m_nN++; }  // because we can assume C and N span 1:i-1
 	void transfer_i_from_N_to_C(int i);
 	void transfer_i_from_C_to_N(int i, btAlignedObjectArray<btScalar> &scratch);
 	int numC() const { return m_nC; }
@@ -1597,6 +1597,8 @@ void btLDLTRemove(btScalar **A, const int *p, btScalar *L, btScalar *d,
 #ifdef BT_DEBUG
 	for (int i = 0; i < n2; ++i)
 		btAssert(p[i] >= 0 && p[i] < n1);
+#else
+	(void)n1;
 #endif
 
 	if (r == n2 - 1)

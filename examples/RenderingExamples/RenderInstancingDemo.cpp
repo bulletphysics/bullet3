@@ -67,7 +67,7 @@ public:
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -76,7 +76,7 @@ public:
 	virtual void exitPhysics()
 	{
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_x += 0.01f;
 		m_y += 0.01f;
@@ -102,15 +102,15 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

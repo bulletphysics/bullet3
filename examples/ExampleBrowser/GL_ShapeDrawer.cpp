@@ -831,7 +831,7 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 
 //this GL_ShapeDrawer will be removed, in the meanwhile directly access this global 'useShadoMaps'
 extern bool useShadowMap;
-void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, bool useShadows1, int cameraUpAxis)
+void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, bool /*useShadows1*/, int cameraUpAxis)
 {
 	bool useShadows = useShadowMap;
 	GLfloat light_ambient[] = {btScalar(0.2), btScalar(0.2), btScalar(0.2), btScalar(1.0)};

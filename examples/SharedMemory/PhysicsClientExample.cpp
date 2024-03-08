@@ -78,7 +78,7 @@ public:
 	virtual ~PhysicsClientExample();
 
 	virtual void initPhysics();
-	void selectComboBox(int comboIndex, const char* name)
+	void selectComboBox(int /*comboIndex*/, const char* name)
 	{
 		if (m_guiHelper && m_guiHelper->getParameterInterface())
 		{
@@ -174,6 +174,7 @@ public:
 			int uIndex = m_motorTargetPositions[i].m_uIndex;
 			static int serial = 0;
 			serial++;
+			(void)serial;
 			//  b3Printf("# motors = %d, cmd[%d] qIndex = %d, uIndex = %d, targetPos = %f", m_numMotors, serial, qIndex,uIndex,targetPos);
 
 			b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
@@ -191,9 +192,9 @@ public:
 			m_physicsServer.physicsDebugDraw(debugFlags);
 		}
 	}
-	virtual bool mouseMoveCallback(float x, float y) { return false; };
-	virtual bool mouseButtonCallback(int button, int state, float x, float y) { return false; }
-	virtual bool keyboardCallback(int key, int state) { return false; }
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/) { return false; };
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/) { return false; }
+	virtual bool keyboardCallback(int /*key*/, int /*state*/) { return false; }
 
 	virtual void setSharedMemoryKey(int key)
 	{
@@ -501,7 +502,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			int objectUniqueId = 0;
 			int linkIndex = -1;
 			int shapeIndex = -1;
-			int textureIndex = -2;
+			// int textureIndex = -2;
 			double rgbaColor[4] = {0.0, 1.0, 0.0, 1.0};
 			b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape2(m_physicsClientHandle, objectUniqueId, linkIndex, shapeIndex);
 			b3UpdateVisualShapeRGBAColor(commandHandle, rgbaColor);
@@ -787,7 +788,7 @@ void PhysicsClientExample::initPhysics()
 	}
 }
 
-void PhysicsClientExample::stepSimulation(float deltaTime)
+void PhysicsClientExample::stepSimulation(float /*deltaTime*/)
 {
 	if (m_options == eCLIENTEXAMPLE_SERVER)
 	{

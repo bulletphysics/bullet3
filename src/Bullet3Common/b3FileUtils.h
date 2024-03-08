@@ -39,6 +39,7 @@ struct b3FileUtils
 #ifdef _MSC_VER
 			sprintf_s(relativeFileName, maxRelativeFileNameMaxLen, "%s%s", prefix[i], orgFileName);
 #else
+			(void)maxRelativeFileNameMaxLen;
 			sprintf(relativeFileName, "%s%s", prefix[i], orgFileName);
 #endif
 			f = fopen(relativeFileName, "rb");
@@ -59,7 +60,7 @@ struct b3FileUtils
 	static const char* strip2(const char* name, const char* pattern)
 	{
 		size_t const patlen = strlen(pattern);
-		size_t patcnt = 0;
+		size_t patcnt = 0; (void)patcnt;
 		const char* oriptr;
 		const char* patloc;
 		// find how many times the pattern occurs in the original string

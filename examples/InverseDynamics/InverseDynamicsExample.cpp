@@ -62,7 +62,7 @@ static btVector4 sJointCurveColors[8] =
 
 };
 
-void toggleUseInverseModel(int buttonId, bool buttonState, void* userPointer)
+void toggleUseInverseModel(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
 {
 	useInverseModel = !useInverseModel;
 	// todo(thomas) is there a way to get a toggle button with changing text?
@@ -242,7 +242,7 @@ void InverseDynamicsExample::initPhysics()
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void InverseDynamicsExample::stepSimulation(float deltaTime)
+void InverseDynamicsExample::stepSimulation(float /*deltaTime*/)
 {
 	if (m_multiBody)
 	{

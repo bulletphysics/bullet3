@@ -1140,11 +1140,11 @@ static int nextLine(const char* buffer)
 /* Create from TetGen .ele, .face, .node data							*/
 btSoftBody* btSoftBodyHelpers::CreateFromTetGenData(btSoftBodyWorldInfo& worldInfo,
 													const char* ele,
-													const char* face,
+													const char* /*face*/,
 													const char* node,
-													bool bfacelinks,
+													bool /*bfacelinks*/,
 													bool btetralinks,
-													bool bfacesfromtetras)
+													bool /*bfacesfromtetras*/)
 {
 	btAlignedObjectArray<btVector3> pos;
 	int nnode = 0;
@@ -1153,6 +1153,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromTetGenData(btSoftBodyWorldInfo& worldIn
 	int hasbounds = 0;
 	int result = sscanf(node, "%d %d %d %d", &nnode, &ndims, &nattrb, &hasbounds);
 	result = sscanf(node, "%d %d %d %d", &nnode, &ndims, &nattrb, &hasbounds);
+	(void)result;
 	node += nextLine(node);
 
 	pos.resize(nnode);
@@ -1235,8 +1236,8 @@ if(face&&face[0])
 		}
 	}
 	psb->initializeDmInverse();
-	psb->m_tetraScratches.resize(psb->m_tetras.size());
-	psb->m_tetraScratchesTn.resize(psb->m_tetras.size());
+	// psb->m_tetraScratches.resize(psb->m_tetras.size());
+	// psb->m_tetraScratchesTn.resize(psb->m_tetras.size());
 	printf("Nodes:  %u\r\n", psb->m_nodes.size());
 	printf("Links:  %u\r\n", psb->m_links.size());
 	printf("Faces:  %u\r\n", psb->m_faces.size());
@@ -1340,8 +1341,8 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 
 	generateBoundaryFaces(psb);
 	psb->initializeDmInverse();
-	psb->m_tetraScratches.resize(psb->m_tetras.size());
-	psb->m_tetraScratchesTn.resize(psb->m_tetras.size());
+	// psb->m_tetraScratches.resize(psb->m_tetras.size());
+	// psb->m_tetraScratchesTn.resize(psb->m_tetras.size());
 	printf("Nodes:  %u\r\n", psb->m_nodes.size());
 	printf("Links:  %u\r\n", psb->m_links.size());
 	printf("Faces:  %u\r\n", psb->m_faces.size());
@@ -1519,7 +1520,7 @@ void btSoftBodyHelpers::writeState(const char* file, const btSoftBody* psb)
 	fs.close();
 }
 
-void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* psb)
+void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* /*psb*/)
 {
 	std::ifstream fs_read;
 	fs_read.open(filename);

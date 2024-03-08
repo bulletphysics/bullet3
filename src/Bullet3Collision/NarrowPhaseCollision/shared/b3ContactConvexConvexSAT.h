@@ -66,7 +66,7 @@ inline int b3ClipFace(const b3Float4* pVtxIn, int numVertsIn, b3Float4& planeNor
 
 inline int b3ClipFaceAgainstHull(const b3Float4& separatingNormal, const b3ConvexPolyhedronData* hullA,
 								 const b3Float4& posA, const b3Quaternion& ornA, b3Float4* worldVertsB1, int numWorldVertsB1,
-								 b3Float4* worldVertsB2, int capacityWorldVertsB2,
+								 b3Float4* worldVertsB2, int /*capacityWorldVertsB2*/,
 								 const float minDist, float maxDist,
 								 const b3AlignedObjectArray<b3Float4>& verticesA, const b3AlignedObjectArray<b3GpuFace>& facesA, const b3AlignedObjectArray<int>& indicesA,
 								 //const b3Float4* verticesB,	const b3GpuFace* facesB,	const int* indicesB,
@@ -195,7 +195,9 @@ inline int b3ClipHullAgainstHull(const b3Float4& separatingNormal,
 		{
 			//printf("wtf\n");
 		}
+#ifdef BT_DEBUG_SAT_FACE
 		static bool once = true;
+#endif
 		//printf("separatingNormal=%f,%f,%f\n",separatingNormal.x,separatingNormal.y,separatingNormal.z);
 
 		for (int face = 0; face < hullB.m_numFaces; face++)
@@ -212,7 +214,7 @@ inline int b3ClipHullAgainstHull(const b3Float4& separatingNormal,
 					printf("vert[%d] = %f,%f,%f\n", i, vert.x, vert.y, vert.z);
 				}
 			}
-#endif  //BT_DEBUG_SAT_FACE \
+#endif  //BT_DEBUG_SAT_FACE
 	//if (facesB[hullB.m_faceOffset+face].m_numIndices>2)
 			{
 				const b3Float4 Normal = b3MakeVector3(facesB[hullB.m_faceOffset + face].m_plane.x,
@@ -230,7 +232,9 @@ inline int b3ClipHullAgainstHull(const b3Float4& separatingNormal,
 				}
 			}
 		}
+#ifdef BT_DEBUG_SAT_FACE
 		once = false;
+#endif
 	}
 
 	b3Assert(closestFaceB >= 0);
@@ -275,12 +279,12 @@ inline int b3ClipHullHullSingle(
 	const b3AlignedObjectArray<b3ConvexPolyhedronData>& hostConvexDataB,
 
 	const b3AlignedObjectArray<b3Vector3>& verticesA,
-	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA,
+	const b3AlignedObjectArray<b3Vector3>& /*uniqueEdgesA*/,
 	const b3AlignedObjectArray<b3GpuFace>& facesA,
 	const b3AlignedObjectArray<int>& indicesA,
 
 	const b3AlignedObjectArray<b3Vector3>& verticesB,
-	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
+	const b3AlignedObjectArray<b3Vector3>& /*uniqueEdgesB*/,
 	const b3AlignedObjectArray<b3GpuFace>& facesB,
 	const b3AlignedObjectArray<int>& indicesB,
 
@@ -401,7 +405,7 @@ inline int b3ClipHullHullSingle(
 }
 
 inline int b3ContactConvexConvexSAT(
-	int pairIndex,
+	int /*pairIndex*/,
 	int bodyIndexA, int bodyIndexB,
 	int collidableIndexA, int collidableIndexB,
 	const b3AlignedObjectArray<b3RigidBodyData>& rigidBodies,

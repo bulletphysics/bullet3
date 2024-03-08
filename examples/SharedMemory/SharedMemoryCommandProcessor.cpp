@@ -114,7 +114,7 @@ bool SharedMemoryCommandProcessor::isConnected() const
 	return m_data->m_isConnected;
 }
 
-bool SharedMemoryCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool SharedMemoryCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& /*serverStatusOut*/, char* /*bufferServerToClient*/, int /*bufferSizeInBytes*/)
 {
 	if (!m_data->m_waitingForServer)
 	{
@@ -129,7 +129,7 @@ bool SharedMemoryCommandProcessor::processCommand(const struct SharedMemoryComma
 	return false;
 }
 
-bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int /*bufferSizeInBytes*/)
 {
 	m_data->m_lastServerStatus.m_dataStream = 0;
 	m_data->m_lastServerStatus.m_numDataStreamBytes = 0;
@@ -199,15 +199,15 @@ bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	return false;
 }
 
-void SharedMemoryCommandProcessor::renderScene(int renderFlags)
+void SharedMemoryCommandProcessor::renderScene(int /*renderFlags*/)
 {
 }
 
-void SharedMemoryCommandProcessor::physicsDebugDraw(int debugDrawFlags)
+void SharedMemoryCommandProcessor::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-void SharedMemoryCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiHelper)
+void SharedMemoryCommandProcessor::setGuiHelper(struct GUIHelperInterface* /*guiHelper*/)
 {
 }
 

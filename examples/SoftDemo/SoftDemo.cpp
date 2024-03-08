@@ -265,6 +265,7 @@ void SoftDemo::createStack(btCollisionShape* boxShape, float halfCubeSize, int s
 
 			btRigidBody* body = 0;
 			body = createRigidBody(mass, trans, boxShape);
+			(void)body;
 		}
 	}
 }
@@ -424,7 +425,7 @@ static btRigidBody* Ctor_BigPlate(SoftDemo* pdemo, btScalar mass = 15, btScalar 
 //
 // Linear stair
 //
-static void Ctor_LinearStair(SoftDemo* pdemo, const btVector3& org, const btVector3& sizes, btScalar angle, int count)
+static void Ctor_LinearStair(SoftDemo* pdemo, const btVector3& org, const btVector3& sizes, btScalar /*angle*/, int count)
 {
 	btBoxShape* shape = new btBoxShape(sizes);
 	for (int i = 0; i < count; ++i)
@@ -461,7 +462,7 @@ static btSoftBody* Ctor_SoftBox(SoftDemo* pdemo, const btVector3& p, const btVec
 //
 // SoftBoulder
 //
-static btSoftBody* Ctor_SoftBoulder(SoftDemo* pdemo, const btVector3& p, const btVector3& s, int np, int id)
+/*static btSoftBody* Ctor_SoftBoulder(SoftDemo* pdemo, const btVector3& p, const btVector3& s, int np, int id)
 {
 	btAlignedObjectArray<btVector3> pts;
 	if (id) srand(id);
@@ -474,7 +475,7 @@ static btSoftBody* Ctor_SoftBoulder(SoftDemo* pdemo, const btVector3& p, const b
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 
 	return (psb);
-}
+}*/
 
 //#define TRACEDEMO { pdemo->demoname=__FUNCTION__+5;printf("Launching demo: " __FUNCTION__ "\r\n"); }
 
@@ -912,7 +913,7 @@ static void Init_Sticks(SoftDemo* pdemo)
 //
 // Bending
 //
-static void Init_Bending(SoftDemo* pdemo)
+/*static void Init_Bending(SoftDemo* pdemo)
 {
 	//TRACEDEMO
 	const btScalar s = 4;
@@ -929,7 +930,7 @@ static void Init_Bending(SoftDemo* pdemo)
 	psb->appendLink(0, 2);
 
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-}
+}*/
 
 //
 // 100kg cloth locked at corners, 10 falling 10kg rb's.
@@ -1064,7 +1065,7 @@ static void Init_Cutting1(SoftDemo* pdemo)
 //
 
 //
-static void Ctor_Gear(SoftDemo* pdemo, const btVector3& pos, btScalar speed)
+/*static void Ctor_Gear(SoftDemo* pdemo, const btVector3& pos, btScalar speed)
 {
 	btTransform startTransform;
 	startTransform.setIdentity();
@@ -1083,7 +1084,7 @@ static void Ctor_Gear(SoftDemo* pdemo, const btVector3& pos, btScalar speed)
 	btHingeConstraint* hinge = new btHingeConstraint(*body, btTransform::getIdentity());
 	if (speed != 0) hinge->enableAngularMotor(true, speed, 3);
 	world->addConstraint(hinge);
-}
+}*/
 
 //
 static btSoftBody* Ctor_ClusterBunny(SoftDemo* pdemo, const btVector3& x, const btVector3& a)
@@ -1414,6 +1415,7 @@ static void Init_ClusterRobot(SoftDemo* pdemo)
 	btBoxShape* pbox = new btBoxShape(btVector3(20, 1, 40));
 	btRigidBody* pgrn;
 	pgrn = pdemo->createRigidBody(0, btTransform(btQuaternion(0, -SIMD_HALF_PI / 2, 0), btVector3(0, 0, 0)), pbox);
+	(void)pgrn;
 
 	pdemo->m_autocam = true;
 }

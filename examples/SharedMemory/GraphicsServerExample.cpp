@@ -143,7 +143,7 @@ enum TCPCommunicationEnums
 	eTCPHasTerminated
 };
 
-void TCPThreadFunc(void* userPtr, void* lsMemory)
+void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("TCPThreadFunc thread started\n");
 
@@ -161,17 +161,17 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 		args->m_cs->setSharedParam(0, eTCPIsInitialized);
 		args->m_cs->unlock();
 
-		double deltaTimeInSeconds = 0;
-		int numCmdSinceSleep1ms = 0;
-		unsigned long long int prevTime = clock.getTimeMicroseconds();
+		// double deltaTimeInSeconds = 0;
+		// int numCmdSinceSleep1ms = 0;
+		// unsigned long long int prevTime = clock.getTimeMicroseconds();
 
 #ifdef BT_ENABLE_CLSOCKET
 		b3Clock clock;
-		double timeOutInSeconds = 10;
+		// double timeOutInSeconds = 10;
 
 		
 		bool isPhysicsClientConnected = true;
-		bool exitRequested = false;
+		// bool exitRequested = false;
 
 		
 		if (!isPhysicsClientConnected)
@@ -310,7 +310,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 								args->m_cmdPtr = 0;
 								
 
-								int type = *(int*)&bytesReceived[0];
+								// int type = *(int*)&bytesReceived[0];
 
 								
 								if (numBytesRec == sizeof(GraphicsSharedMemoryCommand))
@@ -330,13 +330,13 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 									{
 									case GFX_CMD_0:
 									{
-										int axis = args->m_cmdPtr->m_upAxisYCommand.m_enableUpAxisY ? 1 : 2;
+										// int axis = args->m_cmdPtr->m_upAxisYCommand.m_enableUpAxisY ? 1 : 2;
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
 											clock.usleep(0);
 										}
-										bool done = false;
+										// bool done = false;
 										//guiHelper.setUpAxis(axis);
 
 										
@@ -547,8 +547,8 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 									}
 
 
-									double startTimeSeconds = clock.getTimeInSeconds();
-									double curTimeSeconds = clock.getTimeInSeconds();
+									// double startTimeSeconds = clock.getTimeInSeconds();
+									// double curTimeSeconds = clock.getTimeInSeconds();
 
 									if (gVerboseNetworkMessagesServer)
 									{
@@ -724,7 +724,7 @@ public:
 	{
 	}
 	
-	void submitServerStatus(GraphicsSharedMemoryStatus& status, int blockIndex)
+	void submitServerStatus(GraphicsSharedMemoryStatus& /*status*/, int /*blockIndex*/)
 	{
 	}
 
@@ -893,7 +893,7 @@ public:
 
 	void processClientCommands()
 	{
-		int timeStamp = 0;
+		// int timeStamp = 0;
 		bool hasStatus = false;
 		if (m_args.isCommandOutstanding())
 		{
@@ -907,7 +907,7 @@ public:
 		}
 	}
 
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		B3_PROFILE("stepSimulation");
 		processClientCommands();
@@ -934,20 +934,20 @@ public:
 
 	
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 		
 	}
 
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

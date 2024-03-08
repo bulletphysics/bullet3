@@ -172,7 +172,7 @@ static void debugDrawAllBatches(const btBatchedConstraints* bc,
 	}
 }
 
-static void initBatchedBodyDynamicFlags(btAlignedObjectArray<bool>* outBodyDynamicFlags, const btAlignedObjectArray<btSolverBody>& bodies)
+/*static void initBatchedBodyDynamicFlags(btAlignedObjectArray<bool>* outBodyDynamicFlags, const btAlignedObjectArray<btSolverBody>& bodies)
 {
 	BT_PROFILE("initBatchedBodyDynamicFlags");
 	btAlignedObjectArray<bool>& bodyDynamicFlags = *outBodyDynamicFlags;
@@ -182,7 +182,7 @@ static void initBatchedBodyDynamicFlags(btAlignedObjectArray<bool>* outBodyDynam
 		const btSolverBody& body = bodies[i];
 		bodyDynamicFlags[i] = (body.internalGetInvMass().x() > btScalar(0));
 	}
-}
+}*/
 
 static int runLengthEncodeConstraintInfo(btBatchedConstraintInfo* outConInfos, int numConstraints)
 {
@@ -262,7 +262,7 @@ static int initBatchedConstraintInfo(btBatchedConstraintInfo* outConInfos, btCon
 	return numConstraints;
 }
 
-static void expandConstraintRowsInPlace(int* constraintBatchIds, const btBatchedConstraintInfo* conInfos, int numConstraints, int numConstraintRows)
+/*static void expandConstraintRowsInPlace(int* constraintBatchIds, const btBatchedConstraintInfo* conInfos, int numConstraints, int numConstraintRows)
 {
 	BT_PROFILE("expandConstraintRowsInPlace");
 	if (numConstraintRows > numConstraints)
@@ -281,7 +281,7 @@ static void expandConstraintRowsInPlace(int* constraintBatchIds, const btBatched
 			}
 		}
 	}
-}
+}*/
 
 static void expandConstraintRows(int* destConstraintBatchIds, const int* srcConstraintBatchIds, const btBatchedConstraintInfo* conInfos, int numConstraints, int numConstraintRows)
 {
@@ -328,7 +328,7 @@ static void expandConstraintRowsMt(int* destConstraintBatchIds, const int* srcCo
 	btParallelFor(0, numConstraints, grainSize, loop);
 }
 
-static void initBatchedConstraintInfoArray(btAlignedObjectArray<btBatchedConstraintInfo>* outConInfos, btConstraintArray* constraints)
+/*static void initBatchedConstraintInfoArray(btAlignedObjectArray<btBatchedConstraintInfo>* outConInfos, btConstraintArray* constraints)
 {
 	BT_PROFILE("initBatchedConstraintInfoArray");
 	btAlignedObjectArray<btBatchedConstraintInfo>& conInfos = *outConInfos;
@@ -337,7 +337,7 @@ static void initBatchedConstraintInfoArray(btAlignedObjectArray<btBatchedConstra
 
 	int newSize = initBatchedConstraintInfo(&outConInfos->at(0), constraints);
 	conInfos.resizeNoInitialize(newSize);
-}
+}*/
 
 static void mergeSmallBatches(btBatchInfo* batches, int iBeginBatch, int iEndBatch, int minBatchSize, int maxBatchSize)
 {
@@ -555,9 +555,9 @@ static void writeOutBatches(btBatchedConstraints* bc,
 				const btBatchInfo& batch = batches[i];
 				int curBatchBegin = iConstraint;
 				constraintIdPerBatch[i] = curBatchBegin;  // record the start of each batch in m_constraintIndices array
-				int numConstraints = batch.numConstraints;
-				iConstraint += numConstraints;
-				if (numConstraints > 0)
+				int numBatchConstraints = batch.numConstraints;
+				iConstraint += numBatchConstraints;
+				if (numBatchConstraints > 0)
 				{
 					bc->m_batches.push_back(Range(curBatchBegin, iConstraint));
 				}
@@ -829,7 +829,7 @@ static void setupSpatialGridBatchesMt(
 
 	const int maxGridChunkCount = 128;
 	int allocNumBatchesPerPhase = maxGridChunkCount;
-	int minNumBatchesPerPhase = 16;
+	//int minNumBatchesPerPhase = 16;
 	int allocNumBatches = allocNumBatchesPerPhase * numPhases;
 
 	btVector3* bodyPositions = NULL;

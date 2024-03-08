@@ -109,8 +109,8 @@ struct PhysicsDirectInternalData
 
 PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership)
 {
-	int sz = sizeof(SharedMemoryCommand);
-	int sz2 = sizeof(SharedMemoryStatus);
+	// int sz = sizeof(SharedMemoryCommand);
+	// int sz2 = sizeof(SharedMemoryStatus);
 
 	m_data = new PhysicsDirectInternalData;
 	m_data->m_commandProcessor = physSdk;
@@ -638,6 +638,7 @@ bool PhysicsDirect::processMeshData(const struct SharedMemoryCommand& orgCommand
 			const b3SendMeshDataArgs& args = serverCmd.m_sendMeshDataArgs;
 			int numTotalPixels = args.m_startingVertex +
 								 args.m_numVerticesCopied + args.m_numVerticesRemaining;
+			(void)numTotalPixels;
 
 			btVector3* verticesReceived =
 				(btVector3*)&m_data->m_bulletStreamDataServerToClient[0];
@@ -1603,7 +1604,7 @@ bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointIn
 	return false;
 }
 
-void PhysicsDirect::setSharedMemoryKey(int key)
+void PhysicsDirect::setSharedMemoryKey(int /*key*/)
 {
 }
 

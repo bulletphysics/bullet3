@@ -164,7 +164,7 @@ class MultiThreadingExample : public CommonExampleInterface
 	int m_numThreads;
 
 public:
-	MultiThreadingExample(GUIHelperInterface* guiHelper, int tutorialIndex)
+	MultiThreadingExample(GUIHelperInterface* guiHelper, int /*tutorialIndex*/)
 		: m_app(guiHelper->getAppInterface()),
 		  m_threadSupport(0),
 		  m_numThreads(8)
@@ -255,22 +255,22 @@ public:
 		m_jobs.clear();
 	}
 
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
-	{
-		return false;
-	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
+	{
+		return false;
+	}
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

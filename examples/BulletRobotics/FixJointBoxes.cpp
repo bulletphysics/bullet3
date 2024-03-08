@@ -35,6 +35,7 @@ public:
 		  cubeIds(numCubes, 0),
 		  solver(solverId)
 	{
+		(void)m_options;
 	}
 
 	virtual ~FixJointBoxes()
@@ -116,7 +117,7 @@ public:
 			m_robotSim.resetBasePositionAndOrientation(cubeIds[i], pos, quar);
 		}
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		int newSolver = (int)(solverId + 0.5);
 		if (newSolver != solver)
@@ -151,7 +152,7 @@ public:
 	{
 		return m_robotSim.mouseButtonCallback(button, state, x, y);
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

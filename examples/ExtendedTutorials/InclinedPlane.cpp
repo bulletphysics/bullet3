@@ -293,7 +293,7 @@ void InclinedPlaneExample::renderScene()
 	CommonRigidBodyBase::renderScene();
 }
 
-bool InclinedPlaneExample::keyboardCallback(int key, int state)
+bool InclinedPlaneExample::keyboardCallback(int key, int /*state*/)
 {
 	//	b3Printf("Key pressed: %d in state %d \n",key,state);
 
@@ -346,7 +346,7 @@ void onSphereRestitutionChanged(float restitution, void*)
 	}
 }
 
-void onRampInclinationChanged(float inclination, void*)
+void onRampInclinationChanged(float /*inclination*/, void*)
 {
 	if (ramp)
 	{

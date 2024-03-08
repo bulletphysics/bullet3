@@ -718,7 +718,7 @@ void Base::RecurseLayout(Skin::Base* skin)
 	{
 		//		printf("!\n");
 	}
-	int curChild = 0;
+	int curChild = 0; (void)curChild;
 	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
 	{
 		Base* pChild = *iter;

@@ -697,7 +697,7 @@ void btKinematicCharacterController::warp(const btVector3& origin)
 	m_ghostObject->setWorldTransform(xform);
 }
 
-void btKinematicCharacterController::preStep(btCollisionWorld* collisionWorld)
+void btKinematicCharacterController::preStep(btCollisionWorld* /*collisionWorld*/)
 {
 	m_currentPosition = m_ghostObject->getWorldTransform().getOrigin();
 	m_targetPosition = m_currentPosition;
@@ -941,7 +941,7 @@ btVector3* btKinematicCharacterController::getUpAxisDirections()
 	return sUpAxisDirection;
 }
 
-void btKinematicCharacterController::debugDraw(btIDebugDraw* debugDrawer)
+void btKinematicCharacterController::debugDraw(btIDebugDraw* /*debugDrawer*/)
 {
 }
 

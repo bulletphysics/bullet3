@@ -394,6 +394,7 @@ void b3BulletFile::addStruct(const char* structType, void* data, int len, void* 
 	elemBytes = mMemoryDNA->getLength(structInfo[0]);
 	//	int elemBytes = mMemoryDNA->getElementSize(structInfo[0],structInfo[1]);
 	assert(len == elemBytes);
+	(void)elemBytes;
 
 	mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)data);
 	m_chunks.push_back(dataChunk);

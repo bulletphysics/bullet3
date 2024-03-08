@@ -84,7 +84,7 @@ public:
 
 	virtual ~btDeformableStaticConstraint() {}
 
-	virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal)
+	virtual btScalar solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 	{
 		return 0;
 	}
@@ -99,13 +99,13 @@ public:
 		return btVector3(0, 0, 0);
 	}
 
-	virtual btVector3 getDv(const btSoftBody::Node* n) const
+	virtual btVector3 getDv(const btSoftBody::Node* /*n*/) const
 	{
 		return btVector3(0, 0, 0);
 	}
 
-	virtual void applyImpulse(const btVector3& impulse) {}
-	virtual void setPenetrationScale(btScalar scale) {}
+	virtual void applyImpulse(const btVector3& /*impulse*/) {}
+	virtual void setPenetrationScale(btScalar /*scale*/) {}
 };
 
 //
@@ -127,13 +127,13 @@ public:
 	virtual btVector3 getVa() const;
 	// get the velocity of the deformable node in contact
 	virtual btVector3 getVb() const;
-	virtual btVector3 getDv(const btSoftBody::Node* n) const
+	virtual btVector3 getDv(const btSoftBody::Node* /*n*/) const
 	{
 		return btVector3(0, 0, 0);
 	}
 	virtual void applyImpulse(const btVector3& impulse);
 
-	virtual void setPenetrationScale(btScalar scale) {}
+	virtual void setPenetrationScale(btScalar /*scale*/) {}
 };
 
 //
@@ -279,6 +279,6 @@ public:
 
 	virtual void applyImpulse(const btVector3& impulse);
 
-	virtual void setPenetrationScale(btScalar scale) {}
+	virtual void setPenetrationScale(btScalar /*scale*/) {}
 };
 #endif /* BT_DEFORMABLE_CONTACT_CONSTRAINT_H */

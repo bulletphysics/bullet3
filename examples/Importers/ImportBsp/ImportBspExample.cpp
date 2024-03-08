@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	virtual void addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
+	virtual void addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool /*isEntity*/, const btVector3& /*entityTargetLocation*/)
 	{
 		///perhaps we can do something special with entities (isEntity)
 		///like adding a collision Triggering (as example)
@@ -170,7 +170,8 @@ void BspDemo::initPhysics(const char* bspfilename)
 		{
 			//how to detect file size?
 			memoryBuffer = malloc(size + 1);
-			fread(memoryBuffer, 1, size, file);
+			int len = fread(memoryBuffer, 1, size, file);
+			(void)len;
 			bspLoader.loadBSPFile(memoryBuffer);
 
 			BspToBulletConverter bsp2bullet(this);

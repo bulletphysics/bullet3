@@ -103,7 +103,7 @@ static void SimpleResizeCallback(float widthf, float heightf)
 		gApp->m_primRenderer->setScreenSize(width, height);
 }
 
-static void SimpleKeyboardCallback(int key, int state)
+static void SimpleKeyboardCallback(int key, int /*state*/)
 {
 	if (key == B3G_ESCAPE && gApp && gApp->m_window)
 	{
@@ -264,10 +264,11 @@ struct MyRenderCallbacks : public RenderCallbacks
 					}
 
 					int shapeId = m_instancingRenderer->registerShape(&verts[0].x, numVertices, cube_indices, numIndices, B3_GL_TRIANGLES, m_textureIndex);
-					b3Vector3 pos = b3MakeVector3(0, 0, 0);
-					b3Quaternion orn(0, 0, 0, 1);
-					b3Vector4 color = b3MakeVector4(1, 1, 1, 1);
-					b3Vector3 scaling = b3MakeVector3(.1, .1, .1);
+					(void)shapeId;
+					// b3Vector3 pos = b3MakeVector3(0, 0, 0);
+					// b3Quaternion orn(0, 0, 0, 1);
+					// b3Vector4 color = b3MakeVector4(1, 1, 1, 1);
+					// b3Vector3 scaling = b3MakeVector3(.1, .1, .1);
 					//m_instancingRenderer->registerGraphicsInstance(shapeId, pos, orn, color, scaling);
 					m_instancingRenderer->writeTransforms();
 				}
@@ -286,9 +287,9 @@ struct MyRenderCallbacks : public RenderCallbacks
 	}
 	virtual void render(sth_texture* texture)
 	{
-		int index = 0;
+		// int index = 0;
 
-		float width = 1;
+		// float width = 1;
 		b3AlignedObjectArray<unsigned int> indices;
 		indices.resize(texture->nverts);
 		for (int i = 0; i < indices.size(); i++)
@@ -493,7 +494,7 @@ void SimpleOpenGL3App::drawText3D(const char* txt, float position[3], float orie
 
 	float posX = position[0];
 	float posY = position[1];
-	float posZ = position[2];
+	float posZ = position[2]; (void)posZ;
 	float winx, winy, winz;
 
 	if (optionFlag & CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera)

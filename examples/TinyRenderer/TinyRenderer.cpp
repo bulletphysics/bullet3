@@ -435,7 +435,7 @@ TinyRenderObjectData::~TinyRenderObjectData()
 	delete m_model;
 }
 
-static bool equals(const Vec4f& vA, const Vec4f& vB)
+static bool equals(const Vec4f& /*vA*/, const Vec4f& /*vB*/)
 {
 	return false;
 }

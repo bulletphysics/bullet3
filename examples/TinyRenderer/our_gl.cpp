@@ -142,7 +142,7 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 			Vec3d bc_clip2 = Vec3d(bc_screen2.x / orgScreenSpacePts[0][3], bc_screen2.y / orgScreenSpacePts[1][3], bc_screen2.z / orgScreenSpacePts[2][3]);
 			bc_clip2 = bc_clip2 / (bc_clip2.x + bc_clip2.y + bc_clip2.z);
 			Vec3d orgClipd(orgClipc[2].x, orgClipc[2].y, orgClipc[2].z);
-			double frag_depth2 = -1. * (orgClipd * bc_clip2);
+			// double frag_depth2 = -1. * (orgClipd * bc_clip2);
 
 			Vec3f bc_clip2f(bc_clip2.x, bc_clip2.y, bc_clip2.z);
 			bool discard = shader.fragment(bc_clip2f, color);

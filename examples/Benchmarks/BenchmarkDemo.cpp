@@ -60,7 +60,7 @@ class BenchmarkDemo : public CommonRigidBodyMTBase
 		//??
 	}
 
-	void setCameraDistance(btScalar dist)
+	void setCameraDistance(btScalar /*dist*/)
 	{
 	}
 	void createTest1();
@@ -489,6 +489,7 @@ void BenchmarkDemo::createTest1()
 				trans.setOrigin(pos);
 				btRigidBody* cmbody;
 				cmbody = createRigidBody(mass, trans, blockShape);
+				(void)cmbody;
 			}
 		}
 		offset -= 0.05f * spacing * (size - 1);
@@ -1133,6 +1134,7 @@ void BenchmarkDemo::createTest5()
 		float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 		int numBodies = 0;
+		(void)numBodies;
 
 		for (int k = 0; k < height; k++)
 		{

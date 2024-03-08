@@ -891,7 +891,7 @@ public:
 	}
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library
-	virtual void setCollisionShape(btCollisionShape* collisionShape)
+	virtual void setCollisionShape(btCollisionShape* /*collisionShape*/)
 	{
 	}
 
@@ -1106,7 +1106,7 @@ public:
 	void setZeroVelocity();
 	bool wantsSleeping();
 
-	virtual btMatrix3x3 getImpulseFactor(int n_node)
+	virtual btMatrix3x3 getImpulseFactor(int /*n_node*/)
 	{
 		btMatrix3x3 tmp;
 		tmp.setIdentity();

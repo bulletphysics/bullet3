@@ -70,7 +70,7 @@ public:
     void exitPhysics();
 
     // disable pick force. non-interactive example.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 

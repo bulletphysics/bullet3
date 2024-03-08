@@ -130,7 +130,7 @@ struct CollisionDispatcherUpdater : public btIParallelForBody
 	}
 };
 
-void btCollisionDispatcherMt::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache, const btDispatcherInfo& info, btDispatcher* dispatcher)
+void btCollisionDispatcherMt::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache, const btDispatcherInfo& info, btDispatcher* /*dispatcher*/)
 {
 	const int pairCount = pairCache->getNumOverlappingPairs();
 	if (pairCount == 0)

@@ -78,11 +78,11 @@ struct CommonGraphicsApp
 	{
 	}
 
-	virtual void dumpNextFrameToPng(const char* pngFilename) {}
-	virtual void dumpFramesToVideo(const char* mp4Filename) {}
+	virtual void dumpNextFrameToPng(const char* /*pngFilename*/) {}
+	virtual void dumpFramesToVideo(const char* /*mp4Filename*/) {}
 
-	virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes) {}
-	virtual void setViewport(int width, int height) {}
+	virtual void getScreenPixels(unsigned char* /*rgbaBuffer*/, int /*bufferSizeInBytes*/, float* /*depthBuffer*/, int /*depthBufferSizeInBytes*/) {}
+	virtual void setViewport(int /*width*/, int /*height*/) {}
 
 	virtual void getBackgroundColor(float* red, float* green, float* blue) const
 	{
@@ -93,7 +93,7 @@ struct CommonGraphicsApp
 		if (blue)
 			*blue = m_backgroundColorRGB[2];
 	}
-	virtual void setMp4Fps(int fps) {}
+	virtual void setMp4Fps(int /*fps*/) {}
 	virtual void setBackgroundColor(float red, float green, float blue)
 	{
 		m_backgroundColorRGB[0] = red;

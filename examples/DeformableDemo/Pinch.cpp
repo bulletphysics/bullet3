@@ -256,6 +256,7 @@ void Pinch::initPhysics()
     
     // create a soft block
     {
+        /*
         btScalar verts[24] = {0.f, 0.f, 0.f,
             1.f, 0.f, 0.f,
             0.f, 1.f, 0.f,
@@ -286,6 +287,7 @@ void Pinch::initPhysics()
             4,5,0,
             4,5,6,
         };
+        */
 //       btSoftBody* psb = btSoftBodyHelpers::CreateFromTriMesh(getDeformableDynamicsWorld()->getWorldInfo(), &verts[0], &triangles[0], 20);
 ////
         btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),

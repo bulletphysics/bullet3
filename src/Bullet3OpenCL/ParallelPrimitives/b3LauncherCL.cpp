@@ -111,7 +111,7 @@ struct b3KernelArgDataUnaligned
 };
 #include <string.h>
 
-int b3LauncherCL::deserializeArgs(unsigned char* buf, int bufSize, cl_context ctx)
+int b3LauncherCL::deserializeArgs(unsigned char* buf, int /*bufSize*/, cl_context ctx)
 {
 	int index = 0;
 
@@ -151,7 +151,7 @@ int b3LauncherCL::deserializeArgs(unsigned char* buf, int bufSize, cl_context ct
 	return index;
 }
 
-int b3LauncherCL::validateResults(unsigned char* goldBuffer, int goldBufferCapacity, cl_context ctx)
+int b3LauncherCL::validateResults(unsigned char* goldBuffer, int /*goldBufferCapacity*/, cl_context /*ctx*/)
 {
 	int index = 0;
 

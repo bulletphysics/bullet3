@@ -410,7 +410,7 @@ void GLPrimitiveRenderer::drawTexturedRect3D2(PrimVertex *vertices, int numVerti
 	b3Assert(glGetError() == GL_NO_ERROR);
 }
 
-void GLPrimitiveRenderer::drawTexturedRect2a(float x0, float y0, float x1, float y1, float color[4], float u0, float v0, float u1, float v1, int useRGBA)
+void GLPrimitiveRenderer::drawTexturedRect2a(float x0, float y0, float x1, float y1, float color[4], float u0, float v0, float u1, float v1, int /*useRGBA*/)
 {
 	PrimVertex vertexData[4] = {
 		PrimVertex(PrimVec4(-1.f + 2.f * x0 / float(m_screenWidth), 1.f - 2.f * y0 / float(m_screenHeight), 0.f, 1.f), PrimVec4(color[0], color[1], color[2], color[3]), PrimVec2(u0, v0)),

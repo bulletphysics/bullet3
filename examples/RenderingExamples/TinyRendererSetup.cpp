@@ -212,7 +212,7 @@ TinyRendererSetup::~TinyRendererSetup()
 }
 
 const char* itemsanimate[] = {"Fixed", "Rotate"};
-void TinyRendererComboCallbackAnimate(int combobox, const char* item, void* userPointer)
+void TinyRendererComboCallbackAnimate(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);
@@ -230,7 +230,7 @@ void TinyRendererComboCallbackAnimate(int combobox, const char* item, void* user
 
 const char* items[] = {"Software", "OpenGL"};
 
-void TinyRendererComboCallback(int combobox, const char* item, void* userPointer)
+void TinyRendererComboCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);
@@ -303,7 +303,7 @@ void TinyRendererSetup::exitPhysics()
 {
 }
 
-void TinyRendererSetup::stepSimulation(float deltaTime)
+void TinyRendererSetup::stepSimulation(float /*deltaTime*/)
 {
 	m_internalData->updateTransforms();
 }
@@ -425,26 +425,26 @@ void TinyRendererSetup::renderScene()
 	}
 }
 
-void TinyRendererSetup::physicsDebugDraw(int debugDrawFlags)
+void TinyRendererSetup::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-bool TinyRendererSetup::mouseMoveCallback(float x, float y)
-{
-	return false;
-}
-
-bool TinyRendererSetup::mouseButtonCallback(int button, int state, float x, float y)
+bool TinyRendererSetup::mouseMoveCallback(float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-bool TinyRendererSetup::keyboardCallback(int key, int state)
+bool TinyRendererSetup::mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-void TinyRendererSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
+bool TinyRendererSetup::keyboardCallback(int /*key*/, int /*state*/)
+{
+	return false;
+}
+
+void TinyRendererSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& /*gfxBridge*/)
 {
 }
 

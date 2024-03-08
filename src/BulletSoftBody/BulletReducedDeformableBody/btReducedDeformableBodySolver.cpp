@@ -95,8 +95,8 @@ void btReducedDeformableBodySolver::predictReduceDeformableMotion(btScalar solve
     }
 
     // clear contacts variables
-		rsb->m_nodeRigidContacts.resize(0);
-		rsb->m_faceRigidContacts.resize(0);
+		// rsb->m_nodeRigidContacts.resize(0);
+		// rsb->m_faceRigidContacts.resize(0);
 		rsb->m_faceNodeContacts.resize(0);
     
     // calculate inverse mass matrix for all nodes
@@ -239,7 +239,7 @@ void btReducedDeformableBodySolver::setConstraints(const btContactSolverInfo& in
   }
 }
 
-btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
+btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObject** /*deformableBodies*/, int /*numDeformableBodies*/, const btContactSolverInfo& infoGlobal)
 {
   btScalar residualSquare = 0;
 
@@ -248,7 +248,7 @@ btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObjec
     btAlignedObjectArray<int> m_orderNonContactConstraintPool;
     btAlignedObjectArray<int> m_orderContactConstraintPool;
 
-    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
+    // btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
 
     // shuffle the order of applying constraint
     m_orderNonContactConstraintPool.resize(m_staticConstraints[i].size());

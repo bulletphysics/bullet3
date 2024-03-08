@@ -101,7 +101,7 @@ inline float tetVolume(const float *p0, const float *p1, const float *p2, const 
 	return volume;
 }
 
-inline float det(const float *p0, const float *p1, const float *p2, const float *p3)
+inline float det(const float * /*p0*/, const float *p1, const float *p2, const float *p3)
 {
 	return p1[0] * p2[1] * p3[2] + p2[0] * p3[1] * p1[2] + p3[0] * p1[1] * p2[2] - p1[0] * p3[1] * p2[2] - p2[0] * p1[1] * p3[2] - p3[0] * p2[1] * p1[2];
 }

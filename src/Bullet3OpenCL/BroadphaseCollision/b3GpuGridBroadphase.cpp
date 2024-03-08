@@ -91,7 +91,7 @@ b3GpuGridBroadphase::~b3GpuGridBroadphase()
 	delete m_sorter;
 }
 
-void b3GpuGridBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int collisionFilterGroup, int collisionFilterMask)
+void b3GpuGridBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int /*collisionFilterGroup*/, int /*collisionFilterMask*/)
 {
 	b3SapAabb aabb;
 	aabb.m_minVec = aabbMin;
@@ -102,7 +102,7 @@ void b3GpuGridBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3&
 
 	m_allAabbsCPU1.push_back(aabb);
 }
-void b3GpuGridBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int collisionFilterGroup, int collisionFilterMask)
+void b3GpuGridBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int /*collisionFilterGroup*/, int /*collisionFilterMask*/)
 {
 	b3SapAabb aabb;
 	aabb.m_minVec = aabbMin;

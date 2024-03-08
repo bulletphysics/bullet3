@@ -569,18 +569,18 @@ public:
 		}
 	}
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
-	{
-		return false;
-	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
+	{
+		return false;
+	}
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -601,14 +601,14 @@ public:
 	}
 };
 
-void Tutorial::tutorial2Update(float deltaTime)
+void Tutorial::tutorial2Update(float /*deltaTime*/)
 {
 	for (int i = 0; i < m_bodies.size(); i++)
 	{
 		m_bodies[i]->m_gravityAcceleration.setValue(0, -10, 0);
 	}
 }
-void Tutorial::tutorial1Update(float deltaTime)
+void Tutorial::tutorial1Update(float /*deltaTime*/)
 {
 	for (int i = 0; i < m_bodies.size(); i++)
 	{
@@ -696,7 +696,7 @@ void Tutorial::tutorial1Update(float deltaTime)
 	}
 }
 
-void Tutorial::tutorialSolveContactConstraintUpdate(float deltaTime, LWContactPoint& contact)
+void Tutorial::tutorialSolveContactConstraintUpdate(float /*deltaTime*/, LWContactPoint& contact)
 {
 	ComputeClosestPointsSphereSphere(m_bodies[0]->m_collisionShape.m_sphere,
 									 m_bodies[0]->m_worldPose,
@@ -705,7 +705,7 @@ void Tutorial::tutorialSolveContactConstraintUpdate(float deltaTime, LWContactPo
 									 contact);
 }
 
-void Tutorial::tutorialCollisionUpdate(float deltaTime, LWContactPoint& contact)
+void Tutorial::tutorialCollisionUpdate(float /*deltaTime*/, LWContactPoint& contact)
 {
 	m_bodies[1]->m_worldPose.m_position.z = 3;
 

@@ -325,7 +325,7 @@ void NewtonsRopeCradleExample::changePendulaRestitution(btScalar restitution)
 	}
 }
 
-bool NewtonsRopeCradleExample::keyboardCallback(int key, int state)
+bool NewtonsRopeCradleExample::keyboardCallback(int key, int /*state*/)
 {
 	//b3Printf("Key pressed: %d in state %d \n",key,state);
 

@@ -50,7 +50,7 @@ b3CpuNarrowPhase::~b3CpuNarrowPhase()
 	delete m_data;
 }
 
-void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3AlignedObjectArray<b3Aabb>& aabbsWorldSpace, b3AlignedObjectArray<b3RigidBodyData>& bodies)
+void b3CpuNarrowPhase::computeContacts(b3AlignedObjectArray<b3Int4>& pairs, b3AlignedObjectArray<b3Aabb>& /*aabbsWorldSpace*/, b3AlignedObjectArray<b3RigidBodyData>& bodies)
 {
 	int nPairs = pairs.size();
 	int numContacts = 0;
@@ -227,7 +227,7 @@ int b3CpuNarrowPhase::registerConvexHullShape(const float* vertices, int strideI
 	return collidableIndex;
 }
 
-int b3CpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr, b3Collidable& col)
+int b3CpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr, b3Collidable& /*col*/)
 {
 	m_data->m_convexData.resize(m_data->m_numAcceleratedShapes + 1);
 	m_data->m_convexPolyhedra.resize(m_data->m_numAcceleratedShapes + 1);

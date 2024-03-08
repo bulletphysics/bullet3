@@ -267,7 +267,7 @@ public:
 		transform.setIdentity();
 		transform.setOrigin(localRootBodyPosition);
 
-		btTransform originTransform = transform;
+		// btTransform originTransform = transform;
 
 		m_bodies[0] = localCreateRigidBody(btScalar(bFixed ? 0. : 1.), bodyOffset * transform, m_shapes[0]);
 		m_ownerWorld->addRigidBody(m_bodies[0]);

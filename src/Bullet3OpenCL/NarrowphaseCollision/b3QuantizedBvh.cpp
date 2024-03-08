@@ -421,7 +421,7 @@ void b3QuantizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const b3Quantize
 	}
 }
 
-void b3QuantizedBvh::walkStacklessTreeAgainstRay(b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int startNodeIndex, int endNodeIndex) const
+void b3QuantizedBvh::walkStacklessTreeAgainstRay(b3NodeOverlapCallback* nodeCallback, const b3Vector3& raySource, const b3Vector3& rayTarget, const b3Vector3& aabbMin, const b3Vector3& aabbMax, int /*startNodeIndex*/, int /*endNodeIndex*/) const
 {
 	b3Assert(!m_useQuantization);
 
@@ -1247,7 +1247,7 @@ void b3QuantizedBvh::deSerializeDouble(struct b3QuantizedBvhDoubleData& quantize
 }
 
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
-const char* b3QuantizedBvh::serialize(void* dataBuffer, b3Serializer* serializer) const
+const char* b3QuantizedBvh::serialize(void* /*dataBuffer*/, b3Serializer* /*serializer*/) const
 {
 	b3Assert(0);
 	return 0;

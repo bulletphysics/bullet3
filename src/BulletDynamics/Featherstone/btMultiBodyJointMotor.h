@@ -68,7 +68,7 @@ public:
 	{
 		m_rhsClamp = rhsClamp;
 	}
-	virtual void debugDraw(class btIDebugDraw* drawer)
+	virtual void debugDraw(class btIDebugDraw* /*drawer*/)
 	{
 		//todo(erwincoumans)
 	}

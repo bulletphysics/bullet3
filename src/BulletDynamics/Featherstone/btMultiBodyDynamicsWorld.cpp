@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btSerializer.h"
 
-void btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, int group, int mask)
+void btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, int /*group*/, int /*mask*/)
 {
 	m_multiBodies.push_back(body);
 }

@@ -428,7 +428,7 @@ void btParallelFor(int iBegin, int iEnd, int grainSize, const btIParallelForBody
 	gBtTaskScheduler->parallelFor(iBegin, iEnd, grainSize, body);
 
 #else  // #if BT_THREADSAFE
-
+	(void)grainSize;
 	// non-parallel version of btParallelFor
 	btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
 	body.forLoop(iBegin, iEnd);
@@ -455,7 +455,7 @@ btScalar btParallelSum(int iBegin, int iEnd, int grainSize, const btIParallelSum
 	return gBtTaskScheduler->parallelSum(iBegin, iEnd, grainSize, body);
 
 #else  // #if BT_THREADSAFE
-
+	(void)grainSize;
 	// non-parallel version of btParallelSum
 	btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
 	return body.sumLoop(iBegin, iEnd);
@@ -473,13 +473,13 @@ public:
 	btTaskSchedulerSequential() : btITaskScheduler("Sequential") {}
 	virtual int getMaxNumThreads() const BT_OVERRIDE { return 1; }
 	virtual int getNumThreads() const BT_OVERRIDE { return 1; }
-	virtual void setNumThreads(int numThreads) BT_OVERRIDE {}
-	virtual void parallelFor(int iBegin, int iEnd, int grainSize, const btIParallelForBody& body) BT_OVERRIDE
+	virtual void setNumThreads(int /*numThreads*/) BT_OVERRIDE {}
+	virtual void parallelFor(int iBegin, int iEnd, int /*grainSize*/, const btIParallelForBody& body) BT_OVERRIDE
 	{
 		BT_PROFILE("parallelFor_sequential");
 		body.forLoop(iBegin, iEnd);
 	}
-	virtual btScalar parallelSum(int iBegin, int iEnd, int grainSize, const btIParallelSumBody& body) BT_OVERRIDE
+	virtual btScalar parallelSum(int iBegin, int iEnd, int /*grainSize*/, const btIParallelSumBody& body) BT_OVERRIDE
 	{
 		BT_PROFILE("parallelSum_sequential");
 		return body.sumLoop(iBegin, iEnd);

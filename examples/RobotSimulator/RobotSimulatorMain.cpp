@@ -13,7 +13,7 @@
 #define ASSERT_EQ(a, b) assert((a) == (b));
 #include "MinitaurSetup.h"
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 #ifdef B3_USE_ROBOTSIM_GUI
 	b3RobotSimulatorClientAPI* sim = new b3RobotSimulatorClientAPI();
@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
 	//}
 
 	b3Clock clock;
+#if 0
 	double startTime = clock.getTimeInSeconds();
 	double simWallClockSeconds = 20.;
-#if 0
 	while (clock.getTimeInSeconds()-startTime < simWallClockSeconds)
 	{
 		sim->stepSimulation();

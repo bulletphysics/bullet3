@@ -1493,23 +1493,23 @@ void TetrahedronSet::AddClippedTetrahedra(const Vec3<double> (&pts)[10], const i
 	}
 }
 
-void TetrahedronSet::Intersect(const Plane& plane,
-							   SArray<Vec3<double> >* const positivePts,
-							   SArray<Vec3<double> >* const negativePts,
-							   const size_t sampling) const
+void TetrahedronSet::Intersect(const Plane& /*plane*/,
+							   SArray<Vec3<double> >* const /*positivePts*/,
+							   SArray<Vec3<double> >* const /*negativePts*/,
+							   const size_t /*sampling*/) const
 {
 	const size_t nTetrahedra = m_tetrahedra.Size();
 	if (nTetrahedra == 0)
 		return;
 }
-void TetrahedronSet::ComputeExteriorPoints(const Plane& plane,
-										   const Mesh& mesh,
-										   SArray<Vec3<double> >* const exteriorPts) const
+void TetrahedronSet::ComputeExteriorPoints(const Plane& /*plane*/,
+										   const Mesh& /*mesh*/,
+										   SArray<Vec3<double> >* const /*exteriorPts*/) const
 {
 }
-void TetrahedronSet::ComputeClippedVolumes(const Plane& plane,
-										   double& positiveVolume,
-										   double& negativeVolume) const
+void TetrahedronSet::ComputeClippedVolumes(const Plane& /*plane*/,
+										   double& /*positiveVolume*/,
+										   double& /*negativeVolume*/) const
 {
 	const size_t nTetrahedra = m_tetrahedra.Size();
 	if (nTetrahedra == 0)
@@ -1637,6 +1637,7 @@ void TetrahedronSet::Clip(const Plane& plane,
 		else
 		{
 			int nnew = 0;
+			(void)nnew;
 			for (int j = 0; j < 6; ++j)
 			{
 				if (sign[edges[j][0]] * sign[edges[j][1]] == -1)

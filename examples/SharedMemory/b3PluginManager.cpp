@@ -154,7 +154,7 @@ b3PluginManager::~b3PluginManager()
 		int* pluginUidPtr = m_data->m_pluginMap.getAtIndex(0);
 		if (pluginUidPtr)
 		{
-			int pluginUid = *pluginUidPtr;
+			// int pluginUid = *pluginUidPtr;
 			unloadPlugin(*pluginUidPtr);
 		}
 	}
@@ -213,6 +213,7 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 			context.m_physClient = (b3PhysicsClientHandle)m_data->m_physicsDirect;
 			context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
 			int result = plugin->m_initFunc(&context);
+			(void)result;
 			plugin->m_isInitialized = true;
 			plugin->m_userPointer = context.m_userPointer;
 		}
@@ -363,7 +364,7 @@ void b3PluginManager::unloadPlugin(int pluginUniqueId)
 	}
 }
 
-void b3PluginManager::tickPlugins(double timeStep, b3PluginManagerTickMode tickMode)
+void b3PluginManager::tickPlugins(double /*timeStep*/, b3PluginManagerTickMode tickMode)
 {
 	for (int i = 0; i < m_data->m_pluginMap.size(); i++)
 	{
@@ -419,6 +420,7 @@ void b3PluginManager::tickPlugins(double timeStep, b3PluginManagerTickMode tickM
 				context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
 			}
 			int result = tick(&context);
+			(void)result;
 			plugin->m_userPointer = context.m_userPointer;
 		}
 	}
@@ -522,6 +524,7 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath,  b3Plugi
 		context.m_physClient = (b3PhysicsClientHandle)m_data->m_physicsDirect;
 		context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
 		int result = pluginHandle->m_initFunc(&context);
+		(void)result;
 		pluginHandle->m_isInitialized = true;
 		pluginHandle->m_userPointer = context.m_userPointer;
 		pluginHandle->m_returnData = 0;

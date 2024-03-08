@@ -61,7 +61,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 														btScalar lowerLimit, btScalar upperLimit,
 														bool angConstraint,
 														btScalar relaxation,
-														bool isFriction, btScalar desiredVelocity, btScalar cfmSlip,
+														bool isFriction, btScalar desiredVelocity, btScalar /*cfmSlip*/,
 														btScalar damping)
 {
 	solverConstraint.m_multiBodyA = m_bodyA;

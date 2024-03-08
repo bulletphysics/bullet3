@@ -71,7 +71,7 @@ void Reset(Tree& tree, Jacobian* m_ikJacobian)
 
 // Update target positions
 
-void UpdateTargets(double T, Tree& treeY)
+void UpdateTargets(double T, Tree& /*treeY*/)
 {
 	targetaa[0].Set(2.0f + 1.5*sin(3 * T) * 2, -0.5 + 1.0f + 0.2*sin(7 * T) * 2, 0.3f + 0.7*sin(5 * T) * 2);
 	targetaa[1].Set(0.5f + 0.4*sin(4 * T) * 2, -0.5 + 0.9f + 0.3*sin(4 * T) * 2, -0.2f + 1.0*sin(3 * T) * 2);
@@ -163,11 +163,11 @@ public:
 			b3Vector3 extents = b3MakeVector3(100, 100, 100);
 			extents[m_app->getUpAxis()] = 1;
 
-			int xres = 20;
-			int yres = 20;
+			// int xres = 20;
+			// int yres = 20;
 
-			b3Vector4 color0 = b3MakeVector4(0.4, 0.4, 0.4, 1);
-			b3Vector4 color1 = b3MakeVector4(0.6, 0.6, 0.6, 1);
+			// b3Vector4 color0 = b3MakeVector4(0.4, 0.4, 0.4, 1);
+			// b3Vector4 color1 = b3MakeVector4(0.6, 0.6, 0.6, 1);
 			//m_app->registerGrid(xres, yres, color0, color1);
 		}
 
@@ -191,7 +191,7 @@ public:
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -244,7 +244,7 @@ public:
 			{
 				b3Transform act;
 				getLocalTransform(node->right, act);
-				b3Transform trr = tr * act;
+				// b3Transform trr = tr * act;
 				b3Transform ptrr = parentTr * act;
 				b3Vector3 lineColor = b3MakeVector3(0, 1, 0);
 				m_app->m_renderer->drawLine(tr.getOrigin(), ptrr.getOrigin(), lineColor, lineWidth);
@@ -288,15 +288,15 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

@@ -198,7 +198,7 @@ public:
 		//		m_yOffset+=rect.h+10;
 	}
 
-	void RenderText(Gwen::Font* pFont, Gwen::Point rasterPos, const Gwen::UnicodeString& text)
+	void RenderText(Gwen::Font* /*pFont*/, Gwen::Point rasterPos, const Gwen::UnicodeString& text)
 	{
 		//		BT_PROFILE("GWEN_RenderText");
 
@@ -328,6 +328,10 @@ public:
 
 	virtual void DrawTexturedRect(Gwen::Texture* pTexture, Gwen::Rect rect, float u1 = 0.0f, float v1 = 0.0f, float u2 = 1.0f, float v2 = 1.0f)
 	{
+		(void)u1;
+		(void)v1;
+		(void)u2;
+		(void)v2;
 		//		BT_PROFILE("DrawTexturedRect");
 		Translate(rect);
 

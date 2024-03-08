@@ -23,7 +23,7 @@ subject to the following restrictions:
 
 template <typename btConvexTemplate>
 bool btGjkEpaCalcPenDepth(const btConvexTemplate& a, const btConvexTemplate& b,
-						  const btGjkCollisionDescription& colDesc,
+						  const btGjkCollisionDescription& /*colDesc*/,
 						  btVector3& v, btVector3& wWitnessOnA, btVector3& wWitnessOnB)
 {
 	(void)v;
@@ -342,6 +342,7 @@ int btComputeGjkEpaPenetration(const btConvexTemplate& a, const btConvexTemplate
 	{
 		m_cachedSeparatingAxis = normalInB;
 		m_cachedSeparatingDistance = distance;
+		(void)m_cachedSeparatingDistance;
 		distInfo->m_distance = distance;
 		distInfo->m_normalBtoA = normalInB;
 		distInfo->m_pointOnB = pointOnB;

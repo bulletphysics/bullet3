@@ -41,10 +41,10 @@ static inline bool isSpace(const char c)
 {
 	return (c == ' ') || (c == '\t');
 }
-static inline bool isNewLine(const char c)
-{
-	return (c == '\r') || (c == '\n') || (c == '\0');
-}
+//static inline bool isNewLine(const char c)
+//{
+//	return (c == '\r') || (c == '\n') || (c == '\0');
+//}
 static inline float parseFloat(const char*& token)
 {
 	token += strspn(token, " \t");
@@ -187,6 +187,7 @@ public:
 		psb = nullptr;
 		reset_frame = 0;
 		sim_time = 0;
+		(void)filename;
 	}
 	virtual ~LoadDeformed()
 	{

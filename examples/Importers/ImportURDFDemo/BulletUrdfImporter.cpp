@@ -240,7 +240,7 @@ void BulletURDFImporter::activateModel(int modelIndex)
 	m_data->m_urdfParser.activateModel(modelIndex);
 }
 
-bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
+bool BulletURDFImporter::loadSDF(const char* fileName, bool /*forceFixedBase*/)
 {
 	//int argc=0;
 	char relativeFileName[1024];

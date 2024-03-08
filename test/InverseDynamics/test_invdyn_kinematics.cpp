@@ -36,7 +36,7 @@ DiffType toDiffType(ValueType& fd, ValueType& val);
 
 // vector case: just return finite difference approximation
 template <>
-vec3 toDiffType(vec3& fd, vec3& val)
+vec3 toDiffType(vec3& fd, vec3& /*val*/)
 {
 	return fd;
 }

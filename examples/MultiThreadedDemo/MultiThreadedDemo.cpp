@@ -34,7 +34,7 @@ static btScalar gSliderGroundTilt = 0.0f;
 static btScalar gSliderRollingFriction = 0.0f;
 static bool gSpheresNotBoxes = false;
 
-static void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
+static void boolPtrButtonCallback(int /*buttonId*/, bool /*buttonState*/, void* userPointer)
 {
 	if (bool* val = static_cast<bool*>(userPointer))
 	{

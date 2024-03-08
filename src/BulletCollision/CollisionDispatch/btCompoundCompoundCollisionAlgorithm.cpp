@@ -406,7 +406,7 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 	}
 }
 
-btScalar btCompoundCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0, btCollisionObject* body1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
+btScalar btCompoundCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* /*body0*/, btCollisionObject* /*body1*/, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* /*resultOut*/)
 {
 	btAssert(0);
 	return 0.f;

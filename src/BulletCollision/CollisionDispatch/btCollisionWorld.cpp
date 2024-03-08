@@ -64,7 +64,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 
-btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
+btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btCollisionConfiguration* /*collisionConfiguration*/)
 	: m_dispatcher1(dispatcher),
 	  m_broadphasePairCache(pairCache),
 	  m_debugDrawer(0),

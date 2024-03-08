@@ -812,7 +812,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 	prevPair.x = -1;
 	prevPair.y = -1;
 
-	int uniqueAddedPairs = 0;
+	int uniqueAddedPairs = 0; (void)uniqueAddedPairs;
 	b3AlignedObjectArray<b3Int4> actualAddedPairs;
 
 	{
@@ -1238,7 +1238,7 @@ void b3GpuSapBroadphase::writeAabbsToGpu()
 	m_allAabbsGPU.copyFromHost(m_allAabbsCPU);  //might not be necessary, the 'setupGpuAabbsFull' already takes care of this
 }
 
-void b3GpuSapBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int collisionFilterGroup, int collisionFilterMask)
+void b3GpuSapBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int /*collisionFilterGroup*/, int /*collisionFilterMask*/)
 {
 	int index = userPtr;
 	b3SapAabb aabb;
@@ -1254,7 +1254,7 @@ void b3GpuSapBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vect
 	m_allAabbsCPU.push_back(aabb);
 }
 
-void b3GpuSapBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int collisionFilterGroup, int collisionFilterMask)
+void b3GpuSapBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int /*collisionFilterGroup*/, int /*collisionFilterMask*/)
 {
 	int index = userPtr;
 	b3SapAabb aabb;

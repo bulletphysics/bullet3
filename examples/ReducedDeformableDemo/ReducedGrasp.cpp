@@ -71,7 +71,7 @@ public:
     
     void createGrip()
     {
-        int count = 2;
+        // int count = 2;
         float mass = 1e6;
         btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 0.25));
         {

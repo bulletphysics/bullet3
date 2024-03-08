@@ -153,19 +153,19 @@ void RaytracerPhysicsSetup::initPhysics()
 }
 
 ///worldRaytest performs a ray versus all objects in a collision world, returning true is a hit is found (filling in worldNormal and worldHitPoint)
-bool RaytracerPhysicsSetup::worldRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& worldHitPoint)
+bool RaytracerPhysicsSetup::worldRaytest(const btVector3& /*rayFrom*/, const btVector3& /*rayTo*/, btVector3& /*worldNormal*/, btVector3& /*worldHitPoint*/)
 {
 	return false;
 }
 
 ///singleObjectRaytest performs a ray versus one collision shape, returning true is a hit is found (filling in worldNormal and worldHitPoint)
-bool RaytracerPhysicsSetup::singleObjectRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& worldHitPoint)
+bool RaytracerPhysicsSetup::singleObjectRaytest(const btVector3& /*rayFrom*/, const btVector3& /*rayTo*/, btVector3& /*worldNormal*/, btVector3& /*worldHitPoint*/)
 {
 	return false;
 }
 
 ///lowlevelRaytest performs a ray versus convex shape, returning true is a hit is found (filling in worldNormal and worldHitPoint)
-bool RaytracerPhysicsSetup::lowlevelRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& worldHitPoint)
+bool RaytracerPhysicsSetup::lowlevelRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& /*worldHitPoint*/)
 {
 	btScalar closestHitResults = 1.f;
 
@@ -226,7 +226,7 @@ void RaytracerPhysicsSetup::exitPhysics()
 	}
 }
 
-void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
+void RaytracerPhysicsSetup::stepSimulation(float /*deltaTime*/)
 {
 	m_internalData->updateTransforms();
 
@@ -332,26 +332,26 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 	m_internalData->m_canvas->refreshImageData(m_internalData->m_canvasIndex);
 }
 
-void RaytracerPhysicsSetup::physicsDebugDraw(int debugDrawFlags)
+void RaytracerPhysicsSetup::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-bool RaytracerPhysicsSetup::mouseMoveCallback(float x, float y)
-{
-	return false;
-}
-
-bool RaytracerPhysicsSetup::mouseButtonCallback(int button, int state, float x, float y)
+bool RaytracerPhysicsSetup::mouseMoveCallback(float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-bool RaytracerPhysicsSetup::keyboardCallback(int key, int state)
+bool RaytracerPhysicsSetup::mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-void RaytracerPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
+bool RaytracerPhysicsSetup::keyboardCallback(int /*key*/, int /*state*/)
+{
+	return false;
+}
+
+void RaytracerPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& /*gfxBridge*/)
 {
 }
 

@@ -55,7 +55,7 @@ public:
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
-    void Ctor_RbUpStack(int count)
+    void Ctor_RbUpStack(int /*count*/)
     {
         float mass = 0.2;
         

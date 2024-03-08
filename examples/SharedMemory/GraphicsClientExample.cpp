@@ -204,22 +204,22 @@ public:
 
 	virtual void exitPhysics(){};
 	
-	virtual void physicsDebugDraw(int debugFlags)
+	virtual void physicsDebugDraw(int /*debugFlags*/)
 	{
 	}
 
 	virtual void renderScene()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -229,7 +229,7 @@ public:
 
 
 
-GraphicsClientExample::GraphicsClientExample(GUIHelperInterface* helper, int options)
+GraphicsClientExample::GraphicsClientExample(GUIHelperInterface* helper, int /*options*/)
 	: m_guiHelper(helper),
 	m_waitingForServer(false),
 	m_testBlock1(0)
@@ -262,7 +262,7 @@ void GraphicsClientExample::initPhysics()
 	
 }
 
-void GraphicsClientExample::stepSimulation(float deltaTime)
+void GraphicsClientExample::stepSimulation(float /*deltaTime*/)
 {
 	GraphicsSharedMemoryCommand* cmd = getAvailableSharedMemoryCommand();
 	if (cmd)

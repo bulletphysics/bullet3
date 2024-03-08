@@ -260,6 +260,8 @@ private:  // OpenGL bookkeeping
 CMainApplication::CMainApplication(int argc, char *argv[])
 	: m_app(NULL), m_hasContext(false), m_nWindowWidth(1280), m_nWindowHeight(720), m_unSceneProgramID(0), m_unLensProgramID(0), m_unControllerTransformProgramID(0), m_unRenderModelProgramID(0), m_pHMD(NULL), m_pRenderModels(NULL), m_bDebugOpenGL(false), m_bVerbose(false), m_bPerf(false), m_bVblank(false), m_bGlFinishHack(true), m_glControllerVertBuffer(0), m_unControllerVAO(0), m_unLensVAO(0), m_unSceneVAO(0), m_nSceneMatrixLocation(-1), m_nControllerMatrixLocation(-1), m_nRenderModelMatrixLocation(-1), m_iTrackedControllerCount(0), m_iTrackedControllerCount_Last(-1), m_iValidPoseCount(0), m_iValidPoseCount_Last(-1), m_iSceneVolumeInit(20), m_strPoseClasses(""), m_bShowCubes(false)
 {
+	(void)m_bPerf;
+
 	for (int i = 1; i < argc; i++)
 	{
 		if (!stricmp(argv[i], "-gldebug"))
@@ -582,7 +584,7 @@ bool CMainApplication::BInitGL()
 //-----------------------------------------------------------------------------
 bool CMainApplication::BInitCompositor()
 {
-	vr::EVRInitError peError = vr::VRInitError_None;
+	// vr::EVRInitError peError = vr::VRInitError_None;
 
 	if (!vr::VRCompositor())
 	{

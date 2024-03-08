@@ -35,7 +35,7 @@ static btVector4 sColors[4] =
 		btVector4(0.7, 1, 1, 1),
 };
 
-void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
+void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* /*userData*/, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
 {
 	numNearCallbacks++;
 	int remainingCapacity = sPointCapacity - gTotalPoints;
@@ -199,6 +199,7 @@ public:
 
 		{
 			int textureIndex = -1;
+			(void)textureIndex;
 
 			if (1)
 			{
@@ -245,7 +246,7 @@ public:
 	{
 	}
 
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 #ifndef BT_NO_PROFILE
 		CProfileManager::Reset();
@@ -322,18 +323,18 @@ public:
 		}
 	}
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
-	{
-		return false;
-	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
+	{
+		return false;
+	}
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

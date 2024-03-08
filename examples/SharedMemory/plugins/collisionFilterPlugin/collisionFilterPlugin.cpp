@@ -191,7 +191,7 @@ B3_SHARED_API struct b3PluginCollisionInterface* getCollisionInterface_collision
 	return &obj->m_collisionFilter;
 }
 
-B3_SHARED_API int executePluginCommand_collisionFilterPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
+B3_SHARED_API int executePluginCommand_collisionFilterPlugin(struct b3PluginContext* /*context*/, const struct b3PluginArguments* /*arguments*/)
 {
 	return 0;
 }

@@ -210,7 +210,7 @@ static bool parseTriple(const char** token, int vsize, int vnsize, int vtsize,
 
 static bool exportFaceGroupToShape(shape_t* shape, const std::vector<face_t>& face_group,
 								   const material_t material, const std::string& name,
-								   const std::vector<float>& v)
+								   const std::vector<float>& /*v*/)
 {
 	if (face_group.empty())
 	{
@@ -268,7 +268,7 @@ static bool exportFaceGroupToShape(shape_t* shape, const std::vector<face_t>& fa
 			for (size_t k = 0; k < 3; k++)
 			{
 				ind[k] = remainingFace[(guess_vert + k) % npolys];
-				size_t vi = size_t(ind[k].v_idx);
+				// size_t vi = size_t(ind[k].v_idx);
 			}
 			// this triangle is an ear
 			{

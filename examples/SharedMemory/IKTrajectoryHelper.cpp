@@ -41,8 +41,8 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 								   const double endEffectorTargetOrientation[4],
 								   const double endEffectorWorldPosition[3],
 								   const double endEffectorWorldOrientation[4],
-								   const double* q_current, int numQ, int endEffectorIndex,
-								   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6])
+								   const double* q_current, int numQ, int /*endEffectorIndex*/,
+								   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int /*jacobian_size*/, const double dampIk[6])
 {
 	MatrixRmn AugMat;
 	bool useAngularPart = (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION || ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE || ikMethod == IK2_VEL_SDLS_WITH_ORIENTATION) ? true : false;

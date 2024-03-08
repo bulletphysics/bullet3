@@ -63,11 +63,11 @@ struct CommonRenderInterface
 	
 	virtual void setShadowMapWorldSize(float worldSize) = 0;
 	
-	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]){};
-	virtual void setProjectiveTexture(bool useProjectiveTexture){};
+	virtual void setProjectiveTextureMatrices(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16]){};
+	virtual void setProjectiveTexture(bool /*useProjectiveTexture*/){};
 
 	virtual void renderScene() = 0;
-	virtual void renderSceneInternal(int renderMode = B3_DEFAULT_RENDERMODE){};
+	virtual void renderSceneInternal(int renderMode = B3_DEFAULT_RENDERMODE){ (void)renderMode; };
 	virtual int getScreenWidth() = 0;
 	virtual int getScreenHeight() = 0;
 
@@ -89,12 +89,12 @@ struct CommonRenderInterface
 	virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY = true) = 0;
 	virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY = true) = 0;
 	virtual void activateTexture(int textureIndex) = 0;
-	virtual void replaceTexture(int shapeIndex, int textureIndex){};
+	virtual void replaceTexture(int /*shapeIndex*/, int /*textureIndex*/){};
 	virtual void removeTexture(int textureIndex) = 0;
 
-	virtual void setPlaneReflectionShapeIndex(int index) {}
+	virtual void setPlaneReflectionShapeIndex(int /*index*/) {}
 
-	virtual int getShapeIndexFromInstance(int srcIndex) { return -1; }
+	virtual int getShapeIndexFromInstance(int /*srcIndex*/) { return -1; }
 
 	virtual bool readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex) = 0;
 

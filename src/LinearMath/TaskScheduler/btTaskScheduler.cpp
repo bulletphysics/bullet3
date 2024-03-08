@@ -114,7 +114,7 @@ public:
 		m_begin = iBegin;
 		m_end = iEnd;
 	}
-	virtual void executeJob(int threadId) BT_OVERRIDE
+	virtual void executeJob(int /*threadId*/) BT_OVERRIDE
 	{
 		BT_PROFILE("executeJob");
 
@@ -200,6 +200,7 @@ public:
 		m_headIndex = 0;
 		m_tailIndex = 0;
 		m_useSpinMutex = false;
+		(void)m_cachePadding;
 	}
 	~JobQueue()
 	{

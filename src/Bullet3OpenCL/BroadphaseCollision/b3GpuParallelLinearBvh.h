@@ -24,8 +24,6 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h"
 
-#include "Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvhKernels.h"
-
 #define b3Int64 cl_long
 
 ///@brief GPU Parallel Linearized Bounding Volume Heirarchy(LBVH) that is reconstructed every frame

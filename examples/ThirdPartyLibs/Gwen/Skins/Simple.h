@@ -171,7 +171,7 @@ public:
 		m_Render->DrawShavedCornerRect(Gwen::Rect(0, 0, w, h), bSquared);
 	}
 
-	virtual void DrawRadioButton(Gwen::Controls::Base* control, bool bSelected, bool bDepressed)
+	virtual void DrawRadioButton(Gwen::Controls::Base* control, bool bSelected, bool /*bDepressed*/)
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 
@@ -403,7 +403,7 @@ public:
 		m_Render->DrawFilledRect(rect);
 	}
 
-	virtual void DrawScrollBar(Gwen::Controls::Base* control, bool isHorizontal, bool bDepressed)
+	virtual void DrawScrollBar(Gwen::Controls::Base* control, bool /*isHorizontal*/, bool bDepressed)
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 		if (bDepressed)
@@ -413,7 +413,7 @@ public:
 		m_Render->DrawFilledRect(rect);
 	}
 
-	virtual void DrawScrollBarBar(Controls::Base* control, bool bDepressed, bool isHovered, bool isHorizontal)
+	virtual void DrawScrollBarBar(Controls::Base* control, bool bDepressed, bool isHovered, bool /*isHorizontal*/)
 	{
 		//TODO: something specialized
 		DrawButton(control, bDepressed, isHovered);
@@ -500,7 +500,7 @@ public:
 		}
 	}
 
-	virtual void DrawSlider(Gwen::Controls::Base* control, bool bIsHorizontal, int numNotches, int barSize)
+	virtual void DrawSlider(Gwen::Controls::Base* control, bool bIsHorizontal, int /*numNotches*/, int /*barSize*/)
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 		//					Gwen::Rect notchRect = rect;
@@ -537,7 +537,7 @@ public:
 		m_Render->DrawLinedRect(rect);
 	}
 
-	virtual void DrawKeyboardHighlight(Gwen::Controls::Base* control, const Gwen::Rect& r, int iOffset)
+	virtual void DrawKeyboardHighlight(Gwen::Controls::Base* /*control*/, const Gwen::Rect& r, int iOffset)
 	{
 		Gwen::Rect rect = r;
 
@@ -606,7 +606,7 @@ public:
 			DrawArrowRight(r);
 	}
 
-	virtual void DrawComboBoxButton(Gwen::Controls::Base* control, bool bDepressed)
+	virtual void DrawComboBoxButton(Gwen::Controls::Base* control, bool /*bDepressed*/)
 	{
 		//DrawButton( control->Width(), control->Height(), bDepressed, false, true );
 
@@ -616,7 +616,7 @@ public:
 		DrawArrowDown(r);
 	}
 
-	virtual void DrawNumericUpDownButton(Gwen::Controls::Base* control, bool bDepressed, bool bUp)
+	virtual void DrawNumericUpDownButton(Gwen::Controls::Base* control, bool /*bDepressed*/, bool bUp)
 	{
 		//DrawButton( control->Width(), control->Height(), bDepressed, false, true );
 
@@ -663,7 +663,7 @@ public:
 		m_Render->DrawLinedRect(rect);
 	}
 
-	void DrawTreeNode(Controls::Base* ctrl, bool bOpen, bool bSelected, int iLabelHeight, int iLabelWidth, int iHalfWay, int iLastBranch, bool bIsRoot)
+	void DrawTreeNode(Controls::Base* /*ctrl*/, bool bOpen, bool bSelected, int iLabelHeight, int iLabelWidth, int iHalfWay, int iLastBranch, bool bIsRoot)
 	{
 		if (bSelected)
 		{

@@ -49,7 +49,7 @@ static void Simple2ResizeCallback(float widthf, float heightf)
 		gApp2->m_renderer->resize(width, height);  //*gApp2->m_window->getRetinaScale(),height*gApp2->m_window->getRetinaScale());
 }
 
-static void Simple2KeyboardCallback(int key, int state)
+static void Simple2KeyboardCallback(int key, int /*state*/)
 {
 	if (key == B3G_ESCAPE && gApp2 && gApp2->m_window)
 	{
@@ -300,7 +300,7 @@ void SimpleOpenGL2App::swapBuffer()
 	m_window->startRendering();
 }
 
-void SimpleOpenGL2App::drawText(const char* txt, int posXi, int posYi, float size, float colorRGBA[4])
+void SimpleOpenGL2App::drawText(const char* /*txt*/, int /*posXi*/, int /*posYi*/, float /*size*/, float /*colorRGBA*/[4])
 {
 }
 
@@ -310,7 +310,7 @@ static void restoreOpenGLState()
 	glPopAttrib();
 }
 
-static void saveOpenGLState(int screenWidth, int screenHeight)
+static void saveOpenGLState(int /*screenWidth*/, int /*screenHeight*/)
 {
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
@@ -332,7 +332,7 @@ static void saveOpenGLState(int screenWidth, int screenHeight)
 	glDisable(GL_TEXTURE_2D);
 }
 
-void SimpleOpenGL2App::drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+void SimpleOpenGL2App::drawText3D(const char* /*txt*/, float /*position*/[3], float /*orientation*/[4], float /*color*/[4], float /*size*/, int /*optionFlag*/)
 {
 }
 

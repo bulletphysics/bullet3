@@ -318,7 +318,7 @@ public:
 		return a;
 	}
 
-	void addWeighted(WpointVector &list, ConvexDecompInterface *callback)
+	void addWeighted(WpointVector &list, ConvexDecompInterface * /*callback*/)
 	{
 		Wpoint p1(mP1, mC1);
 		Wpoint p2(mP2, mC2);
@@ -395,7 +395,7 @@ public:
 
 typedef std::vector<CTri> CTriVector;
 
-bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface *callback, const CTriVector &input_mesh)
+bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface * /*callback*/, const CTriVector &input_mesh)
 {
 	bool ret = false;
 
@@ -496,7 +496,7 @@ bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface *callba
 	return ret;
 }
 
-bool isFeatureTri(CTri &t, CTriVector &flist, float fc, ConvexDecompInterface *callback, unsigned int color)
+bool isFeatureTri(CTri &t, CTriVector &flist, float fc, ConvexDecompInterface * /*callback*/, unsigned int /*color*/)
 {
 	bool ret = false;
 
@@ -546,7 +546,7 @@ float computeConcavity(unsigned int vcount,
 					   unsigned int tcount,
 					   const unsigned int *indices,
 					   ConvexDecompInterface *callback,
-					   float *plane,  // plane equation to split on
+					   float * /*plane*/,  // plane equation to split on
 					   float &volume)
 {
 	float cret = 0;

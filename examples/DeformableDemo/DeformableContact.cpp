@@ -197,7 +197,7 @@ void DeformableContact::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 	int numInstances = m_guiHelper->getRenderInterface()->getTotalNumInstances();
-	double rgbaColors[3][4] = { { 1, 0, 0, 1 } , { 0, 1, 0, 1 } ,{ 0, 0, 1, 1 } };
+	// double rgbaColors[3][4] = { { 1, 0, 0, 1 } , { 0, 1, 0, 1 } ,{ 0, 0, 1, 1 } };
 
 	for (int i = 0; i < numInstances; i++)
 	{

@@ -602,7 +602,7 @@ void btDeformableMultiBodyDynamicsWorld::beforeSolverCallbacks(btScalar timeStep
 	}
 }
 
-void btDeformableMultiBodyDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::afterSolverCallbacks(btScalar /*timeStep*/)
 {
 	if (0 != m_solverCallback)
 	{

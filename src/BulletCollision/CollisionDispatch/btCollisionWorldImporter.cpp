@@ -987,7 +987,7 @@ btBvhTriangleMeshShape* btCollisionWorldImporter::createBvhTriangleMeshShape(btS
 	m_allocatedCollisionShapes.push_back(ts);
 	return ts;
 }
-btCollisionShape* btCollisionWorldImporter::createConvexTriangleMeshShape(btStridingMeshInterface* trimesh)
+btCollisionShape* btCollisionWorldImporter::createConvexTriangleMeshShape(btStridingMeshInterface* /*trimesh*/)
 {
 	return 0;
 }

@@ -44,7 +44,7 @@ public:
 	virtual void exitPhysics()
 	{
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_x += 0.01f;
 		m_y += 0.01f;
@@ -85,7 +85,7 @@ public:
 		}
 	}
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 		btVector3 xUnit(1, 0, 0);
 		btVector3 yUnit(0, 1, 0);
@@ -119,15 +119,15 @@ public:
 		drawArc(yUnit, yUnit, toY.normalized(), radius, radius, 0.4, SIMD_2_PI, yUnit, false);
 		drawArc(zUnit, zUnit, toZ.normalized(), radius, radius, 0.4, SIMD_2_PI, zUnit, false);
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

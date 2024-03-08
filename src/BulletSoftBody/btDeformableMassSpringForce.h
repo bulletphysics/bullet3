@@ -196,7 +196,7 @@ public:
 		}
 	}
 
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		double energy = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)

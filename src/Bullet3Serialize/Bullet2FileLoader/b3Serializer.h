@@ -431,7 +431,7 @@ public:
 		writeDNA();
 
 		//if we didn't pre-allocate a buffer, we need to create a contiguous buffer now
-		int mysize = 0;
+		int mysize = 0; (void)mysize;
 		if (!m_totalSize)
 		{
 			if (m_buffer)

@@ -114,7 +114,7 @@ void b3OutputErrorMessageVarArgsInternal(const char* str, ...)
 	va_end(argList);
 }
 
-void b3EnterProfileZoneDefault(const char* name)
+void b3EnterProfileZoneDefault(const char* /*name*/)
 {
 }
 void b3LeaveProfileZoneDefault()

@@ -979,7 +979,7 @@ float3 operator*(const Quaternion &q, const float3 &v)
 		(2 * (qxqz - qyqw)) * v.x + (2 * (qyqz + qxqw)) * v.y + (1 - 2 * (qx2 + qy2)) * v.z);
 }
 
-float3 operator*(const float3 &v, const Quaternion &q)
+float3 operator*(const float3 & /*v*/, const Quaternion & /*q*/)
 {
 	assert(0);  // must multiply with the quat on the left
 	return float3(0.0f, 0.0f, 0.0f);
@@ -1945,7 +1945,7 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 
 	EdgeFlag edgeflag[512];
 	VertFlag vertflag[256];
-	PlaneFlag planeflag[128];
+	PlaneFlag planeflag[128]; (void)planeflag;
 	HalfEdge tmpunderedges[512];
 	Plane tmpunderplanes[128];
 	Coplanar coplanaredges[512];
@@ -2140,6 +2140,7 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 					vin = tmpunderedges[nea + 1].v;
 					assert(vin < vertcountunder);
 					assert(vin >= vertcountunderold);  // for debugging only
+					(void)vertcountunderold;
 				}
 				if (vout != -1)
 				{
@@ -2505,10 +2506,11 @@ void removeb2b(btHullTriangle *s, btHullTriangle *t, Array<btHullTriangle *> &tr
 	delete t;
 }
 
-void checkit(btHullTriangle *t, Array<btHullTriangle *> &tris)
+void checkit(btHullTriangle *t, Array<btHullTriangle *> & tris)
 {
 	int i;
 	assert(tris[t->id] == t);
+	(void)tris;
 	for (i = 0; i < 3; i++)
 	{
 		int i1 = (i + 1) % 3;
@@ -2517,6 +2519,8 @@ void checkit(btHullTriangle *t, Array<btHullTriangle *> &tris)
 		int b = (*t)[i2];
 		assert(a != b);
 		assert(tris[t->n[i]]->neib(b, a) == t->id);
+		(void)a;
+		(void)b;
 	}
 }
 void extrude(btHullTriangle *t0, int v, Array<btHullTriangle *> &tris)

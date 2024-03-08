@@ -56,6 +56,7 @@ bool CPassiveSocket::BindMulticast(const char *pInterface, const char *pGroup, u
 	in_addr_t inAddr;
 
 	nReuse = IPTOS_LOWDELAY;
+	(void)nReuse;
 #endif
 
 	//--------------------------------------------------------------------------
@@ -214,7 +215,7 @@ CActiveSocket *CPassiveSocket::Accept()
 {
 	uint32 nSockLen;
 	CActiveSocket *pClientSocket = NULL;
-	SOCKET socket = CSimpleSocket::SocketError;
+	SOCKET socket = (SOCKET)CSimpleSocket::SocketError;
 
 	if (m_nSocketType != CSimpleSocket::SocketTypeTcp)
 	{
@@ -241,7 +242,7 @@ CActiveSocket *CPassiveSocket::Accept()
 			errno = 0;
 			socket = accept(m_socket, (struct sockaddr *)&m_stClientSockaddr, (socklen_t *)&nSockLen);
 
-			if (socket != -1)
+			if (socket != (SOCKET)-1)
 			{
 				pClientSocket->SetSocketHandle(socket);
 				pClientSocket->TranslateSocketError();

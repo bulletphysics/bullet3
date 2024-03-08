@@ -152,7 +152,7 @@ TcpNetworkedPhysicsProcessor::~TcpNetworkedPhysicsProcessor()
 	delete m_data;
 }
 
-bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& /*serverStatusOut*/, char* /*bufferServerToClient*/, int /*bufferSizeInBytes*/)
 {
 	if (gVerboseNetworkMessagesClient2)
 	{
@@ -219,15 +219,15 @@ bool TcpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	return hasStatus;
 }
 
-void TcpNetworkedPhysicsProcessor::renderScene(int renderFlags)
+void TcpNetworkedPhysicsProcessor::renderScene(int /*renderFlags*/)
 {
 }
 
-void TcpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
+void TcpNetworkedPhysicsProcessor::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-void TcpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* guiHelper)
+void TcpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* /*guiHelper*/)
 {
 }
 

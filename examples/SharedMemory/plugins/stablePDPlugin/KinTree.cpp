@@ -92,7 +92,7 @@ const std::string gDrawShapeDescKeys[cKinTree::eDrawShapeParamMax] =
 	"MeshID"
 };
 
-int cKinTree::GetRoot(const Eigen::MatrixXd& joint_desc)
+int cKinTree::GetRoot(const Eigen::MatrixXd& /*joint_desc*/)
 {
 	// this should always be true right?
 	return 0;
@@ -721,10 +721,10 @@ int cKinTree::GetNumDof(const Eigen::MatrixXd& joint_mat)
 	return num_dof;
 }
 
-void cKinTree::ApplyStep(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& step, Eigen::VectorXd& out_pose)
+void cKinTree::ApplyStep(const Eigen::MatrixXd& /*joint_mat*/, const Eigen::VectorXd& step, Eigen::VectorXd& out_pose)
 {
-	int root_id = GetRoot(joint_mat);
-	int num_joints = cKinTree::GetNumJoints(joint_mat);
+	// int root_id = GetRoot(joint_mat);
+	// int num_joints = cKinTree::GetNumJoints(joint_mat);
 	out_pose += step;
 }
 
@@ -1610,8 +1610,8 @@ void cKinTree::PostProcessPose(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd
 void cKinTree::LerpPoses(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose0, const Eigen::VectorXd& pose1, double lerp, Eigen::VectorXd& out_pose)
 {
 	int num_joints = GetNumJoints(joint_mat);
-	int root_id = GetRoot(joint_mat);
-	int root_offset = GetParamOffset(joint_mat, root_id);
+	// int root_id = GetRoot(joint_mat);
+	// int root_offset = GetParamOffset(joint_mat, root_id);
 
 	out_pose.resize(pose0.size());
 	assert(pose0.size() == pose1.size());
@@ -1657,8 +1657,8 @@ void cKinTree::VelToPoseDiff(const Eigen::MatrixXd& joint_mat, const Eigen::Vect
 	out_pose_diff = vel;
 
 	int num_joints = GetNumJoints(joint_mat);
-	int root_id = GetRoot(joint_mat);
-	int root_offset = GetParamOffset(joint_mat, root_id);
+	// int root_id = GetRoot(joint_mat);
+	// int root_offset = GetParamOffset(joint_mat, root_id);
 
 	tVector root_rot_vel = GetRootAngVel(joint_mat, vel);
 	root_rot_vel[3] = 0;
@@ -1813,7 +1813,7 @@ tMatrix cKinTree::ChildParentTransPlanar(const Eigen::MatrixXd& joint_mat, const
 	return mat;
 }
 
-tMatrix cKinTree::ChildParentTransFixed(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state, int joint_id)
+tMatrix cKinTree::ChildParentTransFixed(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& /*state*/, int joint_id)
 {
 	tMatrix A = BuildAttachTrans(joint_mat, joint_id);
 	tMatrix mat = A;
@@ -1848,7 +1848,7 @@ tMatrix cKinTree::ChildParentTransSpherical(const Eigen::MatrixXd& joint_mat, co
 
 
 
-void cKinTree::BuildDefaultPoseRoot(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose)
+void cKinTree::BuildDefaultPoseRoot(const Eigen::MatrixXd& /*joint_mat*/, Eigen::VectorXd& out_pose)
 {
 	int dim = gRootDim;
 	out_pose = Eigen::VectorXd::Zero(dim);
@@ -1887,7 +1887,7 @@ void cKinTree::BuildDefaultPoseSpherical(Eigen::VectorXd& out_pose)
 }
 
 
-void cKinTree::BuildDefaultVelRoot(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose)
+void cKinTree::BuildDefaultVelRoot(const Eigen::MatrixXd& /*joint_mat*/, Eigen::VectorXd& out_pose)
 {
 	int dim = gRootDim;
 	out_pose = Eigen::VectorXd::Zero(dim);

@@ -77,7 +77,7 @@ btVector3 btDeformableNodeAnchorConstraint::getVa() const
 	return va;
 }
 
-btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
+btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 {
 	const btSoftBody::sCti& cti = m_anchor->m_cti;
 	btVector3 va = getVa();
@@ -428,7 +428,7 @@ btVector3 btDeformableNodeRigidContactConstraint::getSplitVb() const
 	return m_node->m_splitv;
 }
 
-btVector3 btDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* node) const
+btVector3 btDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* /*node*/) const
 {
 	return m_total_normal_dv + m_total_tangent_dv;
 }
@@ -630,7 +630,7 @@ btVector3 btDeformableFaceNodeContactConstraint::getDv(const btSoftBody::Node* n
 	return dv * contact->m_weights[2];
 }
 
-btScalar btDeformableFaceNodeContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
+btScalar btDeformableFaceNodeContactConstraint::solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 {
 	btVector3 va = getVa();
 	btVector3 vb = getVb();

@@ -296,19 +296,19 @@ void btDeformableBodySolver::updateVelocity()
 
 void btDeformableBodySolver::updateTempPosition()
 {
-	int counter = 0;
+	// int counter = 0;
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];
 		if (!psb->isActive())
 		{
-			counter += psb->m_nodes.size();
+			// counter += psb->m_nodes.size();
 			continue;
 		}
 		for (int j = 0; j < psb->m_nodes.size(); ++j)
 		{
 			psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + m_dt * (psb->m_nodes[j].m_v + psb->m_nodes[j].m_splitv);
-			++counter;
+			// ++counter;
 		}
 		psb->updateDeformation();
 	}
@@ -409,8 +409,8 @@ void btDeformableBodySolver::predictMotion(btScalar solverdt)
 		if (psb->isActive())
 		{
 			/* Clear contacts when softbody is active*/
-			psb->m_nodeRigidContacts.resize(0);
-			psb->m_faceRigidContacts.resize(0);
+			// psb->m_nodeRigidContacts.resize(0);
+			// psb->m_faceRigidContacts.resize(0);
 			psb->m_faceNodeContacts.resize(0);
 			psb->m_faceNodeContactsCCD.resize(0);
 			// predict motion for collision detection

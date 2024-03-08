@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btHashMap.h"
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 	DummyGUIHelper noGfx;
 

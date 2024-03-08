@@ -31,7 +31,7 @@
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0001;
-static btScalar COLLIDING_VELOCITY = 0;
+// static btScalar COLLIDING_VELOCITY = 0;
 static int num_modes = 40;
 
 class FreeFall : public CommonDeformableBodyBase
@@ -49,7 +49,7 @@ public:
     void exitPhysics();
 
     // TODO: disable pick force, non-interactive for now.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 

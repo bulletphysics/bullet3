@@ -220,7 +220,7 @@ static SIMD_FORCE_INLINE bool getSigns(bool type_c, const btScalar& k0, const bt
 	return false;
 }
 
-static SIMD_FORCE_INLINE void getBernsteinCoeff(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, btScalar& k0, btScalar& k1, btScalar& k2, btScalar& k3)
+static SIMD_FORCE_INLINE void getBernsteinCoeff(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& /*dt*/, btScalar& k0, btScalar& k1, btScalar& k2, btScalar& k3)
 {
 	const btVector3& n0 = face->m_n0;
 	const btVector3& n1 = face->m_n1;
@@ -753,15 +753,15 @@ public:
 		return (localGetSupportingVertex(vec));
 	}
 	//notice that the vectors should be unit length
-	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* /*vectors*/, btVector3* /*supportVerticesOut*/, int /*numVectors*/) const
 	{
 	}
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3& inertia) const
+	virtual void calculateLocalInertia(btScalar /*mass*/, btVector3& /*inertia*/) const
 	{
 	}
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
+	virtual void getAabb(const btTransform& /*t*/, btVector3& /*aabbMin*/, btVector3& /*aabbMax*/) const
 	{
 	}
 
@@ -1584,8 +1584,8 @@ struct btSoftColliders
 			}
 			else
 			{
-				static int count = 0;
-				count++;
+				// static int count = 0;
+				// count++;
 				//printf("count=%d\n",count);
 			}
 		}
@@ -2000,7 +2000,9 @@ struct btSoftColliders
 				}
 			}
 #endif
+#ifdef REPEL_NEIGHBOR
 			bool skip = false;
+#endif
 			for (int node_id = 0; node_id < 3; ++node_id)
 			{
 				btSoftBody::Node* node = f1->m_n[node_id];
@@ -2097,7 +2099,9 @@ struct btSoftColliders
 				}
 			}
 #endif
+#ifdef REPEL_NEIGHBOR
 			bool skip = false;
+#endif
 			for (int node_id = 0; node_id < 3; ++node_id)
 			{
 				btSoftBody::Node* node = f1->m_n[node_id];

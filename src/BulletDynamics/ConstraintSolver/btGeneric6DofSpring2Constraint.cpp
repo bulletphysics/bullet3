@@ -634,7 +634,7 @@ void btGeneric6DofSpring2Constraint::calculateLinearInfo()
 	}
 }
 
-void btGeneric6DofSpring2Constraint::calculateJacobi(btRotationalLimitMotor2* limot, const btTransform& transA, const btTransform& transB, btConstraintInfo2* info, int srow, btVector3& ax1, int rotational, int rotAllowed)
+void btGeneric6DofSpring2Constraint::calculateJacobi(btRotationalLimitMotor2* /*limot*/, const btTransform& transA, const btTransform& transB, btConstraintInfo2* info, int srow, btVector3& ax1, int rotational, int rotAllowed)
 {
 	btScalar* J1 = rotational ? info->m_J1angularAxis : info->m_J1linearAxis;
 	btScalar* J2 = rotational ? info->m_J2angularAxis : info->m_J2linearAxis;

@@ -498,7 +498,7 @@ btScalar btMultiBodyConstraintSolver::resolveConeFrictionConstraintRows(const bt
 	return deltaVel;
 }
 
-void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySolverConstraint& solverConstraint, const btVector3& contactNormal, const btScalar& appliedImpulse, btManifoldPoint& cp, const btContactSolverInfo& infoGlobal, btScalar& relaxation, bool isFriction, btScalar desiredVelocity, btScalar cfmSlip)
+void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySolverConstraint& solverConstraint, const btVector3& contactNormal, const btScalar& /*appliedImpulse*/, btManifoldPoint& cp, const btContactSolverInfo& infoGlobal, btScalar& relaxation, bool isFriction, btScalar /*desiredVelocity*/, btScalar /*cfmSlip*/)
 {
 	BT_PROFILE("setupMultiBodyContactConstraint");
 	btVector3 rel_pos1;
@@ -891,7 +891,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 																			btScalar combinedTorsionalFriction,
 																			const btContactSolverInfo& infoGlobal,
 																			btScalar& relaxation,
-																			bool isFriction, btScalar desiredVelocity, btScalar cfmSlip)
+																			bool isFriction, btScalar /*desiredVelocity*/, btScalar /*cfmSlip*/)
 {
 	BT_PROFILE("setupMultiBodyRollingFrictionConstraint");
 	btVector3 rel_pos1;
@@ -1072,7 +1072,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 	//compute rhs and remaining solverConstraint fields
 
 	btScalar restitution = 0.f;
-	btScalar penetration = isFriction ? 0 : cp.getDistance();
+	//btScalar penetration = isFriction ? 0 : cp.getDistance();
 
 	btScalar rel_vel = 0.f;
 	int ndofA = 0;
@@ -1139,7 +1139,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 	}
 }
 
-btMultiBodySolverConstraint& btMultiBodyConstraintSolver::addMultiBodyFrictionConstraint(const btVector3& normalAxis, const btScalar& appliedImpulse, btPersistentManifold* manifold, int frictionIndex, btManifoldPoint& cp, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip)
+btMultiBodySolverConstraint& btMultiBodyConstraintSolver::addMultiBodyFrictionConstraint(const btVector3& normalAxis, const btScalar& /*appliedImpulse*/, btPersistentManifold* manifold, int frictionIndex, btManifoldPoint& cp, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip)
 {
 	BT_PROFILE("addMultiBodyFrictionConstraint");
 	btMultiBodySolverConstraint& solverConstraint = m_multiBodyFrictionContactConstraints.expandNonInitializing();

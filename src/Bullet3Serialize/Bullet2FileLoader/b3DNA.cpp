@@ -341,7 +341,7 @@ static int name_is_array(char *name, int *dim1, int *dim2)
 }
 
 // ----------------------------------------------------- //
-void bDNA::init(char *data, int len, bool swap)
+void bDNA::init(char *data, int /*len*/, bool swap)
 {
 	int *intPtr = 0;
 	short *shtPtr = 0;

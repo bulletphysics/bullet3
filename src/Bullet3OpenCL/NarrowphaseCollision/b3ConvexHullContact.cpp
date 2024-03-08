@@ -329,7 +329,7 @@ struct MyTriangleCallback : public b3NodeOverlapCallback
 	int m_bodyIndexA;
 	int m_bodyIndexB;
 
-	virtual void processNode(int subPart, int triangleIndex)
+	virtual void processNode(int /*subPart*/, int triangleIndex)
 	{
 		printf("bodyIndexA %d, bodyIndexB %d\n", m_bodyIndexA, m_bodyIndexB);
 		printf("triangleIndex %d\n", triangleIndex);
@@ -567,11 +567,11 @@ static bool findSeparatingAxis(const b3ConvexPolyhedronData& hullA, const b3Conv
 							   const b3AlignedObjectArray<b3Vector3>& verticesA,
 							   const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA,
 							   const b3AlignedObjectArray<b3GpuFace>& facesA,
-							   const b3AlignedObjectArray<int>& indicesA,
+							   const b3AlignedObjectArray<int>& /*indicesA*/,
 							   const b3AlignedObjectArray<b3Vector3>& verticesB,
 							   const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
 							   const b3AlignedObjectArray<b3GpuFace>& facesB,
-							   const b3AlignedObjectArray<int>& indicesB,
+							   const b3AlignedObjectArray<int>& /*indicesB*/,
 
 							   b3Vector3& sep)
 {
@@ -592,6 +592,7 @@ static bool findSeparatingAxis(const b3ConvexPolyhedronData& hullA, const b3Conv
 
 	b3Scalar dmin = FLT_MAX;
 	int curPlaneTests = 0;
+	(void)curPlaneTests;
 
 	int numFacesA = hullA.m_numFaces;
 	// Test normals from hullA
@@ -653,6 +654,7 @@ static bool findSeparatingAxis(const b3ConvexPolyhedronData& hullA, const b3Conv
 	}
 
 	int curEdgeEdge = 0;
+	(void)curEdgeEdge;
 	// Test edges
 	for (int e0 = 0; e0 < hullA.m_numUniqueEdges; e0++)
 	{
@@ -707,8 +709,8 @@ bool findSeparatingAxisEdgeEdge(__global const b3ConvexPolyhedronData* hullA, __
 								const b3Float4& DeltaC2,
 								__global const b3AlignedObjectArray<float4>& vertices,
 								__global const b3AlignedObjectArray<float4>& uniqueEdges,
-								__global const b3AlignedObjectArray<b3GpuFace>& faces,
-								__global const b3AlignedObjectArray<int>& indices,
+								__global const b3AlignedObjectArray<b3GpuFace>& /*faces*/,
+								__global const b3AlignedObjectArray<int>& /*indices*/,
 								float4* sep,
 								float* dmin)
 {
@@ -722,6 +724,7 @@ bool findSeparatingAxisEdgeEdge(__global const b3ConvexPolyhedronData* hullA, __
 	//int curPlaneTests=0;
 
 	int curEdgeEdge = 0;
+	(void)curEdgeEdge;
 	// Test edges
 	for (int e0 = 0; e0 < hullA->m_numUniqueEdges; e0++)
 	{
@@ -757,6 +760,7 @@ bool findSeparatingAxisEdgeEdge(__global const b3ConvexPolyhedronData* hullA, __
 					float d1 = Max1 - Min0;
 					dist = d0 < d1 ? d0 : d1;
 					result = true;
+					(void)result;
 				}
 
 				if (dist < *dmin)
@@ -833,7 +837,7 @@ int clipFace(const float4* pVtxIn, int numVertsIn, float4& planeNormalWS, float 
 
 int clipFaceAgainstHull(const float4& separatingNormal, const b3ConvexPolyhedronData* hullA,
 						const float4& posA, const b3Quaternion& ornA, float4* worldVertsB1, int numWorldVertsB1,
-						float4* worldVertsB2, int capacityWorldVertsB2,
+						float4* worldVertsB2, int /*capacityWorldVertsB2*/,
 						const float minDist, float maxDist,
 						const b3AlignedObjectArray<float4>& verticesA, const b3AlignedObjectArray<b3GpuFace>& facesA, const b3AlignedObjectArray<int>& indicesA,
 						//const float4* verticesB,	const b3GpuFace* facesB,	const int* indicesB,
@@ -962,7 +966,9 @@ static int clipHullAgainstHull(const float4& separatingNormal,
 		{
 			//printf("wtf\n");
 		}
+#ifdef BT_DEBUG_SAT_FACE
 		static bool once = true;
+#endif
 		//printf("separatingNormal=%f,%f,%f\n",separatingNormal.x,separatingNormal.y,separatingNormal.z);
 
 		for (int face = 0; face < hullB.m_numFaces; face++)
@@ -979,7 +985,7 @@ static int clipHullAgainstHull(const float4& separatingNormal,
 					printf("vert[%d] = %f,%f,%f\n", i, vert.x, vert.y, vert.z);
 				}
 			}
-#endif  //BT_DEBUG_SAT_FACE \
+#endif  //BT_DEBUG_SAT_FACE
 	//if (facesB[hullB.m_faceOffset+face].m_numIndices>2)
 			{
 				const float4 Normal = b3MakeVector3(facesB[hullB.m_faceOffset + face].m_plane.x,
@@ -997,7 +1003,9 @@ static int clipHullAgainstHull(const float4& separatingNormal,
 				}
 			}
 		}
+#ifdef BT_DEBUG_SAT_FACE
 		once = false;
+#endif
 	}
 
 	b3Assert(closestFaceB >= 0);
@@ -1145,12 +1153,12 @@ int clipHullHullSingle(
 	const b3AlignedObjectArray<b3ConvexPolyhedronData>& hostConvexDataB,
 
 	const b3AlignedObjectArray<b3Vector3>& verticesA,
-	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA,
+	const b3AlignedObjectArray<b3Vector3>& /*uniqueEdgesA*/,
 	const b3AlignedObjectArray<b3GpuFace>& facesA,
 	const b3AlignedObjectArray<int>& indicesA,
 
 	const b3AlignedObjectArray<b3Vector3>& verticesB,
-	const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
+	const b3AlignedObjectArray<b3Vector3>& /*uniqueEdgesB*/,
 	const b3AlignedObjectArray<b3GpuFace>& facesB,
 	const b3AlignedObjectArray<int>& indicesB,
 
@@ -1276,7 +1284,7 @@ void computeContactPlaneConvex(int pairIndex,
 							   const b3Collidable* collidables,
 							   const b3ConvexPolyhedronData* convexShapes,
 							   const b3Vector3* convexVertices,
-							   const int* convexIndices,
+							   const int* /*convexIndices*/,
 							   const b3GpuFace* faces,
 							   b3Contact4* globalContactsOut,
 							   int& nGlobalContactsOut,
@@ -1313,7 +1321,7 @@ void computeContactPlaneConvex(int pairIndex,
 
 	b3Vector3 planeNormalInConvex = planeInConvex.getBasis() * -planeNormal;
 	float maxDot = -1e30;
-	int hitVertex = -1;
+	int hitVertex = -1; (void)hitVertex;
 	b3Vector3 hitVtx;
 
 #define MAX_PLANE_CONVEX_POINTS 64
@@ -1417,7 +1425,7 @@ int maxDepth = 0;
 
 // work-in-progress
 __kernel void findCompoundPairsKernel(
-	int pairIndex,
+	int /*pairIndex*/,
 	int bodyIndexA,
 	int bodyIndexB,
 	int collidableIndexA,
@@ -1425,8 +1433,8 @@ __kernel void findCompoundPairsKernel(
 	__global const b3RigidBodyData* rigidBodies,
 	__global const b3Collidable* collidables,
 	__global const b3ConvexPolyhedronData* convexShapes,
-	__global const b3AlignedObjectArray<b3Float4>& vertices,
-	__global const b3AlignedObjectArray<b3Aabb>& aabbsWorldSpace,
+	__global const b3AlignedObjectArray<b3Float4>& /*vertices*/,
+	__global const b3AlignedObjectArray<b3Aabb>& /*aabbsWorldSpace*/,
 	__global const b3AlignedObjectArray<b3Aabb>& aabbsLocalSpace,
 	__global const b3GpuChildShape* gpuChildShapes,
 	__global b3Int4* gpuCompoundPairsOut,
@@ -1782,7 +1790,7 @@ __kernel void processCompoundPairsKernel(__global const b3Int4* gpuCompoundPairs
 										 __global const b3AlignedObjectArray<b3Float4>& uniqueEdges,
 										 __global const b3AlignedObjectArray<b3GpuFace>& faces,
 										 __global const b3AlignedObjectArray<int>& indices,
-										 __global b3Aabb* aabbs,
+										 __global b3Aabb* /*aabbs*/,
 										 __global const b3GpuChildShape* gpuChildShapes,
 										 __global b3AlignedObjectArray<b3Float4>& gpuCompoundSepNormalsOut,
 										 __global b3AlignedObjectArray<int>& gpuHasCompoundSepNormalsOut,
@@ -1888,6 +1896,7 @@ __kernel void processCompoundPairsKernel(__global const b3Int4* gpuCompoundPairs
 				}  //sepEE
 			}      //(!sepB)
 		}          //(!sepA)
+		(void)hasSeparatingAxis;
 	}
 }
 
@@ -1896,7 +1905,7 @@ __kernel void clipCompoundsHullHullKernel(__global const b3Int4* gpuCompoundPair
 										  __global const b3Collidable* collidables,
 										  __global const b3ConvexPolyhedronData* convexShapes,
 										  __global const b3AlignedObjectArray<b3Float4>& vertices,
-										  __global const b3AlignedObjectArray<b3Float4>& uniqueEdges,
+										  __global const b3AlignedObjectArray<b3Float4>& /*uniqueEdges*/,
 										  __global const b3AlignedObjectArray<b3GpuFace>& faces,
 										  __global const b3AlignedObjectArray<int>& indices,
 										  __global const b3GpuChildShape* gpuChildShapes,
@@ -2046,6 +2055,7 @@ void computeContactCompoundCompound(int pairIndex,
 {
 	int shapeTypeB = collidables[collidableIndexB].m_shapeType;
 	b3Assert(shapeTypeB == SHAPE_COMPOUND_OF_CONVEX_HULLS);
+	(void)shapeTypeB;
 
 	b3AlignedObjectArray<b3Int4> cpuCompoundPairsOut;
 	int numCompoundPairsOut = 0;
@@ -2187,7 +2197,7 @@ void computeContactPlaneCompound(int pairIndex,
 								 const b3ConvexPolyhedronData* convexShapes,
 								 const b3GpuChildShape* cpuChildShapes,
 								 const b3Vector3* convexVertices,
-								 const int* convexIndices,
+								 const int* /*convexIndices*/,
 								 const b3GpuFace* faces,
 
 								 b3Contact4* globalContactsOut,
@@ -2196,6 +2206,7 @@ void computeContactPlaneCompound(int pairIndex,
 {
 	int shapeTypeB = collidables[collidableIndexB].m_shapeType;
 	b3Assert(shapeTypeB == SHAPE_COMPOUND_OF_CONVEX_HULLS);
+	(void)shapeTypeB;
 
 	int numChildrenB = collidables[collidableIndexB].m_numChildShapes;
 	for (int c = 0; c < numChildrenB; c++)
@@ -2240,7 +2251,7 @@ void computeContactPlaneCompound(int pairIndex,
 
 		b3Vector3 planeNormalInConvex = planeInConvex.getBasis() * -planeNormal;
 		float maxDot = -1e30;
-		int hitVertex = -1;
+		int hitVertex = -1; (void)hitVertex;
 		b3Vector3 hitVtx;
 
 #define MAX_PLANE_CONVEX_POINTS 64
@@ -2322,7 +2333,7 @@ void computeContactPlaneCompound(int pairIndex,
 
 void computeContactSphereConvex(int pairIndex,
 								int bodyIndexA, int bodyIndexB,
-								int collidableIndexA, int collidableIndexB,
+								int collidableIndexA, int /*collidableIndexB*/,
 								const b3RigidBodyData* rigidBodies,
 								const b3Collidable* collidables,
 								const b3ConvexPolyhedronData* convexShapes,
@@ -2335,7 +2346,7 @@ void computeContactSphereConvex(int pairIndex,
 {
 	float radius = collidables[collidableIndexA].m_radius;
 	float4 spherePos1 = rigidBodies[bodyIndexA].m_pos;
-	b3Quaternion sphereOrn = rigidBodies[bodyIndexA].m_quat;
+	// b3Quaternion sphereOrn = rigidBodies[bodyIndexA].m_quat;
 
 	float4 pos = rigidBodies[bodyIndexB].m_pos;
 
@@ -2431,6 +2442,7 @@ void computeContactSphereConvex(int pairIndex,
 	}
 	static int numChecks = 0;
 	numChecks++;
+	(void)numChecks;
 
 	if (bCollide && minDist > -10000)
 	{
@@ -2467,10 +2479,11 @@ void computeContactSphereConvex(int pairIndex,
 			}  //if (dstIdx < numPairs)
 		}
 	}  //if (hasCollision)
+	(void)region;
 }
 
 int computeContactConvexConvex2(
-	int pairIndex,
+	int /*pairIndex*/,
 	int bodyIndexA, int bodyIndexB,
 	int collidableIndexA, int collidableIndexB,
 	const b3AlignedObjectArray<b3RigidBodyData>& rigidBodies,
@@ -2483,7 +2496,7 @@ int computeContactConvexConvex2(
 	b3AlignedObjectArray<b3Contact4>& globalContactsOut,
 	int& nGlobalContactsOut,
 	int maxContactCapacity,
-	const b3AlignedObjectArray<b3Contact4>& oldContacts)
+	const b3AlignedObjectArray<b3Contact4>& /*oldContacts*/)
 {
 	int contactIndex = -1;
 	b3Vector3 posA = rigidBodies[bodyIndexA].m_pos;
@@ -2558,7 +2571,7 @@ int computeContactConvexConvex2(
 void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* pairs, int nPairs,
 														const b3OpenCLArray<b3RigidBodyData>* bodyBuf,
 														b3OpenCLArray<b3Contact4>* contactOut, int& nContacts,
-														const b3OpenCLArray<b3Contact4>* oldContacts,
+														const b3OpenCLArray<b3Contact4>* /*oldContacts*/,
 														int maxContactCapacity,
 														int compoundPairCapacity,
 														const b3OpenCLArray<b3ConvexPolyhedronData>& convexData,
@@ -2577,15 +2590,15 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 														b3OpenCLArray<b3Vector3>& worldNormalsAGPU,
 														b3OpenCLArray<b3Vector3>& worldVertsA1GPU,
 														b3OpenCLArray<b3Vector3>& worldVertsB2GPU,
-														b3AlignedObjectArray<class b3OptimizedBvh*>& bvhDataUnused,
+														b3AlignedObjectArray<class b3OptimizedBvh*>& /*bvhDataUnused*/,
 														b3OpenCLArray<b3QuantizedBvhNode>* treeNodesGPU,
 														b3OpenCLArray<b3BvhSubtreeInfo>* subTreesGPU,
 														b3OpenCLArray<b3BvhInfo>* bvhInfo,
 
-														int numObjects,
+														int /*numObjects*/,
 														int maxTriConvexPairCapacity,
 														b3OpenCLArray<b3Int4>& triangleConvexPairsOut,
-														int& numTriConvexPairsOut)
+														int& /*numTriConvexPairsOut*/)
 {
 	myframecount++;
 
@@ -3210,6 +3223,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 								//hostSepAxis
 
 							);
+							(void)result;
 						}  //mpr
 					}      //hostHasSepAxis[i] = 1;
 				}

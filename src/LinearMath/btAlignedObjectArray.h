@@ -134,7 +134,7 @@ public:
 		init();
 
 		int otherSize = otherArray.size();
-		resize(otherSize);
+		// resize(otherSize);
 		otherArray.copy(0, otherSize, m_data);
 	}
 
@@ -222,6 +222,8 @@ public:
 			{
 				new (&m_data[i]) T(fillData);
 			}
+#else
+			(void)fillData;
 #endif  //BT_USE_PLACEMENT_NEW
 		}
 
@@ -249,6 +251,8 @@ public:
 		m_size++;
 #ifdef BT_USE_PLACEMENT_NEW
 		new (&m_data[sz]) T(fillValue);  //use the in-place new (not really allocating heap memory)
+#else
+		(void)fillValue;
 #endif
 
 		return m_data[sz];

@@ -536,7 +536,7 @@ public:
 class GeometryInterface
 {
 public:
-	virtual void NodeTriangle(const GeometryVertex *v1, const GeometryVertex *v2, const GeometryVertex *v3) {}
+	virtual void NodeTriangle(const GeometryVertex * /*v1*/, const GeometryVertex * /*v2*/, const GeometryVertex * /*v3*/) {}
 
 	virtual ~GeometryInterface() {}
 };
@@ -643,7 +643,7 @@ void OBJ::getVertex(GeometryVertex &v, const char *face) const
 	}
 }
 
-int OBJ::ParseLine(int lineno, int argc, const char **argv)  // return TRUE to continue parsing, return FALSE to abort parsing process
+int OBJ::ParseLine(int /*lineno*/, int argc, const char **argv)  // return TRUE to continue parsing, return FALSE to abort parsing process
 {
 	int ret = 0;
 

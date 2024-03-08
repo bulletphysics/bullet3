@@ -102,7 +102,7 @@ void TimeSeriesCanvas::addDataSource(const char* dataSourceLabel, unsigned char 
 
 	m_internalData->m_dataSources.push_back(dataSource);
 }
-void TimeSeriesCanvas::setupTimeSeries(float yScale, int ticksPerSecond, int startTime, bool clearCanvas)
+void TimeSeriesCanvas::setupTimeSeries(float yScale, int ticksPerSecond, int /*startTime*/, bool clearCanvas)
 {
 	if (0 == m_internalData->m_canvasInterface)
 		return;

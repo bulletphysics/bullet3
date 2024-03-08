@@ -268,7 +268,7 @@ inline btVector3 evalEulerEqn(const btVector3& w1, const btVector3& w0, const bt
 	return w2;
 }
 
-inline btMatrix3x3 evalEulerEqnDeriv(const btVector3& w1, const btVector3& w0, const btScalar dt,
+inline btMatrix3x3 evalEulerEqnDeriv(const btVector3& w1, const btVector3& /*w0*/, const btScalar dt,
 									 const btMatrix3x3& I)
 {
 	btMatrix3x3 w1x, Iw1x;

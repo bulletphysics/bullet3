@@ -97,7 +97,7 @@ public:
 //        }
     }
     
-    void Ctor_RbUpStack(int count)
+    void Ctor_RbUpStack(int /*count*/)
     {
         float mass = .2;
         

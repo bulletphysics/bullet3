@@ -201,7 +201,7 @@ public:
 	///  @return true if the socket object contains a valid socket descriptor.
 	virtual bool IsSocketValid(void)
 	{
-		return (m_socket != SocketError);
+		return (m_socket != (SOCKET)SocketError);
 	};
 
 	/// Provides a standard error code for cross platform development by

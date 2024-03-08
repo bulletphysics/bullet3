@@ -153,7 +153,7 @@ void ExampleEntriesPhysicsServer::initExampleEntries()
 	}
 }
 
-void ExampleEntriesPhysicsServer::registerExampleEntry(int menuLevel, const char* name, const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
+void ExampleEntriesPhysicsServer::registerExampleEntry(int /*menuLevel*/, const char* /*name*/, const char* /*description*/, CommonExampleInterface::CreateFunc* /*createFunc*/, int /*option*/)
 {
 }
 
@@ -403,6 +403,7 @@ btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowser
 	data->m_exampleBrowser->setSharedMemoryInterface(data->m_sharedMem);
 	bool init;
 	init = data->m_exampleBrowser->init(argc, argv);
+	(void)init;
 	data->m_clock.reset();
 	return data;
 }

@@ -164,7 +164,7 @@ btClock clk;
 
 bool gProfileDisabled = true;
 
-void MyDummyEnterProfileZoneFunc(const char* msg)
+void MyDummyEnterProfileZoneFunc(const char* /*msg*/)
 {
 }
 

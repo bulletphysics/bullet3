@@ -80,7 +80,7 @@ struct URDF2BulletCachedData
 		return m_urdfLinkIndices2BulletLinkIndices[urdfIndex];
 	}
 
-	void registerMultiBody(int urdfLinkIndex, class btMultiBody* body, const btTransform& worldTransform, btScalar mass, const btVector3& localInertiaDiagonal, const class btCollisionShape* compound, const btTransform& localInertialFrame)
+	void registerMultiBody(int urdfLinkIndex, class btMultiBody* /*body*/, const btTransform& /*worldTransform*/, btScalar /*mass*/, const btVector3& /*localInertiaDiagonal*/, const class btCollisionShape* /*compound*/, const btTransform& localInertialFrame)
 	{
 		m_urdfLinkLocalInertialFrames[urdfLinkIndex] = localInertialFrame;
 	}
@@ -90,7 +90,7 @@ struct URDF2BulletCachedData
 		return m_urdfLink2rigidBodies[urdfLinkIndex];
 	}
 
-	void registerRigidBody(int urdfLinkIndex, class btRigidBody* body, const btTransform& worldTransform, btScalar mass, const btVector3& localInertiaDiagonal, const class btCollisionShape* compound, const btTransform& localInertialFrame)
+	void registerRigidBody(int urdfLinkIndex, class btRigidBody* body, const btTransform& /*worldTransform*/, btScalar /*mass*/, const btVector3& /*localInertiaDiagonal*/, const class btCollisionShape* /*compound*/, const btTransform& localInertialFrame)
 	{
 		btAssert(m_urdfLink2rigidBodies[urdfLinkIndex] == 0);
 
@@ -745,7 +745,7 @@ btTransform ConvertURDF2BulletInternal(
 		}
 		else
 		{
-			int mbLinkIndex = cache.getMbIndexFromUrdfIndex(urdfLinkIndex);
+			// int mbLinkIndex = cache.getMbIndexFromUrdfIndex(urdfLinkIndex);
 			//u2b.convertLinkVisualShapes2(mbLinkIndex, urdfLinkIndex, pathPrefix, localInertialFrame, col, u2b.getBodyUniqueId());
 			u2b.convertLinkVisualShapes2(-1, urdfLinkIndex, pathPrefix, localInertialFrame, linkRigidBody, u2b.getBodyUniqueId());
 		}
@@ -822,7 +822,7 @@ void ConvertURDF2Bullet(
 	URDF2BulletCachedData cache;
 	InitURDF2BulletCache(u2b, cache, flags);
 	int urdfLinkIndex = u2b.getRootLinkIndex();
-	int rootIndex = u2b.getRootLinkIndex();
+	// int rootIndex = u2b.getRootLinkIndex();
 	B3_PROFILE("ConvertURDF2Bullet");
 
 	UrdfVisualShapeCache cachedLinkGraphicsShapesOut;

@@ -78,7 +78,7 @@ public:
 
 	virtual void deleteCriticalSection(b3CriticalSection* criticalSection) = 0;
 
-	virtual void* getThreadLocalMemory(int taskId) { return 0; }
+	virtual void* getThreadLocalMemory(int /*taskId*/) { return 0; }
 };
 
 #endif  //B3_THREAD_SUPPORT_INTERFACE_H

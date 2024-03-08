@@ -174,9 +174,9 @@ void splitRect(unsigned int axis,
 
 bool computeSplitPlane(unsigned int vcount,
 					   const float *vertices,
-					   unsigned int tcount,
-					   const unsigned int *indices,
-					   ConvexDecompInterface *callback,
+					   unsigned int /*tcount*/,
+					   const unsigned int * /*indices*/,
+					   ConvexDecompInterface * /*callback*/,
 					   float *plane)
 {
 	float bmin[3] = {1e9, 1e9, 1e9};
@@ -200,6 +200,7 @@ bool computeSplitPlane(unsigned int vcount,
 	float dz = bmax[2] - bmin[2];
 
 	float laxis = dx;
+	(void)laxis;
 
 	unsigned int axis = 0;
 

@@ -1447,7 +1447,7 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 	return true;
 }
 
-bool UrdfParser::parseJointLimits(UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
+bool UrdfParser::parseJointLimits(UrdfJoint& joint, XMLElement* config, ErrorLogger* /*logger*/)
 {
 	joint.m_lowerLimit = 0.f;
 	joint.m_upperLimit = -1.f;
@@ -1845,7 +1845,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement* config, ErrorLogger* l
 	return true;
 }
 
-bool UrdfParser::parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
+bool UrdfParser::parseSensor(UrdfModel& /*model*/, UrdfLink& link, UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
 {
 	// Sensors are mapped to Links with a Fixed Joints connecting to the parents.
 	// They has no extent or mass so they will work with the existing

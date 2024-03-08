@@ -44,7 +44,7 @@ struct b3GpuJacobiSolverInternalData
 	cl_kernel m_solveFrictionKernel;
 };
 
-b3GpuJacobiContactSolver::b3GpuJacobiContactSolver(cl_context ctx, cl_device_id device, cl_command_queue queue, int pairCapacity)
+b3GpuJacobiContactSolver::b3GpuJacobiContactSolver(cl_context ctx, cl_device_id device, cl_command_queue queue, int /*pairCapacity*/)
 	: m_context(ctx),
 	  m_device(device),
 	  m_queue(queue)
@@ -318,7 +318,7 @@ static inline void solveFriction(b3GpuConstraint4& cs,
 	}
 }
 
-float calcJacCoeff(const b3Vector3& linear0, const b3Vector3& linear1, const b3Vector3& angular0, const b3Vector3& angular1,
+float calcJacCoeff(const b3Vector3& /*linear0*/, const b3Vector3& /*linear1*/, const b3Vector3& angular0, const b3Vector3& angular1,
 				   float invMass0, const b3Matrix3x3* invInertia0, float invMass1, const b3Matrix3x3* invInertia1, float countA, float countB)
 {
 	//	linear0,1 are normlized
@@ -696,7 +696,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 	}
 }
 
-void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem inertiaBuf, int numContacts, cl_mem contactBuf, const struct b3Config& config, int static0Index)
+void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem inertiaBuf, int numContacts, cl_mem contactBuf, const struct b3Config& /*config*/, int static0Index)
 //
 //
 //void  b3GpuJacobiContactSolver::solveGroup(b3OpenCLArray<b3RigidBodyData>* bodies,b3OpenCLArray<b3InertiaData>* inertias,b3OpenCLArray<b3Contact4>* manifoldPtr,const btJacobiSolverInfo& solverInfo)

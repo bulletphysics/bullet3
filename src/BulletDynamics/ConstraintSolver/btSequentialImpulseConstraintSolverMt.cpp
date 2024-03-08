@@ -294,7 +294,7 @@ void btSequentialImpulseConstraintSolverMt::setupAllContactConstraints(const btC
 	}
 }
 
-int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btCollisionObject& body, btScalar timeStep)
+int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btCollisionObject& body, btScalar /*timeStep*/)
 {
 	//
 	// getOrInitSolverBody is threadsafe only for a single thread per solver (with potentially multiple solvers)
@@ -316,8 +316,8 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 			if (solverBodyId < 0)
 			{
 				solverBodyId = m_tmpSolverBodyPool.size();
-				btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
-				initSolverBody(&solverBody, &body, timeStep);
+				// btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+				// initSolverBody(&solverBody, &body, timeStep);
 				body.setCompanionId(solverBodyId);
 			}
 			m_bodySolverArrayMutex.unlock();
@@ -357,8 +357,8 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 			{
 				// create a table entry for this body
 				solverBodyId = m_tmpSolverBodyPool.size();
-				btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
-				initSolverBody(&solverBody, &body, timeStep);
+				// btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+				// initSolverBody(&solverBody, &body, timeStep);
 				m_kinematicBodyUniqueIdToSolverBodyTable[uniqueId] = solverBodyId;
 			}
 			m_bodySolverArrayMutex.unlock();
@@ -375,8 +375,8 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 			if (m_fixedBodyId < 0)
 			{
 				m_fixedBodyId = m_tmpSolverBodyPool.size();
-				btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-				initSolverBody(&fixedBody, 0, timeStep);
+				// btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
+				// initSolverBody(&fixedBody, 0, timeStep);
 			}
 			m_bodySolverArrayMutex.unlock();
 		}
@@ -403,8 +403,8 @@ void btSequentialImpulseConstraintSolverMt::internalCollectContactManifoldCached
 		cachedInfo->solverBodyIds[1] = solverBodyIdB;
 		cachedInfo->numTouchingContacts = 0;
 
-		btSolverBody* solverBodyA = &m_tmpSolverBodyPool[solverBodyIdA];
-		btSolverBody* solverBodyB = &m_tmpSolverBodyPool[solverBodyIdB];
+		//btSolverBody* solverBodyA = &m_tmpSolverBodyPool[solverBodyIdA];
+		//btSolverBody* solverBodyB = &m_tmpSolverBodyPool[solverBodyIdB];
 
 		// A contact manifold between 2 static object should not exist!
 		// check the collision flags of your objects if this assert fires.
@@ -583,8 +583,8 @@ void btSequentialImpulseConstraintSolverMt::convertContacts(btPersistentManifold
 		if (m_fixedBodyId < 0)
 		{
 			m_fixedBodyId = m_tmpSolverBodyPool.size();
-			btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-			initSolverBody(&fixedBody, 0, infoGlobal.m_timeStep);
+			// btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
+			// initSolverBody(&fixedBody, 0, infoGlobal.m_timeStep);
 		}
 		allocAllContactConstraints(manifoldPtr, numManifolds, infoGlobal);
 		if (m_useBatching)
@@ -893,7 +893,7 @@ struct ContactSplitPenetrationImpulseSolverLoop : public btIParallelSumBody
 	}
 };
 
-void btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
+void btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/)
 {
 	BT_PROFILE("solveGroupCacheFriendlySplitImpulseIterations");
 	if (infoGlobal.m_splitImpulse)
@@ -1101,7 +1101,7 @@ btScalar btSequentialImpulseConstraintSolverMt::resolveMultipleContactConstraint
 																							 int batchEnd)
 {
 	btScalar leastSquaresResidual = 0.f;
-	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
+	//int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
 
 	for (int iiCons = batchBegin; iiCons < batchEnd; iiCons++)
 	{
@@ -1522,7 +1522,7 @@ struct WriteBodiesLoop : public btIParallelForBody
 	}
 };
 
-btScalar btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlyFinish(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
+btScalar btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlyFinish(btCollisionObject** /*bodies*/, int /*numBodies*/, const btContactSolverInfo& infoGlobal)
 {
 	BT_PROFILE("solveGroupCacheFriendlyFinish");
 

@@ -237,7 +237,7 @@ struct MotionThreadLocalStorage
 
 float clampedDeltaTime = 0.2;
 
-void MotionThreadFunc(void* userPtr, void* lsMemory)
+void MotionThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("MotionThreadFunc thread started\n");
 	//MotionThreadLocalStorage* localStorage = (MotionThreadLocalStorage*) lsMemory;
@@ -257,7 +257,7 @@ void MotionThreadFunc(void* userPtr, void* lsMemory)
 		args->m_cs->unlock();
 
 		double deltaTimeInSeconds = 0;
-		int numCmdSinceSleep1ms = 0;
+		int numCmdSinceSleep1ms = 0; (void)numCmdSinceSleep1ms;
 		unsigned long long int prevTime = clock.getTimeMicroseconds();
 
 		do
@@ -514,7 +514,7 @@ struct UserDebugParameter
 	int m_itemUniqueId;
 };
 
-static void UserButtonToggle(int buttonId, bool buttonState, void* userPointer)
+static void UserButtonToggle(int /*buttonId*/, bool /*buttonState*/, void* userPointer)
 {
 	UserDebugParameter* param = (UserDebugParameter*)userPointer;
 	param->m_value += 1;
@@ -632,17 +632,17 @@ public:
 		}
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int /*lifeTime*/, const btVector3& color)
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
 		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
 	}
 
-	virtual void reportErrorWarning(const char* warningString)
+	virtual void reportErrorWarning(const char* /*warningString*/)
 	{
 	}
-	virtual void draw3dText(const btVector3& location, const char* textString)
+	virtual void draw3dText(const btVector3& /*location*/, const char* /*textString*/)
 	{
 	}
 	virtual void setDebugMode(int debugMode)
@@ -766,7 +766,7 @@ public:
 		}
 	}
 
-	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
+	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* /*app*/, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
 		:  //m_app(app),
 		m_cs(0),
 		m_cs2(0),
@@ -895,7 +895,7 @@ public:
 		m_childGuiHelper->syncPhysicsToGraphics2(positions, numPositions);
 	}
 
-	virtual void render(const btDiscreteDynamicsWorld* rbWorld)
+	virtual void render(const btDiscreteDynamicsWorld* /*rbWorld*/)
 	{
 		m_childGuiHelper->render(0);
 	}
@@ -1295,11 +1295,11 @@ public:
 		workerThreadWait();
 	}
 
-	virtual void drawText3D(const char* txt, float posX, float posZY, float posZ, float size)
+	virtual void drawText3D(const char* /*txt*/, float /*posX*/, float /*posZY*/, float /*posZ*/, float /*size*/)
 	{
 	}
 
-	virtual void drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+	virtual void drawText3D(const char* /*txt*/, float /*position*/[3], float /*orientation*/[4], float /*color*/[4], float /*size*/, int /*optionFlag*/)
 	{
 	}
 
@@ -1892,7 +1892,7 @@ public:
 	}
 };
 
-PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int options)
+PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int /*options*/)
 	: SharedMemoryCommon(helper),
 	  m_physicsServer(commandProcessorCreator, sharedMem, 0),
 	  m_wantsShutdown(false),
@@ -2464,8 +2464,8 @@ void PhysicsServerExample::updateGraphics()
 									int rgb = 0;
 									btScalar frustumZNear = 0.1;
 									btScalar frustumZFar = 30;
-									btScalar minDepthValue = frustumZNear;  //todo: compute more reasonably min/max depth range
-									btScalar maxDepthValue = frustumZFar;
+									// btScalar minDepthValue = frustumZNear;  //todo: compute more reasonably min/max depth range
+									// btScalar maxDepthValue = frustumZFar;
 
 									float depth = depthValue;
 									btScalar linearDepth = 255. * (2.0 * frustumZNear) / (frustumZFar + frustumZNear - depth * (frustumZFar - frustumZNear));
@@ -3078,13 +3078,14 @@ void PhysicsServerExample::renderScene()
 	if (m_physicsServer.isRealTimeSimulationEnabled())
 	{
 		static int frameCount = 0;
-		static btScalar prevTime = m_clock.getTimeSeconds();
 		frameCount++;
+		(void)frameCount;
 
 		static char line0[1024] = {0};
 		static char line1[1024] = {0};
 
 #if 0
+		static btScalar prevTime = m_clock.getTimeSeconds();
 
 		static btScalar worseFps = 1000000;
 		int numFrames = 200;
@@ -3144,6 +3145,9 @@ void PhysicsServerExample::renderScene()
 
 			m_tinyVrGui->tick(dt, tr);
 		}
+#else
+	(void)line0;
+	(void)line1;
 #endif  //BT_ENABLE_VR
 	}
 	///debug rendering

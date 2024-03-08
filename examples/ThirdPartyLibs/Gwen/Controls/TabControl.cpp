@@ -230,12 +230,12 @@ void TabControl::HandleOverflow()
 	m_pScroll[1]->SetPos(m_pScroll[0]->Right(), 5);
 }
 
-void TabControl::ScrollPressLeft(Base* pFrom)
+void TabControl::ScrollPressLeft(Base* /*pFrom*/)
 {
 	m_iScrollOffset -= 120;
 }
 
-void TabControl::ScrollPressRight(Base* pFrom)
+void TabControl::ScrollPressRight(Base* /*pFrom*/)
 {
 	m_iScrollOffset += 120;
 }

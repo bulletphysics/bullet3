@@ -39,8 +39,9 @@ public:
 		  m_useLoHighBounds(true)
 	{
 	}
-	virtual bool solveMLCP(const btMatrixXu& A, const btVectorXu& b, btVectorXu& x, const btVectorXu& lo, const btVectorXu& hi, const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
+	virtual bool solveMLCP(const btMatrixXu& A, const btVectorXu& b, btVectorXu& x, const btVectorXu& lo, const btVectorXu& hi, const btAlignedObjectArray<int>& /*limitDependency*/, int /*numIterations*/, bool useSparsity = true)
 	{
+		(void)useSparsity;
 		if (m_useLoHighBounds)
 		{
 			BT_PROFILE("btLemkeSolver::solveMLCP");
@@ -239,6 +240,7 @@ public:
 			if (fail)
 			{
 				int m_errorCountTimes = 0;
+				(void)m_errorCountTimes;
 				if (errorIndexMin < 0)
 					errorValueMin = 0.f;
 				if (errorIndexMax < 0)
@@ -331,7 +333,7 @@ public:
 
 			return !fail;
 		}
-		return true;
+		// return true;
 	}
 };
 

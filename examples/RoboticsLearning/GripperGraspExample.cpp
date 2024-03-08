@@ -598,6 +598,7 @@ public:
 			if (numJoints == 7)
 			{
 				double q_current[7] = {0, 0, 0, 0, 0, 0, 0};
+				(void)q_current;
 
 				b3JointStates2 jointStates;
 
@@ -715,7 +716,7 @@ public:
 	{
 		return m_robotSim.mouseButtonCallback(button, state, x, y);
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

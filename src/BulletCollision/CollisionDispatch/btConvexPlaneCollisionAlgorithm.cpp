@@ -50,7 +50,7 @@ btConvexPlaneCollisionAlgorithm::~btConvexPlaneCollisionAlgorithm()
 	}
 }
 
-void btConvexPlaneCollisionAlgorithm::collideSingleContact(const btQuaternion& perturbeRot, const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
+void btConvexPlaneCollisionAlgorithm::collideSingleContact(const btQuaternion& perturbeRot, const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* resultOut)
 {
 	const btCollisionObjectWrapper* convexObjWrap = m_isSwapped ? body1Wrap : body0Wrap;
 	const btCollisionObjectWrapper* planeObjWrap = m_isSwapped ? body0Wrap : body1Wrap;

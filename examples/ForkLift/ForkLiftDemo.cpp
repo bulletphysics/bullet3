@@ -117,21 +117,21 @@ public:
 
 	virtual void specialKeyboardUp(int key, int x, int y);
 
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
 
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
 
-	virtual bool keyboardCallback(int key, int state);
+	virtual bool keyboardCallback(int /*key*/, int /*state*/);
 
 	virtual void renderScene();
 
-	virtual void physicsDebugDraw(int debugFlags);
+	virtual void physicsDebugDraw(int /*debugFlags*/);
 
 	void initPhysics();
 	void exitPhysics();
@@ -665,6 +665,7 @@ void ForkLiftDemo::stepSimulation(float deltaTime)
 
 		int numSimSteps;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt, maxSimSubSteps);
+		(void)numSimSteps;
 
 		if (m_dynamicsWorld->getConstraintSolver()->getSolverType() == BT_MLCP_SOLVER)
 		{
@@ -934,14 +935,14 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 	return handled;
 }
 
-void ForkLiftDemo::specialKeyboardUp(int key, int x, int y)
+void ForkLiftDemo::specialKeyboardUp(int /*key*/, int /*x*/, int /*y*/)
 {
 #if 0
 
 #endif
 }
 
-void ForkLiftDemo::specialKeyboard(int key, int x, int y)
+void ForkLiftDemo::specialKeyboard(int /*key*/, int /*x*/, int /*y*/)
 {
 #if 0
 	if (key==GLUT_KEY_END)

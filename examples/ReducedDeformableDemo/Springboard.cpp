@@ -50,7 +50,7 @@ public:
     void exitPhysics();
 
     // TODO: disable pick force, non-interactive for now.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 
@@ -81,7 +81,7 @@ public:
 
       {
         sim_time += internalTimeStep;
-        btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(getDeformableDynamicsWorld()->getSoftBodyArray()[0]);
+        // btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(getDeformableDynamicsWorld()->getSoftBodyArray()[0]);
         
         // std::ofstream myfile("fixed_node.txt", std::ios_base::app);
         // myfile << sim_time << "\t" << rsb->m_nodes[0].m_x[0] - rsb->m_x0[0][0] << "\t" 

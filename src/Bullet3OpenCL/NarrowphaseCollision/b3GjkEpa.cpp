@@ -859,8 +859,8 @@ struct b3EPA
 //
 static void Initialize(const b3Transform& transA, const b3Transform& transB,
 					   const b3ConvexPolyhedronData* hullA, const b3ConvexPolyhedronData* hullB,
-					   const b3AlignedObjectArray<b3Vector3>& verticesA,
-					   const b3AlignedObjectArray<b3Vector3>& verticesB,
+					   const b3AlignedObjectArray<b3Vector3>& /*verticesA*/,
+					   const b3AlignedObjectArray<b3Vector3>& /*verticesB*/,
 					   b3GjkEpaSolver2::sResults& results,
 					   tShape& shape,
 					   bool withmargins)

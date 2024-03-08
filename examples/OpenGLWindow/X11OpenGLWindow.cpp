@@ -407,7 +407,7 @@ static bool isExtensionSupported(const char* extList, const char* extension)
 }
 
 static bool ctxErrorOccurred = false;
-static int ctxErrorHandler(Display* dpy, XErrorEvent* ev)
+static int ctxErrorHandler(Display* /*dpy*/, XErrorEvent* /*ev*/)
 {
 	ctxErrorOccurred = true;
 	return 0;
@@ -1095,7 +1095,7 @@ void X11OpenGLWindow::setRequestExit()
 	m_requestedExit = true;
 }
 
-void X11OpenGLWindow::setRenderCallback(b3RenderCallback renderCallback)
+void X11OpenGLWindow::setRenderCallback(b3RenderCallback /*renderCallback*/)
 {
 }
 

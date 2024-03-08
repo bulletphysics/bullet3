@@ -237,7 +237,7 @@ struct b3SolveTask  // : public ThreadPool::Task
 
 	unsigned short int getType() { return 0; }
 
-	void run(int tIdx)
+	void run(int /*tIdx*/)
 	{
 		b3AlignedObjectArray<int> usedBodies;
 		//printf("run..............\n");
@@ -394,7 +394,7 @@ void b3CpuRigidBodyPipeline::integrate(float deltaTime)
 	}
 }
 
-int b3CpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userData)
+int b3CpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int /*userData*/)
 {
 	b3RigidBodyData body;
 	int bodyIndex = m_data->m_rigidBodies.size();

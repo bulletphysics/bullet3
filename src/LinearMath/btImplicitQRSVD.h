@@ -473,6 +473,7 @@ inline void singularValueDecomposition(
                            GivensRotation& V,
                            const btScalar tol = 64 * std::numeric_limits<btScalar>::epsilon())
 {
+    (void)tol;
     btMatrix2x2& sigma = const_cast<btMatrix2x2&>(Sigma);
     sigma.setIdentity();
     btMatrix2x2 S_Sym;
@@ -553,6 +554,7 @@ inline void singularValueDecomposition(
                            const btMatrix2x2& V,
                            const btScalar tol = 64 * std::numeric_limits<btScalar>::epsilon())
 {
+    (void)tol;
     GivensRotation gv(0, 1);
     GivensRotation gu(0, 1);
     singularValueDecomposition(A, gu, Sigma, gv);
