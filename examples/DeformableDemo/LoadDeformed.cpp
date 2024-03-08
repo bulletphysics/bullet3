@@ -184,7 +184,7 @@ public:
 		: CommonDeformableBodyBase(helper)
 	{
 		steps = 0;
-		psb = nullptr;
+		psb = NULL;
 		reset_frame = 0;
 		sim_time = 0;
 		(void)filename;

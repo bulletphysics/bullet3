@@ -562,7 +562,7 @@ bool CMainApplication::BInitGL()
 	{
 		//const GLvoid *userParam=0;
 		//glDebugMessageCallback(DebugCallback,  userParam);
-		//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE );
+		//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE );
 		//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	}
 
@@ -617,8 +617,8 @@ void CMainApplication::Shutdown()
 	{
 		if (m_glSceneVertBuffer)
 		{
-			//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
-			//glDebugMessageCallback(nullptr, nullptr);
+			//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_FALSE );
+			//glDebugMessageCallback(NULL, NULL);
 			glDeleteBuffers(1, &m_glSceneVertBuffer);
 			glDeleteBuffers(1, &m_glIDVertBuffer);
 			glDeleteBuffers(1, &m_glIDIndexBuffer);
@@ -1498,7 +1498,7 @@ bool CMainApplication::CreateFrameBuffer(int nWidth, int nHeight, FramebufferDes
 	glBindTexture(GL_TEXTURE_2D, framebufferDesc.m_nResolveTextureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferDesc.m_nResolveTextureId, 0);
 
 	// check FBO status
