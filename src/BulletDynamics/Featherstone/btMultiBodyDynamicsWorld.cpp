@@ -149,11 +149,11 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 				}
 				for (int b = 0; b < body->getNumLinks(); b++)
 				{
-					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
-					if (col && col->getActivationState() == ACTIVE_TAG)
+					btMultiBodyLinkCollider* collider = body->getLink(b).m_collider;
+					if (collider && collider->getActivationState() == ACTIVE_TAG)
 					{
-						col->setActivationState(WANTS_DEACTIVATION);
-						col->setDeactivationTime(0.f);
+						collider->setActivationState(WANTS_DEACTIVATION);
+						collider->setDeactivationTime(0.f);
 					}
 				}
 			}
@@ -165,9 +165,9 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 
 				for (int b = 0; b < body->getNumLinks(); b++)
 				{
-					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
-					if (col && col->getActivationState() != DISABLE_DEACTIVATION)
-						col->setActivationState(ACTIVE_TAG);
+					btMultiBodyLinkCollider* collider = body->getLink(b).m_collider;
+					if (collider && collider->getActivationState() != DISABLE_DEACTIVATION)
+						collider->setActivationState(ACTIVE_TAG);
 				}
 			}
 		}
@@ -353,9 +353,9 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
     
     {
         BT_PROFILE("btMultiBody stepVelocities");
-        for (int i = 0; i < this->m_multiBodies.size(); i++)
+        for (int j = 0; j < this->m_multiBodies.size(); j++)
         {
-            btMultiBody* bod = m_multiBodies[i];
+            btMultiBody* bod = m_multiBodies[j];
             
             bool isSleeping = false;
             
@@ -451,8 +451,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         {
                             void operator()(btScalar dt, const btScalar* pDer, const btScalar* pCurVal, btScalar* pVal, int size)
                             {
-                                for (int i = 0; i < size; ++i)
-                                    pVal[i] = pCurVal[i] + dt * pDer[i];
+                                for (int k = 0; k < size; ++k)
+                                    pVal[k] = pCurVal[k] + dt * pDer[k];
                             }
                             
                         } pEulerIntegrate;
@@ -463,8 +463,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                             {
                                 btScalar* pVel = const_cast<btScalar*>(pBody->getVelocityVector());
                                 
-                                for (int i = 0; i < pBody->getNumDofs() + 6; ++i)
-                                    pVel[i] = pData[i];
+                                for (int k = 0; k < pBody->getNumDofs() + 6; ++k)
+                                    pVel[k] = pData[k];
                             }
                         } pCopyToVelocityVector;
                         //
@@ -472,8 +472,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         {
                             void operator()(const btScalar* pSrc, btScalar* pDst, int start, int size)
                             {
-                                for (int i = 0; i < size; ++i)
-                                    pDst[i] = pSrc[start + i];
+                                for (int k = 0; k < size; ++k)
+                                    pDst[k] = pSrc[start + k];
                             }
                         } pCopy;
                         //
@@ -529,10 +529,10 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         delta_q.resize(numDofs);
                         btAlignedObjectArray<btScalar> delta_qd;
                         delta_qd.resize(numDofs);
-                        for (int i = 0; i < numDofs; ++i)
+                        for (int j = 0; j < numDofs; ++j)
                         {
-                            delta_q[i] = h / btScalar(6.) * (scratch_qd0[i] + 2 * scratch_qd1[i] + 2 * scratch_qd2[i] + scratch_qd3[i]);
-                            delta_qd[i] = h / btScalar(6.) * (scratch_qdd0[i] + 2 * scratch_qdd1[i] + 2 * scratch_qdd2[i] + scratch_qdd3[i]);
+                            delta_q[j] = h / btScalar(6.) * (scratch_qd0[j] + 2 * scratch_qd1[j] + 2 * scratch_qd2[j] + scratch_qd3[j]);
+                            delta_qd[j] = h / btScalar(6.) * (scratch_qdd0[j] + 2 * scratch_qdd1[j] + 2 * scratch_qdd2[j] + scratch_qdd3[j]);
                             //delta_q[i] = h*scratch_qd0[i];
                             //delta_qd[i] = h*scratch_qdd0[i];
                         }
@@ -545,8 +545,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                             btScalar* pRealBuf = const_cast<btScalar*>(bod->getVelocityVector());
                             pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs() * bod->getNumDofs();
                             
-                            for (int i = 0; i < numDofs; ++i)
-                                pRealBuf[i] = delta_q[i];
+                            for (int j = 0; j < numDofs; ++j)
+                                pRealBuf[j] = delta_q[j];
                             
                             //bod->stepPositionsMultiDof(1, 0, &delta_q[0]);
                             bod->setPosUpdated(true);
@@ -591,9 +591,9 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 			{
 				isSleeping = true;
 			}
-			for (int b = 0; b < bod->getNumLinks(); b++)
+			for (int l = 0; l < bod->getNumLinks(); l++)
 			{
-				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+				if (bod->getLink(l).m_collider && bod->getLink(l).m_collider->getActivationState() == ISLAND_SLEEPING)
 					isSleeping = true;
 			}
 
@@ -640,9 +640,9 @@ void btMultiBodyDynamicsWorld::predictMultiBodyTransforms(btScalar timeStep)
         {
             isSleeping = true;
         }
-        for (int b = 0; b < bod->getNumLinks(); b++)
+        for (int l = 0; l < bod->getNumLinks(); l++)
         {
-            if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+            if (bod->getLink(l).m_collider && bod->getLink(l).m_collider->getActivationState() == ISLAND_SLEEPING)
                 isSleeping = true;
         }
         
@@ -816,8 +816,8 @@ void btMultiBodyDynamicsWorld::clearMultiBodyForces()
 
 			if (!isSleeping)
 			{
-				btMultiBody* bod = m_multiBodies[i];
-				bod->clearForcesAndTorques();
+				btMultiBody* body = m_multiBodies[i];
+				body->clearForcesAndTorques();
 			}
 		}
 	}

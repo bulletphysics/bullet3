@@ -1044,12 +1044,12 @@ btScalar btGjkEpaSolver2::SignedDistance(const btVector3& position,
 		results.witnesses[1] = wtrs0 * w1;
 		const btVector3 delta = results.witnesses[1] -
 								results.witnesses[0];
-		const btScalar margin = shape0->getMarginNonVirtual() +
+		const btScalar marginNv = shape0->getMarginNonVirtual() +
 								shape1.getMarginNonVirtual();
 		const btScalar length = delta.length();
 		results.normal = delta / length;
-		results.witnesses[0] += results.normal * margin;
-		results.distance = length - margin;
+		results.witnesses[0] += results.normal * marginNv;
+		results.distance = length - marginNv;
 		return results.distance;
 	}
 	else

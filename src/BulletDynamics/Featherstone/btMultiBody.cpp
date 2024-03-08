@@ -1343,12 +1343,12 @@ void btMultiBody::solveImatrix(const btVector3 &rhs_top, const btVector3 &rhs_bo
 		//multiply result = invI * rhs
 		{
 			btVector3 vtop = invI_upper_left * rhs_top;
-			btVector3 tmp;
-			tmp = invIupper_right * rhs_bot;
-			vtop += tmp;
+			btVector3 tmpVec;
+			tmpVec = invIupper_right * rhs_bot;
+			vtop += tmpVec;
 			btVector3 vbot = invI_lower_left * rhs_top;
-			tmp = invI_lower_right * rhs_bot;
-			vbot += tmp;
+			tmpVec = invI_lower_right * rhs_bot;
+			vbot += tmpVec;
 			result[0] = vtop[0];
 			result[1] = vtop[1];
 			result[2] = vtop[2];
@@ -1408,12 +1408,12 @@ void btMultiBody::solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionV
 		//multiply result = invI * rhs
 		{
 			btVector3 vtop = invI_upper_left * rhs.getLinear();
-			btVector3 tmp;
-			tmp = invIupper_right * rhs.getAngular();
-			vtop += tmp;
+			btVector3 tmpVec;
+			tmpVec = invIupper_right * rhs.getAngular();
+			vtop += tmpVec;
 			btVector3 vbot = invI_lower_left * rhs.getLinear();
-			tmp = invI_lower_right * rhs.getAngular();
-			vbot += tmp;
+			tmpVec = invI_lower_right * rhs.getAngular();
+			vbot += tmpVec;
 			result.setVector(vtop, vbot);
 		}
 	}
@@ -1950,7 +1950,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 {
 	// temporary space
 	int num_links = getNumLinks();
-	int m_dofCount = getNumDofs();
+	int dofCount = getNumDofs();
 	scratch_v.resize(3 * num_links + 3);  //(num_links + base) offsets + (num_links + base) normals_lin + (num_links + base) normals_ang
 	scratch_m.resize(num_links + 1);
 
@@ -1963,12 +1963,12 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	v_ptr += num_links + 1;
 	btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
 
-	//scratch_r.resize(m_dofCount);
-	//btScalar *results = m_dofCount > 0 ? &scratch_r[0] : 0;
+	//scratch_r.resize(dofCount);
+	//btScalar *results = dofCount > 0 ? &scratch_r[0] : 0;
 
-    scratch_r1.resize(m_dofCount+num_links);
-    btScalar * results = m_dofCount > 0 ? &scratch_r1[0] : 0;
-    btScalar* links = num_links? &scratch_r1[m_dofCount] : 0;
+    scratch_r1.resize(dofCount+num_links);
+    btScalar * results = dofCount > 0 ? &scratch_r1[0] : 0;
+    btScalar* links = num_links? &scratch_r1[dofCount] : 0;
     int numLinksChildToRoot=0;
     int l = link;
     while (l != -1)
@@ -2002,7 +2002,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	n_local_ang[0] = rot_from_world[0] * normal_ang_world;
 
 	// Set remaining jac values to zero for now.
-	for (int i = 6; i < 6 + m_dofCount; ++i)
+	for (int i = 6; i < 6 + dofCount; ++i)
 	{
 		jac[i] = 0;
 	}

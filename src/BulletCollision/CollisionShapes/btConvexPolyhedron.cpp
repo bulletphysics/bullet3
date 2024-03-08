@@ -252,7 +252,7 @@ void btConvexPolyhedron::initialize2()
 		else
 		{
 			// Refine the box
-			const btScalar Step = (m_radius - r) / 1024.0f;
+			const btScalar RefineStep = (m_radius - r) / 1024.0f;
 			const int e0 = (1 << LargestExtent) & 3;
 			const int e1 = (1 << e0) & 3;
 
@@ -260,8 +260,8 @@ void btConvexPolyhedron::initialize2()
 			{
 				const btScalar Saved0 = m_extents[e0];
 				const btScalar Saved1 = m_extents[e1];
-				m_extents[e0] += Step;
-				m_extents[e1] += Step;
+				m_extents[e0] += RefineStep;
+				m_extents[e1] += RefineStep;
 
 				if (!testContainment())
 				{

@@ -321,9 +321,9 @@ const char* btCompoundShape::serialize(void* dataBuffer, btSerializer* serialize
 			//don't serialize shapes that already have been serialized
 			if (!serializer->findPointer(m_children[i].m_childShape))
 			{
-				btChunk* chunk = serializer->allocate(m_children[i].m_childShape->calculateSerializeBufferSize(), 1);
-				const char* structType = m_children[i].m_childShape->serialize(chunk->m_oldPtr, serializer);
-				serializer->finalizeChunk(chunk, structType, BT_SHAPE_CODE, m_children[i].m_childShape);
+				btChunk* serializerChunk = serializer->allocate(m_children[i].m_childShape->calculateSerializeBufferSize(), 1);
+				const char* structType = m_children[i].m_childShape->serialize(serializerChunk->m_oldPtr, serializer);
+				serializer->finalizeChunk(serializerChunk, structType, BT_SHAPE_CODE, m_children[i].m_childShape);
 			}
 
 			memPtr->m_childShapeType = m_children[i].m_childShapeType;

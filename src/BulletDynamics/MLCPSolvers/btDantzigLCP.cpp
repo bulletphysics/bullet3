@@ -1283,9 +1283,9 @@ btLCP::btLCP(int _n, int _nskip, int _nub, btScalar *_Adata, btScalar *_x, btSca
 	}
 
 	{
-		int *p = m_p;
+		int *mp = m_p;
 		const int n = m_n;
-		for (int k = 0; k < n; ++k) p[k] = k;  // initially unpermuted
+		for (int k = 0; k < n; ++k) mp[k] = k;  // initially unpermuted
 	}
 
 	/*
@@ -1798,14 +1798,14 @@ void btLCP::solve1(btScalar *a, int i, int dir, int only_transfer)
 			if (dir > 0)
 			{
 				int *C = m_C;
-				btScalar *tmp = m_tmp;
+				tmp = m_tmp;
 				const int nC = m_nC;
 				for (int j = 0; j < nC; ++j) a[C[j]] = -tmp[j];
 			}
 			else
 			{
 				int *C = m_C;
-				btScalar *tmp = m_tmp;
+				tmp = m_tmp;
 				const int nC = m_nC;
 				for (int j = 0; j < nC; ++j) a[C[j]] = tmp[j];
 			}

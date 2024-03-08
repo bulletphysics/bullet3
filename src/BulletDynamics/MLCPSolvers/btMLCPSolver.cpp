@@ -442,9 +442,9 @@ void btMLCPSolver::createMLCPFast(const btContactSolverInfo& infoGlobal)
 		{
 			for (int i = 0; i < m_allConstraintPtrArray.size(); i++)
 			{
-				const btSolverConstraint& c = *m_allConstraintPtrArray[i];
-				m_x[i] = c.m_appliedImpulse;
-				m_xSplit[i] = c.m_appliedPushImpulse;
+				const btSolverConstraint& sc = *m_allConstraintPtrArray[i];
+				m_x[i] = sc.m_appliedImpulse;
+				m_xSplit[i] = sc.m_appliedPushImpulse;
 			}
 		}
 		else

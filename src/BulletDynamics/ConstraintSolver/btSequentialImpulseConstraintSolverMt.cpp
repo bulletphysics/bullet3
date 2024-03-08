@@ -478,7 +478,7 @@ void btSequentialImpulseConstraintSolverMt::internalAllocContactConstraints(cons
 			{
 				m_rollingFrictionIndexTable[contactIndex] = rollingFrictionIndex;
 				// allocate 3 (although we may use only 2 sometimes)
-				for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
 				{
 					m_tmpSolverContactRollingFrictionConstraintPool[rollingFrictionIndex].m_frictionIndex = contactIndex;
 					rollingFrictionIndex++;

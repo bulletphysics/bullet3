@@ -258,8 +258,8 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 
 					if (numindices)
 					{
-						btChunk* chunk = serializer->allocate(sizeof(btIntIndexData), numindices);
-						btIntIndexData* tmpIndices = (btIntIndexData*)chunk->m_oldPtr;
+						btChunk* serializerChunk = serializer->allocate(sizeof(btIntIndexData), numindices);
+						btIntIndexData* tmpIndices = (btIntIndexData*)serializerChunk->m_oldPtr;
 						memPtr->m_indices32 = (btIntIndexData*)serializer->getUniquePointer(tmpIndices);
 						for (gfxindex = 0; gfxindex < numtriangles; gfxindex++)
 						{
@@ -268,7 +268,7 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 							tmpIndices[gfxindex * 3 + 1].m_value = tri_indices[1];
 							tmpIndices[gfxindex * 3 + 2].m_value = tri_indices[2];
 						}
-						serializer->finalizeChunk(chunk, "btIntIndexData", BT_ARRAY_CODE, (void*)chunk->m_oldPtr);
+						serializer->finalizeChunk(serializerChunk, "btIntIndexData", BT_ARRAY_CODE, (void*)serializerChunk->m_oldPtr);
 					}
 					break;
 				}
@@ -276,8 +276,8 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 				{
 					if (numtriangles)
 					{
-						btChunk* chunk = serializer->allocate(sizeof(btShortIntIndexTripletData), numtriangles);
-						btShortIntIndexTripletData* tmpIndices = (btShortIntIndexTripletData*)chunk->m_oldPtr;
+						btChunk* serializerChunk = serializer->allocate(sizeof(btShortIntIndexTripletData), numtriangles);
+						btShortIntIndexTripletData* tmpIndices = (btShortIntIndexTripletData*)serializerChunk->m_oldPtr;
 						memPtr->m_3indices16 = (btShortIntIndexTripletData*)serializer->getUniquePointer(tmpIndices);
 						for (gfxindex = 0; gfxindex < numtriangles; gfxindex++)
 						{
@@ -289,7 +289,7 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 							tmpIndices[gfxindex].m_pad[0] = 0;
 							tmpIndices[gfxindex].m_pad[1] = 0;
 						}
-						serializer->finalizeChunk(chunk, "btShortIntIndexTripletData", BT_ARRAY_CODE, (void*)chunk->m_oldPtr);
+						serializer->finalizeChunk(serializerChunk, "btShortIntIndexTripletData", BT_ARRAY_CODE, (void*)serializerChunk->m_oldPtr);
 					}
 					break;
 				}
@@ -297,8 +297,8 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 				{
 					if (numtriangles)
 					{
-						btChunk* chunk = serializer->allocate(sizeof(btCharIndexTripletData), numtriangles);
-						btCharIndexTripletData* tmpIndices = (btCharIndexTripletData*)chunk->m_oldPtr;
+						btChunk* serializerChunk = serializer->allocate(sizeof(btCharIndexTripletData), numtriangles);
+						btCharIndexTripletData* tmpIndices = (btCharIndexTripletData*)serializerChunk->m_oldPtr;
 						memPtr->m_3indices8 = (btCharIndexTripletData*)serializer->getUniquePointer(tmpIndices);
 						for (gfxindex = 0; gfxindex < numtriangles; gfxindex++)
 						{
@@ -309,7 +309,7 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 							// Fill padding with zeros to appease msan.
 							tmpIndices[gfxindex].m_pad = 0;
 						}
-						serializer->finalizeChunk(chunk, "btCharIndexTripletData", BT_ARRAY_CODE, (void*)chunk->m_oldPtr);
+						serializer->finalizeChunk(serializerChunk, "btCharIndexTripletData", BT_ARRAY_CODE, (void*)serializerChunk->m_oldPtr);
 					}
 					break;
 				}
@@ -328,8 +328,8 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 
 					if (numverts)
 					{
-						btChunk* chunk = serializer->allocate(sizeof(btVector3FloatData), numverts);
-						btVector3FloatData* tmpVertices = (btVector3FloatData*)chunk->m_oldPtr;
+						btChunk* serializerChunk = serializer->allocate(sizeof(btVector3FloatData), numverts);
+						btVector3FloatData* tmpVertices = (btVector3FloatData*)serializerChunk->m_oldPtr;
 						memPtr->m_vertices3f = (btVector3FloatData*)serializer->getUniquePointer(tmpVertices);
 						for (int i = 0; i < numverts; i++)
 						{
@@ -338,7 +338,7 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 							tmpVertices[i].m_floats[1] = graphicsbase[1];
 							tmpVertices[i].m_floats[2] = graphicsbase[2];
 						}
-						serializer->finalizeChunk(chunk, "btVector3FloatData", BT_ARRAY_CODE, (void*)chunk->m_oldPtr);
+						serializer->finalizeChunk(serializerChunk, "btVector3FloatData", BT_ARRAY_CODE, (void*)serializerChunk->m_oldPtr);
 					}
 					break;
 				}
@@ -347,8 +347,8 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 				{
 					if (numverts)
 					{
-						btChunk* chunk = serializer->allocate(sizeof(btVector3DoubleData), numverts);
-						btVector3DoubleData* tmpVertices = (btVector3DoubleData*)chunk->m_oldPtr;
+						btChunk* serializerChunk = serializer->allocate(sizeof(btVector3DoubleData), numverts);
+						btVector3DoubleData* tmpVertices = (btVector3DoubleData*)serializerChunk->m_oldPtr;
 						memPtr->m_vertices3d = (btVector3DoubleData*)serializer->getUniquePointer(tmpVertices);
 						for (int i = 0; i < numverts; i++)
 						{
@@ -357,7 +357,7 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 							tmpVertices[i].m_floats[1] = graphicsbase[1];
 							tmpVertices[i].m_floats[2] = graphicsbase[2];
 						}
-						serializer->finalizeChunk(chunk, "btVector3DoubleData", BT_ARRAY_CODE, (void*)chunk->m_oldPtr);
+						serializer->finalizeChunk(serializerChunk, "btVector3DoubleData", BT_ARRAY_CODE, (void*)serializerChunk->m_oldPtr);
 					}
 					break;
 				}

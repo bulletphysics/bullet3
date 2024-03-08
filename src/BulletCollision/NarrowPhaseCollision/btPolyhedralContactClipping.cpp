@@ -486,7 +486,7 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 
 			if (depth <= maxDist)
 			{
-				btVector3 point = pVtxIn->at(i);
+				btVector3 pointVtx = pVtxIn->at(i);
 #ifdef ONLY_REPORT_DEEPEST_POINT
 				curMaxDist = depth;
 #else
@@ -497,7 +497,7 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 					printf("likely wrong separatingNormal passed in\n");
 				}
 #endif
-				resultOut.addContactPoint(separatingNormal, point, depth);
+				resultOut.addContactPoint(separatingNormal, pointVtx, depth);
 #endif
 			}
 		}

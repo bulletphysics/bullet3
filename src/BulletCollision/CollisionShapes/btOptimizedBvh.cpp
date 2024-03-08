@@ -336,15 +336,15 @@ void btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface, int 
 			btQuantizedBvhNode* rightChildNode = leftChildNode->isLeafNode() ? &m_quantizedContiguousNodes[i + 2] : &m_quantizedContiguousNodes[i + 1 + leftChildNode->getEscapeIndex()];
 
 			{
-				for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
 				{
-					curNode.m_quantizedAabbMin[i] = leftChildNode->m_quantizedAabbMin[i];
-					if (curNode.m_quantizedAabbMin[i] > rightChildNode->m_quantizedAabbMin[i])
-						curNode.m_quantizedAabbMin[i] = rightChildNode->m_quantizedAabbMin[i];
+					curNode.m_quantizedAabbMin[j] = leftChildNode->m_quantizedAabbMin[j];
+					if (curNode.m_quantizedAabbMin[j] > rightChildNode->m_quantizedAabbMin[j])
+						curNode.m_quantizedAabbMin[j] = rightChildNode->m_quantizedAabbMin[j];
 
-					curNode.m_quantizedAabbMax[i] = leftChildNode->m_quantizedAabbMax[i];
-					if (curNode.m_quantizedAabbMax[i] < rightChildNode->m_quantizedAabbMax[i])
-						curNode.m_quantizedAabbMax[i] = rightChildNode->m_quantizedAabbMax[i];
+					curNode.m_quantizedAabbMax[j] = leftChildNode->m_quantizedAabbMax[j];
+					if (curNode.m_quantizedAabbMax[j] < rightChildNode->m_quantizedAabbMax[j])
+						curNode.m_quantizedAabbMax[j] = rightChildNode->m_quantizedAabbMax[j];
 				}
 			}
 		}

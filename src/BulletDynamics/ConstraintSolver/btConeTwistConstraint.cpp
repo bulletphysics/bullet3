@@ -191,9 +191,9 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 			J2[srow + 0] = -ax1[0];
 			J2[srow + 1] = -ax1[1];
 			J2[srow + 2] = -ax1[2];
-			btScalar k = info->fps * m_biasFactor;
+			btScalar kb = info->fps * m_biasFactor;
 
-			info->m_constraintError[srow] = k * m_swingCorrection;
+			info->m_constraintError[srow] = kb * m_swingCorrection;
 			if (m_flags & BT_CONETWIST_FLAGS_ANG_CFM)
 			{
 				info->cfm[srow] = m_angCFM;
@@ -215,8 +215,8 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 		J2[srow + 0] = -ax1[0];
 		J2[srow + 1] = -ax1[1];
 		J2[srow + 2] = -ax1[2];
-		btScalar k = info->fps * m_biasFactor;
-		info->m_constraintError[srow] = k * m_twistCorrection;
+		btScalar kb = info->fps * m_biasFactor;
+		info->m_constraintError[srow] = kb * m_twistCorrection;
 		if (m_flags & BT_CONETWIST_FLAGS_ANG_CFM)
 		{
 			info->cfm[srow] = m_angCFM;
