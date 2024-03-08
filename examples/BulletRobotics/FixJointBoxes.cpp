@@ -62,7 +62,7 @@ public:
 			b3RobotSimulatorLoadUrdfFileArgs args;
 			b3RobotSimulatorChangeDynamicsArgs dynamicsArgs;
 
-			for (int i = 0; i < numCubes; i++)
+			for (unsigned int i = 0; i < numCubes; i++)
 			{
 				args.m_forceOverrideFixedBase = (i == 0);
 				args.m_startPosition.setValue(0, i * 0.05, 1);
@@ -110,7 +110,7 @@ public:
 
 	void resetCubePosition()
 	{
-		for (int i = 0; i < numCubes; i++)
+		for (unsigned int i = 0; i < numCubes; i++)
 		{
 			btVector3 pos(0, i * (btScalar)0.05, 1);
 			btQuaternion quar(0, 0, 0, 1);

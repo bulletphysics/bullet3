@@ -117,7 +117,7 @@ void btBulletFile::parseData()
 	remain -= 12;
 
 	//invalid/empty file?
-	if (remain < sizeof(bChunkInd))
+	if (remain < (int)sizeof(bChunkInd))
 		return;
 
 	char* dataPtr = mFileBuffer + mDataStart;

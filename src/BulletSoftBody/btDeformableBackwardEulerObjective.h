@@ -194,7 +194,8 @@ public:
 			m_lf[i]->addScaledDampingForceDifferential(-m_dt, dv, f);
 		}
 		counter = 0;
-		for (; counter < f.size(); ++counter)
+		const size_t stackSize = f.size() >= 0 ? (size_t)f.size() : 0;
+		for (; counter < stackSize; ++counter)
 		{
 			f[counter] = rhs[counter] - f[counter];
 		}

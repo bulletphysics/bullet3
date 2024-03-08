@@ -77,7 +77,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 			B3_PROFILE("Load Texture");
 			//int textureIndex = -1;
 			//try to load some texture
-			for (int i = 0; meshData.m_textureImage1 == 0 && i < shapes.size(); i++)
+			for (unsigned int i = 0; meshData.m_textureImage1 == 0 && i < shapes.size(); i++)
 			{
 				const bt_tinyobj::shape_t& shape = shapes[i];
 				meshData.m_rgbaColor[0] = shape.material.diffuse[0];

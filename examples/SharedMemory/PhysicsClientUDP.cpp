@@ -166,7 +166,7 @@ struct UdpNetworkedInternalData
 						printf(
 							"A packet of length %lu containing '%s' was "
 							"received from %s on channel %u.\n",
-							m_event.packet->dataLength,
+							(unsigned long)m_event.packet->dataLength,
 							(char*)m_event.packet->data,
 							(char*)m_event.peer->data,
 							m_event.channelID);
@@ -222,7 +222,7 @@ struct UdpNetworkedInternalData
 						printf(
 							"A packet of length %lu containing '%s' was "
 							"received from %s on channel %u.\n",
-							m_event.packet->dataLength,
+							(unsigned long)m_event.packet->dataLength,
 							(char*)m_event.packet->data,
 							(char*)m_event.peer->data,
 							m_event.channelID);
@@ -230,7 +230,7 @@ struct UdpNetworkedInternalData
 
 					int packetSizeInBytes = b3DeserializeInt(m_event.packet->data);
 
-					if (packetSizeInBytes == m_event.packet->dataLength)
+					if (packetSizeInBytes == (int)m_event.packet->dataLength)
 					{
 						SharedMemoryStatus* statPtr = (SharedMemoryStatus*)&m_event.packet->data[4];
 						if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)

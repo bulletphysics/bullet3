@@ -148,7 +148,7 @@ class VecDiffFD
 public:
 	VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd(dim), m_dt(dt)
 	{
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			char buf[256];
 			BT_ID_SNPRINTF(buf, 256, "%s-%.2d", name.c_str(), i);
@@ -159,7 +159,7 @@ public:
 	idScalar getMaxError() const
 	{
 		idScalar max_error = 0;
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			const idScalar error = m_fd[i].getMaxError();
 			if (error > max_error)
@@ -172,7 +172,7 @@ public:
 	idScalar getMaxValue() const
 	{
 		idScalar max_value = 0;
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			const idScalar value = m_fd[i].getMaxValue();
 			if (value > max_value)
@@ -189,7 +189,7 @@ public:
 
 	void printCurrent()
 	{
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			m_fd[i].printCurrent();
 		}

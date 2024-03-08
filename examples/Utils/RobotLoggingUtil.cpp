@@ -41,14 +41,14 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 		{
 			printf("Num Fields = %d\n", structNames.size());
 		}
-		btAssert(structTypes.size() == structNames.size());
-		if (structTypes.size() != structNames.size())
+		btAssert((int)structTypes.size() == structNames.size());
+		if ((int)structTypes.size() != structNames.size())
 		{
 			retVal = eCorruptHeader;
 		}
 		int numStructsRead = 0;
 
-		if (structTypes.size() == structNames.size())
+		if ((int)structTypes.size() == structNames.size())
 		{
 			while (!eof)
 			{
@@ -223,7 +223,7 @@ void appendMinitaurLogData(FILE* f, std::string& structTypes, const MinitaurLogR
 	{
 		unsigned char buf[2] = {0xaa, 0xbb};
 		fwrite(buf, 2, 1, f);
-		if (structTypes.length() == logData.m_values.size())
+		if ((int)structTypes.length() == logData.m_values.size())
 		{
 			for (int i = 0; i < logData.m_values.size(); i++)
 			{

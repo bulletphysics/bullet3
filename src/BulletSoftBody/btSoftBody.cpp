@@ -2417,7 +2417,7 @@ void btSoftBody::pointersToIndices()
 {
 #define PTR2IDX(_p_, _b_) reinterpret_cast<btSoftBody::Node*>((_p_) - (_b_))
 	btSoftBody::Node* base = m_nodes.size() ? &m_nodes[0] : 0;
-	int i, ni;
+	size_t i, ni;
 
 	for (i = 0, ni = m_nodes.size(); i < ni; ++i)
 	{

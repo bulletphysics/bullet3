@@ -778,7 +778,7 @@ public:
 		m_shapeIndex(-1),
 		m_textureId(-1),
 		m_instanceId(-1),
-		m_skipGraphicsUpdate(skipGraphicsUpdate)
+		m_skipGraphicsUpdate(skipGraphicsUpdate != 0)
 	{
 		m_cameraUpdated = 0;
 		m_childGuiHelper = guiHelper;

@@ -829,7 +829,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			mPhysicsStepStart = mLoopTimer.getTimeMilliseconds(); /**!< The physics updates start (in Milliseconds)*/
 			mPhysicsStepEnd = mPhysicsStepStart;
 
-			while (mPhysicsTick > mPhysicsStepEnd - mPhysicsStepStart)
+			while (mPhysicsTick > (long)(mPhysicsStepEnd - mPhysicsStepStart))
 			{ /**!< Update the physics until we run out of time (in Milliseconds) */
 				//			b3Printf("Physics passed: %u", mPhysicsStepEnd - mPhysicsStepStart);
 				double timeStep = fixedPhysicsStepSizeSec; /**!< update the world (in Seconds) */
@@ -850,7 +850,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 	void performSpeedStep()
 	{  // force-perform the number of steps needed to achieve a certain speed (safe to too high speeds, meaning the application will lose time, not the physics)
-		if (mFrameTime > gApplicationTick)
+		if ((int)mFrameTime > gApplicationTick)
 		{                                   /** cap frametime to make the application lose time, not the physics (in Milliseconds) */
 			mFrameTime = gApplicationTick;  // This prevents the physics time accumulator to sum up too much time
 		}                                   // The simulation therefore gets slower, but still performs all requested physics steps

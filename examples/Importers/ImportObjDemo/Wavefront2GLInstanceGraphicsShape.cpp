@@ -46,7 +46,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 					{
 						int uv0Index = 2 * v_0.texcoord_index;
 						int uv1Index = 2 * v_0.texcoord_index + 1;
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < int(attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size())))
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < int(attribute.texcoords.size()) && (uv1Index < (int)attribute.texcoords.size())))
 						{
 							vtx0.uv[0] = attribute.texcoords[uv0Index];
 							vtx0.uv[1] = attribute.texcoords[uv1Index];
@@ -75,7 +75,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 					{
 						int uv0Index = 2 * v_1.texcoord_index;
 						int uv1Index = 2 * v_1.texcoord_index + 1;
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size()))
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < (int)attribute.texcoords.size()) && (uv1Index < (int)attribute.texcoords.size()))
 						{
 							vtx1.uv[0] = attribute.texcoords[uv0Index];
 							vtx1.uv[1] = attribute.texcoords[uv1Index];
@@ -104,7 +104,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 						int uv0Index = 2 * v_2.texcoord_index;
 						int uv1Index = 2 * v_2.texcoord_index + 1;
 
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size()))
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < (int)attribute.texcoords.size()) && (uv1Index < (int)attribute.texcoords.size()))
 						{
 							vtx2.uv[0] = attribute.texcoords[uv0Index];
 							vtx2.uv[1] = attribute.texcoords[uv1Index];

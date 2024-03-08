@@ -237,7 +237,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 #endif  //_WIN32
 	num_entries = B3_MAX_CL_DEVICES;
 
-	num_devices = -1;
+	num_devices = (cl_uint)-1;
 
 	ciErrNum = clGetDeviceIDs(
 		platform,
@@ -336,7 +336,7 @@ cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int
 				return NULL;
 			}
 
-			if (preferredPlatformIndex >= 0 && i == preferredPlatformIndex)
+			if (preferredPlatformIndex >= 0 && (int)i == preferredPlatformIndex)
 			{
 				cl_platform_id tmpPlatform = platforms[0];
 				platforms[0] = platforms[i];

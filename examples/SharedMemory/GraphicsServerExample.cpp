@@ -58,7 +58,7 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
 
 	MySerializeInt(sz, &packetData[curPos]);
 	curPos += 4;
-	for (int i = 0; i < sizeof(GraphicsSharedMemoryStatus); i++)
+	for (int i = 0; i < (int)sizeof(GraphicsSharedMemoryStatus); i++)
 	{
 		packetData[i + curPos] = statBytes[i];
 	}

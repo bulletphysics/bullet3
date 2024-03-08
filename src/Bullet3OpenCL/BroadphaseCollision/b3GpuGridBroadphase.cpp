@@ -245,9 +245,9 @@ void b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 
 				int sz = m_gpuPairs.size();
 				printf("m_gpuPairs.size()=%d\n", sz);
-				for (int i = 0; i < m_gpuPairs.size(); i++)
+				for (size_t i = 0; i < m_gpuPairs.size(); i++)
 				{
-					printf("pair %d = %d,%d\n", i, pairsCpu[i].x, pairsCpu[i].y);
+					printf("pair %zu = %d,%d\n", i, pairsCpu[i].x, pairsCpu[i].y);
 				}
 
 				printf("?!?\n");

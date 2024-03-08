@@ -224,13 +224,13 @@ void InverseDynamicsExample::initPhysics()
 			{
 				qd[dof] = 0;
 				char tmp[25];
-				sprintf(tmp, "q_desired[%lu]", dof);
+				sprintf(tmp, "q_desired[%zu]", dof);
 				qd_name[dof] = tmp;
 				SliderParams slider(qd_name[dof].c_str(), &qd[dof]);
 				slider.m_minVal = -3.14;
 				slider.m_maxVal = 3.14;
 
-				sprintf(tmp, "q[%lu]", dof);
+				sprintf(tmp, "q[%lu]", (unsigned long)dof);
 				q_name[dof] = tmp;
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 				btVector4 color = sJointCurveColors[dof & 7];

@@ -178,7 +178,7 @@ void MyEnterProfileZoneFunc(const char* msg)
 		return;
 
 	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId < 0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
+	if (threadId < 0 || threadId >= (int)BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	if (gStackDepths[threadId] >= MAX_NESTING)
@@ -201,7 +201,7 @@ void MyLeaveProfileZoneFunc()
 		return;
 
 	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId < 0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
+	if (threadId < 0 || threadId >= (int)BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	if (gStackDepths[threadId] <= 0)
@@ -246,7 +246,7 @@ void b3ChromeUtilsStopTimingsAndWriteJsonFile(const char* fileNamePrefix)
 	{
 		fprintf(gTimingFile, "{\"traceEvents\":[\n");
 		//dump the content to file
-		for (int i = 0; i < BT_QUICKPROF_MAX_THREAD_COUNT; i++)
+		for (int i = 0; i < (int)BT_QUICKPROF_MAX_THREAD_COUNT; i++)
 		{
 			if (gTimings[i].m_numTimings)
 			{

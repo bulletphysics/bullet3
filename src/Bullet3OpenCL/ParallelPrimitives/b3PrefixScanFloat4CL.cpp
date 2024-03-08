@@ -37,7 +37,7 @@ template <class T>
 T b3NextPowerOf2(T n)
 {
 	n -= 1;
-	for (int i = 0; i < sizeof(T) * 8; i++)
+	for (unsigned int i = 0; i < sizeof(T) * 8; i++)
 		n = n | (n >> i);
 	return n + 1;
 }

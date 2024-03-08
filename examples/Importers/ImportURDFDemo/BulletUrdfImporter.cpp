@@ -193,7 +193,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 
 	if (xml_string.length())
 	{
-			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS));
+			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS) != 0);
 
 			if (m_data->m_flags & CUF_IGNORE_VISUAL_SHAPES)
 			{

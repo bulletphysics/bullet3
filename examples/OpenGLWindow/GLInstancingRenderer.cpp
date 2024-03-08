@@ -162,9 +162,9 @@ struct b3GraphicsInstance
 	int m_flags;  //transparency etc
 
 	b3GraphicsInstance()
-		: m_cube_vao(-1),
-		  m_index_vbo(-1),
-		  m_textureIndex(-1),
+		: m_cube_vao((GLuint)-1),
+		  m_index_vbo((GLuint)-1),
+		  m_textureIndex((GLuint)-1),
 		  m_numIndices(-1),
 		  m_numVertices(-1),
 		  m_numGraphicsInstances(0),
@@ -1070,11 +1070,11 @@ void GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 		b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 		if (textureId >= 0 && textureId < m_data->m_textureHandles.size())
 		{
-			gfxObj->m_textureIndex = textureId;
+			gfxObj->m_textureIndex = (GLuint)textureId;
 			gfxObj->m_flags |= B3_INSTANCE_TEXTURE;
 		} else
 		{
-			gfxObj->m_textureIndex = -1;
+			gfxObj->m_textureIndex = (GLuint)-1;
 			gfxObj->m_flags &= ~B3_INSTANCE_TEXTURE;
 		}
 	}

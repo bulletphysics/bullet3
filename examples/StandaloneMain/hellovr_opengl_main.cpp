@@ -1971,7 +1971,7 @@ void CMainApplication::UpdateHMDMatrixPose()
 	{
 		B3_PROFILE("for loop");
 
-		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+		for (unsigned int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 		{
 			if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 			{

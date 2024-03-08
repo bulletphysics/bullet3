@@ -1835,9 +1835,8 @@ B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3PhysicsClientHandle phys
 		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
 		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES && numVertices >= 0)
 		{
-			int i=0;
-			if (numVertices>B3_MAX_NUM_VERTICES)
-				numVertices=B3_MAX_NUM_VERTICES;
+			if (numVertices>(int)B3_MAX_NUM_VERTICES)
+				numVertices=(int)B3_MAX_NUM_VERTICES;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;

@@ -748,11 +748,11 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 		for (int ix = 0; ix < rx; ++ix)
 		{
 			const btScalar tx = ix / (btScalar)(rx - 1);
-			btScalar pert = perturbation * btScalar(rand()) / RAND_MAX;
+			btScalar pert = perturbation * btScalar(rand()) / btScalar(RAND_MAX);
 			btVector3 temp1 = py1;
 			temp1.setY(py1.getY() + pert);
 			btVector3 temp = py0;
-			pert = perturbation * btScalar(rand()) / RAND_MAX;
+			pert = perturbation * btScalar(rand()) / btScalar(RAND_MAX);
 			temp.setY(py0.getY() + pert);
 			x[IDX(ix, iy)] = lerp(temp, temp1, tx);
 			m[IDX(ix, iy)] = 1;
@@ -1325,7 +1325,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 	}
 	btSoftBody* psb = new btSoftBody(&worldInfo, n_points, &X[0], 0);
 
-	for (int i = 0; i < n_tets; ++i)
+	for (unsigned int i = 0; i < n_tets; ++i)
 	{
 		const Index& ni = indices[i];
 		psb->appendTetra(ni[0], ni[1], ni[2], ni[3]);

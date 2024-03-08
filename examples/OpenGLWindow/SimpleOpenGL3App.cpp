@@ -1002,8 +1002,8 @@ void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSize
 		glstat = glGetError();
 		b3Assert(glstat == GL_NO_ERROR);
 	}
-	b3Assert((width * height * sizeof(float)) == depthBufferSizeInBytes);
-	if ((width * height * sizeof(float)) == depthBufferSizeInBytes)
+	b3Assert((int)(width * height * sizeof(float)) == depthBufferSizeInBytes);
+	if ((int)(width * height * sizeof(float)) == depthBufferSizeInBytes)
 	{
 		glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuffer);
 		int glstat;

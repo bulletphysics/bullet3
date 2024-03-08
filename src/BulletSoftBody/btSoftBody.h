@@ -278,7 +278,7 @@ public:
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
 		int m_constrained;   // depth of penetration
-		int m_battach : 1;   // Attached
+		unsigned int m_battach : 1;   // Attached
 		int index;
 		btVector3 m_splitv;               // velocity associated with split impulse
 		btMatrix3x3 m_effectiveMass;      // effective mass in contact
@@ -291,7 +291,7 @@ public:
 		btVector3 m_c3;      // gradient
 		Node* m_n[2];        // Node pointers
 		btScalar m_rl;       // Rest length
-		int m_bbending : 1;  // Bending link
+		unsigned int m_bbending : 1;  // Bending link
 		btScalar m_c0;       // (ima+imb)*kLST
 		btScalar m_c1;       // rl^2
 		btScalar m_c2;       // |gradient|^2/c0
@@ -493,8 +493,8 @@ public:
 	{
 		btVector3 m_velocity;
 		btVector3 m_drift;
-		int m_asVelocity : 1;
-		int m_asDrift : 1;
+		unsigned int m_asVelocity : 1;
+		unsigned int m_asDrift : 1;
 		Impulse() : m_velocity(0, 0, 0), m_drift(0, 0, 0), m_asVelocity(0), m_asDrift(0) {}
 		Impulse operator-() const
 		{

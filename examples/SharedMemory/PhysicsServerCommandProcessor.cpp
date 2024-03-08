@@ -832,7 +832,7 @@ struct MyOverlapFilterCallback : public btOverlapFilterCallback
 
 			return collisionInterface->needsBroadphaseCollision(objectUniqueIdA, linkIndexA,
 																collisionFilterGroupA, collisionFilterMaskA,
-																objectUniqueIdB, linkIndexB, collisionFilterGroupB, collisionFilterMaskB, m_filterMode);
+																objectUniqueIdB, linkIndexB, collisionFilterGroupB, collisionFilterMaskB, m_filterMode) != 0;
 		}
 		else
 		{
@@ -3668,7 +3668,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		if (!(u2b.getDeformableModel().m_visualFileName.empty()))
 		{
 			bool use_self_collision = false;
-			use_self_collision = (flags & CUF_USE_SELF_COLLISION);
+			use_self_collision = (flags & CUF_USE_SELF_COLLISION) != 0;
 			bool ok = processDeformable(u2b.getDeformableModel(), pos, orn, bodyUniqueIdPtr, bufferServerToClient, bufferSizeInBytes, globalScaling, use_self_collision);
 			if (ok)
 			{
@@ -4736,10 +4736,10 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 					rows = 0;
 					std::string line(lineChar);
 					int pos = 0;
-					while (pos < line.length())
+					while (pos < (int)line.length())
 					{
 						int nextPos = pos + 1;
-						while (nextPos < line.length())
+						while (nextPos < (int)line.length())
 						{
 							if (line[nextPos - 1] == ',')
 							{
@@ -5681,7 +5681,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			{
 				separateRenderMesh = (psb->m_renderNodes.size() != 0);
 			}
-            bool requestVelocity = clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY;
+            bool requestVelocity = (clientCmd.m_updateFlags & B3_MESH_DATA_SIMULATION_MESH_VELOCITY) != 0;
 
 			
 			int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
@@ -6983,7 +6983,7 @@ bool PhysicsServerCommandProcessor::processCollisionFilterCommand(const struct S
 															 clientCmd.m_collisionFilterArgs.m_bodyUniqueIdB,
 															 clientCmd.m_collisionFilterArgs.m_linkIndexA,
 															 clientCmd.m_collisionFilterArgs.m_linkIndexB,
-															 clientCmd.m_collisionFilterArgs.m_enableCollision);
+															 clientCmd.m_collisionFilterArgs.m_enableCollision != 0);
 
 			btAlignedObjectArray<InternalBodyData*> bodies;
 
@@ -7909,8 +7909,8 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 	SendActualStateSharedMemoryStorage* stateDetails = (SendActualStateSharedMemoryStorage*)bufferServerToClient;
 
 	//make sure the storage fits, otherwise
-	btAssert(sizeof(SendActualStateSharedMemoryStorage) < bufferSizeInBytes);
-	if (sizeof(SendActualStateSharedMemoryStorage) > bufferSizeInBytes)
+	btAssert((int)sizeof(SendActualStateSharedMemoryStorage) < bufferSizeInBytes);
+	if ((int)sizeof(SendActualStateSharedMemoryStorage) > bufferSizeInBytes)
 	{
 		//this forces an error report
 		body = 0;
@@ -9347,11 +9347,11 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			const bt_tinyobj::shape_t& shape = shapes[0];
 			btAlignedObjectArray<btScalar> vertices;
 			btAlignedObjectArray<int> indices;
-			for (int i = 0; i < attribute.vertices.size(); i++)
+			for (unsigned int i = 0; i < attribute.vertices.size(); i++)
 			{
 				vertices.push_back(attribute.vertices[i]);
 			}
-			for (int i = 0; i < shape.mesh.indices.size(); i++)
+			for (unsigned int i = 0; i < shape.mesh.indices.size(); i++)
 			{
 				indices.push_back(shape.mesh.indices[i].vertex_index);
 			}
@@ -10312,7 +10312,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	bool use_self_collision = false;
 	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_USE_SELF_COLLISION)
 	{
-		use_self_collision = clientCmd.m_loadSoftBodyArguments.m_useSelfCollision;
+		use_self_collision = clientCmd.m_loadSoftBodyArguments.m_useSelfCollision != 0;
 	}
 
 	int bodyUniqueId = -1;

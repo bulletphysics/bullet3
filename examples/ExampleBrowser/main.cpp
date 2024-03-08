@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	memset(&action, 0x0, sizeof(action));
 	action.sa_handler = cleanup;
 	static const int signos[] = {SIGHUP, SIGINT, SIGQUIT, SIGABRT, SIGSEGV, SIGPIPE, SIGTERM};
-	for (int ii(0); ii < sizeof(signos) / sizeof(*signos); ++ii)
+	for (int ii(0); ii < (int)(sizeof(signos) / sizeof(*signos)); ++ii)
 	{
 		if (0 != sigaction(signos[ii], &action, NULL))
 		{

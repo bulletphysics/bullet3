@@ -580,7 +580,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 					if (dmin != 0)
 					{
 						int stepMin = dmin < 0 ? -1 : 1;
-						for (int j = prevMinIndex; j != curMinIndex; j += stepMin)
+						for (int j = prevMinIndex; j != (int)curMinIndex; j += stepMin)
 						{
 							int otherIndex2 = m_sortedAxisCPU[axis][otherbuffer][j].y;
 							int otherIndex = otherIndex2 / 2;
@@ -661,7 +661,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 					if (dmax != 0)
 					{
 						int stepMax = dmax < 0 ? -1 : 1;
-						for (int j = prevMaxIndex; j != curMaxIndex; j += stepMax)
+						for (int j = prevMaxIndex; j != (int)curMaxIndex; j += stepMax)
 						{
 							int otherIndex2 = m_sortedAxisCPU[axis][otherbuffer][j].y;
 							int otherIndex = otherIndex2 / 2;
@@ -865,7 +865,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 	//	if (m_currentBuffer>=0)
 	//	return calculateOverlappingPairsHostIncremental3Sap();
 
-	b3Assert(m_allAabbsCPU.size() == m_allAabbsGPU.size());
+	b3Assert(m_allAabbsCPU.size() == (int)m_allAabbsGPU.size());
 	m_allAabbsGPU.copyToHost(m_allAabbsCPU);
 
 	int axis = 0;
@@ -1014,7 +1014,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 	{
 		//bool syncOnHost = false;
 
-		int numSmallAabbs = m_smallAabbsMappingCPU.size();
+		size_t numSmallAabbs = m_smallAabbsMappingCPU.size();
 		if (m_prefixScanFloat4 && numSmallAabbs)
 		{
 			B3_PROFILE("GPU compute best variance axis");

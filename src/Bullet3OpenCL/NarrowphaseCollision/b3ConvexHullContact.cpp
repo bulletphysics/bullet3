@@ -379,7 +379,7 @@ inline bool IsPointInPolygon(const float4& p,
 	float4 v0 = baseVertex[convexIndices[face->m_indexOffset + face->m_numIndices - 1]];
 	b = v0;
 
-	for (unsigned i = 0; i != face->m_numIndices; ++i)
+	for (unsigned i = 0; (int)i != face->m_numIndices; ++i)
 	{
 		a = b;
 		float4 vi = baseVertex[convexIndices[face->m_indexOffset + i]];
