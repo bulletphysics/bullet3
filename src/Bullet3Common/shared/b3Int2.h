@@ -18,14 +18,28 @@ subject to the following restrictions:
 
 #ifdef __cplusplus
 
+#ifndef ANONYMOUS_STRUCTS
+#if defined(__GNUC__)
+#define ANONYMOUS_STRUCTS __extension__
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#endif
+#else // __GNUC__
+#if defined(_MSC_VER)
+#pragma warning(disable : 4201) // nonstandard extension used: nameless struct/union
+#endif // _MSC_VER
+#define ANONYMOUS_STRUCTS
+#endif // __GNUC__
+#endif // ANONYMOUS_STRUCTS
+
 struct b3UnsignedInt2
 {
 	union {
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			unsigned int x, y;
 		};
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			unsigned int s[2];
 		};
@@ -35,11 +49,11 @@ struct b3UnsignedInt2
 struct b3Int2
 {
 	union {
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			int x, y;
 		};
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			int s[2];
 		};

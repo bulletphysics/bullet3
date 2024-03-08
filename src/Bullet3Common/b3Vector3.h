@@ -99,7 +99,7 @@ public:
 #else
 	union {
 		float m_floats[4];
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			float x, y, z, w;
 		};

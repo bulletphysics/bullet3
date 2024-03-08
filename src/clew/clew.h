@@ -464,7 +464,8 @@ float nanf(const char *);
 #endif
 
 #if defined(CL_NAMED_STRUCT_SUPPORTED) && defined(_MSC_VER)
-#define __extension__ __pragma(warning(suppress : 4201))
+#pragma warning(disable: 4201)
+#define __extension__
 #endif
 
 	/* Define cl_vector types */

@@ -24,6 +24,20 @@ subject to the following restrictions:
 #include <stdlib.h>  //size_t for MSVC 6.0
 #include <float.h>
 
+#ifndef ANONYMOUS_STRUCTS
+#if defined(__GNUC__)
+#define ANONYMOUS_STRUCTS __extension__
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#endif
+#else // __GNUC__
+#if defined(_MSC_VER)
+#pragma warning(disable : 4201) // nonstandard extension used: nameless struct/union
+#endif // _MSC_VER
+#define ANONYMOUS_STRUCTS
+#endif // __GNUC__
+#endif // ANONYMOUS_STRUCTS
+
 //Original repository is at http://github.com/erwincoumans/bullet3
 #define B3_BULLET_VERSION 300
 
