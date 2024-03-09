@@ -220,11 +220,11 @@ void InverseDynamicsExample::initPhysics()
 
 		if (m_timeSeriesCanvas && m_guiHelper->getParameterInterface())
 		{
-			for (std::size_t dof = 0; dof < qd.size(); dof++)
+			for (unsigned int dof = 0; dof < qd.size(); dof++)
 			{
 				qd[dof] = 0;
 				char tmp[25];
-				sprintf(tmp, "q_desired[%zu]", dof);
+				sprintf(tmp, "q_desired[%u]", dof);
 				qd_name[dof] = tmp;
 				SliderParams slider(qd_name[dof].c_str(), &qd[dof]);
 				slider.m_minVal = -3.14;

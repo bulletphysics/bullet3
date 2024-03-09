@@ -654,7 +654,7 @@ void HACD::Simplify()
 			if (m_callBack)
 			{
 				char msg[1024];
-				sprintf(msg, "\t CH \t %lu \t %lf \t %lf\n", static_cast<unsigned long>(p), m_graph.m_vertices[v].m_concavity, m_graph.m_vertices[v].m_error);
+				sprintf(msg, "\t CH \t %lu \t %f \t %f\n", static_cast<unsigned long>(p), m_graph.m_vertices[v].m_concavity, m_graph.m_vertices[v].m_error);
 				(*m_callBack)(msg, 0.0, 0.0, m_nClusters);
 				p++;
 			}
