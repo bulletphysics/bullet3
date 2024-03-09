@@ -84,7 +84,7 @@ protected:
 	{
 		//PCK: added this line
 		m_ownsMemory = true;
-		m_data = 0;
+		m_data = NULL;
 		m_size = 0;
 		m_capacity = 0;
 	}
@@ -101,7 +101,7 @@ protected:
 	{
 		if (size)
 			return m_allocator.allocate(size);
-		return 0;
+		return NULL;
 	}
 
 	SIMD_FORCE_INLINE void deallocate()
@@ -113,7 +113,7 @@ protected:
 			{
 				m_allocator.deallocate(m_data);
 			}
-			m_data = 0;
+			m_data = NULL;
 		}
 	}
 

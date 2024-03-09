@@ -18,7 +18,7 @@ btDefaultMotionState : public btMotionState
 		: m_graphicsWorldTrans(startTrans),
 		  m_centerOfMassOffset(centerOfMassOffset),
 		  m_startWorldTrans(startTrans),
-		  m_userPointer(0)
+		  m_userPointer(NULL)
 
 	{
 	}

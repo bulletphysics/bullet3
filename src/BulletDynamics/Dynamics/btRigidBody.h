@@ -191,13 +191,13 @@ public:
 	{
 		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
 			return (const btRigidBody*)colObj;
-		return 0;
+		return NULL;
 	}
 	static btRigidBody* upcast(btCollisionObject* colObj)
 	{
 		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
 			return (btRigidBody*)colObj;
-		return 0;
+		return NULL;
 	}
 
 	/// continuous collision detection needs prediction
@@ -585,7 +585,7 @@ public:
 	//is this rigidbody added to a btCollisionWorld/btDynamicsWorld/btBroadphase?
 	bool isInWorld() const
 	{
-		return (getBroadphaseProxy() != 0);
+		return (getBroadphaseProxy() != NULL);
 	}
 
 	void addConstraintRef(btTypedConstraint* c);

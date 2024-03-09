@@ -52,7 +52,7 @@ class btManifoldPoint
 {
 public:
 	btManifoldPoint()
-		: m_userPersistentData(0),
+		: m_userPersistentData(NULL),
 		  m_contactPointFlags(0),
 		  m_appliedImpulse(0.f),
 		  m_prevRHS(0.f),
@@ -83,7 +83,7 @@ public:
 										 m_partId1(-1),
 										 m_index0(-1),
 										 m_index1(-1),
-										 m_userPersistentData(0),
+										 m_userPersistentData(NULL),
 										 m_contactPointFlags(0),
 										 m_appliedImpulse(0.f),
 										 m_prevRHS(0.f),

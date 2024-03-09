@@ -206,12 +206,12 @@ public:
 		}
 		bool hasHit() const
 		{
-			return (m_collisionObject != 0);
+			return (m_collisionObject != NULL);
 		}
 
 		RayResultCallback()
 			: m_closestHitFraction(btScalar(1.)),
-			  m_collisionObject(0),
+			  m_collisionObject(NULL),
 			  m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
 			  m_collisionFilterMask(btBroadphaseProxy::AllFilter),
 			  //@BP Mod
@@ -364,7 +364,7 @@ public:
 		ClosestConvexResultCallback(const btVector3& convexFromWorld, const btVector3& convexToWorld)
 			: m_convexFromWorld(convexFromWorld),
 			  m_convexToWorld(convexToWorld),
-			  m_hitCollisionObject(0)
+			  m_hitCollisionObject(NULL)
 		{
 		}
 

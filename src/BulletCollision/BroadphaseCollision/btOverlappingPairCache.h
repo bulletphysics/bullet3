@@ -121,7 +121,7 @@ public:
 	virtual btBroadphasePair* addOverlappingPair(btBroadphaseProxy * proxy0, btBroadphaseProxy * proxy1) BT_OVERRIDE
 	{
 		if (!needsBroadphaseCollision(proxy0, proxy1))
-			return 0;
+			return NULL;
 
 		return internalAddPair(proxy0, proxy1);
 	}
@@ -387,7 +387,7 @@ public:
 	}
 	btOverlapFilterCallback* getOverlapFilterCallback() BT_OVERRIDE
 	{
-		return 0;
+		return NULL;
 	}
 	virtual void setOverlapFilterCallback(btOverlapFilterCallback* /*callback*/) BT_OVERRIDE
 	{
@@ -399,7 +399,7 @@ public:
 
 	virtual btBroadphasePair* findPair(btBroadphaseProxy* /*proxy0*/, btBroadphaseProxy* /*proxy1*/) BT_OVERRIDE
 	{
-		return 0;
+		return NULL;
 	}
 
 	virtual bool hasDeferredRemoval() BT_OVERRIDE
@@ -413,12 +413,12 @@ public:
 
 	virtual btBroadphasePair* addOverlappingPair(btBroadphaseProxy* /*proxy0*/, btBroadphaseProxy* /*proxy1*/) BT_OVERRIDE
 	{
-		return 0;
+		return NULL;
 	}
 
 	virtual void* removeOverlappingPair(btBroadphaseProxy* /*proxy0*/, btBroadphaseProxy* /*proxy1*/, btDispatcher* /*dispatcher*/) BT_OVERRIDE
 	{
-		return 0;
+		return NULL;
 	}
 
 	virtual void removeOverlappingPairsContainingProxy(btBroadphaseProxy* /*proxy0*/, btDispatcher* /*dispatcher*/) BT_OVERRIDE

@@ -37,7 +37,7 @@ struct btCollisionAlgorithmCreateFunc
 	{
 		(void)body0Wrap;
 		(void)body1Wrap;
-		return 0;
+		return NULL;
 	}
 };
 #endif  //BT_COLLISION_CREATE_FUNC

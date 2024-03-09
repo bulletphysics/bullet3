@@ -50,7 +50,7 @@ struct btDbvtProxy : btBroadphaseProxy
 	/* ctor			*/
 	btDbvtProxy(const btVector3& aabbMin, const btVector3& aabbMax, void* userPtr, int collisionFilterGroup, int collisionFilterMask) : btBroadphaseProxy(aabbMin, aabbMax, userPtr, collisionFilterGroup, collisionFilterMask)
 	{
-		links[0] = links[1] = 0;
+		links[0] = links[1] = NULL;
 	}
 };
 
@@ -101,7 +101,7 @@ struct btDbvtBroadphase : btBroadphaseInterface
 	} m_profiling;
 #endif
 	/* Methods		*/
-	btDbvtBroadphase(btOverlappingPairCache* paircache = 0);
+	btDbvtBroadphase(btOverlappingPairCache* paircache = NULL);
 	~btDbvtBroadphase() BT_OVERRIDE;
 	void collide(btDispatcher* dispatcher);
 	void optimize();

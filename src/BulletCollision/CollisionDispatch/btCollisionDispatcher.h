@@ -89,7 +89,7 @@ public:
 
 	btPersistentManifold** getInternalManifoldPointer() BT_OVERRIDE
 	{
-		return m_manifoldsPtr.size() ? &m_manifoldsPtr[0] : 0;
+		return m_manifoldsPtr.size() ? &m_manifoldsPtr[0] : NULL;
 	}
 
 	btPersistentManifold* getManifoldByIndexInternal(int index) BT_OVERRIDE

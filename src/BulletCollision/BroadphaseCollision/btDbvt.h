@@ -181,7 +181,7 @@ struct btDbvtNode
 {
 	btDbvtVolume volume;
 	btDbvtNode* parent;
-	DBVT_INLINE bool isleaf() const { return (childs[1] == 0); }
+	DBVT_INLINE bool isleaf() const { return (childs[1] == NULL); }
 	DBVT_INLINE bool isinternal() const { return (!isleaf()); }
 	union {
 		btDbvtNode* childs[2];
@@ -196,7 +196,7 @@ struct btDbvntNode
     btDbvtVolume volume;
     btVector3 normal;
     btScalar angle;
-    DBVT_INLINE bool isleaf() const { return (childs[1] == 0); }
+    DBVT_INLINE bool isleaf() const { return (childs[1] == NULL); }
     DBVT_INLINE bool isinternal() const { return (!isleaf()); }
     btDbvntNode* childs[2];
     void* data;
@@ -207,8 +207,8 @@ struct btDbvntNode
     , angle(0)
     , data(n->data)
     {
-        childs[0] = 0;
-        childs[1] = 0;
+        childs[0] = NULL;
+        childs[1] = NULL;
     }
     
     ~btDbvntNode()
@@ -311,7 +311,7 @@ struct btDbvt
 	btDbvt();
 	~btDbvt();
 	void clear();
-	bool empty() const { return (0 == m_root); }
+	bool empty() const { return (NULL == m_root); }
 	void optimizeBottomUp();
 	void optimizeTopDown(int bu_treshold = 128);
 	void optimizeIncremental(int passes);
@@ -323,7 +323,7 @@ struct btDbvt
 	bool update(btDbvtNode* leaf, btDbvtVolume& volume, btScalar margin);
 	void remove(btDbvtNode* leaf);
 	void write(IWriter* iwriter) const;
-	void clone(btDbvt& dest, IClone* iclone = 0) const;
+	void clone(btDbvt& dest, IClone* iclone = NULL) const;
 	static int maxdepth(const btDbvtNode* node);
 	static int countLeaves(const btDbvtNode* node);
 	static void extractLeaves(const btDbvtNode* node, btAlignedObjectArray<const btDbvtNode*>& leaves);

@@ -187,7 +187,7 @@ protected:
 		void** ptr = m_chunkP.find(oldPtr);
 		if (ptr && *ptr)
 			return *ptr;
-		return 0;
+		return NULL;
 	}
 
 	virtual void writeDNA()
@@ -220,9 +220,9 @@ protected:
 		memcpy(m_dna, bdnaOrg, dnalen);
 		m_dnaLength = dnalen;
 
-		int* intPtr = 0;
-		short* shtPtr = 0;
-		char* cp = 0;
+		int* intPtr = NULL;
+		short* shtPtr = NULL;
+		char* cp = NULL;
 		int dataLen = 0;
 		intPtr = (int*)m_dna;
 
@@ -366,17 +366,17 @@ protected:
 public:
 	btHashMap<btHashPtr, void*> m_skipPointers;
 
-	btDefaultSerializer(int totalSize = 0, unsigned char* buffer = 0)
+	btDefaultSerializer(int totalSize = 0, unsigned char* buffer = NULL)
 		: m_uniqueIdGenerator(0),
 		  m_totalSize(totalSize),
 		  m_currentSize(0),
-		  m_dna(0),
+		  m_dna(NULL),
 		  m_dnaLength(0),
 		  m_serializationFlags(0)
 	{
-		if (buffer == 0)
+		if (buffer == NULL)
 		{
-			m_buffer = m_totalSize ? (unsigned char*)btAlignedAlloc(totalSize, 16) : 0;
+			m_buffer = m_totalSize ? (unsigned char*)btAlignedAlloc(totalSize, 16) : NULL;
 			m_ownsBuffer = true;
 		}
 		else
@@ -537,7 +537,7 @@ public:
 	{
 		btAssert(m_uniqueIdGenerator >= 0);
 		if (!oldPtr)
-			return 0;
+			return NULL;
 
 		btPointerUid* uptr = (btPointerUid*)m_uniquePointers.find(oldPtr);
 		if (uptr)
@@ -548,7 +548,7 @@ public:
 		void** ptr2 = m_skipPointers[oldPtr];
 		if (ptr2)
 		{
-			return 0;
+			return NULL;
 		}
 
 		m_uniqueIdGenerator++;
@@ -589,7 +589,7 @@ public:
 
 	virtual unsigned char* internalAlloc(size_t size)
 	{
-		unsigned char* ptr = 0;
+		unsigned char* ptr = NULL;
 
 		if (m_totalSize)
 		{
@@ -627,7 +627,7 @@ public:
 		const char* const* namePtr = m_nameMap.find(ptr);
 		if (namePtr && *namePtr)
 			return *namePtr;
-		return 0;
+		return NULL;
 	}
 
 	virtual void registerNameForPointer(const void* ptr, const char* name) BT_OVERRIDE

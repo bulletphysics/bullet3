@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "btCollisionConfiguration.h"
 #include "LinearMath/btOverride.h"
+#include <cstddef>
 class btVoronoiSimplexSolver;
 class btConvexPenetrationDepthSolver;
 
@@ -31,8 +32,8 @@ struct btDefaultCollisionConstructionInfo
 	int m_useEpaPenetrationAlgorithm;
 
 	btDefaultCollisionConstructionInfo()
-		: m_persistentManifoldPool(0),
-		  m_collisionAlgorithmPool(0),
+		: m_persistentManifoldPool(NULL),
+		  m_collisionAlgorithmPool(NULL),
 		  m_defaultMaxPersistentManifoldPoolSize(4096),
 		  m_defaultMaxCollisionAlgorithmPoolSize(4096),
 		  m_customCollisionAlgorithmMaxElementSize(0),

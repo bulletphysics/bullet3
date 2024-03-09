@@ -74,7 +74,7 @@ protected:
 		proxy->SetNextFree(m_firstFreeHandle);
 		m_firstFreeHandle = handle;
 
-		proxy->m_clientObject = 0;
+		proxy->m_clientObject = NULL;
 
 		m_numHandles--;
 	}
@@ -103,7 +103,7 @@ protected:
 
 protected:
 public:
-	btSimpleBroadphase(int maxProxies = 16384, btOverlappingPairCache* overlappingPairCache = 0);
+	btSimpleBroadphase(int maxProxies = 16384, btOverlappingPairCache* overlappingPairCache = NULL);
 	virtual ~btSimpleBroadphase() BT_OVERRIDE;
 
 	static bool aabbOverlap(btSimpleBroadphaseProxy* proxy0, btSimpleBroadphaseProxy* proxy1);
