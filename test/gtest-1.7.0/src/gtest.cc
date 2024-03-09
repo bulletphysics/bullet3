@@ -3573,7 +3573,7 @@ std::string FormatEpochTimeInMillisAsIso8601(TimeInMillis ms)
 	time_t seconds = static_cast<time_t>(ms / 1000);
 #ifdef _MSC_VER
 #pragma warning(push)                                          // Saves the current warning state.
-#pragma warning(disable : 4996)                                // Temporarily disables warning 4996 \
+#pragma warning(disable : 4996)                                // Temporarily disables warning 4996
 															   // (function or variable may be unsafe).
 	const struct tm* const time_struct = localtime(&seconds);  // NOLINT
 #pragma warning(pop)                                           // Restores the warning state again.
@@ -4428,7 +4428,7 @@ UnitTestImpl::UnitTestImpl(UnitTest* parent)
 	: parent_(parent),
 #ifdef _MSC_VER
 #pragma warning(push)            // Saves the current warning state.
-#pragma warning(disable : 4355)  // Temporarily disables warning 4355 \
+#pragma warning(disable : 4355)  // Temporarily disables warning 4355
 								 // (using this in initializer).
 	  default_global_test_part_result_reporter_(this),
 	  default_per_thread_test_part_result_reporter_(this),
