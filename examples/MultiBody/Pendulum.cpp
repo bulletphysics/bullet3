@@ -184,7 +184,7 @@ TEST(BulletDynamicsTest, pendulum)
 	DummyGUIHelper noGfx;
 	Pendulum* setup = new Pendulum(&noGfx);
 	setup->initPhysics();
-	int numGoldValues = sizeof(sPendulumGold) / sizeof(float);
+	int numGoldValues = sizeof(sPendulumGold) / sizeof(btScalar);
 	for (int i = 0; i < 2000; i++)
 	{
 		setup->stepSimulation(0.001);
