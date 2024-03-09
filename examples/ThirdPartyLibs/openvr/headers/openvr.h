@@ -109,14 +109,14 @@ enum ETextureType
 	TextureType_OpenGL = 1,     // Handle is an OpenGL texture name or an OpenGL render buffer name, depending on submit flags
 	TextureType_Vulkan = 2,     // Handle is a pointer to a VRVulkanTextureData_t structure
 	TextureType_IOSurface = 3,  // Handle is a macOS cross-process-sharable IOSurfaceRef
-	TextureType_DirectX12 = 4,  // Handle is a pointer to a D3D12TextureData_t structure
+	TextureType_DirectX12 = 4   // Handle is a pointer to a D3D12TextureData_t structure
 };
 
 enum EColorSpace
 {
 	ColorSpace_Auto = 0,    // Assumes 'gamma' for 8-bit per component formats, otherwise 'linear'.  This mirrors the DXGI formats which have _SRGB variants.
 	ColorSpace_Gamma = 1,   // Texture data can be displayed directly on the display without any conversion (a.k.a. display native format).
-	ColorSpace_Linear = 2,  // Same as gamma but has been converted to a linear representation using DXGI's sRGB conversion algorithm.
+	ColorSpace_Linear = 2   // Same as gamma but has been converted to a linear representation using DXGI's sRGB conversion algorithm.
 };
 
 struct Texture_t
@@ -138,7 +138,7 @@ enum ETrackingResult
 	TrackingResult_Calibrating_OutOfRange = 101,
 
 	TrackingResult_Running_OK = 200,
-	TrackingResult_Running_OutOfRange = 201,
+	TrackingResult_Running_OutOfRange = 201
 };
 
 typedef uint32_t DriverId_t;
@@ -161,7 +161,7 @@ enum ETrackedDeviceClass
 	TrackedDeviceClass_Controller = 2,         // Tracked controllers
 	TrackedDeviceClass_GenericTracker = 3,     // Generic trackers, similar to controllers
 	TrackedDeviceClass_TrackingReference = 4,  // Camera and base stations that serve as tracking reference points
-	TrackedDeviceClass_DisplayRedirect = 5,    // Accessories that aren't necessarily tracked themselves, but may redirect video output from other tracked devices
+	TrackedDeviceClass_DisplayRedirect = 5     // Accessories that aren't necessarily tracked themselves, but may redirect video output from other tracked devices
 };
 
 /** Describes what specific role associated with a tracked device */
@@ -169,7 +169,7 @@ enum ETrackedControllerRole
 {
 	TrackedControllerRole_Invalid = 0,    // Invalid value for controller type
 	TrackedControllerRole_LeftHand = 1,   // Tracked device associated with the left hand
-	TrackedControllerRole_RightHand = 2,  // Tracked device associated with the right hand
+	TrackedControllerRole_RightHand = 2   // Tracked device associated with the right hand
 };
 
 /** describes a single pose for a tracked object */
@@ -192,7 +192,7 @@ enum ETrackingUniverseOrigin
 {
 	TrackingUniverseSeated = 0,              // Poses are provided relative to the seated zero pose
 	TrackingUniverseStanding = 1,            // Poses are provided relative to the safe bounds configured by the user
-	TrackingUniverseRawAndUncalibrated = 2,  // Poses are provided in the coordinate system defined by the driver.  It has Y up and is unified for devices of the same driver. You usually don't want this one.
+	TrackingUniverseRawAndUncalibrated = 2   // Poses are provided in the coordinate system defined by the driver.  It has Y up and is unified for devices of the same driver. You usually don't want this one.
 };
 
 // Refers to a single container of properties
@@ -357,7 +357,7 @@ enum ETrackedDeviceProperty
 
 	// Vendors are free to expose private debug data in this reserved region
 	Prop_VendorSpecific_Reserved_Start = 10000,
-	Prop_VendorSpecific_Reserved_End = 10999,
+	Prop_VendorSpecific_Reserved_End = 10999
 };
 
 /** No string property will ever be longer than this length */
@@ -377,7 +377,7 @@ enum ETrackedPropertyError
 	TrackedProp_StringExceedsMaximumLength = 8,
 	TrackedProp_NotYetAvailable = 9,  // The property value isn't known yet, but is expected soon. Call again later.
 	TrackedProp_PermissionDenied = 10,
-	TrackedProp_InvalidOperation = 11,
+	TrackedProp_InvalidOperation = 11
 };
 
 /** Allows the application to control what part of the provided texture will be used in the
@@ -412,7 +412,7 @@ enum EVRSubmitFlags
 	Submit_Reserved = 0x04,
 
 	// Set to indicate that pTexture is a pointer to a VRTextureWithPose_t.
-	Submit_TextureWithPose = 0x08,
+	Submit_TextureWithPose = 0x08
 };
 
 /** Data required for passing Vulkan textures to IVRCompositor::Submit.
@@ -448,7 +448,7 @@ enum EVRState
 	VRState_Ready_Alert = 4,
 	VRState_NotReady = 5,
 	VRState_Standby = 6,
-	VRState_Ready_Alert_Low = 7,
+	VRState_Ready_Alert_Low = 7
 };
 
 /** The types of events that could be posted (and what the parameters mean for each event type) */
@@ -593,7 +593,7 @@ enum EVREventType
 
 	// Vendors are free to expose private events in this reserved region
 	VREvent_VendorSpecific_Reserved_Start = 10000,
-	VREvent_VendorSpecific_Reserved_End = 19999,
+	VREvent_VendorSpecific_Reserved_End = 19999
 };
 
 /** Level of Hmd activity */
@@ -607,7 +607,7 @@ enum EDeviceActivityLevel
 	k_EDeviceActivityLevel_Idle = 0,                     // No activity for the last 10 seconds
 	k_EDeviceActivityLevel_UserInteraction = 1,          // Activity (movement or prox sensor) is happening now
 	k_EDeviceActivityLevel_UserInteraction_Timeout = 2,  // No activity for the last 0.5 seconds
-	k_EDeviceActivityLevel_Standby = 3,                  // Idle for at least 5 seconds (configurable in Settings -> Power Management)
+	k_EDeviceActivityLevel_Standby = 3                   // Idle for at least 5 seconds (configurable in Settings -> Power Management)
 };
 
 /** VR controller button and axis IDs */
@@ -652,7 +652,7 @@ enum EVRMouseButton
 {
 	VRMouseButton_Left = 0x0001,
 	VRMouseButton_Right = 0x0002,
-	VRMouseButton_Middle = 0x0004,
+	VRMouseButton_Middle = 0x0004
 };
 
 /** used for simulated mouse events in overlay space */
@@ -847,7 +847,7 @@ enum EHiddenAreaMeshType
 	k_eHiddenAreaMesh_Inverse = 1,
 	k_eHiddenAreaMesh_LineLoop = 2,
 
-	k_eHiddenAreaMesh_Max = 3,
+	k_eHiddenAreaMesh_Max = 3
 };
 
 /** Identifies what kind of axis is on the controller at index n. Read this type 
@@ -858,7 +858,7 @@ enum EVRControllerAxisType
 	k_eControllerAxis_None = 0,
 	k_eControllerAxis_TrackPad = 1,
 	k_eControllerAxis_Joystick = 2,
-	k_eControllerAxis_Trigger = 3,  // Analog trigger data is in the X axis
+	k_eControllerAxis_Trigger = 3   // Analog trigger data is in the X axis
 };
 
 /** contains information about one axis on the controller */
@@ -901,7 +901,7 @@ typedef VRControllerState001_t VRControllerState_t;
 enum EVRControllerEventOutputType
 {
 	ControllerEventOutput_OSEvents = 0,
-	ControllerEventOutput_VREvents = 1,
+	ControllerEventOutput_VREvents = 1
 };
 
 /** Collision Bounds Style */
@@ -956,7 +956,7 @@ enum EVROverlayError
 	VROverlayError_KeyboardAlreadyInUse = 26,
 	VROverlayError_NoNeighbor = 27,
 	VROverlayError_TooManyMaskPrimitives = 29,
-	VROverlayError_BadMaskPrimitive = 30,
+	VROverlayError_BadMaskPrimitive = 30
 };
 
 /** enum values to pass in to VR_Init to identify whether the application will 
@@ -982,7 +982,7 @@ enum EVRFirmwareError
 {
 	VRFirmwareError_None = 0,
 	VRFirmwareError_Success = 1,
-	VRFirmwareError_Fail = 2,
+	VRFirmwareError_Fail = 2
 };
 
 /** error codes for notifications */
@@ -992,7 +992,7 @@ enum EVRNotificationError
 	VRNotificationError_InvalidNotificationId = 100,
 	VRNotificationError_NotificationQueueFull = 101,
 	VRNotificationError_InvalidOverlayHandle = 102,
-	VRNotificationError_SystemWithUserValueAlreadyExists = 103,
+	VRNotificationError_SystemWithUserValueAlreadyExists = 103
 };
 
 /** error codes returned by Vr_Init */
@@ -1091,7 +1091,7 @@ enum EVRInitError
 	VRInitError_VendorSpecific_HmdFound_UserDataError = 1112,
 	VRInitError_VendorSpecific_HmdFound_ConfigFailedSanityCheck = 1113,
 
-	VRInitError_Steam_SteamInstallationNotFound = 2000,
+	VRInitError_Steam_SteamInstallationNotFound = 2000
 };
 
 enum EVRScreenshotType
@@ -1107,7 +1107,7 @@ enum EVRScreenshotType
 enum EVRScreenshotPropertyFilenames
 {
 	VRScreenshotPropertyFilenames_Preview = 0,
-	VRScreenshotPropertyFilenames_VR = 1,
+	VRScreenshotPropertyFilenames_VR = 1
 };
 
 enum EVRTrackedCameraError
@@ -1128,7 +1128,7 @@ enum EVRTrackedCameraError
 	VRTrackedCameraError_SharedTextureFailure = 112,
 	VRTrackedCameraError_NoFrameAvailable = 113,
 	VRTrackedCameraError_InvalidArgument = 114,
-	VRTrackedCameraError_InvalidFrameBufferSize = 115,
+	VRTrackedCameraError_InvalidFrameBufferSize = 115
 };
 
 enum EVRTrackedCameraFrameType
@@ -1527,7 +1527,7 @@ enum EVRApplicationError
 	VRApplicationError_BufferTooSmall = 200,  // The provided buffer was too small to fit the requested data
 	VRApplicationError_PropertyNotSet = 201,  // The requested property was not set
 	VRApplicationError_UnknownProperty = 202,
-	VRApplicationError_InvalidParameter = 203,
+	VRApplicationError_InvalidParameter = 203
 };
 
 /** The maximum length of an application key */
@@ -1555,7 +1555,7 @@ enum EVRApplicationProperty
 	VRApplicationProperty_IsInternal_Bool = 63,
 	VRApplicationProperty_WantsCompositorPauseInStandby_Bool = 64,
 
-	VRApplicationProperty_LastLaunchTime_Uint64 = 70,
+	VRApplicationProperty_LastLaunchTime_Uint64 = 70
 };
 
 /** These are states the scene application startup process will go through. */
@@ -1566,7 +1566,7 @@ enum EVRApplicationTransitionState
 	VRApplicationTransition_OldAppQuitSent = 10,
 	VRApplicationTransition_WaitingForExternalLaunch = 11,
 
-	VRApplicationTransition_NewAppLaunched = 20,
+	VRApplicationTransition_NewAppLaunched = 20
 };
 
 struct AppOverrideKeys_t
@@ -1721,7 +1721,7 @@ enum EVRSettingsError
 	VRSettingsError_WriteFailed = 2,
 	VRSettingsError_ReadFailed = 3,
 	VRSettingsError_JsonParseFailed = 4,
-	VRSettingsError_UnsetSettingHasNoDefault = 5,  // This will be returned if the setting does not appear in the appropriate default file and has not been set
+	VRSettingsError_UnsetSettingHasNoDefault = 5   // This will be returned if the setting does not appear in the appropriate default file and has not been set
 };
 
 // The maximum length of a settings key
@@ -1942,7 +1942,7 @@ enum ChaperoneCalibrationState
 	ChaperoneCalibrationState_Error_BaseStationUninitialized = 201,  // Tracking center hasn't be calibrated for at least one of the base stations
 	ChaperoneCalibrationState_Error_BaseStationConflict = 202,       // Tracking center is calibrated, but base stations disagree on the tracking space
 	ChaperoneCalibrationState_Error_PlayAreaInvalid = 203,           // Play Area hasn't been calibrated for the current tracking center
-	ChaperoneCalibrationState_Error_CollisionBoundsInvalid = 204,    // Collision Bounds haven't been calibrated for the current tracking center
+	ChaperoneCalibrationState_Error_CollisionBoundsInvalid = 204     // Collision Bounds haven't been calibrated for the current tracking center
 };
 
 /** HIGH LEVEL TRACKING SPACE ASSUMPTIONS:
@@ -1995,12 +1995,12 @@ namespace vr
 enum EChaperoneConfigFile
 {
 	EChaperoneConfigFile_Live = 1,  // The live chaperone config, used by most applications and games
-	EChaperoneConfigFile_Temp = 2,  // The temporary chaperone config, used to live-preview collision bounds in room setup
+	EChaperoneConfigFile_Temp = 2   // The temporary chaperone config, used to live-preview collision bounds in room setup
 };
 
 enum EChaperoneImportFlags
 {
-	EChaperoneImport_BoundsOnly = 0x0001,
+	EChaperoneImport_BoundsOnly = 0x0001
 };
 
 /** Manages the working copy of the chaperone info. By default this will be the same as the 
@@ -2095,7 +2095,7 @@ enum EVRCompositorError
 	VRCompositorError_SharedTexturesNotSupported = 106,
 	VRCompositorError_IndexOutOfRange = 107,
 	VRCompositorError_AlreadySubmitted = 108,
-	VRCompositorError_InvalidBounds = 109,
+	VRCompositorError_InvalidBounds = 109
 };
 
 const uint32_t VRCompositor_ReprojectionReason_Cpu = 0x01;
@@ -2408,7 +2408,7 @@ enum EVRNotificationType
 	/** System notifications are shown no matter what. It is expected, that the ulUserValue is used as ID.
 	 * If there is already a system notification in the queue with that ID it is not accepted into the queue
 	 * to prevent spamming with system notification */
-	EVRNotificationType_Transient_SystemWithUserValue = 2,
+	EVRNotificationType_Transient_SystemWithUserValue = 2
 };
 
 enum EVRNotificationStyle
@@ -2426,7 +2426,7 @@ enum EVRNotificationStyle
 	EVRNotificationStyle_Contact_Enabled = 201,
 
 	/** Used for notifications about contacts that are available and active. In Steam this is used for friends that are online and currently running a game. */
-	EVRNotificationStyle_Contact_Active = 202,
+	EVRNotificationStyle_Contact_Active = 202
 };
 
 static const uint32_t k_unNotificationTextMaxSize = 256;
@@ -2473,7 +2473,7 @@ static const uint32_t k_unMaxOverlayIntersectionMaskPrimitivesCount = 32;
 enum VROverlayInputMethod
 {
 	VROverlayInputMethod_None = 0,   // No input events will be generated automatically for this overlay
-	VROverlayInputMethod_Mouse = 1,  // Tracked controllers will get mouse events automatically
+	VROverlayInputMethod_Mouse = 1   // Tracked controllers will get mouse events automatically
 };
 
 /** Allows the caller to figure out which overlay transform getter to call. */
@@ -2482,7 +2482,7 @@ enum VROverlayTransformType
 	VROverlayTransform_Absolute = 0,
 	VROverlayTransform_TrackedDeviceRelative = 1,
 	VROverlayTransform_SystemOverlay = 2,
-	VROverlayTransform_TrackedComponent = 3,
+	VROverlayTransform_TrackedComponent = 3
 };
 
 /** Overlay control settings */
@@ -2527,7 +2527,7 @@ enum VROverlayFlags
 	VROverlayFlags_SortWithNonSceneOverlays = 14,
 
 	// If set, the overlay will be shown in the dashboard, otherwise it will be hidden.
-	VROverlayFlags_VisibleInDashboard = 15,
+	VROverlayFlags_VisibleInDashboard = 15
 };
 
 enum VRMessageOverlayResponse
@@ -2561,7 +2561,7 @@ enum EGamepadTextInputMode
 {
 	k_EGamepadTextInputModeNormal = 0,
 	k_EGamepadTextInputModePassword = 1,
-	k_EGamepadTextInputModeSubmit = 2,
+	k_EGamepadTextInputModeSubmit = 2
 };
 
 // Controls number of allowed lines for the Big Picture gamepad text entry
@@ -2579,13 +2579,13 @@ enum EOverlayDirection
 	OverlayDirection_Left = 2,
 	OverlayDirection_Right = 3,
 
-	OverlayDirection_Count = 4,
+	OverlayDirection_Count = 4
 };
 
 enum EVROverlayIntersectionMaskPrimitiveType
 {
 	OverlayIntersectionPrimitiveType_Rectangle,
-	OverlayIntersectionPrimitiveType_Circle,
+	OverlayIntersectionPrimitiveType_Circle
 };
 
 struct IntersectionMaskRectangle_t
@@ -2977,7 +2977,7 @@ enum EVRRenderModelError
 	VRRenderModelError_NotEnoughNormals = 307,
 	VRRenderModelError_NotEnoughTexCoords = 308,
 
-	VRRenderModelError_InvalidTexture = 400,
+	VRRenderModelError_InvalidTexture = 400
 };
 
 typedef uint32_t VRComponentProperties;
@@ -2988,7 +2988,7 @@ enum EVRComponentProperty
 	VRComponentProperty_IsVisible = (1 << 1),
 	VRComponentProperty_IsTouched = (1 << 2),
 	VRComponentProperty_IsPressed = (1 << 3),
-	VRComponentProperty_IsScrolled = (1 << 4),
+	VRComponentProperty_IsScrolled = (1 << 4)
 };
 
 /** Describes state information about a render-model component, including transforms and other dynamic properties */
@@ -3240,7 +3240,7 @@ enum EVRScreenshotError
 	VRScreenshotError_IncompatibleVersion = 100,
 	VRScreenshotError_NotFound = 101,
 	VRScreenshotError_BufferTooSmall = 102,
-	VRScreenshotError_ScreenshotAlreadyInProgress = 108,
+	VRScreenshotError_ScreenshotAlreadyInProgress = 108
 };
 
 /** Allows the application to generate screenshots */
