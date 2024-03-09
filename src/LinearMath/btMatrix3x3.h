@@ -333,7 +333,7 @@ public:
 #endif
 	}
     
-    /**@brief Set the matrix to the identity */
+    /**@brief Set the matrix to zero */
     void setZero()
     {
 #if (defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)) || defined(BT_USE_NEON)
