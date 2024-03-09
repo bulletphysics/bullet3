@@ -887,43 +887,47 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 					int numU = command.m_sendActualStateArgs.m_numDegreeOfFreedomU;
 					b3Printf("size Q = %d, size U = %d\n", numQ, numU);
 					char msg[1024];
+					#define customMin(a,b) (a < b ? a : b)
+					#define currPos(buf) (buf + customMin(1000,strlen(buf)))
 					{
-						sprintf(msg, "Q=[");
+						snprintf(msg,1024, "Q=[");
 
 						for (int i = 0; i < numQ; i++)
 						{
 							if (i < numQ - 1)
 							{
-								sprintf(msg, "%s%f,", msg,
+								snprintf(currPos(msg),1024, "%f,",
 									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 							else
 							{
-								sprintf(msg, "%s%f", msg,
+								snprintf(currPos(msg),1024, "%f",
 									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 						}
-						sprintf(msg, "%s]", msg);
+						snprintf(currPos(msg),1024, "]");
 					}
 					b3Printf(msg);
 
-					sprintf(msg, "U=[");
+					snprintf(currPos(msg),1024, "U=[");
 
 					for (int i = 0; i < numU; i++)
 					{
 						if (i < numU - 1)
 						{
-							sprintf(msg, "%s%f,", msg,
+							snprintf(currPos(msg),1024, "%f,",
 								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 						else
 						{
-							sprintf(msg, "%s%f", msg,
+							snprintf(currPos(msg),1024, "%f",
 								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 					}
-					sprintf(msg, "%s]", msg);
+					snprintf(currPos(msg),1024, "]");
 
+					#undef customMin
+					#undef currPos
 					b3Printf(msg);
 					b3Printf("\n");
 				}
@@ -2227,4 +2231,3 @@ void PhysicsClientSharedMemory::popProfileTiming()
 		delete sample;
 	}
 }
-
