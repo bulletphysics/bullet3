@@ -8,7 +8,6 @@
 // Handle non standard code.
 #ifndef _WIN32
 
-#include <cstdbool>
 #include <unistd.h>
 
 #define sprintf_s snprintf
