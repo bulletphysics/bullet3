@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btMinMax.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btThreads.h"
+#include "LinearMath/btOverride.h"
 #include "btThreadSupportInterface.h"
 #include <windows.h>
 #include <stdio.h>

@@ -17,15 +17,6 @@ subject to the following restrictions:
 
 #include "btScalar.h"  // has definitions like SIMD_FORCE_INLINE
 
-#if (defined(_MSC_VER) && _MSC_VER >= 1600) || defined(__clang__)
-// give us a compile error if any signatures of overriden methods is changed
-#define BT_OVERRIDE override
-#endif
-
-#ifndef BT_OVERRIDE
-#define BT_OVERRIDE
-#endif
-
 // Don't set this to larger than 64, without modifying btThreadSupportPosix
 // and btThreadSupportWin32. They use UINT64 bit-masks.
 const unsigned int BT_MAX_THREAD_COUNT = 64;  // only if BT_THREADSAFE is 1

@@ -102,26 +102,26 @@ struct btDbvtBroadphase : btBroadphaseInterface
 #endif
 	/* Methods		*/
 	btDbvtBroadphase(btOverlappingPairCache* paircache = 0);
-	~btDbvtBroadphase() override;
+	~btDbvtBroadphase() BT_OVERRIDE;
 	void collide(btDispatcher* dispatcher);
 	void optimize();
 
 	/* btBroadphaseInterface Implementation	*/
-	btBroadphaseProxy* createProxy(const btVector3& aabbMin, const btVector3& aabbMax, int shapeType, void* userPtr, int collisionFilterGroup, int collisionFilterMask, btDispatcher* dispatcher) override;
-	virtual void destroyProxy(btBroadphaseProxy* proxy, btDispatcher* dispatcher) override;
-	virtual void setAabb(btBroadphaseProxy* proxy, const btVector3& aabbMin, const btVector3& aabbMax, btDispatcher* dispatcher) override;
-	virtual void rayTest(const btVector3& rayFrom, const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin = btVector3(0, 0, 0), const btVector3& aabbMax = btVector3(0, 0, 0)) override;
-	virtual void aabbTest(const btVector3& aabbMin, const btVector3& aabbMax, btBroadphaseAabbCallback& callback) override;
+	btBroadphaseProxy* createProxy(const btVector3& aabbMin, const btVector3& aabbMax, int shapeType, void* userPtr, int collisionFilterGroup, int collisionFilterMask, btDispatcher* dispatcher) BT_OVERRIDE;
+	virtual void destroyProxy(btBroadphaseProxy* proxy, btDispatcher* dispatcher) BT_OVERRIDE;
+	virtual void setAabb(btBroadphaseProxy* proxy, const btVector3& aabbMin, const btVector3& aabbMax, btDispatcher* dispatcher) BT_OVERRIDE;
+	virtual void rayTest(const btVector3& rayFrom, const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin = btVector3(0, 0, 0), const btVector3& aabbMax = btVector3(0, 0, 0)) BT_OVERRIDE;
+	virtual void aabbTest(const btVector3& aabbMin, const btVector3& aabbMax, btBroadphaseAabbCallback& callback) BT_OVERRIDE;
 
-	virtual void getAabb(btBroadphaseProxy* proxy, btVector3& aabbMin, btVector3& aabbMax) const override;
-	virtual void calculateOverlappingPairs(btDispatcher* dispatcher) override;
-	virtual btOverlappingPairCache* getOverlappingPairCache() override;
-	virtual const btOverlappingPairCache* getOverlappingPairCache() const override;
-	virtual void getBroadphaseAabb(btVector3& aabbMin, btVector3& aabbMax) const override;
-	virtual void printStats() override;
+	virtual void getAabb(btBroadphaseProxy* proxy, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE;
+	virtual void calculateOverlappingPairs(btDispatcher* dispatcher) BT_OVERRIDE;
+	virtual btOverlappingPairCache* getOverlappingPairCache() BT_OVERRIDE;
+	virtual const btOverlappingPairCache* getOverlappingPairCache() const BT_OVERRIDE;
+	virtual void getBroadphaseAabb(btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE;
+	virtual void printStats() BT_OVERRIDE;
 
 	///reset broadphase internal structures, to ensure determinism/reproducability
-	virtual void resetPool(btDispatcher* dispatcher) override;
+	virtual void resetPool(btDispatcher* dispatcher) BT_OVERRIDE;
 
 	void performDeferredRemoval(btDispatcher* dispatcher);
 

@@ -3,6 +3,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btThreads.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btOverride.h"
 #include <stdio.h>
 #include <algorithm>
 #include <cstring>

@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define BT_DEFAULT_COLLISION_CONFIGURATION
 
 #include "btCollisionConfiguration.h"
+#include "LinearMath/btOverride.h"
 class btVoronoiSimplexSolver;
 class btConvexPenetrationDepthSolver;
 
@@ -79,22 +80,22 @@ protected:
 public:
 	btDefaultCollisionConfiguration(const btDefaultCollisionConstructionInfo& constructionInfo = btDefaultCollisionConstructionInfo());
 
-	virtual ~btDefaultCollisionConfiguration() override;
+	virtual ~btDefaultCollisionConfiguration() BT_OVERRIDE;
 
 	///memory pools
-	virtual btPoolAllocator* getPersistentManifoldPool() override
+	virtual btPoolAllocator* getPersistentManifoldPool() BT_OVERRIDE
 	{
 		return m_persistentManifoldPool;
 	}
 
-	virtual btPoolAllocator* getCollisionAlgorithmPool() override
+	virtual btPoolAllocator* getCollisionAlgorithmPool() BT_OVERRIDE
 	{
 		return m_collisionAlgorithmPool;
 	}
 
-	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0, int proxyType1) override;
+	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0, int proxyType1) BT_OVERRIDE;
 
-	virtual btCollisionAlgorithmCreateFunc* getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1) override;
+	virtual btCollisionAlgorithmCreateFunc* getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1) BT_OVERRIDE;
 
 	///Use this method to allow to generate multiple contact points between at once, between two objects using the generic convex-convex algorithm.
 	///By default, this feature is disabled for best performance.

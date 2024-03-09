@@ -14,6 +14,7 @@ subject to the following restrictions:
 
 #include "btThreads.h"
 #include "btQuickprof.h"
+#include "LinearMath/btOverride.h"
 #include <algorithm>  // for min and max
 
 #if BT_USE_OPENMP && BT_THREADSAFE

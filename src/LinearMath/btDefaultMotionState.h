@@ -24,14 +24,14 @@ btDefaultMotionState : public btMotionState
 	}
 
 	///synchronizes world transform from user to physics
-	virtual void getWorldTransform(btTransform & centerOfMassWorldTrans) const override
+	virtual void getWorldTransform(btTransform & centerOfMassWorldTrans) const BT_OVERRIDE
 	{
 		centerOfMassWorldTrans = m_graphicsWorldTrans * m_centerOfMassOffset.inverse();
 	}
 
 	///synchronizes world transform from physics to user
 	///Bullet only calls the update of worldtransform for active objects
-	virtual void setWorldTransform(const btTransform& centerOfMassWorldTrans) override
+	virtual void setWorldTransform(const btTransform& centerOfMassWorldTrans) BT_OVERRIDE
 	{
 		m_graphicsWorldTrans = centerOfMassWorldTrans * m_centerOfMassOffset;
 	}

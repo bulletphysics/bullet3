@@ -156,12 +156,12 @@ public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btSequentialImpulseConstraintSolver();
-	virtual ~btSequentialImpulseConstraintSolver() override;
+	virtual ~btSequentialImpulseConstraintSolver() BT_OVERRIDE;
 
-	virtual btScalar solveGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher) override;
+	virtual btScalar solveGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher) BT_OVERRIDE;
 
 	///clear internal cached data and reset random seed
-	virtual void reset() override;
+	virtual void reset() BT_OVERRIDE;
 
 	unsigned long btRand2();
 
@@ -176,7 +176,7 @@ public:
 		return m_btSeed2;
 	}
 
-	virtual btConstraintSolverType getSolverType() const override
+	virtual btConstraintSolverType getSolverType() const BT_OVERRIDE
 	{
 		return BT_SEQUENTIAL_IMPULSE_SOLVER;
 	}

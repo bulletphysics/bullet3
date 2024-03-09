@@ -43,11 +43,11 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	virtual ~btConvexInternalShape() override
+	virtual ~btConvexInternalShape() BT_OVERRIDE
 	{
 	}
 
-	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const override;
+	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const BT_OVERRIDE;
 
 	const btVector3& getImplicitShapeDimensions() const
 	{
@@ -81,15 +81,15 @@ public:
 	}
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override
+	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE
 	{
 		getAabbSlow(t, aabbMin, aabbMax);
 	}
 
-	virtual void getAabbSlow(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override;
+	virtual void getAabbSlow(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE;
 
-	virtual void setLocalScaling(const btVector3& scaling) override;
-	virtual const btVector3& getLocalScaling() const override
+	virtual void setLocalScaling(const btVector3& scaling) BT_OVERRIDE;
+	virtual const btVector3& getLocalScaling() const BT_OVERRIDE
 	{
 		return m_localScaling;
 	}
@@ -99,11 +99,11 @@ public:
 		return m_localScaling;
 	}
 
-	virtual void setMargin(btScalar margin) override
+	virtual void setMargin(btScalar margin) BT_OVERRIDE
 	{
 		m_collisionMargin = margin;
 	}
-	virtual btScalar getMargin() const override
+	virtual btScalar getMargin() const BT_OVERRIDE
 	{
 		return m_collisionMargin;
 	}
@@ -113,22 +113,22 @@ public:
 		return m_collisionMargin;
 	}
 
-	virtual int getNumPreferredPenetrationDirections() const override
+	virtual int getNumPreferredPenetrationDirections() const BT_OVERRIDE
 	{
 		return 0;
 	}
 
-	virtual void getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const override
+	virtual void getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const BT_OVERRIDE
 	{
 		(void)penetrationVector;
 		(void)index;
 		btAssert(0);
 	}
 
-	virtual int calculateSerializeBufferSize() const override;
+	virtual int calculateSerializeBufferSize() const BT_OVERRIDE;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const override;
+	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const BT_OVERRIDE;
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
@@ -198,9 +198,9 @@ protected:
 	}
 
 public:
-	virtual void setLocalScaling(const btVector3& scaling) override;
+	virtual void setLocalScaling(const btVector3& scaling) BT_OVERRIDE;
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override;
+	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE;
 
 	void recalcLocalAabb();
 };

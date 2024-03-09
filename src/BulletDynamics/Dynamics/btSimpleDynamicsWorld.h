@@ -41,44 +41,44 @@ public:
 	///this btSimpleDynamicsWorld constructor creates dispatcher, broadphase pairCache and constraintSolver
 	btSimpleDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration);
 
-	virtual ~btSimpleDynamicsWorld() override;
+	virtual ~btSimpleDynamicsWorld() BT_OVERRIDE;
 
 	///maxSubSteps/fixedTimeStep for interpolation is currently ignored for btSimpleDynamicsWorld, use btDiscreteDynamicsWorld instead
-	virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.)) override;
+	virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.)) BT_OVERRIDE;
 
-	virtual void setGravity(const btVector3& gravity) override;
+	virtual void setGravity(const btVector3& gravity) BT_OVERRIDE;
 
-	virtual btVector3 getGravity() const override;
+	virtual btVector3 getGravity() const BT_OVERRIDE;
 
-	virtual void addRigidBody(btRigidBody* body) override;
+	virtual void addRigidBody(btRigidBody* body) BT_OVERRIDE;
 
-	virtual void addRigidBody(btRigidBody* body, int group, int mask) override;
+	virtual void addRigidBody(btRigidBody* body, int group, int mask) BT_OVERRIDE;
 
-	virtual void removeRigidBody(btRigidBody* body) override;
+	virtual void removeRigidBody(btRigidBody* body) BT_OVERRIDE;
 
-	virtual void debugDrawWorld() override;
+	virtual void debugDrawWorld() BT_OVERRIDE;
 
-	virtual void addAction(btActionInterface* action) override;
+	virtual void addAction(btActionInterface* action) BT_OVERRIDE;
 
-	virtual void removeAction(btActionInterface* action) override;
+	virtual void removeAction(btActionInterface* action) BT_OVERRIDE;
 
 	///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call btCollisionWorld::removeCollisionObject
-	virtual void removeCollisionObject(btCollisionObject* collisionObject) override;
+	virtual void removeCollisionObject(btCollisionObject* collisionObject) BT_OVERRIDE;
 
-	virtual void updateAabbs() override;
+	virtual void updateAabbs() BT_OVERRIDE;
 
-	virtual void synchronizeMotionStates() override;
+	virtual void synchronizeMotionStates() BT_OVERRIDE;
 
-	virtual void setConstraintSolver(btConstraintSolver* solver) override;
+	virtual void setConstraintSolver(btConstraintSolver* solver) BT_OVERRIDE;
 
-	virtual btConstraintSolver* getConstraintSolver() override;
+	virtual btConstraintSolver* getConstraintSolver() BT_OVERRIDE;
 
-	virtual btDynamicsWorldType getWorldType() const override
+	virtual btDynamicsWorldType getWorldType() const BT_OVERRIDE
 	{
 		return BT_SIMPLE_DYNAMICS_WORLD;
 	}
 
-	virtual void clearForces() override;
+	virtual void clearForces() BT_OVERRIDE;
 };
 
 #endif  //BT_SIMPLE_DYNAMICS_WORLD_H

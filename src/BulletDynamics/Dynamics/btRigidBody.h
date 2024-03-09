@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
+#include "LinearMath/btOverride.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
@@ -170,7 +171,7 @@ public:
 	///To specify friction (etc) during rigid body construction, please use the other constructor (using btRigidBodyConstructionInfo)
 	btRigidBody(btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia = btVector3(0, 0, 0));
 
-	virtual ~btRigidBody() override
+	virtual ~btRigidBody() BT_OVERRIDE
 	{
 		//No constraints should point to this rigidbody
 		//Remove constraints from the dynamics world before you delete the related rigidbodies.
@@ -622,12 +623,12 @@ public:
 
 	///////////////////////////////////////////////
 
-	virtual int calculateSerializeBufferSize() const override;
+	virtual int calculateSerializeBufferSize() const BT_OVERRIDE;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const override;
+	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const BT_OVERRIDE;
 
-	virtual void serializeSingleObject(class btSerializer* serializer) const override;
+	virtual void serializeSingleObject(class btSerializer* serializer) const BT_OVERRIDE;
 };
 
 //@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData

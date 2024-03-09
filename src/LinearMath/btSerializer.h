@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "btScalar.h"  // has definitions like SIMD_FORCE_INLINE
 #include "btHashMap.h"
+#include "LinearMath/btOverride.h"
 
 #if !defined(__CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
@@ -181,7 +182,7 @@ protected:
 	btAlignedObjectArray<btChunk*> m_chunkPtrs;
 
 protected:
-	virtual void* findPointer(void* oldPtr) override
+	virtual void* findPointer(void* oldPtr) BT_OVERRIDE
 	{
 		void** ptr = m_chunkP.find(oldPtr);
 		if (ptr && *ptr)
@@ -416,7 +417,7 @@ public:
 #endif  //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	}
 
-	virtual ~btDefaultSerializer() override
+	virtual ~btDefaultSerializer() BT_OVERRIDE
 	{
 		if (m_buffer && m_ownsBuffer)
 			btAlignedFree(m_buffer);
@@ -485,7 +486,7 @@ public:
 		buffer[11] = '6';
 	}
 
-	virtual void startSerialization() override
+	virtual void startSerialization() BT_OVERRIDE
 	{
 		m_uniqueIdGenerator = 1;
 		if (m_totalSize)
@@ -495,7 +496,7 @@ public:
 		}
 	}
 
-	virtual void finishSerialization() override
+	virtual void finishSerialization() BT_OVERRIDE
 	{
 		writeDNA();
 
@@ -532,7 +533,7 @@ public:
 		m_chunkPtrs.clear();
 	}
 
-	virtual void* getUniquePointer(void* oldPtr) override
+	virtual void* getUniquePointer(void* oldPtr) BT_OVERRIDE
 	{
 		btAssert(m_uniqueIdGenerator >= 0);
 		if (!oldPtr)
@@ -559,17 +560,17 @@ public:
 		return uid.m_ptr;
 	}
 
-	virtual const unsigned char* getBufferPointer() const override
+	virtual const unsigned char* getBufferPointer() const BT_OVERRIDE
 	{
 		return m_buffer;
 	}
 
-	virtual int getCurrentBufferSize() const override
+	virtual int getCurrentBufferSize() const BT_OVERRIDE
 	{
 		return m_currentSize;
 	}
 
-	virtual void finalizeChunk(btChunk* chunk, const char* structType, int chunkCode, void* oldPtr) override
+	virtual void finalizeChunk(btChunk* chunk, const char* structType, int chunkCode, void* oldPtr) BT_OVERRIDE
 	{
 		if (!(m_serializationFlags & BT_SERIALIZE_NO_DUPLICATE_ASSERT))
 		{
@@ -604,7 +605,7 @@ public:
 		return ptr;
 	}
 
-	virtual btChunk* allocate(size_t size, int numElements) override
+	virtual btChunk* allocate(size_t size, int numElements) BT_OVERRIDE
 	{
 		unsigned char* ptr = internalAlloc(int(size) * numElements + sizeof(btChunk));
 
@@ -621,7 +622,7 @@ public:
 		return chunk;
 	}
 
-	virtual const char* findNameForPointer(const void* ptr) const override
+	virtual const char* findNameForPointer(const void* ptr) const BT_OVERRIDE
 	{
 		const char* const* namePtr = m_nameMap.find(ptr);
 		if (namePtr && *namePtr)
@@ -629,12 +630,12 @@ public:
 		return 0;
 	}
 
-	virtual void registerNameForPointer(const void* ptr, const char* name) override
+	virtual void registerNameForPointer(const void* ptr, const char* name) BT_OVERRIDE
 	{
 		m_nameMap.insert(ptr, name);
 	}
 
-	virtual void serializeName(const char* name) override
+	virtual void serializeName(const char* name) BT_OVERRIDE
 	{
 		if (name)
 		{
@@ -662,21 +663,21 @@ public:
 		}
 	}
 
-	virtual int getSerializationFlags() const override
+	virtual int getSerializationFlags() const BT_OVERRIDE
 	{
 		return m_serializationFlags;
 	}
 
-	virtual void setSerializationFlags(int flags) override
+	virtual void setSerializationFlags(int flags) BT_OVERRIDE
 	{
 		m_serializationFlags = flags;
 	}
-	int getNumChunks() const override
+	int getNumChunks() const BT_OVERRIDE
 	{
 		return m_chunkPtrs.size();
 	}
 
-	const btChunk* getChunk(int chunkIndex) const override
+	const btChunk* getChunk(int chunkIndex) const BT_OVERRIDE
 	{
 		return m_chunkPtrs[chunkIndex];
 	}

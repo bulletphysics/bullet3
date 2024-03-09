@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btMinMax.h"
 #include "LinearMath/btStackAlloc.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btOverride.h"
 
 #include <string.h>  //for memset
 

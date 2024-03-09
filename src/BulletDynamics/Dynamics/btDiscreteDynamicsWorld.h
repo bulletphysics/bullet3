@@ -102,25 +102,25 @@ public:
 	///this btDiscreteDynamicsWorld constructor gets created objects from the user, and will not delete those
 	btDiscreteDynamicsWorld(btDispatcher * dispatcher, btBroadphaseInterface * pairCache, btConstraintSolver * constraintSolver, btCollisionConfiguration * collisionConfiguration);
 
-	virtual ~btDiscreteDynamicsWorld() override;
+	virtual ~btDiscreteDynamicsWorld() BT_OVERRIDE;
 
 	///if maxSubSteps > 0, it will interpolate motion between fixedTimeStep's
-	virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.)) override;
+	virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.)) BT_OVERRIDE;
 
     virtual void solveConstraints(btContactSolverInfo & solverInfo);
     
-	virtual void synchronizeMotionStates() override;
+	virtual void synchronizeMotionStates() BT_OVERRIDE;
 
 	///this can be useful to synchronize a single rigid body -> graphics object
 	void synchronizeSingleMotionState(btRigidBody * body);
 
-	virtual void addConstraint(btTypedConstraint * constraint, bool disableCollisionsBetweenLinkedBodies = false) override;
+	virtual void addConstraint(btTypedConstraint * constraint, bool disableCollisionsBetweenLinkedBodies = false) BT_OVERRIDE;
 
-	virtual void removeConstraint(btTypedConstraint * constraint) override;
+	virtual void removeConstraint(btTypedConstraint * constraint) BT_OVERRIDE;
 
-	virtual void addAction(btActionInterface*) override;
+	virtual void addAction(btActionInterface*) BT_OVERRIDE;
 
-	virtual void removeAction(btActionInterface*) override;
+	virtual void removeAction(btActionInterface*) BT_OVERRIDE;
 
 	btSimulationIslandManager* getSimulationIslandManager()
 	{
@@ -137,42 +137,42 @@ public:
 		return this;
 	}
 
-	virtual void setGravity(const btVector3& gravity) override;
+	virtual void setGravity(const btVector3& gravity) BT_OVERRIDE;
 
-	virtual btVector3 getGravity() const override;
+	virtual btVector3 getGravity() const BT_OVERRIDE;
 
-	virtual void addCollisionObject(btCollisionObject * collisionObject, int collisionFilterGroup = btBroadphaseProxy::StaticFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter) override;
+	virtual void addCollisionObject(btCollisionObject * collisionObject, int collisionFilterGroup = btBroadphaseProxy::StaticFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter) BT_OVERRIDE;
 
-	virtual void addRigidBody(btRigidBody * body) override;
+	virtual void addRigidBody(btRigidBody * body) BT_OVERRIDE;
 
-	virtual void addRigidBody(btRigidBody * body, int group, int mask) override;
+	virtual void addRigidBody(btRigidBody * body, int group, int mask) BT_OVERRIDE;
 
-	virtual void removeRigidBody(btRigidBody * body) override;
+	virtual void removeRigidBody(btRigidBody * body) BT_OVERRIDE;
 
 	///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call btCollisionWorld::removeCollisionObject
-	virtual void removeCollisionObject(btCollisionObject * collisionObject) override;
+	virtual void removeCollisionObject(btCollisionObject * collisionObject) BT_OVERRIDE;
 
 	virtual void debugDrawConstraint(btTypedConstraint * constraint);
 
-	virtual void debugDrawWorld() override;
+	virtual void debugDrawWorld() BT_OVERRIDE;
 
-	virtual void setConstraintSolver(btConstraintSolver * solver) override;
+	virtual void setConstraintSolver(btConstraintSolver * solver) BT_OVERRIDE;
 
-	virtual btConstraintSolver* getConstraintSolver() override;
+	virtual btConstraintSolver* getConstraintSolver() BT_OVERRIDE;
 
-	virtual int getNumConstraints() const override;
+	virtual int getNumConstraints() const BT_OVERRIDE;
 
-	virtual btTypedConstraint* getConstraint(int index) override;
+	virtual btTypedConstraint* getConstraint(int index) BT_OVERRIDE;
 
-	virtual const btTypedConstraint* getConstraint(int index) const override;
+	virtual const btTypedConstraint* getConstraint(int index) const BT_OVERRIDE;
 
-	virtual btDynamicsWorldType getWorldType() const override
+	virtual btDynamicsWorldType getWorldType() const BT_OVERRIDE
 	{
 		return BT_DISCRETE_DYNAMICS_WORLD;
 	}
 
 	///the forces on each rigidbody is accumulating together with gravity. clear this after each timestep.
-	virtual void clearForces() override;
+	virtual void clearForces() BT_OVERRIDE;
 
 	///apply gravity, call this once per timestep
 	virtual void applyGravity();
@@ -189,13 +189,13 @@ public:
 	}
 
 	///obsolete, use addAction instead
-	virtual void addVehicle(btActionInterface * vehicle) override;
+	virtual void addVehicle(btActionInterface * vehicle) BT_OVERRIDE;
 	///obsolete, use removeAction instead
-	virtual void removeVehicle(btActionInterface * vehicle) override;
+	virtual void removeVehicle(btActionInterface * vehicle) BT_OVERRIDE;
 	///obsolete, use addAction instead
-	virtual void addCharacter(btActionInterface * character) override;
+	virtual void addCharacter(btActionInterface * character) BT_OVERRIDE;
 	///obsolete, use removeAction instead
-	virtual void removeCharacter(btActionInterface * character) override;
+	virtual void removeCharacter(btActionInterface * character) BT_OVERRIDE;
 
 	void setSynchronizeAllMotionStates(bool synchronizeAll)
 	{
@@ -217,7 +217,7 @@ public:
 	}
 
 	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (see Bullet/Demos/SerializeDemo)
-	virtual void serialize(btSerializer * serializer) override;
+	virtual void serialize(btSerializer * serializer) BT_OVERRIDE;
 
 	///Interpolate motion state between previous and current transform, instead of current and next transform.
 	///This can relieve discontinuities in the rendering, due to penetrations
