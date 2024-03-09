@@ -44,7 +44,7 @@ enum
 	CenterV = (1 << 5),
 	CenterH = (1 << 6),
 	Fill = (1 << 7),
-	Center = CenterV | CenterH,
+	Center = CenterV | CenterH
 };
 }
 

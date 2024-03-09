@@ -41,7 +41,7 @@ enum MINITAUR_LOG_ERROR
 	eCorruptHeader = -2,
 	eUnknownType = -3,
 	eCorruptValue = -4,
-	eInvalidAABBAlignCheck = -5,
+	eInvalidAABBAlignCheck = -5
 };
 
 int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>& structNames, std::string& structTypes, btAlignedObjectArray<MinitaurLogRecord>& logRecords, bool verbose);

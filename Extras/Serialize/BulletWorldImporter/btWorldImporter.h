@@ -60,7 +60,7 @@ struct btRigidBodyFloatData;
 
 enum btWorldImporterFlags
 {
-	eRESTORE_EXISTING_OBJECTS = 1,  //don't create new objects
+	eRESTORE_EXISTING_OBJECTS = 1  //don't create new objects
 };
 
 class btWorldImporter

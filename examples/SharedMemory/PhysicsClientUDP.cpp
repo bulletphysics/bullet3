@@ -297,7 +297,7 @@ enum UDPCommandEnums
 	eUDP_Connected,
 	eUDP_ConnectionFailed,
 	eUDP_DisconnectRequest,
-	eUDP_Disconnected,
+	eUDP_Disconnected
 
 };
 

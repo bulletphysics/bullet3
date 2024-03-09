@@ -30,7 +30,7 @@ enum EnumSphereLevelOfDetail
 	SPHERE_LOD_POINT_SPRITE = 0,
 	SPHERE_LOD_LOW,
 	SPHERE_LOD_MEDIUM,
-	SPHERE_LOD_HIGH,
+	SPHERE_LOD_HIGH
 
 };
 struct CommonGraphicsApp
@@ -39,7 +39,7 @@ struct CommonGraphicsApp
 	{
 		eDrawText3D_OrtogonalFaceCamera = 1,
 		eDrawText3D_TrueType = 2,
-		eDrawText3D_TrackObject = 4,
+		eDrawText3D_TrackObject = 4
 	};
 	class CommonWindowInterface* m_window;
 	struct CommonRenderInterface* m_renderer;

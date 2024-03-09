@@ -44,8 +44,8 @@ static const btScalar s_deltaPhase = 0.25 * 2.0 * SIMD_PI;
 enum eTerrainModel {
 	eRadial = 0,	// deterministic
 	eFractal = 1,	// random
-	eCSVFile = 2,//csv file used in DeepLoco for example
-	eImageFile = 3,//terrain from png/jpg files, asset from https://www.beamng.com/threads/tutorial-adding-heightmap-roads-using-blender.16356/
+	eCSVFile = 2, //csv file used in DeepLoco for example
+	eImageFile = 3 //terrain from png/jpg files, asset from https://www.beamng.com/threads/tutorial-adding-heightmap-roads-using-blender.16356/
 
 };
 

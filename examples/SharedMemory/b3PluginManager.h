@@ -7,7 +7,7 @@ enum b3PluginManagerTickMode
 {
 	B3_PRE_TICK_MODE = 1,
 	B3_POST_TICK_MODE,
-	B3_PROCESS_CLIENT_COMMANDS_TICK,
+	B3_PROCESS_CLIENT_COMMANDS_TICK
 };
 
 struct b3PluginFunctions

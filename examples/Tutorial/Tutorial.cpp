@@ -118,7 +118,7 @@ void ComputeClosestPointsSphereSphere(const LWSphere& sphereA, const LWPose& sph
 
 enum LWRIGIDBODY_FLAGS
 {
-	LWFLAG_USE_QUATERNION_DERIVATIVE = 1,
+	LWFLAG_USE_QUATERNION_DERIVATIVE = 1
 
 };
 struct LWRigidBody

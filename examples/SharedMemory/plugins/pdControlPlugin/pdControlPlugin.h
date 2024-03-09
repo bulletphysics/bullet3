@@ -17,7 +17,7 @@ extern "C"
 	enum PDControlCommandEnum
 	{
 		eSetPDControl = 1,
-		eRemovePDControl = 2,
+		eRemovePDControl = 2
 	};
 
 	//all the APIs below are optional

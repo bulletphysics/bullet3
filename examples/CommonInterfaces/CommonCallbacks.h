@@ -41,7 +41,7 @@ enum
 	B3G_SHIFT,
 	B3G_CONTROL,
 	B3G_ALT,
-	B3G_RETURN,
+	B3G_RETURN
 	
 };
 

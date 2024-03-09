@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 enum
 {
-	B3_THREAD_SCHEDULE_TASK = 1,
+	B3_THREAD_SCHEDULE_TASK = 1
 };
 
 #include "Bullet3Common/b3Scalar.h"  //for B3_ATTRIBUTE_ALIGNED16

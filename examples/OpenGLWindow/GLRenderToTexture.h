@@ -8,7 +8,7 @@
 enum
 {
 	RENDERTEXTURE_COLOR = 1,
-	RENDERTEXTURE_DEPTH,
+	RENDERTEXTURE_DEPTH
 };
 struct GLRenderToTexture
 {

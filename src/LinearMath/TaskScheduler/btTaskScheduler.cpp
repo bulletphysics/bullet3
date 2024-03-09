@@ -37,7 +37,7 @@ struct WorkerThreadStatus
 		kInvalid,
 		kWaitingForWork,
 		kWorking,
-		kSleeping,
+		kSleeping
 	};
 };
 
@@ -54,7 +54,7 @@ public:
 		kInvalid,
 		kGoToSleep,         // go to sleep
 		kStayAwakeButIdle,  // wait for not checking job queue
-		kScanForJobs,       // actively scan job queue for jobs
+		kScanForJobs        // actively scan job queue for jobs
 	};
 	WorkerThreadDirectives()
 	{
