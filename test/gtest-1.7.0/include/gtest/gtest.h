@@ -1498,7 +1498,7 @@ AssertionResult CmpHelperEQ(const char* expected_expression,
 								 // signed/unsigned mismatch.
 #endif
 
-	if (expected == actual)
+	if ((int)expected == actual)
 	{
 		return AssertionSuccess();
 	}
