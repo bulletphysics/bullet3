@@ -175,10 +175,12 @@ public:
 	struct LocalRayResult
 	{
 		LocalRayResult(const btCollisionObject* collisionObject,
+					   const btCollisionShape* collisionShape,
 					   LocalShapeInfo* localShapeInfo,
 					   const btVector3& hitNormalLocal,
 					   btScalar hitFraction)
 			: m_collisionObject(collisionObject),
+			  m_collisionShape(collisionShape),
 			  m_localShapeInfo(localShapeInfo),
 			  m_hitNormalLocal(hitNormalLocal),
 			  m_hitFraction(hitFraction)
@@ -186,6 +188,7 @@ public:
 		}
 
 		const btCollisionObject* m_collisionObject;
+		const btCollisionShape* m_collisionShape;
 		LocalShapeInfo* m_localShapeInfo;
 		btVector3 m_hitNormalLocal;
 		btScalar m_hitFraction;
@@ -194,29 +197,24 @@ public:
 	///RayResultCallback is used to report new raycast results
 	struct RayResultCallback
 	{
-		btScalar m_closestHitFraction;
-		const btCollisionObject* m_collisionObject;
-		int m_collisionFilterGroup;
-		int m_collisionFilterMask;
-		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
-		unsigned int m_flags;
-
-		virtual ~RayResultCallback()
-		{
-		}
-		bool hasHit() const
-		{
-			return (m_collisionObject != 0);
-		}
-
 		RayResultCallback()
 			: m_closestHitFraction(btScalar(1.)),
 			  m_collisionObject(0),
+			  m_collisionShape(0),
 			  m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
 			  m_collisionFilterMask(btBroadphaseProxy::AllFilter),
 			  //@BP Mod
 			  m_flags(0)
 		{
+		}
+
+		virtual ~RayResultCallback()
+		{
+		}
+
+		bool hasHit() const
+		{
+			return (m_collisionObject != 0);
 		}
 
 		virtual bool needsCollision(btBroadphaseProxy* proxy0) const
@@ -227,6 +225,14 @@ public:
 		}
 
 		virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace) = 0;
+
+		btScalar m_closestHitFraction;
+		const btCollisionObject* m_collisionObject;
+		const btCollisionShape* m_collisionShape;
+		int m_collisionFilterGroup;
+		int m_collisionFilterMask;
+		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
+		unsigned int m_flags;
 	};
 
 	struct ClosestRayResultCallback : public RayResultCallback
@@ -250,6 +256,7 @@ public:
 
 			m_closestHitFraction = rayResult.m_hitFraction;
 			m_collisionObject = rayResult.m_collisionObject;
+			m_collisionShape = rayResult.m_collisionShape;
 			if (normalInWorldSpace)
 			{
 				m_hitNormalWorld = rayResult.m_hitNormalLocal;
@@ -273,6 +280,7 @@ public:
 		}
 
 		btAlignedObjectArray<const btCollisionObject*> m_collisionObjects;
+		btAlignedObjectArray<const btCollisionShape*> m_collisionShapes;
 
 		btVector3 m_rayFromWorld;  //used to calculate hitPointWorld from hitFraction
 		btVector3 m_rayToWorld;
@@ -284,7 +292,10 @@ public:
 		virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace)
 		{
 			m_collisionObject = rayResult.m_collisionObject;
+			m_collisionShape = rayResult.m_collisionShape;
 			m_collisionObjects.push_back(rayResult.m_collisionObject);
+			m_collisionShapes.push_back(rayResult.m_collisionShape);
+
 			btVector3 hitNormalWorld;
 			if (normalInWorldSpace)
 			{
@@ -307,11 +318,13 @@ public:
 	struct LocalConvexResult
 	{
 		LocalConvexResult(const btCollisionObject* hitCollisionObject,
+						  const btCollisionShape* hitCollisionShape,
 						  LocalShapeInfo* localShapeInfo,
 						  const btVector3& hitNormalLocal,
 						  const btVector3& hitPointLocal,
 						  btScalar hitFraction)
 			: m_hitCollisionObject(hitCollisionObject),
+			  m_hitCollisionShape(hitCollisionShape),
 			  m_localShapeInfo(localShapeInfo),
 			  m_hitNormalLocal(hitNormalLocal),
 			  m_hitPointLocal(hitPointLocal),
@@ -320,6 +333,7 @@ public:
 		}
 
 		const btCollisionObject* m_hitCollisionObject;
+		const btCollisionShape* m_hitCollisionShape;
 		LocalShapeInfo* m_localShapeInfo;
 		btVector3 m_hitNormalLocal;
 		btVector3 m_hitPointLocal;
@@ -364,7 +378,8 @@ public:
 		ClosestConvexResultCallback(const btVector3& convexFromWorld, const btVector3& convexToWorld)
 			: m_convexFromWorld(convexFromWorld),
 			  m_convexToWorld(convexToWorld),
-			  m_hitCollisionObject(0)
+			  m_hitCollisionObject(0),
+			  m_hitCollisionShape(0)
 		{
 		}
 
@@ -374,6 +389,7 @@ public:
 		btVector3 m_hitNormalWorld;
 		btVector3 m_hitPointWorld;
 		const btCollisionObject* m_hitCollisionObject;
+		const btCollisionShape* m_hitCollisionShape;
 
 		virtual btScalar addSingleResult(LocalConvexResult& convexResult, bool normalInWorldSpace)
 		{
@@ -393,6 +409,51 @@ public:
 			}
 			m_hitPointWorld = convexResult.m_hitPointLocal;
 			return convexResult.m_hitFraction;
+		}
+	};
+
+	struct AllConvexResultCallback : public ConvexResultCallback
+	{
+		AllConvexResultCallback(const btVector3& convexFromWorld, const btVector3& convexToWorld)
+			: m_convexFromWorld(convexFromWorld), m_convexToWorld(convexToWorld)
+		{
+		}
+
+		btAlignedObjectArray<const btCollisionObject*> m_hitCollisionObjects;
+		btAlignedObjectArray<const btCollisionShape*> m_hitCollisionShapes;
+
+		btVector3 m_convexFromWorld;  // used to calculate hitPointWorld from hitFraction
+		btVector3 m_convexToWorld;
+
+		btAlignedObjectArray<btVector3> m_hitNormalWorld;
+		btAlignedObjectArray<btVector3> m_hitPointWorld;
+		btAlignedObjectArray<btScalar> m_hitFractions;
+
+		virtual btScalar addSingleResult(LocalConvexResult& convexResult,
+										 bool normalInWorldSpace)
+		{
+			// caller already does the filter on the m_closestHitFraction
+			btAssert(convexResult.m_hitFraction <= m_closestHitFraction);
+
+			m_hitCollisionObjects.push_back(convexResult.m_hitCollisionObject);
+			m_hitCollisionShapes.push_back(convexResult.m_hitCollisionShape);
+
+			m_closestHitFraction = convexResult.m_hitFraction;
+			btVector3 hitNormalWorld;
+			if (normalInWorldSpace)
+			{
+				hitNormalWorld = convexResult.m_hitNormalLocal;
+			}
+			else
+			{
+				/// need to transform normal into worldspace
+				hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis() *
+								 convexResult.m_hitNormalLocal;
+			}
+			m_hitNormalWorld.push_back(hitNormalWorld);
+			m_hitPointWorld.push_back(convexResult.m_hitPointLocal);
+			m_hitFractions.push_back(convexResult.m_hitFraction);
+			return m_closestHitFraction;
 		}
 	};
 
