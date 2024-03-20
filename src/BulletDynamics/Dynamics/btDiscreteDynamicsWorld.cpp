@@ -433,6 +433,7 @@ int btDiscreteDynamicsWorld::stepSimulation(btScalar timeStep, int maxSubSteps, 
 		{
 			internalSingleStepSimulation(fixedTimeStep);
 			synchronizeMotionStates();
+	                updateActivationState(fixedTimeStep);
 		}
 	}
 	else
@@ -487,8 +488,6 @@ void btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 
 	///update vehicle simulation
 	updateActions(timeStep);
-
-	updateActivationState(timeStep);
 
 	if (0 != m_internalTickCallback)
 	{
