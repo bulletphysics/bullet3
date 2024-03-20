@@ -471,14 +471,12 @@ IF(INSTALL_LIBS)
 	## the following are directories where stuff will be installed to
 	SET(INCLUDE_INSTALL_DIR "include/bullet/" CACHE PATH "The subdirectory to the header prefix")
 	SET(PKGCONFIG_INSTALL_PREFIX "lib${LIB_SUFFIX}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
-	IF(NOT MSVC)
-	  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
+	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
   	INSTALL(
 		FILES
 		${CMAKE_CURRENT_BINARY_DIR}/bullet.pc
 		DESTINATION
 		${PKGCONFIG_INSTALL_PREFIX})
-	ENDIF(NOT MSVC)
 ENDIF()
 
 
