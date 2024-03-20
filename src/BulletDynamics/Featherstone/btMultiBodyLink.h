@@ -24,6 +24,7 @@ enum btMultiBodyLinkFlags
 {
 	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1,
 	BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION = 2,
+	BT_MULTIBODYLINKFLAGS_DISABLE_CUSTOM_NUMBER_PARENT_COLLISION = 4  //use this flag in combination with m_customNrDisabledParentCol
 };
 
 //both defines are now permanently enabled
@@ -131,6 +132,7 @@ struct btMultibodyLink
 
 	class btMultiBodyLinkCollider *m_collider;
 	int m_flags;
+	int m_customNrDisabledParentCol = 0;  //only being used if the BT_MULTIBODYLINKFLAGS_DISABLE_CUSTOM_NUMBER_PARENT_COLLISION flag is set. 
 
 	int m_dofCount, m_posVarCount;  //redundant but handy
 
