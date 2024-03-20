@@ -59,6 +59,7 @@
 		<parent link="chest" />
 		<child link="neck" />
 				<origin rpy = "0 0 0" xyz = "0.000000 0.895576 0.000000" />
+		<axis xyz="1.0 0.0 0.0"/>
 	</joint>
 	<link name="right_hip" >
 		<inertial>
@@ -77,6 +78,7 @@
 		<parent link="root" />
 		<child link="right_hip" />
 				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.339548" />
+		<axis xyz="1.0 0.0 0.0"/>
 	</joint>
 	<link name="right_knee" >
 		<inertial>
@@ -115,6 +117,7 @@
 		<parent link="right_knee" />
 		<child link="right_ankle" />
 				<origin rpy = "0 0 0" xyz = "0.000000 -1.639480 0.000000" />
+		<axis xyz="1.0 0.0 0.0"/>
 	</joint>
 	<link name="right_shoulder" >
 		<inertial>
@@ -133,6 +136,7 @@
 		<parent link="chest" />
 		<child link="right_shoulder" />
 				<origin rpy = "0 0 0" xyz = "-0.096200 0.974000 0.732440" />
+		<axis xyz="1.0 0.0 0.0"/>
 	</joint>
 	<link name="right_elbow" >
 		<inertial>
@@ -189,6 +193,7 @@
 		<parent link="root" />
 		<child link="left_hip" />
 				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 -0.339548" />
+		<axis xyz="1.0 0.0 0.0"/>
 	</joint>
 	<link name="left_knee" >
 		<inertial>
@@ -227,6 +232,7 @@
 		<parent link="left_knee" />
 		<child link="left_ankle" />
 				<origin rpy = "0 0 0" xyz = "0.000000 -1.639480 0.000000" />
+		<axis xyz="1.0 0.0 0.0"/>
 	</joint>
 	<link name="left_shoulder" >
 		<inertial>
@@ -245,6 +251,7 @@
 		<parent link="chest" />
 		<child link="left_shoulder" />
 				<origin rpy = "0 0 0" xyz = "-0.096200 0.974000 -0.732440" />
+		<axis xyz="1.0 0.0 0.0"/>
 	</joint>
 	<link name="left_elbow" >
 		<inertial>
