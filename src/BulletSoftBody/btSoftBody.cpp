@@ -2423,7 +2423,7 @@ void btSoftBody::pointersToIndices()
 	{
 		if (m_nodes[i].m_leaf)
 		{
-			m_nodes[i].m_leaf->data = *(void**)&i;
+			m_nodes[i].m_leaf->dataAsInt = i;
 		}
 	}
 	for (i = 0, ni = m_links.size(); i < ni; ++i)
@@ -2438,7 +2438,7 @@ void btSoftBody::pointersToIndices()
 		m_faces[i].m_n[2] = PTR2IDX(m_faces[i].m_n[2], base);
 		if (m_faces[i].m_leaf)
 		{
-			m_faces[i].m_leaf->data = *(void**)&i;
+			m_faces[i].m_leaf->dataAsInt = i;
 		}
 	}
 	for (i = 0, ni = m_anchors.size(); i < ni; ++i)

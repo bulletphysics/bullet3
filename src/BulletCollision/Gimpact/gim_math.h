@@ -32,6 +32,7 @@ email: projectileman@yahoo.com
 -----------------------------------------------------------------------------
 */
 
+#include <string.h>
 #include "LinearMath/btScalar.h"
 
 #define GREAL btScalar
@@ -70,17 +71,31 @@ enum GIM_SCALAR_TYPES
 #define G_DEGTORAD(X) ((X)*3.1415926f / 180.0f)
 #define G_RADTODEG(X) ((X)*180.0f / 3.1415926f)
 
+static GUINT gim_ir__(float r)
+{
+	GUINT i;
+	memcpy(&i, &r, sizeof(i));
+	return i;
+}
+
+static GREAL gim_fr__(GUINT i)
+{
+	float r;
+	memcpy(&r, &i, sizeof(r));
+	return r;
+}
+
 //! Integer representation of a floating-point value.
-#define GIM_IR(x) ((GUINT&)(x))
+#define GIM_IR(x) (gim_ir__(x))
 
 //! Signed integer representation of a floating-point value.
-#define GIM_SIR(x) ((GINT&)(x))
+#define GIM_SIR(x) ((GINT)gim_ir__(x))
 
 //! Absolute integer representation of a floating-point value
-#define GIM_AIR(x) (GIM_IR(x) & 0x7fffffff)
+#define GIM_AIR(x) (gim_ir__(x) & 0x7fffffff)
 
 //! Floating-point representation of an integer value.
-#define GIM_FR(x) ((GREAL&)(x))
+#define GIM_FR(x) (gim_fr__(x))
 
 #define GIM_MAX(a, b) (a < b ? b : a)
 #define GIM_MIN(a, b) (a > b ? b : a)
