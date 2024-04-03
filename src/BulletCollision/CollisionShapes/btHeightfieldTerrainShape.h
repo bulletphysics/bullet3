@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef BT_HEIGHTFIELD_TERRAIN_SHAPE_H
 #define BT_HEIGHTFIELD_TERRAIN_SHAPE_H
 
-#include "btConcaveShape.h"
+#include <bullet/BulletCollision/CollisionShapes/btConcaveShape.h>
 #include "LinearMath/btAlignedObjectArray.h"
 
 ///btHeightfieldTerrainShape simulates a 2D heightfield terrain
@@ -68,13 +68,13 @@ subject to the following restrictions:
   For usage and testing see the TerrainDemo.
  */
 ATTRIBUTE_ALIGNED16(class)
-btHeightfieldTerrainShape : public btConcaveShape
+btHeightfieldTerrainShape final : public btConcaveShape
 {
 public:
 	struct Range
 	{
-		Range() {}
-		Range(btScalar min, btScalar max) : min(min), max(max) {}
+		//Range() {}
+		//Range(btScalar min, btScalar max) : min(min), max(max) {}
 
 		bool overlaps(const Range& other) const
 		{
@@ -97,21 +97,26 @@ protected:
 	btScalar m_maxHeight;
 	btScalar m_width;
 	btScalar m_length;
+	btScalar m_half_width;
+	btScalar m_half_length;
 	btScalar m_heightScale;
-	union {
-		const unsigned char* m_heightfieldDataUnsignedChar;
-		const short* m_heightfieldDataShort;
-		const float* m_heightfieldDataFloat;
-		const double* m_heightfieldDataDouble;
-		const void* m_heightfieldDataUnknown;
-	};
 
-	PHY_ScalarType m_heightDataType;
-	bool m_flipQuadEdges;
-	bool m_useDiamondSubdivision;
-	bool m_useZigzagSubdivision;
-	bool m_flipTriangleWinding;
-	int m_upAxis;
+	btVector3 m_sampleOffset;
+
+	//union {
+	//	const unsigned char* m_heightfieldDataUnsignedChar;
+	//	const short* m_heightfieldDataShort;
+	const float* m_heightfieldDataFloat;
+	//	const double* m_heightfieldDataDouble;
+	//	const void* m_heightfieldDataUnknown;
+	//};
+
+	static constexpr PHY_ScalarType m_heightDataType = PHY_FLOAT;
+	static constexpr bool m_flipQuadEdges = true;
+	static constexpr bool m_useDiamondSubdivision = false;
+	static constexpr bool m_useZigzagSubdivision = true;
+	static constexpr bool m_flipTriangleWinding = false;
+	static constexpr int m_upAxis = 1;
 
 	btVector3 m_localScaling;
 
@@ -121,12 +126,11 @@ protected:
 	int m_vboundsGridLength;
 	int m_vboundsChunkSize;
 
-	
 	btScalar m_userValue3;
 
 	struct btTriangleInfoMap* m_triangleInfoMap;
 
-	virtual btScalar getRawHeightFieldValue(int x, int y) const;
+	btScalar getRawHeightFieldValue(int x, int y) const;
 	void quantizeWithClamp(int* out, const btVector3& point, int isMax) const;
 
 	/// protected initialization
@@ -135,7 +139,7 @@ protected:
 	  backwards-compatible without a lot of copy/paste.
 	 */
 	void initialize(int heightStickWidth, int heightStickLength,
-					const void* heightfieldData, btScalar heightScale,
+					const float* heightfieldData, btScalar heightScale,
 					btScalar minHeight, btScalar maxHeight, int upAxis,
 					PHY_ScalarType heightDataType, bool flipQuadEdges);
 
@@ -147,18 +151,18 @@ public:
 		int heightStickWidth, int heightStickLength,
 		const float* heightfieldData, btScalar minHeight, btScalar maxHeight,
 		int upAxis, bool flipQuadEdges);
-	btHeightfieldTerrainShape(
-		int heightStickWidth, int heightStickLength,
-		const double* heightfieldData, btScalar minHeight, btScalar maxHeight,
-		int upAxis, bool flipQuadEdges);
-	btHeightfieldTerrainShape(
-		int heightStickWidth, int heightStickLength,
-		const short* heightfieldData, btScalar heightScale, btScalar minHeight, btScalar maxHeight,
-		int upAxis, bool flipQuadEdges);
-	btHeightfieldTerrainShape(
-		int heightStickWidth, int heightStickLength,
-		const unsigned char* heightfieldData, btScalar heightScale, btScalar minHeight, btScalar maxHeight,
-		int upAxis, bool flipQuadEdges);
+	//btHeightfieldTerrainShape(
+	//	int heightStickWidth, int heightStickLength,
+	//	const double* heightfieldData, btScalar minHeight, btScalar maxHeight,
+	//	int upAxis, bool flipQuadEdges);
+	//btHeightfieldTerrainShape(
+	//	int heightStickWidth, int heightStickLength,
+	//	const short* heightfieldData, btScalar heightScale, btScalar minHeight, btScalar maxHeight,
+	//	int upAxis, bool flipQuadEdges);
+	//btHeightfieldTerrainShape(
+	//	int heightStickWidth, int heightStickLength,
+	//	const unsigned char* heightfieldData, btScalar heightScale, btScalar minHeight, btScalar maxHeight,
+	//	int upAxis, bool flipQuadEdges);
 
 	/// legacy constructor
 	/**
@@ -170,11 +174,11 @@ public:
 	  With `BT_USE_DOUBLE_PRECISION`, it will expect `heightfieldData`
 	  to be double-precision.
 	 */
-	btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength,
-							  const void* heightfieldData, btScalar heightScale,
-							  btScalar minHeight, btScalar maxHeight,
-							  int upAxis, PHY_ScalarType heightDataType,
-							  bool flipQuadEdges);
+	//btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength,
+	//							 const void* heightfieldData, btScalar heightScale,
+	//							 btScalar minHeight, btScalar maxHeight,
+	//							 int upAxis, PHY_ScalarType heightDataType,
+	//							 bool flipQuadEdges);
 
 	/// legacy constructor
 	/**
@@ -183,18 +187,24 @@ public:
 	  compatibility reasons, heightScale is calculated as maxHeight / 65535 
 	  (and is only used when useFloatData = false).
  	 */
-	btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength, const void* heightfieldData, btScalar maxHeight, int upAxis, bool useFloatData, bool flipQuadEdges);
+	//btHeightfieldTerrainShape(int heightStickWidth, int heightStickLength, const void* heightfieldData, btScalar maxHeight, int upAxis, bool useFloatData, bool flipQuadEdges);
 
 	virtual ~btHeightfieldTerrainShape();
 
-	void setUseDiamondSubdivision(bool useDiamondSubdivision = true) { m_useDiamondSubdivision = useDiamondSubdivision; }
+	void setUseDiamondSubdivision(bool useDiamondSubdivision = true)
+	{
+		//m_useDiamondSubdivision = useDiamondSubdivision;
+	}
 
 	///could help compatibility with Ogre heightfields. See https://code.google.com/p/bullet/issues/detail?id=625
-	void setUseZigzagSubdivision(bool useZigzagSubdivision = true) { m_useZigzagSubdivision = useZigzagSubdivision; }
+	void setUseZigzagSubdivision(bool useZigzagSubdivision = true)
+	{
+		//m_useZigzagSubdivision = useZigzagSubdivision;
+	}
 
 	void setFlipTriangleWinding(bool flipTriangleWinding)
 	{
-		m_flipTriangleWinding = flipTriangleWinding;
+		//m_flipTriangleWinding = flipTriangleWinding;
 	}
 	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
 
@@ -220,7 +230,6 @@ public:
 	//debugging
 	virtual const char* getName() const { return "HEIGHTFIELD"; }
 
-	
 	void setUserValue3(btScalar value)
 	{
 		m_userValue3 = value;
@@ -237,14 +246,14 @@ public:
 	{
 		return m_triangleInfoMap;
 	}
-	void setTriangleInfoMap(btTriangleInfoMap* map)
+	void setTriangleInfoMap(btTriangleInfoMap * map)
 	{
 		m_triangleInfoMap = map;
 	}
-	const unsigned char* getHeightfieldRawData() const
+	/*const unsigned char* getHeightfieldRawData() const
 	{
 		return m_heightfieldDataUnsignedChar;
-	}
+	}*/
 };
 
 #endif  //BT_HEIGHTFIELD_TERRAIN_SHAPE_H

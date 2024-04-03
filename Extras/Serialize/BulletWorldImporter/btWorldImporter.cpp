@@ -1786,14 +1786,14 @@ btMultiSphereShape* btWorldImporter::createMultiSphereShape(const btVector3* pos
 }
 
 class btHeightfieldTerrainShape* btWorldImporter::createHeightfieldShape(int heightStickWidth, int heightStickLength,
-	const void* heightfieldData, btScalar heightScale,
+	const float* heightfieldData, btScalar heightScale,
 	btScalar minHeight, btScalar maxHeight,
 	int upAxis, int heightDataType,
 	bool flipQuadEdges)
 {
 
 	btHeightfieldTerrainShape* shape = new btHeightfieldTerrainShape(heightStickWidth, heightStickLength,
-			heightfieldData, heightScale, minHeight, maxHeight, upAxis, PHY_ScalarType(heightDataType), flipQuadEdges);
+			heightfieldData, minHeight, maxHeight, upAxis, flipQuadEdges);
 	m_allocatedCollisionShapes.push_back(shape);
 	return shape;
 }

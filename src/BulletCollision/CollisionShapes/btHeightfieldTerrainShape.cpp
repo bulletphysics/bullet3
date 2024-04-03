@@ -13,9 +13,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#define BT_USE_SSE_IN_API 1
+
 #include "btHeightfieldTerrainShape.h"
 
 #include "LinearMath/btTransformUtil.h"
+#include <tracy/Tracy.hpp>
+#include <algorithm>
 
 btHeightfieldTerrainShape::btHeightfieldTerrainShape(
 	int heightStickWidth, int heightStickLength,
@@ -28,13 +32,14 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(
 			   flipQuadEdges);
 }
 
+/*
 btHeightfieldTerrainShape::btHeightfieldTerrainShape(
 	int heightStickWidth, int heightStickLength, const double* heightfieldData,
 	btScalar minHeight, btScalar maxHeight, int upAxis, bool flipQuadEdges)
 	: m_userValue3(0), m_triangleInfoMap(0)
 {
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
-			   /*heightScale=*/1, minHeight, maxHeight, upAxis, PHY_DOUBLE,
+			   1, minHeight, maxHeight, upAxis, PHY_DOUBLE,
 			   flipQuadEdges);
 }
 
@@ -93,10 +98,10 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
 			   heightScale, minHeight, maxHeight, upAxis, hdt,
 			   flipQuadEdges);
-}
+}*/
 
 void btHeightfieldTerrainShape::initialize(
-	int heightStickWidth, int heightStickLength, const void* heightfieldData,
+	int heightStickWidth, int heightStickLength, const float* heightfieldData,
 	btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
 	PHY_ScalarType hdt, bool flipQuadEdges)
 {
@@ -105,8 +110,8 @@ void btHeightfieldTerrainShape::initialize(
 	btAssert(heightStickLength > 1);  // && "bad length");
 	btAssert(heightfieldData);        // && "null heightfield data");
 	// btAssert(heightScale) -- do we care?  Trust caller here
-	btAssert(minHeight <= maxHeight);                                    // && "bad min/max height");
-	btAssert(upAxis >= 0 && upAxis < 3);                                 // && "bad upAxis--should be in range [0,2]");
+	btAssert(minHeight <= maxHeight);                                                         // && "bad min/max height");
+	btAssert(upAxis >= 0 && upAxis < 3);                                                      // && "bad upAxis--should be in range [0,2]");
 	btAssert(hdt != PHY_UCHAR || hdt != PHY_FLOAT || hdt != PHY_DOUBLE || hdt != PHY_SHORT);  // && "Bad height data type enum");
 
 	// initialize member variables
@@ -117,16 +122,20 @@ void btHeightfieldTerrainShape::initialize(
 	m_maxHeight = maxHeight;
 	m_width = (btScalar)(heightStickWidth - 1);
 	m_length = (btScalar)(heightStickLength - 1);
+	m_half_width = m_width / btScalar(2.0);
+	m_half_length = m_length / btScalar(2.0);
+
 	m_heightScale = heightScale;
-	m_heightfieldDataUnknown = heightfieldData;
-	m_heightDataType = hdt;
-	m_flipQuadEdges = flipQuadEdges;
-	m_useDiamondSubdivision = false;
-	m_useZigzagSubdivision = false;
-	m_flipTriangleWinding = false;
-	m_upAxis = upAxis;
+	//m_heightfieldDataUnknown = heightfieldData;
+	m_heightfieldDataFloat = heightfieldData;
+	//m_heightDataType = hdt;
+	//m_flipQuadEdges = flipQuadEdges;
+	//m_useDiamondSubdivision = false;
+	//m_useZigzagSubdivision = false;
+	//m_flipTriangleWinding = false;
+	//m_upAxis = upAxis;
 	m_localScaling.setValue(btScalar(1.), btScalar(1.), btScalar(1.));
-	
+
 	m_vboundsChunkSize = 0;
 	m_vboundsGridWidth = 0;
 	m_vboundsGridLength = 0;
@@ -161,6 +170,8 @@ void btHeightfieldTerrainShape::initialize(
 
 	// remember origin (defined as exact middle of aabb)
 	m_localOrigin = btScalar(0.5) * (m_localAabbMin + m_localAabbMax);
+
+	m_sampleOffset = {m_half_width, m_localOrigin.getY(), m_half_length};
 }
 
 btHeightfieldTerrainShape::~btHeightfieldTerrainShape()
@@ -191,6 +202,9 @@ void btHeightfieldTerrainShape::getAabb(const btTransform& t, btVector3& aabbMin
 btScalar
 btHeightfieldTerrainShape::getRawHeightFieldValue(int x, int y) const
 {
+	//if constexpr (m_heightDataType == PHY_FLOAT)
+	return m_heightfieldDataFloat[(y * m_heightStickWidth) + x];
+	/*
 	btScalar val = 0.f;
 	switch (m_heightDataType)
 	{
@@ -226,7 +240,7 @@ btHeightfieldTerrainShape::getRawHeightFieldValue(int x, int y) const
 		}
 	}
 
-	return val;
+	return val;*/
 }
 
 /// this returns the vertex in bullet-local coordinates
@@ -239,40 +253,7 @@ void btHeightfieldTerrainShape::getVertex(int x, int y, btVector3& vertex) const
 
 	btScalar height = getRawHeightFieldValue(x, y);
 
-	switch (m_upAxis)
-	{
-		case 0:
-		{
-			vertex.setValue(
-				height - m_localOrigin.getX(),
-				(-m_width / btScalar(2.0)) + x,
-				(-m_length / btScalar(2.0)) + y);
-			break;
-		}
-		case 1:
-		{
-			vertex.setValue(
-				(-m_width / btScalar(2.0)) + x,
-				height - m_localOrigin.getY(),
-				(-m_length / btScalar(2.0)) + y);
-			break;
-		};
-		case 2:
-		{
-			vertex.setValue(
-				(-m_width / btScalar(2.0)) + x,
-				(-m_length / btScalar(2.0)) + y,
-				height - m_localOrigin.getZ());
-			break;
-		}
-		default:
-		{
-			//need to get valid m_upAxis
-			btAssert(0);
-		}
-	}
-
-	vertex *= m_localScaling;
+	vertex = (btVector3{btScalar(x), height, btScalar(y)} - m_sampleOffset) * m_localScaling;
 }
 
 static inline int
@@ -288,8 +269,11 @@ getQuantized(
 
 // Equivalent to std::minmax({a, b, c}).
 // Performs at most 3 comparisons.
-static btHeightfieldTerrainShape::Range minmaxRange(btScalar a, btScalar b, btScalar c)
+static constexpr btHeightfieldTerrainShape::Range minmaxRange(btScalar a, btScalar b, btScalar c)
 {
+#if 1
+	return {std::min(a, std::min(b, c)), std::max(a, std::max(b, c))};
+#else
 	if (a > b)
 	{
 		if (b > c)
@@ -308,6 +292,7 @@ static btHeightfieldTerrainShape::Range minmaxRange(btScalar a, btScalar b, btSc
 		else
 			return btHeightfieldTerrainShape::Range(a, c);
 	}
+#endif
 }
 
 /// given input vector, return quantized version
@@ -339,6 +324,8 @@ void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& poi
  */
 void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const
 {
+	ZoneScoped;
+
 	// scale down the input aabb's so they are in local (non-scaled) coordinates
 	btVector3 localAabbMin = aabbMin * btVector3(1.f / m_localScaling[0], 1.f / m_localScaling[1], 1.f / m_localScaling[2]);
 	btVector3 localAabbMax = aabbMax * btVector3(1.f / m_localScaling[0], 1.f / m_localScaling[1], 1.f / m_localScaling[2]);
@@ -412,14 +399,14 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	}
 
 	// TODO If m_vboundsGrid is available, use it to determine if we really need to process this area
-	
-	const Range aabbUpRange(aabbMin[m_upAxis], aabbMax[m_upAxis]);
+
+	const Range aabbUpRange{aabbMin[m_upAxis], aabbMax[m_upAxis]};
 	for (int j = startJ; j < endJ; j++)
 	{
 		for (int x = startX; x < endX; x++)
 		{
 			btVector3 vertices[3];
-			int indices[3] = { 0, 1, 2 };
+			int indices[3] = {0, 1, 2};
 			if (m_flipTriangleWinding)
 			{
 				indices[0] = 2;
@@ -437,7 +424,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 				if (upRange.overlaps(aabbUpRange))
 					callback->processTriangle(vertices, 2 * x, j);
-			
+
 				// already set: getVertex(x, j, vertices[indices[0]])
 
 				// equivalent to: getVertex(x + 1, j + 1, vertices[indices[1]]);
@@ -496,18 +483,18 @@ const btVector3& btHeightfieldTerrainShape::getLocalScaling() const
 
 namespace
 {
-	struct GridRaycastState
-	{
-		int x;  // Next quad coords
-		int z;
-		int prev_x;  // Previous quad coords
-		int prev_z;
-		btScalar param;      // Exit param for previous quad
-		btScalar prevParam;  // Enter param for previous quad
-		btScalar maxDistanceFlat;
-		btScalar maxDistance3d;
-	};
-}
+struct GridRaycastState
+{
+	int x;               // Next quad coords
+	int z;
+	int prev_x;          // Previous quad coords
+	int prev_z;
+	btScalar param;      // Exit param for previous quad
+	btScalar prevParam;  // Enter param for previous quad
+	btScalar maxDistanceFlat;
+	btScalar maxDistance3d;
+};
+}  // namespace
 
 // TODO Does it really need to take 3D vectors?
 /// Iterates through a virtual 2D grid of unit-sized square cells,
@@ -523,7 +510,6 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 		// Consider the ray is too small to hit anything
 		return;
 	}
-	
 
 	btScalar rayDirectionFlatX = endPos[indices[0]] - beginPos[indices[0]];
 	btScalar rayDirectionFlatZ = endPos[indices[2]] - beginPos[indices[2]];
@@ -541,8 +527,10 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 		rayDirectionFlatZ /= rs.maxDistanceFlat;
 	}
 
-	const int xiStep = rayDirectionFlatX > 0 ? 1 : rayDirectionFlatX < 0 ? -1 : 0;
-	const int ziStep = rayDirectionFlatZ > 0 ? 1 : rayDirectionFlatZ < 0 ? -1 : 0;
+	const int xiStep = rayDirectionFlatX > 0 ? 1 : rayDirectionFlatX < 0 ? -1
+																		 : 0;
+	const int ziStep = rayDirectionFlatZ > 0 ? 1 : rayDirectionFlatZ < 0 ? -1
+																		 : 0;
 
 	const float infinite = 9999999;
 	const btScalar paramDeltaX = xiStep != 0 ? 1.f / btFabs(rayDirectionFlatX) : infinite;
@@ -722,7 +710,7 @@ struct ProcessVBoundsAction
 
 	ProcessVBoundsAction(const btAlignedObjectArray<btHeightfieldTerrainShape::Range>& bnd, int* indices)
 		: vbounds(bnd),
-		m_indices(indices)
+		  m_indices(indices)
 	{
 	}
 	void operator()(const GridRaycastState& rs) const
@@ -793,8 +781,8 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 	processTriangles.length = m_heightStickLength - 1;
 
 	// TODO Transform vectors to account for m_upAxis
-	int indices[3] = { 0, 1, 2 };
-	if (m_upAxis == 2)
+	int indices[3] = {0, 1, 2};
+	if constexpr (m_upAxis == 2)
 	{
 		indices[1] = 2;
 		indices[2] = 1;
@@ -813,9 +801,7 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 		return;
 	}
 
-	
-
-	if (m_vboundsGrid.size()==0)
+	if (m_vboundsGrid.size() == 0)
 	{
 		// Process all quads intersecting the flat projection of the ray
 		gridRaycast(processTriangles, beginPos, endPos, &indices[0]);
@@ -882,7 +868,7 @@ void btHeightfieldTerrainShape::buildAccelerator(int chunkSize)
 
 	// This data structure is only reallocated if the required size changed
 	m_vboundsGrid.resize(nChunksX * nChunksZ);
-	
+
 	// Compute min and max height for all chunks
 	for (int cz = 0; cz < nChunksZ; ++cz)
 	{
