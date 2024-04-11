@@ -889,43 +889,48 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 					char msg[1024];
 					#define customMin(a,b) (a < b ? a : b)
 					#define currPos(buf) (buf + customMin(1000,strlen(buf)))
+					#if defined(_MSC_VER)
+						#define printfVariant _snprintf
+					#else
+						#define printfVariant snprintf
+					#endif
 					{
-						snprintf(msg,1024, "Q=[");
+						printfVariant(msg,1024, "Q=[");
 
 						for (int i = 0; i < numQ; i++)
 						{
 							if (i < numQ - 1)
 							{
-								snprintf(currPos(msg),1024, "%f,",
+								printfVariant(currPos(msg),1024, "%f,",
 									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 							else
 							{
-								snprintf(currPos(msg),1024, "%f",
+								printfVariant(currPos(msg),1024, "%f",
 									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 						}
-						snprintf(currPos(msg),1024, "]");
+						printfVariant(currPos(msg),1024, "]");
 					}
 					b3Printf(msg);
 
-					snprintf(currPos(msg),1024, "U=[");
+					printfVariant(currPos(msg),1024, "U=[");
 
 					for (int i = 0; i < numU; i++)
 					{
 						if (i < numU - 1)
 						{
-							snprintf(currPos(msg),1024, "%f,",
+							printfVariant(currPos(msg),1024, "%f,",
 								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 						else
 						{
-							snprintf(currPos(msg),1024, "%f",
+							printfVariant(currPos(msg),1024, "%f",
 								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 					}
-					snprintf(currPos(msg),1024, "]");
-
+					printfVariant(currPos(msg),1024, "]");
+					#undef printfVariant
 					#undef customMin
 					#undef currPos
 					b3Printf(msg);
