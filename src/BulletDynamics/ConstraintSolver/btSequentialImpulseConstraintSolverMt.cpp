@@ -905,7 +905,6 @@ void btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlySplitImpulseI
 			{
 				const btBatchedConstraints& batchedCons = m_batchedContactConstraints;
 				ContactSplitPenetrationImpulseSolverLoop loop(this, &batchedCons);
-				btScalar leastSquaresResidual = 0.f;
 				for (int iiPhase = 0; iiPhase < batchedCons.m_phases.size(); ++iiPhase)
 				{
 					int iPhase = batchedCons.m_phaseOrder[iiPhase];
@@ -1408,7 +1407,6 @@ btScalar btSequentialImpulseConstraintSolverMt::resolveAllRollingFrictionConstra
 		// use batching if there are many rolling friction constraints
 		const btBatchedConstraints& batchedCons = m_batchedContactConstraints;
 		ContactRollingFrictionSolverLoop loop(this, &batchedCons);
-		btScalar leastSquaresResidual = 0.f;
 		for (int iiPhase = 0; iiPhase < batchedCons.m_phases.size(); ++iiPhase)
 		{
 			int iPhase = batchedCons.m_phaseOrder[iiPhase];
