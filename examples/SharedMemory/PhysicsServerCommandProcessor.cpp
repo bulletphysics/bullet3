@@ -5011,9 +5011,9 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 							btScalar* datafl = (btScalar*)heightfieldData;
 
-							for (int i = 0; i < width * height; i++)
+							for (int j = 0; j < width * height; j++)
 							{
-								heightfieldDest[i] = datafl[i];
+								heightfieldDest[j] = datafl[j];
 							}
 							//update graphics
 
