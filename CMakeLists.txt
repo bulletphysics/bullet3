@@ -4,6 +4,10 @@ cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 SET(MSVC_INCREMENTAL_DEFAULT ON)
 
+if(TOOLCHAIN_ROOT)
+	include(MinGW64.cmake)
+endif()
+
 PROJECT(BULLET_PHYSICS)
 FILE (STRINGS "VERSION" BULLET_VERSION)
 
@@ -268,6 +272,47 @@ IF (BULLET2_USE_OPEN_MP_MULTITHREADING)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
     ENDIF (MSVC)
 ENDIF (BULLET2_USE_OPEN_MP_MULTITHREADING)
+
+set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+IF(MSVC)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4127") # conditional expression is constant
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4456") # hides previous local declaration
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4457") # hides function parameter
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458") # hides class member
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4459") # hides global declaration
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996") # tr1 namespace deprecated
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4312") # int to pointer
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4706") # assign within conditional expression
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4512") # assignment operator could not be generated
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4714") # __forceinline not inlined
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.10) # from MSVC 2017
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus /permissive-")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14") # earliest c++ standard explicitly supported
+	endif()
+ELSE()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-to-void-pointer-cast") # hellovr, SimpleSocket
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-to-pointer-cast") # hellovr, stb_image
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-long-long") # C++98 has no long long
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-variadic-macros") # C++98 variadic macros
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-field-initializers") # gtest, stb_image
+	IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized") # gtest
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes") # b3Int64 cl_long
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy") # GIMPACT
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing") # GIMPACT, btSoftBody, OpenCL
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow") # btAlignedObjectArray - placement new
+	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-zero-as-null-pointer-constant")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-user-provided-copy") # GIMPACT
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual") # exampleBrowser OpenGLGuiHelper and btDeformable*
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-pointer-subtraction") # btSoftBody
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof") # hellovr
+	ENDIF()
+ENDIF()
 
 IF (BULLET2_USE_TBB_MULTITHREADING)
     SET (BULLET2_TBB_INCLUDE_DIR "not found" CACHE PATH "Directory for Intel TBB includes.")
