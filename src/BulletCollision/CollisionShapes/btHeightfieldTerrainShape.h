@@ -142,6 +142,10 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
+	void reinitialize(
+		int heightStickWidth, int heightStickLength,
+		btScalar minHeight, btScalar maxHeight);
+
 	/// preferred constructors
 	btHeightfieldTerrainShape(
 		int heightStickWidth, int heightStickLength,
