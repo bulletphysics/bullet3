@@ -208,7 +208,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Spheres & Plane C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc, TUT_SPHERE_PLANE_BULLET2),
 //ExampleEntry(1, "Spheres & Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
 
-        ExampleEntry(0, "Deformabe Body"),
+        ExampleEntry(0, "Deformable Body"),
         ExampleEntry(1, "Deformable Self Collision", "Deformable Self Collision", DeformableSelfCollisionCreateFunc),
         ExampleEntry(1, "Deformable-Deformable Contact", "Deformable contact", DeformableContactCreateFunc),
         ExampleEntry(1, "Cloth Friction", "Cloth friction contact", ClothFrictionCreateFunc),
@@ -226,7 +226,7 @@ static ExampleEntry gDefaultExamples[] =
         ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableMultibodyCreateFunc),
         // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
 		
-		ExampleEntry(0, "Reduced Deformabe Body"),
+		ExampleEntry(0, "Reduced Deformable Body"),
 		ExampleEntry(1, "Mode Visualizer", "Visualizer the modes for reduced deformable objects", ReducedModeVisualizerCreateFunc),
 		ExampleEntry(1, "Reduced Conservation Test", "Momentum conservation test for the reduced deformable objects", ReducedConservationTestCreateFunc),
 		ExampleEntry(1, "Reduced Springboard", "Moving rigid object colliding with a fixed reduced deformable objects", ReducedSpringboardCreateFunc),
