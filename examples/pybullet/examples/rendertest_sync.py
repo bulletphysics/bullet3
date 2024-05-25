@@ -115,7 +115,7 @@ def train(env_id, num_timesteps=300, seed=0, num_env=2, renderer='tiny'):
         env = gym.make(env_id)
       env.seed(seed + rank)
       env = bench.Monitor(env, logger.get_dir() and os.path.join(logger.get_dir(), str(rank)))
-      gym.logger.setLevel(logging.WARN)
+      gym.logger.setLevel(logging.WARNING)
       # only clip rewards when not evaluating
       return env
 
