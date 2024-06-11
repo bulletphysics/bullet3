@@ -1282,9 +1282,12 @@ void GLInstancingRenderer::InitShaders()
 			glGenBuffers(1, &pointsIndexVbo);
 
 			int sz = MAX_POINTS_IN_BATCH * sizeof(b3Vector3);
+			int sz1 = MAX_POINTS_IN_BATCH * sizeof(b3Vector4);
 			glBindVertexArray(pointsVertexArrayObject);
 			glBindBuffer(GL_ARRAY_BUFFER, pointsVertexBufferObject);
 			glBufferData(GL_ARRAY_BUFFER, sz, 0, GL_DYNAMIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, pointsIndexVbo);
+			glBufferData(GL_ARRAY_BUFFER, sz1, 0, GL_DYNAMIC_DRAW);
 
 			glBindVertexArray(0);
 		}
