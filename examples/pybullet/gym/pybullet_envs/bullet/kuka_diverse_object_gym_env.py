@@ -258,14 +258,11 @@ class KukaDiverseObjectEnv(KukaGymEnv):
         if finger_angle < 0:
           finger_angle = 0
       for _ in range(500):
-        grasp_action = [0, 0, 0.001, 0, finger_angle]
+        grasp_action = [0, 0, 0.001, 0, 0]
         self._kuka.applyAction(grasp_action)
         p.stepSimulation()
         if self._renders:
           time.sleep(self._timeStep)
-        finger_angle -= 0.3 / 100.
-        if finger_angle < 0:
-          finger_angle = 0
       self._attempted_grasp = True
     observation = self._get_observation()
     done = self._termination()
