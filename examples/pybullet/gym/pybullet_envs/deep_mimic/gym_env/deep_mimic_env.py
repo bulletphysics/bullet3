@@ -14,10 +14,7 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import time
-import subprocess
-import pybullet as p2
 import pybullet_data
-from pybullet_utils import bullet_client as bc
 from pkg_resources import parse_version
 from pybullet_envs.deep_mimic.env.pybullet_deep_mimic_env import PyBulletDeepMimicEnv, InitializationStrategy
 from pybullet_utils.arg_parser import ArgParser
@@ -28,18 +25,26 @@ logger = logging.getLogger(__name__)
 
 
 class HumanoidDeepBulletEnv(gym.Env):
-  """Base Gym environment for DeepMimic."""
+  """Base Gym environment for the DeepMimic motion imitation tasks."""
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False, arg_file='', test_mode=False,
+  def __init__(self,
+               renders=False,
+               arg_file='',
+               test_mode=False,
                time_step=1./240,
                rescale_actions=True,
-               rescale_observations=True):
-    """    
+               rescale_observations=True,
+               use_com_reward=False):
+    """Instantiate a DeepMimic motion imitation environment.
+    
     Args:
-      test_mode (bool): in test mode, the `reset()` method will always set the mocap clip time
-      to 0.
+      test_mode (bool): in test mode, the `reset()` method will always set the mocap clip time to 0
+        at the beginning of every episode.
       time_step (float): physics time step.
+      rescale_actions (bool): rescale the actions using the bounds on the action space.
+      rescale_observations (bool): rescale the observations using the bounds on the observation space.
+      use_com_reward (bool): whether to use the center-of-mass reward.
     """
     self._arg_parser = ArgParser()
     Logger.print2("===========================================================")
@@ -56,16 +61,23 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._renders = renders
     self._discrete_actions = False
     self._arg_file = arg_file
-    self._render_height = 400
-    self._render_width = 640
+    self._render_height = 540
+    self._render_width = 960
     self._rescale_actions = rescale_actions
     self._rescale_observations = rescale_observations
+    self._use_com_reward = use_com_reward
     self.agent_id = -1
 
     self._numSteps = None
     self.test_mode = test_mode
     if self.test_mode:
-        print("Environment running in TEST mode")
+      print("Environment running in TEST mode")
+
+    # cam options
+    self._cam_dist = 3
+    self._cam_pitch = 0.3
+    self._cam_yaw = 0.1
+    self._cam_roll = 0
 
     self.reset()
 
@@ -85,43 +97,45 @@ class HumanoidDeepBulletEnv(gym.Env):
         np.finfo(np.float32).max
     ])
 
-    
     ctrl_size = 43  #numDof
     root_size = 7 # root
-    
     action_dim = ctrl_size - root_size
     
-    action_bound_min = np.array([
-        -4.79999999999, -1.00000000000, -1.00000000000, -1.00000000000, -4.00000000000,
-        -1.00000000000, -1.00000000000, -1.00000000000, -7.77999999999, -1.00000000000,
-        -1.000000000, -1.000000000, -7.850000000, -6.280000000, -1.000000000, -1.000000000,
-        -1.000000000, -12.56000000, -1.000000000, -1.000000000, -1.000000000, -4.710000000,
-        -7.779999999, -1.000000000, -1.000000000, -1.000000000, -7.850000000, -6.280000000,
-        -1.000000000, -1.000000000, -1.000000000, -8.460000000, -1.000000000, -1.000000000,
-        -1.000000000, -4.710000000
-    ])
-    
-    #print("len(action_bound_min)=",len(action_bound_min))
-    action_bound_max = np.array([
-        4.799999999, 1.000000000, 1.000000000, 1.000000000, 4.000000000, 1.000000000, 1.000000000,
-        1.000000000, 8.779999999, 1.000000000, 1.0000000, 1.0000000, 4.7100000, 6.2800000,
-        1.0000000, 1.0000000, 1.0000000, 12.560000, 1.0000000, 1.0000000, 1.0000000, 7.8500000,
-        8.7799999, 1.0000000, 1.0000000, 1.0000000, 4.7100000, 6.2800000, 1.0000000, 1.0000000,
-        1.0000000, 10.100000, 1.0000000, 1.0000000, 1.0000000, 7.8500000
-    ])
-    #print("len(action_bound_max)=",len(action_bound_max))
-    
-    self.action_space = spaces.Box(action_bound_min, action_bound_max)
+    action_bound_min = np.array(self._internal_env.build_action_bound_min(-1))
+    action_bound_max = np.array(self._internal_env.build_action_bound_max(-1))
+    if self._rescale_actions:
+      action_bound_min = self.scale_action(action_bound_min)
+      action_bound_max = self.scale_action(action_bound_max)
+    self.action_space = spaces.Box(action_bound_min.astype('float32'), action_bound_max.astype('float32'))
+
     observation_min = np.array([0.0]+[-100.0]+[-4.0]*105+[-500.0]*90)
-    observation_max = np.array([1.0]+[100.0]+[4.0]*105+[500.0]*90)
+    observation_max = np.array([1.0]+[ 100.0]+[ 4.0]*105+[ 500.0]*90)
+    if self._rescale_observations:
+      observation_min = self.scale_observation(observation_min)
+      observation_max = self.scale_observation(observation_max)
     state_size = 197
-    self.observation_space = spaces.Box(observation_min, observation_min, dtype=np.float32)
+    self.observation_space = spaces.Box(observation_min.astype('float32'), observation_max.astype('float32'))
 
     self.seed()
     
     self.viewer = None
     self._configure()
     
+  def scale_action(self, action):
+    """Offset the action and scale it."""
+    mean = -self._action_offset
+    std = 1./self._action_scale
+    return (action - mean) / std
+
+  def scale_observation(self, state):
+    mean = -self._state_offset
+    std = 1./self._state_scale
+    return (state - mean) / (std + 1e-8)
+
+  def unscale_action(self, scaled_action):
+    mean = -self._action_offset
+    std = 1./self._action_scale
+    return scaled_action * std + mean
 
   def _configure(self, display=None):
     self.display = display
@@ -135,12 +149,11 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     if self._rescale_actions:
       # Rescale the action
-      mean = -self._action_offset
-      std = 1./self._action_scale
-      action = action * std + mean
+      action = self.unscale_action(action)
 
     # Record reward
     reward = self._internal_env.calc_reward(agent_id)
+    # print(f"mean {action.mean():<5.3f} | std {action.std():<5.3f} | min {action.min():.3f} max {action.max():.3f}")
 
     # Apply control action
     self._internal_env.set_action(agent_id, action)
@@ -149,7 +162,7 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     # step sim
     for i in range(self._num_env_steps):
-        self._internal_env.update(self._time_step)
+      self._internal_env.update(self._time_step)
 
     elapsed_time = self._internal_env.t - start_time
 
@@ -157,17 +170,22 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     # Record state
     self.state = self._internal_env.record_state(agent_id)
+    state = self.state
     
     if self._rescale_observations:
-      state = np.array(self.state)
-      mean = -self._state_offset
-      std = 1./self._state_scale
-      state = (state - mean) / (std + 1e-8)
+      state = self.scale_observation(state)
 
     # Record done
     done = self._internal_env.is_episode_end()
+
+    self.camera_update()
     
-    info = {}
+    # get the reward info
+    info = {
+      'reward': self._internal_env._humanoid._info_rew,
+      'error': self._internal_env._humanoid._info_err
+    }
+    
     return state, reward, done, info
 
   def reset(self):
@@ -179,7 +197,8 @@ class HumanoidDeepBulletEnv(gym.Env):
         init_strat = InitializationStrategy.RANDOM
       self._internal_env = PyBulletDeepMimicEnv(self._arg_parser, self._renders,
                                                 time_step=self._time_step,
-                                                init_strategy=init_strat)
+                                                init_strategy=init_strat,
+                                                use_com_reward=self._use_com_reward)
 
     self._internal_env.reset()
     self._p = self._internal_env._pybullet_client
@@ -192,15 +211,22 @@ class HumanoidDeepBulletEnv(gym.Env):
     # Record state
     self.state = self._internal_env.record_state(agent_id)
 
+    self.camera_update()
+
     # return state as ndarray
     state = np.array(self.state)
     if self._rescale_observations:
-      mean = -self._state_offset
-      std = 1./self._state_scale
-      state = (state - mean) / (std + 1e-8)
+      state = self.scale_observation(state)
     return state
 
-  def render(self, mode='human', close=False):
+  def render(self, mode='human', use_dual_view=False):
+    """Render RGB image.
+    
+    Args:
+      mode: either 'human' or 'rgb_array'
+      use_dual_view: split the camera view in two, one focuses on the kin char,
+        the other on the sim char.
+    """
     if mode == "human":
       self._renders = True
     if mode != "rgb_array":
@@ -213,39 +239,61 @@ class HumanoidDeepBulletEnv(gym.Env):
     rpy = self._p.getEulerFromQuaternion(orn)  # rpy, in radians
     rpy = 180 / np.pi * np.asarray(rpy)  # convert rpy in degrees
 
-    self._cam_dist = 3
-    self._cam_pitch = 0.3
-    self._cam_yaw = 0
     if (not self._p == None):
       view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
         cameraTargetPosition=base_pos,
         distance=self._cam_dist,
         yaw=self._cam_yaw,
         pitch=self._cam_pitch,
-        roll=0,
+        roll=self._cam_roll,
         upAxisIndex=1)
+      width = self._render_width
+      height = self._render_height
+      if use_dual_view:
+        width = width // 2
       proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
-             aspect=float(self._render_width) / self._render_height,
+             aspect=float(width) / height,
              nearVal=0.1,
              farVal=100.0)
       (_, _, px, _, _) = self._p.getCameraImage(
-          width=self._render_width,
+          width=width,
           height=self._render_height,
-          renderer=self._p.ER_BULLET_HARDWARE_OPENGL,
           viewMatrix=view_matrix,
-          projectionMatrix=proj_matrix)
-      # self._p.resetDebugVisualizerCamera(
-      #   cameraDistance=2 * self._cam_dist,
-      #   cameraYaw=self._cam_yaw,
-      #   cameraPitch=self._cam_pitch,
-      #   cameraTargetPosition=base_pos
-      # )
+          projectionMatrix=proj_matrix,
+          renderer=self._p.ER_BULLET_HARDWARE_OPENGL,
+          shadow=1)
+      if use_dual_view:
+        px2 = self._get_camera_kin_char(width, height, proj_matrix)
+        px = np.concatenate([px, px2], axis=1)
     else:
       px = np.array([[[255,255,255,255]]*self._render_width]*self._render_height, dtype=np.uint8)
     rgb_array = np.array(px, dtype=np.uint8)
     rgb_array = np.reshape(np.array(px), (self._render_height, self._render_width, -1))
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
+
+  def _get_camera_kin_char(self, width, height, proj_matrix):
+    """Define a view matrix focusing on the kinematic character, and get camera image."""
+    human = self._internal_env._humanoid
+    kin_char_pos = self._p.getBasePositionAndOrientation(human._kin_model)[0]
+    kin_char_pos = np.asarray(kin_char_pos)
+    kin_char_pos[1] += 0.3
+    view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
+      cameraTargetPosition=kin_char_pos,
+      distance=self._cam_dist,
+      yaw=self._cam_yaw,
+      pitch=self._cam_pitch,
+      roll=self._cam_roll,
+      upAxisIndex=1)
+    _, _, px, _, _ = self._p.getCameraImage(
+      width=width,
+      height=height,
+      viewMatrix=view_matrix,
+      projectionMatrix=proj_matrix,
+      renderer=self._p.ER_BULLET_HARDWARE_OPENGL,
+      shadow=1
+      )
+    return px
 
   def configure(self, args):
     pass
@@ -254,24 +302,40 @@ class HumanoidDeepBulletEnv(gym.Env):
     
     pass
 
+  def camera_update(self):
+    """Update the debug visualizer camera."""
+    # update camera
+    human = self._internal_env._humanoid
+    base_pos, base_orn = self._p.getBasePositionAndOrientation(
+        human._sim_model)
+    debug_caminfo = self._p.getDebugVisualizerCamera()
+    (dbg_yaw, dbg_pitch, cur_dist) = debug_caminfo[8:11]
+    w, h = debug_caminfo[:2]
+    self._cam_dist = cur_dist
+    if w > 0 and h > 0:
+      self._cam_yaw = dbg_yaw
+      self._cam_pitch = dbg_pitch
+    self._p.resetDebugVisualizerCamera(
+        cameraDistance=self._cam_dist,
+        cameraYaw=dbg_yaw,
+        cameraPitch=dbg_pitch,
+        cameraTargetPosition=base_pos)
+
 class HumanoidDeepMimicBackflipBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, renders=False, test_mode=False, use_com_reward=False):
     # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_backflip_args.txt")
+    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_backflip_args.txt",
+                                   test_mode=test_mode,
+                                   use_com_reward=use_com_reward)
 
 
 class HumanoidDeepMimicWalkBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, renders=False, test_mode=False, use_com_reward=False):
     # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_walk_args.txt")
-
-class CartPoleContinuousBulletEnv5(HumanoidDeepBulletEnv):
-  metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
-
-  def __init__(self, renders=False):
-    # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="")
+    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_walk_args.txt",
+                                   test_mode=test_mode,
+                                   use_com_reward=use_com_reward)
