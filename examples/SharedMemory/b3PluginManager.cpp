@@ -239,22 +239,22 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 			std::string getCollisionStr = std::string("getCollisionInterface") + postFix;
 			std::string getFileIOStr = std::string("getFileIOInterface") + postFix;
 
-			plugin->m_initFunc = (PFN_INIT)(void*)B3_DYNLIB_IMPORT(pluginHandle, initStr.c_str());
-			plugin->m_exitFunc = (PFN_EXIT)(void*)B3_DYNLIB_IMPORT(pluginHandle, exitStr.c_str());
-			plugin->m_executeCommandFunc = (PFN_EXECUTE)(void*)B3_DYNLIB_IMPORT(pluginHandle, executePluginCommandStr.c_str());
-			plugin->m_preTickFunc = (PFN_TICK)(void*)B3_DYNLIB_IMPORT(pluginHandle, preTickPluginCallbackStr.c_str());
-			plugin->m_postTickFunc = (PFN_TICK)(void*)B3_DYNLIB_IMPORT(pluginHandle, postTickPluginCallback.c_str());
-			plugin->m_processNotificationsFunc = (PFN_TICK)(void*)B3_DYNLIB_IMPORT(pluginHandle, processNotificationsStr.c_str());
+			plugin->m_initFunc = (PFN_INIT)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, initStr.c_str());
+			plugin->m_exitFunc = (PFN_EXIT)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, exitStr.c_str());
+			plugin->m_executeCommandFunc = (PFN_EXECUTE)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, executePluginCommandStr.c_str());
+			plugin->m_preTickFunc = (PFN_TICK)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, preTickPluginCallbackStr.c_str());
+			plugin->m_postTickFunc = (PFN_TICK)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, postTickPluginCallback.c_str());
+			plugin->m_processNotificationsFunc = (PFN_TICK)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, processNotificationsStr.c_str());
 
 			if (plugin->m_processNotificationsFunc)
 			{
 				m_data->m_numNotificationPlugins++;
 			}
-			plugin->m_processClientCommandsFunc = (PFN_TICK)(void*)B3_DYNLIB_IMPORT(pluginHandle, processClientCommandsStr.c_str());
+			plugin->m_processClientCommandsFunc = (PFN_TICK)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, processClientCommandsStr.c_str());
 
-			plugin->m_getRendererFunc = (PFN_GET_RENDER_INTERFACE)(void*)B3_DYNLIB_IMPORT(pluginHandle, getRendererStr.c_str());
-			plugin->m_getCollisionFunc = (PFN_GET_COLLISION_INTERFACE)(void*)B3_DYNLIB_IMPORT(pluginHandle, getCollisionStr.c_str());
-			plugin->m_getFileIOFunc = (PFN_GET_FILEIO_INTERFACE)(void*)B3_DYNLIB_IMPORT(pluginHandle, getFileIOStr.c_str());
+			plugin->m_getRendererFunc = (PFN_GET_RENDER_INTERFACE)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, getRendererStr.c_str());
+			plugin->m_getCollisionFunc = (PFN_GET_COLLISION_INTERFACE)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, getCollisionStr.c_str());
+			plugin->m_getFileIOFunc = (PFN_GET_FILEIO_INTERFACE)(void (*)(void))B3_DYNLIB_IMPORT(pluginHandle, getFileIOStr.c_str());
 
 
 			if (plugin->m_initFunc && plugin->m_exitFunc && plugin->m_executeCommandFunc)

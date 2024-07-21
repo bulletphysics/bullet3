@@ -88,7 +88,7 @@ void getProcessorInformation(btProcessorInfo* procInfo)
 	return;
 #else
 	Pfn_GetLogicalProcessorInformation getLogicalProcInfo =
-		(Pfn_GetLogicalProcessorInformation)(void*)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
+		(Pfn_GetLogicalProcessorInformation)(void (*)(void))GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
 	if (getLogicalProcInfo == NULL)
 	{
 		// no info
