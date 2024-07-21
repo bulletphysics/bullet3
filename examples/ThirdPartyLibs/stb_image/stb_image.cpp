@@ -40,7 +40,7 @@ typedef unsigned char validate_uint32[sizeof(uint32) == 4 ? 1 : -1];
 #define STBI_NO_WRITE
 #endif
 
-#define STBI_NOTUSED(v) (void)sizeof(v)
+#define STBI_NOTUSED(v) (void)v
 
 #ifdef _MSC_VER
 #define STBI_HAS_LROTL
