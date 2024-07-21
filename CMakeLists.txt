@@ -277,21 +277,33 @@ set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 IF(MSVC)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4127") # conditional expression is constant
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4456") # hides previous local declaration
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4457") # hides function parameter
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4458") # hides class member
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4459") # hides global declaration
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005") # macro redefined
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4061") # enumerator 'value' in switch of enum 'type' is not handled explicitly
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4191") # unsafe conversion of function pointers
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4263 /wd4264 /wd4266") # virtual function override with same name and different arguments
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4464") # relative include paths
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4512 /wd4514 /wd4623 /wd4625 /wd4626 /wd5026 /wd5027") # implicitly deleted constructor, destructor, assignment operators
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4548") # expression before comma has no effect; expected expression with side-effect
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4668") # 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4710 /wd4711 /wd4714") # not inlined
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4820") # 'bytes' bytes padding added after construct 'member_name'
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996") # tr1 namespace deprecated
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4312") # int to pointer
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4706") # assign within conditional expression
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4512") # assignment operator could not be generated
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4714") # __forceinline not inlined
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5031") # pragma warning(pop): likely mismatch, popping warning state pushed in different file
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5039") # function': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5045") # Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5105") # macro expansion producing 'defined' has undefined behavior
+	# enet
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4146") # unary minus operator applied to unsigned type, result still unsigned
+	
 	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.10) # from MSVC 2017
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus /permissive-")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus,preprocessor /permissive-")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14") # earliest c++ standard explicitly supported
 	endif()
+	# static analyzer: 
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /analyze:stacksize 65736") # static analyzer
+	# gtest:
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6326") # Potential comparison of a constant with another constant
 ELSE()
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-to-void-pointer-cast") # hellovr, SimpleSocket
@@ -306,12 +318,23 @@ ELSE()
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing") # GIMPACT, btSoftBody, OpenCL
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow") # btAlignedObjectArray - placement new
 	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-zero-as-null-pointer-constant")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-zero-as-null-pointer-constant") # 0, NULL or nullptr
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-user-provided-copy") # GIMPACT
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual") # exampleBrowser OpenGLGuiHelper and btDeformable*
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-pointer-subtraction") # btSoftBody
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof") # hellovr
 	ENDIF()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-parameter")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-variable")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-function")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-label")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-local-typedefs")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-parameter")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-value")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
+
+	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xanalyzer -fanalyzer") # static analyzer
 ENDIF()
 
 IF (BULLET2_USE_TBB_MULTITHREADING)
