@@ -88,7 +88,7 @@ void getProcessorInformation(btProcessorInfo* procInfo)
 	return;
 #else
 	Pfn_GetLogicalProcessorInformation getLogicalProcInfo =
-		(Pfn_GetLogicalProcessorInformation)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
+		(Pfn_GetLogicalProcessorInformation)(void*)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
 	if (getLogicalProcInfo == NULL)
 	{
 		// no info
@@ -115,7 +115,7 @@ void getProcessorInformation(btProcessorInfo* procInfo)
 		}
 	}
 
-	int len = bufSize / sizeof(*buf);
+	int len = (int)(bufSize / sizeof(*buf));
 	for (int i = 0; i < len; ++i)
 	{
 		PSYSTEM_LOGICAL_PROCESSOR_INFORMATION info = buf + i;
@@ -278,9 +278,9 @@ int btThreadSupportWin32::waitForResponse()
 	btAssert(m_activeThreadStatus.size());
 
 	int last = -1;
-	DWORD res = WaitForMultipleObjects(m_completeHandles.size(), &m_completeHandles[0], FALSE, INFINITE);
+	DWORD res = WaitForMultipleObjects((DWORD)m_completeHandles.size(), &m_completeHandles[0], FALSE, INFINITE);
 	btAssert(res != WAIT_FAILED);
-	last = res - WAIT_OBJECT_0;
+	last = (int)(res - WAIT_OBJECT_0);
 
 	btThreadStatus& threadStatus = m_activeThreadStatus[last];
 	btAssert(threadStatus.m_threadHandle);
@@ -338,7 +338,7 @@ void btThreadSupportWin32::startThreads(const ConstructionInfo& threadConstructi
 		btThreadStatus& threadStatus = m_activeThreadStatus[i];
 
 		LPSECURITY_ATTRIBUTES lpThreadAttributes = NULL;
-		SIZE_T dwStackSize = threadConstructionInfo.m_threadStackSize;
+		SIZE_T dwStackSize = (SIZE_T)threadConstructionInfo.m_threadStackSize;
 		LPTHREAD_START_ROUTINE lpStartAddress = &win32threadStartFunc;
 		LPVOID lpParameter = &threadStatus;
 		DWORD dwCreationFlags = 0;
@@ -376,7 +376,7 @@ void btThreadSupportWin32::startThreads(const ConstructionInfo& threadConstructi
 					SetThreadAffinityMask(handle, mask);
 				}
 			}
-			SetThreadIdealProcessor(handle, processorId);
+			SetThreadIdealProcessor(handle, (DWORD)processorId);
 		}
 
 		threadStatus.m_taskId = i;
