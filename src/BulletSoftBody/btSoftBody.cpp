@@ -142,7 +142,7 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btV
 
 	/* Nodes			*/
 	const btScalar margin = getCollisionShape()->getMargin();
-	// m_nodes.resize(node_count);
+	m_nodes.resize(node_count);
 	m_X.resize(node_count);
 	for (int i = 0, ni = node_count; i < ni; ++i)
 	{
@@ -2199,7 +2199,7 @@ void btSoftBody::predictMotion(btScalar dt)
 		}
 	}
 	/* Clear contacts        */
-	// m_rcontacts.resize(0);
+	m_rcontacts.resize(0);
 	m_scontacts.resize(0);
 	/* Optimize dbvt's        */
 	m_ndbvt.optimizeIncremental(1);

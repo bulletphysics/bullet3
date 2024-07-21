@@ -137,7 +137,7 @@ btMultiBody::btMultiBody(int n_links,
 	m_cachedInertiaLowerRight.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	m_cachedInertiaValid = false;
 
-	// m_links.resize(n_links);
+	m_links.resize(n_links);
 	m_matrixBuf.resize(n_links + 1);
 
 	m_baseForce.setValue(0, 0, 0);

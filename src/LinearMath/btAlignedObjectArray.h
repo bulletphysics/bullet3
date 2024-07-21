@@ -134,7 +134,7 @@ public:
 		init();
 
 		int otherSize = otherArray.size();
-		// resize(otherSize);
+		resize(otherSize);
 		otherArray.copy(0, otherSize, m_data);
 	}
 
