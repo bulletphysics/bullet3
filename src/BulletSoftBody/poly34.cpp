@@ -5,6 +5,7 @@
 // public domain
 //
 #include <math.h>
+#include <float.h>
 
 #include "poly34.h"  // solution of cubic and quartic equation
 #define TwoPi 6.28318530717958648
@@ -429,7 +430,11 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 		f2s = (((5 * x2 + 4 * a) * x2 + 3 * b) * x2 + 2 * c) * x2 + d;  // f'(x2)
 		if (fabs(f2s) < eps)
 		{
+#if defined(BT_USE_DOUBLE_PRECISION)
 			x2 = 1e99;
+#else
+			x2 = 1e36;
+#endif
 			continue;
 		}
 		dx = f2 / f2s;
