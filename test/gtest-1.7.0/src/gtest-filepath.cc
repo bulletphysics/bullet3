@@ -172,7 +172,7 @@ FilePath FilePath::RemoveFileName() const
 	std::string dir;
 	if (last_sep)
 	{
-		dir = std::string(c_str(), last_sep + 1 - c_str());
+		dir = std::string(c_str(), (size_t)(last_sep + 1 - c_str()));
 	}
 	else
 	{

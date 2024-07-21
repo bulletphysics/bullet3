@@ -1496,6 +1496,8 @@ AssertionResult CmpHelperEQ(const char* expected_expression,
 #pragma warning(push)            // Saves the current warning state.
 #pragma warning(disable : 4389)  // Temporarily disables warning on
 								 // signed/unsigned mismatch.
+#pragma warning(disable : 4805)  // 'operation' : unsafe mix of type 'type' and type 'type' in operation
+#pragma warning(disable : 5219)  // implicit conversion
 #endif
 
 	if ((int)expected == actual)

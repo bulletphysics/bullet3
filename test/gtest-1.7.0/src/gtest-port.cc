@@ -373,8 +373,8 @@ bool MatchRepetitionAndRegexAtHead(
 	bool escaped, char c, char repeat, const char* regex,
 	const char* str)
 {
-	const size_t min_count = (repeat == '+') ? 1 : 0;
-	const size_t max_count = (repeat == '?') ? 1 : static_cast<size_t>(-1) - 1;
+	const size_t min_count = (size_t)((repeat == '+') ? 1 : 0);
+	const size_t max_count = (size_t)((repeat == '?') ? 1 : static_cast<size_t>(-1) - 1);
 	// We cannot call numeric_limits::max() as it conflicts with the
 	// max() macro on Windows.
 

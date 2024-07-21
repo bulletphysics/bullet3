@@ -405,7 +405,7 @@ std::string UnitTestOptions::GetOutputFormat()
 	if (gtest_output_flag == NULL) return std::string("");
 
 	const char* const colon = strchr(gtest_output_flag, ':');
-	return (colon == NULL) ? std::string(gtest_output_flag) : std::string(gtest_output_flag, colon - gtest_output_flag);
+	return (colon == NULL) ? std::string(gtest_output_flag) : std::string(gtest_output_flag, (size_t)(colon - gtest_output_flag));
 }
 
 // Returns the name of the requested output file, or the default if none
@@ -1475,7 +1475,7 @@ AssertionResult HRESULTFailureHelper(const char* expr,
 	char error_text[kBufSize] = {'\0'};
 	DWORD message_length = ::FormatMessageA(kFlags,
 											0,           // no source, we're asking system
-											hr,          // the error
+											(DWORD)hr,   // the error
 											0,           // no line width restrictions
 											error_text,  // output buffer
 											kBufSize,    // buf size
@@ -1561,7 +1561,7 @@ std::string CodePointToUtf8(UInt32 code_point)
 {
 	if (code_point > kMaxCodePoint4)
 	{
-		return "(Invalid Unicode 0x" + String::FormatHexInt(code_point) + ")";
+		return "(Invalid Unicode 0x" + String::FormatHexInt((int)code_point) + ")";
 	}
 
 	char str[5];  // Big enough for the largest valid code point.
@@ -1817,7 +1817,7 @@ std::string StringStreamToString(::std::stringstream* ss)
 	const char* const end = start + str.length();
 
 	std::string result;
-	result.reserve(2 * (end - start));
+	result.reserve((size_t)(2 * (end - start)));
 	for (const char* ch = start; ch != end; ++ch)
 	{
 		if (*ch == '\0')
@@ -1870,7 +1870,7 @@ const TestPartResult& TestResult::GetTestPartResult(int i) const
 {
 	if (i < 0 || i >= total_part_count())
 		internal::posix::Abort();
-	return test_part_results_.at(i);
+	return test_part_results_.at((size_t)i);
 }
 
 // Returns the i-th test property. i can range from 0 to
@@ -1880,7 +1880,7 @@ const TestProperty& TestResult::GetTestProperty(int i) const
 {
 	if (i < 0 || i >= test_property_count())
 		internal::posix::Abort();
-	return test_properties_.at(i);
+	return test_properties_.at((size_t)i);
 }
 
 // Clears the test part results.
@@ -2652,7 +2652,7 @@ TestCase::~TestCase()
 const TestInfo* TestCase::GetTestInfo(int i) const
 {
 	const int index = GetElementOr(test_indices_, i, -1);
-	return index < 0 ? NULL : test_info_list_[index];
+	return index < 0 ? NULL : test_info_list_[(size_t)index];
 }
 
 // Returns the i-th test among all the tests. i can range from 0 to
@@ -2660,7 +2660,7 @@ const TestInfo* TestCase::GetTestInfo(int i) const
 TestInfo* TestCase::GetMutableTestInfo(int i)
 {
 	const int index = GetElementOr(test_indices_, i, -1);
-	return index < 0 ? NULL : test_info_list_[index];
+	return index < 0 ? NULL : test_info_list_[(size_t)index];
 }
 
 // Adds a test to this test case.  Will delete the test upon
@@ -2927,7 +2927,7 @@ void ColoredPrintf(GTestColor color, const char* fmt, ...)
 	// printed but has not yet reached the console.
 	fflush(stdout);
 	SetConsoleTextAttribute(stdout_handle,
-							GetColorAttribute(color) | FOREGROUND_INTENSITY);
+							(WORD)(GetColorAttribute(color) | FOREGROUND_INTENSITY));
 	vprintf(fmt, args);
 
 	fflush(stdout);
@@ -3265,7 +3265,7 @@ TestEventListener* TestEventRepeater::Release(TestEventListener* listener)
 	{
 		if (listeners_[i] == listener)
 		{
-			listeners_.erase(listeners_.begin() + i);
+			listeners_.erase(listeners_.begin() + (ptrdiff_t)i);
 			return listener;
 		}
 	}
@@ -3295,7 +3295,7 @@ TestEventListener* TestEventRepeater::Release(TestEventListener* listener)
 		{                                                                      \
 			for (int i = static_cast<int>(listeners_.size()) - 1; i >= 0; i--) \
 			{                                                                  \
-				listeners_[i]->Name(parameter);                                \
+				listeners_[(size_t)i]->Name(parameter);                                \
 			}                                                                  \
 		}                                                                      \
 	}
@@ -3334,7 +3334,7 @@ void TestEventRepeater::OnTestIterationEnd(const UnitTest& unit_test,
 	{
 		for (int i = static_cast<int>(listeners_.size()) - 1; i >= 0; i--)
 		{
-			listeners_[i]->OnTestIterationEnd(unit_test, iteration);
+			listeners_[(size_t)i]->OnTestIterationEnd(unit_test, iteration);
 		}
 	}
 }
@@ -3561,7 +3561,7 @@ std::string XmlUnitTestResultPrinter::RemoveInvalidXmlCharacters(
 std::string FormatTimeInMillisAsSeconds(TimeInMillis ms)
 {
 	::std::stringstream ss;
-	ss << ms / 1000.0;
+	ss << (double)ms / 1000.0;
 	return ss.str();
 }
 
@@ -4205,7 +4205,7 @@ void UnitTest::AddTestPartResult(
 		for (int i = static_cast<int>(impl_->gtest_trace_stack().size());
 			 i > 0; --i)
 		{
-			const internal::TraceInfo& trace = impl_->gtest_trace_stack()[i - 1];
+			const internal::TraceInfo& trace = impl_->gtest_trace_stack()[(size_t)(i - 1)];
 			msg << "\n"
 				<< internal::FormatFileLocation(trace.file, trace.line)
 				<< " " << trace.message;
@@ -4753,7 +4753,7 @@ bool UnitTestImpl::RunAllTests()
 		// Shuffles test cases and tests if requested.
 		if (has_tests_to_run && GTEST_FLAG(shuffle))
 		{
-			random()->Reseed(random_seed_);
+			random()->Reseed((testing::internal::UInt32)random_seed_);
 			// This should be done before calling OnTestIterationStart(),
 			// such that a test event listener can see the actual test order
 			// in the event.
