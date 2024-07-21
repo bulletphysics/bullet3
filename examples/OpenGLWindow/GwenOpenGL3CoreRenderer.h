@@ -261,7 +261,7 @@ public:
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
-	Gwen::Point MeasureText(Gwen::Font* pFont, const Gwen::UnicodeString& text)
+	Gwen::Point MeasureText(Gwen::Font* /*pFont*/, const Gwen::UnicodeString& /*text*/)
 	{
 		//		BT_PROFILE("GWEN_MeasureText");
 		Gwen::String str = Gwen::Utility::UnicodeToString(text);
@@ -312,7 +312,7 @@ public:
 			return pt;
 		}
 
-		return Gwen::Renderer::Base::MeasureText(pFont, text);
+		// return Gwen::Renderer::Base::MeasureText(pFont, text);
 	}
 
 	virtual void LoadTexture(Gwen::Texture* pTexture)
