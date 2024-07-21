@@ -14,6 +14,7 @@
 #include "../Utils/b3Clock.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
+#include "LinearMath/btOverride.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #define stdvector btAlignedObjectArray
 
@@ -55,6 +56,7 @@ b3ThreadSupportInterface* createThreadSupport(int numThreads)
 
 struct SampleJobInterface
 {
+	virtual ~SampleJobInterface() {};
 	virtual void executeJob(int threadIndex) = 0;
 };
 
@@ -68,9 +70,9 @@ struct SampleJob1 : public SampleJobInterface
 		  m_jobId(jobId)
 	{
 	}
-	virtual ~SampleJob1() {}
+	virtual ~SampleJob1() BT_OVERRIDE {}
 
-	virtual void executeJob(int threadIndex)
+	virtual void executeJob(int threadIndex) BT_OVERRIDE
 	{
 		printf("start SampleJob1 %d using threadIndex %d\n", m_jobId, threadIndex);
 		//do some fake work

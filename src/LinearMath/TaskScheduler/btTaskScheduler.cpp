@@ -100,6 +100,7 @@ ThreadLocalStorage
 
 struct IJob
 {
+	virtual ~IJob() {};
 	virtual void executeJob(int threadId) = 0;
 };
 
