@@ -71,12 +71,12 @@ void Reset(Tree& tree, Jacobian* m_ikJacobian)
 
 // Update target positions
 
-void UpdateTargets(double T, Tree& /*treeY*/)
+void UpdateTargets(double t, Tree& /*treeY*/)
 {
-	targetaa[0].Set(2.0f + 1.5*sin(3 * T) * 2, -0.5 + 1.0f + 0.2*sin(7 * T) * 2, 0.3f + 0.7*sin(5 * T) * 2);
-	targetaa[1].Set(0.5f + 0.4*sin(4 * T) * 2, -0.5 + 0.9f + 0.3*sin(4 * T) * 2, -0.2f + 1.0*sin(3 * T) * 2);
-	targetaa[2].Set(-0.5f + 0.8*sin(6 * T) * 2, -0.5 + 1.1f + 0.2*sin(7 * T) * 2, 0.3f + 0.5*sin(8 * T) * 2);
-	targetaa[3].Set(-1.6f + 0.8*sin(4 * T) * 2, -0.5 + 0.8f + 0.3*sin(4 * T) * 2, -0.2f + 0.3*sin(3 * T) * 2);
+	targetaa[0].Set(2.0f + 1.5*sin(3 * t) * 2, -0.5 + 1.0f + 0.2*sin(7 * t) * 2, 0.3f + 0.7*sin(5 * t) * 2);
+	targetaa[1].Set(0.5f + 0.4*sin(4 * t) * 2, -0.5 + 0.9f + 0.3*sin(4 * t) * 2, -0.2f + 1.0*sin(3 * t) * 2);
+	targetaa[2].Set(-0.5f + 0.8*sin(6 * t) * 2, -0.5 + 1.1f + 0.2*sin(7 * t) * 2, 0.3f + 0.5*sin(8 * t) * 2);
+	targetaa[3].Set(-1.6f + 0.8*sin(4 * t) * 2, -0.5 + 0.8f + 0.3*sin(4 * t) * 2, -0.2f + 0.3*sin(3 * t) * 2);
 
 }
 

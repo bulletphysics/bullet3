@@ -167,9 +167,9 @@ public:
 
 	int btRandInt2(int n);
 
-	void setRandSeed(unsigned long seed)
+	void setRandSeed(unsigned long rseed)
 	{
-		m_btSeed2 = seed;
+		m_btSeed2 = rseed;
 	}
 	unsigned long getRandSeed() const
 	{

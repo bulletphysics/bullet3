@@ -323,7 +323,7 @@ void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* bod
 			btSoftBody* sb = btSoftBody::upcast(body);
 			if (sb)
 			{
-				int graphicsInstanceId = body->getUserIndex();
+				graphicsInstanceId = body->getUserIndex();
 				changeInstanceFlags(graphicsInstanceId, B3_INSTANCE_DOUBLE_SIDED);
 			}
 		}
@@ -1070,18 +1070,18 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 				{
 					
 					gfxVertices.resize(psb->m_renderNodes.size());
-					for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
+					for (int j = 0; j < psb->m_renderNodes.size(); j++)  // Foreach face
 					{
-						gfxVertices[i].xyzw[0] = psb->m_renderNodes[i].m_x[0];
-						gfxVertices[i].xyzw[1] = psb->m_renderNodes[i].m_x[1];
-						gfxVertices[i].xyzw[2] = psb->m_renderNodes[i].m_x[2];
-						gfxVertices[i].xyzw[3] = psb->m_renderNodes[i].m_x[3];
-						gfxVertices[i].uv[0] = psb->m_renderNodes[i].m_uv1[0];
-						gfxVertices[i].uv[1] = psb->m_renderNodes[i].m_uv1[1];
+						gfxVertices[j].xyzw[0] = psb->m_renderNodes[j].m_x[0];
+						gfxVertices[j].xyzw[1] = psb->m_renderNodes[j].m_x[1];
+						gfxVertices[j].xyzw[2] = psb->m_renderNodes[j].m_x[2];
+						gfxVertices[j].xyzw[3] = psb->m_renderNodes[j].m_x[3];
+						gfxVertices[j].uv[0] = psb->m_renderNodes[j].m_uv1[0];
+						gfxVertices[j].uv[1] = psb->m_renderNodes[j].m_uv1[1];
 						//gfxVertices[i].normal[0] = psb->m_renderNodes[i].
-						gfxVertices[i].normal[0] = psb->m_renderNodes[i].m_normal[0];
-						gfxVertices[i].normal[1] = psb->m_renderNodes[i].m_normal[1];
-						gfxVertices[i].normal[2] = psb->m_renderNodes[i].m_normal[2];
+						gfxVertices[j].normal[0] = psb->m_renderNodes[j].m_normal[0];
+						gfxVertices[j].normal[1] = psb->m_renderNodes[j].m_normal[1];
+						gfxVertices[j].normal[2] = psb->m_renderNodes[j].m_normal[2];
 					}
 				}
 				else

@@ -166,7 +166,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 		// unsigned long long int prevTime = clock.getTimeMicroseconds();
 
 #ifdef BT_ENABLE_CLSOCKET
-		b3Clock clock;
+		b3Clock clock1;
 		// double timeOutInSeconds = 10;
 
 		
@@ -355,7 +355,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										//guiHelper.setVisualizerFlag(
 										//	args->m_cmdPtr->m_visualizerFlagCommand.m_visualizerFlag,
@@ -385,23 +385,23 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 											if (pClient->Receive(args->m_cmdPtr->m_uploadDataCommand.m_numBytes))
 											{
 												//heuristic to detect disconnected clients
-												CSimpleSocket::CSocketError err = pClient->GetSocketError();
-												if (err != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
+												CSimpleSocket::CSocketError error = pClient->GetSocketError();
+												if (error != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
 												{
 													curNumErr++;
-													//printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
+													//printf("TCP Connection error = %d, curNumErr = %d\n", (int)error, curNumErr);
 												}
-												char* msg2 = (char*)pClient->GetData();
-												int numBytesRec2 = pClient->GetBytesReceived();
+												char* msg3 = (char*)pClient->GetData();
+												int numBytesRec3 = pClient->GetBytesReceived();
 												if (gVerboseNetworkMessagesServer)
-													printf("received %d bytes (total=%d)\n", numBytesRec2, received);
+													printf("received %d bytes (total=%d)\n", numBytesRec3, received);
 												
-												for (int i = 0; i < numBytesRec2; i++)
+												for (int i = 0; i < numBytesRec3; i++)
 												{
-													args->m_dataSlots[slot][i+ offset] = (unsigned char)msg2[i];
+													args->m_dataSlots[slot][i+ offset] = (unsigned char)msg3[i];
 												}
-												offset += numBytesRec2;
-												received += numBytesRec2;
+												offset += numBytesRec3;
+												received += numBytesRec3;
 											}
 										}
 										if (gVerboseNetworkMessagesServer)
@@ -416,7 +416,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										//const unsigned char* texels = (const unsigned char*)&args->m_dataSlots[0][0];
 										//args->m_serverStatus.m_registerTextureStatus.m_textureId = guiHelper.registerTexture(texels, args->m_cmdPtr->m_registerTextureCommand.m_width,
@@ -431,7 +431,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REGISTER_GRAPHICS_SHAPE\n");
@@ -442,7 +442,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 
 										if (gVerboseNetworkMessagesServer)
@@ -454,7 +454,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_SYNCHRONIZE_TRANSFORMS\n");
@@ -465,7 +465,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REMOVE_ALL_GRAPHICS_INSTANCES\n");
@@ -476,7 +476,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REMOVE_SINGLE_GRAPHICS_INSTANCE\n");
@@ -487,7 +487,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_CHANGE_RGBA_COLOR\n");
@@ -498,7 +498,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_CHANGE_SCALING\n");
@@ -510,7 +510,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										//bool RemoteGUIHelper::getCameraInfo(int* width, int* height, 
 										//	float viewMatrix[16], float projectionMatrix[16], 
@@ -547,8 +547,8 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 									}
 
 
-									// double startTimeSeconds = clock.getTimeInSeconds();
-									// double curTimeSeconds = clock.getTimeInSeconds();
+									// double startTimeSeconds = clock1.getTimeInSeconds();
+									// double curTimeSeconds = clock1.getTimeInSeconds();
 
 									if (gVerboseNetworkMessagesServer)
 									{

@@ -101,16 +101,16 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 					const char* prefix[] = {pathPrefix, "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/"};
 					int numprefix = sizeof(prefix) / sizeof(const char*);
 
-					for (int i = 0; !image && i < numprefix; i++)
+					for (int j = 0; !image && j < numprefix; j++)
 					{
-						char relativeFileName[1024];
-						sprintf(relativeFileName, "%s%s", prefix[i], filename);
+						char relativeFileName1[1024];
+						sprintf(relativeFileName1, "%s%s", prefix[j], filename);
 						char relativeFileName2[1024];
-						if (fileIO->findResourcePath(relativeFileName, relativeFileName2, 1024))
+						if (fileIO->findResourcePath(relativeFileName1, relativeFileName2, 1024))
 						{
 							if (b3IsFileCachingEnabled())
 							{
-								CachedTextureResult* texture = gCachedTextureResults[relativeFileName];
+								CachedTextureResult* texture = gCachedTextureResults[relativeFileName1];
 								if (texture)
 								{
 									image = texture->m_pixels;
@@ -128,7 +128,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 
 								b3AlignedObjectArray<char> buffer;
 								buffer.reserve(1024);
-								int fileId = fileIO->fileOpen(relativeFileName,"rb");
+								int fileId = fileIO->fileOpen(relativeFileName1,"rb");
 								if (fileId>=0)
 								{
 									int size = fileIO->getFileSize(fileId);
@@ -161,17 +161,17 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 									if (b3IsFileCachingEnabled())
 									{
 										CachedTextureResult result;
-										result.m_textureName = relativeFileName;
+										result.m_textureName = relativeFileName1;
 										result.m_width = width;
 										result.m_height = height;
 										result.m_pixels = image;
 										meshData.m_isCached = true;
-										gCachedTextureResults.insert(relativeFileName, result);
+										gCachedTextureResults.insert(relativeFileName1, result);
 									}
 								}
 								else
 								{
-									b3Warning("Unsupported texture image format [%s]\n", relativeFileName);
+									b3Warning("Unsupported texture image format [%s]\n", relativeFileName1);
 
 									break;
 								}
@@ -179,7 +179,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 						}
 						else
 						{
-							b3Warning("not found [%s]\n", relativeFileName);
+							b3Warning("not found [%s]\n", relativeFileName1);
 						}
 					}
 				}

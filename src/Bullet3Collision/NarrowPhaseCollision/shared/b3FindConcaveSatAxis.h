@@ -573,11 +573,11 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 	triAabb.m_maxVec = b3MakeFloat4(-1e30f, -1e30f, -1e30f, 0.f);
 
 	b3Float4 verticesA[3];
-	for (int i = 0; i < 3; i++)
+	for (int j = 0; j < 3; j++)
 	{
-		int index = indices[face.m_indexOffset + i];
+		int index = indices[face.m_indexOffset + j];
 		b3Float4 vert = vertices[convexShapes[shapeIndexA].m_vertexOffset + index];
-		verticesA[i] = vert;
+		verticesA[j] = vert;
 		localCenter += vert;
 
 		triAabb.m_minVec = b3MinFloat4(triAabb.m_minVec, vert);
@@ -653,9 +653,9 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 		{
 			int numVertices = 3;
 			int prevVertex = numVertices - 1;
-			for (int i = 0; i < numVertices; i++)
+			for (int j = 0; j < numVertices; j++)
 			{
-				b3Float4 v0 = verticesA[i];
+				b3Float4 v0 = verticesA[j];
 				b3Float4 v1 = verticesA[prevVertex];
 
 				b3Float4 edgeNormal = b3Normalized(b3Cross(normal, v1 - v0));
@@ -663,7 +663,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 
 				facesA[fidx].m_numIndices = 2;
 				facesA[fidx].m_indexOffset = curUsedIndices;
-				indicesA[curUsedIndices++] = i;
+				indicesA[curUsedIndices++] = j;
 				indicesA[curUsedIndices++] = prevVertex;
 
 				facesA[fidx].m_plane.x = edgeNormal.x;
@@ -671,7 +671,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 				facesA[fidx].m_plane.z = edgeNormal.z;
 				facesA[fidx].m_plane.w = c;
 				fidx++;
-				prevVertex = i;
+				prevVertex = j;
 			}
 		}
 		convexPolyhedronA.m_numFaces = B3_TRIANGLE_NUM_CONVEX_FACES;

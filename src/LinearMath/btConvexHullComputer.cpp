@@ -724,9 +724,9 @@ private:
 			freeObjects = NULL;
 		}
 
-		void setArraySize(int arraySize)
+		void setArraySize(int size)
 		{
-			this->arraySize = arraySize;
+			this->arraySize = size;
 		}
 
 		T* newObject()
@@ -1279,15 +1279,15 @@ void btConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 				return;
 			}
 			{
-				Vertex* v = originalVertices[start];
+				Vertex* vert = originalVertices[start];
 				v->edges = NULL;
-				v->next = v;
-				v->prev = v;
+				vert->next = vert;
+				vert->prev = vert;
 
-				result.minXy = v;
-				result.maxXy = v;
-				result.minYx = v;
-				result.maxYx = v;
+				result.minXy = vert;
+				result.maxXy = vert;
+				result.minYx = vert;
+				result.maxYx = vert;
 			}
 
 			return;

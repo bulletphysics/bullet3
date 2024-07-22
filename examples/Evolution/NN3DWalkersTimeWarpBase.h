@@ -788,10 +788,10 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			if (timeStep && m_dynamicsWorld)
 			{
 				// since we want to perform all proper steps, we perform no interpolated substeps
-				int subSteps = 1;
+				int subStepsL = 1;
 
 				m_dynamicsWorld->stepSimulation(btScalar(timeStep),
-												btScalar(subSteps), btScalar(fixedPhysicsStepSizeSec));
+												btScalar(subStepsL), btScalar(fixedPhysicsStepSizeSec));
 			}
 		}
 	}

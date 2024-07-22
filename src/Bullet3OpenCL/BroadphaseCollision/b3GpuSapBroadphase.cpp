@@ -407,9 +407,9 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		B3_PROFILE("assign m_objectMinMaxIndexCPU");
 		for (int axis = 0; axis < 3; axis++)
 		{
-			int totalNumAabbs = m_allAabbsCPU.size();
+			int totalNumAabbsL = m_allAabbsCPU.size();
 			int numEndPoints = m_sortedAxisCPU[axis][m_currentBuffer].size();
-			m_objectMinMaxIndexCPU[axis][m_currentBuffer].resize(totalNumAabbs);
+			m_objectMinMaxIndexCPU[axis][m_currentBuffer].resize(totalNumAabbsL);
 			for (int i = 0; i < numEndPoints; i++)
 			{
 				int destIndex = (int)m_sortedAxisCPU[axis][m_currentBuffer][i].m_value;

@@ -131,10 +131,10 @@ void TabControl::OnTabPressed(Controls::Base* control)
 
 	if (m_pCurrentButton)
 	{
-		Base* pPage = m_pCurrentButton->GetPage();
-		if (pPage)
+		Base* pPageL = m_pCurrentButton->GetPage();
+		if (pPageL)
 		{
-			pPage->SetHidden(true);
+			pPageL->SetHidden(true);
 		}
 		m_pCurrentButton = NULL;
 	}

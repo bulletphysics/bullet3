@@ -294,9 +294,9 @@ bool b3RobotSimulatorClientAPI_NoDirect::loadMJCF(const std::string& fileName, b
 	if (numBodies)
 	{
 		results.m_uniqueObjectIds.resize(numBodies);
-		int numBodies;
-		numBodies = b3GetStatusBodyIndices(statusHandle, &results.m_uniqueObjectIds[0], results.m_uniqueObjectIds.size());
-		(void)numBodies;
+		int numBodiesL;
+		numBodiesL = b3GetStatusBodyIndices(statusHandle, &results.m_uniqueObjectIds[0], results.m_uniqueObjectIds.size());
+		(void)numBodiesL;
 	}
 
 	return true;
@@ -381,9 +381,9 @@ bool b3RobotSimulatorClientAPI_NoDirect::loadBullet(const std::string& fileName,
 	if (numBodies)
 	{
 		results.m_uniqueObjectIds.resize(numBodies);
-		int numBodies;
-		numBodies = b3GetStatusBodyIndices(statusHandle, &results.m_uniqueObjectIds[0], results.m_uniqueObjectIds.size());
-		(void)numBodies;
+		int numBodiesL;
+		numBodiesL = b3GetStatusBodyIndices(statusHandle, &results.m_uniqueObjectIds[0], results.m_uniqueObjectIds.size());
+		(void)numBodiesL;
 	}
 
 	return true;
@@ -412,9 +412,9 @@ bool b3RobotSimulatorClientAPI_NoDirect::loadSDF(const std::string& fileName, b3
 		if (numBodies)
 		{
 			results.m_uniqueObjectIds.resize(numBodies);
-			int numBodies;
-			numBodies = b3GetStatusBodyIndices(statusHandle, &results.m_uniqueObjectIds[0], results.m_uniqueObjectIds.size());
-			(void)numBodies;
+			int numBodiesL;
+			numBodiesL = b3GetStatusBodyIndices(statusHandle, &results.m_uniqueObjectIds[0], results.m_uniqueObjectIds.size());
+			(void)numBodiesL;
 		}
 		statusOk = true;
 	}
@@ -1393,10 +1393,10 @@ bool b3RobotSimulatorClientAPI_NoDirect::calculateInverseDynamics(int bodyUnique
 
 	if (statusType == CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED)
 	{
-		int bodyUniqueId;
+		int bodyUniqueIdL;
 		int dofCount;
 
-		b3GetStatusInverseDynamicsJointForces(statusHandle, &bodyUniqueId, &dofCount, 0);
+		b3GetStatusInverseDynamicsJointForces(statusHandle, &bodyUniqueIdL, &dofCount, 0);
 
 		if (dofCount)
 		{

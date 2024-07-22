@@ -409,17 +409,17 @@ void Volume::Voxelize(const T* const points, const unsigned int stridePoints, co
 			++j1;
 		if (k1 < m_dim[2])
 			++k1;
-		for (size_t i = i0; i < i1; ++i)
+		for (size_t ii = i0; ii < i1; ++ii)
 		{
 			boxcenter[0] = (double)i;
-			for (size_t j = j0; j < j1; ++j)
+			for (size_t jj = j0; jj < j1; ++jj)
 			{
 				boxcenter[1] = (double)j;
-				for (size_t k = k0; k < k1; ++k)
+				for (size_t kk = k0; kk < k1; ++kk)
 				{
-					boxcenter[2] = (double)k;
+					boxcenter[2] = (double)kk;
 					int res = TriBoxOverlap(boxcenter, boxhalfsize, p[0], p[1], p[2]);
-					unsigned char& value = GetVoxel(i, j, k);
+					unsigned char& value = GetVoxel(ii, jj, kk);
 					if (res == 1 && value == PRIMITIVE_UNDEFINED)
 					{
 						value = PRIMITIVE_ON_SURFACE;

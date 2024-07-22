@@ -123,12 +123,12 @@ void SampleThreadFunc(void* userPtr, void* lsMemory)
 
 	SampleThreadLocalStorage* localStorage = (SampleThreadLocalStorage*)lsMemory;
 
-	SampleArgs* args = (SampleArgs*)userPtr;
+	SampleArgs* sampleArgs = (SampleArgs*)userPtr;
 
 	bool requestExit = false;
 	while (!requestExit)
 	{
-		SampleJobInterface* job = args->consumeJob();
+		SampleJobInterface* job = sampleArgs->consumeJob();
 		if (job)
 		{
 			job->executeJob(localStorage->threadId);
@@ -136,10 +136,10 @@ void SampleThreadFunc(void* userPtr, void* lsMemory)
 
 		b3Clock::usleep(250);
 
-		args->m_cs->lock();
-		int exitMagicNumber = (int)args->m_cs->getSharedParam(1);
+		sampleArgs->m_cs->lock();
+		int exitMagicNumber = (int)sampleArgs->m_cs->getSharedParam(1);
 		requestExit = (exitMagicNumber == MAGIC_RESET_NUMBER);
-		args->m_cs->unlock();
+		sampleArgs->m_cs->unlock();
 	}
 
 	printf("finished\n");

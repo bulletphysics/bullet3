@@ -1003,23 +1003,23 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				}
 			}
 			{
-				XMLElement* damping_xml = ci->FirstChildElement("damping");
-				if (damping_xml)
+				XMLElement* damping_xml_node = ci->FirstChildElement("damping");
+				if (damping_xml_node)
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml->GetText());
+						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml_node->GetText());
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 					else
 					{
-						if (!damping_xml->Attribute("value"))
+						if (!damping_xml_node->Attribute("value"))
 						{
 							logger->reportError("Link/contact: damping element must have value attribute");
 							return false;
 						}
 
-						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml->Attribute("value"));
+						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml_node->Attribute("value"));
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 				}

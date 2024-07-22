@@ -230,21 +230,21 @@ void TimeSeriesCanvas::shift1PixelToLeft()
 	}
 
 	{
-		int resetVal = 2;
-		static int countdown = resetVal;
-		if (!countdown--)
+		int resetValL = 2;
+		static int countdownL = resetValL;
+		if (!countdownL--)
 		{
-			countdown = resetVal;
+			countdownL = resetValL;
 			m_internalData->m_canvasInterface->setPixel(m_internalData->m_canvasIndex, m_internalData->m_width - 1, m_internalData->m_zero, 0, 0, 0, 255);
 		}
 	}
 
 	{
-		int resetVal = 10;
-		static int countdown = resetVal;
-		if (!countdown--)
+		int resetValL = 10;
+		static int countdownL = resetValL;
+		if (!countdownL--)
 		{
-			countdown = resetVal;
+			countdownL = resetValL;
 			float zeroPixelCoord = m_internalData->m_zero;
 			float pixelsPerUnit = m_internalData->m_pixelsPerUnit;
 

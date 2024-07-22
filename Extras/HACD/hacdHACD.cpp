@@ -284,9 +284,9 @@ void HACD::InitializeDualGraph()
 			}
 		}
 	}
-	for (size_t v = 0; v < m_nPoints; v++)
+	for (size_t p = 0; p < m_nPoints; p++)
 	{
-		m_normals[v].Normalize();
+		m_normals[p].Normalize();
 	}
 }
 
@@ -454,13 +454,13 @@ void HACD::ComputeEdgeCost(size_t e)
 	if (ch->IsFlat())
 	{
 		bool insideHull;
-		std::map<long, DPoint>::iterator itDP(gE.m_distPoints.begin());
-		std::map<long, DPoint>::iterator itDPEnd(gE.m_distPoints.end());
-		for (; itDP != itDPEnd; ++itDP)
+		std::map<long, DPoint>::iterator iterDP(gE.m_distPoints.begin());
+		std::map<long, DPoint>::iterator iterDPEnd(gE.m_distPoints.end());
+		for (; iterDP != iterDPEnd; ++iterDP)
 		{
-			if (itDP->first >= 0)
+			if (iterDP->first >= 0)
 			{
-				concavity = std::max<double>(concavity, ch->ComputeDistance(itDP->first, m_points[itDP->first], m_normals[itDP->first], insideHull, false));
+				concavity = std::max<double>(concavity, ch->ComputeDistance(iterDP->first, m_points[iterDP->first], m_normals[iterDP->first], insideHull, false));
 			}
 		}
 	}
@@ -497,21 +497,21 @@ void HACD::ComputeEdgeCost(size_t e)
 				if (c > 0)
 				{
 					GraphVertex& gVC = m_graph.m_vertices[(size_t)c];
-					std::map<long, DPoint>::iterator itDP(gVC.m_distPoints.begin());
-					std::map<long, DPoint>::iterator itDPEnd(gVC.m_distPoints.end());
-					std::map<long, DPoint>::iterator itDP1;
-					for (; itDP != itDPEnd; ++itDP)
+					std::map<long, DPoint>::iterator iterDP(gVC.m_distPoints.begin());
+					std::map<long, DPoint>::iterator iterDPEnd(gVC.m_distPoints.end());
+					std::map<long, DPoint>::iterator iterDP1;
+					for (; iterDP != iterDPEnd; ++iterDP)
 					{
-						itDP1 = gE.m_distPoints.find(itDP->first);
-						if (itDP1 == gE.m_distPoints.end())
+						iterDP1 = gE.m_distPoints.find(iterDP->first);
+						if (iterDP1 == gE.m_distPoints.end())
 						{
-							if (itDP->first >= 0 && itDP1 == gE.m_distPoints.end() && ch->IsInside(m_points[itDP->first]))
+							if (iterDP->first >= 0 && iterDP1 == gE.m_distPoints.end() && ch->IsInside(m_points[iterDP->first]))
 							{
-								gE.m_distPoints[itDP->first].m_distOnly = true;
+								gE.m_distPoints[iterDP->first].m_distOnly = true;
 							}
-							else if (itDP->first < 0 && ch->IsInside(m_facePoints[-itDP->first - 1]))
+							else if (iterDP->first < 0 && ch->IsInside(m_facePoints[-iterDP->first - 1]))
 							{
-								gE.m_distPoints[itDP->first].m_distOnly = true;
+								gE.m_distPoints[iterDP->first].m_distOnly = true;
 							}
 						}
 					}
@@ -653,9 +653,9 @@ void HACD::Simplify()
 		{
 			if (m_callBack)
 			{
-				char msg[1024];
-				sprintf(msg, "\t CH \t %lu \t %f \t %f\n", static_cast<unsigned long>(p), m_graph.m_vertices[v].m_concavity, m_graph.m_vertices[v].m_error);
-				(*m_callBack)(msg, 0.0, 0.0, m_nClusters);
+				char message[1024];
+				sprintf(message, "\t CH \t %lu \t %f \t %f\n", static_cast<unsigned long>(p), m_graph.m_vertices[v].m_concavity, m_graph.m_vertices[v].m_error);
+				(*m_callBack)(message, 0.0, 0.0, m_nClusters);
 				p++;
 			}
 			m_cVertices.push_back(static_cast<long>(v));

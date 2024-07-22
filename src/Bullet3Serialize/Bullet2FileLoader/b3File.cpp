@@ -313,7 +313,6 @@ void bFile::swap(char *head, bChunkInd &dataChunk, bool ignoreEndianFlag)
 
 void bFile::swapLen(char *dataPtr)
 {
-	const bool VOID_IS_8 = ((sizeof(void *) == 8));
 	if (VOID_IS_8)
 	{
 		if (mFlags & FD_BITS_VARIES)
@@ -1047,7 +1046,7 @@ void bFile::swapStruct(int dna_nr, char *data, bool ignoreEndianFlag)
 			else
 			{
 				char *tmpBuf = buf;
-				for (int i = 0; i < arrayLen; i++)
+				for (int j = 0; j < arrayLen; j++)
 				{
 					swapStruct(old_nr, tmpBuf, ignoreEndianFlag);
 					tmpBuf += size / arrayLen;
@@ -1240,7 +1239,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 				char cleanName[MAX_STRLEN];
 				getCleanName(memName, cleanName);
 
-				int arrayLen = fileDna->getArraySizeNew(oldStruct[1]);
+				int arrayLength = fileDna->getArraySizeNew(oldStruct[1]);
 				int byteOffset = 0;
 
 				if (verboseMode & FD_VERBOSE_EXPORT_XML)
@@ -1250,9 +1249,9 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 						printf("  ");
 					}
 
-					if (arrayLen > 1)
+					if (arrayLength > 1)
 					{
-						printf("<%s type=\"%s\" count=%d>\n", cleanName, memType, arrayLen);
+						printf("<%s type=\"%s\" count=%d>\n", cleanName, memType, arrayLength);
 					}
 					else
 					{
@@ -1260,7 +1259,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 					}
 				}
 
-				for (int i = 0; i < arrayLen; i++)
+				for (int i = 0; i < arrayLength; i++)
 				{
 					byteOffset += resolvePointersStructRecursive(elemPtr + byteOffset, revType, verboseMode, recursion + 1);
 				}

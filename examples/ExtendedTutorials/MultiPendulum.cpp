@@ -251,13 +251,13 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 				parentSphere->getWorldTransform().getOrigin()));
 		constraintPivotInJointSphereRF.setOrigin(parentSphereInJointSphereRF);
 
-		btPoint2PointConstraint* p2pconst = new btPoint2PointConstraint(
+		btPoint2PointConstraint* p2pconstraint = new btPoint2PointConstraint(
 			*parentSphere, *jointSphere, constraintPivotInParentSphereRF.getOrigin(), constraintPivotInJointSphereRF.getOrigin());
 
-		p2pconst->setDbgDrawSize(btScalar(5.f));  // set the size of the debug drawing
+		p2pconstraint->setDbgDrawSize(btScalar(5.f));  // set the size of the debug drawing
 
 		// add the constraint to the world
-		m_dynamicsWorld->addConstraint(p2pconst, true);
+		m_dynamicsWorld->addConstraint(p2pconstraint, true);
 
 		// create a slider constraint to change the length of the pendula while it swings
 

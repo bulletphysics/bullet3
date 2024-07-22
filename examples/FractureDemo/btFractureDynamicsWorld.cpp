@@ -406,10 +406,10 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 		int idx;
 		for (idx = startIslandIndex; idx < endIslandIndex; idx++)
 		{
-			int i = unionFind.getElement(idx).m_sz;
+			int ii = unionFind.getElement(idx).m_sz;
 			//		btCollisionShape* shape = compound->getChildShape(i);
-			newCompound->addChildShape(compound->getChildTransform(i), compound->getChildShape(i));
-			masses.push_back(fracObj->m_masses[i]);
+			newCompound->addChildShape(compound->getChildTransform(ii), compound->getChildShape(ii));
+			masses.push_back(fracObj->m_masses[ii]);
 			numShapes++;
 		}
 		if (numShapes)

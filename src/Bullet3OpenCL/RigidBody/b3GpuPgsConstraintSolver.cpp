@@ -721,14 +721,14 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyIterations(b3OpenCLArr
 							if (constraint->m_flags & B3_CONSTRAINT_FLAG_ENABLED)
 							{
 								int numConstraintRows = (int)m_gpuData->m_cpuConstraintInfo1[c.m_originalConstraintIndex];
-								int constraintOffset = (int)m_gpuData->m_cpuConstraintRowOffsets[c.m_originalConstraintIndex];
+								int constraintOffsetL = (int)m_gpuData->m_cpuConstraintRowOffsets[c.m_originalConstraintIndex];
 
 								for (int jj = 0; jj < numConstraintRows; jj++)
 								{
 									//
-									b3GpuSolverConstraint& constraint = m_tmpSolverNonContactConstraintPool[constraintOffset + jj];
-									//resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
-									resolveSingleConstraintRowGeneric2(&m_tmpSolverBodyPool[constraint.m_solverBodyIdA], &m_tmpSolverBodyPool[constraint.m_solverBodyIdB], &constraint);
+									b3GpuSolverConstraint& constraintL = m_tmpSolverNonContactConstraintPool[constraintOffsetL + jj];
+									//resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[constraintL.m_solverBodyIdA],m_tmpSolverBodyPool[constraintL.m_solverBodyIdB],constraintL);
+									resolveSingleConstraintRowGeneric2(&m_tmpSolverBodyPool[constraintL.m_solverBodyIdA], &m_tmpSolverBodyPool[constraintL.m_solverBodyIdB], &constraintL);
 								}
 							}
 						}
@@ -881,8 +881,8 @@ inline int b3GpuPgsConstraintSolver::sortConstraintByBatch3(b3BatchConstraint* c
 						if (nCurrentBatch == simdWidth)
 						{
 							nCurrentBatch = 0;
-							for (int i = 0; i < curBodyUsed; i++)
-								bodyUsed[curUsed[i] / 32] = 0;
+							for (int j = 0; j < curBodyUsed; j++)
+								bodyUsed[curUsed[j] / 32] = 0;
 							curBodyUsed = 0;
 						}
 					}

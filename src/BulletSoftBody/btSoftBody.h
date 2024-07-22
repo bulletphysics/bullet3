@@ -1325,12 +1325,11 @@ public:
 			for (int i = 0; i < m_faceNodeContacts.size(); ++i)
 				indices[i] = i;
 #define NEXTRAND (seed = (1664525L * seed + 1013904223L) & 0xffffffff)
-			int i, ni;
-
-			for (i = 0, ni = indices.size(); i < ni; ++i)
+			for (int i = 0, ni = indices.size(); i < ni; ++i)
 			{
 				btSwap(indices[i], indices[(int)(NEXTRAND % ni)]);
 			}
+#undef NEXTRAND
 		}
 		for (int k = 0; k < m_faceNodeContacts.size(); ++k)
 		{

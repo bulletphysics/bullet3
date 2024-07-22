@@ -673,17 +673,17 @@ btTransform ConvertURDF2BulletInternal(
 				}
 				world1->addCollisionObject(col, collisionFilterGroup, collisionFilterMask);
 
-				btVector4 color2 = (flags & CUF_GOOGLEY_UNDEFINED_COLORS) ? selectColor2() : btVector4(1, 1, 1, 1);
+				btVector4 color2L = (flags & CUF_GOOGLEY_UNDEFINED_COLORS) ? selectColor2() : btVector4(1, 1, 1, 1);
 				btVector3 specularColor(1, 1, 1);
 				UrdfMaterialColor matCol;
 				if (u2b.getLinkColor2(urdfLinkIndex, matCol))
 				{
-					color2 = matCol.m_rgbaColor;
+					color2L = matCol.m_rgbaColor;
 					specularColor = matCol.m_specularColor;
 				}
 				{
 					B3_PROFILE("createCollisionObjectGraphicsInstance2");
-					creation.createCollisionObjectGraphicsInstance2(urdfLinkIndex, col, color2, specularColor);
+					creation.createCollisionObjectGraphicsInstance2(urdfLinkIndex, col, color2L, specularColor);
 				}
 				{
 					B3_PROFILE("convertLinkVisualShapes2");
@@ -849,15 +849,15 @@ void ConvertURDF2Bullet(
 
 		for (int i = 0; i < allIndices.size(); i++)
 		{
-			int urdfLinkIndex = allIndices[i].m_index;
+			int urdfLinkIndexL = allIndices[i].m_index;
 			int parentIndex = allIndices[i].m_parentIndex;
 			btTransform parentTr = parentIndex >= 0 ? parentTransforms[parentIndex] : rootTransformInWorldSpace;
-			btTransform tr = ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex, parentTr , world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
-			if ((urdfLinkIndex+1) >= parentTransforms.size())
+			btTransform tr = ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndexL, parentTr , world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
+			if ((urdfLinkIndexL+1) >= parentTransforms.size())
 			{
-				parentTransforms.resize(urdfLinkIndex + 1);
+				parentTransforms.resize(urdfLinkIndexL + 1);
 			}
-			parentTransforms[urdfLinkIndex] = tr;
+			parentTransforms[urdfLinkIndexL] = tr;
 		}
 		
 

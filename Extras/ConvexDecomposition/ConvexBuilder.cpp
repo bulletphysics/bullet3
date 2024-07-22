@@ -207,10 +207,10 @@ bool ConvexBuilder::combineHulls(void)
 					++i;
 					while (i != mChulls.size())
 					{
-						CHull *cr = mChulls[i];
-						if (cr != match)
+						CHull *ch = mChulls[i];
+						if (ch != match)
 						{
-							output.push_back(cr);
+							output.push_back(ch);
 						}
 						i++;
 					}
@@ -283,9 +283,9 @@ unsigned int ConvexBuilder::process(const ConvexDecomposition::DecompDesc &desc)
 			hdesc.SetHullFlag(ConvexDecomposition::QF_SKIN_WIDTH);  // do skin width computation.
 		}
 
-		ConvexDecomposition::HullError ret = hl.CreateConvexHull(hdesc, result);
+		ConvexDecomposition::HullError retCreate = hl.CreateConvexHull(hdesc, result);
 
-		if (ret == ConvexDecomposition::QE_OK)
+		if (retCreate == ConvexDecomposition::QE_OK)
 		{
 			ConvexDecomposition::ConvexResult r(result.mNumOutputVertices, result.mOutputVertices, result.mNumFaces, result.mIndices);
 

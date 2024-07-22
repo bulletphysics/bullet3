@@ -485,17 +485,17 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 
 				int baseIndex = glmesh->m_vertices->size();
 
-				for (int i = 0; i < gfxShape->m_vertices->size(); i++)
+				for (int j = 0; j < gfxShape->m_vertices->size(); j++)
 				{
-					verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-					verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-					verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-					verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-					verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-					verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-					verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-					verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-					verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+					verts[j].normal[0] = gfxShape->m_vertices->at(j).normal[0];
+					verts[j].normal[1] = gfxShape->m_vertices->at(j).normal[1];
+					verts[j].normal[2] = gfxShape->m_vertices->at(j).normal[2];
+					verts[j].uv[0] = gfxShape->m_vertices->at(j).uv[0];
+					verts[j].uv[1] = gfxShape->m_vertices->at(j).uv[1];
+					verts[j].xyzw[0] = gfxShape->m_vertices->at(j).xyzw[0];
+					verts[j].xyzw[1] = gfxShape->m_vertices->at(j).xyzw[1];
+					verts[j].xyzw[2] = gfxShape->m_vertices->at(j).xyzw[2];
+					verts[j].xyzw[3] = gfxShape->m_vertices->at(j).xyzw[3];
 				}
 
 				int curNumIndices = glmesh->m_indices->size();

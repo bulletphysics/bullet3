@@ -504,9 +504,9 @@ void selectDemo(int demoIndex)
 
 #include <stdio.h>
 
-static void saveCurrentSettings(int /*currentEntry*/, const char* startFileName)
+static void saveCurrentSettings(int /*currentEntry*/, const char* startFileNameL)
 {
-	FILE* f = fopen(startFileName, "w");
+	FILE* f = fopen(startFileNameL, "w");
 	if (f)
 	{
 		fprintf(f, "--start_demo_name=%s\n", gAllExamples->getExampleName(sCurrentDemoIndex));
@@ -536,10 +536,10 @@ static void saveCurrentSettings(int /*currentEntry*/, const char* startFileName)
 	}
 }
 
-static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& args)
+static void loadCurrentSettings(const char* startFileNameL, b3CommandLineArgs& args)
 {
 	//int currentEntry= 0;
-	FILE* f = fopen(startFileName, "r");
+	FILE* f = fopen(startFileNameL, "r");
 	if (f)
 	{
 		char oneline[1024];

@@ -80,15 +80,15 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 					{
 						case 'I':
 						{
-							size_t s = fread(blaat, sizeof(int), 1, f);
-							if (s != 1)
+							size_t n = fread(blaat, sizeof(int), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								retVal = eCorruptValue;
 								break;
 							}
 							int v = (int)*(unsigned int*)blaat;
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{
@@ -100,15 +100,15 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 						}
 						case 'i':
 						{
-							size_t s = fread(blaat, sizeof(int), 1, f);
-							if (s != 1)
+							size_t n = fread(blaat, sizeof(int), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								retVal = eCorruptValue;
 								break;
 							}
 							int v = *(int*)blaat;
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{
@@ -121,14 +121,14 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 						case 'f':
 						{
 							float v;
-							size_t s = fread(&v, sizeof(float), 1, f);
-							if (s != 1)
+							size_t n = fread(&v, sizeof(float), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								break;
 							}
 
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{
@@ -141,13 +141,13 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 						case 'B':
 						{
 							char v;
-							size_t s = fread(&v, sizeof(char), 1, f);
-							if (s != 1)
+							size_t n = fread(&v, sizeof(char), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								break;
 							}
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{

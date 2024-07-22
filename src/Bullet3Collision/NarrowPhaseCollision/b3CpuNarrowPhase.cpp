@@ -281,9 +281,9 @@ int b3CpuNarrowPhase::registerConvexHullShapeInternal(b3ConvexUtility* convexPtr
 	convex.m_vertexOffset = vertexOffset;
 
 	m_data->m_convexVertices.resize(vertexOffset + convex.m_numVertices);
-	for (int i = 0; i < convexPtr->m_vertices.size(); i++)
+	for (int j = 0; j < convexPtr->m_vertices.size(); j++)
 	{
-		m_data->m_convexVertices[vertexOffset + i] = convexPtr->m_vertices[i];
+		m_data->m_convexVertices[vertexOffset + j] = convexPtr->m_vertices[j];
 	}
 
 	(m_data->m_convexData)[m_data->m_numAcceleratedShapes] = convexPtr;

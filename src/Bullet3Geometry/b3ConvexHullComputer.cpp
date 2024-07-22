@@ -728,9 +728,9 @@ private:
 			freeObjects = NULL;
 		}
 
-		void setArraySize(int arraySize)
+		void setArraySize(int size)
 		{
-			this->arraySize = arraySize;
+			this->arraySize = size;
 		}
 
 		T* newObject()

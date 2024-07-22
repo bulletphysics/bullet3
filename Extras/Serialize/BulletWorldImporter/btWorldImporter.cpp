@@ -378,9 +378,9 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 			{
 				shape->setMargin(bsd->m_collisionMargin);
 
-				btVector3 localScaling;
-				localScaling.deSerializeFloat(bsd->m_localScaling);
-				shape->setLocalScaling(localScaling);
+				btVector3 localScale;
+				localScale.deSerializeFloat(bsd->m_localScaling);
+				shape->setLocalScaling(localScale);
 			}
 			break;
 		}

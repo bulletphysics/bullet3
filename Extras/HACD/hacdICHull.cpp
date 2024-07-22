@@ -175,11 +175,11 @@ ICHullError ICHull::Process()
 		m_mesh.m_vertices.Delete(m_dummyVertex);
 		m_dummyVertex = 0;
 		size_t nV = m_mesh.GetNVertices();
-		CircularList<TMMVertex> &vertices = m_mesh.GetVertices();
+		CircularList<TMMVertex> &verts = m_mesh.GetVertices();
 		for (size_t v = 0; v < nV; ++v)
 		{
-			vertices.GetData().m_tag = false;
-			vertices.Next();
+			verts.GetData().m_tag = false;
+			verts.Next();
 		}
 		CleanEdges();
 		CleanTriangles();
@@ -312,11 +312,11 @@ ICHullError ICHull::Process(unsigned long nPointsCH)
 		m_mesh.m_vertices.Delete(m_dummyVertex);
 		m_dummyVertex = 0;
 		size_t nV = m_mesh.GetNVertices();
-		CircularList<TMMVertex> &vertices = m_mesh.GetVertices();
+		CircularList<TMMVertex> &verts = m_mesh.GetVertices();
 		for (size_t v = 0; v < nV; ++v)
 		{
-			vertices.GetData().m_tag = false;
-			vertices.Next();
+			verts.GetData().m_tag = false;
+			verts.Next();
 		}
 		CleanEdges();
 		CleanTriangles();
@@ -951,7 +951,7 @@ double ICHull::ComputeDistance(long name, const Vec3<Real> &pt, const Vec3<Real>
 	}
 	else
 	{
-		Vec3<double> ptNormal(static_cast<double>(normal.X()),
+		Vec3<double> pointNormal(static_cast<double>(normal.X()),
 							  static_cast<double>(normal.Y()),
 							  static_cast<double>(normal.Z()));
 
@@ -989,7 +989,7 @@ double ICHull::ComputeDistance(long name, const Vec3<Real> &pt, const Vec3<Real>
 				ver2.X() = currentTriangle.m_vertices[2]->GetData().m_pos.X();
 				ver2.Y() = currentTriangle.m_vertices[2]->GetData().m_pos.Y();
 				ver2.Z() = currentTriangle.m_vertices[2]->GetData().m_pos.Z();
-				nhit = IntersectRayTriangle(p0, ptNormal, ver0, ver1, ver2, dist);
+				nhit = IntersectRayTriangle(p0, pointNormal, ver0, ver1, ver2, dist);
 			}
 
 			if (nhit == 1 && distance <= dist)

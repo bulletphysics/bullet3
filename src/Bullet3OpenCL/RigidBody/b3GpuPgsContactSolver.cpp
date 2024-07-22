@@ -675,7 +675,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 		csCfg.m_batchCellSize = 6;
 		csCfg.m_staticIdx = static0Index;
 
-		b3OpenCLArray<b3RigidBodyData>* bodyBuf = m_data->m_bodyBufferGPU;
+		b3OpenCLArray<b3RigidBodyData>* bodyBuffer = m_data->m_bodyBufferGPU;
 
 		void* additionalData = 0;  //m_data->m_frictionCGPU;
 		const b3OpenCLArray<b3InertiaData>* shapeBuf = m_data->m_inertiaBufferGPU;
@@ -703,10 +703,10 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 				B3_PROFILE("batching");
 				//@todo: just reserve it, without copy of original contact (unless we use warmstarting)
 
-				//const b3OpenCLArray<b3RigidBodyData>* bodyNative = bodyBuf;
+				//const b3OpenCLArray<b3RigidBodyData>* bodyNative = bodyBuffer;
 
 				{
-					//b3OpenCLArray<b3RigidBodyData>* bodyNative = b3OpenCLArrayUtils::map<adl::TYPE_CL, true>( data->m_device, bodyBuf );
+					//b3OpenCLArray<b3RigidBodyData>* bodyNative = b3OpenCLArrayUtils::map<adl::TYPE_CL, true>( data->m_device, bodyBuffer );
 					//b3OpenCLArray<b3Contact4>* contactNative = b3OpenCLArrayUtils::map<adl::TYPE_CL, true>( data->m_device, contactsIn );
 
 					const int sortAlignment = 512;  // todo. get this out of sort
@@ -739,7 +739,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 
 							m_data->m_solverGPU->m_sortDataBuffer->resize((size_t)nContacts);
 
-							b3BufferInfoCL bInfo[] = {b3BufferInfoCL(m_data->m_pBufContactOutGPU->getBufferCL()), b3BufferInfoCL(bodyBuf->getBufferCL()), b3BufferInfoCL(m_data->m_solverGPU->m_sortDataBuffer->getBufferCL())};
+							b3BufferInfoCL bInfo[] = {b3BufferInfoCL(m_data->m_pBufContactOutGPU->getBufferCL()), b3BufferInfoCL(bodyBuffer->getBufferCL()), b3BufferInfoCL(m_data->m_solverGPU->m_sortDataBuffer->getBufferCL())};
 							b3LauncherCL launcher(m_data->m_queue, m_data->m_solverGPU->m_setSortDataKernel, "m_setSortDataKernel");
 							launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
 							launcher.setConst(cdata.m_nContacts);
@@ -758,7 +758,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 							b3AlignedObjectArray<b3Contact4> contactCPU;
 							m_data->m_pBufContactOutGPU->copyToHost(contactCPU);
 							b3AlignedObjectArray<b3RigidBodyData> bodiesCPU;
-							bodyBuf->copyToHost(bodiesCPU);
+							bodyBuffer->copyToHost(bodiesCPU);
 							float scale = 1.f / csCfg.m_batchCellSize;
 							b3Int4 nSplit;
 							nSplit.x = B3_SOLVER_N_SPLIT_X;
@@ -1037,7 +1037,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 		if (nContacts)
 		{
 			B3_PROFILE("gpu convertToConstraints");
-			m_data->m_solverGPU->convertToConstraints(bodyBuf,
+			m_data->m_solverGPU->convertToConstraints(bodyBuffer,
 													  shapeBuf, m_data->m_solverGPU->m_contactBuffer2,
 													  contactConstraintOut,
 													  additionalData, nContacts,
@@ -1190,7 +1190,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, i
 						if (nCurrentBatch == simdWidth)
 						{
 							nCurrentBatch = 0;
-							for (int i = 0; i < N_FLG / 32; i++) flg[i] = 0;
+							for (int j = 0; j < N_FLG / 32; j++) flg[j] = 0;
 						}
 					}
 				}
@@ -1340,8 +1340,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch2(b3Contact4* cs, int num
 						if (nCurrentBatch == simdWidth)
 						{
 							nCurrentBatch = 0;
-							for (int i = 0; i < curBodyUsed; i++)
-								bodyUsed2[i] = 0;
+							for (int j = 0; j < curBodyUsed; j++)
+								bodyUsed2[j] = 0;
 
 							curBodyUsed = 0;
 						}
@@ -1492,8 +1492,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch3(b3Contact4* cs, int num
 						{
 							batchSizes[batchIdx] += simdWidth;
 							nCurrentBatch = 0;
-							for (int i = 0; i < curBodyUsed; i++)
-								bodyUsed[curUsed[i] / 32] = 0;
+							for (int j = 0; j < curBodyUsed; j++)
+								bodyUsed[curUsed[j] / 32] = 0;
 							curBodyUsed = 0;
 						}
 					}

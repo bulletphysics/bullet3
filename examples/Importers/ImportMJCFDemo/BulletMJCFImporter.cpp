@@ -2029,17 +2029,17 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 						int baseIndex = glmesh->m_vertices->size();
 
-						for (int i = 0; i < gfxShape->m_vertices->size(); i++)
+						for (int j = 0; j < gfxShape->m_vertices->size(); j++)
 						{
-							verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-							verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-							verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-							verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-							verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-							verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-							verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-							verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-							verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+							verts[j].normal[0] = gfxShape->m_vertices->at(j).normal[0];
+							verts[j].normal[1] = gfxShape->m_vertices->at(j).normal[1];
+							verts[j].normal[2] = gfxShape->m_vertices->at(j).normal[2];
+							verts[j].uv[0] = gfxShape->m_vertices->at(j).uv[0];
+							verts[j].uv[1] = gfxShape->m_vertices->at(j).uv[1];
+							verts[j].xyzw[0] = gfxShape->m_vertices->at(j).xyzw[0];
+							verts[j].xyzw[1] = gfxShape->m_vertices->at(j).xyzw[1];
+							verts[j].xyzw[2] = gfxShape->m_vertices->at(j).xyzw[2];
+							verts[j].xyzw[3] = gfxShape->m_vertices->at(j).xyzw[3];
 						}
 
 						int curNumIndices = glmesh->m_indices->size();
@@ -2373,10 +2373,10 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 						}
 						btCylinderShapeZ* cyl = new btCylinderShapeZ(btVector3(col->m_geometry.m_capsuleRadius, col->m_geometry.m_capsuleRadius, btScalar(0.5) * height));
 
-						btCompoundShape* compound = new btCompoundShape();
+						btCompoundShape* compoundShape = new btCompoundShape();
 						btTransform localTransform(localOrn, localPosition);
-						compound->addChildShape(localTransform, cyl);
-						childShape = compound;
+						compoundShape->addChildShape(localTransform, cyl);
+						childShape = compoundShape;
 					}
 					else
 					{
@@ -2432,12 +2432,12 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 						//convex->setUserIndex(shapeId);
 						btAlignedObjectArray<btVector3> convertedVerts;
 						convertedVerts.reserve(glmesh->m_numvertices);
-						for (int i = 0; i < glmesh->m_numvertices; i++)
+						for (int j = 0; j < glmesh->m_numvertices; j++)
 						{
 							convertedVerts.push_back(btVector3(
-								glmesh->m_vertices->at(i).xyzw[0] * col->m_geometry.m_meshScale[0],
-								glmesh->m_vertices->at(i).xyzw[1] * col->m_geometry.m_meshScale[1],
-								glmesh->m_vertices->at(i).xyzw[2] * col->m_geometry.m_meshScale[2]));
+								glmesh->m_vertices->at(j).xyzw[0] * col->m_geometry.m_meshScale[0],
+								glmesh->m_vertices->at(j).xyzw[1] * col->m_geometry.m_meshScale[1],
+								glmesh->m_vertices->at(j).xyzw[2] * col->m_geometry.m_meshScale[2]));
 						}
 
 						if (col->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
@@ -2445,11 +2445,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							btTriangleMesh* meshInterface = new btTriangleMesh();
 							m_data->m_allocatedMeshInterfaces.push_back(meshInterface);
 
-							for (int i = 0; i < glmesh->m_numIndices / 3; i++)
+							for (int j = 0; j < glmesh->m_numIndices / 3; j++)
 							{
-								float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3)).xyzw;
-								float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 1)).xyzw;
-								float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 2)).xyzw;
+								float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(j * 3)).xyzw;
+								float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(j * 3 + 1)).xyzw;
+								float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(j * 3 + 2)).xyzw;
 								meshInterface->addTriangle(btVector3(v0[0], v0[1], v0[2]),
 														   btVector3(v1[0], v1[1], v1[2]),
 														   btVector3(v2[0], v2[1], v2[2]));
@@ -2499,10 +2499,10 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							}
 							btCapsuleShapeZ* capsule = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius, height);
 
-							btCompoundShape* compound = new btCompoundShape();
+							btCompoundShape* compoundShape = new btCompoundShape();
 							btTransform localTransform(localOrn, localPosition);
-							compound->addChildShape(localTransform, capsule);
-							childShape = compound;
+							compoundShape->addChildShape(localTransform, capsule);
+							childShape = compoundShape;
 						}
 						else
 						{

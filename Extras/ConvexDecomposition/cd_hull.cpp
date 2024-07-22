@@ -2367,9 +2367,9 @@ int maxdirsterid(const T *p, int count, const T &dir, Array<int> &allow)
 				int mc = ma;
 				for (float xx = x - 40.0f; xx <= x; xx += 5.0f)
 				{
-					float s = sinf(DEG2RAD * (xx));
-					float c = cosf(DEG2RAD * (xx));
-					int md = maxdirfiltered(p, count, dir + (u * s + v * c) * 0.025f, allow);
+					float sin = sinf(DEG2RAD * (xx));
+					float cos = cosf(DEG2RAD * (xx));
+					int md = maxdirfiltered(p, count, dir + (u * sin + v * cos) * 0.025f, allow);
 					if (mc == m && md == m)
 					{
 						allow[m] = 3;
@@ -3230,11 +3230,11 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 				float y = v[1];
 				float z = v[2];
 
-				float dx = fabsf(x - px);
-				float dy = fabsf(y - py);
-				float dz = fabsf(z - pz);
+				float dxL = fabsf(x - px);
+				float dyL = fabsf(y - py);
+				float dzL = fabsf(z - pz);
 
-				if (dx < normalepsilon && dy < normalepsilon && dz < normalepsilon)
+				if (dxL < normalepsilon && dyL < normalepsilon && dzL < normalepsilon)
 				{
 					// ok, it is close enough to the old one
 					// now let us see if it is further from the center of the point cloud than the one we already recorded.
@@ -3268,54 +3268,54 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 	// ok..now make sure we didn't prune so many vertices it is now invalid.
 	if (1)
 	{
-		float bmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
-		float bmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+		float bbmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
+		float bbmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
 		for (unsigned int i = 0; i < vcount; i++)
 		{
 			const float *p = &vertices[i * 3];
 			for (int j = 0; j < 3; j++)
 			{
-				if (p[j] < bmin[j]) bmin[j] = p[j];
-				if (p[j] > bmax[j]) bmax[j] = p[j];
+				if (p[j] < bbmin[j]) bbmin[j] = p[j];
+				if (p[j] > bbmax[j]) bbmax[j] = p[j];
 			}
 		}
 
-		float dx = bmax[0] - bmin[0];
-		float dy = bmax[1] - bmin[1];
-		float dz = bmax[2] - bmin[2];
+		float dxL = bbmax[0] - bbmin[0];
+		float dyL = bbmax[1] - bbmin[1];
+		float dzL = bbmax[2] - bbmin[2];
 
-		if (dx < EPSILON || dy < EPSILON || dz < EPSILON || vcount < 3)
+		if (dxL < EPSILON || dyL < EPSILON || dzL < EPSILON || vcount < 3)
 		{
-			float cx = dx * 0.5f + bmin[0];
-			float cy = dy * 0.5f + bmin[1];
-			float cz = dz * 0.5f + bmin[2];
+			float cx = dxL * 0.5f + bbmin[0];
+			float cy = dyL * 0.5f + bbmin[1];
+			float cz = dzL * 0.5f + bbmin[2];
 
 			float len = FLT_MAX;
 
-			if (dx >= EPSILON && dx < len) len = dx;
-			if (dy >= EPSILON && dy < len) len = dy;
-			if (dz >= EPSILON && dz < len) len = dz;
+			if (dxL >= EPSILON && dxL < len) len = dxL;
+			if (dyL >= EPSILON && dyL < len) len = dyL;
+			if (dzL >= EPSILON && dzL < len) len = dzL;
 
 			if (len == FLT_MAX)
 			{
-				dx = dy = dz = 0.01f;  // one centimeter
+				dxL = dyL = dzL = 0.01f;  // one centimeter
 			}
 			else
 			{
-				if (dx < EPSILON) dx = len * 0.05f;  // 1/5th the shortest non-zero edge.
-				if (dy < EPSILON) dy = len * 0.05f;
-				if (dz < EPSILON) dz = len * 0.05f;
+				if (dxL < EPSILON) dxL = len * 0.05f;  // 1/5th the shortest non-zero edge.
+				if (dyL < EPSILON) dyL = len * 0.05f;
+				if (dzL < EPSILON) dzL = len * 0.05f;
 			}
 
-			float x1 = cx - dx;
-			float x2 = cx + dx;
+			float x1 = cx - dxL;
+			float x2 = cx + dxL;
 
-			float y1 = cy - dy;
-			float y2 = cy + dy;
+			float y1 = cy - dyL;
+			float y2 = cy + dyL;
 
-			float z1 = cz - dz;
-			float z2 = cz + dz;
+			float z1 = cz - dzL;
+			float z2 = cz + dzL;
 
 			vcount = 0;  // add box
 

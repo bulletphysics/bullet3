@@ -57,6 +57,7 @@ USAGE:
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
+#pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
 #endif
 
 #ifdef __cplusplus

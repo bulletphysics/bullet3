@@ -1266,8 +1266,8 @@ inline bool TetrahedronSet::Add(Tetrahedron& tetrahedron)
 {
 	double v = ComputeVolume4(tetrahedron.m_pts[0], tetrahedron.m_pts[1], tetrahedron.m_pts[2], tetrahedron.m_pts[3]);
 
-	const double EPS = 0.0000000001;
-	if (fabs(v) < EPS)
+	const double EPSILON = 0.0000000001;
+	if (fabs(v) < EPSILON)
 	{
 		return false;
 	}
@@ -1282,8 +1282,8 @@ inline bool TetrahedronSet::Add(Tetrahedron& tetrahedron)
 	{
 		for (size_t xx = 0; xx < 3; ++xx)
 		{
-			assert(tetrahedron.m_pts[a][xx] + EPS >= m_minBB[xx]);
-			assert(tetrahedron.m_pts[a][xx] <= m_maxBB[xx] + EPS);
+			assert(tetrahedron.m_pts[a][xx] + EPSILON >= m_minBB[xx]);
+			assert(tetrahedron.m_pts[a][xx] <= m_maxBB[xx] + EPSILON);
 		}
 	}
 	m_tetrahedra.PushBack(tetrahedron);

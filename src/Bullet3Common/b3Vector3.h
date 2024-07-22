@@ -203,15 +203,15 @@ public:
 	{
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
 		__m128 vd = _mm_mul_ps(mVec128, v.mVec128);
-		__m128 z = _mm_movehl_ps(vd, vd);
-		__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
-		vd = _mm_add_ss(vd, y);
-		vd = _mm_add_ss(vd, z);
+		__m128 zl = _mm_movehl_ps(vd, vd);
+		__m128 yl = _mm_shuffle_ps(vd, vd, 0x55);
+		vd = _mm_add_ss(vd, yl);
+		vd = _mm_add_ss(vd, zl);
 		return _mm_cvtss_f32(vd);
 #elif defined(B3_USE_NEON)
 		float32x4_t vd = vmulq_f32(mVec128, v.mVec128);
-		float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_low_f32(vd));
-		x = vadd_f32(x, vget_high_f32(vd));
+		float32x2_t xl = vpadd_f32(vget_low_f32(vd), vget_low_f32(vd));
+		xl = vadd_f32(xl, vget_high_f32(vd));
 		return vget_lane_f32(x, 0);
 #else
 		return m_floats[0] * v.m_floats[0] +
@@ -262,10 +262,10 @@ public:
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
 		// dot product first
 		__m128 vd = _mm_mul_ps(mVec128, mVec128);
-		__m128 z = _mm_movehl_ps(vd, vd);
-		__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
-		vd = _mm_add_ss(vd, y);
-		vd = _mm_add_ss(vd, z);
+		__m128 zl = _mm_movehl_ps(vd, vd);
+		__m128 yl = _mm_shuffle_ps(vd, vd, 0x55);
+		vd = _mm_add_ss(vd, yl);
+		vd = _mm_add_ss(vd, zl);
 
 #if 0
         vd = _mm_sqrt_ss(vd);
@@ -275,20 +275,20 @@ public:
 #else
 
 		// NR step 1/sqrt(x) - vd is x, y is output
-		y = _mm_rsqrt_ss(vd);  // estimate
+		yl = _mm_rsqrt_ss(vd);  // estimate
 
 		//  one step NR
-		z = b3v1_5;
+		zl = b3v1_5;
 		vd = _mm_mul_ss(vd, b3vHalf);  // vd * 0.5
 		//x2 = vd;
-		vd = _mm_mul_ss(vd, y);  // vd * 0.5 * y0
-		vd = _mm_mul_ss(vd, y);  // vd * 0.5 * y0 * y0
-		z = _mm_sub_ss(z, vd);   // 1.5 - vd * 0.5 * y0 * y0
+		vd = _mm_mul_ss(vd, yl);  // vd * 0.5 * y0
+		vd = _mm_mul_ss(vd, yl);  // vd * 0.5 * y0 * y0
+		zl = _mm_sub_ss(zl, vd);   // 1.5 - vd * 0.5 * y0 * y0
 
-		y = _mm_mul_ss(y, z);  // y0 * (1.5 - vd * 0.5 * y0 * y0)
+		yl = _mm_mul_ss(yl, zl);  // y0 * (1.5 - vd * 0.5 * y0 * y0)
 
-		y = b3_splat_ps(y, 0x80);
-		mVec128 = _mm_mul_ps(mVec128, y);
+		yl = b3_splat_ps(yl, 0x80);
+		mVec128 = _mm_mul_ps(mVec128, yl);
 
 #endif
 
@@ -386,10 +386,10 @@ public:
 
 		// dot:
 		V = _mm_mul_ps(V, mVec128);
-		__m128 z = _mm_movehl_ps(V, V);
-		__m128 y = _mm_shuffle_ps(V, V, 0x55);
-		V = _mm_add_ss(V, y);
-		V = _mm_add_ss(V, z);
+		__m128 zl = _mm_movehl_ps(V, V);
+		__m128 yl = _mm_shuffle_ps(V, V, 0x55);
+		V = _mm_add_ss(V, yl);
+		V = _mm_add_ss(V, zl);
 		return _mm_cvtss_f32(V);
 
 #elif defined(B3_USE_NEON)
@@ -410,9 +410,9 @@ public:
 
 		// dot:
 		V = vmulq_f32(mVec128, V);
-		float32x2_t x = vpadd_f32(vget_low_f32(V), vget_low_f32(V));
-		x = vadd_f32(x, vget_high_f32(V));
-		return vget_lane_f32(x, 0);
+		float32x2_t xl = vpadd_f32(vget_low_f32(V), vget_low_f32(V));
+		xl = vadd_f32(xl, vget_high_f32(V));
+		return vget_lane_f32(xl, 0);
 #else
 		return m_floats[0] * (v1.m_floats[1] * v2.m_floats[2] - v1.m_floats[2] * v2.m_floats[1]) +
 			   m_floats[1] * (v1.m_floats[2] * v2.m_floats[0] - v1.m_floats[0] * v2.m_floats[2]) +

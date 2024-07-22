@@ -598,13 +598,13 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 				int index = node->index;
 				f[index] += constraint.getDv(node) * (1. / node->m_im);
 			}
-			for (int k = 0; k < 3; ++k)
+			for (int l = 0; l < 3; ++l)
 			{
-				const btSoftBody::Node* node = face->m_n[k];
-				if (node->m_im != 0)
+				const btSoftBody::Node* softNode = face->m_n[l];
+				if (softNode->m_im != 0)
 				{
-					int index = node->index;
-					f[index] += constraint.getDv(node) * (1. / node->m_im);
+					int index = softNode->index;
+					f[index] += constraint.getDv(softNode) * (1. / softNode->m_im);
 				}
 			}
 		}

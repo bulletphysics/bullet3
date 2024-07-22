@@ -739,8 +739,8 @@ Eigen::VectorXi cKinTree::FindJointChain(const Eigen::MatrixXd& joint_mat, int j
 
 	if (joint_beg == joint_end)
 	{
-		Eigen::VectorXi chain(1);
-		chain[0] = joint_beg;
+		Eigen::VectorXi chain1(1);
+		chain1[0] = joint_beg;
 	}
 
 	int common_ancestor = gInvalidJointID;

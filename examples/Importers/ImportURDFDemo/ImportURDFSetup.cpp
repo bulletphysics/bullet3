@@ -107,14 +107,14 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		{
 			int result;
 			//warning: we don't avoid string buffer overflow in this basic example in fscanf
-			char fileName[1024];
+			char filename[1024];
 			do
 			{
-				result = fscanf(f, "%s", fileName);
-				b3Printf("urdf_files.txt entry %s", fileName);
+				result = fscanf(f, "%s", filename);
+				b3Printf("urdf_files.txt entry %s", filename);
 				if (result == 1)
 				{
-					gFileNameArray.push_back(fileName);
+					gFileNameArray.push_back(filename);
 				}
 			} while (result == 1);
 

@@ -1502,8 +1502,8 @@ __kernel void findCompoundPairsKernel(
 					b3Vector3 treeBmaxLocal = MyUnQuantize(subtreeB.m_quantizedAabbMax, bvhInfoCPU[bvhB].m_quantization, bvhInfoCPU[bvhB].m_aabbMin);
 
 					b3Vector3 aabbBMinOut, aabbBMaxOut;
-					float margin = 0.f;
-					b3TransformAabb2(treeBminLocal, treeBmaxLocal, margin, transB.getOrigin(), transB.getRotation(), &aabbBMinOut, &aabbBMaxOut);
+					float marginL = 0.f;
+					b3TransformAabb2(treeBminLocal, treeBmaxLocal, marginL, transB.getOrigin(), transB.getRotation(), &aabbBMinOut, &aabbBMaxOut);
 
 					numAabbChecks = 0;
 					bool aabbOverlap = b3TestAabbAgainstAabb(aabbAMinOut, aabbAMaxOut, aabbBMinOut, aabbBMaxOut);
@@ -1540,15 +1540,15 @@ __kernel void findCompoundPairsKernel(
 							b3Vector3 bMinLocal = MyUnQuantize(treeNodesCPU[node.y].m_quantizedAabbMin, bvhInfoCPU[bvhB].m_quantization, bvhInfoCPU[bvhB].m_aabbMin);
 							b3Vector3 bMaxLocal = MyUnQuantize(treeNodesCPU[node.y].m_quantizedAabbMax, bvhInfoCPU[bvhB].m_quantization, bvhInfoCPU[bvhB].m_aabbMin);
 
-							float margin = 0.f;
-							b3Vector3 aabbAMinOut, aabbAMaxOut;
-							b3TransformAabb2(aMinLocal, aMaxLocal, margin, transA.getOrigin(), transA.getRotation(), &aabbAMinOut, &aabbAMaxOut);
+							float marginLL = 0.f;
+							b3Vector3 aabbAMinOutL, aabbAMaxOutL;
+							b3TransformAabb2(aMinLocal, aMaxLocal, marginLL, transA.getOrigin(), transA.getRotation(), &aabbAMinOutL, &aabbAMaxOutL);
 
-							b3Vector3 aabbBMinOut, aabbBMaxOut;
-							b3TransformAabb2(bMinLocal, bMaxLocal, margin, transB.getOrigin(), transB.getRotation(), &aabbBMinOut, &aabbBMaxOut);
+							b3Vector3 aabbBMinOutL, aabbBMaxOutL;
+							b3TransformAabb2(bMinLocal, bMaxLocal, marginLL, transB.getOrigin(), transB.getRotation(), &aabbBMinOutL, &aabbBMaxOutL);
 
 							numAabbChecks++;
-							bool nodeOverlap = b3TestAabbAgainstAabb(aabbAMinOut, aabbAMaxOut, aabbBMinOut, aabbBMaxOut);
+							bool nodeOverlap = b3TestAabbAgainstAabb(aabbAMinOutL, aabbAMaxOutL, aabbBMinOutL, aabbBMaxOutL);
 							if (nodeOverlap)
 							{
 								bool isLeafA = treeNodesCPU[node.x].isLeafNode();
@@ -1705,18 +1705,18 @@ __kernel void findCompoundPairsKernel(
 						{
 							//	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 							//	float dmin = FLT_MAX;
-							float4 posA = newPosA;
-							posA.w = 0.f;
-							float4 posB = rigidBodies[bodyIndexB].m_pos;
-							posB.w = 0.f;
+							float4 positionA = newPosA;
+							positionA.w = 0.f;
+							float4 positionB = rigidBodies[bodyIndexB].m_pos;
+							positionB.w = 0.f;
 							float4 c0local = convexShapes[shapeIndexA].m_localCenter;
-							b3Quat ornA = newOrnA;
+							b3Quat orientationA = newOrnA;
 							float4 c0;
-							c0 = transform(&c0local, &posA, &ornA);
+							c0 = transform(&c0local, &positionA, &orientationA);
 							float4 c1local = convexShapes[shapeIndexB].m_localCenter;
-							b3Quat ornB = rigidBodies[bodyIndexB].m_quat;
+							b3Quat orientationB = rigidBodies[bodyIndexB].m_quat;
 							float4 c1;
-							c1 = transform(&c1local, &posB, &ornB);
+							c1 = transform(&c1local, &positionB, &orientationB);
 							//	const float4 DeltaC2 = c0 - c1;
 
 							{
@@ -1745,7 +1745,7 @@ __kernel void findCompoundPairsKernel(
 					float4 newPosB = b3QuatRotate(ornB, childPosB) + posB;
 					b3Quat newOrnB = b3QuatMul(ornB, childOrnB);
 
-					int shapeIndexB = collidables[childColIndexB].m_shapeIndex;
+					int shapeIdxB = collidables[childColIndexB].m_shapeIndex;
 
 					//////////////////////////////////////
 
@@ -1753,18 +1753,18 @@ __kernel void findCompoundPairsKernel(
 					{
 						//	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 						//	float dmin = FLT_MAX;
-						float4 posA = rigidBodies[bodyIndexA].m_pos;
-						posA.w = 0.f;
-						float4 posB = newPosB;
-						posB.w = 0.f;
+						float4 positionA = rigidBodies[bodyIndexA].m_pos;
+						positionA.w = 0.f;
+						float4 positionB = newPosB;
+						positionB.w = 0.f;
 						float4 c0local = convexShapes[shapeIndexA].m_localCenter;
-						b3Quat ornA = rigidBodies[bodyIndexA].m_quat;
+						b3Quat orientationA = rigidBodies[bodyIndexA].m_quat;
 						float4 c0;
-						c0 = transform(&c0local, &posA, &ornA);
-						float4 c1local = convexShapes[shapeIndexB].m_localCenter;
-						b3Quat ornB = newOrnB;
+						c0 = transform(&c0local, &positionA, &orientationA);
+						float4 c1local = convexShapes[shapeIdxB].m_localCenter;
+						b3Quat orientationB = newOrnB;
 						float4 c1;
-						c1 = transform(&c1local, &posB, &ornB);
+						c1 = transform(&c1local, &positionB, &orientationB);
 						//	const float4 DeltaC2 = c0 - c1;
 						{  //
 							int compoundPairIdx = b3AtomicInc(numCompoundPairsOut);
@@ -2019,9 +2019,9 @@ __kernel void clipCompoundsHullHullKernel(__global const b3Int4* gpuCompoundPair
 					c->m_bodyBPtrAndSignBit = rigidBodies[bodyB].m_invMass == 0 ? -bodyB : bodyB;
 					c->m_childIndexA = childShapeIndexA;
 					c->m_childIndexB = childShapeIndexB;
-					for (int i = 0; i < nReducedContacts; i++)
+					for (int j = 0; j < nReducedContacts; j++)
 					{
-						c->m_worldPosB[i] = pointsIn[contactIdx.s[i]];
+						c->m_worldPosB[j] = pointsIn[contactIdx.s[j]];
 					}
 					b3Contact4Data_setNumPoints(c, nReducedContacts);
 				}
@@ -2312,20 +2312,20 @@ void computeContactPlaneCompound(int pairIndex,
 				dstIdx = nGlobalContactsOut;
 				nGlobalContactsOut++;
 
-				b3Contact4* c = &globalContactsOut[dstIdx];
-				c->m_worldNormalOnB = -planeNormalWorld;
-				c->setFrictionCoeff(0.7);
-				c->setRestituitionCoeff(0.f);
+				b3Contact4* contact = &globalContactsOut[dstIdx];
+				contact->m_worldNormalOnB = -planeNormalWorld;
+				contact->setFrictionCoeff(0.7);
+				contact->setRestituitionCoeff(0.f);
 
-				c->m_batchIdx = pairIndex;
-				c->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass == 0 ? -bodyIndexA : bodyIndexA;
-				c->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass == 0 ? -bodyIndexB : bodyIndexB;
+				contact->m_batchIdx = pairIndex;
+				contact->m_bodyAPtrAndSignBit = rigidBodies[bodyIndexA].m_invMass == 0 ? -bodyIndexA : bodyIndexA;
+				contact->m_bodyBPtrAndSignBit = rigidBodies[bodyIndexB].m_invMass == 0 ? -bodyIndexB : bodyIndexB;
 				for (int i = 0; i < numReducedPoints; i++)
 				{
 					b3Vector3 pOnB1 = contactPoints[contactIdx.s[i]];
-					c->m_worldPosB[i] = pOnB1;
+					contact->m_worldPosB[i] = pOnB1;
 				}
-				c->m_worldNormalOnB.w = (b3Scalar)numReducedPoints;
+				contact->m_worldNormalOnB.w = (b3Scalar)numReducedPoints;
 			}  //if (dstIdx < numPairs)
 		}
 	}
@@ -3179,12 +3179,12 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 									newContact.m_frictionCoeffCmp = 45874;
 									newContact.m_restituitionCoeffCmp = 0;
 
-									static float maxDepth = 0.f;
+									static float maximumDepth = 0.f;
 
-									if (depth > maxDepth)
+									if (depth > maximumDepth)
 									{
-										maxDepth = depth;
-										printf("MPR maxdepth = %f\n", maxDepth);
+										maximumDepth = depth;
+										printf("MPR maxdepth = %f\n", maximumDepth);
 									}
 
 									resultPointOnBWorld.w = -depth;

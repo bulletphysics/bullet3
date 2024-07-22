@@ -229,15 +229,15 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 						if (semName == "VERTEX")
 						{
 							//now we have POSITION and possibly NORMAL too, using same index array (<p>)
-							VertexSource* vs = vertexSources[source_name.c_str()];
-							if (vs->m_positionArrayId.length())
+							VertexSource* vertSrc = vertexSources[source_name.c_str()];
+							if (vertSrc->m_positionArrayId.length())
 							{
-								positionSourceName = vs->m_positionArrayId;
+								positionSourceName = vertSrc->m_positionArrayId;
 								posOffset = offset;
 							}
-							if (vs->m_normalArrayId.length())
+							if (vertSrc->m_normalArrayId.length())
 							{
-								normalSourceName = vs->m_normalArrayId;
+								normalSourceName = vertSrc->m_normalArrayId;
 								normalOffset = offset;
 							}
 						}

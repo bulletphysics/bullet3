@@ -149,10 +149,10 @@ bool b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 
 					bool found = false;
 
-					for (int i = 0; i < orgpoints.size(); i++)
+					for (int j = 0; j < orgpoints.size(); j++)
 					{
 						//if ((orgpoints[i].m_orgIndex == orgIndex) || ((rotatedPt-orgpoints[i]).length2()<0.0001))
-						if (orgpoints[i].m_orgIndex == orgIndex)
+						if (orgpoints[j].m_orgIndex == orgIndex)
 						{
 							found = true;
 							break;

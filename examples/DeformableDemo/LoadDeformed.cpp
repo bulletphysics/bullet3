@@ -214,9 +214,9 @@ public:
 		{
 			//        if (reset_frame==0 && steps<100){
 			////            printf("steps %d, seconds %d, steps/seconds %d\n", steps,seconds,steps/seconds);
-			char filename[100];
-			sprintf(filename, "%s_%d_%d.txt", "states", reset_frame, steps);
-			btSoftBodyHelpers::writeState(filename, psb);
+			char file_name[100];
+			sprintf(file_name, "%s_%d_%d.txt", "states", reset_frame, steps);
+			btSoftBodyHelpers::writeState(file_name, psb);
 		}
 		if (sim_time + reset_frame * 0.05 >= 5) exit(0);
 		float internalTimeStep = 1. / 240.f;
@@ -233,10 +233,10 @@ public:
 
 		for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
 		{
-			btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
+			btSoftBody* pSoftBody = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
 			{
-				btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
-				btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
+				btSoftBodyHelpers::DrawFrame(pSoftBody, deformableWorld->getDebugDrawer());
+				btSoftBodyHelpers::Draw(pSoftBody, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
 			}
 		}
 	}
@@ -328,9 +328,9 @@ void LoadDeformed::addCloth(const btVector3& origin)
 
 	b3BulletDefaultFileIO fileio;
 	char absolute_path[1024];
-	char filename[100];
-	sprintf(filename, "/Users/fuchuyuan/Documents/mybullet/build_cmake/examples/ExampleBrowser/states_0_%d.txt", reset_frame);
-	fileio.findResourcePath(filename, absolute_path, 1024);
+	char file_name[100];
+	sprintf(file_name, "/Users/fuchuyuan/Documents/mybullet/build_cmake/examples/ExampleBrowser/states_0_%d.txt", reset_frame);
+	fileio.findResourcePath(file_name, absolute_path, 1024);
 	btAlignedObjectArray<btVector3> qs;
 	btAlignedObjectArray<btVector3> vs;
 	CustomSoftBodyHelper::loadDeformableState(qs, vs, absolute_path, &fileio);

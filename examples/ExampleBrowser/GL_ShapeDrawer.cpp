@@ -749,7 +749,6 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 	btMatrix3x3 rot;
 	rot.setIdentity();
 	const int numObjects = dynamicsWorld->getNumCollisionObjects();
-	btVector3 wireColor(1, 0, 0);
 	//glDisable(GL_CULL_FACE);
 
 	for (int i = 0; i < numObjects; i++)
@@ -767,7 +766,7 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 			colObj->getWorldTransform().getOpenGLMatrix(m);
 			rot = colObj->getWorldTransform().getBasis();
 		}
-		btVector3 wireColor(1.f, 1.0f, 0.5f);  //wants deactivation
+		btVector3 wireColor = btVector3(1.f, 1.0f, 0.5f);  //wants deactivation
 		if (i & 1) wireColor = btVector3(0.f, 0.0f, 1.f);
 		///color differently for active, sleeping, wantsdeactivation states
 		if (colObj->getActivationState() == 1)  //active

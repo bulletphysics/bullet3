@@ -77,8 +77,8 @@ void DockedTabControl::DragAndDrop_EndDragging(bool bSuccess, int /*x*/, int /*y
 
 void DockedTabControl::MoveTabsTo(DockedTabControl* pTarget)
 {
-	Base::List Children = GetTabStrip()->Children;
-	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
+	Base::List ChildrenL = GetTabStrip()->Children;
+	for (Base::List::iterator iter = ChildrenL.begin(); iter != ChildrenL.end(); ++iter)
 	{
 		TabButton* pButton = (*iter)->DynamicCastTabButton();
 		if (!pButton) continue;

@@ -55,7 +55,7 @@ btCompoundCompoundCollisionAlgorithm::~btCompoundCompoundCollisionAlgorithm()
 	btAlignedFree(m_childCollisionAlgorithmCache);
 }
 
-void btCompoundCompoundCollisionAlgorithm::getAllContactManifolds(btManifoldArray& manifoldArray)
+void btCompoundCompoundCollisionAlgorithm::getAllContactManifolds(btManifoldArray& manifoldArrayL)
 {
 	int i;
 	btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
@@ -63,7 +63,7 @@ void btCompoundCompoundCollisionAlgorithm::getAllContactManifolds(btManifoldArra
 	{
 		if (pairs[i].m_userPointer)
 		{
-			((btCollisionAlgorithm*)pairs[i].m_userPointer)->getAllContactManifolds(manifoldArray);
+			((btCollisionAlgorithm*)pairs[i].m_userPointer)->getAllContactManifolds(manifoldArrayL);
 		}
 	}
 }
@@ -313,10 +313,10 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 	///so we should add a 'refreshManifolds' in the btCollisionAlgorithm
 	{
 		int i;
-		btManifoldArray manifoldArray;
+		btManifoldArray manifoldArrayL;
 #ifdef USE_LOCAL_STACK
 		btPersistentManifold localManifolds[4];
-		manifoldArray.initializeFromBuffer(&localManifolds, 0, 4);
+		manifoldArrayL.initializeFromBuffer(&localManifolds, 0, 4);
 #endif
 		btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
 		for (i = 0; i < pairs.size(); i++)
@@ -324,17 +324,17 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 			if (pairs[i].m_userPointer)
 			{
 				btCollisionAlgorithm* algo = (btCollisionAlgorithm*)pairs[i].m_userPointer;
-				algo->getAllContactManifolds(manifoldArray);
-				for (int m = 0; m < manifoldArray.size(); m++)
+				algo->getAllContactManifolds(manifoldArrayL);
+				for (int m = 0; m < manifoldArrayL.size(); m++)
 				{
-					if (manifoldArray[m]->getNumContacts())
+					if (manifoldArrayL[m]->getNumContacts())
 					{
-						resultOut->setPersistentManifold(manifoldArray[m]);
+						resultOut->setPersistentManifold(manifoldArrayL[m]);
 						resultOut->refreshContactPoints();
 						resultOut->setPersistentManifold(0);
 					}
 				}
-				manifoldArray.resize(0);
+				manifoldArrayL.resize(0);
 			}
 		}
 	}
@@ -355,7 +355,7 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 		btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
 
 		int i;
-		btManifoldArray manifoldArray;
+		btManifoldArray manifoldArrayL;
 
 		btVector3 aabbMin0, aabbMax0, aabbMin1, aabbMax1;
 
@@ -398,9 +398,9 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 				}
 			}
 		}
-		for (int i = 0; i < m_removePairs.size(); i++)
+		for (int j = 0; j < m_removePairs.size(); j++)
 		{
-			m_childCollisionAlgorithmCache->removeOverlappingPair(m_removePairs[i].m_indexA, m_removePairs[i].m_indexB);
+			m_childCollisionAlgorithmCache->removeOverlappingPair(m_removePairs[j].m_indexA, m_removePairs[j].m_indexB);
 		}
 		m_removePairs.clear();
 	}

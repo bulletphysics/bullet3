@@ -368,28 +368,28 @@ void Dof6Spring2Setup::initPhysics()
 			{
 				localB.setIdentity();
 				localB.setOrigin(btVector3(0.5, 0, 0));
-				btTransform localA;
-				localA.setIdentity();
-				localA.setOrigin(btVector3(-0.5, 0, 0));
-				CONSTRAINT_TYPE* constraint = new CONSTRAINT_TYPE(*prevBody, *body, localA, localB EXTRAPARAMS);
-				constraint->setLimit(0, -0.01, 0.01);
-				constraint->setLimit(1, 0, 0);
-				constraint->setLimit(2, 0, 0);
-				constraint->setLimit(3, 0, 0);
-				constraint->setLimit(4, 0, 0);
-				constraint->setLimit(5, 0, 0);
+				btTransform localAL;
+				localAL.setIdentity();
+				localAL.setOrigin(btVector3(-0.5, 0, 0));
+				CONSTRAINT_TYPE* constraintL = new CONSTRAINT_TYPE(*prevBody, *body, localA, localB EXTRAPARAMS);
+				constraintL->setLimit(0, -0.01, 0.01);
+				constraintL->setLimit(1, 0, 0);
+				constraintL->setLimit(2, 0, 0);
+				constraintL->setLimit(3, 0, 0);
+				constraintL->setLimit(4, 0, 0);
+				constraintL->setLimit(5, 0, 0);
 				for (int a = 0; a < 6; ++a)
 				{
-					constraint->setParam(BT_CONSTRAINT_STOP_ERP, 0.9, a);
-					constraint->setParam(BT_CONSTRAINT_STOP_CFM, 0.0, a);
+					constraintL->setParam(BT_CONSTRAINT_STOP_ERP, 0.9, a);
+					constraintL->setParam(BT_CONSTRAINT_STOP_CFM, 0.0, a);
 				}
-				constraint->setDbgDrawSize(btScalar(1.f));
-				m_dynamicsWorld->addConstraint(constraint, true);
+				constraintL->setDbgDrawSize(btScalar(1.f));
+				m_dynamicsWorld->addConstraint(constraintL, true);
 
 				if (i < bodycount - 1)
 				{
-					localA.setIdentity();
-					localA.getOrigin() = btVector3(0, 0, 3);
+					localAL.setIdentity();
+					localAL.getOrigin() = btVector3(0, 0, 3);
 					localB.setIdentity();
 					CONSTRAINT_TYPE* constraintZY = new CONSTRAINT_TYPE(*staticBody, *body, localA, localB EXTRAPARAMS);
 					constraintZY->setLimit(0, 1, -1);

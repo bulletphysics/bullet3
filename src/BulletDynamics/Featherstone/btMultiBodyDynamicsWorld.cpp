@@ -529,10 +529,10 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         delta_q.resize(numDofs);
                         btAlignedObjectArray<btScalar> delta_qd;
                         delta_qd.resize(numDofs);
-                        for (int j = 0; j < numDofs; ++j)
+                        for (int k = 0; k < numDofs; ++k)
                         {
-                            delta_q[j] = h / btScalar(6.) * (scratch_qd0[j] + 2 * scratch_qd1[j] + 2 * scratch_qd2[j] + scratch_qd3[j]);
-                            delta_qd[j] = h / btScalar(6.) * (scratch_qdd0[j] + 2 * scratch_qdd1[j] + 2 * scratch_qdd2[j] + scratch_qdd3[j]);
+                            delta_q[k] = h / btScalar(6.) * (scratch_qd0[k] + 2 * scratch_qd1[k] + 2 * scratch_qd2[k] + scratch_qd3[k]);
+                            delta_qd[k] = h / btScalar(6.) * (scratch_qdd0[k] + 2 * scratch_qdd1[k] + 2 * scratch_qdd2[k] + scratch_qdd3[k]);
                             //delta_q[i] = h*scratch_qd0[i];
                             //delta_qd[i] = h*scratch_qdd0[i];
                         }
@@ -545,8 +545,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                             btScalar* pRealBuf = const_cast<btScalar*>(bod->getVelocityVector());
                             pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs() * bod->getNumDofs();
                             
-                            for (int j = 0; j < numDofs; ++j)
-                                pRealBuf[j] = delta_q[j];
+                            for (int k = 0; k < numDofs; ++k)
+                                pRealBuf[k] = delta_q[k];
                             
                             //bod->stepPositionsMultiDof(1, 0, &delta_q[0]);
                             bod->setPosUpdated(true);

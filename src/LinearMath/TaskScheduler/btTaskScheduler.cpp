@@ -764,9 +764,9 @@ public:
 
 			// add up all the thread sums
 			btScalar sum = btScalar(0);
-			for (int iThread = 0; iThread < m_numThreads; ++iThread)
+			for (int idxThread = 0; idxThread < m_numThreads; ++idxThread)
 			{
-				sum += m_threadLocalStorage[iThread].m_sumResult;
+				sum += m_threadLocalStorage[idxThread].m_sumResult;
 			}
 			m_antiNestingLock.unlock();
 			return sum;

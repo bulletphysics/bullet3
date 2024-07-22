@@ -453,10 +453,10 @@ bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface * /*cal
 	{
 		if (0)
 		{
-			CTriVector::const_iterator i;
-			for (i = input_mesh.begin(); i != input_mesh.end(); ++i)
+			CTriVector::const_iterator it;
+			for (it = input_mesh.begin(); it != input_mesh.end(); ++it)
 			{
-				const CTri &c = (*i);
+				const CTri &c = (*it);
 				if (c.mI1 != m.mI1 && c.mI2 != m.mI2 && c.mI3 != m.mI3)
 				{
 					c.clip(m.mP1, m.mNear1);
@@ -623,12 +623,12 @@ float computeConcavity(unsigned int vcount,
 			CTriVector input_mesh;
 			if (1)
 			{
-				const unsigned int *src = indices;
+				const unsigned int *srcIdx = indices;
 				for (unsigned int i = 0; i < tcount; i++)
 				{
-					unsigned int i1 = *src++;
-					unsigned int i2 = *src++;
-					unsigned int i3 = *src++;
+					unsigned int i1 = *srcIdx++;
+					unsigned int i2 = *srcIdx++;
+					unsigned int i3 = *srcIdx++;
 
 					const float *p1 = &vertices[i1 * 3];
 					const float *p2 = &vertices[i2 * 3];

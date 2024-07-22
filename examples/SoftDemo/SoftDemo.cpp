@@ -2072,16 +2072,16 @@ void SoftDemo::initPhysics()
 		int index = 0;
 		for (i = 0; i < NUM_VERTS_X - 1; i++)
 		{
-			for (int j = 0; j < NUM_VERTS_Y - 1; j++)
+			for (int k = 0; k < NUM_VERTS_Y - 1; k++)
 			{
-				gGroundIndices[index++] = j * NUM_VERTS_X + i;
-				gGroundIndices[index++] = (j + 1) * NUM_VERTS_X + i + 1;
-				gGroundIndices[index++] = j * NUM_VERTS_X + i + 1;
+				gGroundIndices[index++] = k * NUM_VERTS_X + i;
+				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i + 1;
+				gGroundIndices[index++] = k * NUM_VERTS_X + i + 1;
 				;
 
-				gGroundIndices[index++] = j * NUM_VERTS_X + i;
-				gGroundIndices[index++] = (j + 1) * NUM_VERTS_X + i;
-				gGroundIndices[index++] = (j + 1) * NUM_VERTS_X + i + 1;
+				gGroundIndices[index++] = k * NUM_VERTS_X + i;
+				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i;
+				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i + 1;
 			}
 		}
 

@@ -172,8 +172,8 @@ void VoronoiFractureDemo::attachFixedConstraints()
 
 							dof6->setBreakingImpulseThreshold(BREAKING_THRESHOLD * totalMass);
 
-							for (int i = 0; i < 6; i++)
-								dof6->setLimit(i, 0, 0);
+							for (int j = 0; j < 6; j++)
+								dof6->setLimit(j, 0, 0);
 							m_dynamicsWorld->addConstraint(dof6, true);
 						}
 						else
@@ -705,7 +705,7 @@ void VoronoiFractureDemo::initPhysics()
 	}
 
 	{
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(8.), btScalar(1.)));
+		btCollisionShape* groundColShape = new btBoxShape(btVector3(btScalar(10.), btScalar(8.), btScalar(1.)));
 		btScalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
@@ -713,11 +713,11 @@ void VoronoiFractureDemo::initPhysics()
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			groundShape->calculateLocalInertia(mass, localInertia);
+			groundColShape->calculateLocalInertia(mass, localInertia);
 		groundTransform.setOrigin(btVector3(0, 0, 0));
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundColShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		//add the body to the dynamics world

@@ -96,14 +96,14 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int /*option
 		{
 			int result;
 			//warning: we don't avoid string buffer overflow in this basic example in fscanf
-			char fileName[1024];
+			char filename[1024];
 			do
 			{
-				result = fscanf(f, "%s", fileName);
-				b3Printf("mjcf_files.txt entry %s", fileName);
+				result = fscanf(f, "%s", filename);
+				b3Printf("mjcf_files.txt entry %s", filename);
 				if (result == 1)
 				{
-					gMCFJFileNameArray.push_back(fileName);
+					gMCFJFileNameArray.push_back(filename);
 				}
 			} while (result == 1);
 

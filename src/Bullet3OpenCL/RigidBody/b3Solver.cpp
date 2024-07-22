@@ -686,13 +686,13 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* /*bodyBuf*/,
 
 		for (int c = start; c < end; c++)
 		{
-			b3GpuConstraint4& constraint = cpuConstraints[c];
-			//printf("constraint (%d,%d)\n", constraint.m_bodyA,constraint.m_bodyB);
-			if (usedBodies.findLinearSearch((int)constraint.m_bodyA) < usedBodies.size())
+			b3GpuConstraint4& constraintL = cpuConstraints[c];
+			//printf("constraint (%d,%d)\n", constraintL.m_bodyA,constraintL.m_bodyB);
+			if (usedBodies.findLinearSearch((int)constraintL.m_bodyA) < usedBodies.size())
 			{
 				printf("error?\n");
 			}
-			if (usedBodies.findLinearSearch((int)constraint.m_bodyB) < usedBodies.size())
+			if (usedBodies.findLinearSearch((int)constraintL.m_bodyB) < usedBodies.size())
 			{
 				printf("error?\n");
 			}
@@ -700,9 +700,9 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* /*bodyBuf*/,
 
 		for (int c = start; c < end; c++)
 		{
-			b3GpuConstraint4& constraint = cpuConstraints[c];
-			usedBodies.push_back((int)constraint.m_bodyA);
-			usedBodies.push_back((int)constraint.m_bodyB);
+			b3GpuConstraint4& constraintL = cpuConstraints[c];
+			usedBodies.push_back((int)constraintL.m_bodyA);
+			usedBodies.push_back((int)constraintL.m_bodyB);
 		}
 	}
 }

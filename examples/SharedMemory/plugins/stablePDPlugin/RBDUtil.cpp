@@ -170,12 +170,12 @@ void cRBDUtil::BuildMassMat(const cRBDModel& model, Eigen::MatrixXd& inertia_buf
 			}
 
 			const Eigen::Block<const Eigen::MatrixXd> S = model.GetJointSubspace(j);
-			int dim = cKinTree::GetParamSize(joint_mat, j);
-			if (dim > 0)
+			int dimension = cKinTree::GetParamSize(joint_mat, j);
+			if (dimension > 0)
 			{
 				int offset = cKinTree::GetParamOffset(joint_mat, j);
 				Eigen::MatrixXd F = curr_I * S;
-				H.block(offset, offset, dim, dim) = S.transpose() * F;
+				H.block(offset, offset, dimension, dimension) = S.transpose() * F;
 
 				int curr_id = j;
 				while (cKinTree::HasParent(joint_mat, curr_id))
@@ -190,8 +190,8 @@ void cRBDUtil::BuildMassMat(const cRBDModel& model, Eigen::MatrixXd& inertia_buf
 					if (curr_dim > 0)
 					{
 						const Eigen::Block<const Eigen::MatrixXd> curr_S = model.GetJointSubspace(curr_id);
-						H.block(offset, curr_offset, dim, curr_dim) = F.transpose() * curr_S;
-						H.block(curr_offset, offset, curr_dim, dim) = H.block(offset, curr_offset, dim, curr_dim).transpose();
+						H.block(offset, curr_offset, dimension, curr_dim) = F.transpose() * curr_S;
+						H.block(curr_offset, offset, curr_dim, dimension) = H.block(offset, curr_offset, dimension, curr_dim).transpose();
 					}
 				}
 			}

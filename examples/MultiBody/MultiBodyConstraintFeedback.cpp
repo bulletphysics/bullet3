@@ -176,17 +176,17 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 				}
 				else
 				{
-					btVector3 parentComToCurrentCom(0, -linkHalfExtents[1], 0);  //par body's COM to cur body's COM offset
-					btVector3 currentPivotToCurrentCom(0, 0, 0);                 //cur body's COM to cur body's PIV offset
-					//btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;	//par body's COM to cur body's PIV offset
+					btVector3 parentComToCurrentComL(0, -linkHalfExtents[1], 0);  //par body's COM to cur body's COM offset
+					btVector3 currentPivotToCurrentComL(0, 0, 0);                 //cur body's COM to cur body's PIV offset
+					//btVector3 parentComToCurrentPivot = parentComToCurrentComL - currentPivotToCurrentComL;	//par body's COM to cur body's PIV offset
 
 					pMultiBody->setupFixed(i, linkMass, linkInertiaDiag, i - 1,
 										   btQuaternion(0.f, 0.f, 0.f, 1.f),
 										   parentComToCurrentPivot,
-										   currentPivotToCurrentCom);
+										   currentPivotToCurrentComL);
 				}
 
-				//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivot,currentPivotToCurrentCom,false);
+				//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivot,currentPivotToCurrentComL,false);
 			}
 			else
 			{
@@ -230,16 +230,16 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 		//////////////////////////////////////////////
 		if (/* DISABLES CODE */ (0))  //numLinks > 0)
 		{
-			btScalar q0 = 45.f * SIMD_PI / 180.f;
+			btScalar q0L = 45.f * SIMD_PI / 180.f;
 			if (!spherical)
 			{
-				mbC->setJointPosMultiDof(0, &q0);
+				mbC->setJointPosMultiDof(0, &q0L);
 			}
 			else
 			{
-				btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
-				quat0.normalize();
-				mbC->setJointPosMultiDof(0, quat0);
+				btQuaternion quat0L(btVector3(1, 1, 0).normalized(), q0L);
+				quat0L.normalize();
+				mbC->setJointPosMultiDof(0, quat0L);
 			}
 		}
 		///

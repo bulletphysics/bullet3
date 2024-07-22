@@ -113,15 +113,15 @@ ICHullError ICHull::Process()
 			if (!GetMesh().CheckConsistancy())
 			{
 				size_t nV = m_mesh.GetNVertices();
-				CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+				CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 				for (size_t v = 0; v < nV; ++v)
 				{
-					if (vertices.GetData().m_name == sc_dummyIndex)
+					if (verts.GetData().m_name == sc_dummyIndex)
 					{
-						vertices.Delete();
+						verts.Delete();
 						break;
 					}
-					vertices.Next();
+					verts.Next();
 				}
 				return ICHullErrorInconsistent;
 			}
@@ -166,17 +166,17 @@ ICHullError ICHull::Process()
 			m_mesh.m_edges.Next();
 		}
 		size_t nV = m_mesh.GetNVertices();
-		CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+		CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 		for (size_t v = 0; v < nV; ++v)
 		{
-			if (vertices.GetData().m_name == sc_dummyIndex)
+			if (verts.GetData().m_name == sc_dummyIndex)
 			{
-				vertices.Delete();
+				verts.Delete();
 			}
 			else
 			{
-				vertices.GetData().m_tag = false;
-				vertices.Next();
+				verts.GetData().m_tag = false;
+				verts.Next();
 			}
 		}
 		CleanEdges();
@@ -257,15 +257,15 @@ ICHullError ICHull::Process(const unsigned int nPointsCH,
 			if (!GetMesh().CheckConsistancy())
 			{
 				size_t nV = m_mesh.GetNVertices();
-				CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+				CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 				for (size_t v = 0; v < nV; ++v)
 				{
-					if (vertices.GetData().m_name == sc_dummyIndex)
+					if (verts.GetData().m_name == sc_dummyIndex)
 					{
-						vertices.Delete();
+						verts.Delete();
 						break;
 					}
-					vertices.Next();
+					verts.Next();
 				}
 				return ICHullErrorInconsistent;
 			}
@@ -316,17 +316,17 @@ ICHullError ICHull::Process(const unsigned int nPointsCH,
 			m_mesh.m_edges.Next();
 		}
 		size_t nV = m_mesh.GetNVertices();
-		CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+		CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 		for (size_t v = 0; v < nV; ++v)
 		{
-			if (vertices.GetData().m_name == sc_dummyIndex)
+			if (verts.GetData().m_name == sc_dummyIndex)
 			{
-				vertices.Delete();
+				verts.Delete();
 			}
 			else
 			{
-				vertices.GetData().m_tag = false;
-				vertices.Next();
+				verts.GetData().m_tag = false;
+				verts.Next();
 			}
 		}
 		CleanEdges();

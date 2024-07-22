@@ -572,12 +572,12 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 		}
 
 		//easy
-		for (int i = 0; i < numBodies; i++)
+		for (int b = 0; b < numBodies; b++)
 		{
-			if (bodies[i].m_invMass)
+			if (bodies[b].m_invMass)
 			{
-				int bodyOffset = (int)offsetSplitBodies[i];
-				int count = (int)bodyCount[i];
+				int bodyOffset = (int)offsetSplitBodies[b];
+				int count = (int)bodyCount[b];
 				float factor = 1.f / float(count);
 				b3Vector3 averageLinVel;
 				averageLinVel.setZero();

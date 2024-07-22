@@ -49,14 +49,14 @@ Node::Node(const VectorR3& attach, const VectorR3& v, double size, Purpose purpo
 void Node::ComputeS(void)
 {
 	Node* y = this->realparent;
-	Node* w = this;
+	Node* t = this;
 	s = r;  // Initialize to local (relative) position
 	while (y)
 	{
 		s.Rotate(y->theta, y->v);
 		y = y->realparent;
-		w = w->realparent;
-		s += w->r;
+		t = t->realparent;
+		s += t->r;
 	}
 }
 

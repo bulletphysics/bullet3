@@ -961,21 +961,21 @@ int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool 
 					const int parent_body_q_index_min = parent_body.m_q_index;
 					const int parent_body_q_index_max =
 						parent_body_q_index_min + jointNumDoFs(parent_body.m_joint_type) - 1;
-					vec3 Jac_JR = parent_body.m_Jac_JR;
-					vec3 Jac_JT = parent_body.m_Jac_JT;
+					vec3 Jac_JR_L = parent_body.m_Jac_JR;
+					vec3 Jac_JT_L = parent_body.m_Jac_JT;
 					for (int row = parent_body_q_index_max; row >= parent_body_q_index_min; row--)
 					{
 						if (SPHERICAL == parent_body.m_joint_type)
 						{
 							//todo: review
-							setThreeDoFJacobians(row - parent_body_q_index_min, Jac_JR, Jac_JT);
+							setThreeDoFJacobians(row - parent_body_q_index_min, Jac_JR_L, Jac_JT_L);
 						}
 						// set jacobians for 6-DoF joints
 						if (FLOATING == parent_body.m_joint_type)
 						{
-							setSixDoFJacobians(row - parent_body_q_index_min, Jac_JR, Jac_JT);
+							setSixDoFJacobians(row - parent_body_q_index_min, Jac_JR_L, Jac_JT_L);
 						}
-						const double Mrc = Jac_JR.dot(body_eom_rot) + Jac_JT.dot(body_eom_trans);
+						const double Mrc = Jac_JR_L.dot(body_eom_rot) + Jac_JT_L.dot(body_eom_trans);
 						setMatxxElem(col, row, Mrc, mass_matrix);
 					}
 

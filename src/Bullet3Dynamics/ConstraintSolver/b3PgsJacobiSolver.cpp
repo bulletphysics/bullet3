@@ -760,10 +760,10 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 	{
 		b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(rb0 ? bodyA->m_linearVelocity : b3MakeVector3(0, 0, 0)) + solverConstraint.m_relpos1CrossNormal.dot(rb0 ? bodyA->m_angularVelocity : b3MakeVector3(0, 0, 0));
 		b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(rb1 ? bodyB->m_linearVelocity : b3MakeVector3(0, 0, 0)) + solverConstraint.m_relpos2CrossNormal.dot(rb1 ? bodyB->m_angularVelocity : b3MakeVector3(0, 0, 0));
-		b3Scalar rel_vel = vel1Dotn + vel2Dotn;
+		b3Scalar rel_velocity = vel1Dotn + vel2Dotn;
 
 		b3Scalar positionalError = 0.f;
-		b3Scalar velocityError = restitution - rel_vel;  // * damping;
+		b3Scalar velocityError = restitution - rel_velocity;  // * damping;
 
 		b3Scalar erp = infoGlobal.m_erp2;
 		if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))

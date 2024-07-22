@@ -35,6 +35,7 @@
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable: 4365) // conversion from 'type1' to 'type2' - signed/unsigned mismatch
+#pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
 #pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
 #endif
 #define STB_TRUETYPE_IMPLEMENTATION
@@ -206,7 +207,7 @@ int sth_add_font(struct sth_stash* stash, const char* path)
 	FILE* fp = 0;
 	int datasize;
 	unsigned char* data = NULL;
-	int idx = 0;
+	int index = 0;
 
 	// Read in the font data.
 	fp = fopen(path, "rb");
@@ -220,18 +221,18 @@ int sth_add_font(struct sth_stash* stash, const char* path)
 	bytesRead = (int)fread(data, 1, (size_t)datasize, fp);
 	if (bytesRead)
 	{
-		idx = sth_add_font_from_memory(stash, data);
+		index = sth_add_font_from_memory(stash, data);
 	}
 	fclose(fp);
 	fp = 0;
 
 	// Modify type of the loaded font.
-	if (idx)
+	if (index)
 		stash->fonts->type = TTFONT_FILE;
 	else
 		free(data);
 
-	return idx;
+	return index;
 
 error:
 	if (data) free(data);
@@ -271,7 +272,7 @@ error:
 }
 
 /*void sth_add_glyph(struct sth_stash* stash,
-                  int idx,
+                  int index,
                   unsigned int id1,
                   const char* s,
                   short size, short base,
@@ -301,7 +302,7 @@ error:
 	}
 
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT) return;
 
@@ -620,7 +621,7 @@ void sth_end_draw(struct sth_stash* stash)
 }
 
 void sth_draw_texture(struct sth_stash* stash,
-					  int idx, float size,
+					  int index, float size,
 					  float x, float y,
 					  int screenwidth, int screenheight,
 					  const char* s, float* dx, float colorRGBA[4])
@@ -641,7 +642,7 @@ void sth_draw_texture(struct sth_stash* stash,
 
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -687,7 +688,7 @@ void sth_flush_draw(struct sth_stash* stash)
 	flush_draw(stash);
 }
 void sth_draw_text(struct sth_stash* stash,
-				   int idx, float size,
+				   int index, float size,
 				   float x, float y,
 				   const char* s, float* dx, int screenwidth, int screenheight, int measureOnly, float retinaScale, float colorRGBA[4])
 {
@@ -705,7 +706,7 @@ void sth_draw_text(struct sth_stash* stash,
 
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -745,7 +746,7 @@ void sth_draw_text(struct sth_stash* stash,
 }
 
 void sth_draw_text3D(struct sth_stash* stash,
-					 int idx, float fontSize,
+					 int index, float fontSize,
 					 float x, float y, float z,
 					 const char* s, float* dx, float textScale, float colorRGBA[4], int /*unused*/)
 {
@@ -763,7 +764,7 @@ void sth_draw_text3D(struct sth_stash* stash,
 
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -799,7 +800,7 @@ void sth_draw_text3D(struct sth_stash* stash,
 }
 
 void sth_dim_text(struct sth_stash* stash,
-				  int idx, float size,
+				  int index, float size,
 				  const char* s,
 				  float* minx, float* miny, float* maxx, float* maxy)
 {
@@ -816,7 +817,7 @@ void sth_dim_text(struct sth_stash* stash,
 	if (!stash->textures)
 		return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -837,7 +838,7 @@ void sth_dim_text(struct sth_stash* stash,
 }
 
 void sth_vmetrics(struct sth_stash* stash,
-				  int idx, float size,
+				  int index, float size,
 				  float* ascender, float* descender, float* lineh)
 {
 	struct sth_font* fnt = NULL;
@@ -845,7 +846,7 @@ void sth_vmetrics(struct sth_stash* stash,
 	if (stash == NULL) return;
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 	if (ascender)

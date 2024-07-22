@@ -430,7 +430,7 @@ void MatrixRmn::ConvertToRefNoFree()
 		if (rowPtr1 != rowPtr2)
 		{
 			double* to = rowPtr1;
-			for (long i = lenRowLeft; i > 0; i--)
+			for (long j = lenRowLeft; j > 0; j--)
 			{
 				double temp = *to;
 				*to = *rowPtr2;

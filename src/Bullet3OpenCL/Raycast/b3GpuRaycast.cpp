@@ -281,8 +281,8 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 		B3_PROFILE("raycast launch1D");
 
 		b3LauncherCL launcher(m_data->m_q, m_data->m_raytraceKernel, "m_raytraceKernel");
-		int numRays = rays.size();
-		launcher.setConst(numRays);
+		int nRays = rays.size();
+		launcher.setConst(nRays);
 
 		launcher.setBuffer(m_data->m_gpuRays->getBufferCL());
 		launcher.setBuffer(m_data->m_gpuHitResults->getBufferCL());
@@ -293,7 +293,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 		launcher.setBuffer(narrowphaseData->m_convexFacesGPU->getBufferCL());
 		launcher.setBuffer(narrowphaseData->m_convexPolyhedraGPU->getBufferCL());
 
-		launcher.launch1D(numRays);
+		launcher.launch1D(nRays);
 		clFinish(m_data->m_q);
 	}
 	else

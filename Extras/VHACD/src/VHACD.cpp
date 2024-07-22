@@ -1344,8 +1344,8 @@ void VHACD::ComputeACD(const Parameters& params)
 
 	if (GetCancel())
 	{
-		const size_t nConvexHulls = m_convexHulls.Size();
-		for (size_t p = 0; p < nConvexHulls; ++p)
+		const size_t numConvexHulls = m_convexHulls.Size();
+		for (size_t p = 0; p < numConvexHulls; ++p)
 		{
 			delete m_convexHulls[p];
 		}

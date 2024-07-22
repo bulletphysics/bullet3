@@ -286,14 +286,14 @@ void Hinge2Vehicle::initPhysics()
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
-	btTransform tr;
-	tr.setIdentity();
-	tr.setOrigin(btVector3(0, -3, 0));
+	btTransform tf;
+	tf.setIdentity();
+	tf.setOrigin(btVector3(0, -3, 0));
 
 	//either use heightfield or triangle mesh
 
 	//create ground object
-	localCreateRigidBody(0, tr, groundShape);
+	localCreateRigidBody(0, tf, groundShape);
 
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f, 0.5f, 2.f));
 	m_collisionShapes.push_back(chassisShape);
@@ -317,11 +317,11 @@ void Hinge2Vehicle::initPhysics()
 	}
 
 	const btScalar FALLHEIGHT = 5;
-	tr.setOrigin(btVector3(0, FALLHEIGHT, 0));
+	tf.setOrigin(btVector3(0, FALLHEIGHT, 0));
 
 	const btScalar chassisMass = 2.0f;
 	const btScalar wheelMass = 1.0f;
-	m_carChassis = localCreateRigidBody(chassisMass, tr, compound);  //chassisShape);
+	m_carChassis = localCreateRigidBody(chassisMass, tf, compound);  //chassisShape);
 	//m_carChassis->setDamping(0.2,0.2);
 
 	//m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth,wheelRadius,wheelRadius));

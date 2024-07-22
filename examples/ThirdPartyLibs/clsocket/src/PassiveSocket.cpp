@@ -247,17 +247,17 @@ CActiveSocket *CPassiveSocket::Accept()
 				pClientSocket->SetSocketHandle(socket);
 				pClientSocket->TranslateSocketError();
 				socketErrno = pClientSocket->GetSocketError();
-				socklen_t nSockLen = sizeof(struct sockaddr);
+				socklen_t nSockLength = sizeof(struct sockaddr);
 
 				//-------------------------------------------------------------
 				// Store client and server IP and port information for this
 				// connection.
 				//-------------------------------------------------------------
-				getpeername(m_socket, (struct sockaddr *)&pClientSocket->m_stClientSockaddr, &nSockLen);
-				memcpy((void *)&pClientSocket->m_stClientSockaddr, (void *)&m_stClientSockaddr, (size_t)nSockLen);
+				getpeername(m_socket, (struct sockaddr *)&pClientSocket->m_stClientSockaddr, &nSockLength);
+				memcpy((void *)&pClientSocket->m_stClientSockaddr, (void *)&m_stClientSockaddr, (size_t)nSockLength);
 
-				memset(&pClientSocket->m_stServerSockaddr, 0, (size_t)nSockLen);
-				getsockname(m_socket, (struct sockaddr *)&pClientSocket->m_stServerSockaddr, &nSockLen);
+				memset(&pClientSocket->m_stServerSockaddr, 0, (size_t)nSockLength);
+				getsockname(m_socket, (struct sockaddr *)&pClientSocket->m_stServerSockaddr, &nSockLength);
 			}
 			else
 			{
