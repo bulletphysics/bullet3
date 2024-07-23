@@ -130,6 +130,7 @@ public:
         float mass = 2;
         btCollisionShape* shape[] = {
             new btBoxShape(btVector3(3, 3, 0.5)),
+            NULL
         };
         static const int nshapes = sizeof(shape) / sizeof(shape[0]);
         for (int i = 0; i < count; ++i)

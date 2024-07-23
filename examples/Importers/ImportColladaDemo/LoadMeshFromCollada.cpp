@@ -92,7 +92,7 @@ void tokenize(const std::string& str, AddToken& tokenAdder, const std::string& d
 
 void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride)
 {
-	int numVals, stride;
+	int numVals = 0, stride;
 	XMLElement* array = source->FirstChildElement("float_array");
 	if (array)
 	{

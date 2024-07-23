@@ -119,6 +119,7 @@ public:
         
         btCollisionShape* shape[] = {
             new btBoxShape(btVector3(1, 1, 1)),
+            NULL
         };
         static const int nshapes = sizeof(shape) / sizeof(shape[0]);
         for (int i = 0; i < count; ++i)

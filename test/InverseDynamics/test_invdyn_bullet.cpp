@@ -79,8 +79,8 @@ TEST(InvDynCompare, bulletUrdfR2D2)
 			dot_u(i) = b3RandRange(-B3_PI, B3_PI);
 		}
 
-		double pos_error;
-		double acc_error;
+		double pos_error = 0.0;
+		double acc_error = 0.0;
 		btmb->clearForcesAndTorques();
 		id_tree->clearAllUserForcesAndMoments();
 		// call inverse dynamics once, to get global position & velocity of root body

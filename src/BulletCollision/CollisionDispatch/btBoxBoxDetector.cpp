@@ -226,7 +226,7 @@ void cullPoints2(int n, btScalar p[], int m, int i0, int iret[])
 	}
 
 	// compute the angle of each point w.r.t. the centroid
-	btScalar A[8];
+	btScalar A[8] = {};
 	for (i = 0; i < n; i++) A[i] = btAtan2(p[i * 2 + 1] - cy, p[i * 2] - cx);
 
 	// search for points that have angles closest to A[i0] + i*(2*pi/m).
