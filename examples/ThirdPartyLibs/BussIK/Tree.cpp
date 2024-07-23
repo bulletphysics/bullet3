@@ -137,11 +137,13 @@ Node* Tree::SearchEffector(Node* node, int index)
 		}
 		else
 		{
-			if ((ret = SearchJoint(node->left, index)))
+			ret = SearchEffector(node->left, index);
+			if (ret)
 			{
 				return ret;
 			}
-			if ((ret = SearchJoint(node->right, index)))
+			ret = SearchEffector(node->right, index);
+			if (ret)
 			{
 				return ret;
 			}

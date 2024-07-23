@@ -61,12 +61,13 @@ struct b3FileUtils
 	{
 		size_t const patlen = strlen(pattern);
 		size_t patcnt = 0; (void)patcnt;
-		const char* oriptr = NULL;
-		const char* patloc = NULL;
+		const char* oriptr = name;
+		const char* patloc = strstr(oriptr, pattern);
 		// find how many times the pattern occurs in the original string
-		for (oriptr = name; patloc; oriptr = patloc + patlen)
+		while (patloc)
 		{
 			patcnt++;
+			oriptr = patloc + patlen;
 			patloc = strstr(oriptr, pattern);
 		}
 		return oriptr;

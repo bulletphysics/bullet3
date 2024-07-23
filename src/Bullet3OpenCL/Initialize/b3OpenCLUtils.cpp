@@ -565,12 +565,14 @@ static const char* strip2(const char* name, const char* pattern)
 {
 	size_t const patlen = strlen(pattern);
 	size_t patcnt = 0; (void)patcnt;
-	const char* oriptr;
-	const char* patloc;
+	const char* oriptr = name;
+	const char* patloc = strstr(oriptr, pattern);
 	// find how many times the pattern occurs in the original string
-	for (oriptr = name; (patloc = strstr(oriptr, pattern)); oriptr = patloc + patlen)
+	while (patloc)
 	{
 		patcnt++;
+		oriptr = patloc + patlen;
+		patloc = strstr(oriptr, pattern);
 	}
 	return oriptr;
 }

@@ -162,7 +162,8 @@ void TimeSeriesCanvas::grapicalPrintf(const char* str, void* fontData, int raste
 	int x = 0;
 	int xx = 0;
 
-	while ((c = (unsigned char)*str++))
+	c = (unsigned char)*str++;
+	while (c)
 	{
 		x = xx;
 		unsigned char* fontPtr = (unsigned char*)fontData;
@@ -194,6 +195,7 @@ void TimeSeriesCanvas::grapicalPrintf(const char* str, void* fontData, int raste
 			x++;
 		}
 		xx += 10;
+		c = (unsigned char)*str++;
 	}
 }
 

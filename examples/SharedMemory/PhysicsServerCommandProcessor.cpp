@@ -4731,8 +4731,8 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 			btAlignedObjectArray<double> allValues;
 			if (slot >= 0)
 			{
-				char* lineChar;
-				while ((lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH)))
+				char* lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH);
+				while (lineChar)
 				{
 					rows = 0;
 					std::string line(lineChar);
@@ -4759,6 +4759,7 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 						pos = nextPos;
 					}
 					cols++;
+					lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH);
 				}
 				width = rows;
 				height = cols;

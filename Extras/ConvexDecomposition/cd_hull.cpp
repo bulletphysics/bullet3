@@ -2654,7 +2654,11 @@ int calchullgen(float3 *verts, int verts_count, int vlimit, Array<btHullTriangle
 	}
 	btHullTriangle *te;
 	vlimit -= 4;
-	while (vlimit > 0 && (te = extrudable(epsilon, tris)))
+	if(vlimit > 0)
+		te = extrudable(epsilon, tris);
+	else
+		te = NULL;
+	while (vlimit > 0 && te)
 	{
 		//	int3 ti=*te;
 		int v = te->vmax;
@@ -2706,6 +2710,7 @@ int calchullgen(float3 *verts, int verts_count, int vlimit, Array<btHullTriangle
 			}
 		}
 		vlimit--;
+		te = extrudable(epsilon, tris);
 	}
 	return 1;
 }

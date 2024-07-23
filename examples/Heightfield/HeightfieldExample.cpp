@@ -540,16 +540,16 @@ getRawHeightfieldData
             btAlignedObjectArray<double> allValues;
             if (slot>=0)
             {
-                char* lineChar;
-                while ((lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH)))
+                char* lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH);
+                while (lineChar)
                 {
                     rows=0;
                     char** values = urdfStrSplit(lineChar, ",");
                     if (values)
                     {
                         int index = 0;
-                        char* value;
-                        while ((value = values[index++]))
+                        char* value = values[index++];
+                        while (value)
                         {
                             std::string strval(value);
                             double v;
@@ -560,10 +560,11 @@ getRawHeightfieldData
                                 allValues.push_back(v);
                                 rows++;
                             }
+														value = values[index++];
                         }
                     }
                     cols++;
-
+										lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH);
                 }
                 printf("done, rows=%d, cols=%d\n", rows, cols);
                 int width = rows-1;

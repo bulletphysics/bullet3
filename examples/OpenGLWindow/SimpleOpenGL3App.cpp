@@ -447,11 +447,13 @@ SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, boo
 
 		unsigned char* data2 = OpenSansData;
 		unsigned char* data = (unsigned char*)data2;
-		if (!(m_data->m_droidRegular = sth_add_font_from_memory(m_data->m_fontStash, data)))
+		m_data->m_droidRegular = sth_add_font_from_memory(m_data->m_fontStash, data);
+		if (!m_data->m_droidRegular)
 		{
 			b3Warning("error!\n");
 		}
-		if (!(m_data->m_droidRegular2 = sth_add_font_from_memory(m_data->m_fontStash2, data)))
+		m_data->m_droidRegular2 = sth_add_font_from_memory(m_data->m_fontStash2, data);
+		if (!m_data->m_droidRegular2)
 		{
 			b3Warning("error!\n");
 		}
