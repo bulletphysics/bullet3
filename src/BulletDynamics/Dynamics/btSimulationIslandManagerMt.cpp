@@ -288,8 +288,7 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* /*dispatcher*/, btC
 
 		bool allSleeping = true;
 
-		int idx;
-		for (idx = startIslandIndex; idx < endIslandIndex; idx++)
+		for (int idx = startIslandIndex; idx < endIslandIndex; idx++)
 		{
 			int i = getUnionFind().getElement(idx).m_sz;
 
@@ -313,7 +312,7 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* /*dispatcher*/, btC
 
 		if (allSleeping)
 		{
-			for (idx = startIslandIndex; idx < endIslandIndex; idx++)
+			for (int idx = startIslandIndex; idx < endIslandIndex; idx++)
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
 				btCollisionObject* colObj0 = collisionObjects[i];
@@ -332,7 +331,7 @@ void btSimulationIslandManagerMt::buildIslands(btDispatcher* /*dispatcher*/, btC
 		}
 		else
 		{
-			for (idx = startIslandIndex; idx < endIslandIndex; idx++)
+			for (int idx = startIslandIndex; idx < endIslandIndex; idx++)
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
 

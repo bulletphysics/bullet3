@@ -2207,7 +2207,7 @@ int BulletMJCFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 				const UrdfVisual& vis = link->m_visualArray[v];
 				btTransform childTrans = vis.m_linkLocalFrame;
 				btHashString matName(vis.m_materialName.c_str());
-				// UrdfMaterial* const* matPtr = model.m_materials[matName];
+				/*UrdfMaterial* const* matPtr =*/ model.m_materials[matName];
 
 				convertURDFToVisualShapeInternal(&vis, pathPrefix, inertialFrame.inverse() * childTrans, vertices, indices, textures);
 			}

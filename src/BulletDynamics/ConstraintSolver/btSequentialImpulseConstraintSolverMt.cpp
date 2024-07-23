@@ -294,7 +294,7 @@ void btSequentialImpulseConstraintSolverMt::setupAllContactConstraints(const btC
 	}
 }
 
-int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btCollisionObject& body, btScalar /*timeStep*/)
+int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btCollisionObject& body, btScalar timeStep)
 {
 	//
 	// getOrInitSolverBody is threadsafe only for a single thread per solver (with potentially multiple solvers)
@@ -316,8 +316,8 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 			if (solverBodyId < 0)
 			{
 				solverBodyId = m_tmpSolverBodyPool.size();
-				// btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
-				// initSolverBody(&solverBody, &body, timeStep);
+				btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+				initSolverBody(&solverBody, &body, timeStep);
 				body.setCompanionId(solverBodyId);
 			}
 			m_bodySolverArrayMutex.unlock();
@@ -357,8 +357,8 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 			{
 				// create a table entry for this body
 				solverBodyId = m_tmpSolverBodyPool.size();
-				// btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
-				// initSolverBody(&solverBody, &body, timeStep);
+				btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+				initSolverBody(&solverBody, &body, timeStep);
 				m_kinematicBodyUniqueIdToSolverBodyTable[uniqueId] = solverBodyId;
 			}
 			m_bodySolverArrayMutex.unlock();
@@ -375,8 +375,8 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 			if (m_fixedBodyId < 0)
 			{
 				m_fixedBodyId = m_tmpSolverBodyPool.size();
-				// btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-				// initSolverBody(&fixedBody, 0, timeStep);
+				btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
+				initSolverBody(&fixedBody, 0, timeStep);
 			}
 			m_bodySolverArrayMutex.unlock();
 		}
@@ -583,8 +583,8 @@ void btSequentialImpulseConstraintSolverMt::convertContacts(btPersistentManifold
 		if (m_fixedBodyId < 0)
 		{
 			m_fixedBodyId = m_tmpSolverBodyPool.size();
-			// btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-			// initSolverBody(&fixedBody, 0, infoGlobal.m_timeStep);
+			btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
+			initSolverBody(&fixedBody, 0, infoGlobal.m_timeStep);
 		}
 		allocAllContactConstraints(manifoldPtr, numManifolds, infoGlobal);
 		if (m_useBatching)

@@ -409,8 +409,8 @@ void btDeformableBodySolver::predictMotion(btScalar solverdt)
 		if (psb->isActive())
 		{
 			/* Clear contacts when softbody is active*/
-			// psb->m_nodeRigidContacts.resize(0);
-			// psb->m_faceRigidContacts.resize(0);
+			psb->m_nodeRigidContacts.resize(0);
+			psb->m_faceRigidContacts.resize(0);
 			psb->m_faceNodeContacts.resize(0);
 			psb->m_faceNodeContactsCCD.resize(0);
 			// predict motion for collision detection

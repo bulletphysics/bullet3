@@ -745,7 +745,7 @@ btTransform ConvertURDF2BulletInternal(
 		}
 		else
 		{
-			// int mbLinkIndex = cache.getMbIndexFromUrdfIndex(urdfLinkIndex);
+			/* int mbLinkIndex =*/ cache.getMbIndexFromUrdfIndex(urdfLinkIndex);
 			//u2b.convertLinkVisualShapes2(mbLinkIndex, urdfLinkIndex, pathPrefix, localInertialFrame, col, u2b.getBodyUniqueId());
 			u2b.convertLinkVisualShapes2(-1, urdfLinkIndex, pathPrefix, localInertialFrame, linkRigidBody, u2b.getBodyUniqueId());
 		}

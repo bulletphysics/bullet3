@@ -203,7 +203,7 @@ void btBvhTree::build_tree(
 	// initialize node count to 0
 	m_num_nodes = 0;
 	// allocate nodes
-	// m_node_array.resize(primitive_boxes.size() * 2);
+	m_node_array.resize(primitive_boxes.size() * 2);
 
 	_build_sub_tree(primitive_boxes, 0, primitive_boxes.size());
 }

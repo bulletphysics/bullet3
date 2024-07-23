@@ -63,8 +63,8 @@ int main(int /*argc*/, char* /*argv*/[])
 	//		b3Warning("Can't load SDF!\n");
 	//}
 
-	b3Clock clock;
 #if 0
+	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
 	double simWallClockSeconds = 20.;
 	while (clock.getTimeInSeconds()-startTime < simWallClockSeconds)

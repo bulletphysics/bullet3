@@ -95,8 +95,8 @@ void btReducedDeformableBodySolver::predictReduceDeformableMotion(btScalar solve
     }
 
     // clear contacts variables
-		// rsb->m_nodeRigidContacts.resize(0);
-		// rsb->m_faceRigidContacts.resize(0);
+		rsb->m_nodeRigidContacts.resize(0);
+		rsb->m_faceRigidContacts.resize(0);
 		rsb->m_faceNodeContacts.resize(0);
     
     // calculate inverse mass matrix for all nodes

@@ -626,9 +626,9 @@ int b3PgsJacobiSolver::getOrInitSolverBody(int bodyIndex, b3RigidBodyData* bodie
 		if (m_bodyCount[bodyIndex] < 0)
 		{
 			curIndex = m_tmpSolverBodyPool.size();
-			// b3SolverBody& solverBody = m_tmpSolverBodyPool.expand();
-			// initSolverBody(bodyIndex, &solverBody, &body);
-			// solverBody.m_originalBodyIndex = bodyIndex;
+			b3SolverBody& solverBody = m_tmpSolverBodyPool.expand();
+			initSolverBody(bodyIndex, &solverBody, &body);
+			solverBody.m_originalBodyIndex = bodyIndex;
 			m_bodyCount[bodyIndex] = curIndex;
 		}
 		else
@@ -641,9 +641,9 @@ int b3PgsJacobiSolver::getOrInitSolverBody(int bodyIndex, b3RigidBodyData* bodie
 		b3Assert(m_bodyCount[bodyIndex] > 0);
 		m_bodyCountCheck[bodyIndex]++;
 		curIndex = m_tmpSolverBodyPool.size();
-		// b3SolverBody& solverBody = m_tmpSolverBodyPool.expand();
-		// initSolverBody(bodyIndex, &solverBody, &body);
-		// solverBody.m_originalBodyIndex = bodyIndex;
+		b3SolverBody& solverBody = m_tmpSolverBodyPool.expand();
+		initSolverBody(bodyIndex, &solverBody, &body);
+		solverBody.m_originalBodyIndex = bodyIndex;
 	}
 
 	b3Assert(curIndex >= 0);
@@ -988,7 +988,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 
 	m_maxOverrideNumSolverIterations = 0;
 
-	// m_tmpSolverBodyPool.resize(0);
+	m_tmpSolverBodyPool.resize(0);
 
 	m_bodyCount.resize(0);
 	m_bodyCount.resize(numBodies, 0);
