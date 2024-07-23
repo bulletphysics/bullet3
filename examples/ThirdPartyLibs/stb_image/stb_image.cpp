@@ -31,6 +31,7 @@
 #pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
 #pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
 #pragma warning(disable: 4457) // declaration of 'name' hides function parameter
+#pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
 #endif
 
 // implementation:
