@@ -3408,7 +3408,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 
 			//b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
 			bodyHandle->m_rigidBody = rb;
-			rb->setUserIndex2(bodyUniqueId);
+			if(rb) rb->setUserIndex2(bodyUniqueId);
 			m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
 
 			std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
@@ -5068,7 +5068,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_COMPLETED;
 						}
 
-						delete heightfieldData;
+						delete[] heightfieldData;
 						return hasStatus;
 					}
 					else
@@ -6237,16 +6237,19 @@ bool PhysicsServerCommandProcessor::processUserDebugDrawCommand(const struct Sha
 		double* pointPositions = (double*)malloc(pointNum * 3 * sizeof(double));
 		double* pointColorsUpload = (double*)(bufferServerToClient + pointNum * 3 * sizeof(double));
 		double* pointColors = (double*)malloc(pointNum * 3 * sizeof(double));
-		for (int i = 0; i < pointNum; i++) {
-			pointPositions[i * 3 + 0] = pointPositionsUpload[i * 3 + 0];
-			pointPositions[i * 3 + 1] = pointPositionsUpload[i * 3 + 1];
-			pointPositions[i * 3 + 2] = pointPositionsUpload[i * 3 + 2];
-			pointColors[i * 3 + 0] = pointColorsUpload[i * 3 + 0];
-			pointColors[i * 3 + 1] = pointColorsUpload[i * 3 + 1];
-			pointColors[i * 3 + 2] = pointColorsUpload[i * 3 + 2];
+		if(pointPositions && pointColors)
+		{
+			for (int i = 0; i < pointNum; i++) {
+				pointPositions[i * 3 + 0] = pointPositionsUpload[i * 3 + 0];
+				pointPositions[i * 3 + 1] = pointPositionsUpload[i * 3 + 1];
+				pointPositions[i * 3 + 2] = pointPositionsUpload[i * 3 + 2];
+				pointColors[i * 3 + 0] = pointColorsUpload[i * 3 + 0];
+				pointColors[i * 3 + 1] = pointColorsUpload[i * 3 + 1];
+				pointColors[i * 3 + 2] = pointColorsUpload[i * 3 + 2];
+			}
+			m_data->m_debugPointsDatas.push_back(pointPositions);
+			m_data->m_debugPointsDatas.push_back(pointColors);
 		}
-		m_data->m_debugPointsDatas.push_back(pointPositions);
-		m_data->m_debugPointsDatas.push_back(pointColors);
 
 		int uid = m_data->m_guiHelper->addUserDebugPoints(
 			pointPositions,
@@ -15031,6 +15034,8 @@ bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct Shared
 			m_data->m_guiHelper->autogenerateGraphicsObjects(m_data->m_dynamicsWorld);
 		}
 	}
+	if(importer)
+		delete importer;
 #endif
 	return hasStatus;
 }

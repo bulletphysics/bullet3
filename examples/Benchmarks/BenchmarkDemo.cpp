@@ -200,7 +200,7 @@ public:
 
 			{
 				BT_PROFILE("cw->rayTest");
-				cw->rayTest(source[i], dest[i], cb);
+				if(cw) cw->rayTest(source[i], dest[i], cb);
 			}
 			if (cb.hasHit())
 			{

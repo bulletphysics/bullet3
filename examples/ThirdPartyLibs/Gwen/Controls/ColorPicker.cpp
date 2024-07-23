@@ -118,7 +118,7 @@ void ColorPicker::UpdateColorControls(Gwen::String name, Gwen::Color col, int sl
 	Base* el = FindChildByName(name, true);
 
 	ColorDisplay* disp = el ? el->DynamicCastColorDisplay() : 0;
-	disp->SetColor(col);
+	if(disp) disp->SetColor(col);
 
 	HorizontalSlider* slider = FindChildByName(name + "Slider", true)->DynamicCastHorizontalSlider();
 	slider->SetValue(sliderVal);

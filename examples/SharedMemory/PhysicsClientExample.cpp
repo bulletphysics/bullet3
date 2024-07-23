@@ -643,7 +643,7 @@ void PhysicsClientExample::createButtons()
 				blarray[i] = bla;
 				comboParams.m_items = blarray;  //{&bla};
 			}
-			m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
+			if(m_guiHelper) m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
 		}
 
 		if (m_physicsClientHandle && m_selectedBody >= 0)
@@ -735,7 +735,7 @@ void PhysicsClientExample::initPhysics()
 	m_lightPos[2] = 1.0;
 
 	{
-		m_canvas = m_guiHelper->get2dCanvasInterface();
+		m_canvas = m_guiHelper ? m_guiHelper->get2dCanvasInterface() : NULL;
 		if (m_canvas)
 		{
 			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data", camVisualizerWidth, camVisualizerHeight, 8, 55);

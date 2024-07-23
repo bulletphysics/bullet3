@@ -222,26 +222,29 @@ void b3Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threa
 		m_completeHandles[i] = threadStatus.m_eventCompletetHandle;
 
 		HANDLE handle = CreateThread(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
-		switch (threadConstructionInfo.m_priority)
+		if(handle)
 		{
-			case 0:
+			switch (threadConstructionInfo.m_priority)
 			{
-				SetThreadPriority(handle, THREAD_PRIORITY_HIGHEST);
-				break;
-			}
-			case 1:
-			{
-				SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL);
-				break;
-			}
-			case 2:
-			{
-				SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL);
-				break;
-			}
+				case 0:
+				{
+					SetThreadPriority(handle, THREAD_PRIORITY_HIGHEST);
+					break;
+				}
+				case 1:
+				{
+					SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL);
+					break;
+				}
+				case 2:
+				{
+					SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL);
+					break;
+				}
 
-			default:
-			{
+				default:
+				{
+				}
 			}
 		}
 
@@ -272,7 +275,7 @@ void b3Win32ThreadSupport::stopThreads()
 	for (i = 0; i < m_activeThreadStatus.size(); i++)
 	{
 		b3ThreadStatus& threadStatus = m_activeThreadStatus[i];
-		if (threadStatus.m_status > 0)
+		if (threadStatus.m_status > 0 && threadStatus.m_eventCompletetHandle)
 		{
 			WaitForSingleObject(threadStatus.m_eventCompletetHandle, INFINITE);
 		}
@@ -284,7 +287,8 @@ void b3Win32ThreadSupport::stopThreads()
 
 		threadStatus.m_userPtr = 0;
 		SetEvent(threadStatus.m_eventStartHandle);
-		WaitForSingleObject(threadStatus.m_eventCompletetHandle, INFINITE);
+		if(threadStatus.m_eventCompletetHandle)
+			WaitForSingleObject(threadStatus.m_eventCompletetHandle, INFINITE);
 
 		CloseHandle(threadStatus.m_eventCompletetHandle);
 		CloseHandle(threadStatus.m_eventStartHandle);

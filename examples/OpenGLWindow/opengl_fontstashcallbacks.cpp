@@ -125,7 +125,7 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 
 			glBindTexture(GL_TEXTURE_2D, *texId);
 			texture->m_texels = (unsigned char*)malloc((size_t)(textureWidth * textureHeight));
-			memset(texture->m_texels, 0, (size_t)(textureWidth * textureHeight));
+			if(texture->m_texels) memset(texture->m_texels, 0, (size_t)(textureWidth * textureHeight));
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, textureWidth, textureHeight, 0, GL_RED, GL_UNSIGNED_BYTE, texture->m_texels);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -221,29 +221,33 @@ void dumpTextureToPng(int textureWidth, int textureHeight, const char* fileName)
 {
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	unsigned char* pixels = (unsigned char*)malloc((size_t)(textureWidth * textureHeight));
-	glReadPixels(0, 0, textureWidth, textureHeight, GL_RED, GL_UNSIGNED_BYTE, pixels);
-	//swap the pixels
-	unsigned char* tmp = (unsigned char*)malloc((size_t)textureWidth);
-	for (int j = 0; j < textureHeight; j++)
+	if(pixels && textureWidth && textureHeight)
 	{
-		pixels[j * textureWidth + j] = 255;
-	}
-	if (0)
-	{
-		for (int j = 0; j < textureHeight / 2; j++)
+		glReadPixels(0, 0, textureWidth, textureHeight, GL_RED, GL_UNSIGNED_BYTE, pixels);
+		//swap the pixels
+		unsigned char* tmp = (unsigned char*)malloc((size_t)textureWidth);
+		for (int j = 0; j < textureHeight; j++)
 		{
-			for (int i = 0; i < textureWidth; i++)
+			pixels[j * textureWidth + j] = 255;
+		}
+		if (0)
+		{
+			for (int j = 0; j < textureHeight / 2; j++)
 			{
-				tmp[i] = pixels[j * textureWidth + i];
-				pixels[j * textureWidth + i] = pixels[(textureHeight - j - 1) * textureWidth + i];
-				pixels[(textureHeight - j - 1) * textureWidth + i] = tmp[i];
+				for (int i = 0; i < textureWidth; i++)
+				{
+					tmp[i] = pixels[j * textureWidth + i];
+					pixels[j * textureWidth + i] = pixels[(textureHeight - j - 1) * textureWidth + i];
+					pixels[(textureHeight - j - 1) * textureWidth + i] = tmp[i];
+				}
 			}
 		}
+
+		int comp = 1;  //1=Y
+		stbi_write_png(fileName, textureWidth, textureHeight, comp, pixels, textureWidth);
+		
+		free(pixels);
+		free(tmp);
 	}
-
-	int comp = 1;  //1=Y
-	stbi_write_png(fileName, textureWidth, textureHeight, comp, pixels, textureWidth);
-
-	free(pixels);
 }
 #endif

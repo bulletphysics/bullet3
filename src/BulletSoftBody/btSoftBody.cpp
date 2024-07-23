@@ -2441,6 +2441,7 @@ void btSoftBody::indicesToPointers(const int* map)
 {
 #define IDX2PTR(_p_, _b_) map ? (&(_b_)[map[(((char*)_p_) - (char*)0)]]) : (&(_b_)[(((char*)_p_) - (char*)0)])
 	btSoftBody::Node* base = m_nodes.size() ? &m_nodes[0] : 0;
+	if(!base) return;
 
 	for (int i = 0, ni = m_nodes.size(); i < ni; ++i)
 	{
@@ -3678,6 +3679,7 @@ void btSoftBody::CJoint::Solve(btScalar /*dt*/, btScalar sor)
 
 	if (m_bodies[0].m_soft == m_bodies[1].m_soft)
 	{
+		btAssert(m_bodies[0].m_soft);
 		if ((impulse.m_velocity.getX() == impulse.m_velocity.getX()) && (impulse.m_velocity.getY() == impulse.m_velocity.getY()) &&
 			(impulse.m_velocity.getZ() == impulse.m_velocity.getZ()))
 		{
@@ -4318,7 +4320,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 		{
 			btSoftBody::Material* mat = m_materials[i];
 			*memPtr = mat ? (SoftBodyMaterialData*)serializer->getUniquePointer((void*)mat) : 0;
-			if (!serializer->findPointer(mat))
+			if (mat && !serializer->findPointer(mat))
 			{
 				//serialize it here
 				btChunk* chunkSer = serializer->allocate(sizeof(SoftBodyMaterialData), 1);

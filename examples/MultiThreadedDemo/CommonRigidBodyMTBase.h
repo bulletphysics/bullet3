@@ -405,7 +405,7 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		bool isDynamic = (mass != 0.f);
 
 		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
+		if (isDynamic && shape)
 			shape->calculateLocalInertia(mass, localInertia);
 
 			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects

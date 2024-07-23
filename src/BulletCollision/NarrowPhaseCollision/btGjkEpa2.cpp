@@ -849,14 +849,17 @@ struct EPA
 	sFace* findbest()
 	{
 		sFace* minf = m_hull.root;
-		btScalar mind = minf->d * minf->d;
-		for (sFace* f = minf->l[1]; f; f = f->l[1])
+		if(minf)
 		{
-			const btScalar sqd = f->d * f->d;
-			if (sqd < mind)
+			btScalar mind = minf->d * minf->d;
+			for (sFace* f = minf->l[1]; f; f = f->l[1])
 			{
-				minf = f;
-				mind = sqd;
+				const btScalar sqd = f->d * f->d;
+				if (sqd < mind)
+				{
+					minf = f;
+					mind = sqd;
+				}
 			}
 		}
 		return (minf);

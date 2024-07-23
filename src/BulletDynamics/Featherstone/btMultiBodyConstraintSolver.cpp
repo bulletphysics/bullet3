@@ -296,7 +296,9 @@ btScalar btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const bt
 	}
 	else if (c.m_solverBodyIdA >= 0)
 	{
-		bodyA->internalApplyImpulse(c.m_contactNormal1 * bodyA->internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
+		btAssert(bodyA);
+		if(bodyA)
+			bodyA->internalApplyImpulse(c.m_contactNormal1 * bodyA->internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 	}
 	if (c.m_multiBodyB)
 	{
@@ -309,7 +311,9 @@ btScalar btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const bt
 	}
 	else if (c.m_solverBodyIdB >= 0)
 	{
-		bodyB->internalApplyImpulse(c.m_contactNormal2 * bodyB->internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
+		btAssert(bodyB);
+		if(bodyB)
+			bodyB->internalApplyImpulse(c.m_contactNormal2 * bodyB->internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
 	}
 	btScalar deltaVel = deltaImpulse / c.m_jacDiagABInv;
 	return deltaVel;
@@ -861,7 +865,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			}
 			else
 			{
-				if (rb0)
+				if (rb0 && bodyA)
 					bodyA->internalApplyImpulse(solverConstraint.m_contactNormal1 * bodyA->internalGetInvMass() * rb0->getLinearFactor(), solverConstraint.m_angularComponentA, solverConstraint.m_appliedImpulse);
 			}
 			if (multiBodyB)
@@ -873,7 +877,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			}
 			else
 			{
-				if (rb1)
+				if (rb1 && bodyB)
 					bodyB->internalApplyImpulse(-solverConstraint.m_contactNormal2 * bodyB->internalGetInvMass() * rb1->getLinearFactor(), -solverConstraint.m_angularComponentB, -(btScalar)solverConstraint.m_appliedImpulse);
 			}
 		}

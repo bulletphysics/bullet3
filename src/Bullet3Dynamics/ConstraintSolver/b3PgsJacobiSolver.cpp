@@ -508,8 +508,8 @@ void b3PgsJacobiSolver::setupFrictionConstraint(b3RigidBodyData* bodies, b3Inert
 		else
 		{
 			denom = relaxation / (denom0 + denom1);
-			b3Scalar countA = body0->m_invMass ? b3Scalar(m_bodyCount[solverBodyA.m_originalBodyIndex]) : 1.f;
-			b3Scalar countB = body1->m_invMass ? b3Scalar(m_bodyCount[solverBodyB.m_originalBodyIndex]) : 1.f;
+			b3Scalar countA = body0 && body0->m_invMass ? b3Scalar(m_bodyCount[solverBodyA.m_originalBodyIndex]) : 1.f;
+			b3Scalar countB = body1 && body1->m_invMass ? b3Scalar(m_bodyCount[solverBodyB.m_originalBodyIndex]) : 1.f;
 
 			scaledDenom = relaxation / (denom0 * countA + denom1 * countB);
 		}
@@ -708,8 +708,8 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 		{
 			denom = relaxation / (denom0 + denom1);
 
-			b3Scalar countA = rb0->m_invMass ? b3Scalar(m_bodyCount[bodyA->m_originalBodyIndex]) : 1.f;
-			b3Scalar countB = rb1->m_invMass ? b3Scalar(m_bodyCount[bodyB->m_originalBodyIndex]) : 1.f;
+			b3Scalar countA = rb0 && rb0->m_invMass ? b3Scalar(m_bodyCount[bodyA->m_originalBodyIndex]) : 1.f;
+			b3Scalar countB = rb1 && rb1->m_invMass ? b3Scalar(m_bodyCount[bodyB->m_originalBodyIndex]) : 1.f;
 			scaledDenom = relaxation / (denom0 * countA + denom1 * countB);
 		}
 		solverConstraint.m_jacDiagABInv = denom;

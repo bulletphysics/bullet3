@@ -171,6 +171,7 @@ cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
 	if (platformIndex < numPlatforms)
 	{
 		cl_platform_id* platforms = (cl_platform_id*)malloc(sizeof(cl_platform_id) * numPlatforms);
+		if(!platforms) return platform;
 		ciErrNum = clGetPlatformIDs(numPlatforms, platforms, NULL);
 		if (ciErrNum != CL_SUCCESS)
 		{
@@ -314,6 +315,7 @@ cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int
 	if (numPlatforms > 0)
 	{
 		cl_platform_id* platforms = (cl_platform_id*)malloc(sizeof(cl_platform_id) * numPlatforms);
+		if(!platforms) return NULL;
 		ciErrNum = clGetPlatformIDs(numPlatforms, platforms, NULL);
 		if (ciErrNum != CL_SUCCESS)
 		{
@@ -405,6 +407,8 @@ cl_device_id b3OpenCLUtils_getDevice(cl_context cxMainContext, int deviceIndex)
 	}
 
 	cdDevices = (cl_device_id*)malloc(szParmDataBytes);
+	if(!cdDevices) 
+		return (cl_device_id)-1;
 
 	clGetContextInfo(cxMainContext, CL_CONTEXT_DEVICES, szParmDataBytes, cdDevices, NULL);
 
@@ -828,10 +832,13 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					int kernelSize = ftell(file);
 					rewind(file);
 					kernelSrc = (char*)malloc((size_t)kernelSize + 1);
-					int readBytes;
-					readBytes = (int)fread((void*)kernelSrc, 1, (size_t)kernelSize, file);
-					(void)readBytes;
-					kernelSrc[kernelSize] = 0;
+					if(kernelSrc)
+					{
+						int readBytes;
+						readBytes = (int)fread((void*)kernelSrc, 1, (size_t)kernelSize, file);
+						(void)readBytes;
+						kernelSrc[kernelSize] = 0;
+					}
 					fclose(file);
 					kernelSource = kernelSrc;
 				}
@@ -857,6 +864,11 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 		flagsize = (int)(sizeof(char) * (strlen(additionalMacros) + strlen(flags) + 5));
 		compileFlags = (char*)malloc((size_t)flagsize);
+		if(!compileFlags)
+		{
+			b3Error("Error in clBuildProgram, Line %u in file %s, Failed to allocate buffer for compileFlags\n !!!\n\n", __LINE__, __FILE__);
+			return 0;
+		}
 #ifdef _MSC_VER
 		sprintf_s(compileFlags, (size_t)flagsize, "%s %s", flags, additionalMacros);
 #else
@@ -869,6 +881,11 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			size_t ret_val_size;
 			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
 			build_log = (char*)malloc(sizeof(char) * (ret_val_size + 1));
+			if(!build_log) 
+			{
+				b3Error("Error in clBuildProgram, Line %u in file %s, Failed to allocate buffer to print build log\n !!!\n\n", __LINE__, __FILE__);
+				return 0;
+			}
 			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
 
 			// to be carefully, terminate with \0

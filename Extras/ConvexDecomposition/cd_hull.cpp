@@ -1543,9 +1543,12 @@ void Array<Type>::allocate(int s)
 	array_size = s;
 	element = (Type *)malloc(sizeof(Type) * array_size);
 	assert(element);
-	for (int i = 0; i < count; i++)
+	if(element)
 	{
-		element[i] = old[i];
+		for (int i = 0; i < count; i++)
+		{
+			element[i] = old[i];
+		}
 	}
 	if (old)
 	{
@@ -2556,7 +2559,7 @@ btHullTriangle *extrudable(float epsilon, Array<btHullTriangle *> &tris)
 			t = tris[i];
 		}
 	}
-	return (t->rise > epsilon) ? t : NULL;
+	return (t && t->rise > epsilon) ? t : NULL;
 }
 
 class int4
@@ -2818,24 +2821,27 @@ int overhull(Plane *planes, int planes_count, float3 *verts, int verts_count, in
 	faces_out = (int *)malloc(sizeof(int) * (1 + c->facets.count + c->edges.count));  // new int[1+c->facets.count+c->edges.count];
 	faces_count_out = 0;
 	i = 0;
-	faces_out[faces_count_out++] = -1;
 	k = 0;
-	while (i < c->edges.count)
+	if(faces_out)
 	{
-		j = 1;
-		while (j + i < c->edges.count && c->edges[i].p == c->edges[i + j].p)
+		faces_out[faces_count_out++] = -1;
+		while (i < c->edges.count)
 		{
-			j++;
+			j = 1;
+			while (j + i < c->edges.count && c->edges[i].p == c->edges[i + j].p)
+			{
+				j++;
+			}
+			faces_out[faces_count_out++] = j;
+			while (j--)
+			{
+				faces_out[faces_count_out++] = c->edges[i].v;
+				i++;
+			}
+			k++;
 		}
-		faces_out[faces_count_out++] = j;
-		while (j--)
-		{
-			faces_out[faces_count_out++] = c->edges[i].v;
-			i++;
-		}
-		k++;
+		faces_out[0] = k;  // number of faces.
 	}
-	faces_out[0] = k;  // number of faces.
 	assert(k == c->facets.count);
 	assert(faces_count_out == 1 + c->facets.count + c->edges.count);
 	verts_out = c->vertices.element;  // new float3[c->vertices.count];
@@ -2989,25 +2995,29 @@ HullError HullLibrary::CreateConvexHull(const HullDesc &desc,  // describes the 
 
 				result.mIndices = (unsigned int *)malloc(sizeof(unsigned int) * hr.mIndexCount);
 
-				memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
+				if(result.mOutputVertices)
+					memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
 
-				if (desc.HasHullFlag(QF_REVERSE_ORDER))
+				if(result.mIndices && hr.mIndices)
 				{
-					const unsigned int *source = hr.mIndices;
-					unsigned int *dest = result.mIndices;
-
-					for (unsigned int i = 0; i < hr.mFaceCount; i++)
+					if (desc.HasHullFlag(QF_REVERSE_ORDER))
 					{
-						dest[0] = source[2];
-						dest[1] = source[1];
-						dest[2] = source[0];
-						dest += 3;
-						source += 3;
+						const unsigned int *source = hr.mIndices;
+						unsigned int *dest = result.mIndices;
+
+						for (unsigned int i = 0; i < hr.mFaceCount; i++)
+						{
+							dest[0] = source[2];
+							dest[1] = source[1];
+							dest[2] = source[0];
+							dest += 3;
+							source += 3;
+						}
 					}
-				}
-				else
-				{
-					memcpy(result.mIndices, hr.mIndices, sizeof(unsigned int) * hr.mIndexCount);
+					else
+					{
+						memcpy(result.mIndices, hr.mIndices, sizeof(unsigned int) * hr.mIndexCount);
+					}
 				}
 			}
 			else
@@ -3018,9 +3028,10 @@ HullError HullLibrary::CreateConvexHull(const HullDesc &desc,  // describes the 
 				result.mNumFaces = hr.mFaceCount;
 				result.mNumIndices = hr.mIndexCount + hr.mFaceCount;
 				result.mIndices = (unsigned int *)malloc(sizeof(unsigned int) * result.mNumIndices);
-				memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
+				if(result.mOutputVertices && vscratch)
+					memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
 
-				if (1)
+				if (result.mIndices && hr.mIndices)
 				{
 					const unsigned int *source = hr.mIndices;
 					unsigned int *dest = result.mIndices;
@@ -3343,7 +3354,8 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 void HullLibrary::BringOutYourDead(const float *verts, unsigned int vcount, float *overts, unsigned int &ocount, unsigned int *indices, unsigned indexcount)
 {
 	unsigned int *used = (unsigned int *)malloc(sizeof(unsigned int) * vcount);
-	memset(used, 0, sizeof(unsigned int) * vcount);
+	if(!used) return;
+	 memset(used, 0, sizeof(unsigned int) * vcount);
 
 	ocount = 0;
 

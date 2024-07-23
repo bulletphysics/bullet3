@@ -88,6 +88,11 @@ void* Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 				0,                     // maximum object size (high-order DWORD)
 				(DWORD)size,           // maximum object size (low-order DWORD)
 				seg.m_szName);         // name of mapping object
+				if(seg.m_hMapFile == NULL)
+				{
+					b3Warning("Could not create map file (%d).\n", GetLastError());
+					return 0;
+				}
 		}
 		else
 		{

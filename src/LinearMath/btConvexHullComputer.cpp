@@ -2548,6 +2548,7 @@ bool btConvexHullInternal::shiftFace(Face* face, btScalar amount, btAlignedObjec
 				stack.push_back(NULL);
 			}
 		}
+		btAssert(faceEdge);
 		faceEdge->face = face;
 		faceEdge->reverse->face = intersection->face;
 

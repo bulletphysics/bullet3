@@ -912,7 +912,7 @@ inline void btDbvt::selfCollideT(const btDbvntNode* root,
                     stkStack[depth++] = sStknNN(p.a->childs[0], p.a->childs[1]);
                 }
             }
-            else if (Intersect(p.a->volume, p.b->volume))
+            else if (p.a && p.b && Intersect(p.a->volume, p.b->volume))
             {
                 if (p.a->isinternal())
                 {

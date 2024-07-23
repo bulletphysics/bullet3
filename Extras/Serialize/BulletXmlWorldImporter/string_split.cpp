@@ -78,8 +78,12 @@ void str_array_free(char **array)
 {
 	if (array == NULL)
 		return;
-	for (size_t i = 0; array[i] != NULL; ++i)
+	size_t i = 0;
+	while(array[i] != NULL)
+	{
 		free(array[i]);
+		++i;
+	}
 	free(array);
 }
 

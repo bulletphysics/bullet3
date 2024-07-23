@@ -75,10 +75,13 @@ bFile::bFile(const char *filename, const char headerString[7])
 		fseek(fp, 0L, SEEK_SET);
 
 		mFileBuffer = (char *)malloc((size_t)mFileLen + 1);
-                memset(mFileBuffer, 0, (size_t)mFileLen+1);
-		size_t bytesRead;
-		bytesRead = fread(mFileBuffer, (size_t)mFileLen, 1, fp);
-		(void)bytesRead;
+		if(mFileBuffer)
+		{
+			memset(mFileBuffer, 0, (size_t)mFileLen+1);
+			size_t bytesRead;
+			bytesRead = fread(mFileBuffer, (size_t)mFileLen, 1, fp);
+			(void)bytesRead;
+		}
 
 		fclose(fp);
 
@@ -889,7 +892,7 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 	int ptrFile = mFileDNA->getPointerSize();
 	int ptrMem = mMemoryDNA->getPointerSize();
 
-	if (!src && !dst)
+	if (!src || !dst)
 		return;
 
 	if (ptrFile == ptrMem)
@@ -1128,7 +1131,7 @@ void bFile::resolvePointersMismatch()
 		void **ptrptr = (void **)cur;
 
 		bChunkInd *block = m_chunkPtrPtrMap.find(*ptrptr);
-		if (block)
+		if (block && mMemoryDNA && mFileDNA)
 		{
 			int ptrMem = mMemoryDNA->getPointerSize();
 			int ptrFile = mFileDNA->getPointerSize();

@@ -170,7 +170,7 @@ void BspDemo::initPhysics(const char* bspfilename)
 		{
 			//how to detect file size?
 			memoryBuffer = malloc((size_t)size + 1);
-			int len = (int)fread(memoryBuffer, 1, (size_t)size, file);
+			int len = memoryBuffer ? (int)fread(memoryBuffer, 1, (size_t)size, file) : 0;
 			(void)len;
 			bspLoader.loadBSPFile(memoryBuffer);
 

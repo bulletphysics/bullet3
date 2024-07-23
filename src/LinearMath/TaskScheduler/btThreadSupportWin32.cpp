@@ -119,52 +119,55 @@ void getProcessorInformation(btProcessorInfo* procInfo)
 	for (int i = 0; i < len; ++i)
 	{
 		PSYSTEM_LOGICAL_PROCESSOR_INFORMATION info = buf + i;
-		switch (info->Relationship)
+		if(info)
 		{
-			case RelationNumaNode:
-				procInfo->numNumaNodes++;
-				break;
+			switch (info->Relationship)
+			{
+				case RelationNumaNode:
+					procInfo->numNumaNodes++;
+					break;
 
-			case RelationProcessorCore:
-				procInfo->numCores++;
-				procInfo->numLogicalProcessors += countSetBits(info->ProcessorMask);
-				break;
+				case RelationProcessorCore:
+					procInfo->numCores++;
+					procInfo->numLogicalProcessors += countSetBits(info->ProcessorMask);
+					break;
 
-			case RelationCache:
-				if (info->Cache.Level == 1)
-				{
-					procInfo->numL1Cache++;
-				}
-				else if (info->Cache.Level == 2)
-				{
-					procInfo->numL2Cache++;
-				}
-				else if (info->Cache.Level == 3)
-				{
-					procInfo->numL3Cache++;
-					// processors that share L3 cache are considered to be on the same team
-					// because they can more easily work together on the same data.
-					// Large performance penalties will occur if 2 or more threads from different
-					// teams attempt to frequently read and modify the same cache lines.
-					//
-					// On the AMD Ryzen 7 CPU for example, the 8 cores on the CPU are split into
-					// 2 CCX units of 4 cores each. Each CCX has a separate L3 cache, so if both
-					// CCXs are operating on the same data, many cycles will be spent keeping the
-					// two caches coherent.
-					if (procInfo->numTeamMasks < btProcessorInfo::maxNumTeamMasks)
+				case RelationCache:
+					if (info->Cache.Level == 1)
 					{
-						procInfo->processorTeamMasks[procInfo->numTeamMasks] = info->ProcessorMask;
-						procInfo->numTeamMasks++;
+						procInfo->numL1Cache++;
 					}
-				}
-				break;
+					else if (info->Cache.Level == 2)
+					{
+						procInfo->numL2Cache++;
+					}
+					else if (info->Cache.Level == 3)
+					{
+						procInfo->numL3Cache++;
+						// processors that share L3 cache are considered to be on the same team
+						// because they can more easily work together on the same data.
+						// Large performance penalties will occur if 2 or more threads from different
+						// teams attempt to frequently read and modify the same cache lines.
+						//
+						// On the AMD Ryzen 7 CPU for example, the 8 cores on the CPU are split into
+						// 2 CCX units of 4 cores each. Each CCX has a separate L3 cache, so if both
+						// CCXs are operating on the same data, many cycles will be spent keeping the
+						// two caches coherent.
+						if (procInfo->numTeamMasks < btProcessorInfo::maxNumTeamMasks)
+						{
+							procInfo->processorTeamMasks[procInfo->numTeamMasks] = info->ProcessorMask;
+							procInfo->numTeamMasks++;
+						}
+					}
+					break;
 
-			case RelationProcessorPackage:
-				procInfo->numPhysicalPackages++;
-				break;
+				case RelationProcessorPackage:
+					procInfo->numPhysicalPackages++;
+					break;
 
-			default:
-				break;
+				default:
+					break;
+			}
 		}
 	}
 	free(buf);
@@ -360,7 +363,7 @@ void btThreadSupportWin32::startThreads(const ConstructionInfo& threadConstructi
 		//                     we don't want worker threads to be higher priority than the main thread or the main thread could get
 		//                     totally shut out and unable to tell the workers to stop
 		//SetThreadPriority( handle, THREAD_PRIORITY_BELOW_NORMAL );
-
+		if(handle)
 		{
 			int processorId = i + 1;  // leave processor 0 for main thread
 			DWORD_PTR teamMask = getProcessorTeamMask(procInfo, processorId);
@@ -385,7 +388,10 @@ void btThreadSupportWin32::startThreads(const ConstructionInfo& threadConstructi
 		threadStatus.m_threadHandle = handle;
 		threadStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
 
-		printf("started %s thread %d with threadHandle %p\n", threadConstructionInfo.m_uniqueName, i, handle);
+		if(handle)
+			printf("started %s thread %d with threadHandle %p\n", threadConstructionInfo.m_uniqueName, i, handle);
+		else
+			printf("failed to start %s thread %d\n", threadConstructionInfo.m_uniqueName, i);
 	}
 }
 
@@ -395,14 +401,15 @@ void btThreadSupportWin32::stopThreads()
 	for (int i = 0; i < m_activeThreadStatus.size(); i++)
 	{
 		btThreadStatus& threadStatus = m_activeThreadStatus[i];
-		if (threadStatus.m_status > 0)
+		if (threadStatus.m_status > 0 && threadStatus.m_eventCompleteHandle)
 		{
 			WaitForSingleObject(threadStatus.m_eventCompleteHandle, INFINITE);
 		}
 
 		threadStatus.m_userPtr = NULL;
 		SetEvent(threadStatus.m_eventStartHandle);
-		WaitForSingleObject(threadStatus.m_eventCompleteHandle, INFINITE);
+		if(threadStatus.m_eventCompleteHandle)
+			WaitForSingleObject(threadStatus.m_eventCompleteHandle, INFINITE);
 
 		CloseHandle(threadStatus.m_eventCompleteHandle);
 		CloseHandle(threadStatus.m_eventStartHandle);

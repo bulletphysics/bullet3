@@ -232,7 +232,7 @@ struct MyRenderCallbacks : public RenderCallbacks
 			if (textureWidth && textureHeight)
 			{
 				texture->m_texels = (unsigned char*)malloc((size_t)(textureWidth * textureHeight));
-				memset(texture->m_texels, 0, (size_t)(textureWidth * textureHeight));
+				if(texture->m_texels) memset(texture->m_texels, 0, (size_t)(textureWidth * textureHeight));
 				if (m_textureIndex < 0)
 				{
 					m_rgbaTexture.resize(textureWidth * textureHeight * 3);
@@ -1025,56 +1025,61 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 
 	b3Assert(glGetError() == GL_NO_ERROR);
 	//glReadBuffer(GL_BACK);//COLOR_ATTACHMENT0);
+	if(!textureWidth || !textureHeight) return;
 
 	float* orgPixels = (float*)malloc((size_t)(textureWidth * textureHeight * numComponents * 4));
+	if(!orgPixels) return;
 	glReadPixels(0, 0, textureWidth, textureHeight, GL_RGBA, GL_FLOAT, orgPixels);
 	//it is useful to have the actual float values for debugging purposes
 
 	//convert float->char
 	char* pixels = (char*)malloc((size_t)(textureWidth * textureHeight * numComponents));
-	assert(glGetError() == GL_NO_ERROR);
+	assert(glGetError() == GL_NO_ERROR && pixels != NULL && orgPixels != NULL);
 
-	for (int j = 0; j < textureHeight; j++)
+	if(pixels)
 	{
-		for (int i = 0; i < textureWidth; i++)
+		for (int j = 0; j < textureHeight; j++)
 		{
-			pixels[(j * textureWidth + i) * numComponents] = char(orgPixels[(j * textureWidth + i) * numComponents] * 255.f);
-			pixels[(j * textureWidth + i) * numComponents + 1] = char(orgPixels[(j * textureWidth + i) * numComponents + 1] * 255.f);
-			pixels[(j * textureWidth + i) * numComponents + 2] = char(orgPixels[(j * textureWidth + i) * numComponents + 2] * 255.f);
-			pixels[(j * textureWidth + i) * numComponents + 3] = char(orgPixels[(j * textureWidth + i) * numComponents + 3] * 255.f);
-		}
-	}
-
-	if (ffmpegVideo)
-	{
-		fwrite(pixels, (size_t)(textureWidth * textureHeight * numComponents), 1, ffmpegVideo);
-		//fwrite(pixels, 100,1,ffmpegVideo);//textureWidth*textureHeight*numComponents, 1, ffmpegVideo);
-	}
-	else
-	{
-		if (1)
-		{
-			//swap the pixels
-			char tmp;
-
-			for (int j = 0; j < textureHeight / 2; j++)
+			for (int i = 0; i < textureWidth; i++)
 			{
-				for (int i = 0; i < textureWidth; i++)
+				pixels[(j * textureWidth + i) * numComponents] = char(orgPixels[(j * textureWidth + i) * numComponents] * 255.f);
+				pixels[(j * textureWidth + i) * numComponents + 1] = char(orgPixels[(j * textureWidth + i) * numComponents + 1] * 255.f);
+				pixels[(j * textureWidth + i) * numComponents + 2] = char(orgPixels[(j * textureWidth + i) * numComponents + 2] * 255.f);
+				pixels[(j * textureWidth + i) * numComponents + 3] = char(orgPixels[(j * textureWidth + i) * numComponents + 3] * 255.f);
+			}
+		}
+
+		if (ffmpegVideo)
+		{
+			fwrite(pixels, (size_t)(textureWidth * textureHeight * numComponents), 1, ffmpegVideo);
+			//fwrite(pixels, 100,1,ffmpegVideo);//textureWidth*textureHeight*numComponents, 1, ffmpegVideo);
+		}
+		else
+		{
+			if (1)
+			{
+				//swap the pixels
+				char tmp;
+
+				for (int j = 0; j < textureHeight / 2; j++)
 				{
-					for (int c = 0; c < numComponents; c++)
+					for (int i = 0; i < textureWidth; i++)
 					{
-						tmp = pixels[(j * textureWidth + i) * numComponents + c];
-						pixels[(j * textureWidth + i) * numComponents + c] =
-							pixels[((textureHeight - j - 1) * textureWidth + i) * numComponents + c];
-						pixels[((textureHeight - j - 1) * textureWidth + i) * numComponents + c] = tmp;
+						for (int c = 0; c < numComponents; c++)
+						{
+							tmp = pixels[(j * textureWidth + i) * numComponents + c];
+							pixels[(j * textureWidth + i) * numComponents + c] =
+								pixels[((textureHeight - j - 1) * textureWidth + i) * numComponents + c];
+							pixels[((textureHeight - j - 1) * textureWidth + i) * numComponents + c] = tmp;
+						}
 					}
 				}
 			}
+			stbi_write_png(fileName, textureWidth, textureHeight, numComponents, pixels, textureWidth * numComponents);
 		}
-		stbi_write_png(fileName, textureWidth, textureHeight, numComponents, pixels, textureWidth * numComponents);
 	}
-
-	free(pixels);
+	if(pixels)
+		free(pixels);
 	free(orgPixels);
 }
 

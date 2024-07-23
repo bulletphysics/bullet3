@@ -748,32 +748,26 @@ bool NN3DWalkersExample::detectCollisions()
 	if (m_dynamicsWorld)
 	{
 		m_dynamicsWorld->performDiscreteCollisionDetection();  // let the collisions be calculated
-	}
 
-	int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
-	for (int i = 0; i < numManifolds; i++)
-	{
-		btPersistentManifold* contactManifold = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-		const btCollisionObject* obA = contactManifold->getBody0();
-		const btCollisionObject* obB = contactManifold->getBody1();
-
-		if (obA->getUserPointer() != GROUND_ID && obB->getUserPointer() != GROUND_ID)
+		int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
+		for (int i = 0; i < numManifolds; i++)
 		{
-			int numContacts = contactManifold->getNumContacts();
-			for (int j = 0; j < numContacts; j++)
-			{
-				collisionDetected = true;
-				btManifoldPoint& pt = contactManifold->getContactPoint(j);
-				if (pt.getDistance() < 0.f)
-				{
-					//const btVector3& ptA = pt.getPositionWorldOnA();
-					//const btVector3& ptB = pt.getPositionWorldOnB();
-					//const btVector3& normalOnB = pt.m_normalWorldOnB;
+			btPersistentManifold* contactManifold = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+			const btCollisionObject* obA = contactManifold->getBody0();
+			const btCollisionObject* obB = contactManifold->getBody1();
 
-					if (!DRAW_INTERPENETRATIONS)
+			if (obA->getUserPointer() != GROUND_ID && obB->getUserPointer() != GROUND_ID)
+			{
+				int numContacts = contactManifold->getNumContacts();
+				for (int j = 0; j < numContacts; j++)
+				{
+					collisionDetected = true;
+					btManifoldPoint& pt = contactManifold->getContactPoint(j);
+					if (pt.getDistance() < 0.f)
 					{
-						return collisionDetected;
-					}
+						//const btVector3& ptA = pt.getPositionWorldOnA();
+						//const btVector3& ptB = pt.getPositionWorldOnB();
+						//const btVector3& normalOnB = pt.m_normalWorldOnB;
 
 						if (!DRAW_INTERPENETRATIONS)
 						{

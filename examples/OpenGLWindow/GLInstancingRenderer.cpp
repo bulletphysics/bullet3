@@ -1623,10 +1623,17 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 {
 	b3Assert(glGetError() == GL_NO_ERROR);
 	glPixelStorei(GL_PACK_ALIGNMENT, 4);
+	if(!textureWidth || !textureHeight) return;
 
 	glReadBuffer(GL_NONE);
 	float* orgPixels = (float*)malloc((size_t)(textureWidth * textureHeight * numComponents * 4));
+	if(!orgPixels) return;
 	char* pixels = (char*)malloc((size_t)(textureWidth * textureHeight * numComponents * 4));
+	if(!pixels) 
+	{
+		free(orgPixels);
+		return;
+	}
 	glReadPixels(0, 0, textureWidth, textureHeight, GL_DEPTH_COMPONENT, GL_FLOAT, orgPixels);
 	b3Assert(glGetError() == GL_NO_ERROR);
 	for (int j = 0; j < textureHeight; j++)

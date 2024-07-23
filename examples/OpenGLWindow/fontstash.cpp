@@ -144,7 +144,7 @@ struct sth_stash* sth_create(int cachew, int cacheh, RenderCallbacks* renderCall
 		assert(0);
 		free(stash);
 	}
-	memset((void*)texture, 0, sizeof(struct sth_texture));
+	if(texture) memset((void*)texture, 0, sizeof(struct sth_texture));
 
 	// Create first texture for the cache.
 	stash->tw = cachew;
@@ -430,7 +430,9 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 
 	// Alloc space for new glyph.
 	fnt->nglyphs++;
-	fnt->glyphs = (sth_glyph*)realloc(fnt->glyphs, fnt->nglyphs * sizeof(struct sth_glyph));
+	(sth_glyph*) reallocated = (sth_glyph*)realloc(fnt->glyphs, fnt->nglyphs * sizeof(struct sth_glyph));
+	if(reallocated)
+		fnt->glyphs = reallocated;
 	if (!fnt->glyphs) return 0;
 
 	// Init glyph.

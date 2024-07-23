@@ -60,7 +60,8 @@ struct TempResourcePath
 	TempResourcePath(int len)
 	{
 		m_path = (char*)malloc((size_t)len);
-		memset(m_path, 0, (size_t)len);
+		if(m_path)
+			memset(m_path, 0, (size_t)len);
 	}
 	virtual ~TempResourcePath()
 	{

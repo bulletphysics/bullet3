@@ -290,6 +290,7 @@ void btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface, int 
 			//triangles->getLockedReadOnlyVertexIndexBase(vertexBase,numVerts,
 
 			unsigned int* gfxbase = (unsigned int*)(indexbase + nodeTriangleIndex * indexstride);
+			btAssert(gfxbase);
 
 			for (int j = 2; j >= 0; j--)
 			{
@@ -303,6 +304,7 @@ void btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface, int 
 				if (type == PHY_FLOAT)
 				{
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
+					btAssert(graphicsbase);
 					triangleVerts[j] = btVector3(
 						graphicsbase[0] * meshScaling.getX(),
 						graphicsbase[1] * meshScaling.getY(),
@@ -311,6 +313,7 @@ void btOptimizedBvh::updateBvhNodes(btStridingMeshInterface* meshInterface, int 
 				else
 				{
 					double* graphicsbase = (double*)(vertexbase + graphicsindex * stride);
+					btAssert(graphicsbase);
 					triangleVerts[j] = btVector3(btScalar(graphicsbase[0] * meshScaling.getX()), btScalar(graphicsbase[1] * meshScaling.getY()), btScalar(graphicsbase[2] * meshScaling.getZ()));
 				}
 			}

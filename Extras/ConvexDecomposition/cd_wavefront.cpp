@@ -226,16 +226,16 @@ void InPlaceParser::SetFile(const char *fname)
 		fseek(fph, 0L, SEEK_END);
 		mLen = ftell(fph);
 		fseek(fph, 0L, SEEK_SET);
-		if (mLen)
+		if (mLen > 0)
 		{
 			mData = (char *)malloc(sizeof(char) * (mLen + 1));
-			int ok = (int)fread(mData, (size_t)mLen, 1, fph);
-			if (!ok)
+			int ok = mData ? (int)fread(mData, (size_t)mLen, 1, fph) : 0;
+			if (!ok && mData)
 			{
 				free(mData);
 				mData = 0;
 			}
-			else
+			else if(mData)
 			{
 				mData[mLen] = 0;  // zero byte terminate end of file marker.
 				mMyAlloc = true;

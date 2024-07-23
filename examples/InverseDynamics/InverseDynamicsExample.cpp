@@ -336,7 +336,7 @@ void InverseDynamicsExample::stepSimulation(float /*deltaTime*/)
 		m_dynamicsWorld->stepSimulation(btScalar(1e-3), 0);  //,1e-3);
 		btAlignedObjectArray<btQuaternion> scratch_q;
 		btAlignedObjectArray<btVector3> scratch_m;
-		m_multiBody->forwardKinematics(scratch_q, scratch_m);
+		if(m_multiBody) m_multiBody->forwardKinematics(scratch_q, scratch_m);
 #if 0
 		for (int i = 0; i < m_multiBody->getNumLinks(); i++)
 		{

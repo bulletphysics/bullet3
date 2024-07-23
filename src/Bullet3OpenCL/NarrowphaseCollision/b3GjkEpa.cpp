@@ -805,14 +805,17 @@ struct b3EPA
 	sFace* findbest()
 	{
 		sFace* minf = m_hull.root;
-		b3Scalar mind = minf->d * minf->d;
-		for (sFace* f = minf->l[1]; f; f = f->l[1])
+		if(minf)
 		{
-			const b3Scalar sqd = f->d * f->d;
-			if (sqd < mind)
+			b3Scalar mind = minf->d * minf->d;
+			for (sFace* f = minf->l[1]; f; f = f->l[1])
 			{
-				minf = f;
-				mind = sqd;
+				const b3Scalar sqd = f->d * f->d;
+				if (sqd < mind)
+				{
+					minf = f;
+					mind = sqd;
+				}
 			}
 		}
 		return (minf);

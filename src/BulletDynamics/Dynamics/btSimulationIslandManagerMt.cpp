@@ -417,14 +417,14 @@ void btSimulationIslandManagerMt::addManifoldsToIslands(btDispatcher* dispatcher
 			((colObj1) && colObj1->getActivationState() != ISLAND_SLEEPING))
 		{
 			//kinematic objects don't merge islands, but wake up all connected objects
-			if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
+			if (colObj0 && colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
 			{
 				if (colObj0->hasContactResponse())
 					colObj1->activate();
 			}
-			if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
+			if (colObj1 && colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
 			{
-				if (colObj1->hasContactResponse())
+				if (colObj1->hasContactResponse() && colObj0)
 					colObj0->activate();
 			}
 			//filtering for response
@@ -646,14 +646,14 @@ void btSimulationIslandManagerMt::buildAndProcessIslands(btDispatcher* dispatche
 				((colObj1) && colObj1->getActivationState() != ISLAND_SLEEPING))
 			{
 				//kinematic objects don't merge islands, but wake up all connected objects
-				if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
+				if (colObj0 && colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
 				{
-					if (colObj0->hasContactResponse())
+					if (colObj0->hasContactResponse() && colObj1)
 						colObj1->activate();
 				}
-				if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
+				if (colObj1 && colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
 				{
-					if (colObj1->hasContactResponse())
+					if (colObj1->hasContactResponse() && colObj0)
 						colObj0->activate();
 				}
 			}

@@ -739,67 +739,73 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 	btScalar* m = new btScalar[(size_t)tot];
 	int iy;
 
-	for (iy = 0; iy < ry; ++iy)
+	if(x && m)
 	{
-		const btScalar ty = (btScalar)iy / (btScalar)(ry - 1);
-		const btVector3 py0 = lerp(corner00, corner01, ty);
-		const btVector3 py1 = lerp(corner10, corner11, ty);
-		for (int ix = 0; ix < rx; ++ix)
+		for (iy = 0; iy < ry; ++iy)
 		{
-			const btScalar tx = (btScalar)ix / (btScalar)(rx - 1);
-			btScalar pert = perturbation * btScalar(rand()) / btScalar(RAND_MAX);
-			btVector3 temp1 = py1;
-			temp1.setY(py1.getY() + pert);
-			btVector3 temp = py0;
-			pert = perturbation * btScalar(rand()) / btScalar(RAND_MAX);
-			temp.setY(py0.getY() + pert);
-			x[IDX(ix, iy)] = lerp(temp, temp1, tx);
-			m[IDX(ix, iy)] = 1;
-		}
-	}
-	btSoftBody* psb = new btSoftBody(&worldInfo, tot, x, m);
-	if (fixeds & 1) psb->setMass(IDX(0, 0), 0);
-	if (fixeds & 2) psb->setMass(IDX(rx - 1, 0), 0);
-	if (fixeds & 4) psb->setMass(IDX(0, ry - 1), 0);
-	if (fixeds & 8) psb->setMass(IDX(rx - 1, ry - 1), 0);
-	delete[] x;
-	delete[] m;
-	/* Create links	and faces */
-	for (iy = 0; iy < ry; ++iy)
-	{
-		for (int ix = 0; ix < rx; ++ix)
-		{
-			const int idx = IDX(ix, iy);
-			const bool mdx = (ix + 1) < rx;
-			const bool mdy = (iy + 1) < ry;
-			if (mdx) psb->appendLink(idx, IDX(ix + 1, iy));
-			if (mdy) psb->appendLink(idx, IDX(ix, iy + 1));
-			if (mdx && mdy)
+			const btScalar ty = (btScalar)iy / (btScalar)(ry - 1);
+			const btVector3 py0 = lerp(corner00, corner01, ty);
+			const btVector3 py1 = lerp(corner10, corner11, ty);
+			for (int ix = 0; ix < rx; ++ix)
 			{
-				if ((ix + iy) & 1)
+				const btScalar tx = (btScalar)ix / (btScalar)(rx - 1);
+				btScalar pert = perturbation * btScalar(rand()) / btScalar(RAND_MAX);
+				btVector3 temp1 = py1;
+				temp1.setY(py1.getY() + pert);
+				btVector3 temp = py0;
+				pert = perturbation * btScalar(rand()) / btScalar(RAND_MAX);
+				temp.setY(py0.getY() + pert);
+				x[IDX(ix, iy)] = lerp(temp, temp1, tx);
+				m[IDX(ix, iy)] = 1;
+			}
+		}
+	
+		btSoftBody* psb = new btSoftBody(&worldInfo, tot, x, m);
+		if (fixeds & 1) psb->setMass(IDX(0, 0), 0);
+		if (fixeds & 2) psb->setMass(IDX(rx - 1, 0), 0);
+		if (fixeds & 4) psb->setMass(IDX(0, ry - 1), 0);
+		if (fixeds & 8) psb->setMass(IDX(rx - 1, ry - 1), 0);
+		delete[] x;
+		delete[] m;
+		/* Create links	and faces */
+		for (iy = 0; iy < ry; ++iy)
+		{
+			for (int ix = 0; ix < rx; ++ix)
+			{
+				const int idx = IDX(ix, iy);
+				const bool mdx = (ix + 1) < rx;
+				const bool mdy = (iy + 1) < ry;
+				if (mdx) psb->appendLink(idx, IDX(ix + 1, iy));
+				if (mdy) psb->appendLink(idx, IDX(ix, iy + 1));
+				if (mdx && mdy)
 				{
-					psb->appendFace(IDX(ix, iy), IDX(ix + 1, iy), IDX(ix + 1, iy + 1));
-					psb->appendFace(IDX(ix, iy), IDX(ix + 1, iy + 1), IDX(ix, iy + 1));
-					if (gendiags)
+					if ((ix + iy) & 1)
 					{
-						psb->appendLink(IDX(ix, iy), IDX(ix + 1, iy + 1));
+						psb->appendFace(IDX(ix, iy), IDX(ix + 1, iy), IDX(ix + 1, iy + 1));
+						psb->appendFace(IDX(ix, iy), IDX(ix + 1, iy + 1), IDX(ix, iy + 1));
+						if (gendiags)
+						{
+							psb->appendLink(IDX(ix, iy), IDX(ix + 1, iy + 1));
+						}
 					}
-				}
-				else
-				{
-					psb->appendFace(IDX(ix, iy + 1), IDX(ix, iy), IDX(ix + 1, iy));
-					psb->appendFace(IDX(ix, iy + 1), IDX(ix + 1, iy), IDX(ix + 1, iy + 1));
-					if (gendiags)
+					else
 					{
-						psb->appendLink(IDX(ix + 1, iy), IDX(ix, iy + 1));
+						psb->appendFace(IDX(ix, iy + 1), IDX(ix, iy), IDX(ix + 1, iy));
+						psb->appendFace(IDX(ix, iy + 1), IDX(ix + 1, iy), IDX(ix + 1, iy + 1));
+						if (gendiags)
+						{
+							psb->appendLink(IDX(ix + 1, iy), IDX(ix, iy + 1));
+						}
 					}
 				}
 			}
 		}
-	}
-	/* Finished		*/
+		/* Finished		*/
 #undef IDX
-	return (psb);
+		return (psb);
+	}
+	else
+		return NULL;
 }
 
 //
@@ -892,31 +898,38 @@ btSoftBody* btSoftBodyHelpers::CreatePatchUV(btSoftBodyWorldInfo& worldInfo,
 
 	int iy;
 
-	for (iy = 0; iy < ry; ++iy)
+	btSoftBody* psb = NULL;
+	if(x && m)
 	{
-		const btScalar ty = (btScalar)iy / (btScalar)(ry - 1);
-		const btVector3 py0 = lerp(corner00, corner01, ty);
-		const btVector3 py1 = lerp(corner10, corner11, ty);
-		for (int ix = 0; ix < rx; ++ix)
+		for (iy = 0; iy < ry; ++iy)
 		{
-			const btScalar tx = (btScalar)ix / (btScalar)(rx - 1);
-			x[IDX(ix, iy)] = lerp(py0, py1, tx);
-			m[IDX(ix, iy)] = 1;
+			const btScalar ty = (btScalar)iy / (btScalar)(ry - 1);
+			const btVector3 py0 = lerp(corner00, corner01, ty);
+			const btVector3 py1 = lerp(corner10, corner11, ty);
+			for (int ix = 0; ix < rx; ++ix)
+			{
+				const btScalar tx = (btScalar)ix / (btScalar)(rx - 1);
+				x[IDX(ix, iy)] = lerp(py0, py1, tx);
+				m[IDX(ix, iy)] = 1;
+			}
 		}
+		psb = new btSoftBody(&worldInfo, tot, x, m);
+		if(psb)
+		{
+			if (fixeds & 1) psb->setMass(IDX(0, 0), 0);
+			if (fixeds & 2) psb->setMass(IDX(rx - 1, 0), 0);
+			if (fixeds & 4) psb->setMass(IDX(0, ry - 1), 0);
+			if (fixeds & 8) psb->setMass(IDX(rx - 1, ry - 1), 0);
+			if (fixeds & 16) psb->setMass(IDX((rx - 1) / 2, 0), 0);
+			if (fixeds & 32) psb->setMass(IDX(0, (ry - 1) / 2), 0);
+			if (fixeds & 64) psb->setMass(IDX(rx - 1, (ry - 1) / 2), 0);
+			if (fixeds & 128) psb->setMass(IDX((rx - 1) / 2, ry - 1), 0);
+			if (fixeds & 256) psb->setMass(IDX((rx - 1) / 2, (ry - 1) / 2), 0);
+		}
+		delete[] x;
+		delete[] m;
 	}
-	btSoftBody* psb = new btSoftBody(&worldInfo, tot, x, m);
-	if (fixeds & 1) psb->setMass(IDX(0, 0), 0);
-	if (fixeds & 2) psb->setMass(IDX(rx - 1, 0), 0);
-	if (fixeds & 4) psb->setMass(IDX(0, ry - 1), 0);
-	if (fixeds & 8) psb->setMass(IDX(rx - 1, ry - 1), 0);
-	if (fixeds & 16) psb->setMass(IDX((rx - 1) / 2, 0), 0);
-	if (fixeds & 32) psb->setMass(IDX(0, (ry - 1) / 2), 0);
-	if (fixeds & 64) psb->setMass(IDX(rx - 1, (ry - 1) / 2), 0);
-	if (fixeds & 128) psb->setMass(IDX((rx - 1) / 2, ry - 1), 0);
-	if (fixeds & 256) psb->setMass(IDX((rx - 1) / 2, (ry - 1) / 2), 0);
-	delete[] x;
-	delete[] m;
-
+	
 	int z = 0;
 	/* Create links	and faces	*/
 	for (iy = 0; iy < ry; ++iy)
@@ -931,9 +944,12 @@ btSoftBody* btSoftBodyHelpers::CreatePatchUV(btSoftBodyWorldInfo& worldInfo,
 			int node10 = IDX(ix, iy + 1);
 			int node11 = IDX(ix + 1, iy + 1);
 
-			if (mdx) psb->appendLink(node00, node01);
-			if (mdy) psb->appendLink(node00, node10);
-			if (mdx && mdy)
+			if(psb)
+			{
+				if (mdx) psb->appendLink(node00, node01);
+				if (mdy) psb->appendLink(node00, node10);
+			}
+			if (mdx && mdy && psb)
 			{
 				psb->appendFace(node00, node10, node11);
 				if (tex_coords)

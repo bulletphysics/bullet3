@@ -3051,16 +3051,19 @@ void PhysicsServerExample::drawUserDebugLines()
 
 			float* pos = (float*)malloc(pointNum * 3 * sizeof(float));
 			float* clr = (float*)malloc(pointNum * 4 * sizeof(float));
-			for (int j = 0; j < pointNum; j++) {
-				pos[j * 3 + 0] = (float)positions[j * 3 + 0];
-				pos[j * 3 + 1] = (float)positions[j * 3 + 1];
-				pos[j * 3 + 2] = (float)positions[j * 3 + 2];
-				clr[j * 4 + 0] = (float)colors[j * 3 + 0];
-				clr[j * 4 + 1] = (float)colors[j * 3 + 1];
-				clr[j * 4 + 2] = (float)colors[j * 3 + 2];
-				clr[j * 4 + 3] = 1.f;
+			if(pos && clr)
+			{
+				for (int j = 0; j < pointNum; j++) {
+					pos[j * 3 + 0] = (float)positions[j * 3 + 0];
+					pos[j * 3 + 1] = (float)positions[j * 3 + 1];
+					pos[j * 3 + 2] = (float)positions[j * 3 + 2];
+					clr[j * 4 + 0] = (float)colors[j * 3 + 0];
+					clr[j * 4 + 1] = (float)colors[j * 3 + 1];
+					clr[j * 4 + 2] = (float)colors[j * 3 + 2];
+					clr[j * 4 + 3] = 1.f;
+				}
+				m_guiHelper->getAppInterface()->m_renderer->drawPoints(pos, clr, pointNum, 3 * sizeof(float), sz);
 			}
-			m_guiHelper->getAppInterface()->m_renderer->drawPoints(pos, clr, pointNum, 3 * sizeof(float), sz);
 			free(pos);
 			free(clr);
 		}

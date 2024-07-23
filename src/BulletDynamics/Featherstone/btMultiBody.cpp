@@ -812,6 +812,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	btSymmetricSpatialDyad dyadTemp;            //inertia matrix temp
 	btSpatialTransformationMatrix fromWorld;
 	fromWorld.m_trnVec.setZero();
+	D[0] = 0;
 	/////////////////
 
 	// ptr to the joint accel part of the output
@@ -969,6 +970,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 		//printf("c[%d] = [%.4f %.4f %.4f]\n", i, coriolis_bottom_linear[i].x(), coriolis_bottom_linear[i].y(), coriolis_bottom_linear[i].z());
 	}
 
+	if(num_links)
+		btAssert(invD && Y && h);
 	// 'Downward' loop.
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
@@ -1110,6 +1113,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 		spatAcc[0] = -result;
 	}
 
+	if(num_links)
+		btAssert(h && invD && Y);
 	// now do the loop over the m_links
 	for (int i = 0; i < num_links; ++i)
 	{
@@ -1554,6 +1559,8 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	}
 
 	// now do the loop over the m_links
+	if(num_links)
+		btAssert(h && invD && Y);
 	for (int i = 0; i < num_links; ++i)
 	{
 		if(isLinkAndAllAncestorsKinematic(i))
@@ -1973,6 +1980,8 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
     btScalar* links = num_links? &scratch_r1[dofCount] : 0;
     int numLinksChildToRoot=0;
     int l = link;
+		if(l != -1)
+			btAssert(links);
     while (l != -1)
     {
         links[numLinksChildToRoot++]=l;
@@ -2012,6 +2021,8 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	// Qdot coefficients, if necessary.
 	if (num_links > 0 && link > -1)
 	{
+		btAssert(results);
+
         // TODO: (Also, we are making 3 separate calls to this function, for the normal & the 2 friction directions,
 		// which is resulting in repeated work being done...)
 

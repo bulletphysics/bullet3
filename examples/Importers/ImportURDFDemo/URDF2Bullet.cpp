@@ -419,7 +419,7 @@ btTransform ConvertURDF2BulletInternal(
 			{
 				case URDFSphericalJoint:
 				{
-					if (createMultiBody)
+					if (createMultiBody && cache.m_bulletMultiBody)
 					{
 						creation.addLinkMapping(urdfLinkIndex, mbLinkIndex);
 						cache.m_bulletMultiBody->setupSpherical(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
@@ -449,7 +449,7 @@ btTransform ConvertURDF2BulletInternal(
 				case URDFPlanarJoint:
 				{
 					
-					if (createMultiBody)
+					if (createMultiBody && cache.m_bulletMultiBody)
 					{
 #if 0
 						void setupPlanar(int i,  // 0 to num_links-1
@@ -586,7 +586,7 @@ btTransform ConvertURDF2BulletInternal(
 				{
 					creation.addLinkMapping(urdfLinkIndex, mbLinkIndex);
 
-					if (createMultiBody)
+					if (createMultiBody && cache.m_bulletMultiBody)
 					{
 #ifndef USE_DISCRETE_DYNAMICS_WORLD
 						cache.m_bulletMultiBody->setupPrismatic(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
