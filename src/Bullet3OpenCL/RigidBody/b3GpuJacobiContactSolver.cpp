@@ -500,7 +500,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 	m_data->m_scan->executeHost(bodyCount, offsetSplitBodies, numBodies, &totalNumSplitBodies);
 	int numlastBody = (int)bodyCount[numBodies - 1];
 	totalNumSplitBodies += numlastBody;
-	printf("totalNumSplitBodies = %d\n", totalNumSplitBodies);
+	printf("totalNumSplitBodies = %u\n", totalNumSplitBodies);
 
 	b3AlignedObjectArray<b3GpuConstraint4> contactConstraints;
 	contactConstraints.resize(numManifolds);

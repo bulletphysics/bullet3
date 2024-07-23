@@ -637,7 +637,7 @@ void VoronoiFractureDemo::initPhysics()
 
 	srand(13);
 	useGenericConstraint = !useGenericConstraint;
-	printf("useGenericConstraint = %d\n", useGenericConstraint);
+	printf("useGenericConstraint = %u\n", useGenericConstraint);
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();

@@ -114,10 +114,10 @@ btReducedDeformableBody* btReducedDeformableBodyHelpers::createFromVtkFile(btSof
 	rsb->initializeDmInverse();
 	rsb->m_tetraScratches.resize(rsb->m_tetras.size());
 	rsb->m_tetraScratchesTn.resize(rsb->m_tetras.size());
-	printf("Nodes:  %u\r\n", rsb->m_nodes.size());
-	printf("Links:  %u\r\n", rsb->m_links.size());
-	printf("Faces:  %u\r\n", rsb->m_faces.size());
-	printf("Tetras: %u\r\n", rsb->m_tetras.size());
+	printf("Nodes:  %d\r\n", rsb->m_nodes.size());
+	printf("Links:  %d\r\n", rsb->m_links.size());
+	printf("Faces:  %d\r\n", rsb->m_faces.size());
+	printf("Tetras: %d\r\n", rsb->m_tetras.size());
 
 	fs.close();
 

@@ -539,7 +539,7 @@ bool Hinge2Vehicle::keyboardCallback(int key, int state)
 					handled = true;
 					btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*)m_dynamicsWorld;
 					world->setLatencyMotionStateInterpolation(!world->getLatencyMotionStateInterpolation());
-					printf("world latencyMotionStateInterpolation = %d\n", world->getLatencyMotionStateInterpolation());
+					printf("world latencyMotionStateInterpolation = %u\n", world->getLatencyMotionStateInterpolation());
 					break;
 				}
 				case B3G_F6:
@@ -547,7 +547,7 @@ bool Hinge2Vehicle::keyboardCallback(int key, int state)
 					handled = true;
 					//switch solver (needs demo restart)
 					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+					printf("switching to useMLCPSolver = %u\n", useMCLPSolver);
 
 					delete m_solver;
 					if (useMCLPSolver)
@@ -600,7 +600,7 @@ btRigidBody* Hinge2Vehicle::localCreateRigidBody(btScalar mass, const btTransfor
 	bool isDynamic = (mass != 0.f);
 
 	btVector3 localInertia(0, 0, 0);
-	if (isDynamic)
+	if (isDynamic && shape)
 		shape->calculateLocalInertia(mass, localInertia);
 
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects

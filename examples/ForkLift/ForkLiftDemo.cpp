@@ -861,7 +861,7 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*)m_dynamicsWorld;
 					world->setLatencyMotionStateInterpolation(!world->getLatencyMotionStateInterpolation());
-					printf("world latencyMotionStateInterpolation = %d\n", world->getLatencyMotionStateInterpolation());
+					printf("world latencyMotionStateInterpolation = %u\n", world->getLatencyMotionStateInterpolation());
 					break;
 				}
 				case B3G_F6:
@@ -869,7 +869,7 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					//switch solver (needs demo restart)
 					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+					printf("switching to useMLCPSolver = %u\n", useMCLPSolver);
 
 					delete m_constraintSolver;
 					if (useMCLPSolver)
