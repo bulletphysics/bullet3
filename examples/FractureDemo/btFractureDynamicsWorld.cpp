@@ -46,6 +46,7 @@ void btFractureDynamicsWorld::glueCallback()
 	unionFind.reset(index);
 
 	int numElem = unionFind.getNumElements();
+	(void)numElem;
 
 	for (int i = 0; i < numManifolds; i++)
 	{
@@ -356,6 +357,7 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 
 	unionFind.reset(index);
 	int numElem = unionFind.getNumElements();
+	(void)numElem;
 	for (i = 0; i < fracObj->m_connections.size(); i++)
 	{
 		btConnection& connection = fracObj->m_connections[i];

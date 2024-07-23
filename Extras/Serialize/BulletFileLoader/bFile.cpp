@@ -802,6 +802,7 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 				}
 				cpc += size;
 				cpo += fpLen;
+				(void)cpo;
 			}
 			else
 				cpc += size;

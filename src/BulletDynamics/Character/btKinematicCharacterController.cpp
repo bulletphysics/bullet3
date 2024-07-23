@@ -399,6 +399,7 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 	btScalar fraction = 1.0;
 	btScalar distance2 = (m_currentPosition - m_targetPosition).length2();
 	//	printf("distance2=%f\n",distance2);
+	(void)distance2;
 
 	int maxIter = 10;
 

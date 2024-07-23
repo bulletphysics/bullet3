@@ -134,6 +134,7 @@ inline int b3ClipFaceAgainstHull(const b3Float4& separatingNormal, const b3Conve
 		pVtxIn = tmp;
 		numVertsIn = numVertsOut;
 		numVertsOut = 0;
+		(void)numVertsOut;
 	}
 
 	// only keep points that are behind the witness face

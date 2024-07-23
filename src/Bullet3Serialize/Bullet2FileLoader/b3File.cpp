@@ -768,6 +768,7 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 				}
 				cpc += size;
 				cpo += fpLen;
+				(void)cpo;
 			}
 			else
 				cpc += size;
@@ -1480,6 +1481,8 @@ void bFile::writeChunks(FILE *fp, bool fixupPointers)
 		oldStruct = fileDna->getStruct(dataChunk.dna_nr);
 		oldType = fileDna->getType(oldStruct[0]);
 		oldLen = fileDna->getLength(oldStruct[0]);
+		(void)oldType;
+		(void)oldLen;
 		///don't try to convert Link block data, just memcpy it. Other data can be converted.
 		reverseOld = mMemoryDNA->getReverseType(oldType);
 

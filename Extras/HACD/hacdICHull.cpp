@@ -431,6 +431,7 @@ ICHullError ICHull::DoubleTriangle()
 		m_isFlat = true;
 		v3 = v2->GetNext();
 		vol = Volume(v0->GetData().m_pos, v1->GetData().m_pos, v2->GetData().m_pos, v3->GetData().m_pos);
+		(void)vol;
 		return ICHullErrorOK;
 	}
 	else if (v3 != vertices.GetHead())

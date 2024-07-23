@@ -126,6 +126,7 @@ __kernel void clipFacesAndFindContactsKernel(__global const b3Float4* /*separati
 						pVtxIn = tmp;
 						numVertsInB = numVertsOut;
 						numVertsOut = 0;
+						(void)numVertsOut;
 					}
 
 					b3Float4 planeNormalWS = worldNormalsA1[pairIndex];

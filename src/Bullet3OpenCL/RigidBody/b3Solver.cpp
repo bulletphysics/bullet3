@@ -365,6 +365,7 @@ struct SolveTask  // : public ThreadPool::Task
 				int batchId = m_constraints[i].m_batchIdx;
 				b3Assert(batchId == ii);
 				float frictionCoeff = m_constraints[i].getFrictionCoeff();
+				(void)frictionCoeff;
 				int aIdx = (int)m_constraints[i].m_bodyA;
 				int bIdx = (int)m_constraints[i].m_bodyB;
 				//				int localBatch = m_constraints[i].m_batchIdx;

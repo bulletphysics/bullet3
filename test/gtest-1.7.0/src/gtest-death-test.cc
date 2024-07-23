@@ -132,6 +132,7 @@ bool InDeathTestChild()
 {
 #if GTEST_OS_WINDOWS
 
+	(void)g_in_fast_death_test_child;
 	// On Windows, death tests are thread-safe regardless of the value of the
 	// death_test_style flag.
 	return !GTEST_FLAG(internal_run_death_test).empty();

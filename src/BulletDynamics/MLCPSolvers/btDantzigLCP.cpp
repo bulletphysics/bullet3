@@ -1531,6 +1531,7 @@ void btLDLTAddTL(btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, 
 		alpha1 = alphanew;
 		alphanew = alpha2 - (W21 * W21) * dee;
 		dee /= alphanew;
+		(void)dee;
 		//btScalar gamma2 = W21 * dee;
 		alpha2 = alphanew;
 		btScalar k1 = btScalar(1.0) - W21 * gamma1;

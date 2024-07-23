@@ -140,8 +140,8 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(), gui->getAppInterface()->m_window->getHeight());
 
-	const char* fileName = "textured_sphere_smooth.obj";
-	fileName = "cube.obj";
+	const char* fileName;// = "textured_sphere_smooth.obj";
+	// fileName = "cube.obj";
 	fileName = "torus/torus_with_plane.obj";
 
 	{

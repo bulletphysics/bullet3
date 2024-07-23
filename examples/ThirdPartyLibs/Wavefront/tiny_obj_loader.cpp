@@ -440,7 +440,8 @@ std::string LoadMtl(
 			// set new mtl name
 			char namebuf[4096];
 			token += 7;
-			sscanf(token, "%s", namebuf);
+			int sz = sscanf(token, "%s", namebuf);
+			(void)sz;
 			material.name = namebuf;
 			continue;
 		}
@@ -766,7 +767,8 @@ LoadObj(
 		{
 			char namebuf[4096];
 			token += 7;
-			sscanf(token, "%s", namebuf);
+			int sz = sscanf(token, "%s", namebuf);
+			(void)sz;
 
 			if (material_map.find(namebuf) != material_map.end())
 			{
@@ -785,7 +787,8 @@ LoadObj(
 		{
 			char namebuf[4096];
 			token += 7;
-			sscanf(token, "%s", namebuf);
+			int sz = sscanf(token, "%s", namebuf);
+			(void)sz;
 
 			std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath, fileIO);
 			if (!err_mtl.empty())
@@ -847,8 +850,10 @@ LoadObj(
 
 			// @todo { multiple object name? }
 			char namebuf[4096];
+			namebuf[4095] = '\0';
 			token += 2;
-			sscanf(token, "%s", namebuf);
+			int sz = sscanf(token, "%s", namebuf);
+			(void)sz;
 			name = std::string(namebuf);
 
 			continue;

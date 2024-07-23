@@ -717,6 +717,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 										 vertices, uniqueEdges, faces, indices,
 										 &sepAxis, &dmin);
 		hasSeparatingAxis = 4;
+		(void)hasSeparatingAxis;
 		if (!sepA)
 		{
 			hasSeparatingAxis = 0;

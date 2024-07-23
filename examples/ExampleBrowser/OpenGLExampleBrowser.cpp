@@ -189,6 +189,7 @@ void MyKeyboardCallback(int key, int state)
 	if (!handled && sCurrentDemo)
 	{
 		handled = sCurrentDemo->keyboardCallback(key, state);
+		(void)handled;
 	}
 
 	//checkout: is it desired to ignore keys, if the demo already handles them?

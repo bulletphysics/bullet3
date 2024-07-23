@@ -795,6 +795,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	btSpatialForceVector *h = (btSpatialForceVector *)(m_dofCount > 0 ? &m_vectorBuf[0] : 0);
 	btSpatialMotionVector *spatAcc = (btSpatialMotionVector *)v_ptr;
 	v_ptr += num_links * 2 + 2;
+	(void)v_ptr;
 	//
 	// Y_i, invD_i
 	btScalar *invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : 0;
@@ -1459,6 +1460,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	const btSpatialForceVector *h = (btSpatialForceVector *)(m_dofCount > 0 ? &m_vectorBuf[0] : 0);
 	btSpatialMotionVector *spatAcc = (btSpatialMotionVector *)v_ptr;
 	v_ptr += num_links * 2 + 2;
+	(void)v_ptr;
 
 	// Y_i (scratch), invD_i (cached)
 	const btScalar *invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : 0;

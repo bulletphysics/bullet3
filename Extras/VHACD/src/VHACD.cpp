@@ -849,6 +849,7 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 		}
 	}
 #else   // CL_VERSION_1_1
+	(void)oclAcceleration;
 	oclAcceleration = false;
 #endif  // CL_VERSION_1_1
 

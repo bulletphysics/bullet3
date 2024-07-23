@@ -93,6 +93,9 @@ void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr, VertexL
 		i1 = Vl_getIndex(vc, p1);
 		i2 = Vl_getIndex(vc, p2);
 		i3 = Vl_getIndex(vc, p3);
+		(void)i1;
+		(void)i2;
+		(void)i3;
 
 #if 0
 		bool duplicate = false;

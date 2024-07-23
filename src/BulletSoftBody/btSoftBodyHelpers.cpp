@@ -1150,6 +1150,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromTetGenData(btSoftBodyWorldInfo& worldIn
 	int nattrb = 0;
 	int hasbounds = 0;
 	int result = sscanf(node, "%d %d %d %d", &nnode, &ndims, &nattrb, &hasbounds);
+	(void)result;
 	result = sscanf(node, "%d %d %d %d", &nnode, &ndims, &nattrb, &hasbounds);
 	(void)result;
 	node += nextLine(node);
@@ -1160,7 +1161,8 @@ btSoftBody* btSoftBodyHelpers::CreateFromTetGenData(btSoftBodyWorldInfo& worldIn
 		int index = 0;
 		//int			bound=0;
 		float x, y, z;
-		sscanf(node, "%d %f %f %f", &index, &x, &y, &z);
+		result = sscanf(node, "%d %f %f %f", &index, &x, &y, &z);
+		(void)result;
 
 		//	sn>>index;
 		//	sn>>x;sn>>y;sn>>z;
@@ -1206,7 +1208,8 @@ if(face&&face[0])
 		int ntetra = 0;
 		int ncorner = 0;
 		int neattrb = 0;
-		sscanf(ele, "%d %d %d", &ntetra, &ncorner, &neattrb);
+		result = sscanf(ele, "%d %d %d", &ntetra, &ncorner, &neattrb);
+		(void)result;
 		ele += nextLine(ele);
 
 		//se>>ntetra;se>>ncorner;se>>neattrb;
@@ -1217,7 +1220,8 @@ if(face&&face[0])
 
 			//se>>index;
 			//se>>ni[0];se>>ni[1];se>>ni[2];se>>ni[3];
-			sscanf(ele, "%d %d %d %d %d", &index, &ni[0], &ni[1], &ni[2], &ni[3]);
+			result = sscanf(ele, "%d %d %d %d %d", &index, &ni[0], &ni[1], &ni[2], &ni[3]);
+			(void)result;
 			ele += nextLine(ele);
 			//for(int j=0;j<neattrb;++j)
 			//	se>>a;
@@ -1236,10 +1240,10 @@ if(face&&face[0])
 	psb->initializeDmInverse();
 	psb->m_tetraScratches.resize(psb->m_tetras.size());
 	psb->m_tetraScratchesTn.resize(psb->m_tetras.size());
-	printf("Nodes:  %u\r\n", psb->m_nodes.size());
-	printf("Links:  %u\r\n", psb->m_links.size());
-	printf("Faces:  %u\r\n", psb->m_faces.size());
-	printf("Tetras: %u\r\n", psb->m_tetras.size());
+	printf("Nodes:  %d\r\n", psb->m_nodes.size());
+	printf("Links:  %d\r\n", psb->m_links.size());
+	printf("Faces:  %d\r\n", psb->m_faces.size());
+	printf("Tetras: %d\r\n", psb->m_tetras.size());
 	return (psb);
 }
 
@@ -1341,10 +1345,10 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 	psb->initializeDmInverse();
 	psb->m_tetraScratches.resize(psb->m_tetras.size());
 	psb->m_tetraScratchesTn.resize(psb->m_tetras.size());
-	printf("Nodes:  %u\r\n", psb->m_nodes.size());
-	printf("Links:  %u\r\n", psb->m_links.size());
-	printf("Faces:  %u\r\n", psb->m_faces.size());
-	printf("Tetras: %u\r\n", psb->m_tetras.size());
+	printf("Nodes:  %d\r\n", psb->m_nodes.size());
+	printf("Links:  %d\r\n", psb->m_links.size());
+	printf("Faces:  %d\r\n", psb->m_faces.size());
+	printf("Tetras: %d\r\n", psb->m_tetras.size());
 
 	fs.close();
 	return psb;

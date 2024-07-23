@@ -545,6 +545,7 @@ bool b3VoronoiSimplexSolver::closestPtPointTetrahedron(const b3Vector3& p, const
 		if (sqDist < bestSqDist)
 		{
 			bestSqDist = sqDist;
+			(void)bestSqDist;
 			finalResult.m_closestPointOnSimplex = q;
 			finalResult.m_usedVertices.reset();
 			//

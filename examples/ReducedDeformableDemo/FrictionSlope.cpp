@@ -152,6 +152,7 @@ namespace FrictionSlopeHelper
             current_angle = start_angle;
             turn_speed = 0;
         }
+        (void)turn_speed;
         
         btTransform groundTransform;
         groundTransform.setIdentity();

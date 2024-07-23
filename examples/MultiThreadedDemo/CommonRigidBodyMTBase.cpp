@@ -945,6 +945,7 @@ void CommonRigidBodyMTBase::drawScreenText()
 					gProfiler.getAverageTime(Profiler::kRecordIntegrateTransforms) * 0.001f);
 			m_guiHelper->getAppInterface()->drawText(msg, xCoord, yCoord, 0.4f);
 			yCoord += yStep;
+			(void)yCoord;
 		}
 	}
 }

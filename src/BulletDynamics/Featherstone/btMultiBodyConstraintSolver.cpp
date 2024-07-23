@@ -1118,6 +1118,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 			if (restitution <= btScalar(0.))
 			{
 				restitution = 0.f;
+				(void)restitution;
 			}
 		}
 	}

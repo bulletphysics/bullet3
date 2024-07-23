@@ -962,6 +962,7 @@ void BenchmarkDemo::createTest3()
 		pos[1] += (sizeY * 7.0f);
 		pos[2] -= sizeX * 2.0f;
 		size--;
+		(void)offset;
 	}
 }
 void BenchmarkDemo::createTest4()

@@ -95,6 +95,7 @@ char **str_split(const char *input, const char *sep)
 	size_t seplen = strlen(sep);
 	const char *item;
 	size_t itemlen;
+	(void)next;
 
 	for (;;)
 	{

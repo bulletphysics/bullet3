@@ -618,8 +618,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_mjcfArguments = unused.m_mjcfArguments;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_mjcfArguments, sizeof(MjcfArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_mjcfArguments, sizeof(MjcfArgs), 1, m_file); (void)s;
 #endif
 						result = true;
 						break;
@@ -629,8 +629,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_sdfRequestInfoArgs = unused.m_sdfRequestInfoArgs;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_sdfRequestInfoArgs, sizeof(SdfRequestInfoArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_sdfRequestInfoArgs, sizeof(SdfRequestInfoArgs), 1, m_file); (void)s;
 #endif
 						result = true;
 						break;
@@ -640,8 +640,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_requestVisualShapeDataArguments = unused.m_requestVisualShapeDataArguments;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_requestVisualShapeDataArguments, sizeof(RequestVisualShapeDataArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_requestVisualShapeDataArguments, sizeof(RequestVisualShapeDataArgs), 1, m_file); (void)s;
 #endif
 						result = true;
 						break;
@@ -651,8 +651,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_urdfArguments = unused.m_urdfArguments;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_urdfArguments, sizeof(UrdfArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_urdfArguments, sizeof(UrdfArgs), 1, m_file); (void)s;
 #endif
 						result = true;
 						break;
@@ -662,8 +662,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_initPoseArgs = unused.m_initPoseArgs;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_initPoseArgs, sizeof(InitPoseArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_initPoseArgs, sizeof(InitPoseArgs), 1, m_file); (void)s;
 
 #endif
 						result = true;
@@ -674,8 +674,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_requestActualStateInformationCommandArgument = unused.m_requestActualStateInformationCommandArgument;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_requestActualStateInformationCommandArgument, sizeof(RequestActualStateArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_requestActualStateInformationCommandArgument, sizeof(RequestActualStateArgs), 1, m_file); (void)s;
 #endif
 						result = true;
 						break;
@@ -685,8 +685,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_sendDesiredStateCommandArgument = unused.m_sendDesiredStateCommandArgument;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_sendDesiredStateCommandArgument, sizeof(SendDesiredStateArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_sendDesiredStateCommandArgument, sizeof(SendDesiredStateArgs), 1, m_file); (void)s;
 
 #endif
 						result = true;
@@ -697,8 +697,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_physSimParamArgs, sizeof(b3PhysicsSimulationParameters), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_physSimParamArgs, sizeof(b3PhysicsSimulationParameters), 1, m_file); (void)s;
 
 #endif
 						result = true;
@@ -709,8 +709,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 						cmd->m_requestContactPointArguments = unused.m_requestContactPointArguments;
 #else
-						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file);
-						s = fread(&cmd->m_requestContactPointArguments, sizeof(RequestContactDataArgs), 1, m_file);
+						s = fread(&cmd->m_updateFlags, sizeof(int), 1, m_file); (void)s;
+						s = fread(&cmd->m_requestContactPointArguments, sizeof(RequestContactDataArgs), 1, m_file); (void)s;
 
 #endif
 						result = true;
@@ -725,7 +725,7 @@ struct CommandLogPlayback
 					}
 					default:
 					{
-						s = fread(cmd, sizeof(SharedMemoryCommand), 1, m_file);
+						s = fread(cmd, sizeof(SharedMemoryCommand), 1, m_file); (void)s;
 						result = (s == 1);
 					}
 				};

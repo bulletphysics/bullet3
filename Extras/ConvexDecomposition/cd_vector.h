@@ -859,6 +859,7 @@ public:
 					bForce = false;
 					bestMagnitude2 = closeMagnitude2;
 					nearestPoint = closePoint;
+					(void)bestMagnitude2;
 				}
 			}
 

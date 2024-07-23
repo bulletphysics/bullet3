@@ -402,6 +402,8 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 			x0 = x2;
 			f0 = f2;
 		}
+		(void)f0;
+		(void)f1;
 	}
 
 	// At each step:
@@ -427,6 +429,8 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 			x0 = x2;
 			f0 = f2;
 		}
+		(void)f0;
+		(void)f1;
 		f2s = (((5 * x2 + 4 * a) * x2 + 3 * b) * x2 + 2 * c) * x2 + d;  // f'(x2)
 		if (fabs(f2s) < eps)
 		{

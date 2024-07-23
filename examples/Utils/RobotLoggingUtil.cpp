@@ -57,6 +57,7 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 				if (s != 1)
 				{
 					eof = true;
+					(void)eof;
 					retVal = eInvalidAABBAlignCheck;
 					break;
 				}

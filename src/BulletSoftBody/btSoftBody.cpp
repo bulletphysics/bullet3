@@ -2901,6 +2901,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 			btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, convex_shape, wtr, guess, results);
 
 			dst = results.distance - convex_shape->getMargin() - margin;
+			(void)dst;
 			return true;
 		}
 	}

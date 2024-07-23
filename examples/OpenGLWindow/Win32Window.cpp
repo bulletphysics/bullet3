@@ -675,7 +675,7 @@ void Win32Window::createWindow(const b3gWindowConstructionInfo& ci)
 		if (res != DISP_CHANGE_SUCCESSFUL)
 		{  // try again without forcing display frequency
 			dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-			res = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+			/*res =*/ ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
 		}
 	}
 }
@@ -728,7 +728,7 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 		if (!res)
 		{
 			dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-			res = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+			/*res =*/ ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
 		}
 
 		LONG style = WS_POPUP;
@@ -741,7 +741,7 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 	}
 	else
 	{
-		res = ChangeDisplaySettings(&dm, 0);
+		/*res =*/ ChangeDisplaySettings(&dm, 0);
 
 		LONG style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX;
 		SetWindowLong(m_data->m_hWnd, GWL_STYLE, style);

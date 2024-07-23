@@ -55,8 +55,8 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 		{
 			b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
 			b3SharedMemoryStatusHandle statusHandle;
-			ret = b3PhysicsParamSetGravity(command, gravx, gravy, gravz);
-			ret = b3PhysicsParamSetTimeStep(command, timeStep);
+			ret = b3PhysicsParamSetGravity(command, gravx, gravy, gravz); (void)ret;
+			ret = b3PhysicsParamSetTimeStep(command, timeStep); (void)ret;
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
 			(void)ret;
@@ -171,16 +171,16 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 				b3SharedMemoryStatusHandle statusHandle;
 				if (imuLinkIndex >= 0)
 				{
-					ret = b3CreateSensorEnableIMUForLink(command, imuLinkIndex, 1);
+					ret = b3CreateSensorEnableIMUForLink(command, imuLinkIndex, 1); (void)ret;
 				}
 
 				if (sensorJointIndexLeft >= 0)
 				{
-					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexLeft, 1);
+					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexLeft, 1); (void)ret;
 				}
 				if (sensorJointIndexRight >= 0)
 				{
-					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1);
+					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1); (void)ret;
 				}
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 				ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
@@ -190,9 +190,9 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 		{
 			b3SharedMemoryStatusHandle statusHandle;
 			b3SharedMemoryCommandHandle command = b3CreateBoxShapeCommandInit(sm);
-			ret = b3CreateBoxCommandSetStartPosition(command, 0, 0, -1);
-			ret = b3CreateBoxCommandSetStartOrientation(command, 0, 0, 0, 1);
-			ret = b3CreateBoxCommandSetHalfExtents(command, 10, 10, 1);
+			ret = b3CreateBoxCommandSetStartPosition(command, 0, 0, -1); (void)ret;
+			ret = b3CreateBoxCommandSetStartOrientation(command, 0, 0, 0, 1); (void)ret;
+			ret = b3CreateBoxCommandSetHalfExtents(command, 10, 10, 1); (void)ret;
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RIGID_BODY_CREATION_COMPLETED);
 		}

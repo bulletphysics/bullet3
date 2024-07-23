@@ -755,6 +755,7 @@ bool findSeparatingAxisEdgeEdge(__global const b3ConvexPolyhedronData* hullA, __
 
 					if (Max0 < Min1 || Max1 < Min0)
 						result = false;
+					(void)result;
 
 					float d0 = Max0 - Min1;
 					float d1 = Max1 - Min0;
@@ -905,6 +906,7 @@ int clipFaceAgainstHull(const float4& separatingNormal, const b3ConvexPolyhedron
 		pVtxIn = tmp;
 		numVertsIn = numVertsOut;
 		numVertsOut = 0;
+		(void)numVertsOut;
 	}
 
 	// only keep points that are behind the witness face
@@ -1343,6 +1345,7 @@ void computeContactPlaneConvex(int pairIndex,
 		if (curDot > maxDot)
 		{
 			hitVertex = i;
+			(void)hitVertex;
 			maxDot = curDot;
 			hitVtx = vtx;
 			//make sure the deepest points is always included
@@ -2273,6 +2276,7 @@ void computeContactPlaneCompound(int pairIndex,
 			if (curDot > maxDot)
 			{
 				hitVertex = i;
+				(void)hitVertex;
 				maxDot = curDot;
 				hitVtx = vtx;
 				//make sure the deepest points is always included
@@ -3505,6 +3509,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 				B3_PROFILE("m_bvhTraversalKernel");
 
 				numConcavePairs = m_numConcavePairsOut.at(0);
+				(void)numConcavePairs;
 
 				b3LauncherCL launcher(m_queue, m_bvhTraversalKernel, "m_bvhTraversalKernel");
 				launcher.setBuffer(pairs->getBufferCL());
@@ -3541,6 +3546,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 
 				//int numTriConvexPairsOutHost=0;
 				numConcavePairs = 0;
+				(void)numConcavePairs;
 				//m_numConcavePairsOut
 
 				b3AlignedObjectArray<b3QuantizedBvhNode> treeNodesCPU;

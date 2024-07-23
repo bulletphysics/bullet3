@@ -896,6 +896,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 
 		info->cfm[srow] = cfm;
 		srow += info->rowskip;
+		(void)srow;
 		++count;
 	}
 

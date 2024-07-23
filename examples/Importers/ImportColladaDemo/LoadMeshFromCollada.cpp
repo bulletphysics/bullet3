@@ -335,6 +335,7 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 				indexBase = visualShape.m_vertices->size();
 				visualShape.m_numIndices = visualShape.m_indices->size();
 				visualShape.m_numvertices = visualShape.m_vertices->size();
+				(void)indexBase;
 			}
 			//b3Printf("geometry name=%s\n",geometryName);
 			name2Shape.insert(geometryName, shapeIndex);

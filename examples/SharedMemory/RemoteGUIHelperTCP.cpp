@@ -161,6 +161,7 @@ struct RemoteGUIHelperTCPInternalData
 			}
 
 			hasStatus = true;
+			(void)hasStatus;
 			GraphicsSharedMemoryStatus* statPtr = (GraphicsSharedMemoryStatus*)&data[4];
 #if 0
 			if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
@@ -251,6 +252,7 @@ void RemoteGUIHelperTCP::setVisualizerFlag(int flag, int enable)
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 }
 
 void RemoteGUIHelperTCP::createRigidBodyGraphicsObject(btRigidBody* /*body*/, const btVector3& /*color*/)
@@ -378,6 +380,7 @@ void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const GUISyncPosition* positions
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 }
 
 void RemoteGUIHelperTCP::render(const btDiscreteDynamicsWorld* /*rbWorld*/)
@@ -409,6 +412,7 @@ int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, i
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 
 	while (remainingBytes > 0)
 	{
@@ -426,6 +430,7 @@ int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, i
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 	return 0;
 }
 
@@ -530,6 +535,7 @@ void RemoteGUIHelperTCP::removeAllGraphicsInstances()
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 
@@ -546,6 +552,7 @@ void RemoteGUIHelperTCP::removeGraphicsInstance(int graphicsUid)
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 void RemoteGUIHelperTCP::changeRGBAColor(int instanceUid, const double rgbaColor[4])
@@ -565,6 +572,7 @@ void RemoteGUIHelperTCP::changeRGBAColor(int instanceUid, const double rgbaColor
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 Common2dCanvasInterface* RemoteGUIHelperTCP::get2dCanvasInterface()
@@ -600,6 +608,7 @@ void RemoteGUIHelperTCP::setUpAxis(int axis)
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 void RemoteGUIHelperTCP::resetCamera(float /*camDist*/, float /*yaw*/, float /*pitch*/, float /*camPosX*/, float /*camPosY*/, float /*camPosZ*/)

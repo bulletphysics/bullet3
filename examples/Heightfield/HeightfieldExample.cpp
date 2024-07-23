@@ -281,6 +281,7 @@ setRadial
 			float r = sqrt((dx * dx) + (dy * dy));
 
 			float z = period;
+			(void)z;
 			if (r < min_r) {
 				r = min_r;
 			}

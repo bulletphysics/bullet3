@@ -193,6 +193,8 @@ struct btConnectivityProcessor : public btTriangleCallback
 				{
 					angle2 = 0.f;
 					ang4 = 0.f;
+					(void)angle2;
+					(void)ang4;
 				}
 				else
 				{
@@ -616,6 +618,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 		{
 			bestedge = 2;
 			disttobestedge = len;
+			(void)disttobestedge;
 		}
 	}
 
@@ -716,7 +719,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 #endif  //BT_INTERNAL_EDGE_DEBUG_DRAW
 
 				btVector3 edge(v1 - v2);
-
+				(void)isNearEdge;
 				isNearEdge = true;
 
 				if (info->m_edgeV1V2Angle == btScalar(0))

@@ -68,6 +68,7 @@ btVector3 btCapsuleShape::localGetSupportingVertexWithoutMargin(const btVector3&
 		{
 			maxDot = newDot;
 			supVec = vtx;
+			(void)maxDot;
 		}
 	}
 
@@ -103,6 +104,7 @@ void btCapsuleShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btV
 			{
 				maxDot = newDot;
 				supportVerticesOut[j] = vtx;
+				(void)maxDot;
 			}
 		}
 	}

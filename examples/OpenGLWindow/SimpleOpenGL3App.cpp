@@ -508,6 +508,7 @@ void SimpleOpenGL3App::drawText3D(const char* txt, float position[3], float orie
 		posX = winx;
 		posY = (float)(m_instancingRenderer->getScreenHeight() / 2 + (m_instancingRenderer->getScreenHeight() / 2)) - winy;
 		posZ = 0.f;
+		(void)posZ;
 	}
 
 	if (optionFlag & CommonGraphicsApp::eDrawText3D_TrueType)
@@ -563,6 +564,7 @@ void SimpleOpenGL3App::drawText3D(const char* txt, float position[3], float orie
 			posY = (float)(m_instancingRenderer->getScreenHeight() / 2 + (m_instancingRenderer->getScreenHeight() / 2)) - winy;
 			z = 2.f * winz - 1.f;
 			startY = posY - (float)g_DefaultLargeFont->m_CharHeight * size;
+			(void)posX;
 		}
 
 		while (txt[pos])

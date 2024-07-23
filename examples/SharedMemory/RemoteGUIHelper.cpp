@@ -238,6 +238,7 @@ void RemoteGUIHelper::setVisualizerFlag(int flag, int enable)
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 }
 
 void RemoteGUIHelper::createRigidBodyGraphicsObject(btRigidBody* /*body*/, const btVector3& /*color*/)
@@ -365,6 +366,7 @@ void RemoteGUIHelper::syncPhysicsToGraphics2(const GUISyncPosition* positions, i
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 }
 
 void RemoteGUIHelper::render(const btDiscreteDynamicsWorld* /*rbWorld*/)
@@ -403,6 +405,7 @@ int RemoteGUIHelper::uploadData(const unsigned char* data, int sizeInBytes, int 
 			while ((status = m_data->processServerStatus()) == 0)
 			{
 			}
+			(void)status;
 			offset += curBytes;
 			remainingBytes -= curBytes;
 		}
@@ -511,6 +514,7 @@ void RemoteGUIHelper::removeAllGraphicsInstances()
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 
@@ -527,6 +531,7 @@ void RemoteGUIHelper::removeGraphicsInstance(int graphicsUid)
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 
@@ -551,6 +556,7 @@ void RemoteGUIHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4]
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 Common2dCanvasInterface* RemoteGUIHelper::get2dCanvasInterface()
@@ -586,6 +592,7 @@ void RemoteGUIHelper::setUpAxis(int axis)
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 void RemoteGUIHelper::resetCamera(float /*camDist*/, float /*yaw*/, float /*pitch*/, float /*camPosX*/, float /*camPosY*/, float /*camPosZ*/)

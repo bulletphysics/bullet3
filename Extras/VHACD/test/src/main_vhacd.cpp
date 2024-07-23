@@ -492,30 +492,32 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 			int nv = 0;
 			int nf = 0;
 			int ne = 0;
-			len = fscanf(fid, "%i", &nv);
-			len = fscanf(fid, "%i", &nf);
-			len = fscanf(fid, "%i", &ne);
+			len = fscanf(fid, "%i", &nv); (void)len;
+			len = fscanf(fid, "%i", &nf); (void)len;
+			len = fscanf(fid, "%i", &ne); (void)len;
 			points.resize((size_t)nv * 3);
 			triangles.resize((size_t)nf * 3);
 			const int np = nv * 3;
 			for (int p = 0; p < np; p++)
 			{
-				len = fscanf(fid, "%f", &(points[(size_t)p]));
+				len = fscanf(fid, "%f", &(points[(size_t)p])); (void)len;
 			}
 			int s;
 			for (int t = 0, r = 0; t < nf; ++t)
 			{
-				len = fscanf(fid, "%i", &s);
+				len = fscanf(fid, "%i", &s); (void)len;
 				if (s == 3)
 				{
-					len = fscanf(fid, "%i", &(triangles[(size_t)r++]));
-					len = fscanf(fid, "%i", &(triangles[(size_t)r++]));
-					len = fscanf(fid, "%i", &(triangles[(size_t)r++]));
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++])); (void)len;
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++])); (void)len;
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++])); (void)len;
 				}
 				else  // Fix me: support only triangular meshes
 				{
 					for (int h = 0; h < s; ++h)
-						len = fscanf(fid, "%i", &s);
+					{
+						len = fscanf(fid, "%i", &s); (void)len;
+					}
 				}
 			}
 			fclose(fid);

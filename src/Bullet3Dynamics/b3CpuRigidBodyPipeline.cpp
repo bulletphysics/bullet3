@@ -61,6 +61,7 @@ void b3CpuRigidBodyPipeline::updateAabbWorldSpace()
 void b3CpuRigidBodyPipeline::computeOverlappingPairs()
 {
 	int numPairs = m_data->m_bp->getOverlappingPairCache()->getNumOverlappingPairs();
+	(void)numPairs;
 	m_data->m_bp->calculateOverlappingPairs();
 	numPairs = m_data->m_bp->getOverlappingPairCache()->getNumOverlappingPairs();
 	printf("numPairs=%d\n", numPairs);
@@ -253,6 +254,7 @@ struct b3SolveTask  // : public ThreadPool::Task
 					continue;
 
 				float frictionCoeff = b3GetFrictionCoeff(&m_constraints[i]);
+				(void)frictionCoeff;
 				int aIdx = (int)m_constraints[i].m_bodyA;
 				int bIdx = (int)m_constraints[i].m_bodyB;
 				//int localBatch = m_constraints[i].m_batchIdx;

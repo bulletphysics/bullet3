@@ -215,6 +215,7 @@ bool computeSplitPlane(unsigned int vcount,
 		axis = 2;
 		laxis = dz;
 	}
+	(void)laxis;
 
 	float p1[3];
 	float p2[3];

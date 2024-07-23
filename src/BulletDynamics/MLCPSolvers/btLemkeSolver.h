@@ -110,6 +110,7 @@ public:
 							if (btFuzzyZero(v))
 							{
 								a = 0.000001f;
+								(void)a;
 							}
 							ratio = matrix(j, i) / matrix(i, i);
 							for (k = 0; k < 2 * n; k++)
@@ -240,11 +241,13 @@ public:
 			if (fail)
 			{
 				int m_errorCountTimes = 0;
-				(void)m_errorCountTimes;
 				if (errorIndexMin < 0)
 					errorValueMin = 0.f;
 				if (errorIndexMax < 0)
 					errorValueMax = 0.f;
+				(void)m_errorCountTimes;
+				(void)errorValueMin;
+				(void)errorValueMax;
 				m_errorCountTimes++;
 				//	printf("Error (x[%d] = %f, x[%d] = %f), resetting %d times\n", errorIndexMin,errorValueMin, errorIndexMax, errorValueMax, errorCountTimes++);
 				for (int i = 0; i < n; i++)

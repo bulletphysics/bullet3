@@ -316,6 +316,7 @@ std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t
 
 	char *pchBuffer = new char[unRequiredBufferLen];
 	unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, pchBuffer, unRequiredBufferLen, peError);
+	(void)unRequiredBufferLen;
 	std::string sResult = pchBuffer;
 	delete[] pchBuffer;
 	return sResult;

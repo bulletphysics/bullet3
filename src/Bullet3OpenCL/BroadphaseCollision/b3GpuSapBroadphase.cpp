@@ -891,6 +891,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 			axis = 1;
 		if (v[2] > v[axis])
 			axis = 2;
+		(void)axis;
 	}
 
 	b3AlignedObjectArray<b3Int4> hostPairs;

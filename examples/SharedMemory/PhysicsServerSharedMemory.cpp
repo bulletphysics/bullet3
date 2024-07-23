@@ -126,6 +126,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory(struct GUIHelperInterface* g
 		if (m_data->m_areConnected[block])
 		{
 			allConnected = true;
+			(void)allConnected;
 			numConnected++;
 			b3Warning("connectSharedMemory, while already connected");
 			continue;

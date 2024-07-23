@@ -222,6 +222,7 @@ public:
 				if (image)
 				{
 					textureIndex = m_app->m_renderer->registerTexture(image, width, height);
+					(void)textureIndex;
 				}
 			}
 		}

@@ -273,6 +273,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual(const btVe
 				{
 					maxDot = newDot;
 					supVec = vtx;
+					(void)maxDot;
 				}
 			}
 			return btVector3(supVec.getX(), supVec.getY(), supVec.getZ());

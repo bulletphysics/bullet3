@@ -995,6 +995,7 @@ bool btQuantizedBvh::serialize(void* o_alignedDataBuffer, unsigned /*i_dataBuffe
 		}
 	}
 	nodeData += sizeof(btBvhSubtreeInfo) * m_subtreeHeaderCount;
+	(void)nodeData;
 
 	// this clears the pointer in the member variable it doesn't really do anything to the data
 	// it does call the destructor on the contained objects, but they are all classes with no destructor defined

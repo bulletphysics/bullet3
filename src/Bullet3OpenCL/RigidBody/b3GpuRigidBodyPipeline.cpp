@@ -625,6 +625,7 @@ int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* pos
 
 	bool writeToGpu = false;
 	int bodyIndex = m_data->m_narrowphase->getNumRigidBodies();
+	(void)bodyIndex;
 	bodyIndex = m_data->m_narrowphase->registerRigidBody(collidableIndex, mass, position, orientation, &aabbMin.getX(), &aabbMax.getX(), writeToGpu);
 
 	if (bodyIndex >= 0)

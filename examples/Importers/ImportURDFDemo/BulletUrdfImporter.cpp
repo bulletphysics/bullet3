@@ -445,6 +445,7 @@ void BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass, btVect
 			else
 			{
 				principalInertiaX = link->m_inertia.m_ixx;
+				(void)principalInertiaX;
 				btMatrix3x3 inertiaTensor(link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
 										  link->m_inertia.m_ixy, link->m_inertia.m_iyy, link->m_inertia.m_iyz,
 										  link->m_inertia.m_ixz, link->m_inertia.m_iyz, link->m_inertia.m_izz);

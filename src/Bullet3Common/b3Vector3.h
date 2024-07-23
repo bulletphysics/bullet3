@@ -1100,6 +1100,7 @@ public:
 			minIndex = 3;
 			minVal = m_floats[3];
 		}
+		(void)minVal;
 
 		return minIndex;
 	}

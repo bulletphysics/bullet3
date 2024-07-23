@@ -675,6 +675,7 @@ void sth_draw_texture(struct sth_stash* stash,
 		v = setv(v, q.x0, q.y0, 0, 0, (float)screenwidth, (float)screenheight, colorRGBA);
 		v = setv(v, q.x1, q.y1, 1, 1, (float)screenwidth, (float)screenheight, colorRGBA);
 		v = setv(v, q.x0, q.y1, 0, 1, (float)screenwidth, (float)screenheight, colorRGBA);
+		(void)v;
 		texture->nverts += 6;
 	}
 
@@ -737,6 +738,7 @@ void sth_draw_text(struct sth_stash* stash,
 			v = setv(v, q.x0, q.y0, q.s0, q.t0, (float)screenwidth, (float)screenheight, colorRGBA);
 			v = setv(v, q.x1, q.y1, q.s1, q.t1, (float)screenwidth, (float)screenheight, colorRGBA);
 			v = setv(v, q.x0, q.y1, q.s0, q.t1, (float)screenwidth, (float)screenheight, colorRGBA);
+			(void)v;
 
 			texture->nverts += 6;
 		}
@@ -791,6 +793,7 @@ void sth_draw_text3D(struct sth_stash* stash,
 			v = setv3D(v, q.x0, q.y0, z, q.s0, q.t0, colorRGBA);
 			v = setv3D(v, q.x1, q.y1, z, q.s1, q.t1, colorRGBA);
 			v = setv3D(v, q.x0, q.y1, z, q.s0, q.t1, colorRGBA);
+			(void)v;
 
 			texture->nverts += 6;
 		}

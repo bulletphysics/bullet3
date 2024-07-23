@@ -166,6 +166,7 @@ cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
 	unsigned int platformIndex = (unsigned int)platformIndex0;
 	cl_uint numPlatforms;
 	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
+	(void)ciErrNum;
 
 	if (platformIndex < numPlatforms)
 	{
