@@ -293,6 +293,7 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 	{
 		const std::string strOFF("OFF");
 		char temp[1024];
+		temp[1023] = '\0';
 		int len = fscanf(fid, "%s", temp);
 		(void)len;
 		if (std::string(temp) != strOFF)

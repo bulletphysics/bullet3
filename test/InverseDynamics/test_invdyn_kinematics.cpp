@@ -151,7 +151,8 @@ public:
 		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			char buf[256];
-			BT_ID_SNPRINTF(buf, 256, "%s-%.2d", name.c_str(), i);
+			buf[255]='\0';
+			BT_ID_SNPRINTF(buf, 255, "%s-%.2d", name.c_str(), (int)i);
 			m_fd[i].init(buf, dt);
 		}
 	}

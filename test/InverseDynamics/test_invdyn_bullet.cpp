@@ -46,6 +46,7 @@ TEST(InvDynCompare, bulletUrdfR2D2)
 	MyBtMultiBodyFromURDF mb_load(gravity, kBaseFixed);
 
 	char relativeFileName[1024];
+	relativeFileName[1023] = '\0';
 
 	ASSERT_TRUE(b3ResourcePath::findResourcePath(kUrdfFile, relativeFileName, 1024,0) != 0);
 

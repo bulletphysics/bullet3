@@ -766,6 +766,7 @@ LoadObj(
 		if ((0 == strncmp(token, "usemtl", 6)) && isSpace((token[6])))
 		{
 			char namebuf[4096];
+			namebuf[4095] = '\0';
 			token += 7;
 			int sz = sscanf(token, "%s", namebuf);
 			(void)sz;

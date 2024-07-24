@@ -479,6 +479,7 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 	{
 		const string strOFF("OFF");
 		char temp[1024];
+		temp[1023] = '\0';
 		int len = fscanf(fid, "%s", temp);
 		(void)len;
 		if (string(temp) != strOFF)

@@ -97,6 +97,7 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int /*option
 			int result;
 			//warning: we don't avoid string buffer overflow in this basic example in fscanf
 			char filename[1024];
+			filename[1023] = '\0';
 			do
 			{
 				result = fscanf(f, "%s", filename);

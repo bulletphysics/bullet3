@@ -328,6 +328,7 @@ cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int
 		for (i = 0; i < numPlatforms; ++i)
 		{
 			char pbuf[128];
+			pbuf[127] = '\0';
 			ciErrNum = clGetPlatformInfo(platforms[i],
 										 CL_PLATFORM_VENDOR,
 										 sizeof(pbuf),
