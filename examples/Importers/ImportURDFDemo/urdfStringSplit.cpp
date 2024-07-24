@@ -56,12 +56,14 @@ char **urdfStrArrayAppend(char **array, size_t nitems, const char *item,
 	/* Extend array with one element. Except extend it by two elements,
 	 in case it did not yet exist. This might mean it is a teeny bit
 	 too big, but we don't care. */
-	array = (char **)realloc(array, (nitems + 2) * sizeof(array[0]));
-	if (array == NULL)
+	char** reallocated = (char **)realloc(array, (nitems + 2) * sizeof(array[0]));
+	if (reallocated == NULL)
 	{
 		free(copy);
 		return NULL;
 	}
+	else
+		array = reallocated;
 
 	/* Add copy of item to array, and return it. */
 	array[nitems] = copy;

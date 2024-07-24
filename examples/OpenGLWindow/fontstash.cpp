@@ -345,6 +345,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 	float scale;
 	struct sth_texture* texture = NULL;
 	struct sth_glyph* glyph = NULL;
+	sth_glyph* reallocated = NULL;
 
 	unsigned int h;
 	float size = isize / 10.0f;
@@ -430,10 +431,10 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 
 	// Alloc space for new glyph.
 	fnt->nglyphs++;
-	(sth_glyph*) reallocated = (sth_glyph*)realloc(fnt->glyphs, fnt->nglyphs * sizeof(struct sth_glyph));
-	if(reallocated)
-		fnt->glyphs = reallocated;
-	if (!fnt->glyphs) return 0;
+	reallocated = (sth_glyph*)realloc(fnt->glyphs, fnt->nglyphs * sizeof(struct sth_glyph));
+	if(!reallocated)
+		return 0;
+	fnt->glyphs = reallocated;
 
 	// Init glyph.
 	glyph = &fnt->glyphs[fnt->nglyphs - 1];
