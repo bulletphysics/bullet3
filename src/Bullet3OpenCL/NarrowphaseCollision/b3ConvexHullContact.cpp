@@ -1182,8 +1182,8 @@ int clipHullHullSingle(
 	int localContactCapacity = MAX_VERTS;
 
 #ifdef _WIN32
-	b3Assert(_finite(bodyBuf->at(bodyIndexA).m_pos.x));
-	b3Assert(_finite(bodyBuf->at(bodyIndexB).m_pos.x));
+	b3Assert(isfinite(bodyBuf->at(bodyIndexA).m_pos.x));
+	b3Assert(isfinite(bodyBuf->at(bodyIndexB).m_pos.x));
 #endif
 
 	{
@@ -2520,8 +2520,8 @@ int computeContactConvexConvex2(
 	//int numContactsOut=0;
 
 #ifdef _WIN32
-	b3Assert(_finite(rigidBodies[bodyIndexA].m_pos.x));
-	b3Assert(_finite(rigidBodies[bodyIndexB].m_pos.x));
+	b3Assert(isfinite(rigidBodies[bodyIndexA].m_pos.x));
+	b3Assert(isfinite(rigidBodies[bodyIndexB].m_pos.x));
 #endif
 
 	bool foundSepAxis = findSeparatingAxis(hullA, hullB,

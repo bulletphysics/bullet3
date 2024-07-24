@@ -230,8 +230,8 @@ static __inline void solveContact(b3GpuConstraint4& cs,
 			b3Vector3 angImp0 = (invInertiaA * angular0) * rambdaDt;
 			b3Vector3 angImp1 = (invInertiaB * angular1) * rambdaDt;
 #ifdef _WIN32
-			b3Assert(_finite(linImp0.getX()));
-			b3Assert(_finite(linImp1.getX()));
+			b3Assert(isfinite(linImp0.getX()));
+			b3Assert(isfinite(linImp1.getX()));
 #endif
 			if (JACOBI)
 			{
@@ -305,8 +305,8 @@ static __inline void solveFriction(b3GpuConstraint4& cs,
 		b3Vector3 angImp0 = (invInertiaA * angular0) * rambdaDt;
 		b3Vector3 angImp1 = (invInertiaB * angular1) * rambdaDt;
 #ifdef _WIN32
-		b3Assert(_finite(linImp0.getX()));
-		b3Assert(_finite(linImp1.getX()));
+		b3Assert(isfinite(linImp0.getX()));
+		b3Assert(isfinite(linImp1.getX()));
 #endif
 		linVelA += linImp0;
 		angVelA += angImp0;

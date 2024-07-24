@@ -308,8 +308,8 @@ inline int b3ClipHullHullSingle(
 	int localContactCapacity = B3_MAX_VERTS;
 
 #ifdef _WIN32
-	b3Assert(_finite(bodyBuf->at(bodyIndexA).m_pos.x));
-	b3Assert(_finite(bodyBuf->at(bodyIndexB).m_pos.x));
+	b3Assert(isfinite(bodyBuf->at(bodyIndexA).m_pos.x));
+	b3Assert(isfinite(bodyBuf->at(bodyIndexB).m_pos.x));
 #endif
 
 	{
@@ -439,8 +439,8 @@ inline int b3ContactConvexConvexSAT(
 	//printf("numvertsB = %d\n",hullB.m_numVertices);
 
 #ifdef _WIN32
-	b3Assert(_finite(rigidBodies[bodyIndexA].m_pos.x));
-	b3Assert(_finite(rigidBodies[bodyIndexB].m_pos.x));
+	b3Assert(isfinite(rigidBodies[bodyIndexA].m_pos.x));
+	b3Assert(isfinite(rigidBodies[bodyIndexB].m_pos.x));
 #endif
 
 	bool foundSepAxis = b3FindSeparatingAxis(hullA, hullB,
