@@ -112,9 +112,9 @@ struct btTimings
 			sprintf(newname, "%s%d", name, counter2++);
 
 #ifdef _WIN32
-			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%I64u.%s ,\"ph\":\"B\",\"name\":\"%s\",\"args\":{}},\n",
+			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%llu.%s ,\"ph\":\"B\",\"name\":\"%s\",\"args\":{}},\n",
 					threadId, startTimeDiv1000, startTimeRem1000Str, newname);
-			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%I64u.%s ,\"ph\":\"E\",\"name\":\"%s\",\"args\":{}}",
+			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%llu.%s ,\"ph\":\"E\",\"name\":\"%s\",\"args\":{}}",
 					threadId, endTimeDiv1000, endTimeRem1000Str, newname);
 #else
 			// Note: on 64b build, PRIu64 resolves in 'lu' whereas timings ('ts') have to be printed as 'llu'.
