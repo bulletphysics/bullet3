@@ -389,7 +389,7 @@ std::string Path_GetThisModulePath()
 #ifdef WIN32
 	HMODULE hmodule = NULL;
 
-	::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCTSTR>(Path_GetThisModulePath), &hmodule);
+	::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCTSTR>((void*)Path_GetThisModulePath), &hmodule);
 
 	wchar_t *pwchPath = new wchar_t[MAX_UNICODE_PATH];
 	char *pchPath = new char[MAX_UNICODE_PATH_IN_UTF8];
