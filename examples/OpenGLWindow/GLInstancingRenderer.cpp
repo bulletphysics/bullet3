@@ -1683,6 +1683,7 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 
 	stbi_write_png(fileName, textureWidth, textureHeight, numComponents, pixels, textureWidth * numComponents);
 
+	free(orgPixels);
 	free(pixels);
 }
 
