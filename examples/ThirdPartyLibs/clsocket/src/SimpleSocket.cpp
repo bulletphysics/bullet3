@@ -144,7 +144,8 @@ bool CSimpleSocket::Initialize()
 	// Data structure containing general Windows Sockets Info
 	//-------------------------------------------------------------------------
 	memset(&m_hWSAData, 0, sizeof(m_hWSAData));
-	WSAStartup(MAKEWORD(2, 0), &m_hWSAData);
+	if(WSAStartup(MAKEWORD(2, 0), &m_hWSAData))
+		return false;
 #endif
 
 	//-------------------------------------------------------------------------

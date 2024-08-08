@@ -166,8 +166,8 @@ bool BspLoader::getVectorForKey(const BSPEntity *ent, const char *key, BSPVector
 	k = getValueForKey(ent, key);
 	if (strcmp(k, ""))
 	{
-		sscanf(k, "%f %f %f", &vec[0], &vec[1], &vec[2]);
-		return true;
+		int len = sscanf(k, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+		return len == 3;
 	}
 	return false;
 }
@@ -344,7 +344,7 @@ char *BspLoader::copystring(const char *s)
 {
 	char *b;
 	b = (char *)malloc(strlen(s) + 1);
-	strcpy(b, s);
+	if(b) strcpy(b, s);
 	return b;
 }
 
@@ -369,24 +369,27 @@ BSPKeyValuePair *BspLoader::parseEpair(void)
 	BSPKeyValuePair *e;
 
 	e = (struct BSPPair *)malloc(sizeof(BSPKeyValuePair));
-	memset(e, 0, sizeof(BSPKeyValuePair));
+	if(e) memset(e, 0, sizeof(BSPKeyValuePair));
 
 	if (strlen(token) >= BSPMAX_KEY - 1)
 	{
 		//printf ("ParseEpar: token too long");
 	}
-	e->key = copystring(token);
+	if(e) e->key = copystring(token);
 	getToken(false);
 	if (strlen(token) >= BSPMAX_VALUE - 1)
 	{
 		//printf ("ParseEpar: token too long");
 	}
-	e->value = copystring(token);
+	if(e) e->value = copystring(token);
 
 	// strip trailing spaces that sometimes get accidentally
 	// added in the editor
-	stripTrailing(e->key);
-	stripTrailing(e->value);
+	if(e)
+	{
+		stripTrailing(e->key);
+		stripTrailing(e->value);
+	}
 
 	return e;
 }
