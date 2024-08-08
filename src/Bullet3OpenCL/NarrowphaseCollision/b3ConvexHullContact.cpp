@@ -3502,7 +3502,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 	{
 		//now perform the tree query on GPU
 
-		if (treeNodesGPU->size() && treeNodesGPU->size())
+		if (treeNodesGPU->size() /*&& subTreesGPU->size()*/)
 		{
 			if (bvhTraversalKernelGPU)
 			{
