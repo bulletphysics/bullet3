@@ -137,7 +137,7 @@ void bFile::parseHeader()
 
 	if (strncmp(header, m_headerString, 6) != 0)
 	{
-		memcpy(header, m_headerString, SIZEOFBLENDERHEADER);
+		memcpy(header, m_headerString, 7);
 		return;
 	}
 
