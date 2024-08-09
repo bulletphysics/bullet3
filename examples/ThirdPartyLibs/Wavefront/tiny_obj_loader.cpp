@@ -112,8 +112,8 @@ static inline bool fixIndex(int idx, int n, int* ret)
 static inline std::string parseString(const char*& token)
 {
 	std::string s;
-	int b = strspn(token, " \t");
-	int e = strcspn(token, " \t\r");
+	int b = (int)strspn(token, " \t");
+	int e = (int)strcspn(token, " \t\r");
 	s = std::string(&token[b], &token[e]);
 
 	token += (e - b);
@@ -381,7 +381,7 @@ std::string LoadMtl(
 
 	material_t material;
 
-	int maxchars = 8192;              // Alloc enough size.
+	size_t maxchars = 8192;           // Alloc enough size.
 	std::vector<char> buf(maxchars);  // Alloc enough size.
 #ifdef USE_STREAM
 	while (ifs.peek() != -1)
@@ -570,7 +570,7 @@ std::string LoadMtl(
 		if (_space)
 		{
 			int len = _space - token;
-			std::string key(token, len);
+			std::string key(token, (size_t)len);
 			std::string value = _space + 1;
 			material.unknown_parameter.insert(std::pair<std::string, std::string>(key, value));
 		}
@@ -604,11 +604,11 @@ LoadObj(
 	std::string tmp = filename;
 	if (!mtl_basepath)
 	{
-		int last_slash = 0;
-		for (int c = 0; c < (int)tmp.size(); ++c)
+		size_t last_slash = 0;
+		for (size_t c = 0; c < tmp.size(); ++c)
 			if (tmp[c] == '/' || tmp[c] == '\\')
 				last_slash = c;
-		tmp = tmp.substr(0, last_slash);
+		tmp = tmp.substr(0, (size_t)last_slash);
 		mtl_basepath = tmp.c_str();
 		//fprintf(stderr, "MTL PATH '%s' orig '%s'\n", mtl_basepath, filename);
 	}
@@ -644,7 +644,7 @@ LoadObj(
 	material_t material;
 	InitMaterial(material);
 
-	int maxchars = 8192;              // Alloc enough size.
+	size_t maxchars = 8192;           // Alloc enough size.
 	std::vector<char> buf(maxchars);  // Alloc enough size.
 	std::string linebuf;
 	linebuf.reserve(maxchars);

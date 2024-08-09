@@ -91,7 +91,7 @@ b3Solver::b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, 
 
 	const int sortSize = B3NEXTMULTIPLEOF(pairCapacity, 512);
 
-	m_sortDataBuffer = new b3OpenCLArray<b3SortData>(ctx, queue, sortSize);
+	m_sortDataBuffer = new b3OpenCLArray<b3SortData>(ctx, queue, (size_t)sortSize);
 	m_contactBuffer2 = new b3OpenCLArray<b3Contact4>(ctx, queue);
 
 	m_numConstraints = new b3OpenCLArray<unsigned int>(ctx, queue, B3_SOLVER_N_CELLS);
@@ -568,8 +568,8 @@ void b3Solver::solveContactConstraintHost(b3OpenCLArray<b3RigidBodyData>* bodyBu
 						//printf("frame=%d, Cell xIdx=%x, yIdx=%d ",frame, xIdx,yIdx);
 						//printf("cellBatch=%d, wgIdx=%d, #constraints in cell=%d\n",cellBatch,wgIdx,numConstraintsHost[cellIdx]);
 					}
-					const int start = offsetsHost[cellIdx];
-					int numConstraintsInCell = numConstraintsHost[cellIdx];
+					const int start = (int)offsetsHost[cellIdx];
+					int numConstraintsInCell = (int)numConstraintsHost[cellIdx];
 					//				const int end = start + numConstraintsInCell;
 
 					SolveTask task(bodyNative, shapeNative, constraintNative, start, numConstraintsInCell, maxNumBatches, usedBodies, wgIdx, batchSizes, cellIdx);
@@ -602,8 +602,8 @@ void b3Solver::solveContactConstraintHost(b3OpenCLArray<b3RigidBodyData>* bodyBu
 
 					//printf("yIdx=%d\n",yIdx);
 
-					const int start = offsetsHost[cellIdx];
-					int numConstraintsInCell = numConstraintsHost[cellIdx];
+					const int start = (int)offsetsHost[cellIdx];
+					int numConstraintsInCell = (int)numConstraintsHost[cellIdx];
 					//				const int end = start + numConstraintsInCell;
 
 					SolveTask task(bodyNative, shapeNative, constraintNative, start, numConstraintsInCell, maxNumBatches, 0, 0, batchSizes, cellIdx);
@@ -681,18 +681,18 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* /*bodyBuf*/,
 		if (gN[cellIdx] == 0)
 			continue;
 
-		const int start = gOffsets[cellIdx];
-		const int end = start + gN[cellIdx];
+		const int start = (int)gOffsets[cellIdx];
+		const int end = (int)(start + gN[cellIdx]);
 
 		for (int c = start; c < end; c++)
 		{
 			b3GpuConstraint4& constraint = cpuConstraints[c];
 			//printf("constraint (%d,%d)\n", constraint.m_bodyA,constraint.m_bodyB);
-			if (usedBodies.findLinearSearch(constraint.m_bodyA) < usedBodies.size())
+			if (usedBodies.findLinearSearch((int)constraint.m_bodyA) < usedBodies.size())
 			{
 				printf("error?\n");
 			}
-			if (usedBodies.findLinearSearch(constraint.m_bodyB) < usedBodies.size())
+			if (usedBodies.findLinearSearch((int)constraint.m_bodyB) < usedBodies.size())
 			{
 				printf("error?\n");
 			}
@@ -701,8 +701,8 @@ void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* /*bodyBuf*/,
 		for (int c = start; c < end; c++)
 		{
 			b3GpuConstraint4& constraint = cpuConstraints[c];
-			usedBodies.push_back(constraint.m_bodyA);
-			usedBodies.push_back(constraint.m_bodyB);
+			usedBodies.push_back((int)constraint.m_bodyA);
+			usedBodies.push_back((int)constraint.m_bodyB);
 		}
 	}
 }
@@ -870,7 +870,7 @@ void b3Solver::convertToConstraints(const b3OpenCLArray<b3RigidBodyData>* bodyBu
 									int nContacts, const ConstraintCfg& cfg)
 {
 	//	b3OpenCLArray<b3GpuConstraint4>* constraintNative =0;
-	contactCOut->resize(nContacts);
+	contactCOut->resize((size_t)nContacts);
 	struct CB
 	{
 		int m_nContacts;

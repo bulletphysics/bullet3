@@ -1155,7 +1155,7 @@ struct VRControllerStateLogger : public InternalStateLogger
 		if (m_logFileHandle)
 		{
 			int stepCount = m_loggingTimeStamp;
-			float timeStamp = m_loggingTimeStamp * timeStep;
+			float timeStamp = (btScalar)m_loggingTimeStamp * timeStep;
 
 			for (int i = 0; i < MAX_VR_CONTROLLERS; i++)
 			{
@@ -1569,7 +1569,7 @@ struct ContactPointsStateLogger : public InternalStateLogger
 				{
 					MinitaurLogRecord logData;
 					int stepCount = m_loggingTimeStamp;
-					float timeStamp = m_loggingTimeStamp * timeStep;
+					float timeStamp = (btScalar)m_loggingTimeStamp * timeStep;
 					logData.m_values.push_back(stepCount);
 					logData.m_values.push_back(timeStamp);
 
@@ -3192,7 +3192,7 @@ void PhysicsServerCommandProcessor::addUserData(const btHashMap<btHashString, st
 		if (value)
 		{
 			addUserData(bodyUniqueId, linkIndex, visualShapeIndex, key.c_str(), value->c_str(),
-						value->size() + 1, USER_DATA_VALUE_TYPE_STRING);
+						(int)value->size() + 1, USER_DATA_VALUE_TYPE_STRING);
 		}
 	}
 }
@@ -3752,7 +3752,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 		ser.registerNameForPointer(mb->getBaseName(), mb->getBaseName());
 
 		int len = mb->calculateSerializeBufferSize();
-		btChunk* chunk = ser.allocate(len, 1);
+		btChunk* chunk = ser.allocate((size_t)len, 1);
 		const char* structType = mb->serialize(chunk->m_oldPtr, &ser);
 		ser.finalizeChunk(chunk, structType, BT_MULTIBODY_CODE, mb);
 		streamSizeInBytes = ser.getCurrentBufferSize();
@@ -3776,7 +3776,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 			(void)bodyA;
 
 			int len = con->calculateSerializeBufferSize();
-			btChunk* chunk = ser.allocate(len, 1);
+			btChunk* chunk = ser.allocate((size_t)len, 1);
 			const char* structType = con->serialize(chunk->m_oldPtr, &ser);
 			ser.finalizeChunk(chunk, structType, BT_CONSTRAINT_CODE, (void*)con);
 		}
@@ -3791,7 +3791,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 
 		ser.startSerialization();
 		int len = sb->calculateSerializeBufferSize();
-		btChunk* chunk = ser.allocate(len, 1);
+		btChunk* chunk = ser.allocate((size_t)len, 1);
 		const char* structType = sb->serialize(chunk->m_oldPtr, &ser);
 		ser.finalizeChunk(chunk, structType, BT_SOFTBODY_CODE, sb);
 		streamSizeInBytes = ser.getCurrentBufferSize();
@@ -4385,22 +4385,22 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 			char line[2048];
 			{
 				sprintf(line, "import pybullet as p\n");
-				int len = strlen(line);
+				size_t len = strlen(line);
 				fwrite(line, len, 1, f);
 			}
 			{
 				sprintf(line, "cin = p.connect(p.SHARED_MEMORY)\n");
-				int len = strlen(line);
+				size_t len = strlen(line);
 				fwrite(line, len, 1, f);
 			}
 			{
 				sprintf(line, "if (cin < 0):\n");
-				int len = strlen(line);
+				size_t len = strlen(line);
 				fwrite(line, len, 1, f);
 			}
 			{
 				sprintf(line, "    cin = p.connect(p.GUI)\n");
-				int len = strlen(line);
+				size_t len = strlen(line);
 				fwrite(line, len, 1, f);
 			}
 
@@ -4428,27 +4428,27 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 									sprintf(line, "objects = [p.loadURDF(\"%s\", %f,%f,%f,%f,%f,%f,%f)]\n", sd.m_fileName.c_str(),
 											tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2],
 											tr.getRotation()[0], tr.getRotation()[1], tr.getRotation()[2], tr.getRotation()[3]);
-									int len = strlen(line);
+									size_t len = strlen(line);
 									fwrite(line, len, 1, f);
 								}
 
 								if (strstr(sd.m_fileName.c_str(), ".sdf") && i == 0)
 								{
 									sprintf(line, "objects = p.loadSDF(\"%s\")\n", sd.m_fileName.c_str());
-									int len = strlen(line);
+									size_t len = strlen(line);
 									fwrite(line, len, 1, f);
 								}
 								if (strstr(sd.m_fileName.c_str(), ".xml") && i == 0)
 								{
 									sprintf(line, "objects = p.loadMJCF(\"%s\")\n", sd.m_fileName.c_str());
-									int len = strlen(line);
+									size_t len = strlen(line);
 									fwrite(line, len, 1, f);
 								}
 
 								if (strstr(sd.m_fileName.c_str(), ".sdf") || strstr(sd.m_fileName.c_str(), ".xml") || ((strstr(sd.m_fileName.c_str(), ".urdf")) && mb->getNumLinks()))
 								{
 									sprintf(line, "ob = objects[%d]\n", i);
-									int len = strlen(line);
+									size_t len = strlen(line);
 									fwrite(line, len, 1, f);
 								}
 
@@ -4457,7 +4457,7 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 									sprintf(line, "p.resetBasePositionAndOrientation(ob,[%f,%f,%f],[%f,%f,%f,%f])\n",
 											comTr.getOrigin()[0], comTr.getOrigin()[1], comTr.getOrigin()[2],
 											comTr.getRotation()[0], comTr.getRotation()[1], comTr.getRotation()[2], comTr.getRotation()[3]);
-									int len = strlen(line);
+									size_t len = strlen(line);
 									fwrite(line, len, 1, f);
 								}
 
@@ -4465,7 +4465,7 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 								{
 									{
 										sprintf(line, "jointPositions=[");
-										int len = strlen(line);
+										size_t len = strlen(line);
 										fwrite(line, len, 1, f);
 									}
 
@@ -4475,20 +4475,20 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 										if (i < mb->getNumLinks() - 1)
 										{
 											sprintf(line, " %f,", jointPos);
-											int len = strlen(line);
+											size_t len = strlen(line);
 											fwrite(line, len, 1, f);
 										}
 										else
 										{
 											sprintf(line, " %f ", jointPos);
-											int len = strlen(line);
+											size_t len = strlen(line);
 											fwrite(line, len, 1, f);
 										}
 									}
 
 									{
 										sprintf(line, "]\nfor jointIndex in range (p.getNumJoints(ob)):\n\tp.resetJointState(ob,jointIndex,jointPositions[jointIndex])\n\n");
-										int len = strlen(line);
+										size_t len = strlen(line);
 										fwrite(line, len, 1, f);
 									}
 								}
@@ -4588,12 +4588,12 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 										pivotChild[0], pivotChild[1], pivotChild[2],
 										ornFrameParent[0], ornFrameParent[1], ornFrameParent[2], ornFrameParent[3],
 										ornFrameChild[0], ornFrameChild[1], ornFrameChild[2], ornFrameChild[3]);
-								int len = strlen(line);
+								size_t len = strlen(line);
 								fwrite(line, len, 1, f);
 							}
 							{
 								sprintf(line, "p.changeConstraint(cid%d,maxForce=%f)\n", constraintCount, uc.m_maxAppliedForce);
-								int len = strlen(line);
+								size_t len = strlen(line);
 								fwrite(line, len, 1, f);
 								constraintCount++;
 							}
@@ -4605,13 +4605,13 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 			{
 				btVector3 grav = this->m_data->m_dynamicsWorld->getGravity();
 				sprintf(line, "p.setGravity(%f,%f,%f)\n", grav[0], grav[1], grav[2]);
-				int len = strlen(line);
+				size_t len = strlen(line);
 				fwrite(line, len, 1, f);
 			}
 
 			{
 				sprintf(line, "p.stepSimulation()\np.disconnect()\n");
-				int len = strlen(line);
+				size_t len = strlen(line);
 				fwrite(line, len, 1, f);
 			}
 			fclose(f);
@@ -4676,7 +4676,7 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 				btAssert(bytesPerElement > 0 && "bad bytes per element");
 
 				int nBytes = nElements * bytesPerElement;
-				unsigned char* raw = new unsigned char[nBytes];
+				unsigned char* raw = new unsigned char[(size_t)nBytes];
 				btAssert(raw && "out of memory");
 
 				unsigned char* p = raw;
@@ -4742,13 +4742,13 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 						int nextPos = pos + 1;
 						while (nextPos < (int)line.length())
 						{
-							if (line[nextPos - 1] == ',')
+							if (line[(size_t)nextPos - 1] == ',')
 							{
 								break;
 							}
 							nextPos++;
 						}
-						std::string substr = line.substr(pos, nextPos - pos - 1);
+						std::string substr = line.substr((size_t)pos, (size_t)(nextPos - pos - 1));
 
 						double v;
 						if (sscanf(substr.c_str(), "%lf", &v) == 1)
@@ -4773,7 +4773,7 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 
 				long nBytes = nElements * bytesPerElement;
 				//	std::cerr << "  nBytes = " << nBytes << "\n";
-				unsigned char* raw = new unsigned char[nBytes];
+				unsigned char* raw = new unsigned char[(size_t)nBytes];
 				btAssert(raw && "out of memory");
 
 				unsigned char* p = raw;
@@ -5349,30 +5349,30 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							}
 							compound->setMargin(m_data->m_defaultCollisionMargin);
 
-							for (int s = 0; s < (int)shapes.size(); s++)
+							for (size_t s = 0; s < shapes.size(); s++)
 							{
 								btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
 								convexHull->setMargin(m_data->m_defaultCollisionMargin);
 								bt_tinyobj::shape_t& shape = shapes[s];
-								int faceCount = shape.mesh.indices.size();
+								size_t faceCount = shape.mesh.indices.size();
 
-								for (int f = 0; f < faceCount; f += 3)
+								for (size_t f = 0; f < faceCount; f += 3)
 								{
 									btVector3 pt;
-									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 0],
-												attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
-												attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
+									pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 0],
+												attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 1],
+												attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 2]);
 
 									convexHull->addPoint(pt * meshScale, false);
 
-									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
-												attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
-												attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
+									pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 0],
+												attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 1],
+												attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 2]);
 									convexHull->addPoint(pt * meshScale, false);
 
-									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
-												attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
-												attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
+									pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 0],
+												attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 1],
+												attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 2]);
 									convexHull->addPoint(pt * meshScale, false);
 								}
 
@@ -5658,7 +5658,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 				memcpy(verticesOut, &vertices[0], sizeof(btVector3) * verticesCopied);
 			}
 
-			sizeInBytes = verticesCopied * sizeof(btVector3);
+			sizeInBytes = (int)(verticesCopied * sizeof(btVector3));
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
 			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -5713,7 +5713,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			}
 			
 
-			sizeInBytes = verticesCopied * sizeof(btVector3);
+			sizeInBytes = (int)(verticesCopied * sizeof(btVector3));
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
 			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -5759,7 +5759,7 @@ bool PhysicsServerCommandProcessor::processRequestTetraMeshDataCommand(const str
 				verticesOut[i+3].setValue(n.m_n[3]->m_x.x(), n.m_n[3]->m_x.y(), n.m_n[3]->m_x.z());
 			}
 
-			sizeInBytes = verticesCopied * sizeof(btVector3);
+			sizeInBytes = (int)(verticesCopied * sizeof(btVector3));
 			serverStatusOut.m_type = CMD_REQUEST_TETRA_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
 			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -6741,7 +6741,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays, reportHitNumber, collisionFilterMask, fractionEpsilon);
 	batchRayCaster.castRays(numThreads);
 
-	serverStatusOut.m_numDataStreamBytes = totalRays * sizeof(b3RayData);
+	serverStatusOut.m_numDataStreamBytes = (int)(totalRays * sizeof(b3RayData));
 	serverStatusOut.m_raycastHits.m_numRaycastHits = totalRays;
 	serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
 	return hasStatus;
@@ -6851,7 +6851,7 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 		constraintUid[i] = key;
 	}
 
-	serverStatusOut.m_numDataStreamBytes = sizeof(int) * (actualNumBodies + usz);
+	serverStatusOut.m_numDataStreamBytes = (int)(sizeof(int) * (actualNumBodies + usz));
 
 	serverStatusOut.m_type = CMD_SYNC_BODY_INFO_COMPLETED;
 	return hasStatus;
@@ -6883,10 +6883,10 @@ bool PhysicsServerCommandProcessor::processSyncUserDataCommand(const struct Shar
 			}
 		}
 	}
-	int sizeInBytes = sizeof(int) * userDataHandles.size();
+	int sizeInBytes = (int)(sizeof(int) * userDataHandles.size());
 	if (userDataHandles.size())
 	{
-		memcpy(bufferServerToClient, &userDataHandles[0], sizeInBytes);
+		memcpy(bufferServerToClient, &userDataHandles[0], (size_t)sizeInBytes);
 	}
 	// Only clear the client-side cache when a full sync is requested
 	serverStatusOut.m_syncUserDataArgs.m_clearCachedUserDataEntries = clientCmd.m_syncUserDataRequestArgs.m_numRequestedBodies == 0;
@@ -6921,7 +6921,7 @@ bool PhysicsServerCommandProcessor::processRequestUserDataCommand(const struct S
 	strcpy(serverStatusOut.m_userDataResponseArgs.m_key, userData->m_key.c_str());
 	if (userData->m_bytes.size())
 	{
-		memcpy(bufferServerToClient, &userData->m_bytes[0], userData->m_bytes.size());
+		memcpy(bufferServerToClient, &userData->m_bytes[0], (size_t)userData->m_bytes.size());
 	}
 	serverStatusOut.m_numDataStreamBytes = userData->m_bytes.size();
 	return hasStatus;
@@ -9356,7 +9356,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			{
 				indices.push_back(shape.mesh.indices[i].vertex_index);
 			}
-			int numTris = shape.mesh.indices.size() / 3;
+			int numTris = (int)(shape.mesh.indices.size() / 3);
 			if (numTris > 0)
 			{
 				{
@@ -9492,20 +9492,20 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 
 				std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
 
-				for (int s = 0; s < (int)shapes.size(); s++)
+				for (size_t s = 0; s < shapes.size(); s++)
 				{
 					bt_tinyobj::shape_t& shape = shapes[s];
-					int faceCount = shape.mesh.indices.size();
-					int vertexCount = attribute.vertices.size() / 3;
-					for (int v = 0; v < vertexCount; v++)
+					size_t faceCount = shape.mesh.indices.size();
+					size_t vertexCount = attribute.vertices.size() / 3;
+					for (size_t v = 0; v < vertexCount; v++)
 					{
 						btSoftBody::RenderNode n;
 						n.m_x = btVector3(attribute.vertices[3 * v], attribute.vertices[3 * v + 1], attribute.vertices[3 * v + 2]);
 						psb->m_renderNodes.push_back(n);
 					}
-					for (int f = 0; f < faceCount; f += 3)
+					for (size_t f = 0; f < faceCount; f += 3)
 					{
-						if (f < 0 && f >= int(shape.mesh.indices.size()))
+						if (f >= shape.mesh.indices.size())
 						{
 							continue;
 						}
@@ -9733,9 +9733,9 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 
 						if (a == b)
 						{
-							texels[(i + j * texWidth) * 3 + 0] = red;
-							texels[(i + j * texWidth) * 3 + 1] = green;
-							texels[(i + j * texWidth) * 3 + 2] = blue;
+							texels[(i + j * texWidth) * 3 + 0] = (unsigned char)red;
+							texels[(i + j * texWidth) * 3 + 1] = (unsigned char)green;
+							texels[(i + j * texWidth) * 3 + 2] = (unsigned char)blue;
 						}
 					}
 				}
@@ -9815,13 +9815,13 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		}
 		else
 		{
-			int pos = strlen(relativeFileName) - 1;
+			int pos = (int)strlen(relativeFileName) - 1;
 			while (pos >= 0 && relativeFileName[pos] != '/')
 			{
 				pos--;
 			}
 			btAssert(strlen(relativeFileName) - pos - 5 > 0);
-			std::string object_name(std::string(relativeFileName).substr(pos + 1, strlen(relativeFileName) - 5 - pos));
+			std::string object_name(std::string(relativeFileName).substr((size_t)pos + 1, strlen(relativeFileName) - 5 - (size_t)pos));
 			bodyHandle->m_bodyName = object_name;
 		}
 		b3Notification notification;
@@ -9944,20 +9944,20 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 
 				std::string err = bt_tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
 
-				for (int s = 0; s < (int)shapes.size(); s++)
+				for (size_t s = 0; s < shapes.size(); s++)
 				{
 					bt_tinyobj::shape_t& shape = shapes[s];
-					int faceCount = shape.mesh.indices.size();
-					int vertexCount = attribute.vertices.size() / 3;
-					for (int v = 0; v < vertexCount; v++)
+					size_t faceCount = shape.mesh.indices.size();
+					size_t vertexCount = attribute.vertices.size() / 3;
+					for (size_t v = 0; v < vertexCount; v++)
 					{
 						btSoftBody::RenderNode n;
 						n.m_x = btVector3(attribute.vertices[3 * v], attribute.vertices[3 * v + 1], attribute.vertices[3 * v + 2]);
 						rsb->m_renderNodes.push_back(n);
 					}
-					for (int f = 0; f < faceCount; f += 3)
+					for (size_t f = 0; f < faceCount; f += 3)
 					{
-						if (f < 0 && f >= int(shape.mesh.indices.size()))
+						if (f >= shape.mesh.indices.size())
 						{
 							continue;
 						}
@@ -10180,9 +10180,9 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 
 						if (a == b)
 						{
-							texels[(i + j * texWidth) * 3 + 0] = red;
-							texels[(i + j * texWidth) * 3 + 1] = green;
-							texels[(i + j * texWidth) * 3 + 2] = blue;
+							texels[(i + j * texWidth) * 3 + 0] = (unsigned char)red;
+							texels[(i + j * texWidth) * 3 + 1] = (unsigned char)green;
+							texels[(i + j * texWidth) * 3 + 2] = (unsigned char)blue;
 						}
 					}
 				}
@@ -10262,13 +10262,13 @@ bool PhysicsServerCommandProcessor::processReducedDeformable(const UrdfReducedDe
 		}
 		else
 		{
-			int pos = strlen(relativeFileName) - 1;
-			while (pos >= 0 && relativeFileName[pos] != '/')
+			int pos = (int)strlen(relativeFileName) - 1;
+			while (pos >= 0 && relativeFileName[(size_t)pos] != '/')
 			{
 				pos--;
 			}
 			btAssert(strlen(relativeFileName) - pos - 5 > 0);
-			std::string object_name(std::string(relativeFileName).substr(pos + 1, strlen(relativeFileName) - 5 - pos));
+			std::string object_name(std::string(relativeFileName).substr((size_t)pos + 1, strlen(relativeFileName) - 5 - (size_t)pos));
 			bodyHandle->m_bodyName = object_name;
 		}
 		b3Notification notification;
@@ -10431,7 +10431,7 @@ bool PhysicsServerCommandProcessor::processProfileTimingCommand(const struct Sha
 			}
 			else
 			{
-				int len = strlen(clientCmd.m_profile.m_name);
+				size_t len = strlen(clientCmd.m_profile.m_name);
 				eventName = new char[len + 1];
 				strcpy(eventName, clientCmd.m_profile.m_name);
 				eventName[len] = 0;
@@ -12565,7 +12565,7 @@ bool PhysicsServerCommandProcessor::processCalculateMassMatrixCommand(const stru
 					serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs - skipDofs;
 					// Fill in the result into the shared memory.
 					double* sharedBuf = (double*)bufferServerToClient;
-					int sizeInBytes = totDofs * totDofs * sizeof(double);
+					int sizeInBytes = (int)(totDofs * totDofs * sizeof(double));
 					if (sizeInBytes < bufferSizeInBytes)
 					{
 						for (int i = skipDofs; i < (totDofs); ++i)
@@ -12607,7 +12607,7 @@ bool PhysicsServerCommandProcessor::processCalculateMassMatrixCommand(const stru
 					serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs;
 					// Fill in the result into the shared memory.
 					double* sharedBuf = (double*)bufferServerToClient;
-					int sizeInBytes = totDofs * totDofs * sizeof(double);
+					int sizeInBytes = (int)(totDofs * totDofs * sizeof(double));
 					if (sizeInBytes < bufferSizeInBytes)
 					{
 						for (int i = 0; i < (totDofs); ++i)
@@ -14397,7 +14397,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(cons
 				{
 					//extract shape info from base collider
 					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getBaseCollider()->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
-					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes * sizeof(b3CollisionShapeData);
+					serverCmd.m_numDataStreamBytes = (int)(numConvertedCollisionShapes * sizeof(b3CollisionShapeData));
 					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
 					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
 				}
@@ -14407,7 +14407,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(cons
 				if (linkIndex >= 0 && linkIndex < bodyHandle->m_multiBody->getNumLinks() && bodyHandle->m_multiBody->getLinkCollider(linkIndex))
 				{
 					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getLinkCollider(linkIndex)->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
-					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes * sizeof(b3CollisionShapeData);
+					serverCmd.m_numDataStreamBytes = (int)(numConvertedCollisionShapes * sizeof(b3CollisionShapeData));
 					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
 					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
 				}
@@ -14439,7 +14439,7 @@ bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const s
 			serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 0;
 			serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
 			serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
-			serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData) * serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+			serverCmd.m_numDataStreamBytes = (int)(sizeof(b3VisualShapeData) * serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied);
 			serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_COMPLETED;
 		}
 
@@ -14477,7 +14477,7 @@ bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const s
 				serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 1;
 				serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
 				serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
-				serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData) * serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+				serverCmd.m_numDataStreamBytes = (int)(sizeof(b3VisualShapeData) * serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied);
 				serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_COMPLETED;
 			}
 			else
@@ -15090,7 +15090,7 @@ bool PhysicsServerCommandProcessor::processSaveBulletCommand(const struct Shared
 		ser->setSerializationFlags(currentFlags | BT_SERIALIZE_CONTACT_MANIFOLDS);
 
 		m_data->m_dynamicsWorld->serialize(ser);
-		fwrite(ser->getBufferPointer(), ser->getCurrentBufferSize(), 1, f);
+		fwrite(ser->getBufferPointer(), (size_t)ser->getCurrentBufferSize(), 1, f);
 		fclose(f);
 		serverCmd.m_type = CMD_BULLET_SAVING_COMPLETED;
 		delete ser;

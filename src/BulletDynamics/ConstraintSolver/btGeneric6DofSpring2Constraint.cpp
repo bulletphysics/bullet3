@@ -680,7 +680,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		btScalar vel = rotational ? angVelA.dot(ax1) - angVelB.dot(ax1) : linVelA.dot(ax1) - linVelB.dot(ax1);
 
 		calculateJacobi(limot, transA, transB, info, srow, ax1, rotational, rotAllowed);
-		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (btScalar)(rotational ? -1 : 1);
 		if (rotational)
 		{
 			if (info->m_constraintError[srow] - vel * limot->m_stopERP > 0)
@@ -704,7 +704,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		++count;
 
 		calculateJacobi(limot, transA, transB, info, srow, ax1, rotational, rotAllowed);
-		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitErrorHi * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitErrorHi * (btScalar)(rotational ? -1 : 1);
 		if (rotational)
 		{
 			if (info->m_constraintError[srow] - vel * limot->m_stopERP < 0)
@@ -730,7 +730,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 	else if (limot->m_currentLimit == 3)
 	{
 		calculateJacobi(limot, transA, transB, info, srow, ax1, rotational, rotAllowed);
-		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (btScalar)(rotational ? -1 : 1);
 		info->m_lowerLimit[srow] = -SIMD_INFINITY;
 		info->m_upperLimit[srow] = SIMD_INFINITY;
 		info->cfm[srow] = limot->m_stopCFM;
@@ -797,7 +797,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		{
 			mot_fact = 0;
 		}
-		info->m_constraintError[srow] = mot_fact * targetvelocity * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = mot_fact * targetvelocity * (btScalar)(rotational ? -1 : 1);
 		info->m_lowerLimit[srow] = -limot->m_maxMotorForce / info->fps;
 		info->m_upperLimit[srow] = limot->m_maxMotorForce / info->fps;
 		info->cfm[srow] = limot->m_motorCFM;
@@ -859,7 +859,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			kd = m / dt;
 		}
 		btScalar fs = ks * error * dt;
-		btScalar fd = -kd * (vel) * (rotational ? -1 : 1) * dt;
+		btScalar fd = -kd * (vel) * (btScalar)(rotational ? -1 : 1) * dt;
 		btScalar f = (fs + fd);
 
 		// after the spring force affecting the body(es) the new velocity will be
@@ -877,9 +877,9 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		// and the answer is not, because in practice during the solving the current velocity is subtracted from the m_constraintError
 		// so the sign of the force that is really matters
 		if (m_flags & BT_6DOF_FLAGS_USE_INFINITE_ERROR)
-			info->m_constraintError[srow] = (rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
+			info->m_constraintError[srow] = (btScalar)(rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
 		else
-			info->m_constraintError[srow] = vel + f / m * (rotational ? -1 : 1);
+			info->m_constraintError[srow] = vel + f / m * (btScalar)(rotational ? -1 : 1);
 
 		btScalar minf = f < fd ? f : fd;
 		btScalar maxf = f < fd ? fd : f;

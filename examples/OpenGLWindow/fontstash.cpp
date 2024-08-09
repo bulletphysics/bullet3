@@ -32,8 +32,16 @@
 #define BORDER_Y_BOTTOM 2
 #define ADDITIONAL_HEIGHT 2
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2' - signed/unsigned mismatch
+#pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
+#endif
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_image/stb_truetype.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #define HASH_LUT_SIZE 256
 
@@ -140,8 +148,8 @@ struct sth_stash* sth_create(int cachew, int cacheh, RenderCallbacks* renderCall
 	// Create first texture for the cache.
 	stash->tw = cachew;
 	stash->th = cacheh;
-	stash->itw = 1.0f / cachew;
-	stash->ith = 1.0f / cacheh;
+	stash->itw = 1.0f / (float)cachew;
+	stash->ith = 1.0f / (float)cacheh;
 	stash->textures = texture;
 
 	stash->m_renderCallbacks->updateTexture(texture, 0, stash->tw, stash->th);
@@ -206,10 +214,10 @@ int sth_add_font(struct sth_stash* stash, const char* path)
 	fseek(fp, 0, SEEK_END);
 	datasize = (int)ftell(fp);
 	fseek(fp, 0, SEEK_SET);
-	data = (unsigned char*)malloc(datasize);
+	data = (unsigned char*)malloc((size_t)datasize);
 	if (data == NULL) goto error;
 	int bytesRead;
-	bytesRead = fread(data, 1, datasize, fp);
+	bytesRead = (int)fread(data, 1, (size_t)datasize, fp);
 	if (bytesRead)
 	{
 		idx = sth_add_font_from_memory(stash, data);
@@ -358,7 +366,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 
 	// For truetype fonts: create this glyph.
 	scale = stbtt_ScaleForPixelHeight(&fnt->font, size);
-	g = stbtt_FindGlyphIndex(&fnt->font, codepoint);
+	g = stbtt_FindGlyphIndex(&fnt->font, (int)codepoint);
 	stbtt_GetGlyphHMetrics(&fnt->font, g, &advance, &lsb);
 	stbtt_GetGlyphBitmapBox(&fnt->font, g, scale, scale, &x0, &y0, &x1, &y1);
 	gw = x1 - x0;
@@ -434,7 +442,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 	glyph->y0 = br->y;
 	glyph->x1 = glyph->x0_ + gw;
 	glyph->y1 = glyph->y0 + gh;
-	glyph->xadv = scale * advance;
+	glyph->xadv = scale * (float)advance;
 	glyph->xoff = (float)x0;
 	glyph->yoff = (float)y0;
 	glyph->next = 0;
@@ -656,8 +664,8 @@ void sth_draw_texture(struct sth_stash* stash,
 		v = &texture->newverts[texture->nverts];
 		q.x0 = 0;
 		q.y0 = 0;
-		q.x1 = q.x0 + width;
-		q.y1 = q.y0 + height;
+		q.x1 = q.x0 + (float)width;
+		q.y1 = q.y0 + (float)height;
 
 		v = setv(v, q.x0, q.y0, 0, 0, (float)screenwidth, (float)screenheight, colorRGBA);
 		v = setv(v, q.x1, q.y0, 1, 0, (float)screenwidth, (float)screenheight, colorRGBA);

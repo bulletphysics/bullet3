@@ -143,7 +143,7 @@ int b3OpenCLUtils_getNumPlatforms(cl_int* pErrNum)
 		if (pErrNum != NULL)
 			*pErrNum = ciErrNum;
 	}
-	return numPlatforms;
+	return (int)numPlatforms;
 }
 
 const char* b3OpenCLUtils_getSdkVendorName()
@@ -418,7 +418,7 @@ int b3OpenCLUtils_getNumDevices(cl_context cxMainContext)
 	size_t szParamDataBytes;
 	int device_count;
 	clGetContextInfo(cxMainContext, CL_CONTEXT_DEVICES, 0, NULL, &szParamDataBytes);
-	device_count = (int)szParamDataBytes / sizeof(cl_device_id);
+	device_count = (int)(szParamDataBytes / sizeof(cl_device_id));
 	return device_count;
 }
 
@@ -753,11 +753,11 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			char* binary = 0;
 
 			fseek(file, 0L, SEEK_END);
-			binarySize = ftell(file);
+			binarySize = (size_t)ftell(file);
 			rewind(file);
 			binary = (char*)malloc(sizeof(char) * binarySize);
 			int bytesRead;
-			bytesRead = fread(binary, sizeof(char), binarySize, file);
+			bytesRead = (int)fread(binary, sizeof(char), binarySize, file);
 			(void)bytesRead;
 			fclose(file);
 
@@ -824,9 +824,9 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					fseek(file, 0L, SEEK_END);
 					int kernelSize = ftell(file);
 					rewind(file);
-					kernelSrc = (char*)malloc(kernelSize + 1);
+					kernelSrc = (char*)malloc((size_t)kernelSize + 1);
 					int readBytes;
-					readBytes = fread((void*)kernelSrc, 1, kernelSize, file);
+					readBytes = (int)fread((void*)kernelSrc, 1, (size_t)kernelSize, file);
 					(void)readBytes;
 					kernelSrc[kernelSize] = 0;
 					fclose(file);
@@ -852,10 +852,10 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 		// Build the program with 'mad' Optimization option
 
-		flagsize = sizeof(char) * (strlen(additionalMacros) + strlen(flags) + 5);
-		compileFlags = (char*)malloc(flagsize);
+		flagsize = (int)(sizeof(char) * (strlen(additionalMacros) + strlen(flags) + 5));
+		compileFlags = (char*)malloc((size_t)flagsize);
 #ifdef _MSC_VER
-		sprintf_s(compileFlags, flagsize, "%s %s", flags, additionalMacros);
+		sprintf_s(compileFlags, (size_t)flagsize, "%s %s", flags, additionalMacros);
 #else
 		sprintf(compileFlags, "%s %s", flags, additionalMacros);
 #endif

@@ -14,7 +14,7 @@ void urdfStringSplit(btAlignedObjectArray<std::string> &pieces, const std::strin
 	if (separators.size() == 1)
 	{
 		char **strArray = urdfStrSplit(vector_str.c_str(), separators[0].c_str());
-		int numSubStr = urdfStrArrayLen(strArray);
+		int numSubStr = (int)urdfStrArrayLen(strArray);
 		for (int i = 0; i < numSubStr; i++)
 			pieces.push_back(std::string(strArray[i]));
 		urdfStrArrayFree(strArray);
@@ -22,7 +22,7 @@ void urdfStringSplit(btAlignedObjectArray<std::string> &pieces, const std::strin
 }
 void urdfIsAnyOf(const char *seps, btAlignedObjectArray<std::string> &strArray)
 {
-	int numSeps = strlen(seps);
+	int numSeps = (int)strlen(seps);
 	for (int i = 0; i < numSeps; i++)
 	{
 		char sep2[2] = {0, 0};
@@ -118,7 +118,7 @@ char **urdfStrSplit(const char *input, const char *sep)
 		else
 		{
 			item = start;
-			itemlen = next - item;
+			itemlen = (size_t)(next - item);
 		}
 		char **newstr = urdfStrArrayAppend(array, nitems, item, itemlen);
 		if (newstr == NULL)

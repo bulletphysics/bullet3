@@ -48,12 +48,12 @@ public:
 	}
 	inline void push_pair(GUINT index1, GUINT index2)
 	{
-		push_back(GIM_PAIR(index1, index2));
+		push_back(GIM_PAIR((GINT)index1, (GINT)index2));
 	}
 
 	inline void push_pair_inv(GUINT index1, GUINT index2)
 	{
-		push_back(GIM_PAIR(index2, index1));
+		push_back(GIM_PAIR((GINT)index2, (GINT)index1));
 	}
 };
 

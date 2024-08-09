@@ -200,7 +200,7 @@ inline void MatrixRmn::SetSize(long numRows, long numCols)
 	{
 		delete[] x;
 		AllocSize = Max(newLength, AllocSize << 1);
-		x = new double[AllocSize];
+		x = new double[(size_t)AllocSize];
 	}
 	NumRows = numRows;
 	NumCols = numCols;

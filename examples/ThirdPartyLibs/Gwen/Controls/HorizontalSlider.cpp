@@ -22,7 +22,7 @@ float HorizontalSlider::CalculateValue()
 
 void HorizontalSlider::UpdateBarFromValue()
 {
-	m_SliderBar->MoveTo((Width() - m_SliderBar->Width()) * (m_fValue), m_SliderBar->Y());
+	m_SliderBar->MoveTo((float)(Width() - m_SliderBar->Width()) * (m_fValue), m_SliderBar->Y());
 }
 
 void HorizontalSlider::OnMouseClickLeft(int x, int y, bool bDown)

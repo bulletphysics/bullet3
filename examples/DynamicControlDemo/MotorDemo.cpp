@@ -344,7 +344,7 @@ void MotorDemo::setMotorTargets(btScalar deltaTime)
 			btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_rigs[r]->GetJoints()[i]);
 			btScalar fCurAngle = hingeC->getHingeAngle();
 
-			btScalar fTargetPercent = (int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
+			btScalar fTargetPercent = (float)(int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
 			btScalar fTargetAngle = 0.5 * (1 + sin(2 * M_PI * fTargetPercent));
 			btScalar fTargetLimitAngle = hingeC->getLowerLimit() + fTargetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
 			btScalar fAngleError = fTargetLimitAngle - fCurAngle;

@@ -19,7 +19,7 @@
 
 static unsigned int b3DeserializeInt3(const unsigned char* input)
 {
-	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
+	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;
 }
 static bool gVerboseNetworkMessagesClient3 = true;//false;
@@ -107,7 +107,7 @@ struct RemoteGUIHelperTCPInternalData
 		btAssert(!m_waitingForServer);
 		if (!m_waitingForServer)
 		{
-			int sz = 0;
+			size_t sz = 0;
 			unsigned char* data = 0;
 			m_tempBuffer.clear();
 			sz = sizeof(GraphicsSharedMemoryCommand);
@@ -149,7 +149,7 @@ struct RemoteGUIHelperTCPInternalData
 
 		if (m_tempBuffer.size() >= 4)
 		{
-			packetSizeInBytes = b3DeserializeInt3(&m_tempBuffer[0]);
+			packetSizeInBytes = (int)b3DeserializeInt3(&m_tempBuffer[0]);
 		}
 
 		if (m_tempBuffer.size() == packetSizeInBytes)
@@ -179,7 +179,7 @@ struct RemoteGUIHelperTCPInternalData
 				m_stream.resize(numStreamBytes);
 				for (int i = 0; i < numStreamBytes; i++)
 				{
-					m_stream[i] = data[i + streamOffsetInBytes];
+					m_stream[i] = (char)data[i + streamOffsetInBytes];
 				}
 			}
 			m_tempBuffer.clear();
@@ -199,7 +199,7 @@ struct RemoteGUIHelperTCPInternalData
 
 		m_tcpSocket.Initialize();
     
-		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
+		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), (uint16)m_port);
 		if (m_isConnected)
 		{
 			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
@@ -368,7 +368,7 @@ void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const GUISyncPosition* positions
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
-		uploadData((unsigned char*)positions, numPositions * sizeof(GUISyncPosition), 0);
+		uploadData((unsigned char*)positions, (int)(numPositions * sizeof(GUISyncPosition)), 0);
 		cmd->m_updateFlags = 0;
 		cmd->m_syncTransformsCommand.m_numPositions = numPositions;
 		cmd->m_type = GFX_CMD_SYNCHRONIZE_TRANSFORMS;
@@ -413,7 +413,7 @@ int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, i
 	while (remainingBytes > 0)
 	{
 		int curBytes = btMin(remainingBytes, chunkSize);
-		m_data->m_tcpSocket.Send((const uint8*)data+offset, curBytes);
+		m_data->m_tcpSocket.Send((const uint8*)data+offset, (size_t)curBytes);
 		if (gVerboseNetworkMessagesClient3)
 			printf("sending %d bytes\n", curBytes);
 		remainingBytes -= curBytes;
@@ -465,8 +465,8 @@ int RemoteGUIHelperTCP::registerGraphicsShape(const float* vertices, int numvert
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
-		uploadData((unsigned char*)vertices, numvertices * 9 * sizeof(float), 0);
-		uploadData((unsigned char*)indices, numIndices * sizeof(int), 1);
+		uploadData((unsigned char*)vertices, (int)(numvertices * 9 * sizeof(float)), 0);
+		uploadData((unsigned char*)indices, (int)(numIndices * sizeof(int)), 1);
 		cmd->m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE;
 		cmd->m_updateFlags = 0;
 		cmd->m_registerGraphicsShapeCommand.m_numVertices = numvertices;

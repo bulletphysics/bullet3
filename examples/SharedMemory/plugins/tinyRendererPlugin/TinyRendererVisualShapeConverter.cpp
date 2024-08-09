@@ -234,11 +234,11 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 			for (int i = 0; i < numSteps; i++)
 			{
 				{
-					btVector3 vert = p1 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
+					btVector3 vert = p1 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / float(numSteps))) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / float(numSteps)));
 					vertices.push_back(vert);
 				}
 				{
-					btVector3 vert = p2 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
+					btVector3 vert = p2 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / float(numSteps))) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / float(numSteps)));
 					vertices.push_back(vert);
 				}
 			}
@@ -258,7 +258,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 			rad = visual->m_geometry.m_capsuleRadius;
 			for (int i = 0; i < numSteps; i++)
 			{
-				btVector3 vert(rad * btSin(SIMD_2_PI * (float(i) / numSteps)), rad * btCos(SIMD_2_PI * (float(i) / numSteps)), len / 2.);
+				btVector3 vert(rad * btSin(SIMD_2_PI * (float(i) / float(numSteps))), rad * btCos(SIMD_2_PI * (float(i) / float(numSteps))), len / 2.);
 				vertices.push_back(vert);
 				vert[2] = -len / 2.;
 				vertices.push_back(vert);
@@ -298,7 +298,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 
 
 		int strideInBytes = 9 * sizeof(float);
-		int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+		int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 		int numIndices = sizeof(cube_indices) / sizeof(int);
 
 		glmesh = new GLInstanceGraphicsShape;
@@ -694,7 +694,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < numIndices; i++)
 			{
-				glmesh->m_indices->push_back(hull->getIndexPointer()[i]);
+				glmesh->m_indices->push_back((int)hull->getIndexPointer()[i]);
 			}
 
 			glmesh->m_numvertices = glmesh->m_vertices->size();
@@ -896,9 +896,9 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 
 								if (a == b)
 								{
-									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 0] = red;
-									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 1] = green;
-									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 2] = blue;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 0] = (unsigned char)red;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 1] = (unsigned char)green;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 2] = (unsigned char)blue;
 								}
 							}
 						}
@@ -1288,13 +1288,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 				const btTransform& tr = visualArray->m_worldTransform;
 				tr.getOpenGLMatrix(modelMat);
 
-				for (int i = 0; i < 4; i++)
+				for (size_t i = 0; i < 4; i++)
 				{
-					for (int j = 0; j < 4; j++)
+					for (size_t j = 0; j < 4; j++)
 					{
-						renderObj->m_projectionMatrix[i][j] = projMat[i + 4 * j];
-						renderObj->m_modelMatrix[i][j] = modelMat[i + 4 * j];
-						renderObj->m_viewMatrix[i][j] = viewMat[i + 4 * j];
+						renderObj->m_projectionMatrix[i][j] = projMat[(size_t)(i + 4 * j)];
+						renderObj->m_modelMatrix[i][j] = modelMat[(size_t)(i + 4 * j)];
+						renderObj->m_viewMatrix[i][j] = viewMat[(size_t)(i + 4 * j)];
 					}
 				}
 				renderObj->m_localScaling = visualArray->m_localScaling;
@@ -1324,13 +1324,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 			const btTransform& tr = visualArray->m_worldTransform;
 			tr.getOpenGLMatrix(modelMat);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
-					renderObj->m_projectionMatrix[i][j] = projMat[i + 4 * j];
-					renderObj->m_modelMatrix[i][j] = modelMat[i + 4 * j];
-					renderObj->m_viewMatrix[i][j] = viewMat[i + 4 * j];
+					renderObj->m_projectionMatrix[i][j] = projMat[(size_t)(i + 4 * j)];
+					renderObj->m_modelMatrix[i][j] = modelMat[(size_t)(i + 4 * j)];
+					renderObj->m_viewMatrix[i][j] = viewMat[(size_t)(i + 4 * j)];
 				}
 			}
 			renderObj->m_localScaling = visualArray->m_localScaling;
@@ -1353,13 +1353,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 		int half = m_data->m_swHeight >> 1;
 		for (int j = 0; j < half; j++)
 		{
-			unsigned long l1 = j * m_data->m_swWidth;
-			unsigned long l2 = (m_data->m_swHeight - 1 - j) * m_data->m_swWidth;
+			unsigned long l1 = (unsigned long)(j * m_data->m_swWidth);
+			unsigned long l2 = (unsigned long)((m_data->m_swHeight - 1 - j) * m_data->m_swWidth);
 			for (int i = 0; i < m_data->m_swWidth; i++)
 			{
-				btSwap(m_data->m_depthBuffer[l1 + i], m_data->m_depthBuffer[l2 + i]);
-				btSwap(m_data->m_shadowBuffer[l1 + i], m_data->m_shadowBuffer[l2 + i]);
-				btSwap(m_data->m_segmentationMaskBuffer[l1 + i], m_data->m_segmentationMaskBuffer[l2 + i]);
+				btSwap(m_data->m_depthBuffer[(int)l1 + i], m_data->m_depthBuffer[(int)l2 + i]);
+				btSwap(m_data->m_shadowBuffer[(int)l1 + i], m_data->m_shadowBuffer[(int)l2 + i]);
+				btSwap(m_data->m_segmentationMaskBuffer[(int)l1 + i], m_data->m_segmentationMaskBuffer[(int)l2 + i]);
 			}
 		}
 	}

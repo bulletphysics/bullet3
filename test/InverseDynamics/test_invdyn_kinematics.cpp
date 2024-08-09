@@ -146,7 +146,7 @@ template <typename ValueType, typename DiffType>
 class VecDiffFD
 {
 public:
-	VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd(dim), m_dt(dt)
+	VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd((size_t)dim), m_dt(dt)
 	{
 		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
@@ -155,7 +155,7 @@ public:
 			m_fd[i].init(buf, dt);
 		}
 	}
-	void update(int i, ValueType& val, DiffType& true_diff) { m_fd[i].update(val, true_diff); }
+	void update(int i, ValueType& val, DiffType& true_diff) { m_fd[(size_t)i].update(val, true_diff); }
 	idScalar getMaxError() const
 	{
 		idScalar max_error = 0;

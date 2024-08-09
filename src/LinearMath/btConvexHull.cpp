@@ -997,7 +997,7 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 				dest[2] = pz;
 				vcount++;
 			}
-			m_vertexIndexMapping.push_back(j);
+			m_vertexIndexMapping.push_back((int)j);
 		}
 	}
 
@@ -1109,7 +1109,7 @@ void HullLibrary::BringOutYourDead(const btVector3 *verts, unsigned int vcount, 
 			for (int k = 0; k < m_vertexIndexMapping.size(); k++)
 			{
 				if (tmpIndices[k] == int(v))
-					m_vertexIndexMapping[k] = ocount;
+					m_vertexIndexMapping[k] = (int)ocount;
 			}
 
 			ocount++;  // increment output vert count

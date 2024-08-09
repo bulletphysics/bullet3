@@ -55,9 +55,9 @@ double Mesh::ComputeVolume() const
 	for (unsigned int t = 0; t < nT; t++)
 	{
 		const Vec3<int>& tri = GetTriangle(t);
-		ver0 = GetPoint(tri[0]);
-		ver1 = GetPoint(tri[1]);
-		ver2 = GetPoint(tri[2]);
+		ver0 = GetPoint((size_t)tri[0]);
+		ver1 = GetPoint((size_t)tri[1]);
+		ver2 = GetPoint((size_t)tri[2]);
 		totalVolume += ComputeVolume4(ver0, ver1, ver2, bary);
 	}
 	return totalVolume / 6.0;
@@ -133,9 +133,9 @@ bool Mesh::IsInside(const Vec3<double>& pt) const
 	for (unsigned int t = 0; t < nT; t++)
 	{
 		const Vec3<int>& tri = GetTriangle(t);
-		ver0 = GetPoint(tri[0]);
-		ver1 = GetPoint(tri[1]);
-		ver2 = GetPoint(tri[2]);
+		ver0 = GetPoint((size_t)tri[0]);
+		ver1 = GetPoint((size_t)tri[1]);
+		ver2 = GetPoint((size_t)tri[2]);
 		volume = ComputeVolume4(ver0, ver1, ver2, pt);
 		if (volume < 0.0)
 		{
@@ -308,8 +308,8 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 			len = fscanf(fid, "%i", &nv);
 			len = fscanf(fid, "%i", &nf);
 			len = fscanf(fid, "%i", &ne);
-			m_points.Resize(nv);
-			m_triangles.Resize(nf);
+			m_points.Resize((size_t)nv);
+			m_triangles.Resize((size_t)nf);
 			Vec3<double> coord;
 			float x, y, z;
 			for (int p = 0; p < nv; p++)
@@ -317,9 +317,9 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 				len = fscanf(fid, "%f", &x);
 				len = fscanf(fid, "%f", &y);
 				len = fscanf(fid, "%f", &z);
-				m_points[p][0] = x;
-				m_points[p][1] = y;
-				m_points[p][2] = z;
+				m_points[(size_t)p][0] = x;
+				m_points[(size_t)p][1] = y;
+				m_points[(size_t)p][2] = z;
 			}
 			int i, j, k, s;
 			for (int t = 0; t < nf; ++t)
@@ -330,16 +330,16 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 					len = fscanf(fid, "%i", &i);
 					len = fscanf(fid, "%i", &j);
 					len = fscanf(fid, "%i", &k);
-					m_triangles[t][0] = i;
+					m_triangles[(size_t)t][0] = i;
 					if (invert)
 					{
-						m_triangles[t][1] = k;
-						m_triangles[t][2] = j;
+						m_triangles[(size_t)t][1] = k;
+						m_triangles[(size_t)t][2] = j;
 					}
 					else
 					{
-						m_triangles[t][1] = j;
-						m_triangles[t][2] = k;
+						m_triangles[(size_t)t][1] = j;
+						m_triangles[(size_t)t][2] = k;
 					}
 				}
 				else  // Fix me: support only triangular meshes

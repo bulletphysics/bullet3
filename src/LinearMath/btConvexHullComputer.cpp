@@ -152,7 +152,7 @@ public:
 		{
 		}
 
-		Int128(int64_t value) : low(value), high((value >= 0) ? 0 : (uint64_t)-1LL)
+		Int128(int64_t value) : low((uint64_t)value), high((value >= 0) ? 0 : (uint64_t)-1LL)
 		{
 		}
 
@@ -322,7 +322,7 @@ public:
 
 		btScalar toScalar() const
 		{
-			return sign * ((m_denominator == 0) ? SIMD_INFINITY : (btScalar)m_numerator / m_denominator);
+			return (btScalar)sign * ((m_denominator == 0) ? SIMD_INFINITY : (btScalar)m_numerator / (btScalar)m_denominator);
 		}
 	};
 
@@ -386,7 +386,7 @@ public:
 
 		btScalar toScalar() const
 		{
-			return sign * ((denominator.getSign() == 0) ? SIMD_INFINITY : numerator.toScalar() / denominator.toScalar());
+			return (btScalar)sign * ((denominator.getSign() == 0) ? SIMD_INFINITY : numerator.toScalar() / denominator.toScalar());
 		}
 	};
 
@@ -2204,7 +2204,7 @@ btScalar btConvexHullInternal::shrink(btScalar amount, btScalar clampAmount)
 	unsigned int seed = 243703;
 	for (int i = 0; i < faceCount; i++, seed = 1664525 * seed + 1013904223)
 	{
-		btSwap(faces[i], faces[seed % faceCount]);
+		btSwap(faces[i], faces[(int)(seed % faceCount)]);
 	}
 
 	for (int i = 0; i < faceCount; i++)

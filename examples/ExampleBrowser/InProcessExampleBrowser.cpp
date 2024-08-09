@@ -246,7 +246,7 @@ void ExampleBrowserThreadFunc(void* userPtr, void* lsMemory)
 			clock.usleep(0);
 
 			//B3_PROFILE("ExampleBrowserThreadFunc");
-			float deltaTimeInSeconds = clock.getTimeMicroseconds() / 1000000.f;
+			float deltaTimeInSeconds = (float)clock.getTimeMicroseconds() / 1000000.f;
 			{
 				if (deltaTimeInSeconds > 0.1)
 				{
@@ -415,7 +415,7 @@ bool btIsExampleBrowserMainThreadTerminated(btInProcessExampleBrowserMainThreadI
 
 void btUpdateInProcessExampleBrowserMainThread(btInProcessExampleBrowserMainThreadInternalData* data)
 {
-	float deltaTimeInSeconds = data->m_clock.getTimeMicroseconds() / 1000000.f;
+	float deltaTimeInSeconds = (float)data->m_clock.getTimeMicroseconds() / 1000000.f;
 	data->m_clock.reset();
 	data->m_exampleBrowser->updateGraphics();
 	data->m_exampleBrowser->update(deltaTimeInSeconds);

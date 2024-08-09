@@ -330,7 +330,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 			getVerticesInsidePlanes(planes, vertices, planeIndices);
 			if (vertices.size() == 0)
 				break;
-			numplaneIndices = planeIndices.size();
+			numplaneIndices = (int)planeIndices.size();
 			if (numplaneIndices != planes.size())
 			{
 				planeIndicesIter = planeIndices.begin();
@@ -485,7 +485,7 @@ void VoronoiFractureDemo::voronoiConvexHullShatter(const btAlignedObjectArray<bt
 			getVerticesInsidePlanes(planes, vertices, planeIndices);
 			if (vertices.size() == 0)
 				break;
-			numplaneIndices = planeIndices.size();
+			numplaneIndices = (int)planeIndices.size();
 			if (numplaneIndices != planes.size())
 			{
 				planeIndicesIter = planeIndices.begin();
@@ -727,14 +727,14 @@ void VoronoiFractureDemo::initPhysics()
 	// ==> Voronoi Shatter Basic Demo: Random Cuboid
 
 	// Random size cuboid (defined by bounding box max and min)
-	btVector3 bbmax(btScalar(rand() / btScalar(RAND_MAX)) * 12. + 0.5, btScalar(rand() / btScalar(RAND_MAX)) * 1. + 0.5, btScalar(rand() / btScalar(RAND_MAX)) * 1. + 0.5);
+	btVector3 bbmax(((btScalar)rand() / btScalar(RAND_MAX)) * 12. + 0.5, ((btScalar)rand() / btScalar(RAND_MAX)) * 1. + 0.5, ((btScalar)rand() / btScalar(RAND_MAX)) * 1. + 0.5);
 	btVector3 bbmin = -bbmax;
 	// Place it 10 units above ground
 	btVector3 bbt(0, 15, 0);
 	// Use an arbitrary material density for shards (should be consitent/relative with/to rest of RBs in world)
 	btScalar matDensity = 1;
 	// Using random rotation
-	btQuaternion bbq(btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1., btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1., btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1., btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1.);
+	btQuaternion bbq(((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1.);
 	bbq.normalize();
 	// Generate random points for voronoi cells
 	btAlignedObjectArray<btVector3> points;
@@ -743,12 +743,12 @@ void VoronoiFractureDemo::initPhysics()
 	for (int i = 0; i < VORONOIPOINTS; i++)
 	{
 		// Place points within box area (points are in world coordinates)
-		point = quatRotate(bbq, btVector3(btScalar(rand() / btScalar(RAND_MAX)) * diff.x() - diff.x() / 2., btScalar(rand() / btScalar(RAND_MAX)) * diff.y() - diff.y() / 2., btScalar(rand() / btScalar(RAND_MAX)) * diff.z() - diff.z() / 2.)) + bbt;
+		point = quatRotate(bbq, btVector3(((btScalar)rand() / btScalar(RAND_MAX)) * diff.x() - diff.x() / 2., ((btScalar)rand() / btScalar(RAND_MAX)) * diff.y() - diff.y() / 2., ((btScalar)rand() / btScalar(RAND_MAX)) * diff.z() - diff.z() / 2.)) + bbt;
 		points.push_back(point);
 	}
 	m_perfmTimer.reset();
 	voronoiBBShatter(points, bbmin, bbmax, bbq, bbt, matDensity);
-	printf("Total Time: %f seconds\n", m_perfmTimer.getTimeMilliseconds() / 1000.);
+	printf("Total Time: %f seconds\n", (double)m_perfmTimer.getTimeMilliseconds() / 1000.);
 
 	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{

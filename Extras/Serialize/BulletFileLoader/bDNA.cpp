@@ -254,7 +254,7 @@ for (i = 0; i < (int)mStructs.size(); i++)
 
 static int name_is_array(char *name, int *dim1, int *dim2)
 {
-	int len = strlen(name);
+	int len = (int)strlen(name);
 	/*fprintf(stderr,"[%s]",name);*/
 	/*if (len >= 1) {
 	if (name[len-1] != ']')
@@ -503,7 +503,7 @@ void bDNA::init(char *data, int /*len*/, bool swap)
 int bDNA::getArraySize(char *string)
 {
 	int ret = 1;
-	int len = strlen(string);
+	int len = (int)strlen(string);
 
 	char *next = 0;
 	for (int i = 0; i < len; i++)

@@ -25,7 +25,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadSdfCommandInit2(b3SharedMemoryCo
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	command->m_type = CMD_LOAD_SDF;
-	int len = strlen(sdfFileName);
+	int len = (int)strlen(sdfFileName);
 	if (len < MAX_SDF_FILENAME_LENGTH)
 	{
 		strcpy(command->m_sdfArguments.m_sdfFileName, sdfFileName);
@@ -48,7 +48,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3SaveWorldCommandInit(b3PhysicsClient
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 	command->m_type = CMD_SAVE_WORLD;
-	int len = strlen(sdfFileName);
+	int len = (int)strlen(sdfFileName);
 	if (len < MAX_SDF_FILENAME_LENGTH)
 	{
 		strcpy(command->m_sdfArguments.m_sdfFileName, sdfFileName);
@@ -73,7 +73,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadBulletCommandInit(b3PhysicsClien
 		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 		b3Assert(command);
 		command->m_type = CMD_LOAD_BULLET;
-		int len = strlen(fileName);
+		int len = (int)strlen(fileName);
 		if (len < MAX_URDF_FILENAME_LENGTH)
 		{
 			strcpy(command->m_fileArguments.m_fileName, fileName);
@@ -145,7 +145,7 @@ B3_SHARED_API int b3LoadStateSetFileName(b3SharedMemoryCommandHandle commandHand
 	b3Assert(command->m_type == CMD_RESTORE_STATE);
 	if (command->m_type == CMD_RESTORE_STATE)
 	{
-		int len = strlen(fileName);
+		int len = (int)strlen(fileName);
 		if (len < MAX_URDF_FILENAME_LENGTH)
 		{
 			strcpy(command->m_loadStateArguments.m_fileName, fileName);
@@ -201,7 +201,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3SaveBulletCommandInit(b3PhysicsClien
 		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 		b3Assert(command);
 		command->m_type = CMD_SAVE_BULLET;
-		int len = strlen(fileName);
+		int len = (int)strlen(fileName);
 		if (len < MAX_URDF_FILENAME_LENGTH)
 		{
 			strcpy(command->m_fileArguments.m_fileName, fileName);
@@ -235,7 +235,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadMJCFCommandInit2(b3SharedMemoryC
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	command->m_type = CMD_LOAD_MJCF;
-	int len = strlen(fileName);
+	int len = (int)strlen(fileName);
 	if (len < MAX_URDF_FILENAME_LENGTH)
 	{
 		strcpy(command->m_mjcfArguments.m_mjcfFileName, fileName);
@@ -282,7 +282,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadSoftBodyCommandInit(b3PhysicsCli
 		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 		b3Assert(command);
 		command->m_type = CMD_LOAD_SOFT_BODY;
-		int len = strlen(fileName);
+		int len = (int)strlen(fileName);
 		if (len < MAX_FILENAME_LENGTH)
 		{
 			strcpy(command->m_loadSoftBodyArguments.m_fileName, fileName);
@@ -353,7 +353,7 @@ B3_SHARED_API int b3LoadSoftBodyUpdateSimMesh(b3SharedMemoryCommandHandle comman
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
     b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
-    int len = strlen(filename);
+    int len = (int)strlen(filename);
     if (len < MAX_FILENAME_LENGTH)
     {
         strcpy(command->m_loadSoftBodyArguments.m_simFileName, filename);
@@ -490,7 +490,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientH
 		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 		b3Assert(command);
 		command->m_type = CMD_LOAD_URDF;
-		int len = strlen(urdfFileName);
+		int len = (int)strlen(urdfFileName);
 		if (len < MAX_URDF_FILENAME_LENGTH)
 		{
 			strcpy(command->m_urdfArguments.m_urdfFileName, urdfFileName);
@@ -512,7 +512,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit2(b3SharedMemoryC
 	b3Assert(command);
 
 	command->m_type = CMD_LOAD_URDF;
-	int len = strlen(urdfFileName);
+	int len = (int)strlen(urdfFileName);
 	if (len < MAX_URDF_FILENAME_LENGTH)
 	{
 		strcpy(command->m_urdfArguments.m_urdfFileName, urdfFileName);
@@ -1498,7 +1498,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ResetMeshDataCommandInit(b3PhysicsCl
 		command->m_resetMeshDataArgs.m_numVertices = numVertices;
 		command->m_resetMeshDataArgs.m_bodyUniqueId = bodyUniqueId;
 		command->m_resetMeshDataArgs.m_flags = 0;
-		int totalUploadSizeInBytes = numVertices * sizeof(double) *3;
+		int totalUploadSizeInBytes = (int)(numVertices * sizeof(double) *3);
 		cl->uploadBulletFileToSharedMemory((const char*)vertices, totalUploadSizeInBytes);
 		return (b3SharedMemoryCommandHandle)command;
 	}
@@ -1730,7 +1730,7 @@ B3_SHARED_API int b3CreateCollisionShapeAddHeightfield2(b3PhysicsClientHandle ph
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldRows = numHeightfieldRows;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldColumns = numHeightfieldColumns;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_replaceHeightfieldIndex = replaceHeightfieldIndex;
-			cl->uploadBulletFileToSharedMemory((const char*)heightfieldData, numHeightfieldRows*numHeightfieldColumns* sizeof(float));
+			cl->uploadBulletFileToSharedMemory((const char*)heightfieldData, (int)(numHeightfieldRows*numHeightfieldColumns* sizeof(float)));
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
@@ -1849,7 +1849,7 @@ B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3PhysicsClientHandle phys
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = 0;
 
-			cl->uploadBulletFileToSharedMemory((const char*)vertices, numVertices * sizeof(double)*3);
+			cl->uploadBulletFileToSharedMemory((const char*)vertices, (int)(numVertices * sizeof(double)*3));
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
@@ -1883,8 +1883,8 @@ B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3PhysicsClientHandle phy
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0]=0;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
 
-			int totalUploadSizeInBytes = numVertices * sizeof(double) *3  + numIndices * sizeof(int);
-			char* data = new char[totalUploadSizeInBytes];
+			int totalUploadSizeInBytes = (int)(numVertices * sizeof(double) *3  + numIndices * sizeof(int));
+			char* data = new char[(size_t)totalUploadSizeInBytes];
 			double* vertexUpload = (double*)data;
 			int* indexUpload = (int*)(data + numVertices*sizeof(double)*3);
 
@@ -1945,8 +1945,8 @@ B3_SHARED_API int b3CreateVisualShapeAddMesh2(b3PhysicsClientHandle physClient, 
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0] = 0;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
 
-			int totalUploadSizeInBytes = numVertices * sizeof(double) * 3 + numIndices * sizeof(int) + numNormals*sizeof(double)*3+numUVs*sizeof(double)*2;
-			char* data = new char[totalUploadSizeInBytes];
+			int totalUploadSizeInBytes = (int)(numVertices * sizeof(double) * 3 + numIndices * sizeof(int) + numNormals*sizeof(double)*3+numUVs*sizeof(double)*2);
+			char* data = new char[(size_t)totalUploadSizeInBytes];
 			double* vertexUpload = (double*)data;
 			int* indexUpload = (int*)(data + numVertices * sizeof(double) * 3);
 			double* normalUpload = (double*)(data + numVertices * sizeof(double) * 3 + numIndices * sizeof(int));
@@ -2148,7 +2148,7 @@ B3_SHARED_API int b3CreateMultiBodySetBatchPositions(b3PhysicsClientHandle physC
 	if (cl && command->m_type == CMD_CREATE_MULTI_BODY)
 	{
 		command->m_createMultiBodyArgs.m_numBatchObjects = numBatchObjects;
-		cl->uploadBulletFileToSharedMemory((const char*)batchPositions, sizeof(double) * 3 * numBatchObjects);
+		cl->uploadBulletFileToSharedMemory((const char*)batchPositions, (int)(sizeof(double) * 3 * numBatchObjects));
 	}
 	return 0;
 }
@@ -3146,7 +3146,7 @@ B3_SHARED_API void b3CustomCommandLoadPlugin(b3SharedMemoryCommandHandle command
 		command->m_updateFlags |= CMD_CUSTOM_COMMAND_LOAD_PLUGIN;
 		command->m_customCommandArgs.m_pluginPath[0] = 0;
 
-		int len = strlen(pluginPath);
+		int len = (int)strlen(pluginPath);
 		if (len < MAX_FILENAME_LENGTH)
 		{
 			strcpy(command->m_customCommandArgs.m_pluginPath, pluginPath);
@@ -3163,7 +3163,7 @@ B3_SHARED_API void b3CustomCommandLoadPluginSetPostFix(b3SharedMemoryCommandHand
 		command->m_updateFlags |= CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX;
 		command->m_customCommandArgs.m_postFix[0] = 0;
 
-		int len = strlen(postFix);
+		int len = (int)strlen(postFix);
 		if (len < MAX_FILENAME_LENGTH)
 		{
 			strcpy(command->m_customCommandArgs.m_postFix, postFix);
@@ -3237,7 +3237,7 @@ B3_SHARED_API void b3CustomCommandExecutePluginCommand(b3SharedMemoryCommandHand
 		command->m_customCommandArgs.m_arguments.m_numFloats = 0;
 		command->m_customCommandArgs.m_arguments.m_text[0] = 0;
 
-		int len = textArguments ? strlen(textArguments) : 0;
+		int len = (int)(textArguments ? strlen(textArguments) : 0);
 
 		if (len && len < MAX_FILENAME_LENGTH)
 		{
@@ -4247,8 +4247,8 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugDrawAddPoints3D(b3Physi
 	command->m_userDebugDrawArgs.m_parentLinkIndex = -1;
 	command->m_userDebugDrawArgs.m_optionFlags = 0;
 
-	int totalUploadSizeInBytes = pointNum * sizeof(double) * 3 * 2;
-	char* data = new char[totalUploadSizeInBytes];
+	int totalUploadSizeInBytes = (int)(pointNum * sizeof(double) * 3 * 2);
+	char* data = new char[(size_t)totalUploadSizeInBytes];
 	double* pointPositionsUpload = (double*) data;
 	double* pointColorsUpload = (double*)(data + pointNum * sizeof(double) * 3);
 	for (int i = 0; i < pointNum; i++)
@@ -4279,7 +4279,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3Physics
 	command->m_type = CMD_USER_DEBUG_DRAW;
 	command->m_updateFlags = USER_DEBUG_HAS_TEXT;
 
-	int len = strlen(txt);
+	int len = (int)strlen(txt);
 	if (len < MAX_FILENAME_LENGTH)
 	{
 		strcpy(command->m_userDebugDrawArgs.m_text, txt);
@@ -4359,7 +4359,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugAddParameter(b3PhysicsC
 	b3Assert(command);
 	command->m_type = CMD_USER_DEBUG_DRAW;
 	command->m_updateFlags = USER_DEBUG_ADD_PARAMETER;
-	int len = strlen(txt);
+	int len = (int)strlen(txt);
 	if (len < MAX_FILENAME_LENGTH)
 	{
 		strcpy(command->m_userDebugDrawArgs.m_text, txt);
@@ -5131,7 +5131,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitLoadTexture(b3PhysicsClientHandl
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 	command->m_type = CMD_LOAD_TEXTURE;
-	int len = strlen(filename);
+	int len = (int)strlen(filename);
 	if (len < MAX_FILENAME_LENGTH)
 	{
 		strcpy(command->m_loadTextureArguments.m_textureFileName, filename);
@@ -5918,7 +5918,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsCl
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 
-	int len = name ? strlen(name) : 0;
+	int len = (int)(name ? strlen(name) : 0);
 	command->m_type = CMD_PROFILE_TIMING;
 	if (len > 0 && len < (MAX_FILENAME_LENGTH + 1))
 	{
@@ -5996,7 +5996,7 @@ B3_SHARED_API int b3StateLoggingStart(b3SharedMemoryCommandHandle commandHandle,
 	if (command->m_type == CMD_STATE_LOGGING)
 	{
 		command->m_updateFlags |= STATE_LOGGING_START_LOG;
-		int len = strlen(fileName);
+		int len = (int)strlen(fileName);
 		if (len < MAX_FILENAME_LENGTH)
 		{
 			strcpy(command->m_stateLoggingArguments.m_fileName, fileName);
@@ -6330,7 +6330,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3SetAdditionalSearchPath(b3PhysicsCli
 	b3Assert(command);
 	command->m_type = CMD_SET_ADDITIONAL_SEARCH_PATH;
 	command->m_updateFlags = 0;
-	int len = strlen(path);
+	int len = (int)strlen(path);
 	if (len < MAX_FILENAME_LENGTH)
 	{
 		strcpy(command->m_searchPathArgs.m_path, path);

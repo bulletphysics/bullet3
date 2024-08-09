@@ -1314,7 +1314,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			B3_PROFILE("updateOpenGL");
 			if (sUseOpenGL2)
 			{
-				saveOpenGLState(s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale(), s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale());
+				saveOpenGLState((float)s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale(), (float)s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale());
 			}
 
 			if (m_internalData->m_gui)

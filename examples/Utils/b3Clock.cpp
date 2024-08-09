@@ -185,7 +185,7 @@ unsigned long long int b3Clock::getTimeMicroseconds()
 
 double b3Clock::getTimeInSeconds()
 {
-	return double(getTimeMicroseconds() / 1.e6);
+	return (double)getTimeMicroseconds() / 1.e6;
 }
 
 void b3Clock::usleep(int microSeconds)
@@ -200,7 +200,7 @@ void b3Clock::usleep(int microSeconds)
 		int millis = microSeconds / 1000;
 		if (millis < 1)
 			millis = 1;
-		Sleep(millis);
+		Sleep((DWORD)millis);
 	}
 #else
 	if (microSeconds > 0)

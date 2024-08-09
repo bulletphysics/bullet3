@@ -177,7 +177,7 @@ public:
 			{
 				//BT_PROFILE("lemke.solve");
 				lemke.setSystem(M, qq);
-				z1 = lemke.solve(m_maxLoops);
+				z1 = lemke.solve((unsigned int)m_maxLoops);
 			}
 			for (int row = 0; row < n; row++)
 			{
@@ -274,7 +274,7 @@ public:
 
 			lemke.setSystem(A, q);
 
-			btVectorXu solution = lemke.solve(m_maxLoops);
+			btVectorXu solution = lemke.solve((unsigned int)m_maxLoops);
 
 			//check solution
 

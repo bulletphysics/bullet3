@@ -159,7 +159,7 @@ void ColorPicker::Layout(Skin::Base* skin)
 
 	GroupBox* groupBox = FindChildByName("ResultGroupBox", true)->DynamicCastGroupBox();
 	if (groupBox)
-		groupBox->SetPos(groupBox->X(), Height() * 0.5f - groupBox->Height() * 0.5f);
+		groupBox->SetPos(groupBox->X(), (float)Height() * 0.5f - (float)groupBox->Height() * 0.5f);
 
 	UpdateControls();
 }

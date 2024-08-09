@@ -271,9 +271,9 @@ setRadial
 	btScalar cy = cx;		// assume square grid
 	byte_t * p = grid;
 	for (int i = 0; i < s_gridSize; ++i) {
-		float x = i * s_gridSpacing;
+		float x = (btScalar)i * s_gridSpacing;
 		for (int j = 0; j < s_gridSize; ++j) {
-			float y = j * s_gridSpacing;
+			float y = (btScalar)j * s_gridSpacing;
 
 			float dx = x - cx;
 			float dy = y - cy;
@@ -482,7 +482,7 @@ getRawHeightfieldData
 
                 long nBytes = nElements * bytesPerElement;
                 //	std::cerr << "  nBytes = " << nBytes << "\n";
-                byte_t * raw = new byte_t[nBytes];
+                byte_t * raw = new byte_t[(size_t)nBytes];
                 btAssert(raw && "out of memory");
 
                 byte_t * p = raw;
@@ -580,7 +580,7 @@ getRawHeightfieldData
 
                 long nBytes = nElements * bytesPerElement;
                 //	std::cerr << "  nBytes = " << nBytes << "\n";
-                byte_t * raw = new byte_t[nBytes];
+                byte_t * raw = new byte_t[(size_t)nBytes];
                 btAssert(raw && "out of memory");
 
                 byte_t * p = raw;
@@ -638,7 +638,7 @@ getRawHeightfieldData
 
         long nBytes = nElements * bytesPerElement;
         //	std::cerr << "  nBytes = " << nBytes << "\n";
-        byte_t * raw = new byte_t[nBytes];
+        byte_t * raw = new byte_t[(size_t)nBytes];
         btAssert(raw && "out of memory");
 
         // reseed randomization every 30 seconds
@@ -899,7 +899,7 @@ public:
 		btScalar dalpha = 2 * SIMD_2_PI / NUMRAYS2;
 		for (int i = 0; i < NUMRAYS2; i++)
 		{
-			btScalar alpha = dalpha * i;
+			btScalar alpha = dalpha * (btScalar)i;
 			// rotate around by alpha degrees y
 			btVector3 upAxis(0, 0, 0);
 			upAxis[upAxisIndex] = 1;
@@ -1020,7 +1020,7 @@ public:
 			castRays(cw, 0, NUMRAYS2);
 		}
 #ifdef USE_BT_CLOCK
-		ms += frame_timer.getTimeMilliseconds();
+		ms += (int)frame_timer.getTimeMilliseconds();
 #endif  //USE_BT_CLOCK
 		frame_counter++;
 		if (frame_counter > 50)
@@ -1057,8 +1057,8 @@ public:
 
 				points.push_back(s);
 				points.push_back(h);
-				indices.push_back(indices.size());
-				indices.push_back(indices.size());
+				indices.push_back((unsigned int)indices.size());
+				indices.push_back((unsigned int)indices.size());
 			}
 
 			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], lineColor, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), 1);

@@ -245,23 +245,23 @@ void btHeightfieldTerrainShape::getVertex(int x, int y, btVector3& vertex) const
 		{
 			vertex.setValue(
 				height - m_localOrigin.getX(),
-				(-m_width / btScalar(2.0)) + x,
-				(-m_length / btScalar(2.0)) + y);
+				(-m_width / btScalar(2.0)) + (btScalar)x,
+				(-m_length / btScalar(2.0)) + (btScalar)y);
 			break;
 		}
 		case 1:
 		{
 			vertex.setValue(
-				(-m_width / btScalar(2.0)) + x,
+				(-m_width / btScalar(2.0)) + (btScalar)x,
 				height - m_localOrigin.getY(),
-				(-m_length / btScalar(2.0)) + y);
+				(-m_length / btScalar(2.0)) + (btScalar)y);
 			break;
 		};
 		case 2:
 		{
 			vertex.setValue(
-				(-m_width / btScalar(2.0)) + x,
-				(-m_length / btScalar(2.0)) + y,
+				(-m_width / btScalar(2.0)) + (btScalar)x,
+				(-m_length / btScalar(2.0)) + (btScalar)y,
 				height - m_localOrigin.getZ());
 			break;
 		}
@@ -742,7 +742,7 @@ struct ProcessVBoundsAction
 
 		if (rs.maxDistanceFlat > 0.0001)
 		{
-			btScalar flatTo3d = chunkSize * rs.maxDistance3d / rs.maxDistanceFlat;
+			btScalar flatTo3d = (btScalar)chunkSize * rs.maxDistance3d / rs.maxDistanceFlat;
 			btScalar enterParam3d = rs.prevParam * flatTo3d;
 			btScalar exitParam3d = rs.param * flatTo3d;
 			enterPos = rayBegin + rayDir * enterParam3d;
@@ -824,7 +824,7 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 	{
 		btVector3 rayDiff = endPos - beginPos;
 		btScalar flatDistance2 = rayDiff[indices[0]] * rayDiff[indices[0]] + rayDiff[indices[2]] * rayDiff[indices[2]];
-		if (flatDistance2 < m_vboundsChunkSize * m_vboundsChunkSize)
+		if (flatDistance2 < (btScalar)(m_vboundsChunkSize * m_vboundsChunkSize))
 		{
 			// Don't use chunks, the ray is too short in the plane
 			gridRaycast(processTriangles, beginPos, endPos, &indices[0]);

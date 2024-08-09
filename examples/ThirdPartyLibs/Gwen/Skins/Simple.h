@@ -96,8 +96,8 @@ public:
 
 		m_Render->SetDrawColor(Gwen::Color(218, 224, 241, 150));
 
-		m_Render->DrawFilledRect(Gwen::Rect(0, h * 0.4f, w, h * 0.6f));
-		m_Render->DrawFilledRect(Gwen::Rect(0, h * 0.5f, w, h * 0.5f));
+		m_Render->DrawFilledRect(Gwen::Rect(0, (float)h * 0.4f, (float)w, (float)h * 0.6f));
+		m_Render->DrawFilledRect(Gwen::Rect(0, (float)h * 0.5f, (float)w, (float)h * 0.5f));
 	}
 
 	virtual void DrawMenu(Gwen::Controls::Base* control, bool bPaddingDisabled)
@@ -193,8 +193,8 @@ public:
 
 		m_Render->SetDrawColor(Gwen::Color(0, 50, 60, 15));
 		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w * 0.3f, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h * 0.3f));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)rect.w * 0.3f, (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), (float)rect.h * 0.3f));
 
 		if (control->IsHovered())
 			m_Render->SetDrawColor(Gwen::Color(121, 198, 249, 255));
@@ -232,17 +232,17 @@ public:
 		m_Render->DrawLinedRect(rect);
 
 		m_Render->SetDrawColor(Gwen::Color(0, 50, 60, 15));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w * 0.3f, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h * 0.3f));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)rect.w * 0.3f, (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), (float)rect.h * 0.3f));
 
 		if (control->IsHovered())
 			m_Render->SetDrawColor(Gwen::Color(121, 198, 249, 255));
 		else
 			m_Render->SetDrawColor(Gwen::Color(0, 50, 60, 50));
 
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, 1, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, 1));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), 1, (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), 1));
 
 		if (bDepressed)
 		{
@@ -262,8 +262,8 @@ public:
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 
-		rect.y += textHeight * 0.5f;
-		rect.h -= textHeight * 0.5f;
+		rect.y += (float)textHeight * 0.5f;
+		rect.h -= (float)textHeight * 0.5f;
 
 		Gwen::Color m_colDarker = Gwen::Color(0, 50, 60, 50);
 		Gwen::Color m_colLighter = Gwen::Color(255, 255, 255, 150);
@@ -444,10 +444,10 @@ public:
 
 			//Right half
 			m_Render->SetDrawColor(FillColour);
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w * progress - 2, rect.h - 2));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1, (float)rect.w * progress - 2, rect.h - 2));
 
 			m_Render->SetDrawColor(Gwen::Color(255, 255, 255, 150));
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w - 2, rect.h * 0.45f));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w - 2, (float)rect.h * 0.45f));
 		}
 		else
 		{
@@ -457,10 +457,10 @@ public:
 
 			//Top half
 			m_Render->SetDrawColor(FillColour);
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1 + (rect.h * (1 - progress)), rect.w - 2, rect.h * progress - 2));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1 + ((float)rect.h * (1 - progress)), rect.w - 2, (float)rect.h * progress - 2));
 
 			m_Render->SetDrawColor(Gwen::Color(255, 255, 255, 150));
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w * 0.45f, rect.h - 2));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1, (float)rect.w * 0.45f, rect.h - 2));
 		}
 
 		m_Render->SetDrawColor(Gwen::Color(255, 255, 255, 150));

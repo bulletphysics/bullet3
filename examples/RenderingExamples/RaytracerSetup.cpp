@@ -100,7 +100,7 @@ struct RaytracerInternalData
 		for (int i = 0; i < numObjects; i++)
 		{
 			m_transforms[i].setIdentity();
-			btVector3 pos(0.f, 0.f, -(2.5 * numObjects * 0.5) + i * 2.5f);
+			btVector3 pos(0.f, 0.f, -(2.5 * numObjects * 0.5) + (float)i * 2.5f);
 			m_transforms[i].setIdentity();
 			m_transforms[i].setOrigin(pos);
 			btQuaternion orn;

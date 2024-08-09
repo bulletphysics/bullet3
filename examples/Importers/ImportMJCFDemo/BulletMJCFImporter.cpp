@@ -1795,7 +1795,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 			btScalar diam = 2. * visual->m_geometry.m_capsuleRadius;
 			b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
-			int numVertices = sizeof(mjcf_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(mjcf_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices);
 			for (int i = 0; i < numVertices; i++)
 			{
@@ -1883,7 +1883,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
 				btScalar cylLength = visual->m_geometry.m_capsuleHeight;
 
-				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / numSteps)), cylRadius * btCos(SIMD_2_PI * (float(i) / numSteps)), cylLength / 2.);
+				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / float(numSteps))), cylRadius * btCos(SIMD_2_PI * (float(i) / float(numSteps))), cylLength / 2.);
 				vertices.push_back(vert);
 				vert[2] = -cylLength / 2.;
 				vertices.push_back(vert);
@@ -1911,7 +1911,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 #if 1
 			btScalar sphereSize = 2. * visual->m_geometry.m_sphereRadius;
 			b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
-			int numVertices = sizeof(mjcf_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(mjcf_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices);
 
 			glmesh = new GLInstanceGraphicsShape;
@@ -2145,7 +2145,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < numIndices; i++)
 			{
-				glmesh->m_indices->push_back(hull->getIndexPointer()[i]);
+				glmesh->m_indices->push_back((int)hull->getIndexPointer()[i]);
 			}
 
 			glmesh->m_numvertices = glmesh->m_vertices->size();
@@ -2281,31 +2281,31 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(const bt_tinyobj::attrib
 	btTransform identity;
 	identity.setIdentity();
 
-	for (int s = 0; s < (int)shapes.size(); s++)
+	for (size_t s = 0; s < shapes.size(); s++)
 	{
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(collisionMargin);
 		bt_tinyobj::shape_t& shape = shapes[s];
 
-		int faceCount = shape.mesh.indices.size();
+		size_t faceCount = shape.mesh.indices.size();
 
-		for (int f = 0; f < faceCount; f += 3)
+		for (size_t f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 

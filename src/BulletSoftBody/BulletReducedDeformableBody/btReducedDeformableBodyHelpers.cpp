@@ -45,7 +45,7 @@ btReducedDeformableBody* btReducedDeformableBodyHelpers::createFromVtkFile(btSof
 			reading_tets = false;
 			ss.ignore(128, ' ');  // ignore "POINTS"
 			ss >> n_points;
-			X.resize(n_points);
+			X.resize((int)n_points);
 		}
 		else if (line.substr(0, 5) == "CELLS")
 		{
@@ -53,7 +53,7 @@ btReducedDeformableBody* btReducedDeformableBodyHelpers::createFromVtkFile(btSof
 			reading_tets = true;
 			ss.ignore(128, ' ');  // ignore "CELLS"
 			ss >> n_tets;
-			indices.resize(n_tets);
+			indices.resize((int)n_tets);
 		}
 		else if (line.substr(0, 10) == "CELL_TYPES")
 		{
@@ -70,7 +70,7 @@ btReducedDeformableBody* btReducedDeformableBodyHelpers::createFromVtkFile(btSof
 			ss >> p;
 			position.setZ(p);
 			//printf("v %f %f %f\n", position.getX(), position.getY(), position.getZ());
-			X[x_count++] = position;
+			X[(int)x_count++] = position;
 		}
 		else if (reading_tets)
 		{
@@ -87,18 +87,18 @@ btReducedDeformableBody* btReducedDeformableBodyHelpers::createFromVtkFile(btSof
 			tet.resize(4);
 			for (size_t i = 0; i < 4; i++)
 			{
-				ss >> tet[i];
+				ss >> tet[(int)i];
 				//printf("%d ", tet[i]);
 			}
 			//printf("\n");
-			indices[indices_count++] = tet;
+			indices[(int)indices_count++] = tet;
 		}
 	}
-	btReducedDeformableBody* rsb = new btReducedDeformableBody(&worldInfo, n_points, &X[0], 0);
+	btReducedDeformableBody* rsb = new btReducedDeformableBody(&worldInfo, (int)n_points, &X[0], 0);
 
 	for (unsigned int i = 0; i < n_tets; ++i)
 	{
-		const Index& ni = indices[i];
+		const Index& ni = indices[(int)i];
 		rsb->appendTetra(ni[0], ni[1], ni[2], ni[3]);
 		{
 			rsb->appendLink(ni[0], ni[1], 0, true);
@@ -128,21 +128,21 @@ void btReducedDeformableBodyHelpers::readReducedDeformableInfoFromFiles(btReduce
 {
 	// read in eigenmodes, stiffness and mass matrices
 	std::string eigenvalues_file = std::string(file_path) + "eigenvalues.bin";
-	btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_eigenvalues, rsb->m_nReduced, eigenvalues_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_eigenvalues, (unsigned int)rsb->m_nReduced, eigenvalues_file.c_str());
 
 	std::string Kr_file = std::string(file_path) + "K_r_diag_mat.bin";
-	btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_Kr,  rsb->m_nReduced, Kr_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_Kr,  (unsigned int)rsb->m_nReduced, Kr_file.c_str());
 
 	// std::string Mr_file = std::string(file_path) + "M_r_diag_mat.bin";
 	// btReducedDeformableBodyHelpers::readBinaryVec(rsb->m_Mr, rsb->m_nReduced, Mr_file.c_str());
 
 	std::string modes_file = std::string(file_path) + "modes.bin";
-	btReducedDeformableBodyHelpers::readBinaryMat(rsb->m_modes, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryMat(rsb->m_modes, (unsigned int)rsb->m_nReduced, 3 * (unsigned int)rsb->m_nFull, modes_file.c_str());
 	
 	// read in full nodal mass
 	std::string M_file = std::string(file_path) + "M_diag_mat.bin";
 	btAlignedObjectArray<btScalar> mass_array;
-	btReducedDeformableBodyHelpers::readBinaryVec(mass_array, rsb->m_nFull, M_file.c_str());
+	btReducedDeformableBodyHelpers::readBinaryVec(mass_array, (unsigned int)rsb->m_nFull, M_file.c_str());
 	rsb->setMassProps(mass_array);
 	
 	// calculate the inertia tensor in the local frame 
@@ -164,12 +164,12 @@ void btReducedDeformableBodyHelpers::readBinaryVec(btReducedDeformableBody::tDen
 	btAssert(size >= n_size); 	// make sure the #requested mode is smaller than the #available modes
 
 	// read data
-	vec.resize(n_size);
+	vec.resize((int)n_size);
 	double temp;
 	for (unsigned int i = 0; i < n_size; ++i)
 	{
 		f_in.read((char*)&temp, sizeof(double));
-		vec[i] = btScalar(temp);
+		vec[(int)i] = btScalar(temp);
 	}
   f_in.close();
 }
@@ -187,7 +187,7 @@ void btReducedDeformableBodyHelpers::readBinaryMat(btReducedDeformableBody::tDen
 	btAssert(v_size >= n_modes * n_full); 	// make sure the #requested mode is smaller than the #available modes
 
 	// read data
-	mat.resize(n_modes);
+	mat.resize((int)n_modes);
 	for (unsigned int i = 0; i < n_modes; ++i) 
 	{
 		for (unsigned int j = 0; j < n_full; ++j)
@@ -195,9 +195,9 @@ void btReducedDeformableBodyHelpers::readBinaryMat(btReducedDeformableBody::tDen
 			double temp;
 			f_in.read((char*)&temp, sizeof(double));
 
-			if (mat[i].size() != (int)n_modes)
-				mat[i].resize(n_full);
-			mat[i][j] = btScalar(temp);
+			if (mat[(int)i].size() != (int)n_modes)
+				mat[(int)i].resize((int)n_full);
+			mat[(int)i][(int)j] = btScalar(temp);
 		}
 	}
   f_in.close();

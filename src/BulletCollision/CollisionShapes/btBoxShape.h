@@ -135,9 +135,9 @@ public:
 		btVector3 halfExtents = getHalfExtentsWithMargin();
 
 		vtx = btVector3(
-			halfExtents.x() * (1 - (i & 1)) - halfExtents.x() * (i & 1),
-			halfExtents.y() * (1 - ((i & 2) >> 1)) - halfExtents.y() * ((i & 2) >> 1),
-			halfExtents.z() * (1 - ((i & 4) >> 2)) - halfExtents.z() * ((i & 4) >> 2));
+			halfExtents.x() * (btScalar)(1 - (i & 1)) - halfExtents.x() * (btScalar)(i & 1),
+			halfExtents.y() * (btScalar)(1 - ((i & 2) >> 1)) - halfExtents.y() * (btScalar)((i & 2) >> 1),
+			halfExtents.z() * (btScalar)(1 - ((i & 4) >> 2)) - halfExtents.z() * (btScalar)((i & 4) >> 2));
 	}
 
 	virtual void getPlaneEquation(btVector4 & plane, int i) const

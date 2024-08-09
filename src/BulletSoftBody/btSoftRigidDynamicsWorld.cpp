@@ -323,7 +323,7 @@ void btSoftRigidDynamicsWorld::serializeSoftBodies(btSerializer* serializer)
 		if (colObj->getInternalType() & btCollisionObject::CO_SOFT_BODY)
 		{
 			int len = colObj->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len, 1);
+			btChunk* chunk = serializer->allocate((size_t)len, 1);
 			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_SOFTBODY_CODE, colObj);
 		}

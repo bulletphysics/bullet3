@@ -1955,21 +1955,21 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 	// do the side-of-plane tests
 	for (i = 0; i < convex.vertices.count; i++)
 	{
-		vertflag[i].planetest = PlaneTest(slice, convex.vertices[i]);
+		vertflag[i].planetest = (unsigned char)PlaneTest(slice, convex.vertices[i]);
 		if (vertflag[i].planetest == COPLANAR)
 		{
 			// ? vertscoplanar.Add(i);
-			vertflag[i].undermap = vertcountunder++;
-			vertflag[i].overmap = vertcountover++;
+			vertflag[i].undermap = (unsigned char)vertcountunder++;
+			vertflag[i].overmap = (unsigned char)vertcountover++;
 		}
 		else if (vertflag[i].planetest == UNDER)
 		{
-			vertflag[i].undermap = vertcountunder++;
+			vertflag[i].undermap = (unsigned char)vertcountunder++;
 		}
 		else
 		{
 			assert(vertflag[i].planetest == OVER);
-			vertflag[i].overmap = vertcountover++;
+			vertflag[i].overmap = (unsigned char)vertcountover++;
 			vertflag[i].undermap = 255;  // for debugging purposes
 		}
 	}
@@ -2014,15 +2014,15 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 			{
 				// at least one endpoint under, the other coplanar or under
 
-				edgeflag[e0].undermap = under_edge_count;
+				edgeflag[e0].undermap = (short)under_edge_count;
 				tmpunderedges[under_edge_count].v = vertflag[edge0.v].undermap;
-				tmpunderedges[under_edge_count].p = underplanescount;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 				if (edge0.ea < e0)
 				{
 					// connect the neighbors
 					assert(edgeflag[edge0.ea].undermap != -1);
 					tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
-					tmpunderedges[edgeflag[edge0.ea].undermap].ea = under_edge_count;
+					tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
 				}
 				under_edge_count++;
 			}
@@ -2039,9 +2039,9 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 				HalfEdge &edge2 = convex.edges[e2];
 				if (vertflag[edge2.v].planetest == UNDER)
 				{
-					edgeflag[e0].undermap = under_edge_count;
+					edgeflag[e0].undermap = (short)under_edge_count;
 					tmpunderedges[under_edge_count].v = vertflag[edge0.v].undermap;
-					tmpunderedges[under_edge_count].p = underplanescount;
+					tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 					tmpunderedges[under_edge_count].ea = -1;
 					// make sure this edge is added to the "coplanar" list
 					coplanaredge = under_edge_count;
@@ -2058,15 +2058,15 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 			{
 				// first is under 2nd is over
 
-				edgeflag[e0].undermap = under_edge_count;
+				edgeflag[e0].undermap = (short)under_edge_count;
 				tmpunderedges[under_edge_count].v = vertflag[edge0.v].undermap;
-				tmpunderedges[under_edge_count].p = underplanescount;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 				if (edge0.ea < e0)
 				{
 					assert(edgeflag[edge0.ea].undermap != -1);
 					// connect the neighbors
 					tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
-					tmpunderedges[edgeflag[edge0.ea].undermap].ea = under_edge_count;
+					tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
 					vout = tmpunderedges[edgeflag[edge0.ea].undermap].v;
 				}
 				else
@@ -2081,8 +2081,8 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 				under_edge_count++;
 				/// hmmm something to think about: i might be able to output this edge regarless of
 				// wheter or not we know v-in yet.  ok i;ll try this now:
-				tmpunderedges[under_edge_count].v = vout;
-				tmpunderedges[under_edge_count].p = underplanescount;
+				tmpunderedges[under_edge_count].v = (unsigned char)vout;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 				tmpunderedges[under_edge_count].ea = -1;
 				coplanaredge = under_edge_count;
 				under_edge_count++;
@@ -2111,8 +2111,8 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 				}
 				if (planeside & UNDER)
 				{
-					tmpunderedges[under_edge_count].v = vout;
-					tmpunderedges[under_edge_count].p = underplanescount;
+					tmpunderedges[under_edge_count].v = (unsigned char)vout;
+					tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 					tmpunderedges[under_edge_count].ea = -1;
 					coplanaredge = under_edge_count;  // hmmm should make a note of the edge # for later on
 					under_edge_count++;
@@ -2149,15 +2149,15 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 					// ADD THIS EDGE TO THE LIST OF EDGES THAT NEED NEIGHBOR ON PARTITION PLANE!!
 				}
 				// output edge
-				tmpunderedges[under_edge_count].v = vin;
-				tmpunderedges[under_edge_count].p = underplanescount;
-				edgeflag[e0].undermap = under_edge_count;
+				tmpunderedges[under_edge_count].v = (unsigned char)vin;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
+				edgeflag[e0].undermap = (short)under_edge_count;
 				if (e0 > edge0.ea)
 				{
 					assert(edgeflag[edge0.ea].undermap != -1);
 					// connect the neighbors
 					tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
-					tmpunderedges[edgeflag[edge0.ea].undermap].ea = under_edge_count;
+					tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
 				}
 				assert(edgeflag[e0].undermap == under_edge_count);
 				under_edge_count++;
@@ -2188,7 +2188,7 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 		e0 = enextface;
 		if (planeside & UNDER)
 		{
-			planeflag[currentplane].undermap = underplanescount;
+			planeflag[currentplane].undermap = (unsigned char)underplanescount;
 			tmpunderplanes[underplanescount] = convex.facets[currentplane];
 			underplanescount++;
 		}
@@ -2201,9 +2201,9 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 			assert(vin >= 0);
 			assert(coplanaredge >= 0);
 			assert(coplanaredge != 511);
-			coplanaredges[coplanaredges_num].ea = coplanaredge;
-			coplanaredges[coplanaredges_num].v0 = vin;
-			coplanaredges[coplanaredges_num].v1 = vout;
+			coplanaredges[coplanaredges_num].ea = (unsigned short)coplanaredge;
+			coplanaredges[coplanaredges_num].v0 = (unsigned char)vin;
+			coplanaredges[coplanaredges_num].v1 = (unsigned char)vout;
 			coplanaredges_num++;
 		}
 	}
@@ -2254,8 +2254,8 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 
 	for (i = 0; i < coplanaredges_num; i++)
 	{
-		under.edges[under_edge_count + i].p = underplanescount - 1;
-		under.edges[under_edge_count + i].ea = coplanaredges[i].ea;
+		under.edges[under_edge_count + i].p = (unsigned char)(underplanescount - 1);
+		under.edges[under_edge_count + i].ea = (short)coplanaredges[i].ea;
 		tmpunderedges[coplanaredges[i].ea].ea = under_edge_count + i;
 		under.edges[under_edge_count + i].v = coplanaredges[i].v0;
 	}
@@ -2867,7 +2867,7 @@ bool ComputeHull(unsigned int vcount, const float *vertices, PHullResult &result
 	{
 		int *tris_out;
 		int tris_count;
-		int ret = calchull((float3 *)vertices, (int)vcount, tris_out, tris_count, vlimit, arrtris);
+		int ret = calchull((float3 *)vertices, (int)vcount, tris_out, tris_count, (int)vlimit, arrtris);
 		if (!ret) return false;
 		result.mIndexCount = (unsigned int)(tris_count * 3);
 		result.mFaceCount = (unsigned int)tris_count;
@@ -2877,7 +2877,7 @@ bool ComputeHull(unsigned int vcount, const float *vertices, PHullResult &result
 		return true;
 	}
 
-	int ret = overhullv((float3 *)vertices, vcount, 35, verts_out, verts_count_out, faces, index_count, inflate, 120.0f, vlimit, arrtris);
+	int ret = overhullv((float3 *)vertices, (int)vcount, 35, verts_out, verts_count_out, faces, index_count, inflate, 120.0f, (int)vlimit, arrtris);
 	if (!ret) return false;
 
 	Array<int3> tris;

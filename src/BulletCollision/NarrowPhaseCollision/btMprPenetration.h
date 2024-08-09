@@ -548,11 +548,11 @@ static void btFindPos(const btMprSimplex_t *portal, btVector3 *pos)
 	btMprVec3Copy(&p2, origin);
 	for (i = 0; i < 4; i++)
 	{
-		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, i)->v1);
+		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, (int)i)->v1);
 		btMprVec3Scale(&vec, b[i]);
 		btMprVec3Add(&p1, &vec);
 
-		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, i)->v2);
+		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, (int)i)->v2);
 		btMprVec3Scale(&vec, b[i]);
 		btMprVec3Add(&p2, &vec);
 	}

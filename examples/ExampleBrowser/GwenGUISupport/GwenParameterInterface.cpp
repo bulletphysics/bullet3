@@ -133,7 +133,7 @@ void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
 		float mappedValue = m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin() +
 							(m_paramInternalData->m_sliders[sliderIndex]->GetRangeMax() -
 							 m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin()) *
-								sliderCapped / 128.f;
+								(float)sliderCapped / 128.f;
 		printf("mappedValue = %f\n", mappedValue);
 		m_paramInternalData->m_sliders[sliderIndex]->SetValue(mappedValue);
 	}

@@ -95,11 +95,11 @@ public:
 	{
 		struct timeval tmpTime;
 		GET_CLOCK_COUNT(&tmpTime);
-		return ((tmpTime.tv_sec * MICROSECONDS_CONVERSION) + tmpTime.tv_usec);
+		return (uint32)((tmpTime.tv_sec * MICROSECONDS_CONVERSION) + tmpTime.tv_usec);
 	}
 
 private:
-	uint32 CalcTotalUSec() { return (((m_endTime.tv_sec - m_startTime.tv_sec) * MICROSECONDS_CONVERSION) +
+	uint32 CalcTotalUSec() { return (uint32)(((m_endTime.tv_sec - m_startTime.tv_sec) * MICROSECONDS_CONVERSION) +
 									 (m_endTime.tv_usec - m_startTime.tv_usec)); }
 
 private:

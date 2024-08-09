@@ -64,8 +64,8 @@ void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4Con
 					__global struct b3Contact4Data* src, float dt, float positionDrift, float positionConstraintCoeff,
 					b3ContactConstraint4_t* dstC)
 {
-	dstC->m_bodyA = abs(src->m_bodyAPtrAndSignBit);
-	dstC->m_bodyB = abs(src->m_bodyBPtrAndSignBit);
+	dstC->m_bodyA = (unsigned int)abs(src->m_bodyAPtrAndSignBit);
+	dstC->m_bodyB = (unsigned int)abs(src->m_bodyBPtrAndSignBit);
 
 	float dtInv = 1.f / dt;
 	for (int ic = 0; ic < 4; ic++)
@@ -81,7 +81,7 @@ void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4Con
 		b3Float4 r0 = src->m_worldPosB[ic] - posA;
 		b3Float4 r1 = src->m_worldPosB[ic] - posB;
 
-		if (ic >= src->m_worldNormalOnB.w)  //npoints
+		if ((float)ic >= src->m_worldNormalOnB.w)  //npoints
 		{
 			dstC->m_jacCoeffInv[ic] = 0.f;
 			continue;
@@ -111,7 +111,7 @@ void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4Con
 	if (src->m_worldNormalOnB.w > 0)  //npoints
 	{                                 //	prepare friction
 		b3Float4 center = b3MakeFloat4(0.f, 0.f, 0.f, 0.f);
-		for (int i = 0; i < src->m_worldNormalOnB.w; i++)
+		for (int i = 0; (float)i < src->m_worldNormalOnB.w; i++)
 			center += src->m_worldPosB[i];
 		center /= (float)src->m_worldNormalOnB.w;
 
@@ -136,7 +136,7 @@ void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4Con
 
 	for (int i = 0; i < 4; i++)
 	{
-		if (i < src->m_worldNormalOnB.w)
+		if ((float)i < src->m_worldNormalOnB.w)
 		{
 			dstC->m_worldPos[i] = src->m_worldPosB[i];
 		}

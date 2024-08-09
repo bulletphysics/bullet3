@@ -62,14 +62,14 @@ btBulletFile::btBulletFile()
 #else   //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64, 16);
-		memcpy(m_DnaCopy, sBulletDNAstr64, sBulletDNAlen64);
+		m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen64, 16);
+		memcpy(m_DnaCopy, sBulletDNAstr64, (size_t)sBulletDNAlen64);
 		mMemoryDNA->init(m_DnaCopy, sBulletDNAlen64);
 	}
 	else
 	{
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen, 16);
-		memcpy(m_DnaCopy, sBulletDNAstr, sBulletDNAlen);
+		m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen, 16);
+		memcpy(m_DnaCopy, sBulletDNAstr, (size_t)sBulletDNAlen);
 		mMemoryDNA->init(m_DnaCopy, sBulletDNAlen);
 	}
 #endif  //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
@@ -286,14 +286,14 @@ void btBulletFile::writeDNA(FILE* fp)
 		dataChunk.len = sBulletDNAlen64;
 		dataChunk.oldPtr = sBulletDNAstr64;
 		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
-		fwrite(sBulletDNAstr64, sBulletDNAlen64, 1, fp);
+		fwrite(sBulletDNAstr64, (size_t)sBulletDNAlen64, 1, fp);
 	}
 	else
 	{
 		dataChunk.len = sBulletDNAlen;
 		dataChunk.oldPtr = sBulletDNAstr;
 		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
-		fwrite(sBulletDNAstr, sBulletDNAlen, 1, fp);
+		fwrite(sBulletDNAstr, (size_t)sBulletDNAlen, 1, fp);
 	}
 #endif  //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
@@ -332,17 +332,17 @@ void btBulletFile::parse(int verboseMode)
 	{
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64, 16);
-                memset(m_DnaCopy, 0, sBulletDNAlen64);
-		memcpy(m_DnaCopy, sBulletDNAstr64, sBulletDNAlen64);
+		m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen64, 16);
+                memset(m_DnaCopy, 0, (size_t)sBulletDNAlen64);
+		memcpy(m_DnaCopy, sBulletDNAstr64, (size_t)sBulletDNAlen64);
 		parseInternal(verboseMode, m_DnaCopy, sBulletDNAlen64);
 	}
 	else
 	{
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen, 16);
-		memcpy(m_DnaCopy, sBulletDNAstr, sBulletDNAlen);
+		m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen, 16);
+		memcpy(m_DnaCopy, sBulletDNAstr, (size_t)sBulletDNAlen);
 		parseInternal(verboseMode, m_DnaCopy, sBulletDNAlen);
 	}
 #endif  //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES

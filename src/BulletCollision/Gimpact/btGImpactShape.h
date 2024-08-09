@@ -805,7 +805,7 @@ public:
 
 	SIMD_FORCE_INLINE void getVertex(int vertex_index, btVector3& vertex) const
 	{
-		m_primitive_manager.get_vertex(vertex_index, vertex);
+		m_primitive_manager.get_vertex((unsigned int)vertex_index, vertex);
 	}
 
 	SIMD_FORCE_INLINE void setMargin(btScalar margin)

@@ -132,7 +132,7 @@ const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* seriali
 void btCollisionObject::serializeSingleObject(class btSerializer* serializer) const
 {
 	int len = calculateSerializeBufferSize();
-	btChunk* chunk = serializer->allocate(len, 1);
+	btChunk* chunk = serializer->allocate((size_t)len, 1);
 	const char* structType = serialize(chunk->m_oldPtr, serializer);
 	serializer->finalizeChunk(chunk, structType, BT_COLLISIONOBJECT_CODE, (void*)this);
 }

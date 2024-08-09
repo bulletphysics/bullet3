@@ -38,11 +38,11 @@ GWEN_CONTROL_CONSTRUCTOR(CrossSplitter)
 
 void CrossSplitter::UpdateVSplitter()
 {
-	m_VSplitter->MoveTo(m_VSplitter->X(), (Height() - m_VSplitter->Height()) * (m_fVVal));
+	m_VSplitter->MoveTo(m_VSplitter->X(), (float)(Height() - m_VSplitter->Height()) * (m_fVVal));
 }
 void CrossSplitter::UpdateHSplitter()
 {
-	m_HSplitter->MoveTo((Width() - m_HSplitter->Width()) * (m_fHVal), m_HSplitter->Y());
+	m_HSplitter->MoveTo((float)(Width() - m_HSplitter->Width()) * (m_fHVal), m_HSplitter->Y());
 }
 
 void CrossSplitter::OnCenterMoved(Controls::Base* /*control*/)
@@ -54,7 +54,7 @@ void CrossSplitter::OnCenterMoved(Controls::Base* /*control*/)
 
 void CrossSplitter::UpdateCSplitter()
 {
-	m_CSplitter->MoveTo((Width() - m_CSplitter->Width()) * (m_fHVal), (Height() - m_CSplitter->Height()) * (m_fVVal));
+	m_CSplitter->MoveTo((float)(Width() - m_CSplitter->Width()) * (m_fHVal), (float)(Height() - m_CSplitter->Height()) * (m_fVVal));
 }
 
 void CrossSplitter::OnHorizontalMoved(Controls::Base* /*control*/)

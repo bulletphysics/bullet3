@@ -100,8 +100,8 @@ void btMultiBodyGearConstraint::createConstraintRows(btMultiBodyConstraintArray&
 	// note: we rely on the fact that data.m_jacobians are
 	// always initialized to zero by the Constraint ctor
 	int linkDoF = 0;
-	unsigned int offsetA = 6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF);
-	unsigned int offsetB = 6 + (m_bodyB->getLink(m_linkB).m_dofOffset + linkDoF);
+	unsigned int offsetA = (unsigned int)(6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF));
+	unsigned int offsetB = (unsigned int)(6 + (m_bodyB->getLink(m_linkB).m_dofOffset + linkDoF));
 
 	// row 0: the lower bound
 	jacobianA(0)[offsetA] = 1;

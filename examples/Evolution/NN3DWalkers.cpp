@@ -283,7 +283,7 @@ public:
 		// legs
 		for (i = 0; i < NUM_LEGS; i++)
 		{
-			float footAngle = 2 * SIMD_PI * i / NUM_LEGS;  // legs are uniformly distributed around the root body
+			float footAngle = 2 * SIMD_PI * (btScalar)i / (btScalar)NUM_LEGS;  // legs are uniformly distributed around the root body
 			float footYUnitPosition = std::sin(footAngle); // y position of the leg on the unit circle
 			float footXUnitPosition = std::cos(footAngle); // x position of the leg on the unit circle
 
@@ -610,7 +610,7 @@ void NN3DWalkersExample::initPhysics()
 
 	// new SIMD solver for joints clips accumulated impulse, so the new limits for the motor
 	// should be (numberOfsolverIterations * oldLimits)
-	m_motorStrength = 0.05f * m_dynamicsWorld->getSolverInfo().m_numIterations;
+	m_motorStrength = 0.05f * (float)m_dynamicsWorld->getSolverInfo().m_numIterations;
 
 	{  // create a slider to change the motor update frequency
 		SliderParams slider("Motor update frequency", &m_targetFrequency);
@@ -732,7 +732,7 @@ void NN3DWalkersExample::initPhysics()
 	m_timeSeriesCanvas->setupTimeSeries(40, NUM_WALKERS * EVALUATION_TIME, 0);
 	for (int i = 0; i < NUM_WALKERS; i++)
 	{
-		m_timeSeriesCanvas->addDataSource(" ", 100 * i / NUM_WALKERS, 100 * (NUM_WALKERS - i) / NUM_WALKERS, 100 * (i) / NUM_WALKERS);
+		m_timeSeriesCanvas->addDataSource(" ", (unsigned char)(100 * i / NUM_WALKERS), (unsigned char)(100 * (NUM_WALKERS - i) / NUM_WALKERS), (unsigned char)(100 * (i) / NUM_WALKERS));
 	}
 }
 
@@ -856,7 +856,7 @@ void NN3DWalkersExample::rateEvaluations()
 void NN3DWalkersExample::reap()
 {
 	int reaped = 0;
-	for (int i = NUM_WALKERS - 1; i >= (NUM_WALKERS - 1) * (1 - REAP_QTY); i--)
+	for (int i = NUM_WALKERS - 1; (float)i >= (float)(NUM_WALKERS - 1) * (1 - REAP_QTY); i--)
 	{  // reap a certain percentage
 		m_walkersInPopulation[i]->setReaped(true);
 		reaped++;
@@ -866,17 +866,17 @@ void NN3DWalkersExample::reap()
 
 NNWalker* NN3DWalkersExample::getRandomElite()
 {
-	return m_walkersInPopulation[((NUM_WALKERS - 1) * SOW_ELITE_QTY) * (rand() / RAND_MAX)];
+	return m_walkersInPopulation[((NUM_WALKERS - 1) * SOW_ELITE_QTY) * (float)(rand() / RAND_MAX)];
 }
 
 NNWalker* NN3DWalkersExample::getRandomNonElite()
 {
-	return m_walkersInPopulation[(NUM_WALKERS - 1) * SOW_ELITE_QTY + (NUM_WALKERS - 1) * (1.0f - SOW_ELITE_QTY) * (rand() / RAND_MAX)];
+	return m_walkersInPopulation[(NUM_WALKERS - 1) * SOW_ELITE_QTY + (NUM_WALKERS - 1) * (1.0f - SOW_ELITE_QTY) * (float)(rand() / RAND_MAX)];
 }
 
 NNWalker* NN3DWalkersExample::getNextReaped()
 {
-	if ((NUM_WALKERS - 1) - m_nextReaped >= (NUM_WALKERS - 1) * (1 - REAP_QTY))
+	if ((float)((NUM_WALKERS - 1) - m_nextReaped) >= (float)(NUM_WALKERS - 1) * (1 - REAP_QTY))
 	{
 		m_nextReaped++;
 	}
@@ -894,22 +894,22 @@ NNWalker* NN3DWalkersExample::getNextReaped()
 void NN3DWalkersExample::sow()
 {
 	int sow = 0;
-	for (int i = 0; i < NUM_WALKERS * (SOW_CROSSOVER_QTY); i++)
+	for (int i = 0; (float)i < (float)NUM_WALKERS * (SOW_CROSSOVER_QTY); i++)
 	{  // create number of new crossover creatures
 		sow++;
 		b3Printf("%i Walker(s) sown.", sow);
 		NNWalker* mother = getRandomElite();                                                                  // Get elite partner (mother)
-		NNWalker* father = (SOW_ELITE_PARTNER < rand() / RAND_MAX) ? getRandomElite() : getRandomNonElite();  //Get elite or random partner (father)
+		NNWalker* father = (SOW_ELITE_PARTNER < (float)(rand() / RAND_MAX)) ? getRandomElite() : getRandomNonElite();  //Get elite or random partner (father)
 		NNWalker* offspring = getNextReaped();
 		crossover(mother, father, offspring);
 	}
 
-	for (int i = NUM_WALKERS * SOW_ELITE_QTY; i < NUM_WALKERS * (SOW_ELITE_QTY + SOW_MUTATION_QTY); i++)
+	for (int i = (float)NUM_WALKERS * SOW_ELITE_QTY; (float)i < (float)NUM_WALKERS * (SOW_ELITE_QTY + SOW_MUTATION_QTY); i++)
 	{  // create mutants
-		mutate(m_walkersInPopulation[i], btScalar(MUTATION_RATE / (NUM_WALKERS * SOW_MUTATION_QTY) * (i - NUM_WALKERS * SOW_ELITE_QTY)));
+		mutate(m_walkersInPopulation[i], btScalar(MUTATION_RATE / (NUM_WALKERS * SOW_MUTATION_QTY) * ((float)i - NUM_WALKERS * SOW_ELITE_QTY)));
 	}
 
-	for (int i = 0; i < (NUM_WALKERS - 1) * (REAP_QTY - SOW_CROSSOVER_QTY); i++)
+	for (int i = 0; (float)i < (float)(NUM_WALKERS - 1) * (REAP_QTY - SOW_CROSSOVER_QTY); i++)
 	{
 		sow++;
 		b3Printf("%i Walker(s) sown.", sow);
@@ -1055,7 +1055,7 @@ void NN3DWalkersExample::scheduleEvaluations()
 			m_evaluationsQty--;
 		}
 
-		if (m_evaluationsQty < gParallelEvaluations && !m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0)
+		if ((btScalar)m_evaluationsQty < gParallelEvaluations && !m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0)
 		{ /**!< Setup the new evaluations */
 			b3Printf("An evaluation started at %f s.", m_Time);
 			m_evaluationsQty++;

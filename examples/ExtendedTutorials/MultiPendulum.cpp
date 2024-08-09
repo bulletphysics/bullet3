@@ -219,13 +219,13 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 
 	btRigidBody* parentSphere = topSphere;  // set the top sphere as the parent sphere for the next sphere to be created
 
-	for (int i = 0; i < pendulaQty; i++)
+	for (int i = 0; (btScalar)i < pendulaQty; i++)
 	{  // produce the number of pendula
 
 		// create joint element to make the pendulum rotate it
 
 		// position the joint sphere at the same position as the top sphere
-		startTransform.setOrigin(position - btVector3(0, length * (i), 0));
+		startTransform.setOrigin(position - btVector3(0, length * (btScalar)i, 0));
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
@@ -264,7 +264,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 		startTransform.setIdentity();  // reset start transform
 
 		// position the child sphere below the joint sphere
-		startTransform.setOrigin(position - btVector3(0, length * (i + 1), 0));
+		startTransform.setOrigin(position - btVector3(0, length * (btScalar)(i + 1), 0));
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
@@ -399,10 +399,10 @@ void MultiPendulumExample::applyPendulumForce(btScalar pendulumForce)
 	if (pendulumForce != 0)
 	{
 		b3Printf("Apply %f to pendulum", pendulumForce);
-		for (int i = 0; i < gDisplacedPendula; i++)
+		for (int i = 0; (btScalar)i < gDisplacedPendula; i++)
 		{
 			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
-				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
+				pendula[(size_t)i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
 		}
 	}
 }

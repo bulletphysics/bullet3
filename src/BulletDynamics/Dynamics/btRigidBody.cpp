@@ -499,7 +499,7 @@ const char* btRigidBody::serialize(void* dataBuffer, class btSerializer* seriali
 
 void btRigidBody::serializeSingleObject(class btSerializer* serializer) const
 {
-	btChunk* chunk = serializer->allocate(calculateSerializeBufferSize(), 1);
+	btChunk* chunk = serializer->allocate((size_t)calculateSerializeBufferSize(), 1);
 	const char* structType = serialize(chunk->m_oldPtr, serializer);
 	serializer->finalizeChunk(chunk, structType, BT_RIGIDBODY_CODE, (void*)this);
 }

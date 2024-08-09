@@ -84,8 +84,8 @@ public:
 	size_t GetNPrimitivesOnSurf() const { return m_numVoxelsOnSurface; }
 	size_t GetNPrimitivesInsideSurf() const { return m_numVoxelsInsideSurface; }
 	double GetEigenValue(AXIS axis) const { return m_D[axis][axis]; }
-	double ComputeVolume() const { return m_unitVolume * m_voxels.Size(); }
-	double ComputeMaxVolumeError() const { return m_unitVolume * m_numVoxelsOnSurface; }
+	double ComputeVolume() const { return m_unitVolume * (double)m_voxels.Size(); }
+	double ComputeMaxVolumeError() const { return m_unitVolume * (double)m_numVoxelsOnSurface; }
 	const Vec3<short>& GetMinBBVoxels() const { return m_minBBVoxels; }
 	const Vec3<short>& GetMaxBBVoxels() const { return m_maxBBVoxels; }
 	const Vec3<double>& GetMinBB() const { return m_minBB; }
@@ -300,7 +300,7 @@ void Volume::ComputeBB(const T* const points, const unsigned int stridePoints, c
 	for (unsigned int v = 1; v < nPoints; ++v)
 	{
 		ComputeAlignedPoint(points, v * stridePoints, barycenter, rot, pt);
-		for (int i = 0; i < 3; ++i)
+		for (size_t i = 0; i < 3; ++i)
 		{
 			if (pt[i] < m_minBB[i])
 				m_minBB[i] = pt[i];
@@ -326,26 +326,26 @@ void Volume::Voxelize(const T* const points, const unsigned int stridePoints, co
 	{
 		r = d[0];
 		m_dim[0] = dim;
-		m_dim[1] = 2 + static_cast<size_t>(dim * d[1] / d[0]);
-		m_dim[2] = 2 + static_cast<size_t>(dim * d[2] / d[0]);
+		m_dim[1] = 2 + static_cast<size_t>((double)dim * d[1] / d[0]);
+		m_dim[2] = 2 + static_cast<size_t>((double)dim * d[2] / d[0]);
 	}
 	else if (d[1] > d[0] && d[1] > d[2])
 	{
 		r = d[1];
 		m_dim[1] = dim;
-		m_dim[0] = 2 + static_cast<size_t>(dim * d[0] / d[1]);
-		m_dim[2] = 2 + static_cast<size_t>(dim * d[2] / d[1]);
+		m_dim[0] = 2 + static_cast<size_t>((double)dim * d[0] / d[1]);
+		m_dim[2] = 2 + static_cast<size_t>((double)dim * d[2] / d[1]);
 	}
 	else
 	{
 		r = d[2];
 		m_dim[2] = dim;
-		m_dim[0] = 2 + static_cast<size_t>(dim * d[0] / d[2]);
-		m_dim[1] = 2 + static_cast<size_t>(dim * d[1] / d[2]);
+		m_dim[0] = 2 + static_cast<size_t>((double)dim * d[0] / d[2]);
+		m_dim[1] = 2 + static_cast<size_t>((double)dim * d[1] / d[2]);
 	}
 
-	m_scale = r / (dim - 1);
-	double invScale = (dim - 1) / r;
+	m_scale = r / ((double)dim - 1);
+	double invScale = ((double)dim - 1) / r;
 
 	Allocate();
 	m_numVoxelsOnSurface = 0;
@@ -366,7 +366,7 @@ void Volume::Voxelize(const T* const points, const unsigned int stridePoints, co
 					  triangles[ti + 2]);
 		for (int c = 0; c < 3; ++c)
 		{
-			ComputeAlignedPoint(points, tri[c] * stridePoints, barycenter, rot, pt);
+			ComputeAlignedPoint(points, (unsigned int)(tri[(unsigned int)c] * stridePoints), barycenter, rot, pt);
 			p[c][0] = (pt[0] - m_minBB[0]) * invScale;
 			p[c][1] = (pt[1] - m_minBB[1]) * invScale;
 			p[c][2] = (pt[2] - m_minBB[2]) * invScale;

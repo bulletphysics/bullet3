@@ -87,7 +87,7 @@ public:
 			for (int j = -numCubesY / 2; j < numCubesY / 2; j++)
 			{
 				b3Vector3 pos = b3MakeVector3(i, j, j);
-				pos[m_app->getUpAxis()] = 1 + 1 * b3Sin(m_x + i - j);
+				pos[m_app->getUpAxis()] = 1 + 1 * b3Sin(m_x + (float)(i - j));
 				float orn[4] = {0, 0, 0, 1};
 				m_app->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, m_movingInstances[index++]);
 			}

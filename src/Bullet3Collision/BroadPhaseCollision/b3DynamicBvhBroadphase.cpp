@@ -594,7 +594,7 @@ void b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 	m_needcleanup = false;
 	if (m_updates_call > 0)
 	{
-		m_updates_ratio = m_updates_done / (b3Scalar)m_updates_call;
+		m_updates_ratio = (b3Scalar)m_updates_done / (b3Scalar)m_updates_call;
 	}
 	else
 	{

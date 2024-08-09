@@ -134,7 +134,7 @@ static int intersectRectQuad2(btScalar h[2], btScalar p[8], btScalar ret[16])
 			for (int i = nq; i > 0; i--)
 			{
 				// go through all points in q and all lines between adjacent points
-				if (sign * pq[dir] < h[dir])
+				if ((btScalar)sign * pq[dir] < h[dir])
 				{
 					// this point is inside the chopping line
 					pr[0] = pq[0];
@@ -148,12 +148,12 @@ static int intersectRectQuad2(btScalar h[2], btScalar p[8], btScalar ret[16])
 					}
 				}
 				btScalar* nextq = (i > 1) ? pq + 2 : q;
-				if ((sign * pq[dir] < h[dir]) ^ (sign * nextq[dir] < h[dir]))
+				if (((btScalar)sign * pq[dir] < h[dir]) ^ ((btScalar)sign * nextq[dir] < h[dir]))
 				{
 					// this line crosses the chopping line
 					pr[1 - dir] = pq[1 - dir] + (nextq[1 - dir] - pq[1 - dir]) /
-													(nextq[dir] - pq[dir]) * (sign * h[dir] - pq[dir]);
-					pr[dir] = sign * h[dir];
+													(nextq[dir] - pq[dir]) * ((btScalar)sign * h[dir] - pq[dir]);
+					pr[dir] = (btScalar)sign * h[dir];
 					pr += 2;
 					nr++;
 					if (nr & 8)
@@ -237,7 +237,7 @@ void cullPoints2(int n, btScalar p[], int m, int i0, int iret[])
 	iret++;
 	for (j = 1; j < m; j++)
 	{
-		a = btScalar(j) * (2 * M__PI / m) + A[i0];
+		a = btScalar(j) * (2 * M__PI / (float)m) + A[i0];
 		if (a > M__PI) a -= 2 * M__PI;
 		btScalar maxdiff = 1e9, diff;
 

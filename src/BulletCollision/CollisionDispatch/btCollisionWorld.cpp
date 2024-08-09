@@ -1605,7 +1605,7 @@ void btCollisionWorld::serializeContactManifolds(btSerializer* serializer)
 			if (manifold->getNumContacts() == 0)
 				continue;
 
-			btChunk* chunk = serializer->allocate(manifold->calculateSerializeBufferSize(), 1);
+			btChunk* chunk = serializer->allocate((size_t)manifold->calculateSerializeBufferSize(), 1);
 			const char* structType = manifold->serialize(manifold, chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_CONTACTMANIFOLD_CODE, (void*)manifold);
 		}

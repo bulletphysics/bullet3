@@ -9,7 +9,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2' - signed/unsigned mismatch
+#endif
 #include "stb_image/stb_image_write.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 static unsigned int s_indexData[INDEX_COUNT];
 static GLuint /*s_indexArrayObject,*/ s_indexBuffer;
@@ -60,17 +67,17 @@ void InternalOpenGL2RenderCallbacks::display2()
 
 	assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(data->m_positionAttribute);
+	glEnableVertexAttribArray((GLuint)data->m_positionAttribute);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(data->m_colourAttribute);
+	glEnableVertexAttribArray((GLuint)data->m_colourAttribute);
 	assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(data->m_textureAttribute);
+	glEnableVertexAttribArray((GLuint)data->m_textureAttribute);
 
-	glVertexAttribPointer(data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)0);
-	glVertexAttribPointer(data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)sizeof(vec4));
-	glVertexAttribPointer(data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)(sizeof(vec4) + sizeof(vec4)));
+	glVertexAttribPointer((GLuint)data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)0);
+	glVertexAttribPointer((GLuint)data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)sizeof(vec4));
+	glVertexAttribPointer((GLuint)data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)(sizeof(vec4) + sizeof(vec4)));
 	assert(glGetError() == GL_NO_ERROR);
 	/*    
  
@@ -117,8 +124,8 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 			assert(glGetError() == GL_NO_ERROR);
 
 			glBindTexture(GL_TEXTURE_2D, *texId);
-			texture->m_texels = (unsigned char*)malloc(textureWidth * textureHeight);
-			memset(texture->m_texels, 0, textureWidth * textureHeight);
+			texture->m_texels = (unsigned char*)malloc((size_t)(textureWidth * textureHeight));
+			memset(texture->m_texels, 0, (size_t)(textureWidth * textureHeight));
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, textureWidth, textureHeight, 0, GL_RED, GL_UNSIGNED_BYTE, texture->m_texels);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -137,7 +144,7 @@ void InternalOpenGL2RenderCallbacks::updateTexture(sth_texture* texture, sth_gly
 
 				for (int i = 0; i < INDEX_COUNT; i++)
 				{
-					s_indexData[i] = i;
+					s_indexData[i] = (unsigned int)i;
 				}
 
 				glGenBuffers(1, &s_indexBuffer);
@@ -189,7 +196,7 @@ void InternalOpenGL2RenderCallbacks::render(sth_texture* texture)
 	assert(glGetError() == GL_NO_ERROR);
 	glBindBuffer(GL_ARRAY_BUFFER, s_vertexBuffer);
 	glBindVertexArray(s_vertexArrayObject);
-	glBufferData(GL_ARRAY_BUFFER, texture->nverts * sizeof(Vertex), &texture->newverts[0].position.p[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLintptr)(texture->nverts * sizeof(Vertex)), &texture->newverts[0].position.p[0], GL_DYNAMIC_DRAW);
 
 	assert(glGetError() == GL_NO_ERROR);
 
@@ -213,10 +220,10 @@ void InternalOpenGL2RenderCallbacks::render(sth_texture* texture)
 void dumpTextureToPng(int textureWidth, int textureHeight, const char* fileName)
 {
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	unsigned char* pixels = (unsigned char*)malloc(textureWidth * textureHeight);
+	unsigned char* pixels = (unsigned char*)malloc((size_t)(textureWidth * textureHeight));
 	glReadPixels(0, 0, textureWidth, textureHeight, GL_RED, GL_UNSIGNED_BYTE, pixels);
 	//swap the pixels
-	unsigned char* tmp = (unsigned char*)malloc(textureWidth);
+	unsigned char* tmp = (unsigned char*)malloc((size_t)textureWidth);
 	for (int j = 0; j < textureHeight; j++)
 	{
 		pixels[j * textureWidth + j] = 255;

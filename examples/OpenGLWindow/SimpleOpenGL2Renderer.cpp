@@ -517,8 +517,8 @@ void SimpleOpenGL2Renderer::drawLines(const float* positions, const float color[
 	glLineWidth(pointDrawSize);
 	for (int i = 0; i < numIndices; i += 2)
 	{
-		int index0 = indices[i];
-		int index1 = indices[i + 1];
+		int index0 = (int)indices[(size_t)i];
+		int index1 = (int)indices[(size_t)i + 1];
 
 		b3Vector3 fromColor = b3MakeVector3(color[0], color[1], color[2]);
 		b3Vector3 toColor = b3MakeVector3(color[0], color[1], color[2]);

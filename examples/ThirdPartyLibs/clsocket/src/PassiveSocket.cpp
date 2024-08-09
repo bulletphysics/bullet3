@@ -254,9 +254,9 @@ CActiveSocket *CPassiveSocket::Accept()
 				// connection.
 				//-------------------------------------------------------------
 				getpeername(m_socket, (struct sockaddr *)&pClientSocket->m_stClientSockaddr, &nSockLen);
-				memcpy((void *)&pClientSocket->m_stClientSockaddr, (void *)&m_stClientSockaddr, nSockLen);
+				memcpy((void *)&pClientSocket->m_stClientSockaddr, (void *)&m_stClientSockaddr, (size_t)nSockLen);
 
-				memset(&pClientSocket->m_stServerSockaddr, 0, nSockLen);
+				memset(&pClientSocket->m_stServerSockaddr, 0, (size_t)nSockLen);
 				getsockname(m_socket, (struct sockaddr *)&pClientSocket->m_stServerSockaddr, &nSockLen);
 			}
 			else

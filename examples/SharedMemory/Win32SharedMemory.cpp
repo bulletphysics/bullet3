@@ -86,7 +86,7 @@ void* Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 				NULL,                  // default security
 				PAGE_READWRITE,        // read/write access
 				0,                     // maximum object size (high-order DWORD)
-				size,                  // maximum object size (low-order DWORD)
+				(DWORD)size,           // maximum object size (low-order DWORD)
 				seg.m_szName);         // name of mapping object
 		}
 		else
@@ -100,7 +100,7 @@ void* Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 							  FILE_MAP_ALL_ACCESS,  // read/write permission
 							  0,
 							  0,
-							  size);
+							  (SIZE_T)size);
 
 	if (seg.m_buf == NULL)
 	{

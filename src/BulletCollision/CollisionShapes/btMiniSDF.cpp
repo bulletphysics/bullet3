@@ -33,7 +33,7 @@ struct btSdfDataStream
 		if (m_currentOffset + bytes <= m_size)
 		{
 			char* dest = (char*)&val;
-			memcpy(dest, &m_data[m_currentOffset], bytes);
+			memcpy(dest, &m_data[m_currentOffset], (size_t)bytes);
 			m_currentOffset += bytes;
 			return true;
 		}
@@ -106,14 +106,14 @@ bool btMiniSDF::load(const char* data, int size)
 	{
 		return m_isValid;
 	}
-	m_nodes.resize(n_nodes0);
+	m_nodes.resize((int)n_nodes0);
 	for (unsigned int i = 0; i < n_nodes0; i++)
 	{
 		unsigned long long int n_nodes1;
 		if(ds.read(n_nodes1))
 		{
-		btAlignedObjectArray<double>& nodes = m_nodes[i];
-		nodes.resize(n_nodes1);
+		btAlignedObjectArray<double>& nodes = m_nodes[(int)i];
+		nodes.resize((int)n_nodes1);
 		for (int j = 0; j < nodes.size(); j++)
 		{
 			double& node = nodes[j];
@@ -126,17 +126,17 @@ bool btMiniSDF::load(const char* data, int size)
 	unsigned long long int n_cells0;
 	if(ds.read(n_cells0))
 	{
-	m_cells.resize(n_cells0);
+	m_cells.resize((int)n_cells0);
 	for (unsigned long long i = 0; i < n_cells0; i++)
 	{
 		unsigned long long int n_cells1;
-		btAlignedObjectArray<btCell32>& cells = m_cells[i];
+		btAlignedObjectArray<btCell32>& cells = m_cells[(int)i];
 		if(ds.read(n_cells1))
 		{
-		cells.resize(n_cells1);
+		cells.resize((int)n_cells1);
 		for (unsigned long long j = 0; j < n_cells1; j++)
 		{
-			btCell32& cell = cells[j];
+			btCell32& cell = cells[(int)j];
 			ds.read(cell);
 		}
 		}
@@ -148,17 +148,17 @@ bool btMiniSDF::load(const char* data, int size)
 		if(ds.read(n_cell_maps0))
 		{
 
-		m_cell_map.resize(n_cell_maps0);
+		m_cell_map.resize((int)n_cell_maps0);
 		for (unsigned long long i = 0; i < n_cell_maps0; i++)
 		{
 			unsigned long long int n_cell_maps1;
-			btAlignedObjectArray<unsigned int>& cell_maps = m_cell_map[i];
+			btAlignedObjectArray<unsigned int>& cell_maps = m_cell_map[(int)i];
 			if(ds.read(n_cell_maps1))
 			{
-			cell_maps.resize(n_cell_maps1);
+			cell_maps.resize((int)n_cell_maps1);
 			for (unsigned long long j = 0; j < n_cell_maps1; j++)
 			{
-				unsigned int& cell_map = cell_maps[j];
+				unsigned int& cell_map = cell_maps[(int)j];
 				ds.read(cell_map);
 			}
 			}
@@ -479,13 +479,13 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 	mui.ijk[0] = mi[0];
 	mui.ijk[1] = mi[1];
 	mui.ijk[2] = mi[2];
-	int i = multiToSingleIndex(mui);
-	unsigned int i_ = m_cell_map[field_id][i];
+	int i = (int)multiToSingleIndex(mui);
+	unsigned int i_ = m_cell_map[(int)field_id][i];
 	if (i_ == UINT_MAX)
 		return false;
 
-	btAlignedBox3d sd = subdomain(i);
-	i = i_;
+	btAlignedBox3d sd = subdomain((unsigned int)i);
+	i = (int)i_;
 	//btVector3 d = sd.m_max - sd.m_min;  //.diagonal().eval();
 
 	btVector3 denom = (sd.max() - sd.min());
@@ -493,7 +493,7 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 	btVector3 c1 = (sd.max() + sd.min()) / denom;
 	btVector3 xi = (c0 * x - c1);
 
-	btCell32 const& cell = m_cells[field_id][i];
+	btCell32 const& cell = m_cells[(int)field_id][i];
 	if (!gradient)
 	{
 		//auto phi = m_coefficients[field_id][i].dot(shape_function_(xi, 0));
@@ -502,13 +502,13 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 		for (unsigned int j = 0u; j < 32u; ++j)
 		{
 			unsigned int v = cell.m_cells[j];
-			double c = m_nodes[field_id][v];
+			double c = m_nodes[(int)field_id][(int)v];
 			if (c == DBL_MAX)
 			{
 				return false;
 				;
 			}
-			phi += c * N[j];
+			phi += c * N[(int)j];
 		}
 
 		dist = phi;
@@ -523,16 +523,16 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 	for (unsigned int j = 0u; j < 32u; ++j)
 	{
 		unsigned int v = cell.m_cells[j];
-		double c = m_nodes[field_id][v];
+		double c = m_nodes[(int)field_id][(int)v];
 		if (c == DBL_MAX)
 		{
 			gradient->setZero();
 			return false;
 		}
-		phi += c * N[j];
-		(*gradient)[0] += c * dN(j, 0);
-		(*gradient)[1] += c * dN(j, 1);
-		(*gradient)[2] += c * dN(j, 2);
+		phi += c * N[(int)j];
+		(*gradient)[0] += c * dN((int)j, 0);
+		(*gradient)[1] += c * dN((int)j, 1);
+		(*gradient)[2] += c * dN((int)j, 2);
 	}
 	(*gradient) *= c0;
 	dist = phi;

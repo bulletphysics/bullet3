@@ -37,7 +37,7 @@ struct b3FileUtils
 		for (int i = 0; !f && i < numPrefixes; i++)
 		{
 #ifdef _MSC_VER
-			sprintf_s(relativeFileName, maxRelativeFileNameMaxLen, "%s%s", prefix[i], orgFileName);
+			sprintf_s(relativeFileName, (size_t)maxRelativeFileNameMaxLen, "%s%s", prefix[(size_t)i], orgFileName);
 #else
 			(void)maxRelativeFileNameMaxLen;
 			sprintf(relativeFileName, "%s%s", prefix[i], orgFileName);
@@ -109,7 +109,7 @@ struct b3FileUtils
 
 	static void toLower(char* str)
 	{
-		int len = strlen(str);
+		int len = (int)strlen(str);
 		for (int i = 0; i < len; i++)
 		{
 			str[i] = toLowerChar(str[i]);

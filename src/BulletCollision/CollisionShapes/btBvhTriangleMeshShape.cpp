@@ -130,9 +130,9 @@ void btBvhTriangleMeshShape::performRaycast(btTriangleCallback* callback, const 
 			{
 				int graphicsindex=0;
                                 switch (indicestype) {
-                                        case PHY_INTEGER: graphicsindex = gfxbase[j]; break;
-                                        case PHY_SHORT: graphicsindex = ((unsigned short*)gfxbase)[j]; break;
-                                        case PHY_UCHAR: graphicsindex = ((unsigned char*)gfxbase)[j]; break;
+                                        case PHY_INTEGER: graphicsindex = (int)gfxbase[j]; break;
+                                        case PHY_SHORT: graphicsindex = (int)((unsigned short*)gfxbase)[j]; break;
+                                        case PHY_UCHAR: graphicsindex = (int)((unsigned char*)gfxbase)[j]; break;
                                         default: btAssert(0);
                                 }
 
@@ -204,9 +204,9 @@ void btBvhTriangleMeshShape::performConvexcast(btTriangleCallback* callback, con
 			{
 				int graphicsindex=0;
                                 switch (indicestype) {
-                                        case PHY_INTEGER: graphicsindex = gfxbase[j]; break;
-                                        case PHY_SHORT: graphicsindex = ((unsigned short*)gfxbase)[j]; break;
-                                        case PHY_UCHAR: graphicsindex = ((unsigned char*)gfxbase)[j]; break;
+                                        case PHY_INTEGER: graphicsindex = (int)gfxbase[j]; break;
+                                        case PHY_SHORT: graphicsindex = (int)((unsigned short*)gfxbase)[j]; break;
+                                        case PHY_UCHAR: graphicsindex = (int)((unsigned char*)gfxbase)[j]; break;
                                         default: btAssert(0);
                                 }
 
@@ -288,7 +288,7 @@ void btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback, c
 			const btVector3& meshScaling = m_meshInterface->getScaling();
 			for (int j = 2; j >= 0; j--)
 			{
-				int graphicsindex = indicestype == PHY_SHORT ? ((unsigned short*)gfxbase)[j] : indicestype == PHY_INTEGER ? gfxbase[j] : ((unsigned char*)gfxbase)[j];
+				int graphicsindex = (int)(indicestype == PHY_SHORT ? ((unsigned short*)gfxbase)[j] : indicestype == PHY_INTEGER ? gfxbase[j] : ((unsigned char*)gfxbase)[j]);
 
 #ifdef DEBUG_TRIANGLE_MESH
 				printf("%d ,", graphicsindex);
@@ -401,7 +401,7 @@ const char* btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 #endif  //BT_USE_DOUBLE_PRECISION
 
 			int sz = m_bvh->calculateSerializeBufferSizeNew();
-			btChunk* serializerChunk = serializer->allocate(sz, 1);
+			btChunk* serializerChunk = serializer->allocate((size_t)sz, 1);
 			const char* structType = m_bvh->serialize(serializerChunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(serializerChunk, structType, BT_QUANTIZED_BVH_CODE, m_bvh);
 		}
@@ -423,7 +423,7 @@ const char* btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 		{
 			trimeshData->m_triangleInfoMap = (btTriangleInfoMapData*)serializer->getUniquePointer(m_triangleInfoMap);
 			int sz = m_triangleInfoMap->calculateSerializeBufferSize();
-			btChunk* serializerChunk = serializer->allocate(sz, 1);
+			btChunk* serializerChunk = serializer->allocate((size_t)sz, 1);
 			const char* structType = m_triangleInfoMap->serialize(serializerChunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(serializerChunk, structType, BT_TRIANLGE_INFO_MAP, m_triangleInfoMap);
 		}
@@ -444,7 +444,7 @@ void btBvhTriangleMeshShape::serializeSingleBvh(btSerializer* serializer) const
 	if (m_bvh)
 	{
 		int len = m_bvh->calculateSerializeBufferSizeNew();  //make sure not to use calculateSerializeBufferSize because it is used for in-place
-		btChunk* chunk = serializer->allocate(len, 1);
+		btChunk* chunk = serializer->allocate((size_t)len, 1);
 		const char* structType = m_bvh->serialize(chunk->m_oldPtr, serializer);
 		serializer->finalizeChunk(chunk, structType, BT_QUANTIZED_BVH_CODE, (void*)m_bvh);
 	}
@@ -455,7 +455,7 @@ void btBvhTriangleMeshShape::serializeSingleTriangleInfoMap(btSerializer* serial
 	if (m_triangleInfoMap)
 	{
 		int len = m_triangleInfoMap->calculateSerializeBufferSize();
-		btChunk* chunk = serializer->allocate(len, 1);
+		btChunk* chunk = serializer->allocate((size_t)len, 1);
 		const char* structType = m_triangleInfoMap->serialize(chunk->m_oldPtr, serializer);
 		serializer->finalizeChunk(chunk, structType, BT_TRIANLGE_INFO_MAP, (void*)m_triangleInfoMap);
 	}

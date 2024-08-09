@@ -47,7 +47,7 @@ struct btTriIndex
 		// Get only the lower bits where the triangle index is stored
 		unsigned int x = 0;
 		unsigned int y = (~(x & 0)) << (31 - MAX_NUM_PARTS_IN_BITS);
-		return (m_PartIdTriangleIndex & ~(y));
+		return (int)(m_PartIdTriangleIndex & ~(y));
 	}
 	int getPartId() const
 	{

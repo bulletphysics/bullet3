@@ -112,7 +112,7 @@ public:
 	{
 		for (unsigned int i = 0; i < numCubes; i++)
 		{
-			btVector3 pos(0, i * (btScalar)0.05, 1);
+			btVector3 pos(0, (btScalar)i * (btScalar)0.05, 1);
 			btQuaternion quar(0, 0, 0, 1);
 			m_robotSim.resetBasePositionAndOrientation(cubeIds[i], pos, quar);
 		}

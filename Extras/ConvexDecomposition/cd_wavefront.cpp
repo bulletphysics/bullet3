@@ -131,7 +131,7 @@ public:
 		for (int i = 0; i < 256; i++)
 		{
 			mHard[i] = ST_DATA;
-			mHardString[i * 2] = i;
+			mHardString[i * 2] = (char)i;
 			mHardString[i * 2 + 1] = 0;
 		}
 		mHard[0] = ST_EOS;
@@ -229,7 +229,7 @@ void InPlaceParser::SetFile(const char *fname)
 		if (mLen)
 		{
 			mData = (char *)malloc(sizeof(char) * (mLen + 1));
-			int ok = fread(mData, mLen, 1, fph);
+			int ok = (int)fread(mData, (size_t)mLen, 1, fph);
 			if (!ok)
 			{
 				free(mData);
@@ -611,7 +611,7 @@ void OBJ::getVertex(GeometryVertex &v, const char *face) const
 
 		if (tindex >= 0 && tindex < (int)(mTexels.size() / 2))
 		{
-			const float *t = &mTexels[tindex * 2];
+			const float *t = &mTexels[(size_t)tindex * 2];
 
 			v.mTexel[0] = t[0];
 			v.mTexel[1] = t[1];
@@ -624,7 +624,7 @@ void OBJ::getVertex(GeometryVertex &v, const char *face) const
 
 			if (nindex >= 0 && nindex < (int)(mNormals.size() / 3))
 			{
-				const float *n = &mNormals[nindex * 3];
+				const float *n = &mNormals[(size_t)nindex * 3];
 
 				v.mNormal[0] = n[0];
 				v.mNormal[1] = n[1];
@@ -635,7 +635,7 @@ void OBJ::getVertex(GeometryVertex &v, const char *face) const
 
 	if (index >= 0 && index < (int)(mVerts.size() / 3))
 	{
-		const float *p = &mVerts[index * 3];
+		const float *p = &mVerts[(size_t)index * 3];
 
 		v.mPos[0] = p[0];
 		v.mPos[1] = p[1];
@@ -738,7 +738,7 @@ class BuildMesh : public GeometryInterface
 public:
 	int getIndex(const float *p)
 	{
-		int vcount = mVertices.size() / 3;
+		int vcount = (int)(mVertices.size() / 3);
 
 		if (vcount > 0)
 		{
@@ -809,13 +809,13 @@ unsigned int WavefrontObj::loadObj(const char *fname)  // load a wavefront obj r
 	const IntVector &indices = bm.GetIndices();
 	if (vlist.size())
 	{
-		mVertexCount = vlist.size() / 3;
-		mVertices = new float[mVertexCount * 3];
+		mVertexCount = (int)(vlist.size() / 3);
+		mVertices = new float[(size_t)mVertexCount * 3];
 		memcpy(mVertices, &vlist[0], sizeof(float) * mVertexCount * 3);
-		mTriCount = indices.size() / 3;
+		mTriCount = (int)(indices.size() / 3);
 		mIndices = new int[mTriCount * 3 * sizeof(int)];
 		memcpy(mIndices, &indices[0], sizeof(int) * mTriCount * 3);
-		ret = mTriCount;
+		ret = (unsigned int)mTriCount;
 	}
 
 	return ret;

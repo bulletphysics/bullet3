@@ -188,7 +188,7 @@ JobQueue
 		if (newSize > m_jobMemSize)
 		{
 			freeJobMem();
-			m_jobMem = static_cast<char*>(btAlignedAlloc(newSize, kCacheLineSize));
+			m_jobMem = static_cast<char*>(btAlignedAlloc((size_t)newSize, kCacheLineSize));
 			m_jobMemSize = newSize;
 		}
 	}

@@ -159,7 +159,7 @@ int PlaneBoxOverlap(const Vec3<double>& normal,
 					const Vec3<double>& vert,
 					const Vec3<double>& maxbox)
 {
-	int q;
+	size_t q;
 	Vec3<double> vmin, vmax;
 	double v;
 	for (q = X; q <= Z; q++)
@@ -396,7 +396,7 @@ void VoxelSet::ComputeBB()
 	const size_t nVoxels = m_voxels.Size();
 	if (nVoxels == 0)
 		return;
-	for (int h = 0; h < 3; ++h)
+	for (size_t h = 0; h < 3; ++h)
 	{
 		m_minBBVoxels[h] = m_voxels[0].m_coord[h];
 		m_maxBBVoxels[h] = m_voxels[0].m_coord[h];
@@ -404,7 +404,7 @@ void VoxelSet::ComputeBB()
 	Vec3<double> bary(0.0);
 	for (size_t p = 0; p < nVoxels; ++p)
 	{
-		for (int h = 0; h < 3; ++h)
+		for (size_t h = 0; h < 3; ++h)
 		{
 			bary[h] += m_voxels[p].m_coord[h];
 			if (m_minBBVoxels[h] > m_voxels[p].m_coord[h])
@@ -414,7 +414,7 @@ void VoxelSet::ComputeBB()
 		}
 	}
 	bary /= (double)nVoxels;
-	for (int h = 0; h < 3; ++h)
+	for (size_t h = 0; h < 3; ++h)
 	{
 		m_minBBPts[h] = m_minBBVoxels[h] * m_scale + m_minBB[h];
 		m_maxBBPts[h] = m_maxBBVoxels[h] * m_scale + m_minBB[h];
@@ -654,8 +654,8 @@ void VoxelSet::ComputeClippedVolumes(const Plane& plane,
 		nPositiveVoxels += (d >= 0.0);
 	}
 	size_t nNegativeVoxels = nVoxels - nPositiveVoxels;
-	positiveVolume = m_unitVolume * nPositiveVoxels;
-	negativeVolume = m_unitVolume * nNegativeVoxels;
+	positiveVolume = m_unitVolume * (double)nPositiveVoxels;
+	negativeVolume = m_unitVolume * (double)nNegativeVoxels;
 }
 void VoxelSet::SelectOnSurface(PrimitiveSet* const onSurfP) const
 {
@@ -664,7 +664,7 @@ void VoxelSet::SelectOnSurface(PrimitiveSet* const onSurfP) const
 	if (nVoxels == 0)
 		return;
 
-	for (int h = 0; h < 3; ++h)
+	for (size_t h = 0; h < 3; ++h)
 	{
 		onSurf->m_minBB[h] = m_minBB[h];
 	}
@@ -694,7 +694,7 @@ void VoxelSet::Clip(const Plane& plane,
 	if (nVoxels == 0)
 		return;
 
-	for (int h = 0; h < 3; ++h)
+	for (size_t h = 0; h < 3; ++h)
 	{
 		negativePart->m_minBB[h] = positivePart->m_minBB[h] = m_minBB[h];
 	}
@@ -811,12 +811,12 @@ void VoxelSet::ComputePrincipalAxes()
 		covMat[0][2] += x * z;
 		covMat[1][2] += y * z;
 	}
-	covMat[0][0] /= nVoxels;
-	covMat[1][1] /= nVoxels;
-	covMat[2][2] /= nVoxels;
-	covMat[0][1] /= nVoxels;
-	covMat[0][2] /= nVoxels;
-	covMat[1][2] /= nVoxels;
+	covMat[0][0] /= (double)nVoxels;
+	covMat[1][1] /= (double)nVoxels;
+	covMat[2][2] /= (double)nVoxels;
+	covMat[0][1] /= (double)nVoxels;
+	covMat[0][2] /= (double)nVoxels;
+	covMat[1][2] /= (double)nVoxels;
 	covMat[1][0] = covMat[0][1];
 	covMat[2][0] = covMat[0][2];
 	covMat[2][1] = covMat[1][2];
@@ -877,7 +877,7 @@ void Volume::FillOutsideSurface(const size_t i0,
 					current[1] = (short)j;
 					current[2] = (short)k;
 					fifo.push(current);
-					GetVoxel(current[0], current[1], current[2]) = PRIMITIVE_OUTSIDE_SURFACE;
+					GetVoxel((size_t)current[0], (size_t)current[1], (size_t)current[2]) = PRIMITIVE_OUTSIDE_SURFACE;
 					++m_numVoxelsOutsideSurface;
 					while (fifo.size() > 0)
 					{
@@ -892,7 +892,7 @@ void Volume::FillOutsideSurface(const size_t i0,
 							{
 								continue;
 							}
-							unsigned char& v = GetVoxel(a, b, c);
+							unsigned char& v = GetVoxel((size_t)a, (size_t)b, (size_t)c);
 							if (v == PRIMITIVE_UNDEFINED)
 							{
 								v = PRIMITIVE_OUTSIDE_SURFACE;
@@ -941,14 +941,14 @@ void Volume::Convert(Mesh& mesh, const VOXEL_VALUE value) const
 				const unsigned char& voxel = GetVoxel(i, j, k);
 				if (voxel == value)
 				{
-					Vec3<double> p0((i - 0.5) * m_scale, (j - 0.5) * m_scale, (k - 0.5) * m_scale);
-					Vec3<double> p1((i + 0.5) * m_scale, (j - 0.5) * m_scale, (k - 0.5) * m_scale);
-					Vec3<double> p2((i + 0.5) * m_scale, (j + 0.5) * m_scale, (k - 0.5) * m_scale);
-					Vec3<double> p3((i - 0.5) * m_scale, (j + 0.5) * m_scale, (k - 0.5) * m_scale);
-					Vec3<double> p4((i - 0.5) * m_scale, (j - 0.5) * m_scale, (k + 0.5) * m_scale);
-					Vec3<double> p5((i + 0.5) * m_scale, (j - 0.5) * m_scale, (k + 0.5) * m_scale);
-					Vec3<double> p6((i + 0.5) * m_scale, (j + 0.5) * m_scale, (k + 0.5) * m_scale);
-					Vec3<double> p7((i - 0.5) * m_scale, (j + 0.5) * m_scale, (k + 0.5) * m_scale);
+					Vec3<double> p0(((double)i - 0.5) * m_scale, ((double)j - 0.5) * m_scale, ((double)k - 0.5) * m_scale);
+					Vec3<double> p1(((double)i + 0.5) * m_scale, ((double)j - 0.5) * m_scale, ((double)k - 0.5) * m_scale);
+					Vec3<double> p2(((double)i + 0.5) * m_scale, ((double)j + 0.5) * m_scale, ((double)k - 0.5) * m_scale);
+					Vec3<double> p3(((double)i - 0.5) * m_scale, ((double)j + 0.5) * m_scale, ((double)k - 0.5) * m_scale);
+					Vec3<double> p4(((double)i - 0.5) * m_scale, ((double)j - 0.5) * m_scale, ((double)k + 0.5) * m_scale);
+					Vec3<double> p5(((double)i + 0.5) * m_scale, ((double)j - 0.5) * m_scale, ((double)k + 0.5) * m_scale);
+					Vec3<double> p6(((double)i + 0.5) * m_scale, ((double)j + 0.5) * m_scale, ((double)k + 0.5) * m_scale);
+					Vec3<double> p7(((double)i - 0.5) * m_scale, ((double)j + 0.5) * m_scale, ((double)k + 0.5) * m_scale);
 					int s = (int)mesh.GetNPoints();
 					mesh.AddPoint(p0 + m_minBB);
 					mesh.AddPoint(p1 + m_minBB);
@@ -977,7 +977,7 @@ void Volume::Convert(Mesh& mesh, const VOXEL_VALUE value) const
 }
 void Volume::Convert(VoxelSet& vset) const
 {
-	for (int h = 0; h < 3; ++h)
+	for (size_t h = 0; h < 3; ++h)
 	{
 		vset.m_minBB[h] = m_minBB[h];
 	}
@@ -996,7 +996,7 @@ void Volume::Convert(VoxelSet& vset) const
 		{
 			for (short k = 0; k < k0; ++k)
 			{
-				const unsigned char& value = GetVoxel(i, j, k);
+				const unsigned char& value = GetVoxel((size_t)i, (size_t)j, (size_t)k);
 				if (value == PRIMITIVE_INSIDE_SURFACE)
 				{
 					voxel.m_coord[0] = i;
@@ -1036,7 +1036,7 @@ void Volume::Convert(TetrahedronSet& tset) const
 		{
 			for (short k = 0; k < k0; ++k)
 			{
-				const unsigned char& value = GetVoxel(i, j, k);
+				const unsigned char& value = GetVoxel((size_t)i, (size_t)j, (size_t)k);
 				if (value == PRIMITIVE_INSIDE_SURFACE || value == PRIMITIVE_ON_SURFACE)
 				{
 					tetrahedron.m_data = value;
@@ -1105,7 +1105,7 @@ void Volume::AlignToPrincipalAxes(double (&rot)[3][3]) const
 		{
 			for (short k = 0; k < k0; ++k)
 			{
-				const unsigned char& value = GetVoxel(i, j, k);
+				const unsigned char& value = GetVoxel((size_t)i, (size_t)j, (size_t)k);
 				if (value == PRIMITIVE_INSIDE_SURFACE || value == PRIMITIVE_ON_SURFACE)
 				{
 					barycenter[0] += i;
@@ -1128,7 +1128,7 @@ void Volume::AlignToPrincipalAxes(double (&rot)[3][3]) const
 		{
 			for (short k = 0; k < k0; ++k)
 			{
-				const unsigned char& value = GetVoxel(i, j, k);
+				const unsigned char& value = GetVoxel((size_t)i, (size_t)j, (size_t)k);
 				if (value == PRIMITIVE_INSIDE_SURFACE || value == PRIMITIVE_ON_SURFACE)
 				{
 					x = i - barycenter[0];
@@ -1170,16 +1170,16 @@ void TetrahedronSet::ComputeBB()
 	if (nTetrahedra == 0)
 		return;
 
-	for (int h = 0; h < 3; ++h)
+	for (size_t h = 0; h < 3; ++h)
 	{
 		m_minBB[h] = m_maxBB[h] = m_tetrahedra[0].m_pts[0][h];
 		m_barycenter[h] = 0.0;
 	}
 	for (size_t p = 0; p < nTetrahedra; ++p)
 	{
-		for (int i = 0; i < 4; ++i)
+		for (size_t i = 0; i < 4; ++i)
 		{
-			for (int h = 0; h < 3; ++h)
+			for (size_t h = 0; h < 3; ++h)
 			{
 				if (m_minBB[h] > m_tetrahedra[p].m_pts[i][h])
 					m_minBB[h] = m_tetrahedra[p].m_pts[i][h];
@@ -1214,10 +1214,10 @@ void TetrahedronSet::ComputeConvexHull(Mesh& meshCH, const size_t sampling) cons
 				if (s == sampling)
 				{
 					s = 0;
-					for (int a = 0; a < 4; ++a)
+					for (size_t a = 0; a < 4; ++a)
 					{
 						points[q++] = m_tetrahedra[p].m_pts[a];
-						for (int xx = 0; xx < 3; ++xx)
+						for (size_t xx = 0; xx < 3; ++xx)
 						{
 							assert(m_tetrahedra[p].m_pts[a][xx] + EPS >= m_minBB[xx]);
 							assert(m_tetrahedra[p].m_pts[a][xx] <= m_maxBB[xx] + EPS);
@@ -1278,9 +1278,9 @@ inline bool TetrahedronSet::Add(Tetrahedron& tetrahedron)
 		tetrahedron.m_pts[1] = tmp;
 	}
 
-	for (int a = 0; a < 4; ++a)
+	for (size_t a = 0; a < 4; ++a)
 	{
-		for (int xx = 0; xx < 3; ++xx)
+		for (size_t xx = 0; xx < 3; ++xx)
 		{
 			assert(tetrahedron.m_pts[a][xx] + EPS >= m_minBB[xx]);
 			assert(tetrahedron.m_pts[a][xx] <= m_maxBB[xx] + EPS);
@@ -1650,7 +1650,7 @@ void TetrahedronSet::Clip(const Plane& plane,
 					alpha = -(plane.m_d + (n * P1)) / delta;
 					assert(alpha >= 0.0 && alpha <= 1.0);
 					M = alpha * P0 + (1 - alpha) * P1;
-					for (int xx = 0; xx < 3; ++xx)
+					for (size_t xx = 0; xx < 3; ++xx)
 					{
 						assert(M[xx] + EPS >= m_minBB[xx]);
 						assert(M[xx] <= m_maxBB[xx] + EPS);
@@ -1762,7 +1762,7 @@ void TetrahedronSet::ComputePrincipalAxes()
 			covMat[1][2] += y * z;
 		}
 	}
-	double n = nTetrahedra * 4.0;
+	double n = (double)nTetrahedra * 4.0;
 	covMat[0][0] /= n;
 	covMat[1][1] /= n;
 	covMat[2][2] /= n;

@@ -1329,7 +1329,7 @@ public:
 
 			for (i = 0, ni = indices.size(); i < ni; ++i)
 			{
-				btSwap(indices[i], indices[NEXTRAND % ni]);
+				btSwap(indices[i], indices[(int)(NEXTRAND % ni)]);
 			}
 		}
 		for (int k = 0; k < m_faceNodeContacts.size(); ++k)

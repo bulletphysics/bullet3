@@ -67,9 +67,9 @@ void HACD::CreateGraph()
 	vertexToTriangles.resize(m_nPoints);
 	for (size_t t = 0; t < m_nTriangles; ++t)
 	{
-		vertexToTriangles[m_triangles[t].X()].insert(static_cast<long>(t));
-		vertexToTriangles[m_triangles[t].Y()].insert(static_cast<long>(t));
-		vertexToTriangles[m_triangles[t].Z()].insert(static_cast<long>(t));
+		vertexToTriangles[(size_t)m_triangles[t].X()].insert(static_cast<long>(t));
+		vertexToTriangles[(size_t)m_triangles[t].Y()].insert(static_cast<long>(t));
+		vertexToTriangles[(size_t)m_triangles[t].Z()].insert(static_cast<long>(t));
 	}
 
 	m_graph.Clear();
@@ -87,9 +87,9 @@ void HACD::CreateGraph()
 			i1 = m_triangles[t1].X();
 			j1 = m_triangles[t1].Y();
 			k1 = m_triangles[t1].Z();
-			tr1[0] = GetEdgeIndex(i1, j1);
-			tr1[1] = GetEdgeIndex(j1, k1);
-			tr1[2] = GetEdgeIndex(k1, i1);
+			tr1[0] = GetEdgeIndex((unsigned long long)i1, (unsigned long long)j1);
+			tr1[1] = GetEdgeIndex((unsigned long long)j1, (unsigned long long)k1);
+			tr1[2] = GetEdgeIndex((unsigned long long)k1, (unsigned long long)i1);
 			std::set<long>::const_iterator it2(it1);
 			for (++it2; it2 != itEnd; ++it2)
 			{
@@ -97,9 +97,9 @@ void HACD::CreateGraph()
 				i2 = m_triangles[t2].X();
 				j2 = m_triangles[t2].Y();
 				k2 = m_triangles[t2].Z();
-				tr2[0] = GetEdgeIndex(i2, j2);
-				tr2[1] = GetEdgeIndex(j2, k2);
-				tr2[2] = GetEdgeIndex(k2, i2);
+				tr2[0] = GetEdgeIndex((unsigned long long)i2, (unsigned long long)j2);
+				tr2[1] = GetEdgeIndex((unsigned long long)j2, (unsigned long long)k2);
+				tr2[2] = GetEdgeIndex((unsigned long long)k2, (unsigned long long)i2);
 				int shared = 0;
 				for (int i = 0; i < 3; ++i)
 				{
@@ -129,9 +129,9 @@ void HACD::CreateGraph()
 			for (size_t t = 0; t < m_nTriangles; ++t)
 			{
 				cc = m_graph.m_vertices[t].m_cc;
-				cc2V[cc].insert(m_triangles[t].X());
-				cc2V[cc].insert(m_triangles[t].Y());
-				cc2V[cc].insert(m_triangles[t].Z());
+				cc2V[(size_t)cc].insert(m_triangles[t].X());
+				cc2V[(size_t)cc].insert(m_triangles[t].Y());
+				cc2V[(size_t)cc].insert(m_triangles[t].Z());
 			}
 
 			for (size_t cc1 = 0; cc1 < m_graph.m_nCCs; ++cc1)
@@ -152,10 +152,10 @@ void HACD::CreateGraph()
 							if (dist < distC1C2)
 							{
 								distC1C2 = dist;
-								t1 = *vertexToTriangles[*itV1].begin();
+								t1 = *vertexToTriangles[(size_t)*itV1].begin();
 
-								std::set<long>::const_iterator it2(vertexToTriangles[*itV2].begin()),
-									it2End(vertexToTriangles[*itV2].end());
+								std::set<long>::const_iterator it2(vertexToTriangles[(size_t)*itV2].begin()),
+									it2End(vertexToTriangles[(size_t)*itV2].end());
 								t2 = -1;
 								for (; it2 != it2End; ++it2)
 								{
@@ -227,9 +227,9 @@ void HACD::InitializeDualGraph()
 
 		normal.Normalize();
 
-		m_graph.m_vertices[f].m_boudaryEdges.insert(GetEdgeIndex(i, j));
-		m_graph.m_vertices[f].m_boudaryEdges.insert(GetEdgeIndex(j, k));
-		m_graph.m_vertices[f].m_boudaryEdges.insert(GetEdgeIndex(k, i));
+		m_graph.m_vertices[f].m_boudaryEdges.insert(GetEdgeIndex((unsigned long)i, (unsigned long)j));
+		m_graph.m_vertices[f].m_boudaryEdges.insert(GetEdgeIndex((unsigned long)j, (unsigned long)k));
+		m_graph.m_vertices[f].m_boudaryEdges.insert(GetEdgeIndex((unsigned long)k, (unsigned long)i));
 		if (m_addFacesPoints)
 		{
 			m_faceNormals[f] = normal;
@@ -385,15 +385,15 @@ void HACD::ComputeEdgeCost(size_t e)
 	long v1 = gE.m_v1;
 	long v2 = gE.m_v2;
 
-	if (m_graph.m_vertices[v2].m_distPoints.size() > m_graph.m_vertices[v1].m_distPoints.size())
+	if (m_graph.m_vertices[(size_t)v2].m_distPoints.size() > m_graph.m_vertices[(size_t)v1].m_distPoints.size())
 	{
 		gE.m_v1 = v2;
 		gE.m_v2 = v1;
 		//std::swap<long>(v1, v2);
 		std::swap(v1, v2);
 	}
-	GraphVertex& gV1 = m_graph.m_vertices[v1];
-	GraphVertex& gV2 = m_graph.m_vertices[v2];
+	GraphVertex& gV1 = m_graph.m_vertices[(size_t)v1];
+	GraphVertex& gV2 = m_graph.m_vertices[(size_t)v2];
 
 	// delete old convex-hull
 	delete gE.m_convexHull;
@@ -480,8 +480,8 @@ void HACD::ComputeEdgeCost(size_t e)
 			long a, b, c;
 			for (; ed != itEnd; ++ed)
 			{
-				a = m_graph.m_edges[*ed].m_v1;
-				b = m_graph.m_edges[*ed].m_v2;
+				a = m_graph.m_edges[(size_t)*ed].m_v1;
+				b = m_graph.m_edges[(size_t)*ed].m_v2;
 				if (a != v2 && a != v1)
 				{
 					c = a;
@@ -496,7 +496,7 @@ void HACD::ComputeEdgeCost(size_t e)
 				}
 				if (c > 0)
 				{
-					GraphVertex& gVC = m_graph.m_vertices[c];
+					GraphVertex& gVC = m_graph.m_vertices[(size_t)c];
 					std::map<long, DPoint>::iterator itDP(gVC.m_distPoints.begin());
 					std::map<long, DPoint>::iterator itDPEnd(gVC.m_distPoints.end());
 					std::map<long, DPoint>::iterator itDP1;
@@ -556,7 +556,7 @@ bool HACD::InitializePriorityQueue()
 	m_pqueue.reserve(m_graph.m_nE + 100);
 	for (size_t e = 0; e < m_graph.m_nE; ++e)
 	{
-		ComputeEdgeCost(static_cast<long>(e));
+		ComputeEdgeCost((size_t)static_cast<long>(e));
 		m_pqueue.push(GraphEdgePriorityQueue(static_cast<long>(e), m_graph.m_edges[e].m_error));
 	}
 	return true;
@@ -574,7 +574,7 @@ void HACD::Simplify()
 		   (m_graph.GetNVertices() > m_nMinClusters) &&
 		   (m_graph.GetNEdges() > 0))
 	{
-		progress = 100.0 - m_graph.GetNVertices() * 100.0 / m_nTriangles;
+		progress = 100.0 - (double)m_graph.GetNVertices() * 100.0 / (double)m_nTriangles;
 		if (fabs(progress - progressOld) > ptgStep && m_callBack)
 		{
 			sprintf(msg, "%3.2f %% V = %lu \t C = %f \t \t \r", progress, static_cast<unsigned long>(m_graph.GetNVertices()), globalConcavity);
@@ -602,35 +602,35 @@ void HACD::Simplify()
 			}
 			currentEdge = m_pqueue.top();
 			m_pqueue.pop();
-		} while (m_graph.m_edges[currentEdge.m_name].m_deleted ||
-				 m_graph.m_edges[currentEdge.m_name].m_error != currentEdge.m_priority);
+		} while (m_graph.m_edges[(size_t)currentEdge.m_name].m_deleted ||
+				 m_graph.m_edges[(size_t)currentEdge.m_name].m_error != currentEdge.m_priority);
 
-		if (m_graph.m_edges[currentEdge.m_name].m_concavity < m_concavity && !done)
+		if (m_graph.m_edges[(size_t)currentEdge.m_name].m_concavity < m_concavity && !done)
 		{
-			globalConcavity = std::max<double>(globalConcavity, m_graph.m_edges[currentEdge.m_name].m_concavity);
-			v1 = m_graph.m_edges[currentEdge.m_name].m_v1;
-			v2 = m_graph.m_edges[currentEdge.m_name].m_v2;
+			globalConcavity = std::max<double>(globalConcavity, m_graph.m_edges[(size_t)currentEdge.m_name].m_concavity);
+			v1 = m_graph.m_edges[(size_t)currentEdge.m_name].m_v1;
+			v2 = m_graph.m_edges[(size_t)currentEdge.m_name].m_v2;
 			// update vertex info
-			m_graph.m_vertices[v1].m_error = m_graph.m_edges[currentEdge.m_name].m_error;
-			m_graph.m_vertices[v1].m_surf = m_graph.m_edges[currentEdge.m_name].m_surf;
-			m_graph.m_vertices[v1].m_volume = m_graph.m_edges[currentEdge.m_name].m_volume;
-			m_graph.m_vertices[v1].m_concavity = m_graph.m_edges[currentEdge.m_name].m_concavity;
-			m_graph.m_vertices[v1].m_perimeter = m_graph.m_edges[currentEdge.m_name].m_perimeter;
-			m_graph.m_vertices[v1].m_distPoints = m_graph.m_edges[currentEdge.m_name].m_distPoints;
-			(*m_graph.m_vertices[v1].m_convexHull) = (*m_graph.m_edges[currentEdge.m_name].m_convexHull);
-			(m_graph.m_vertices[v1].m_convexHull)->SetDistPoints(&(m_graph.m_vertices[v1].m_distPoints));
-			m_graph.m_vertices[v1].m_boudaryEdges = m_graph.m_edges[currentEdge.m_name].m_boudaryEdges;
+			m_graph.m_vertices[(size_t)v1].m_error = m_graph.m_edges[(size_t)currentEdge.m_name].m_error;
+			m_graph.m_vertices[(size_t)v1].m_surf = m_graph.m_edges[(size_t)currentEdge.m_name].m_surf;
+			m_graph.m_vertices[(size_t)v1].m_volume = m_graph.m_edges[(size_t)currentEdge.m_name].m_volume;
+			m_graph.m_vertices[(size_t)v1].m_concavity = m_graph.m_edges[(size_t)currentEdge.m_name].m_concavity;
+			m_graph.m_vertices[(size_t)v1].m_perimeter = m_graph.m_edges[(size_t)currentEdge.m_name].m_perimeter;
+			m_graph.m_vertices[(size_t)v1].m_distPoints = m_graph.m_edges[(size_t)currentEdge.m_name].m_distPoints;
+			(*m_graph.m_vertices[(size_t)v1].m_convexHull) = (*m_graph.m_edges[(size_t)currentEdge.m_name].m_convexHull);
+			(m_graph.m_vertices[(size_t)v1].m_convexHull)->SetDistPoints(&(m_graph.m_vertices[(size_t)v1].m_distPoints));
+			m_graph.m_vertices[(size_t)v1].m_boudaryEdges = m_graph.m_edges[(size_t)currentEdge.m_name].m_boudaryEdges;
 
 			// We apply the optimal ecol
 			//				std::cout << "v1 " << v1 << " v2 " << v2 << std::endl;
 			m_graph.EdgeCollapse(v1, v2);
 			// recompute the adjacent edges costs
-			std::set<long>::const_iterator itE(m_graph.m_vertices[v1].m_edges.begin()),
-				itEEnd(m_graph.m_vertices[v1].m_edges.end());
+			std::set<long>::const_iterator itE(m_graph.m_vertices[(size_t)v1].m_edges.begin()),
+				itEEnd(m_graph.m_vertices[(size_t)v1].m_edges.end());
 			for (; itE != itEEnd; ++itE)
 			{
-				size_t e = *itE;
-				ComputeEdgeCost(static_cast<long>(e));
+				size_t e = (size_t)*itE;
+				ComputeEdgeCost((size_t)static_cast<long>(e));
 				m_pqueue.push(GraphEdgePriorityQueue(static_cast<long>(e), m_graph.m_edges[e].m_error));
 			}
 		}
@@ -724,7 +724,7 @@ bool HACD::Compute(bool fullCH, bool exportDistPoints)
 	m_partition = new long[m_nTriangles];
 	for (size_t p = 0; p != m_cVertices.size(); ++p)
 	{
-		size_t v = m_cVertices[p];
+		size_t v = (size_t)m_cVertices[p];
 		m_partition[v] = static_cast<long>(p);
 		for (size_t a = 0; a < m_graph.m_vertices[v].m_ancestors.size(); a++)
 		{

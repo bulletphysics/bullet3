@@ -31,7 +31,7 @@ using namespace bParse;
 
 const char *getCleanName(const char *memName, char *buffer)
 {
-	int slen = strlen(memName);
+	int slen = (int)strlen(memName);
 	assert(slen < MAX_STRLEN);
 	slen = b3Min(slen, MAX_STRLEN);
 	for (int i = 0; i < slen; i++)
@@ -72,9 +72,9 @@ bFile::bFile(const char *filename, const char headerString[7])
 		mFileLen = ftell(fp);
 		fseek(fp, 0L, SEEK_SET);
 
-		mFileBuffer = (char *)malloc(mFileLen + 1);
+		mFileBuffer = (char *)malloc((size_t)mFileLen + 1);
 		int bytesRead;
-		bytesRead = fread(mFileBuffer, mFileLen, 1, fp);
+		bytesRead = (int)fread(mFileBuffer, (size_t)mFileLen, 1, fp);
 		(void)bytesRead;
 
 		fclose(fp);
@@ -296,7 +296,7 @@ void bFile::swap(char *head, bChunkInd &dataChunk, bool ignoreEndianFlag)
 	{
 		short *oldStruct = mFileDNA->getStruct(dataChunk.dna_nr);
 		char *oldType = mFileDNA->getType(oldStruct[0]);
-		if (strncmp(oldType, s, szs) == 0)
+		if (strncmp(oldType, s, (size_t)szs) == 0)
 		{
 			return;
 		}
@@ -507,7 +507,7 @@ void bFile::swapDNA(char *ptr)
 void bFile::writeFile(const char *fileName)
 {
 	FILE *f = fopen(fileName, "wb");
-	fwrite(mFileBuffer, 1, mFileLen, f);
+	fwrite(mFileBuffer, 1, (size_t)mFileLen, f);
 	fclose(f);
 }
 
@@ -613,8 +613,8 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 			if ((strcmp(oldType, "b3ShortIntIndexData") == 0))
 			{
 				int allocLen = 2;
-				char *dataAlloc = new char[(dataChunk.nr * allocLen) + 1];
-				memset(dataAlloc, 0, (dataChunk.nr * allocLen) + 1);
+				char *dataAlloc = new char[(size_t)(dataChunk.nr * allocLen) + 1];
+				memset(dataAlloc, 0, (size_t)(dataChunk.nr * allocLen) + 1);
 				short *dest = (short *)dataAlloc;
 				const short *src = (short *)head;
 				for (int i = 0; i < dataChunk.nr; i++)
@@ -651,8 +651,8 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 				// numBlocks * length
 
 				int allocLen = (curLen);
-				char *dataAlloc = new char[(dataChunk.nr * allocLen) + 1];
-				memset(dataAlloc, 0, (dataChunk.nr * allocLen));
+				char *dataAlloc = new char[(size_t)(dataChunk.nr * allocLen) + 1];
+				memset(dataAlloc, 0, (size_t)(dataChunk.nr * allocLen));
 
 				// track allocated
 				addDataBlock(dataAlloc);
@@ -688,13 +688,13 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 #endif  //
 	}
 
-	char *dataAlloc = new char[(dataChunk.len) + 1];
-	memset(dataAlloc, 0, dataChunk.len + 1);
+	char *dataAlloc = new char[(size_t)(dataChunk.len) + 1];
+	memset(dataAlloc, 0, (size_t)dataChunk.len + 1);
 
 	// track allocated
 	addDataBlock(dataAlloc);
 
-	memcpy(dataAlloc, head, dataChunk.len);
+	memcpy(dataAlloc, head, (size_t)dataChunk.len);
 	return dataAlloc;
 }
 
@@ -710,7 +710,7 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 		short *strc = mFileDNA->getStruct(old_dna);
 		int len = mFileDNA->getLength(strc[0]);
 
-		memcpy(strcPtr, dtPtr, len);
+		memcpy(strcPtr, dtPtr, (size_t)len);
 		return;
 	}
 
@@ -860,7 +860,7 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 
 	if (ptrFile == ptrMem)
 	{
-		memcpy(dst, src, ptrMem);
+		memcpy(dst, src, (size_t)ptrMem);
 	}
 	else if (ptrMem == 4 && ptrFile == 8)
 	{
@@ -977,7 +977,7 @@ void bFile::getMatchingFileDNA(short *dna_addr, const char *lookupName, const ch
 			}
 
 			else if (strcmp(type, lookupType) == 0)
-				memcpy(strcData, data, eleLen);
+				memcpy(strcData, data, (size_t)eleLen);
 			else
 				getElement(arrayLen, lookupType, type, data, strcData);
 
@@ -1104,9 +1104,9 @@ void bFile::resolvePointersMismatch()
 			void *onptr = findLibPointer(*ptrptr);
 			if (onptr)
 			{
-				char *newPtr = new char[blockLen * ptrMem];
+				char *newPtr = new char[(size_t)(blockLen * ptrMem)];
 				addDataBlock(newPtr);
-				memset(newPtr, 0, blockLen * ptrMem);
+				memset(newPtr, 0, (size_t)(blockLen * ptrMem));
 
 				void **onarray = (void **)onptr;
 				char *oldPtr = (char *)onarray;
@@ -1516,7 +1516,7 @@ void bFile::writeChunks(FILE *fp, bool fixupPointers)
 			char *cur = fixupPointers ? (char *)findLibPointer(dataChunk.oldPtr) : (char *)dataChunk.oldPtr;
 
 			//write the actual contents of the structure(s)
-			fwrite(cur, dataChunk.len, 1, fp);
+			fwrite(cur, (size_t)dataChunk.len, 1, fp);
 		}
 		else
 		{

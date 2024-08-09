@@ -4,11 +4,11 @@
 
 namespace btInverseDynamics
 {
-CoilCreator::CoilCreator(int n) : m_num_bodies(n), m_parent(n)
+CoilCreator::CoilCreator(int n) : m_num_bodies(n), m_parent((size_t)n)
 {
 	for (int i = 0; i < m_num_bodies; i++)
 	{
-		m_parent[i] = i - 1;
+		m_parent[(size_t)i] = i - 1;
 	}
 
 	// DH parameters (that's what's in the paper ...)
@@ -57,7 +57,7 @@ int CoilCreator::getBody(int body_index, int* parent_index, JointType* joint_typ
 		bt_id_error_message("invalid body index %d\n", body_index);
 		return -1;
 	}
-	*parent_index = m_parent[body_index];
+	*parent_index = m_parent[(size_t)body_index];
 	*joint_type = REVOLUTE;
 	*parent_r_parent_body_ref = m_parent_r_parent_body_ref;
 	*body_T_parent_ref = m_body_T_parent_ref;

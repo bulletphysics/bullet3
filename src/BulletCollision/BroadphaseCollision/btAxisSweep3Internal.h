@@ -381,10 +381,10 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btVector3& worl
 
 	{
 		// allocate edge buffers
-		for (int i = 0; i < 3; i++)
+		for (size_t i = 0; i < 3; i++)
 		{
 			m_pEdgesRawPtr[i] = btAlignedAlloc(sizeof(Edge) * maxHandles * 2, 16);
-			m_pEdges[i] = new (m_pEdgesRawPtr[i]) Edge[maxHandles * 2];
+			m_pEdges[i] = new (m_pEdgesRawPtr[i]) Edge[(size_t)maxHandles * 2];
 		}
 	}
 	//removed overlap management
@@ -447,9 +447,9 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::quantize(BP_FP_INT_TYPE* out, const b
 	out[2] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.getZ() & m_bpHandleMask) | isMax);
 #else
 	btVector3 v = (point - m_worldAabbMin) * m_quantize;
-	out[0] = (v[0] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[0] >= m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[0] & m_bpHandleMask) | isMax);
-	out[1] = (v[1] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[1] >= m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[1] & m_bpHandleMask) | isMax);
-	out[2] = (v[2] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[2] >= m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[2] & m_bpHandleMask) | isMax);
+	out[0] = (v[0] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[0] >= (btScalar)m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[0] & m_bpHandleMask) | isMax);
+	out[1] = (v[1] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[1] >= (btScalar)m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[1] & m_bpHandleMask) | isMax);
+	out[2] = (v[2] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[2] >= (btScalar)m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[2] & m_bpHandleMask) | isMax);
 #endif  //OLD_CLAMPING_METHOD
 }
 

@@ -189,7 +189,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 {
 	B3_PROFILE("GPU solveGroupCacheFriendlySetup");
 	batchConstraints.resize(numConstraints);
-	m_gpuData->m_gpuBatchConstraints->resize(numConstraints);
+	m_gpuData->m_gpuBatchConstraints->resize((size_t)numConstraints);
 	m_staticIdx = -1;
 	m_maxOverrideNumSolverIterations = 0;
 
@@ -201,7 +201,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 	gpuInertias.copyFromHostPointer(inertias,numBodies);
 	*/
 
-	m_gpuData->m_gpuSolverBodies->resize(numBodies);
+	m_gpuData->m_gpuSolverBodies->resize((size_t)numBodies);
 
 	m_tmpSolverBodyPool.resize(numBodies);
 	{
@@ -248,7 +248,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 			{
 				B3_PROFILE("info1 and init batchConstraint");
 
-				m_gpuData->m_gpuConstraintInfo1->resize(numConstraints);
+				m_gpuData->m_gpuConstraintInfo1->resize((size_t)numConstraints);
 
 				if (1)
 				{
@@ -266,11 +266,11 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 				{
 					B3_PROFILE("initBatchConstraintsKernel");
 
-					m_gpuData->m_gpuConstraintRowOffsets->resize(numConstraints);
+					m_gpuData->m_gpuConstraintRowOffsets->resize((size_t)numConstraints);
 					unsigned int total = 0;
 					m_gpuData->m_prefixScan->execute(*m_gpuData->m_gpuConstraintInfo1, *m_gpuData->m_gpuConstraintRowOffsets, numConstraints, &total);
-					unsigned int lastElem = m_gpuData->m_gpuConstraintInfo1->at(numConstraints - 1);
-					totalNumRows = total + lastElem;
+					unsigned int lastElem = m_gpuData->m_gpuConstraintInfo1->at((size_t)(numConstraints - 1));
+					totalNumRows = (int)(total + lastElem);
 
 					{
 						B3_PROFILE("init batch constraints");
@@ -313,7 +313,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 				m_gpuData->m_gpuConstraintInfo1->copyFromHost(m_tmpConstraintSizesPool);
 			}
 			m_tmpSolverNonContactConstraintPool.resizeNoInitialize(totalNumRows);
-			m_gpuData->m_gpuConstraintRows->resize(totalNumRows);
+			m_gpuData->m_gpuConstraintRows->resize((size_t)totalNumRows);
 
 			//			b3GpuConstraintArray		verify;
 
@@ -353,12 +353,12 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 
 				for (int i = 0; i < numConstraints; i++)
 				{
-					const int& info1 = m_tmpConstraintSizesPool[i];
+					const int& info1 = (int)m_tmpConstraintSizesPool[i];
 
 					if (info1)
 					{
 						int constraintIndex = batchConstraints[i].m_originalConstraintIndex;
-						int constraintRowOffset = m_gpuData->m_cpuConstraintRowOffsets[constraintIndex];
+						int constraintRowOffset = (int)m_gpuData->m_cpuConstraintRowOffsets[constraintIndex];
 
 						b3GpuSolverConstraint* currentConstraintRow = &m_tmpSolverNonContactConstraintPool[constraintRowOffset];
 						b3GpuGenericConstraint& constraint = m_gpuData->m_cpuConstraints[i];
@@ -720,8 +720,8 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyIterations(b3OpenCLArr
 							b3GpuGenericConstraint* constraint = &m_gpuData->m_cpuConstraints[c.m_originalConstraintIndex];
 							if (constraint->m_flags & B3_CONSTRAINT_FLAG_ENABLED)
 							{
-								int numConstraintRows = m_gpuData->m_cpuConstraintInfo1[c.m_originalConstraintIndex];
-								int constraintOffset = m_gpuData->m_cpuConstraintRowOffsets[c.m_originalConstraintIndex];
+								int numConstraintRows = (int)m_gpuData->m_cpuConstraintInfo1[c.m_originalConstraintIndex];
+								int constraintOffset = (int)m_gpuData->m_cpuConstraintRowOffsets[c.m_originalConstraintIndex];
 
 								for (int jj = 0; jj < numConstraintRows; jj++)
 								{
@@ -975,8 +975,8 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b
 			for (int cid = 0; cid < numConstraints; cid++)
 			{
 				int originalConstraintIndex = batchConstraints[cid].m_originalConstraintIndex;
-				int constraintRowOffset = m_gpuData->m_cpuConstraintRowOffsets[originalConstraintIndex];
-				int numRows = m_gpuData->m_cpuConstraintInfo1[originalConstraintIndex];
+				int constraintRowOffset = (int)m_gpuData->m_cpuConstraintRowOffsets[originalConstraintIndex];
+				int numRows = (int)m_gpuData->m_cpuConstraintInfo1[originalConstraintIndex];
 				if (numRows)
 				{
 					//	printf("cid=%d, breakingThreshold =%f\n",cid,breakingThreshold);

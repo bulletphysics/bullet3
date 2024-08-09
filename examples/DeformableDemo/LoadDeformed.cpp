@@ -88,9 +88,9 @@ std::string CustomSoftBodyHelper::loadDeformableState(btAlignedObjectArray<btVec
 		std::string name;
 
 		int maxchars = 8192;              // Alloc enough size.
-		std::vector<char> buf(maxchars);  // Alloc enough size.
+		std::vector<char> buf((size_t)maxchars);  // Alloc enough size.
 		std::string linebuf;
-		linebuf.reserve(maxchars);
+		linebuf.reserve((size_t)maxchars);
 
 #ifdef USE_STREAM
 		while (ifs.peek() != -1)

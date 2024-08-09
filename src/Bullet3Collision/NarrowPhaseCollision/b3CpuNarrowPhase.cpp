@@ -154,7 +154,7 @@ int b3CpuNarrowPhase::registerConvexHullShape(b3ConvexUtility* utilPtr)
 		b3Vector3 localCenter = b3MakeVector3(0, 0, 0);
 		for (int i = 0; i < utilPtr->m_vertices.size(); i++)
 			localCenter += utilPtr->m_vertices[i];
-		localCenter *= (1.f / utilPtr->m_vertices.size());
+		localCenter *= (1.f / (float)utilPtr->m_vertices.size());
 		utilPtr->m_localCenter = localCenter;
 
 		col.m_shapeIndex = registerConvexHullShapeInternal(utilPtr, col);

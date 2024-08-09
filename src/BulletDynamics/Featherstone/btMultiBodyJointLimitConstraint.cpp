@@ -35,7 +35,7 @@ void btMultiBodyJointLimitConstraint::finalizeMultiDof()
 
 	allocateJacobiansMultiDof();
 
-	unsigned int offset = 6 + m_bodyA->getLink(m_linkA).m_dofOffset;
+	unsigned int offset = (unsigned int)(6 + m_bodyA->getLink(m_linkA).m_dofOffset);
 
 	// row 0: the lower bound
 	jacobianA(0)[offset] = 1;

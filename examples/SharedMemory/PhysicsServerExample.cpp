@@ -547,10 +547,10 @@ struct ColorWidth
 	int width;
 	int getHash() const
 	{
-		unsigned char r = (unsigned char)m_color.m_floats[0] * 255;
-		unsigned char g = (unsigned char)m_color.m_floats[1] * 255;
-		unsigned char b = (unsigned char)m_color.m_floats[2] * 255;
-		unsigned char w = width;
+		unsigned char r = (unsigned char)(m_color.m_floats[0] * 255);
+		unsigned char g = (unsigned char)(m_color.m_floats[1] * 255);
+		unsigned char b = (unsigned char)(m_color.m_floats[2] * 255);
+		unsigned char w = (unsigned char)width;
 		return r + (256 * g) + (256 * 256 * b) + (256 * 256 * 256 * w);
 	}
 	bool equals(const ColorWidth& other) const
@@ -622,10 +622,10 @@ public:
 			if (index >= 0)
 			{
 				btVector3FloatData from1, toX1;
-				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				m_sortedIndices[index].push_back((unsigned int)m_sortedLines[index].size());
 				from.serializeFloat(from1);
 				m_sortedLines[index].push_back(from1);
-				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				m_sortedIndices[index].push_back((unsigned int)m_sortedLines[index].size());
 				to.serializeFloat(toX1);
 				m_sortedLines[index].push_back(toX1);
 			}
@@ -987,7 +987,7 @@ public:
   void setSharedParam(int slot, int param)
   {
     m_csGUI->lock();
-    m_cs->setSharedParam(slot, param);
+    m_cs->setSharedParam(slot, (unsigned int)param);
     m_csGUI->unlock();
   }
 	void setVisualizerFlag(int flag, int enable)
@@ -2473,8 +2473,8 @@ void PhysicsServerExample::updateGraphics()
 									rgb = linearDepth;
 
 									m_canvas->setPixel(m_canvasDepthIndex, i, j,
-													   rgb,
-													   rgb,
+													   (unsigned char)rgb,
+													   (unsigned char)rgb,
 													   255, 255);  //alpha set to 255
 								}
 								else
@@ -2912,10 +2912,10 @@ void PhysicsServerExample::drawUserDebugLines()
 				if (index >= 0)
 				{
 					btVector3FloatData from1, toX1;
-					sortedIndices[index].push_back(sortedLines[index].size());
+					sortedIndices[index].push_back((unsigned int)sortedLines[index].size());
 					from.serializeFloat(from1);
 					sortedLines[index].push_back(from1);
-					sortedIndices[index].push_back(sortedLines[index].size());
+					sortedIndices[index].push_back((unsigned int)sortedLines[index].size());
 					toX.serializeFloat(toX1);
 					sortedLines[index].push_back(toX1);
 				}

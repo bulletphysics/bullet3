@@ -188,9 +188,9 @@ void btSoftBodyHelpers::Draw(btSoftBody* psb,
 		{
 			if (psb->m_clusters[i]->m_collide)
 			{
-				btVector3 color(rand() / (btScalar)RAND_MAX,
-								rand() / (btScalar)RAND_MAX,
-								rand() / (btScalar)RAND_MAX);
+				btVector3 color((btScalar)rand() / (btScalar)RAND_MAX,
+								(btScalar)rand() / (btScalar)RAND_MAX,
+								(btScalar)rand() / (btScalar)RAND_MAX);
 				color = color.normalized() * 0.75;
 				btAlignedObjectArray<btVector3> vertices;
 				vertices.resize(psb->m_clusters[i]->m_nodes.size());
@@ -551,15 +551,15 @@ void btSoftBodyHelpers::ReoptimizeLinkOrder(btSoftBody* psb /* This can be repla
 	int readyListHead, readyListTail, linkNum, linkDepFrees, depLink;
 
 	// Allocate temporary buffers
-	int* nodeWrittenAt = new int[nNodes + 1];  // What link calculation produced this node's current values?
-	int* linkDepA = new int[nLinks];           // Link calculation input is dependent upon prior calculation #N
-	int* linkDepB = new int[nLinks];
-	int* readyList = new int[nLinks];                              // List of ready-to-process link calculations (# of links, maximum)
-	LinkDeps_t* linkDepFreeList = new LinkDeps_t[2 * nLinks];      // Dependent-on-me list elements (2x# of links, maximum)
-	LinkDepsPtr_t* linkDepListStarts = new LinkDepsPtr_t[nLinks];  // Start nodes of dependent-on-me lists, one for each link
+	int* nodeWrittenAt = new int[(size_t)nNodes + 1];  // What link calculation produced this node's current values?
+	int* linkDepA = new int[(size_t)nLinks];           // Link calculation input is dependent upon prior calculation #N
+	int* linkDepB = new int[(size_t)nLinks];
+	int* readyList = new int[(size_t)nLinks];                              // List of ready-to-process link calculations (# of links, maximum)
+	LinkDeps_t* linkDepFreeList = new LinkDeps_t[2 * (size_t)nLinks];      // Dependent-on-me list elements (2x# of links, maximum)
+	LinkDepsPtr_t* linkDepListStarts = new LinkDepsPtr_t[(size_t)nLinks];  // Start nodes of dependent-on-me lists, one for each link
 
 	// Copy the original, unsorted links to a side buffer
-	btSoftBody::Link* linkBuffer = new btSoftBody::Link[nLinks];
+	btSoftBody::Link* linkBuffer = new btSoftBody::Link[(size_t)nLinks];
 	memcpy(linkBuffer, &(psb->m_links[0]), sizeof(btSoftBody::Link) * nLinks);
 
 	// Clear out the node setup and ready list
@@ -695,13 +695,13 @@ btSoftBody* btSoftBodyHelpers::CreateRope(btSoftBodyWorldInfo& worldInfo, const 
 {
 	/* Create nodes	*/
 	const int r = res + 2;
-	btVector3* x = new btVector3[r];
-	btScalar* m = new btScalar[r];
+	btVector3* x = new btVector3[(size_t)r];
+	btScalar* m = new btScalar[(size_t)r];
 	int i;
 
 	for (i = 0; i < r; ++i)
 	{
-		const btScalar t = i / (btScalar)(r - 1);
+		const btScalar t = (btScalar)i / (btScalar)(r - 1);
 		x[i] = lerp(from, to, t);
 		m[i] = 1;
 	}
@@ -736,18 +736,18 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 	const int rx = resx;
 	const int ry = resy;
 	const int tot = rx * ry;
-	btVector3* x = new btVector3[tot];
-	btScalar* m = new btScalar[tot];
+	btVector3* x = new btVector3[(size_t)tot];
+	btScalar* m = new btScalar[(size_t)tot];
 	int iy;
 
 	for (iy = 0; iy < ry; ++iy)
 	{
-		const btScalar ty = iy / (btScalar)(ry - 1);
+		const btScalar ty = (btScalar)iy / (btScalar)(ry - 1);
 		const btVector3 py0 = lerp(corner00, corner01, ty);
 		const btVector3 py1 = lerp(corner10, corner11, ty);
 		for (int ix = 0; ix < rx; ++ix)
 		{
-			const btScalar tx = ix / (btScalar)(rx - 1);
+			const btScalar tx = (btScalar)ix / (btScalar)(rx - 1);
 			btScalar pert = perturbation * btScalar(rand()) / btScalar(RAND_MAX);
 			btVector3 temp1 = py1;
 			temp1.setY(py1.getY() + pert);
@@ -888,19 +888,19 @@ btSoftBody* btSoftBodyHelpers::CreatePatchUV(btSoftBodyWorldInfo& worldInfo,
 	const int rx = resx;
 	const int ry = resy;
 	const int tot = rx * ry;
-	btVector3* x = new btVector3[tot];
-	btScalar* m = new btScalar[tot];
+	btVector3* x = new btVector3[(size_t)tot];
+	btScalar* m = new btScalar[(size_t)tot];
 
 	int iy;
 
 	for (iy = 0; iy < ry; ++iy)
 	{
-		const btScalar ty = iy / (btScalar)(ry - 1);
+		const btScalar ty = (btScalar)iy / (btScalar)(ry - 1);
 		const btVector3 py0 = lerp(corner00, corner01, ty);
 		const btVector3 py1 = lerp(corner10, corner11, ty);
 		for (int ix = 0; ix < rx; ++ix)
 		{
-			const btScalar tx = ix / (btScalar)(rx - 1);
+			const btScalar tx = (btScalar)ix / (btScalar)(rx - 1);
 			x[IDX(ix, iy)] = lerp(py0, py1, tx);
 			m[IDX(ix, iy)] = 1;
 		}
@@ -996,19 +996,19 @@ float btSoftBodyHelpers::CalculateUV(int resx, int resy, int ix, int iy, int id)
 	float tc = 0.0f;
 	if (id == 0)
 	{
-		tc = (1.0f / ((resx - 1)) * ix);
+		tc = (1.0f / (float)((resx - 1)) * (float)ix);
 	}
 	else if (id == 1)
 	{
-		tc = (1.0f / ((resy - 1)) * (resy - 1 - iy));
+		tc = (1.0f / (float)((resy - 1)) * (float)(resy - 1 - iy));
 	}
 	else if (id == 2)
 	{
-		tc = (1.0f / ((resy - 1)) * (resy - 1 - iy - 1));
+		tc = (1.0f / (float)((resy - 1)) * (float)(resy - 1 - iy - 1));
 	}
 	else if (id == 3)
 	{
-		tc = (1.0f / ((resx - 1)) * (ix + 1));
+		tc = (1.0f / (float)((resx - 1)) * (float)(ix + 1));
 	}
 	return tc;
 }
@@ -1027,7 +1027,7 @@ btSoftBody* btSoftBodyHelpers::CreateEllipsoid(btSoftBodyWorldInfo& worldInfo, c
 				for (int j = i; j; p *= 0.5, j >>= 1)
 					if (j & 1) t += p;
 				btScalar w = 2 * t - 1;
-				btScalar a = (SIMD_PI + 2 * i * SIMD_PI) / n;
+				btScalar a = (SIMD_PI + 2 * (btScalar)i * SIMD_PI) / (btScalar)n;
 				btScalar s = btSqrt(1 - w * w);
 				*x++ = btVector3(s * btCos(a), s * btSin(a), w);
 			}
@@ -1094,10 +1094,10 @@ btSoftBody* btSoftBodyHelpers::CreateFromTriMesh(btSoftBodyWorldInfo& worldInfo,
 btSoftBody* btSoftBodyHelpers::CreateFromConvexHull(btSoftBodyWorldInfo& worldInfo, const btVector3* vertices,
 													int nvertices, bool randomizeConstraints)
 {
-	HullDesc hdsc(QF_TRIANGLES, nvertices, vertices);
+	HullDesc hdsc(QF_TRIANGLES, (unsigned int)nvertices, vertices);
 	HullResult hres;
 	HullLibrary hlib; /*??*/
-	hdsc.mMaxVertices = nvertices;
+	hdsc.mMaxVertices = (unsigned int)nvertices;
 	hlib.CreateConvexHull(hdsc, hres);
 	btSoftBody* psb = new btSoftBody(&worldInfo, (int)hres.mNumOutputVertices,
 									 &hres.m_OutputVertices[0], 0);
@@ -1274,7 +1274,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 			reading_tets = false;
 			ss.ignore(128, ' ');  // ignore "POINTS"
 			ss >> n_points;
-			X.resize(n_points);
+			X.resize((int)n_points);
 		}
 		else if (line.substr(0, 5) == "CELLS")
 		{
@@ -1282,7 +1282,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 			reading_tets = true;
 			ss.ignore(128, ' ');  // ignore "CELLS"
 			ss >> n_tets;
-			indices.resize(n_tets);
+			indices.resize((int)n_tets);
 		}
 		else if (line.substr(0, 10) == "CELL_TYPES")
 		{
@@ -1299,7 +1299,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 			ss >> p;
 			position.setZ(p);
 			//printf("v %f %f %f\n", position.getX(), position.getY(), position.getZ());
-			X[x_count++] = position;
+			X[(int)x_count++] = position;
 		}
 		else if (reading_tets)
 		{
@@ -1316,18 +1316,18 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 			tet.resize(4);
 			for (size_t i = 0; i < 4; i++)
 			{
-				ss >> tet[i];
+				ss >> tet[(int)i];
 				//printf("%d ", tet[i]);
 			}
 			//printf("\n");
-			indices[indices_count++] = tet;
+			indices[(int)indices_count++] = tet;
 		}
 	}
-	btSoftBody* psb = new btSoftBody(&worldInfo, n_points, &X[0], 0);
+	btSoftBody* psb = new btSoftBody(&worldInfo, (int)n_points, &X[0], 0);
 
 	for (unsigned int i = 0; i < n_tets; ++i)
 	{
-		const Index& ni = indices[i];
+		const Index& ni = indices[(int)i];
 		psb->appendTetra(ni[0], ni[1], ni[2], ni[3]);
 		{
 			psb->appendLink(ni[0], ni[1], 0, true);
@@ -1441,7 +1441,7 @@ void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
 				int index = psb->m_faces[i].m_n[d]->index;
 				if (dict.find(index) == dict.end())
 				{
-					int dict_size = dict.size();
+					int dict_size = (int)dict.size();
 					dict[index] = dict_size;
 					fs << "v";
 					for (int k = 0; k < 3; k++)

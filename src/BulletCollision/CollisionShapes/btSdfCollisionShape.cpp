@@ -85,7 +85,7 @@ bool btSdfCollisionShape::queryPoint(const btVector3& ptInSDF, btScalar& distOut
 	int field = 0;
 	btVector3 grad;
 	double dist;
-	bool hasResult = m_data->m_sdf.interpolate(field, dist, ptInSDF, &grad);
+	bool hasResult = m_data->m_sdf.interpolate((unsigned int)field, dist, ptInSDF, &grad);
 	if (hasResult)
 	{
 		normal.setValue(grad[0], grad[1], grad[2]);

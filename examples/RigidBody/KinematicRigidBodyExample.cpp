@@ -122,7 +122,7 @@ void KinematicRigidBodyExample::initPhysics()
 	m_dynamicsWorld->setInternalTickCallback(kinematicPreTickCallback, m_groundBody, true);
 	{
 		int strideInBytes = 9 * sizeof(float);
-		int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+		int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 		int numIndices = sizeof(cube_indices) / sizeof(int);
 		btScalar textureScaling = 40.0;
 		btAlignedObjectArray<GfxVertexFormat1> verts;
@@ -159,9 +159,9 @@ void KinematicRigidBodyExample::initPhysics()
 
 				if (a == b)
 				{
-					rgbaTexture[(i + j * textureWidth) * 3 + 0] = red;
-					rgbaTexture[(i + j * textureWidth) * 3 + 1] = green;
-					rgbaTexture[(i + j * textureWidth) * 3 + 2] = blue;
+					rgbaTexture[(i + j * textureWidth) * 3 + 0] = (unsigned char)red;
+					rgbaTexture[(i + j * textureWidth) * 3 + 1] = (unsigned char)green;
+					rgbaTexture[(i + j * textureWidth) * 3 + 2] = (unsigned char)blue;
 				}
 			}
 		}

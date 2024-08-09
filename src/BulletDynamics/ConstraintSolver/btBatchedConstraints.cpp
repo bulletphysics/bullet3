@@ -523,8 +523,8 @@ static void writeGrainSizes(btBatchedConstraints* bc)
 	{
 		const Range& phase = bc->m_phases[iPhase];
 		int numBatches = phase.end - phase.begin;
-		float grainSize = std::floor((0.25f * numBatches / float(numThreads)) + 0.0f);
-		bc->m_phaseGrainSize[iPhase] = btMax(1, int(grainSize));
+		float grainSize = std::floor((0.25f * float(numBatches) / float(numThreads)) + 0.0f);
+		bc->m_phaseGrainSize[iPhase] = (char)btMax(1, int(grainSize));
 	}
 }
 
@@ -856,9 +856,9 @@ static void setupSpatialGridBatchesMt(
 		if (static_cast<size_t>(scratchMemory->capacity()) < scratchSize)
 		{
 			// allocate 6.25% extra to avoid repeated reallocs
-			scratchMemory->reserve(scratchSize + scratchSize / 16);
+			scratchMemory->reserve((int)(scratchSize + scratchSize / 16));
 		}
-		scratchMemory->resizeNoInitialize(scratchSize);
+		scratchMemory->resizeNoInitialize((int)scratchSize);
 		char* memPtr = &scratchMemory->at(0);
 		memHelper.setChunkPointers(memPtr);
 	}

@@ -232,7 +232,7 @@ void SimpleOpenGL2App::drawGrid(DrawGridData data)
 
 	b3AlignedObjectArray<unsigned int> indices;
 	b3AlignedObjectArray<b3Vector3> vertices;
-	int lineIndex = 0;
+	unsigned int lineIndex = 0;
 	for (int i = -gridSize; i <= gridSize; i++)
 	{
 		{
@@ -368,7 +368,7 @@ void SimpleOpenGL2App::drawText3D(const char* txt, float worldPosX, float worldP
 		return;
 	}
 	posX = winx;
-	posY = gApp2->m_renderer->getScreenHeight() / 2 + (gApp2->m_renderer->getScreenHeight() / 2) - winy;
+	posY = (float)(gApp2->m_renderer->getScreenHeight() / 2 + (gApp2->m_renderer->getScreenHeight() / 2)) - winy;
 
 	{
 		//float width = 0.f;
@@ -389,7 +389,7 @@ void SimpleOpenGL2App::drawText3D(const char* txt, float worldPosX, float worldP
 		//float extraSpacing = 0.;
 
 		float startX = posX;
-		float startY = posY - g_DefaultLargeFont->m_CharHeight * size1;
+		float startY = posY - (float)g_DefaultLargeFont->m_CharHeight * size1;
 		glEnable(GL_COLOR_MATERIAL);
 
 		while (txt[pos])
@@ -397,7 +397,7 @@ void SimpleOpenGL2App::drawText3D(const char* txt, float worldPosX, float worldP
 			int c = txt[pos];
 			//r.h = g_DefaultNormalFont->m_CharHeight;
 			//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
-			float endX = startX + g_DefaultLargeFont->m_CharWidth[c] * size1;
+			float endX = startX + (float)g_DefaultLargeFont->m_CharWidth[c] * size1;
 			float endY = posY;
 
 			float currentColor[] = {1.f, 0.2, 0.2f, 1.f};
@@ -485,11 +485,11 @@ void SimpleOpenGL2App::registerGrid(int cells_x, int cells_z, float color0[4], f
 			}
 			if (this->m_data->m_upAxis == 1)
 			{
-				center = b3MakeVector3((i + 0.5f) - cells_x * 0.5f, -halfHeight, (j + 0.5f) - cells_z * 0.5f);
+				center = b3MakeVector3(((float)i + 0.5f) - (float)cells_x * 0.5f, -halfHeight, ((float)j + 0.5f) - (float)cells_z * 0.5f);
 			}
 			else
 			{
-				center = b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f, -halfHeight);
+				center = b3MakeVector3(((float)i + 0.5f) - (float)cells_x * 0.5f, ((float)j + 0.5f) - (float)cells_z * 0.5f, -halfHeight);
 			}
 			m_renderer->registerGraphicsInstance(cubeId, center, orn, color, scaling);
 		}
@@ -506,7 +506,7 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 	{
 		case SPHERE_LOD_POINT_SPRITE:
 		{
-			int numVertices = sizeof(point_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(point_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(point_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&point_sphere_vertices[0], numVertices, point_sphere_indices, numIndices, B3_GL_POINTS, textureId);
 			break;
@@ -514,14 +514,14 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 
 		case SPHERE_LOD_LOW:
 		{
-			int numVertices = sizeof(low_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(low_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(low_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&low_sphere_vertices[0], numVertices, low_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 		case SPHERE_LOD_MEDIUM:
 		{
-			int numVertices = sizeof(medium_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(medium_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(medium_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&medium_sphere_vertices[0], numVertices, medium_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
@@ -529,7 +529,7 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 		case SPHERE_LOD_HIGH:
 		default:
 		{
-			int numVertices = sizeof(detailed_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(detailed_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(detailed_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&detailed_sphere_vertices[0], numVertices, detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
@@ -541,7 +541,7 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 int SimpleOpenGL2App::registerCubeShape(float halfExtentsX, float halfExtentsY, float halfExtentsZ, int textureIndex, float textureScaling)
 {
 	int strideInBytes = 9 * sizeof(float);
-	int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+	int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 	int numIndices = sizeof(cube_indices) / sizeof(int);
 
 	b3AlignedObjectArray<GLInstanceVertex> verts;

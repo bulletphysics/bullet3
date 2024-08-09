@@ -51,14 +51,14 @@ struct DepthShader : public IShader
 	virtual Vec4f vertex(int iface, int nthvert)
 	{
 		Vec2f uv = m_model->uv(iface, nthvert);
-		varying_uv.set_col(nthvert, uv);
-		varying_nrm.set_col(nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
+		varying_uv.set_col((size_t)nthvert, uv);
+		varying_nrm.set_col((size_t)nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
 		Vec3f unScaledVert = m_model->vert(iface, nthvert);
 		Vec3f scaledVert = Vec3f(unScaledVert[0] * m_localScaling[0],
 								 unScaledVert[1] * m_localScaling[1],
 								 unScaledVert[2] * m_localScaling[2]);
 		Vec4f gl_Vertex = m_projectionMat * m_lightModelView * embed<4>(scaledVert);
-		varying_tri.set_col(nthvert, gl_Vertex);
+		varying_tri.set_col((size_t)nthvert, gl_Vertex);
 		return gl_Vertex;
 	}
 
@@ -133,18 +133,18 @@ struct Shader : public IShader
 	{
 		//B3_PROFILE("vertex");
 		Vec2f uv = m_model->uv(iface, nthvert);
-		varying_uv.set_col(nthvert, uv);
-		varying_nrm.set_col(nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
+		varying_uv.set_col((size_t)nthvert, uv);
+		varying_nrm.set_col((size_t)nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
 		Vec3f unScaledVert = m_model->vert(iface, nthvert);
 		Vec3f scaledVert = Vec3f(unScaledVert[0] * m_localScaling[0],
 								 unScaledVert[1] * m_localScaling[1],
 								 unScaledVert[2] * m_localScaling[2]);
 		Vec4f gl_Vertex = m_projectionModelViewMat * embed<4>(scaledVert);
-		varying_tri.set_col(nthvert, gl_Vertex);
+		varying_tri.set_col((size_t)nthvert, gl_Vertex);
 		Vec4f world_Vertex = m_modelMat * embed<4>(scaledVert);
-		world_tri.set_col(nthvert, world_Vertex);
+		world_tri.set_col((size_t)nthvert, world_Vertex);
 		Vec4f gl_VertexLightView = m_projectionLightViewMat * embed<4>(scaledVert);
-		varying_tri_light_view.set_col(nthvert, gl_VertexLightView);
+		varying_tri_light_view.set_col((size_t)nthvert, gl_VertexLightView);
 		return gl_Vertex;
 	}
 
@@ -180,12 +180,12 @@ struct Shader : public IShader
 		for (int i = 0; i < 3; ++i)
 		{
 			int orgColor = 0;
-			float floatColor = (m_ambient_coefficient * color[i] + shadow * (m_diffuse_coefficient * diffuse + m_specular_coefficient * specular) * color[i] * m_light_color[i]);
+			float floatColor = (m_ambient_coefficient * color[i] + shadow * (m_diffuse_coefficient * diffuse + m_specular_coefficient * specular) * color[i] * m_light_color[(size_t)i]);
 			if (floatColor==floatColor)
 			{
 				orgColor=int(floatColor);
 			}
-			color[i] = b3Min(orgColor, 255);
+			color[i] = (unsigned char)b3Min(orgColor, 255);
 		}
 
 		return false;
@@ -408,7 +408,7 @@ void TinyRenderObjectData::createCube(float halfExtentsX, float halfExtentsY, fl
 	}
 
 	int strideInBytes = 9 * sizeof(float);
-	int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+	int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 	int numIndices = sizeof(cube_indices) / sizeof(int);
 
 	for (int i = 0; i < numVertices; i++)
@@ -442,8 +442,8 @@ static bool equals(const Vec4f& /*vA*/, const Vec4f& /*vB*/)
 
 static void clipEdge(const mat<4, 3, float>& triangleIn, int vertexIndexA, int vertexIndexB, b3AlignedObjectArray<Vec4f>& vertices)
 {
-	Vec4f v0New = triangleIn.col(vertexIndexA);
-	Vec4f v1New = triangleIn.col(vertexIndexB);
+	Vec4f v0New = triangleIn.col((size_t)vertexIndexA);
+	Vec4f v1New = triangleIn.col((size_t)vertexIndexB);
 
 	bool v0Inside = v0New[3] > 0.f && v0New[2] > -v0New[3];
 	bool v1Inside = v1New[3] > 0.f && v1New[2] > -v1New[3];

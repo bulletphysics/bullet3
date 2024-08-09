@@ -139,7 +139,7 @@ public:
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
 				const btSoftBody::Node& node = psb->m_nodes[j];
-				diagA[counter] = (node.m_im == 0) ? btVector3(0, 0, 0) : btVector3(1.0 / node.m_im, 1.0 / node.m_im, 1.0 / node.m_im);
+				diagA[(int)counter] = (node.m_im == 0) ? btVector3(0, 0, 0) : btVector3(1.0 / node.m_im, 1.0 / node.m_im, 1.0 / node.m_im);
 				++counter;
 			}
 		}

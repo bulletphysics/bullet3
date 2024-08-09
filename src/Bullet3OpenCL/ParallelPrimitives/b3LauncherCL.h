@@ -75,7 +75,7 @@ public:
 	template <typename T>
 	inline void setConst(const T& consts)
 	{
-		int sz = sizeof(T);
+		size_t sz = sizeof(T);
 		b3Assert(sz <= B3_CL_MAX_ARG_SIZE);
 
 		if (m_enableSerialization)
@@ -90,7 +90,7 @@ public:
 			m_serializationSizeInBytes += sizeof(b3KernelArgData);
 		}
 
-		cl_int status = clSetKernelArg(m_kernel, m_idx++, sz, &consts);
+		cl_int status = clSetKernelArg(m_kernel, (cl_uint)m_idx++, sz, &consts);
 		b3Assert(status == CL_SUCCESS);
 	}
 
@@ -103,8 +103,8 @@ public:
 	{
 		size_t gRange[3] = {1, 1, 1};
 		size_t lRange[3] = {1, 1, 1};
-		lRange[0] = localSizeX;
-		lRange[1] = localSizeY;
+		lRange[0] = (size_t)localSizeX;
+		lRange[1] = (size_t)localSizeY;
 		gRange[0] = b3Max((size_t)1, (numThreadsX / lRange[0]) + (!(numThreadsX % lRange[0]) ? 0 : 1));
 		gRange[0] *= lRange[0];
 		gRange[1] = b3Max((size_t)1, (numThreadsY / lRange[1]) + (!(numThreadsY % lRange[1]) ? 0 : 1));

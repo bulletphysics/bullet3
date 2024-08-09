@@ -48,7 +48,7 @@ struct UDPThreadLocalStorage
 
 unsigned int b3DeserializeInt(const unsigned char* input)
 {
-	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
+	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;
 }
 
@@ -113,7 +113,7 @@ struct UdpNetworkedInternalData
 		}
 
 		enet_address_set_host(&m_address, m_hostName.c_str());
-		m_address.port = m_port;
+		m_address.port = (enet_uint16)m_port;
 
 		m_peer = enet_host_connect(m_client,
 								   &m_address, /* address to connect to */
@@ -228,7 +228,7 @@ struct UdpNetworkedInternalData
 							m_event.channelID);
 					}
 
-					int packetSizeInBytes = b3DeserializeInt(m_event.packet->data);
+					int packetSizeInBytes = (int)b3DeserializeInt(m_event.packet->data);
 
 					if (packetSizeInBytes == (int)m_event.packet->dataLength)
 					{
@@ -248,7 +248,7 @@ struct UdpNetworkedInternalData
 							m_stream.resize(numStreamBytes);
 							for (int i = 0; i < numStreamBytes; i++)
 							{
-								m_stream[i] = m_event.packet->data[i + streamOffsetInBytes];
+								m_stream[i] = (char)m_event.packet->data[i + streamOffsetInBytes];
 							}
 						}
 					}
@@ -357,7 +357,7 @@ void UDPThreadFunc(void* userPtr, void* /*lsMemory*/)
 
 					if (hasCommand)
 					{
-						int sz = 0;
+						size_t sz = 0;
 						ENetPacket* packet = 0;
 
 						if (args->m_clientCmd.m_type == CMD_STEP_FORWARD_SIMULATION)

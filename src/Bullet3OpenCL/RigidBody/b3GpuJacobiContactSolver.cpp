@@ -336,8 +336,8 @@ void setConstraint4(const b3Vector3& posA, const b3Vector3& linVelA, const b3Vec
 					b3Contact4* src, float dt, float positionDrift, float positionConstraintCoeff, float countA, float countB,
 					b3GpuConstraint4* dstC)
 {
-	dstC->m_bodyA = abs(src->m_bodyAPtrAndSignBit);
-	dstC->m_bodyB = abs(src->m_bodyBPtrAndSignBit);
+	dstC->m_bodyA = (unsigned int)abs(src->m_bodyAPtrAndSignBit);
+	dstC->m_bodyB = (unsigned int)abs(src->m_bodyBPtrAndSignBit);
 
 	float dtInv = 1.f / dt;
 	for (int ic = 0; ic < 4; ic++)
@@ -353,7 +353,7 @@ void setConstraint4(const b3Vector3& posA, const b3Vector3& linVelA, const b3Vec
 		b3Vector3 r0 = src->m_worldPosB[ic] - posA;
 		b3Vector3 r1 = src->m_worldPosB[ic] - posB;
 
-		if (ic >= src->m_worldNormalOnB[3])  //npoints
+		if ((b3Scalar)ic >= src->m_worldNormalOnB[3])  //npoints
 		{
 			dstC->m_jacCoeffInv[ic] = 0.f;
 			continue;
@@ -386,7 +386,7 @@ void setConstraint4(const b3Vector3& posA, const b3Vector3& linVelA, const b3Vec
 	if (src->m_worldNormalOnB[3] > 0)  //npoints
 	{                                  //	prepare friction
 		b3Vector3 center = make_float4(0.f);
-		for (int i = 0; i < src->m_worldNormalOnB[3]; i++)
+		for (int i = 0; (b3Scalar)i < src->m_worldNormalOnB[3]; i++)
 			center += src->m_worldPosB[i];
 		center /= (float)src->m_worldNormalOnB[3];
 
@@ -411,7 +411,7 @@ void setConstraint4(const b3Vector3& posA, const b3Vector3& linVelA, const b3Vec
 
 	for (int i = 0; i < 4; i++)
 	{
-		if (i < src->m_worldNormalOnB[3])
+		if ((b3Scalar)i < src->m_worldNormalOnB[3])
 		{
 			dstC->m_worldPos[i] = src->m_worldPosB[i];
 		}
@@ -484,12 +484,12 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 
 		if (!isFixedA)
 		{
-			contactConstraintOffsets[i].x = bodyCount[bodyIndexA];
+			contactConstraintOffsets[i].x = (int)bodyCount[bodyIndexA];
 			bodyCount[bodyIndexA]++;
 		}
 		if (!isFixedB)
 		{
-			contactConstraintOffsets[i].y = bodyCount[bodyIndexB];
+			contactConstraintOffsets[i].y = (int)bodyCount[bodyIndexB];
 			bodyCount[bodyIndexB]++;
 		}
 	}
@@ -498,7 +498,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 	offsetSplitBodies.resize(numBodies);
 	unsigned int totalNumSplitBodies;
 	m_data->m_scan->executeHost(bodyCount, offsetSplitBodies, numBodies, &totalNumSplitBodies);
-	int numlastBody = bodyCount[numBodies - 1];
+	int numlastBody = (int)bodyCount[numBodies - 1];
 	totalNumSplitBodies += numlastBody;
 	printf("totalNumSplitBodies = %d\n", totalNumSplitBodies);
 
@@ -517,12 +517,12 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 
 	b3AlignedObjectArray<b3Vector3> deltaLinearVelocities;
 	b3AlignedObjectArray<b3Vector3> deltaAngularVelocities;
-	deltaLinearVelocities.resize(totalNumSplitBodies);
-	deltaAngularVelocities.resize(totalNumSplitBodies);
+	deltaLinearVelocities.resize((int)totalNumSplitBodies);
+	deltaAngularVelocities.resize((int)totalNumSplitBodies);
 	for (unsigned int i = 0; i < totalNumSplitBodies; i++)
 	{
-		deltaLinearVelocities[i].setZero();
-		deltaAngularVelocities[i].setZero();
+		deltaLinearVelocities[(int)i].setZero();
+		deltaAngularVelocities[(int)i].setZero();
 	}
 
 	for (int iter = 0; iter < maxIter; iter++)
@@ -545,7 +545,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 
 			if (bodyA.m_invMass)
 			{
-				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int bodyOffsetA = (int)offsetSplitBodies[aIdx];
 				int constraintOffsetA = contactConstraintOffsets[i].x;
 				int splitIndexA = bodyOffsetA + constraintOffsetA;
 				dlvAPtr = &deltaLinearVelocities[splitIndexA];
@@ -554,7 +554,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 
 			if (bodyB.m_invMass)
 			{
-				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int bodyOffsetB = (int)offsetSplitBodies[bIdx];
 				int constraintOffsetB = contactConstraintOffsets[i].y;
 				int splitIndexB = bodyOffsetB + constraintOffsetB;
 				dlvBPtr = &deltaLinearVelocities[splitIndexB];
@@ -576,8 +576,8 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 		{
 			if (bodies[i].m_invMass)
 			{
-				int bodyOffset = offsetSplitBodies[i];
-				int count = bodyCount[i];
+				int bodyOffset = (int)offsetSplitBodies[i];
+				int count = (int)bodyCount[i];
 				float factor = 1.f / float(count);
 				b3Vector3 averageLinVel;
 				averageLinVel.setZero();
@@ -627,7 +627,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 
 			if (bodyA.m_invMass)
 			{
-				int bodyOffsetA = offsetSplitBodies[aIdx];
+				int bodyOffsetA = (int)offsetSplitBodies[aIdx];
 				int constraintOffsetA = contactConstraintOffsets[i].x;
 				int splitIndexA = bodyOffsetA + constraintOffsetA;
 				dlvAPtr = &deltaLinearVelocities[splitIndexA];
@@ -636,7 +636,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 
 			if (bodyB.m_invMass)
 			{
-				int bodyOffsetB = offsetSplitBodies[bIdx];
+				int bodyOffsetB = (int)offsetSplitBodies[bIdx];
 				int constraintOffsetB = contactConstraintOffsets[i].y;
 				int splitIndexB = bodyOffsetB + constraintOffsetB;
 				dlvBPtr = &deltaLinearVelocities[splitIndexB];
@@ -659,8 +659,8 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 		{
 			if (bodies[i].m_invMass)
 			{
-				int bodyOffset = offsetSplitBodies[i];
-				int count = bodyCount[i];
+				int bodyOffset = (int)offsetSplitBodies[i];
+				int count = (int)bodyCount[i];
 				float factor = 1.f / float(count);
 				b3Vector3 averageLinVel;
 				averageLinVel.setZero();
@@ -685,8 +685,8 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 	{
 		if (bodies[i].m_invMass)
 		{
-			int bodyOffset = offsetSplitBodies[i];
-			int count = bodyCount[i];
+			int bodyOffset = (int)offsetSplitBodies[i];
+			int count = (int)bodyCount[i];
 			if (count)
 			{
 				bodies[i].m_linVel += deltaLinearVelocities[bodyOffset];
@@ -711,7 +711,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 
 	{
 		B3_PROFILE("resize");
-		m_data->m_bodyCount->resize(numBodies);
+		m_data->m_bodyCount->resize((size_t)numBodies);
 	}
 
 	unsigned int val = 0;
@@ -721,7 +721,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 
 	{
 		B3_PROFILE("m_filler");
-		m_data->m_contactConstraintOffsets->resize(numManifolds);
+		m_data->m_contactConstraintOffsets->resize((size_t)numManifolds);
 		m_data->m_filler->execute(*m_data->m_bodyCount, val, numBodies);
 
 		m_data->m_filler->execute(*m_data->m_contactConstraintOffsets, val2, numManifolds);
@@ -741,15 +741,15 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 	{
 		B3_PROFILE("m_scan->execute");
 
-		m_data->m_offsetSplitBodies->resize(numBodies);
+		m_data->m_offsetSplitBodies->resize((size_t)numBodies);
 		m_data->m_scan->execute(*m_data->m_bodyCount, *m_data->m_offsetSplitBodies, numBodies, &totalNumSplitBodies);
-		totalNumSplitBodies += m_data->m_bodyCount->at(numBodies - 1);
+		totalNumSplitBodies += m_data->m_bodyCount->at((size_t)(numBodies - 1));
 	}
 
 	{
 		B3_PROFILE("m_data->m_contactConstraints->resize");
 		//int numContacts = manifoldPtr->size();
-		m_data->m_contactConstraints->resize(numContacts);
+		m_data->m_contactConstraints->resize((size_t)numContacts);
 	}
 
 	{
@@ -779,7 +779,7 @@ void b3GpuJacobiContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_m
 		launch.setBuffer(m_data->m_deltaAngularVelocities->getBufferCL());
 		launch.setBuffer(m_data->m_deltaLinearVelocities->getBufferCL());
 		launch.setConst(totalNumSplitBodies);
-		launch.launch1D(totalNumSplitBodies);
+		launch.launch1D((int)totalNumSplitBodies);
 		clFinish(m_queue);
 	}
 

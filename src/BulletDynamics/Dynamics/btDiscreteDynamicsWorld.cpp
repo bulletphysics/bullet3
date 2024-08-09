@@ -393,7 +393,7 @@ int btDiscreteDynamicsWorld::stepSimulation(btScalar timeStep, int maxSubSteps, 
 		if (m_localTime >= fixedTimeStep)
 		{
 			numSimulationSubSteps = int(m_localTime / fixedTimeStep);
-			m_localTime -= numSimulationSubSteps * fixedTimeStep;
+			m_localTime -= (btScalar)numSimulationSubSteps * fixedTimeStep;
 		}
 	}
 	else
@@ -425,7 +425,7 @@ int btDiscreteDynamicsWorld::stepSimulation(btScalar timeStep, int maxSubSteps, 
 		//clamp the number of substeps, to prevent simulation grinding spiralling down to a halt
 		int clampedSimulationSteps = (numSimulationSubSteps > maxSubSteps) ? maxSubSteps : numSimulationSubSteps;
 
-		saveKinematicState(fixedTimeStep * clampedSimulationSteps);
+		saveKinematicState(fixedTimeStep * (btScalar)clampedSimulationSteps);
 
 		applyGravity();
 
@@ -1386,7 +1386,7 @@ void btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
 		{
 			int len = colObj->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len, 1);
+			btChunk* chunk = serializer->allocate((size_t)len, 1);
 			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_RIGIDBODY_CODE, colObj);
 		}
@@ -1396,7 +1396,7 @@ void btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 	{
 		btTypedConstraint* constraint = m_constraints[i];
 		int size = constraint->calculateSerializeBufferSize();
-		btChunk* chunk = serializer->allocate(size, 1);
+		btChunk* chunk = serializer->allocate((size_t)size, 1);
 		const char* structType = constraint->serialize(chunk->m_oldPtr, serializer);
 		serializer->finalizeChunk(chunk, structType, BT_CONSTRAINT_CODE, constraint);
 	}
@@ -1405,11 +1405,11 @@ void btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 void btDiscreteDynamicsWorld::serializeDynamicsWorldInfo(btSerializer* serializer)
 {
 #ifdef BT_USE_DOUBLE_PRECISION
-	int len = sizeof(btDynamicsWorldDoubleData);
+	size_t len = sizeof(btDynamicsWorldDoubleData);
 	btChunk* chunk = serializer->allocate(len, 1);
 	btDynamicsWorldDoubleData* worldInfo = (btDynamicsWorldDoubleData*)chunk->m_oldPtr;
 #else   //BT_USE_DOUBLE_PRECISION
-	int len = sizeof(btDynamicsWorldFloatData);
+	size_t len = sizeof(btDynamicsWorldFloatData);
 	btChunk* chunk = serializer->allocate(len, 1);
 	btDynamicsWorldFloatData* worldInfo = (btDynamicsWorldFloatData*)chunk->m_oldPtr;
 #endif  //BT_USE_DOUBLE_PRECISION

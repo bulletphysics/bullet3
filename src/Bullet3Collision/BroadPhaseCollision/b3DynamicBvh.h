@@ -207,7 +207,7 @@ struct b3DynamicBvh
 	{
 		const b3DbvtNode* node;
 		int mask;
-		sStkNP(const b3DbvtNode* n, unsigned m) : node(n), mask(m) {}
+		sStkNP(const b3DbvtNode* n, unsigned m) : node(n), mask((int)m) {}
 	};
 	struct sStkNPS
 	{
@@ -215,7 +215,7 @@ struct b3DynamicBvh
 		int mask;
 		b3Scalar value;
 		sStkNPS() {}
-		sStkNPS(const b3DbvtNode* n, unsigned m, b3Scalar v) : node(n), mask(m), value(v) {}
+		sStkNPS(const b3DbvtNode* n, unsigned m, b3Scalar v) : node(n), mask((int)m), value(v) {}
 	};
 	struct sStkCLN
 	{

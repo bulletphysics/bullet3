@@ -239,7 +239,7 @@ struct btDbvt
 	{
 		const btDbvtNode* node;
 		int mask;
-		sStkNP(const btDbvtNode* n, unsigned m) : node(n), mask(m) {}
+		sStkNP(const btDbvtNode* n, unsigned m) : node(n), mask((int)m) {}
 	};
 	struct sStkNPS
 	{
@@ -247,7 +247,7 @@ struct btDbvt
 		int mask;
 		btScalar value;
 		sStkNPS() {}
-		sStkNPS(const btDbvtNode* n, unsigned m, btScalar v) : node(n), mask(m), value(v) {}
+		sStkNPS(const btDbvtNode* n, unsigned m, btScalar v) : node(n), mask((int)m), value(v) {}
 	};
 	struct sStkCLN
 	{

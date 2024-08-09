@@ -1252,7 +1252,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 				}
 			}
 			const int numIdentifiers = serverCmd.m_syncUserDataArgs.m_numUserDataIdentifiers;
-			int* identifiers = new int[numIdentifiers];
+			int* identifiers = new int[(size_t)numIdentifiers];
 			memcpy(identifiers, &m_data->m_bulletStreamDataServerToClient[0], numIdentifiers * sizeof(int));
 
 			for (int i = 0; i < numIdentifiers; i++)

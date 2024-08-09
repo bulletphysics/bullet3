@@ -386,7 +386,7 @@ bool btThreadsAreRunning()
 
 void btSetTaskScheduler(btITaskScheduler* ts)
 {
-	int threadId = btGetCurrentThreadIndex();  // make sure we call this on main thread at least once before any workers run
+	int threadId = (int)btGetCurrentThreadIndex();  // make sure we call this on main thread at least once before any workers run
 	if (threadId != 0)
 	{
 		btAssert(!"btSetTaskScheduler must be called from the main thread!");

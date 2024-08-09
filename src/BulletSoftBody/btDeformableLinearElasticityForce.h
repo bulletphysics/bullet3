@@ -114,10 +114,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 				btMatrix3x3 dF = DsFromVelocity(node0, node1, node2, node3) * tetra.m_Dm_inverse;
 				if (!close_to_flat)
 				{
@@ -142,7 +142,7 @@ public:
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
 				const btSoftBody::Node& node = psb->m_nodes[j];
-				size_t id = node.index;
+				int id = node.index;
 				if (node.m_im > 0)
 				{
 					force[id] -= scale * node.m_v / node.m_im * m_damping_alpha;
@@ -269,10 +269,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 
 				// elastic force
 				btScalar scale1 = scale * tetra.m_element_measure;
@@ -311,10 +311,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 				btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
 				if (!close_to_flat)
 				{
@@ -340,7 +340,7 @@ public:
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
 				const btSoftBody::Node& node = psb->m_nodes[j];
-				size_t id = node.index;
+				int id = node.index;
 				if (node.m_im > 0)
 				{
 					df[id] -= scale * dv[id] / node.m_im * m_damping_alpha;
@@ -368,10 +368,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 				btMatrix3x3 dF = psb->m_tetraScratches[j].m_corotation.transpose() * Ds(id0, id1, id2, id3, dx) * tetra.m_Dm_inverse;
 				btMatrix3x3 dP;
 				firstPiolaDifferential(psb->m_tetraScratches[j], dF, dP);

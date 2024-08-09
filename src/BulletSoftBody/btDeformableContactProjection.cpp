@@ -157,7 +157,7 @@ void btDeformableContactProjection::project(TVStack& x)
 	for (int index = 0; index < m_projectionsDict.size(); ++index)
 	{
 		btAlignedObjectArray<btVector3>& projectionDirs = *m_projectionsDict.getAtIndex(index);
-		size_t i = m_projectionsDict.getKeyAtIndex(index).getUid1();
+		int i = m_projectionsDict.getKeyAtIndex(index).getUid1();
 		if (projectionDirs.size() >= dim)
 		{
 			// static node

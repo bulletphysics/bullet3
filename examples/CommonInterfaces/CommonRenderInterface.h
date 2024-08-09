@@ -158,8 +158,8 @@ inline int projectWorldCoordToScreen(T objx, T objy, T objz,
 	out[2] = out[2] * T(0.5) + T(0.5);
 
 	/* Map x,y to viewport */
-	out[0] = out[0] * viewport[2] + viewport[0];
-	out[1] = out[1] * viewport[3] + viewport[1];
+	out[0] = out[0] * (T)viewport[2] + (T)viewport[0];
+	out[1] = out[1] * (T)viewport[3] + (T)viewport[1];
 
 	*winx = out[0];
 	*winy = out[1];

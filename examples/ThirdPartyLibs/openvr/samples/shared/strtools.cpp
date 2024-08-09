@@ -58,7 +58,7 @@ std::string UTF16to8(const wchar_t *in)
 	for (; in && *in != 0; ++in)
 	{
 		if (*in >= 0xd800 && *in <= 0xdbff)
-			codepoint = ((*in - 0xd800) << 10) + 0x10000;
+			codepoint = (unsigned int)(((*in - 0xd800) << 10) + 0x10000);
 		else
 		{
 			if (*in >= 0xdc00 && *in <= 0xdfff)
@@ -99,7 +99,7 @@ std::wstring UTF8to16(const char *in)
 	int following = 0;
 	for (; in && *in != 0; ++in)
 	{
-		unsigned char ch = *in;
+		unsigned char ch = (unsigned char)*in;
 		if (ch <= 0x7f)
 		{
 			codepoint = ch;
@@ -115,17 +115,17 @@ std::wstring UTF8to16(const char *in)
 		}
 		else if (ch <= 0xdf)
 		{
-			codepoint = ch & 0x1f;
+			codepoint = (unsigned int)(ch & 0x1f);
 			following = 1;
 		}
 		else if (ch <= 0xef)
 		{
-			codepoint = ch & 0x0f;
+			codepoint = (unsigned int)(ch & 0x0f);
 			following = 2;
 		}
 		else
 		{
-			codepoint = ch & 0x07;
+			codepoint = (unsigned int)(ch & 0x07);
 			following = 3;
 		}
 		if (following == 0)
@@ -279,7 +279,7 @@ void V_URLEncodeInternal(char *pchDest, int nDestLen, const char *pchSource, int
 			else
 			{
 				pchDest[iDestPos++] = '%';
-				uint8_t iValue = pchSource[i];
+				uint8_t iValue = (uint8_t)pchSource[i];
 				if (iValue == 0)
 				{
 					pchDest[iDestPos++] = '0';

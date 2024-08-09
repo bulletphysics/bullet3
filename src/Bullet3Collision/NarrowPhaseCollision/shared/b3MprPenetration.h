@@ -576,11 +576,11 @@ B3_STATIC void b3FindPos(const b3MprSimplex_t *portal, b3Float4 *pos)
 	b3MprVec3Copy(&p2, b3mpr_vec3_origin);
 	for (i = 0; i < 4; i++)
 	{
-		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, i)->v1);
+		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, (int)i)->v1);
 		b3MprVec3Scale(&vec, b[i]);
 		b3MprVec3Add(&p1, &vec);
 
-		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, i)->v2);
+		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, (int)i)->v2);
 		b3MprVec3Scale(&vec, b[i]);
 		b3MprVec3Add(&p2, &vec);
 	}

@@ -113,7 +113,7 @@ void btClock::reset()
 {
 #ifdef BT_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
-	m_data->mStartTick = GetTickCount64();
+	m_data->mStartTick = (LONGLONG)GetTickCount64();
 #else
 #ifdef __CELLOS_LV2__
 

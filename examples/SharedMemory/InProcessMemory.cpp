@@ -34,7 +34,7 @@ void* InProcessMemory::allocateSharedMemory(int key, int size, bool /*allowCreat
 		return *ptrptr;
 	}
 
-	void* ptr = malloc(size);
+	void* ptr = malloc((size_t)size);
 	m_data->m_memoryPointers.insert(key, ptr);
 	return ptr;
 }

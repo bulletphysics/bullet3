@@ -556,30 +556,30 @@ static btCollisionShape* createConvexHullFromShapes(const bt_tinyobj::attrib_t& 
 	btTransform identity;
 	identity.setIdentity();
 
-	for (int s = 0; s < (int)shapes.size(); s++)
+	for (size_t s = 0; s < shapes.size(); s++)
 	{
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(gUrdfDefaultCollisionMargin);
 		bt_tinyobj::shape_t& shape = shapes[s];
-		int faceCount = shape.mesh.indices.size();
+		size_t faceCount = shape.mesh.indices.size();
 
-		for (int f = 0; f < faceCount; f += 3)
+		for (size_t f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 
@@ -652,7 +652,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 				int numSteps = 32;
 				for (int i = 0; i < numSteps; i++)
 				{
-					btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / numSteps)), cylRadius * btCos(SIMD_2_PI * (float(i) / numSteps)), cylHalfLength);
+					btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / float(numSteps))), cylRadius * btCos(SIMD_2_PI * (float(i) / float(numSteps))), cylHalfLength);
 					vertices.push_back(vert);
 					vert[2] = -cylHalfLength;
 					vertices.push_back(vert);
@@ -940,7 +940,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
 				btScalar cylLength = visual->m_geometry.m_capsuleHeight;
 
-				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / numSteps)), cylRadius * btCos(SIMD_2_PI * (float(i) / numSteps)), cylLength / 2.);
+				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / float(numSteps))), cylRadius * btCos(SIMD_2_PI * (float(i) / float(numSteps))), cylLength / 2.);
 				vertices.push_back(vert);
 				vert[2] = -cylLength / 2.;
 				vertices.push_back(vert);
@@ -957,7 +957,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		{
 			btVector3 extents = visual->m_geometry.m_boxSize;
 			int strideInBytes = 9 * sizeof(float);
-			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 			int numIndices = sizeof(cube_indices) / sizeof(int);
 			glmesh = new GLInstanceGraphicsShape;
 			glmesh->m_indices = new b3AlignedObjectArray<int>();
@@ -1226,7 +1226,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < numIndices; i++)
 			{
-				glmesh->m_indices->push_back(hull->getIndexPointer()[i]);
+				glmesh->m_indices->push_back((int)hull->getIndexPointer()[i]);
 			}
 
 			glmesh->m_numvertices = glmesh->m_vertices->size();

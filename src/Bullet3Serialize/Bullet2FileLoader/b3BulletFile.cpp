@@ -62,14 +62,14 @@ b3BulletFile::b3BulletFile()
 #else   //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	if (VOID_IS_8)
 	{
-		m_DnaCopy = (char*)b3AlignedAlloc(b3s_bulletDNAlen64, 16);
-		memcpy(m_DnaCopy, b3s_bulletDNAstr64, b3s_bulletDNAlen64);
+		m_DnaCopy = (char*)b3AlignedAlloc((size_t)b3s_bulletDNAlen64, 16);
+		memcpy(m_DnaCopy, b3s_bulletDNAstr64, (size_t)b3s_bulletDNAlen64);
 		mMemoryDNA->init(m_DnaCopy, b3s_bulletDNAlen64);
 	}
 	else
 	{
-		m_DnaCopy = (char*)b3AlignedAlloc(b3s_bulletDNAlen, 16);
-		memcpy(m_DnaCopy, b3s_bulletDNAstr, b3s_bulletDNAlen);
+		m_DnaCopy = (char*)b3AlignedAlloc((size_t)b3s_bulletDNAlen, 16);
+		memcpy(m_DnaCopy, b3s_bulletDNAstr, (size_t)b3s_bulletDNAlen);
 		mMemoryDNA->init(m_DnaCopy, b3s_bulletDNAlen);
 	}
 #endif  //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
@@ -262,14 +262,14 @@ void b3BulletFile::writeDNA(FILE* fp)
 		dataChunk.len = b3s_bulletDNAlen64;
 		dataChunk.oldPtr = b3s_bulletDNAstr64;
 		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
-		fwrite(b3s_bulletDNAstr64, b3s_bulletDNAlen64, 1, fp);
+		fwrite(b3s_bulletDNAstr64, (size_t)b3s_bulletDNAlen64, 1, fp);
 	}
 	else
 	{
 		dataChunk.len = b3s_bulletDNAlen;
 		dataChunk.oldPtr = b3s_bulletDNAstr;
 		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
-		fwrite(b3s_bulletDNAstr, b3s_bulletDNAlen, 1, fp);
+		fwrite(b3s_bulletDNAstr, (size_t)b3s_bulletDNAlen, 1, fp);
 	}
 #endif  //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 }
@@ -308,16 +308,16 @@ void b3BulletFile::parse(int verboseMode)
 	{
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)b3AlignedAlloc(b3s_bulletDNAlen64, 16);
-		memcpy(m_DnaCopy, b3s_bulletDNAstr64, b3s_bulletDNAlen64);
+		m_DnaCopy = (char*)b3AlignedAlloc((size_t)b3s_bulletDNAlen64, 16);
+		memcpy(m_DnaCopy, b3s_bulletDNAstr64, (size_t)b3s_bulletDNAlen64);
 		parseInternal(verboseMode, m_DnaCopy, b3s_bulletDNAlen64);
 	}
 	else
 	{
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)b3AlignedAlloc(b3s_bulletDNAlen, 16);
-		memcpy(m_DnaCopy, b3s_bulletDNAstr, b3s_bulletDNAlen);
+		m_DnaCopy = (char*)b3AlignedAlloc((size_t)b3s_bulletDNAlen, 16);
+		memcpy(m_DnaCopy, b3s_bulletDNAstr, (size_t)b3s_bulletDNAlen);
 		parseInternal(verboseMode, m_DnaCopy, b3s_bulletDNAlen);
 	}
 #endif  //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES

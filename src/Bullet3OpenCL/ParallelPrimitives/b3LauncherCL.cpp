@@ -54,13 +54,13 @@ void b3LauncherCL::setBuffer(cl_mem clBuffer)
 								 &actualSizeInBytes);
 
 		b3Assert(err == CL_SUCCESS);
-		kernelArg.m_argSizeInBytes = param_value;
+		kernelArg.m_argSizeInBytes = (int)param_value;
 
 		m_kernelArguments.push_back(kernelArg);
 		m_serializationSizeInBytes += sizeof(b3KernelArgData);
 		m_serializationSizeInBytes += param_value;
 	}
-	cl_int status = clSetKernelArg(m_kernel, m_idx++, sizeof(cl_mem), &clBuffer);
+	cl_int status = clSetKernelArg(m_kernel, (cl_uint)m_idx++, sizeof(cl_mem), &clBuffer);
 	b3Assert(status == CL_SUCCESS);
 }
 
@@ -87,13 +87,13 @@ void b3LauncherCL::setBuffers(b3BufferInfoCL* buffInfo, int n)
 									 &actualSizeInBytes);
 
 			b3Assert(err == CL_SUCCESS);
-			kernelArg.m_argSizeInBytes = param_value;
+			kernelArg.m_argSizeInBytes = (int)param_value;
 
 			m_kernelArguments.push_back(kernelArg);
 			m_serializationSizeInBytes += sizeof(b3KernelArgData);
 			m_serializationSizeInBytes += param_value;
 		}
-		cl_int status = clSetKernelArg(m_kernel, m_idx++, sizeof(cl_mem), &buffInfo[i].m_clBuffer);
+		cl_int status = clSetKernelArg(m_kernel, (cl_uint)m_idx++, sizeof(cl_mem), &buffInfo[i].m_clBuffer);
 		b3Assert(status == CL_SUCCESS);
 	}
 }
@@ -125,22 +125,22 @@ int b3LauncherCL::deserializeArgs(unsigned char* buf, int /*bufSize*/, cl_contex
 		index += sizeof(b3KernelArgData);
 		if (arg->m_isBuffer)
 		{
-			b3OpenCLArray<unsigned char>* clData = new b3OpenCLArray<unsigned char>(ctx, m_commandQueue, arg->m_argSizeInBytes);
-			clData->resize(arg->m_argSizeInBytes);
+			b3OpenCLArray<unsigned char>* clData = new b3OpenCLArray<unsigned char>(ctx, m_commandQueue, (size_t)arg->m_argSizeInBytes);
+			clData->resize((size_t)arg->m_argSizeInBytes);
 
-			clData->copyFromHostPointer(&buf[index], arg->m_argSizeInBytes);
+			clData->copyFromHostPointer(&buf[index], (size_t)arg->m_argSizeInBytes);
 
 			arg->m_clBuffer = clData->getBufferCL();
 
 			m_arrays.push_back(clData);
 
-			cl_int status = clSetKernelArg(m_kernel, m_idx++, sizeof(cl_mem), &arg->m_clBuffer);
+			cl_int status = clSetKernelArg(m_kernel, (cl_uint)m_idx++, sizeof(cl_mem), &arg->m_clBuffer);
 			b3Assert(status == CL_SUCCESS);
 			index += arg->m_argSizeInBytes;
 		}
 		else
 		{
-			cl_int status = clSetKernelArg(m_kernel, m_idx++, arg->m_argSizeInBytes, &arg->m_argData);
+			cl_int status = clSetKernelArg(m_kernel, (cl_uint)m_idx++, (size_t)arg->m_argSizeInBytes, &arg->m_argData);
 			b3Assert(status == CL_SUCCESS);
 		}
 		b3KernelArgData b;
@@ -188,7 +188,7 @@ int b3LauncherCL::validateResults(unsigned char* goldBuffer, int /*goldBufferCap
 
 		if (argGold->m_isBuffer)
 		{
-			unsigned char* memBuf = (unsigned char*)malloc(m_kernelArguments[ii].m_argSizeInBytes);
+			unsigned char* memBuf = (unsigned char*)malloc((size_t)m_kernelArguments[ii].m_argSizeInBytes);
 			unsigned char* goldBuf = &goldBuffer[index];
 			for (int j = 0; j < m_kernelArguments[j].m_argSizeInBytes; j++)
 			{
@@ -196,7 +196,7 @@ int b3LauncherCL::validateResults(unsigned char* goldBuffer, int /*goldBufferCap
 			}
 
 			cl_int status = 0;
-			status = clEnqueueReadBuffer(m_commandQueue, m_kernelArguments[ii].m_clBuffer, CL_TRUE, 0, m_kernelArguments[ii].m_argSizeInBytes,
+			status = clEnqueueReadBuffer(m_commandQueue, m_kernelArguments[ii].m_clBuffer, CL_TRUE, 0, (size_t)m_kernelArguments[ii].m_argSizeInBytes,
 										 memBuf, 0, 0, 0);
 			b3Assert(status == CL_SUCCESS);
 			clFinish(m_commandQueue);
@@ -258,8 +258,8 @@ int b3LauncherCL::serializeArguments(unsigned char* destBuffer, int destBufferCa
 		{
 			//copy the OpenCL buffer content
 			cl_int status = 0;
-			status = clEnqueueReadBuffer(m_commandQueue, arg->m_clBuffer, 0, 0, arg->m_argSizeInBytes,
-										 &destBuffer[curBufferSize], 0, 0, 0);
+			status = clEnqueueReadBuffer(m_commandQueue, arg->m_clBuffer, 0, 0, (size_t)arg->m_argSizeInBytes,
+										 &destBuffer[(size_t)curBufferSize], 0, 0, 0);
 			b3Assert(status == CL_SUCCESS);
 			clFinish(m_commandQueue);
 			curBufferSize += arg->m_argSizeInBytes;

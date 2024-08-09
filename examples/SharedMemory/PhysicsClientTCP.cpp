@@ -13,7 +13,7 @@
 
 unsigned int b3DeserializeInt2(const unsigned char* input)
 {
-	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
+	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;
 }
 bool gVerboseNetworkMessagesClient2 = false;
@@ -58,7 +58,7 @@ struct TcpNetworkedInternalData
 
 		m_tcpSocket.Initialize();
 
-		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
+		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), (uint16)m_port);
 		if (m_isConnected)
 		{
 			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
@@ -98,7 +98,7 @@ struct TcpNetworkedInternalData
 
 		if (m_tempBuffer.size() >= 4)
 		{
-			packetSizeInBytes = b3DeserializeInt2(&m_tempBuffer[0]);
+			packetSizeInBytes = (int)b3DeserializeInt2(&m_tempBuffer[0]);
 		}
 
 		if (m_tempBuffer.size() == packetSizeInBytes)
@@ -126,7 +126,7 @@ struct TcpNetworkedInternalData
 				m_stream.resize(numStreamBytes);
 				for (int i = 0; i < numStreamBytes; i++)
 				{
-					m_stream[i] = data[i + streamOffsetInBytes];
+					m_stream[i] = (char)data[i + streamOffsetInBytes];
 				}
 			}
 			m_tempBuffer.clear();
@@ -159,7 +159,7 @@ bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 	}
 
 	{
-		int sz = 0;
+		size_t sz = 0;
 		unsigned char* data = 0;
 		m_data->m_tempBuffer.clear();
 

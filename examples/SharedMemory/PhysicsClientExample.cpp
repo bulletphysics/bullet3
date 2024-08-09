@@ -145,8 +145,8 @@ public:
 				points[i * 2 + 1].m_floats[0] = debugLines.m_linesTo[i * 3 + 0];
 				points[i * 2 + 1].m_floats[1] = debugLines.m_linesTo[i * 3 + 1];
 				points[i * 2 + 1].m_floats[2] = debugLines.m_linesTo[i * 3 + 2];
-				indices[i * 2] = i * 2;
-				indices[i * 2 + 1] = i * 2 + 1;
+				indices[i * 2] = (unsigned int)(i * 2);
+				indices[i * 2 + 1] = (unsigned int)(i * 2 + 1);
 			}
 
 			float color[4] = {0.2, 0.2, 1, 1};
@@ -634,7 +634,7 @@ void PhysicsClientExample::createButtons()
 			comboParams.m_userPointer = this;
 			//todo: get the real object name
 
-			const char** blarray = new const char*[m_bodyUniqueIds.size()];
+			const char** blarray = new const char*[(size_t)m_bodyUniqueIds.size()];
 
 			for (int i = 0; i < m_bodyUniqueIds.size(); i++)
 			{
@@ -889,8 +889,8 @@ void PhysicsClientExample::stepSimulation(float /*deltaTime*/)
 										}
 									}
 									m_canvas->setPixel(m_canvasDepthIndex, i, j,
-													   rgb,
-													   rgb,
+													   (unsigned char)rgb,
+													   (unsigned char)rgb,
 													   255, 255);  //alpha set to 255
 								}
 								else

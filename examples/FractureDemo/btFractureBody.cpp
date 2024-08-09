@@ -59,11 +59,11 @@ btCompoundShape* btFractureBody::shiftTransformDistributeMass(btCompoundShape* b
 {
 	btVector3 principalInertia;
 
-	btScalar* masses = new btScalar[boxCompound->getNumChildShapes()];
+	btScalar* masses = new btScalar[(size_t)boxCompound->getNumChildShapes()];
 	for (int j = 0; j < boxCompound->getNumChildShapes(); j++)
 	{
 		//evenly distribute mass
-		masses[j] = mass / boxCompound->getNumChildShapes();
+		masses[j] = mass / (btScalar)boxCompound->getNumChildShapes();
 	}
 
 	return shiftTransform(boxCompound, masses, shift, principalInertia);

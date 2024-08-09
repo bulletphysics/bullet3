@@ -161,8 +161,8 @@ protected:
 
 	void writeDNA()
 	{
-		b3Chunk* dnaChunk = allocate(m_dnaLength, 1);
-		memcpy(dnaChunk->m_oldPtr, m_dna, m_dnaLength);
+		b3Chunk* dnaChunk = allocate((size_t)m_dnaLength, 1);
+		memcpy(dnaChunk->m_oldPtr, m_dna, (size_t)m_dnaLength);
 		finalizeChunk(dnaChunk, "DNA1", B3_DNA_CODE, m_dna);
 	}
 
@@ -185,8 +185,8 @@ protected:
 		int littleEndian = 1;
 		littleEndian = ((char*)&littleEndian)[0];
 
-		m_dna = b3AlignedAlloc(dnalen, 16);
-		memcpy(m_dna, bdnaOrg, dnalen);
+		m_dna = b3AlignedAlloc((size_t)dnalen, 16);
+		memcpy(m_dna, bdnaOrg, (size_t)dnalen);
 		m_dnaLength = dnalen;
 
 		int* intPtr = 0;
@@ -212,7 +212,7 @@ protected:
 
 		// Parse names
 		if (!littleEndian)
-			*intPtr = b3SwapEndian(*intPtr);
+			*intPtr = (int)b3SwapEndian(*intPtr);
 
 		dataLen = *intPtr;
 
@@ -239,7 +239,7 @@ protected:
 		intPtr++;
 
 		if (!littleEndian)
-			*intPtr = b3SwapEndian(*intPtr);
+			*intPtr = (int)b3SwapEndian(*intPtr);
 
 		dataLen = *intPtr;
 		intPtr++;
@@ -271,7 +271,7 @@ protected:
 		for (i = 0; i < dataLen; i++, shtPtr++)
 		{
 			if (!littleEndian)
-				shtPtr[0] = b3SwapEndian(shtPtr[0]);
+				shtPtr[0] = (short)b3SwapEndian(shtPtr[0]);
 			mTlens.push_back(shtPtr[0]);
 		}
 
@@ -294,7 +294,7 @@ protected:
 		intPtr++;
 
 		if (!littleEndian)
-			*intPtr = b3SwapEndian(*intPtr);
+			*intPtr = (int)b3SwapEndian(*intPtr);
 		dataLen = *intPtr;
 		intPtr++;
 
@@ -305,16 +305,16 @@ protected:
 
 			if (!littleEndian)
 			{
-				shtPtr[0] = b3SwapEndian(shtPtr[0]);
-				shtPtr[1] = b3SwapEndian(shtPtr[1]);
+				shtPtr[0] = (int)b3SwapEndian(shtPtr[0]);
+				shtPtr[1] = (int)b3SwapEndian(shtPtr[1]);
 
 				int len = shtPtr[1];
 				shtPtr += 2;
 
 				for (int a = 0; a < len; a++, shtPtr += 2)
 				{
-					shtPtr[0] = b3SwapEndian(shtPtr[0]);
-					shtPtr[1] = b3SwapEndian(shtPtr[1]);
+					shtPtr[0] = (int)b3SwapEndian(shtPtr[0]);
+					shtPtr[1] = (int)b3SwapEndian(shtPtr[1]);
 				}
 			}
 			else
@@ -340,7 +340,7 @@ public:
 		  m_dnaLength(0),
 		  m_serializationFlags(0)
 	{
-		m_buffer = m_totalSize ? (unsigned char*)b3AlignedAlloc(totalSize, 16) : 0;
+		m_buffer = m_totalSize ? (unsigned char*)b3AlignedAlloc((size_t)totalSize, 16) : 0;
 
 		const bool VOID_IS_8 = ((sizeof(void*) == 8));
 
@@ -439,7 +439,7 @@ public:
 				b3AlignedFree(m_buffer);
 
 			m_currentSize += B3_HEADER_LENGTH;
-			m_buffer = (unsigned char*)b3AlignedAlloc(m_currentSize, 16);
+			m_buffer = (unsigned char*)b3AlignedAlloc((size_t)m_currentSize, 16);
 
 			unsigned char* currentPtr = m_buffer;
 			writeHeader(m_buffer);
@@ -447,8 +447,8 @@ public:
 			mysize += B3_HEADER_LENGTH;
 			for (int i = 0; i < m_chunkPtrs.size(); i++)
 			{
-				int curLength = sizeof(b3Chunk) + m_chunkPtrs[i]->m_length;
-				memcpy(currentPtr, m_chunkPtrs[i], curLength);
+				int curLength = (int)(sizeof(b3Chunk) + m_chunkPtrs[i]->m_length);
+				memcpy(currentPtr, m_chunkPtrs[i], (size_t)curLength);
 				b3AlignedFree(m_chunkPtrs[i]);
 				currentPtr += curLength;
 				mysize += curLength;

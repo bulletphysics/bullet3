@@ -60,7 +60,7 @@ void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairs(int maxPairs)
 	m_plbvh.build(m_aabbsGpu, m_smallAabbsMappingGpu, m_largeAabbsMappingGpu);
 
 	//
-	m_overlappingPairsGpu.resize(maxPairs);
+	m_overlappingPairsGpu.resize((size_t)maxPairs);
 	m_plbvh.calculateOverlappingPairs(m_overlappingPairsGpu);
 }
 void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairsHost(int /*maxPairs*/)

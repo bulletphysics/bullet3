@@ -138,7 +138,7 @@ CHull *ConvexBuilder::canMerge(CHull *a, CHull *b)
 
 	unsigned int vcount = Vl_getVcount(vc);
 	const float *vertices = Vl_getVertices(vc);
-	unsigned int tcount = indices.size() / 3;
+	unsigned int tcount = (unsigned int)(indices.size() / 3);
 
 	//don't do anything if hull is empty
 	if (!tcount)
@@ -311,7 +311,7 @@ unsigned int ConvexBuilder::process(const ConvexDecomposition::DecompDesc &desc)
 		delete cr;
 	}
 
-	ret = mChulls.size();
+	ret = (unsigned int)mChulls.size();
 
 	mChulls.clear();
 

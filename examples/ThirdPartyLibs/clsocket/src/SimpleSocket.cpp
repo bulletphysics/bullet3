@@ -112,9 +112,9 @@ CSimpleSocket::CSimpleSocket(CSocketType nType) : m_socket(INVALID_SOCKET),
 
 CSimpleSocket::CSimpleSocket(CSimpleSocket &socket)
 {
-	m_pBuffer = new uint8[socket.m_nBufferSize];
+	m_pBuffer = new uint8[(size_t)socket.m_nBufferSize];
 	m_nBufferSize = socket.m_nBufferSize;
-	memcpy(m_pBuffer, socket.m_pBuffer, socket.m_nBufferSize);
+	memcpy(m_pBuffer, socket.m_pBuffer, (size_t)socket.m_nBufferSize);
 }
 
 CSimpleSocket *CSimpleSocket::operator=(CSimpleSocket &socket)
@@ -122,9 +122,9 @@ CSimpleSocket *CSimpleSocket::operator=(CSimpleSocket &socket)
 	if (m_nBufferSize != socket.m_nBufferSize)
 	{
 		delete m_pBuffer;
-		m_pBuffer = new uint8[socket.m_nBufferSize];
+		m_pBuffer = new uint8[(size_t)socket.m_nBufferSize];
 		m_nBufferSize = socket.m_nBufferSize;
-		memcpy(m_pBuffer, socket.m_pBuffer, socket.m_nBufferSize);
+		memcpy(m_pBuffer, socket.m_pBuffer, (size_t)socket.m_nBufferSize);
 	}
 
 	return this;
@@ -287,7 +287,7 @@ uint32 CSimpleSocket::GetWindowSize(uint32 nOptionName)
 		//---------------------------------------------------------------------
 		// query for buffer size
 		//---------------------------------------------------------------------
-		GETSOCKOPT(m_socket, SOL_SOCKET, nOptionName, &nTcpWinSize, &nLen);
+		GETSOCKOPT(m_socket, SOL_SOCKET, (int)nOptionName, &nTcpWinSize, &nLen);
 		TranslateSocketError();
 	}
 	else
@@ -312,7 +312,7 @@ uint32 CSimpleSocket::SetWindowSize(uint32 nOptionName, uint32 nWindowSize)
 	//-------------------------------------------------------------------------
 	if (m_socket != (SOCKET)CSimpleSocket::SocketError)
 	{
-		nRetVal = SETSOCKOPT(m_socket, SOL_SOCKET, nOptionName, &nWindowSize, sizeof(nWindowSize));
+		nRetVal = (uint32)SETSOCKOPT(m_socket, SOL_SOCKET, (int)nOptionName, &nWindowSize, sizeof(nWindowSize));
 		(void)nRetVal;
 		TranslateSocketError();
 	}
@@ -584,7 +584,7 @@ int32 CSimpleSocket::Send(const struct iovec *sendVector, int32 nNumItems)
 	SetSocketError(SocketSuccess);
 	m_nBytesSent = 0;
 
-	if ((m_nBytesSent = WRITEV(m_socket, sendVector, nNumItems)) == CSimpleSocket::SocketError)
+	if ((m_nBytesSent = WRITEV(m_socket, sendVector, (size_t)nNumItems)) == CSimpleSocket::SocketError)
 	{
 		TranslateSocketError();
 	}
@@ -674,7 +674,7 @@ bool CSimpleSocket::SetOptionLinger(bool bEnable, uint16 nTime)
 {
 	bool bRetVal = false;
 
-	m_stLinger.l_onoff = (bEnable == true) ? 1 : 0;
+	m_stLinger.l_onoff = (u_short)((bEnable == true) ? 1 : 0);
 	m_stLinger.l_linger = nTime;
 
 	if (SETSOCKOPT(m_socket, SOL_SOCKET, SO_LINGER, &m_stLinger, sizeof(m_stLinger)) == 0)
@@ -727,7 +727,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 		if (m_pBuffer == NULL)
 		{
 			m_nBufferSize = nMaxBytes;
-			m_pBuffer = new uint8[nMaxBytes];
+			m_pBuffer = new uint8[(size_t)nMaxBytes];
 		}
 
 		pWorkBuffer = m_pBuffer;
@@ -749,7 +749,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 			do
 			{
 				m_nBytesReceived = RECV(m_socket, (pWorkBuffer + m_nBytesReceived),
-										nMaxBytes, m_nFlags);
+										nMaxBytes, (int)m_nFlags);
 				TranslateSocketError();
 			} while ((GetSocketError() == CSimpleSocket::SocketInterrupted));
 
@@ -902,12 +902,12 @@ int32 CSimpleSocket::SendFile(int32 nOutFd, int32 nInFd, off_t *pOffset, int32 n
 	{
 		nInCount = (nCount - nOutCount) < SOCKET_SENDFILE_BLOCKSIZE ? (nCount - nOutCount) : SOCKET_SENDFILE_BLOCKSIZE;
 
-		if ((read(nInFd, szData, nInCount)) != (int32)nInCount)
+		if ((read(nInFd, szData, (unsigned int)nInCount)) != (int32)nInCount)
 		{
 			return -1;
 		}
 
-		if ((SEND(nOutFd, szData, nInCount, 0)) != (int32)nInCount)
+		if ((SEND((SOCKET)nOutFd, szData, (unsigned int)nInCount, 0)) != (int32)nInCount)
 		{
 			return -1;
 		}

@@ -65,7 +65,7 @@ private:
 		if (m_pPanel[1])
 		{
 			const Margin& m = m_pPanel[1]->GetMargin();
-			m_pPanel[1]->SetBounds(m.left, m.top + (h * 0.5f), w - m.left - m.right, (h * 0.5f) - m.top - m.bottom);
+			m_pPanel[1]->SetBounds(m.left, (float)m.top + ((float)h * 0.5f), (float)w - (float)m.left - (float)m.right, ((float)h * 0.5f) - (float)m.top - (float)m.bottom);
 		}
 	}
 

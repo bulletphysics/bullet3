@@ -163,7 +163,7 @@ public:
 		btScalar dalpha = 2 * SIMD_2_PI / NUMRAYS;
 		for (int i = 0; i < NUMRAYS; i++)
 		{
-			btScalar alpha = dalpha * i;
+			btScalar alpha = dalpha * (btScalar)i;
 			// rotate around by alpha degrees y
 			btQuaternion q(btVector3(0.0, 1.0, 0.0), alpha);
 			direction[i] = btVector3(1.0, 0.0, 0.0);
@@ -269,7 +269,7 @@ public:
 			castRays(cw, 0, NUMRAYS);
 		}
 #ifdef USE_BT_CLOCK
-		ms += frame_timer.getTimeMilliseconds();
+		ms += (int)frame_timer.getTimeMilliseconds();
 #endif  //USE_BT_CLOCK
 		frame_counter++;
 		if (frame_counter > 50)
@@ -306,8 +306,8 @@ public:
 
 				points.push_back(s);
 				points.push_back(h);
-				indices.push_back(indices.size());
-				indices.push_back(indices.size());
+				indices.push_back((unsigned int)indices.size());
+				indices.push_back((unsigned int)indices.size());
 			}
 
 			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], lineColor, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), 1);
@@ -467,7 +467,7 @@ void BenchmarkDemo::createTest1()
 	const float cubeSize = 1.0f;
 	float spacing = cubeSize;
 	btVector3 pos(0.0f, cubeSize * 2, 0.f);
-	float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+	float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 	btBoxShape* blockShape = new btBoxShape(btVector3(cubeSize - COLLISION_RADIUS, cubeSize - COLLISION_RADIUS, cubeSize - COLLISION_RADIUS));
 	btVector3 localInertia(0, 0, 0);
@@ -492,7 +492,7 @@ void BenchmarkDemo::createTest1()
 				(void)cmbody;
 			}
 		}
-		offset -= 0.05f * spacing * (size - 1);
+		offset -= 0.05f * spacing * (float)(size - 1);
 		//		spacing *= 1.01f;
 		pos[1] += (cubeSize * 2.0f + spacing);
 	}
@@ -513,7 +513,7 @@ void BenchmarkDemo::createWall(const btVector3& offsetPosition, int stackSize, c
 	btScalar diffY = boxSize[1] * 1.0f;
 	btScalar diffZ = boxSize[2] * 1.0f;
 
-	btScalar offset = -stackSize * (diffZ * 2.0f) * 0.5f;
+	btScalar offset = (btScalar)-stackSize * (diffZ * 2.0f) * 0.5f;
 	btVector3 pos(0.0f, diffY, 0.0f);
 
 	btTransform trans;
@@ -552,8 +552,8 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition, int stackSize
 	btScalar diffY = boxSize[1] * 1.02f;
 	btScalar diffZ = boxSize[2] * 1.02f;
 
-	btScalar offsetX = -stackSize * (diffX * 2.0f + space) * 0.5f;
-	btScalar offsetZ = -stackSize * (diffZ * 2.0f + space) * 0.5f;
+	btScalar offsetX = (btScalar)-stackSize * (diffX * 2.0f + space) * 0.5f;
+	btScalar offsetZ = (btScalar)-stackSize * (diffZ * 2.0f + space) * 0.5f;
 	while (stackSize)
 	{
 		for (int j = 0; j < stackSize; j++)
@@ -597,7 +597,7 @@ void BenchmarkDemo::createTowerCircle(const btVector3& offsetPosition, int stack
 	btVector3 localInertia(0, 0, 0);
 	blockShape->calculateLocalInertia(mass, localInertia);
 
-	float radius = 1.3f * rotSize * boxSize[0] / SIMD_PI;
+	float radius = 1.3f * (float)rotSize * boxSize[0] / SIMD_PI;
 
 	// create active boxes
 	btQuaternion rotY(0, 1, 0, 0);
@@ -611,7 +611,7 @@ void BenchmarkDemo::createTowerCircle(const btVector3& offsetPosition, int stack
 			trans.setRotation(rotY);
 			createRigidBody(mass, trans, blockShape);
 
-			rotY *= btQuaternion(btVector3(0, 1, 0), SIMD_PI / (rotSize * btScalar(0.5)));
+			rotY *= btQuaternion(btVector3(0, 1, 0), SIMD_PI / ((btScalar)rotSize * btScalar(0.5)));
 		}
 
 		posY += boxSize[1] * 2.0f;
@@ -949,7 +949,7 @@ void BenchmarkDemo::createTest3()
 	btVector3 pos(0.0f, sizeY, 0.0f);
 	while (size)
 	{
-		float offset = -size * (sizeX * 6.0f) * 0.5f;
+		float offset = (float)-size * (sizeX * 6.0f) * 0.5f;
 		for (int i = 0; i < size; i++)
 		{
 			pos[0] = offset + (float)i * (sizeX * 6.0f);
@@ -972,7 +972,7 @@ void BenchmarkDemo::createTest4()
 	const float cubeSize = 1.5f;
 	float spacing = cubeSize;
 	btVector3 pos(0.0f, cubeSize * 2, 0.0f);
-	float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+	float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 	btConvexHullShape* convexHullShape = new btConvexHullShape();
 
@@ -1008,7 +1008,7 @@ void BenchmarkDemo::createTest4()
 				createRigidBody(mass, trans, convexHullShape);
 			}
 		}
-		offset -= 0.05f * spacing * (size - 1);
+		offset -= 0.05f * spacing * (float)(size - 1);
 		spacing *= 1.01f;
 		pos[1] += (cubeSize * 2.0f + spacing);
 	}
@@ -1131,7 +1131,7 @@ void BenchmarkDemo::createTest5()
 		const float cubeSize = boxSize[0];
 		float spacing = 2.0f;
 		btVector3 pos(0.0f, 20.0f, 0.0f);
-		float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+		float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 		int numBodies = 0;
 		(void)numBodies;
@@ -1156,7 +1156,7 @@ void BenchmarkDemo::createTest5()
 						case 1:
 						case 2:
 						{
-							float r = 0.5f * (idx + 1);
+							float r = 0.5f * (float)(idx + 1);
 							btBoxShape* boxShape = new btBoxShape(boxSize * r);
 							createRigidBody(boxMass * r, trans, boxShape);
 						}
@@ -1166,7 +1166,7 @@ void BenchmarkDemo::createTest5()
 						case 4:
 						case 5:
 						{
-							float r = 0.5f * (idx - 3 + 1);
+							float r = 0.5f * (float)(idx - 3 + 1);
 							btSphereShape* sphereShape = new btSphereShape(sphereRadius * r);
 							createRigidBody(sphereMass * r, trans, sphereShape);
 						}
@@ -1176,7 +1176,7 @@ void BenchmarkDemo::createTest5()
 						case 7:
 						case 8:
 						{
-							float r = 0.5f * (idx - 6 + 1);
+							float r = 0.5f * (float)(idx - 6 + 1);
 							btCapsuleShape* capsuleShape = new btCapsuleShape(capsuleRadius * r, capsuleHalf * r);
 							createRigidBody(capsuleMass * r, trans, capsuleShape);
 						}
@@ -1186,7 +1186,7 @@ void BenchmarkDemo::createTest5()
 					numBodies++;
 				}
 			}
-			offset -= 0.05f * spacing * (size - 1);
+			offset -= 0.05f * spacing * (float)(size - 1);
 			spacing *= 1.1f;
 			pos[1] += (cubeSize * 2.0f + spacing);
 		}
@@ -1222,7 +1222,7 @@ void BenchmarkDemo::createTest6()
 		const float cubeSize = boxSize[0];
 		float spacing = 2.0f;
 		btVector3 pos(0.0f, 20.0f, 0.0f);
-		float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+		float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 		for (int k = 0; k < height; k++)
 		{
@@ -1238,7 +1238,7 @@ void BenchmarkDemo::createTest6()
 					createRigidBody(mass, trans, convexHullShape);
 				}
 			}
-			offset -= 0.05f * spacing * (size - 1);
+			offset -= 0.05f * spacing * (float)(size - 1);
 			spacing *= 1.1f;
 			pos[1] += (cubeSize * 2.0f + spacing);
 		}

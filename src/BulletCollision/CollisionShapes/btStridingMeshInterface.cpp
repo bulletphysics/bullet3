@@ -264,9 +264,9 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 						for (gfxindex = 0; gfxindex < numtriangles; gfxindex++)
 						{
 							unsigned int* tri_indices = (unsigned int*)(indexbase + gfxindex * indexstride);
-							tmpIndices[gfxindex * 3].m_value = tri_indices[0];
-							tmpIndices[gfxindex * 3 + 1].m_value = tri_indices[1];
-							tmpIndices[gfxindex * 3 + 2].m_value = tri_indices[2];
+							tmpIndices[gfxindex * 3].m_value = (int)tri_indices[0];
+							tmpIndices[gfxindex * 3 + 1].m_value = (int)tri_indices[1];
+							tmpIndices[gfxindex * 3 + 2].m_value = (int)tri_indices[2];
 						}
 						serializer->finalizeChunk(serializerChunk, "btIntIndexData", BT_ARRAY_CODE, (void*)serializerChunk->m_oldPtr);
 					}
@@ -282,9 +282,9 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 						for (gfxindex = 0; gfxindex < numtriangles; gfxindex++)
 						{
 							unsigned short int* tri_indices = (unsigned short int*)(indexbase + gfxindex * indexstride);
-							tmpIndices[gfxindex].m_values[0] = tri_indices[0];
-							tmpIndices[gfxindex].m_values[1] = tri_indices[1];
-							tmpIndices[gfxindex].m_values[2] = tri_indices[2];
+							tmpIndices[gfxindex].m_values[0] = (int)tri_indices[0];
+							tmpIndices[gfxindex].m_values[1] = (int)tri_indices[1];
+							tmpIndices[gfxindex].m_values[2] = (int)tri_indices[2];
 							// Fill padding with zeros to appease msan.
 							tmpIndices[gfxindex].m_pad[0] = 0;
 							tmpIndices[gfxindex].m_pad[1] = 0;

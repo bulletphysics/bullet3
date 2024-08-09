@@ -180,7 +180,7 @@ private:
 	{
 		if (index.mID == -1) return index.mTracker->mFind;
 		VertexVector &vlist = *index.mTracker->mList;
-		return vlist[index.mID];
+		return vlist[(size_t)index.mID];
 	}
 };
 
@@ -208,7 +208,7 @@ public:
 
 	const float *GetPos(int idx) const
 	{
-		return mVtxs[idx].mPos;
+		return mVtxs[(size_t)idx].mPos;
 	}
 
 	const Type &Get(int idx) const
@@ -297,7 +297,7 @@ unsigned int Vl_getIndex(VertexLookup vlook, const float *pos)  // get index.
 {
 	VertexPool<VertexPosition> *vp = (VertexPool<VertexPosition> *)vlook;
 	VertexPosition p(pos);
-	return vp->getVertex(p);
+	return (unsigned int)vp->getVertex(p);
 }
 
 const float *Vl_getVertices(VertexLookup vlook)

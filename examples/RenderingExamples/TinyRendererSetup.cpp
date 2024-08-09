@@ -65,7 +65,7 @@ struct TinyRendererSetupInternalData
 		{
 			m_transforms[i].setIdentity();
 			//btVector3	pos(0.f,-(2.5* numObjects * 0.5)+i*2.5f, 0.f);
-			btVector3 pos(0.f, +i * 2.5f, 0.f);
+			btVector3 pos(0.f, (float)+i * 2.5f, 0.f);
 			m_transforms[i].setIdentity();
 			m_transforms[i].setOrigin(pos);
 			btQuaternion orn;
@@ -365,9 +365,9 @@ void TinyRendererSetup::renderScene()
 			const btTransform& tr = m_internalData->m_transforms[o];
 			tr.getOpenGLMatrix(modelMat2);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
 					m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i + 4 * j]);
 					m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i + 4 * j];
@@ -394,9 +394,9 @@ void TinyRendererSetup::renderScene()
 			const btTransform& tr = m_internalData->m_transforms[o];
 			tr.getOpenGLMatrix(modelMat2);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
 					m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i + 4 * j]);
 					m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i + 4 * j];

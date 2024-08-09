@@ -12,11 +12,11 @@ Matrix viewport(int x, int y, int w, int h)
 {
 	Matrix Viewport;
 	Viewport = Matrix::identity();
-	Viewport[0][3] = x + w / 2.f;
-	Viewport[1][3] = y + h / 2.f;
+	Viewport[0][3] = (float)x + (float)w / 2.f;
+	Viewport[1][3] = (float)y + (float)h / 2.f;
 	Viewport[2][3] = .5f;
-	Viewport[0][0] = w / 2.f;
-	Viewport[1][1] = h / 2.f;
+	Viewport[0][0] = (float)w / 2.f;
+	Viewport[1][1] = (float)h / 2.f;
 	Viewport[2][2] = .5f;
 	return Viewport;
 }
@@ -70,7 +70,7 @@ Vec3d barycentric(Vec2f A1, Vec2f B1, Vec2f C1, Vec2f P1)
 	Vec2d P(P1.x, P1.y);;
 
 	Vec3d s[2];
-	for (int i = 2; i--;)
+	for (size_t i = 2; i--;)
 	{
 		s[i][0] = C[i] - A[i];
 		s[i][1] = B[i] - A[i];
@@ -92,7 +92,7 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 	mat<3, 4, float> screenSpacePts = (viewPortMatrix * clipc).transpose();  // transposed to ease access to each of the points
 
 	mat<3, 2, float> pts2;
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
 		pts2[i] = proj<2>(screenSpacePts[i] / screenSpacePts[i][3]);
 	}
@@ -101,9 +101,9 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 	Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
 	Vec2f clamp(image.get_width() - 1, image.get_height() - 1);
 
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 2; j++)
+		for (size_t j = 0; j < 2; j++)
 		{
 			bboxmin[j] = b3Max(0.f, b3Min(bboxmin[j], pts2[i][j]));
 			bboxmax[j] = b3Min(clamp[j], b3Max(bboxmax[j], pts2[i][j]));
@@ -116,14 +116,14 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 	mat<3, 4, float> orgScreenSpacePts = (viewPortMatrix * orgClipc).transpose();  // transposed to ease access to each of the points
 
 	mat<3, 2, float> orgPts2;
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
 		orgPts2[i] = proj<2>(orgScreenSpacePts[i] / orgScreenSpacePts[i][3]);
 	}
 
-	for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++)
+	for (P.x = bboxmin.x; P.x <= (int)bboxmax.x; P.x++)
 	{
-		for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++)
+		for (P.y = bboxmin.y; P.y <= (int)bboxmax.y; P.y++)
 		{
 			double frag_depth = 0;
 			{
@@ -170,15 +170,15 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 	mat<3, 4, float> pts = (viewPortMatrix * clipc).transpose();  // transposed to ease access to each of the points
 
 	mat<3, 2, float> pts2;
-	for (int i = 0; i < 3; i++) pts2[i] = proj<2>(pts[i] / pts[i][3]);
+	for (size_t i = 0; i < 3; i++) pts2[i] = proj<2>(pts[i] / pts[i][3]);
 
 	Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 	Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
 	Vec2f clamp(image.get_width() - 1, image.get_height() - 1);
 
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 2; j++)
+		for (size_t j = 0; j < 2; j++)
 		{
 			bboxmin[j] = b3Max(0.f, b3Min(bboxmin[j], pts2[i][j]));
 			bboxmax[j] = b3Min(clamp[j], b3Max(bboxmax[j], pts2[i][j]));
@@ -187,9 +187,9 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 
 	Vec2i P;
 	TGAColor color;
-	for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++)
+	for (P.x = bboxmin.x; P.x <= (int)bboxmax.x; P.x++)
 	{
-		for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++)
+		for (P.y = bboxmin.y; P.y <= (int)bboxmax.y; P.y++)
 		{
 			Vec3d bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
 			Vec3d bc_clip = Vec3d(bc_screen.x / pts[0][3], bc_screen.y / pts[1][3], bc_screen.z / pts[2][3]);

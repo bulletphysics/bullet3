@@ -165,7 +165,7 @@ void Base::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeStr
 {
 	float fSize = pFont->size * Scale();
 
-	for (float i = 0; i < text.length(); i++)
+	for (float i = 0; i < (float)text.length(); i++)
 	{
 		wchar_t chr = text[i];
 

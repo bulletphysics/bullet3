@@ -76,7 +76,7 @@ void btCompoundShape::addChildShape(const btTransform& localTransform, btCollisi
 	if (m_dynamicAabbTree)
 	{
 		const btDbvtVolume bounds = btDbvtVolume::FromMM(localAabbMin, localAabbMax);
-		size_t index = m_children.size();
+		size_t index = (size_t)m_children.size();
 		child.m_node = m_dynamicAabbTree->insert(bounds, reinterpret_cast<void*>(index));
 	}
 
@@ -293,7 +293,7 @@ void btCompoundShape::createAabbTreeFromChildren()
 			child.m_childShape->getAabb(child.m_transform, localAabbMin, localAabbMax);
 
 			const btDbvtVolume bounds = btDbvtVolume::FromMM(localAabbMin, localAabbMax);
-			size_t index2 = index;
+			size_t index2 = (size_t)index;
 			child.m_node = m_dynamicAabbTree->insert(bounds, reinterpret_cast<void*>(index2));
 		}
 	}
@@ -321,7 +321,7 @@ const char* btCompoundShape::serialize(void* dataBuffer, btSerializer* serialize
 			//don't serialize shapes that already have been serialized
 			if (!serializer->findPointer(m_children[i].m_childShape))
 			{
-				btChunk* serializerChunk = serializer->allocate(m_children[i].m_childShape->calculateSerializeBufferSize(), 1);
+				btChunk* serializerChunk = serializer->allocate((size_t)m_children[i].m_childShape->calculateSerializeBufferSize(), 1);
 				const char* structType = m_children[i].m_childShape->serialize(serializerChunk->m_oldPtr, serializer);
 				serializer->finalizeChunk(serializerChunk, structType, BT_SHAPE_CODE, m_children[i].m_childShape);
 			}

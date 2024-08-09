@@ -208,9 +208,9 @@ void b3GpuSapBroadphase::init3dSap()
 					for (int i = 0; i < totalNumAabbs; i++)
 					{
 						m_sortedAxisCPU[axis][buf][i * 2].m_key = FloatFlip(m_allAabbsCPU[i].m_min[axis]) - 1;
-						m_sortedAxisCPU[axis][buf][i * 2].m_value = i * 2;
+						m_sortedAxisCPU[axis][buf][i * 2].m_value = (unsigned int)(i * 2);
 						m_sortedAxisCPU[axis][buf][i * 2 + 1].m_key = FloatFlip(m_allAabbsCPU[i].m_max[axis]) + 1;
-						m_sortedAxisCPU[axis][buf][i * 2 + 1].m_value = i * 2 + 1;
+						m_sortedAxisCPU[axis][buf][i * 2 + 1].m_value = (unsigned int)(i * 2 + 1);
 					}
 				}
 			}
@@ -228,15 +228,15 @@ void b3GpuSapBroadphase::init3dSap()
 			m_objectMinMaxIndexCPU[axis][m_currentBuffer].resize(numEndPoints);
 			for (int i = 0; i < numEndPoints; i++)
 			{
-				int destIndex = m_sortedAxisCPU[axis][m_currentBuffer][i].m_value;
+				int destIndex = (int)m_sortedAxisCPU[axis][m_currentBuffer][i].m_value;
 				int newDest = destIndex / 2;
 				if (destIndex & 1)
 				{
-					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].y = i;
+					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].y = (unsigned int)i;
 				}
 				else
 				{
-					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].x = i;
+					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].x = (unsigned int)i;
 				}
 			}
 		}
@@ -372,9 +372,9 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 				keyMax[axis] = FloatFlip(vmax);
 
 				m_sortedAxisCPU[axis][m_currentBuffer][i * 2].m_key = keyMin[axis] - 1;
-				m_sortedAxisCPU[axis][m_currentBuffer][i * 2].m_value = i * 2;
+				m_sortedAxisCPU[axis][m_currentBuffer][i * 2].m_value = (unsigned int)(i * 2);
 				m_sortedAxisCPU[axis][m_currentBuffer][i * 2 + 1].m_key = keyMax[axis] + 1;
-				m_sortedAxisCPU[axis][m_currentBuffer][i * 2 + 1].m_value = i * 2 + 1;
+				m_sortedAxisCPU[axis][m_currentBuffer][i * 2 + 1].m_value = (unsigned int)(i * 2 + 1);
 			}
 			//printf("aabb[%d] min=%u,%u,%u max %u,%u,%u\n", i,keyMin[0],keyMin[1],keyMin[2],keyMax[0],keyMax[1],keyMax[2]);
 		}
@@ -412,15 +412,15 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 			m_objectMinMaxIndexCPU[axis][m_currentBuffer].resize(totalNumAabbs);
 			for (int i = 0; i < numEndPoints; i++)
 			{
-				int destIndex = m_sortedAxisCPU[axis][m_currentBuffer][i].m_value;
+				int destIndex = (int)m_sortedAxisCPU[axis][m_currentBuffer][i].m_value;
 				int newDest = destIndex / 2;
 				if (destIndex & 1)
 				{
-					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].y = i;
+					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].y = (unsigned int)i;
 				}
 				else
 				{
-					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].x = i;
+					m_objectMinMaxIndexCPU[axis][m_currentBuffer][newDest].x = (unsigned int)i;
 				}
 			}
 		}
@@ -562,11 +562,11 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 				unsigned int curMinIndex = m_objectMinMaxIndexCPU[axis][m_currentBuffer][i].x;
 				unsigned int curMaxIndex = m_objectMinMaxIndexCPU[axis][m_currentBuffer][i].y;
 				unsigned int prevMinIndex = m_objectMinMaxIndexCPU[axis][1 - m_currentBuffer][i].x;
-				int dmin = curMinIndex - prevMinIndex;
+				int dmin = (int)(curMinIndex - prevMinIndex);
 
 				unsigned int prevMaxIndex = m_objectMinMaxIndexCPU[axis][1 - m_currentBuffer][i].y;
 
-				int dmax = curMaxIndex - prevMaxIndex;
+				int dmax = (int)(curMaxIndex - prevMaxIndex);
 				if (dmin != 0)
 				{
 					//printf("for object %d, dmin=%d\n",i,dmin);
@@ -580,9 +580,9 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 					if (dmin != 0)
 					{
 						int stepMin = dmin < 0 ? -1 : 1;
-						for (int j = prevMinIndex; j != (int)curMinIndex; j += stepMin)
+						for (int j = (int)prevMinIndex; j != (int)curMinIndex; j += stepMin)
 						{
-							int otherIndex2 = m_sortedAxisCPU[axis][otherbuffer][j].y;
+							int otherIndex2 = (int)m_sortedAxisCPU[axis][otherbuffer][j].y;
 							int otherIndex = otherIndex2 / 2;
 							if (otherIndex != i)
 							{
@@ -661,9 +661,9 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 					if (dmax != 0)
 					{
 						int stepMax = dmax < 0 ? -1 : 1;
-						for (int j = prevMaxIndex; j != (int)curMaxIndex; j += stepMax)
+						for (int j = (int)prevMaxIndex; j != (int)curMaxIndex; j += stepMax)
 						{
-							int otherIndex2 = m_sortedAxisCPU[axis][otherbuffer][j].y;
+							int otherIndex2 = (int)m_sortedAxisCPU[axis][otherbuffer][j].y;
 							int otherIndex = otherIndex2 / 2;
 							if (otherIndex != i)
 							{
@@ -1014,7 +1014,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 	{
 		//bool syncOnHost = false;
 
-		size_t numSmallAabbs = m_smallAabbsMappingCPU.size();
+		size_t numSmallAabbs = (size_t)m_smallAabbsMappingCPU.size();
 		if (m_prefixScanFloat4 && numSmallAabbs)
 		{
 			B3_PROFILE("GPU compute best variance axis");
@@ -1035,13 +1035,13 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			launcher.setBuffer(m_sum.getBufferCL());
 			launcher.setBuffer(m_sum2.getBufferCL());
 			launcher.setConst(numSmallAabbs);
-			int num = numSmallAabbs;
+			int num = (int)numSmallAabbs;
 			launcher.launch1D(num);
 
 			b3Vector3 s;
 			b3Vector3 s2;
-			m_prefixScanFloat4->execute(m_sum, m_dst, numSmallAabbs + 1, &s);
-			m_prefixScanFloat4->execute(m_sum2, m_dst, numSmallAabbs + 1, &s2);
+			m_prefixScanFloat4->execute(m_sum, m_dst, (int)numSmallAabbs + 1, &s);
+			m_prefixScanFloat4->execute(m_sum2, m_dst, (int)numSmallAabbs + 1, &s2);
 
 			b3Vector3 v = s2 - (s * s) / (float)numSmallAabbs;
 
@@ -1066,7 +1066,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			launcher.setConst(numSmallAabbs);
 			launcher.setConst(axis);
 
-			int num = numSmallAabbs;
+			int num = (int)numSmallAabbs;
 			launcher.launch1D(num);
 			clFinish(m_queue);
 		}
@@ -1091,19 +1091,19 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			b3LauncherCL launcher(m_queue, m_scatterKernel, "m_scatterKernel ");
 			launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
 			launcher.setConst(numSmallAabbs);
-			int num = numSmallAabbs;
+			int num = (int)numSmallAabbs;
 			launcher.launch1D(num);
 			clFinish(m_queue);
 		}
 
-		m_overlappingPairs.resize(maxPairs);
+		m_overlappingPairs.resize((size_t)maxPairs);
 
 		m_pairCount.resize(0);
 		m_pairCount.push_back(0);
 		int numPairs = 0;
 
 		{
-			int numLargeAabbs = m_largeAabbsMappingGPU.size();
+			int numLargeAabbs = (int)m_largeAabbsMappingGPU.size();
 			if (numLargeAabbs && numSmallAabbs)
 			{
 				//@todo
@@ -1121,7 +1121,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 				launcher.setConst(axis);
 				launcher.setConst(maxPairs);
 				//@todo: use actual maximum work item sizes of the device instead of hardcoded values
-				launcher.launch2D(numLargeAabbs, numSmallAabbs, 4, 64);
+				launcher.launch2D(numLargeAabbs, (int)numSmallAabbs, 4, 64);
 
 				numPairs = m_pairCount.at(0);
 				if (numPairs > maxPairs)
@@ -1141,7 +1141,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 			launcher.setConst(axis);
 			launcher.setConst(maxPairs);
 
-			int num = numSmallAabbs;
+			int num = (int)numSmallAabbs;
 #if 0                
                 int buffSize = launcher.getSerializationBufferSize();
                 unsigned char* buf = new unsigned char[buffSize+sizeof(int)];
@@ -1224,7 +1224,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 
 #endif
 
-		m_overlappingPairs.resize(numPairs);
+		m_overlappingPairs.resize((size_t)numPairs);
 
 	}  //B3_PROFILE("GPU_RADIX SORT");
 	   //init3dSap();
@@ -1277,7 +1277,7 @@ cl_mem b3GpuSapBroadphase::getAabbBufferWS()
 
 int b3GpuSapBroadphase::getNumOverlap()
 {
-	return m_overlappingPairs.size();
+	return (int)m_overlappingPairs.size();
 }
 cl_mem b3GpuSapBroadphase::getOverlappingPairBuffer()
 {

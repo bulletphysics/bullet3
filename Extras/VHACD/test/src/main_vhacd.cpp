@@ -238,7 +238,7 @@ int main_vhacd2(Parameters& params)
 			{
 				interfaceVHACD->GetConvexHull(p, ch);
 
-				SaveOBJ(foutCH, ch.m_points, ch.m_triangles, ch.m_nPoints, ch.m_nTriangles, mat, myLogger, p, vertexOffset);
+				SaveOBJ(foutCH, ch.m_points, ch.m_triangles, ch.m_nPoints, ch.m_nTriangles, mat, myLogger, (int)p, vertexOffset);
 				vertexOffset += ch.m_nPoints;
 				msg.str("");
 				msg << "\t CH[" << setfill('0') << setw(5) << p << "] " << ch.m_nPoints << " V, " << ch.m_nTriangles << " T" << endl;
@@ -361,7 +361,7 @@ void ParseParameters(int argc, char* argv[], Parameters& params)
 		else if (!strcmp(argv[i], "--resolution"))
 		{
 			if (++i < argc)
-				params.m_paramsVHACD.m_resolution = atoi(argv[i]);
+				params.m_paramsVHACD.m_resolution = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--depth"))
 		{
@@ -411,7 +411,7 @@ void ParseParameters(int argc, char* argv[], Parameters& params)
 		else if (!strcmp(argv[i], "--maxNumVerticesPerCH"))
 		{
 			if (++i < argc)
-				params.m_paramsVHACD.m_maxNumVerticesPerCH = atoi(argv[i]);
+				params.m_paramsVHACD.m_maxNumVerticesPerCH = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--minVolumePerCH"))
 		{
@@ -431,12 +431,12 @@ void ParseParameters(int argc, char* argv[], Parameters& params)
 		else if (!strcmp(argv[i], "--oclPlatformID"))
 		{
 			if (++i < argc)
-				params.m_oclPlatformID = atoi(argv[i]);
+				params.m_oclPlatformID = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--oclDeviceID"))
 		{
 			if (++i < argc)
-				params.m_oclDeviceID = atoi(argv[i]);
+				params.m_oclDeviceID = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--help"))
 		{
@@ -458,7 +458,8 @@ void GetFileExtension(const string& fileName, string& fileExtension)
 	else
 	{
 		fileExtension = fileName.substr(lastDotPosition, fileName.size());
-		transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), ::toupper);
+		for(size_t i=0;i<fileExtension.size();i++)
+			fileExtension[i] = (char)::toupper(fileExtension[i]);
 	}
 }
 void ComputeRandomColor(Material& mat)
@@ -466,9 +467,9 @@ void ComputeRandomColor(Material& mat)
 	mat.m_diffuseColor[0] = mat.m_diffuseColor[1] = mat.m_diffuseColor[2] = 0.0f;
 	while (mat.m_diffuseColor[0] == mat.m_diffuseColor[1] || mat.m_diffuseColor[2] == mat.m_diffuseColor[1] || mat.m_diffuseColor[2] == mat.m_diffuseColor[0])
 	{
-		mat.m_diffuseColor[0] = (rand() % 100) / 100.0f;
-		mat.m_diffuseColor[1] = (rand() % 100) / 100.0f;
-		mat.m_diffuseColor[2] = (rand() % 100) / 100.0f;
+		mat.m_diffuseColor[0] = (float)(rand() % 100) / 100.0f;
+		mat.m_diffuseColor[1] = (float)(rand() % 100) / 100.0f;
+		mat.m_diffuseColor[2] = (float)(rand() % 100) / 100.0f;
 	}
 }
 bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangles, IVHACD::IUserLogger& logger)
@@ -494,12 +495,12 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 			len = fscanf(fid, "%i", &nv);
 			len = fscanf(fid, "%i", &nf);
 			len = fscanf(fid, "%i", &ne);
-			points.resize(nv * 3);
-			triangles.resize(nf * 3);
+			points.resize((size_t)nv * 3);
+			triangles.resize((size_t)nf * 3);
 			const int np = nv * 3;
 			for (int p = 0; p < np; p++)
 			{
-				len = fscanf(fid, "%f", &(points[p]));
+				len = fscanf(fid, "%f", &(points[(size_t)p]));
 			}
 			int s;
 			for (int t = 0, r = 0; t < nf; ++t)
@@ -507,9 +508,9 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 				len = fscanf(fid, "%i", &s);
 				if (s == 3)
 				{
-					len = fscanf(fid, "%i", &(triangles[r++]));
-					len = fscanf(fid, "%i", &(triangles[r++]));
-					len = fscanf(fid, "%i", &(triangles[r++]));
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++]));
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++]));
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++]));
 				}
 				else  // Fix me: support only triangular meshes
 				{

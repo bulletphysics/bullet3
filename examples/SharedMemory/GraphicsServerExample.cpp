@@ -46,7 +46,7 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
 
 
 	//create packetData with [int packetSizeInBytes, status, streamBytes)
-	packetData.resize(4 + sizeof(GraphicsSharedMemoryStatus) + serverStatus.m_numDataStreamBytes);
+	packetData.resize((int)(4 + sizeof(GraphicsSharedMemoryStatus) + serverStatus.m_numDataStreamBytes));
 	int sz = packetData.size();
 	int curPos = 0;
 
@@ -56,7 +56,7 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
 		printf("serverStatus packed size = %d\n", sz);
 	}
 
-	MySerializeInt(sz, &packetData[curPos]);
+	MySerializeInt((unsigned int)sz, &packetData[curPos]);
 	curPos += 4;
 	for (int i = 0; i < (int)sizeof(GraphicsSharedMemoryStatus); i++)
 	{
@@ -67,10 +67,10 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
    	 printf("serverStatus.m_numDataStreamBytes=%d\n", serverStatus.m_numDataStreamBytes);
 	for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
 	{
-		packetData[i + curPos] = buffer[i];
+		packetData[i + curPos] = (unsigned char)buffer[i];
 	}
 
-	pClient->Send(&packetData[0], packetData.size());
+	pClient->Send(&packetData[0], (size_t)packetData.size());
 	if (gVerboseNetworkMessagesServer)
 		printf("pClient->Send serverStatus: %d\n", packetData.size());
 }
@@ -190,7 +190,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 		//--------------------------------------------------------------------------
 		socket.Initialize();
 
-		socket.Listen("localhost", args->m_port);
+		socket.Listen("localhost", (uint16)args->m_port);
 
 		socket.SetBlocking();
 
@@ -398,7 +398,7 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 												
 												for (int i = 0; i < numBytesRec2; i++)
 												{
-													args->m_dataSlots[slot][i+ offset] = msg2[i];
+													args->m_dataSlots[slot][i+ offset] = (unsigned char)msg2[i];
 												}
 												offset += numBytesRec2;
 												received += numBytesRec2;

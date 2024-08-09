@@ -25,6 +25,11 @@
 #define stbi_inline __forceinline
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
+#endif
+
 // implementation:
 typedef unsigned char uint8;
 typedef unsigned short uint16;
@@ -4798,6 +4803,10 @@ int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int *x, int
 	start_callbacks(&s, (stbi_io_callbacks *)c, user);
 	return stbi_info_main(&s, x, y, comp);
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #endif  // STBI_HEADER_FILE_ONLY
 

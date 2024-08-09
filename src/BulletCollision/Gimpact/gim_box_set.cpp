@@ -57,7 +57,7 @@ GUINT GIM_BOX_TREE::_calc_splitting_axis(
 	}
 	variance *= (btScalar(1.) / ((btScalar)numIndices - 1));
 
-	return variance.maxAxis();
+	return (GUINT)variance.maxAxis();
 }
 
 GUINT GIM_BOX_TREE::_sort_and_calc_splitting_index(

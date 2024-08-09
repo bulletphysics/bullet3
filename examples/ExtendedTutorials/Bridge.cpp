@@ -98,7 +98,7 @@ void BridgeExample::initPhysics()
 		int lastBoxIndex = TOTAL_PLANKS - 1;
 		for (int i = 0; i < TOTAL_PLANKS; ++i)
 		{
-			float t = float(i) / lastBoxIndex;
+			float t = float(i) / (float)lastBoxIndex;
 			t = -(t * 2 - 1.0f) * halfBridgeWidth;
 			startTransform.setOrigin(btVector3(
 				btScalar(t),

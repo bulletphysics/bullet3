@@ -113,13 +113,13 @@ b3GpuPgsContactSolver::b3GpuPgsContactSolver(cl_context ctx, cl_device_id device
 
 	const int sortSize = B3NEXTMULTIPLEOF(pairCapacity, 512);
 
-	m_data->m_sortDataBuffer = new b3OpenCLArray<b3SortData>(ctx, m_data->m_queue, sortSize);
+	m_data->m_sortDataBuffer = new b3OpenCLArray<b3SortData>(ctx, m_data->m_queue, (size_t)sortSize);
 	m_data->m_contactBuffer = new b3OpenCLArray<b3Contact4>(ctx, m_data->m_queue);
 
 	m_data->m_numConstraints = new b3OpenCLArray<unsigned int>(ctx, m_data->m_queue, B3_SOLVER_N_CELLS);
 	m_data->m_numConstraints->resize(B3_SOLVER_N_CELLS);
 
-	m_data->m_contactCGPU = new b3OpenCLArray<b3GpuConstraint4>(ctx, q, pairCapacity);
+	m_data->m_contactCGPU = new b3OpenCLArray<b3GpuConstraint4>(ctx, q, (size_t)pairCapacity);
 
 	m_data->m_offsets = new b3OpenCLArray<unsigned int>(ctx, m_data->m_queue, B3_SOLVER_N_CELLS);
 	m_data->m_offsets->resize(B3_SOLVER_N_CELLS);
@@ -555,8 +555,8 @@ void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* 
 #endif  //USE_4x4_GRID
 #endif  //USE_SPATIAL_BATCHING
 
-			gSortDataOut[gIdx].x = newIndex;
-			gSortDataOut[gIdx].y = gIdx;
+			gSortDataOut[gIdx].x = (unsigned int)newIndex;
+			gSortDataOut[gIdx].y = (unsigned int)gIdx;
 		}
 		else
 		{
@@ -568,9 +568,9 @@ void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* 
 void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem inertiaBuf, int numContacts, cl_mem contactBuf, const b3Config& /*config*/, int static0Index)
 {
 	B3_PROFILE("solveContacts");
-	m_data->m_bodyBufferGPU->setFromOpenCLBuffer(bodyBuf, numBodies);
-	m_data->m_inertiaBufferGPU->setFromOpenCLBuffer(inertiaBuf, numBodies);
-	m_data->m_pBufContactOutGPU->setFromOpenCLBuffer(contactBuf, numContacts);
+	m_data->m_bodyBufferGPU->setFromOpenCLBuffer(bodyBuf, (size_t)numBodies);
+	m_data->m_inertiaBufferGPU->setFromOpenCLBuffer(inertiaBuf, (size_t)numBodies);
+	m_data->m_pBufContactOutGPU->setFromOpenCLBuffer(contactBuf, (size_t)numContacts);
 
 	if (optionalSortContactsDeterminism)
 	{
@@ -578,10 +578,10 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 		{
 			B3_PROFILE("GPU Sort contact constraints (determinism)");
 
-			m_data->m_pBufContactOutGPUCopy->resize(numContacts);
-			m_data->m_contactKeyValues->resize(numContacts);
+			m_data->m_pBufContactOutGPUCopy->resize((size_t)numContacts);
+			m_data->m_contactKeyValues->resize((size_t)numContacts);
 
-			m_data->m_pBufContactOutGPU->copyToCL(m_data->m_pBufContactOutGPUCopy->getBufferCL(), numContacts, 0, 0);
+			m_data->m_pBufContactOutGPU->copyToCL(m_data->m_pBufContactOutGPUCopy->getBufferCL(), (size_t)numContacts, 0, 0);
 
 			{
 				b3LauncherCL launcher(m_data->m_queue, m_data->m_setDeterminismSortDataChildShapeBKernel, "m_setDeterminismSortDataChildShapeBKernel");
@@ -663,7 +663,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 		}
 	}
 
-	int nContactOut = m_data->m_pBufContactOutGPU->size();
+	int nContactOut = (int)m_data->m_pBufContactOutGPU->size();
 
 	bool useSolver = true;
 
@@ -688,13 +688,13 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 		{
 			if (m_data->m_solverGPU->m_contactBuffer2)
 			{
-				m_data->m_solverGPU->m_contactBuffer2->resize(nContacts);
+				m_data->m_solverGPU->m_contactBuffer2->resize((size_t)nContacts);
 			}
 
 			if (m_data->m_solverGPU->m_contactBuffer2 == 0)
 			{
-				m_data->m_solverGPU->m_contactBuffer2 = new b3OpenCLArray<b3Contact4>(m_data->m_context, m_data->m_queue, nContacts);
-				m_data->m_solverGPU->m_contactBuffer2->resize(nContacts);
+				m_data->m_solverGPU->m_contactBuffer2 = new b3OpenCLArray<b3Contact4>(m_data->m_context, m_data->m_queue, (size_t)nContacts);
+				m_data->m_solverGPU->m_contactBuffer2->resize((size_t)nContacts);
 			}
 
 			//clFinish(m_data->m_queue);
@@ -737,7 +737,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 							cdata.m_nSplit.y = B3_SOLVER_N_SPLIT_Y;
 							cdata.m_nSplit.z = B3_SOLVER_N_SPLIT_Z;
 
-							m_data->m_solverGPU->m_sortDataBuffer->resize(nContacts);
+							m_data->m_solverGPU->m_sortDataBuffer->resize((size_t)nContacts);
 
 							b3BufferInfoCL bInfo[] = {b3BufferInfoCL(m_data->m_pBufContactOutGPU->getBufferCL()), b3BufferInfoCL(bodyBuf->getBufferCL()), b3BufferInfoCL(m_data->m_solverGPU->m_sortDataBuffer->getBufferCL())};
 							b3LauncherCL launcher(m_data->m_queue, m_data->m_solverGPU->m_setSortDataKernel, "m_setSortDataKernel");
@@ -751,7 +751,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 						}
 						else
 						{
-							m_data->m_solverGPU->m_sortDataBuffer->resize(nContacts);
+							m_data->m_solverGPU->m_sortDataBuffer->resize((size_t)nContacts);
 							b3AlignedObjectArray<b3SortData> sortDataCPU;
 							m_data->m_solverGPU->m_sortDataBuffer->copyToHost(sortDataCPU);
 
@@ -812,7 +812,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 							//unsigned int sum;
 							//m_data->m_solverGPU->m_scan->execute(*countsNative,*offsetsNative, B3_SOLVER_N_CELLS);//,&sum );
 							b3AlignedObjectArray<unsigned int> offsetsHost;
-							offsetsHost.resize(offsetsNative->size());
+							offsetsHost.resize((int)offsetsNative->size());
 
 							m_data->m_solverGPU->m_scan->executeHost(countsHost, offsetsHost, B3_SOLVER_N_CELLS);  //,&sum );
 							offsetsNative->copyFromHost(offsetsHost);
@@ -840,7 +840,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 								outContacts.resize(inContacts.size());
 								for (int i = 0; i < nContacts; i++)
 								{
-									int srcIdx = sortDataHost[i].y;
+									int srcIdx = (int)sortDataHost[i].y;
 									outContacts[i] = inContacts[srcIdx];
 								}
 								m_data->m_solverGPU->m_contactBuffer2->copyFromHost(outContacts);
@@ -968,8 +968,8 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 							B3_PROFILE("cpu batch grid");
 							for (int i = 0; i < B3_SOLVER_N_CELLS; i++)
 							{
-								int n = (nNativeHost)[i];
-								int offset = (offsetsNativeHost)[i];
+								int n = (int)(nNativeHost)[i];
+								int offset = (int)(offsetsNativeHost)[i];
 								if (n)
 								{
 									numNonzeroGrid++;
@@ -1133,7 +1133,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, i
 		cs[i].getBatchIdx() = -1;
 #endif
 	for (int i = 0; i < n; i++)
-		idxSrc[i] = i;
+		idxSrc[i] = (unsigned int)i;
 	nIdxSrc = n;
 
 	int batchIdx = 0;
@@ -1151,7 +1151,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, i
 
 			for (int i = 0; i < nIdxSrc; i++)
 			{
-				int idx = idxSrc[i];
+				int idx = (int)idxSrc[i];
 
 				b3Assert(idx < n);
 				//	check if it can go
@@ -1182,8 +1182,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, i
 						flg[bIdx / 32] |= (1 << (bIdx & 31));
 
 					cs[idx].getBatchIdx() = batchIdx;
-					sortData[idx].m_key = batchIdx;
-					sortData[idx].m_value = idx;
+					sortData[idx].m_key = (unsigned int)batchIdx;
+					sortData[idx].m_value = (unsigned int)idx;
 
 					{
 						nCurrentBatch++;
@@ -1196,7 +1196,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, i
 				}
 				else
 				{
-					idxDst[nIdxDst++] = idx;
+					idxDst[nIdxDst++] = (unsigned int)idx;
 				}
 			}
 			b3Swap(idxSrc, idxDst);
@@ -1216,7 +1216,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, i
 		memcpy(&old[0], cs, sizeof(b3Contact4) * n);
 		for (int i = 0; i < n; i++)
 		{
-			int idx = sortData[i].m_value;
+			int idx = (int)sortData[i].m_value;
 			cs[i] = old[idx];
 		}
 	}
@@ -1258,7 +1258,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch2(b3Contact4* cs, int num
 		cs[i].getBatchIdx() = -1;
 #endif
 	for (int i = 0; i < numConstraints; i++)
-		idxSrc[i] = i;
+		idxSrc[i] = (unsigned int)i;
 
 	int numValidConstraints = 0;
 	//	int unprocessedConstraintIndex = 0;
@@ -1279,7 +1279,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch2(b3Contact4* cs, int num
 
 			for (int i = numValidConstraints; i < numConstraints; i++)
 			{
-				int idx = idxSrc[i];
+				int idx = (int)idxSrc[i];
 				b3Assert(idx < numConstraints);
 				//	check if it can go
 				int bodyAS = cs[idx].m_bodyAPtrAndSignBit;
@@ -1326,8 +1326,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch2(b3Contact4* cs, int num
 					}
 
 					cs[idx].getBatchIdx() = batchIdx;
-					m_data->m_sortData[idx].m_key = batchIdx;
-					m_data->m_sortData[idx].m_value = idx;
+					m_data->m_sortData[idx].m_key = (unsigned int)batchIdx;
+					m_data->m_sortData[idx].m_value = (unsigned int)idx;
 
 					if (i != numValidConstraints)
 					{
@@ -1365,8 +1365,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch2(b3Contact4* cs, int num
 
 		for (int i = 0; i < numConstraints; i++)
 		{
-			b3Assert(m_data->m_sortData[idxSrc[i]].m_value == idxSrc[i]);
-			int idx = m_data->m_sortData[idxSrc[i]].m_value;
+			b3Assert(m_data->m_sortData[(int)idxSrc[i]].m_value == idxSrc[i]);
+			int idx = (int)m_data->m_sortData[(int)idxSrc[i]].m_value;
 			cs[i] = m_data->m_old[idx];
 		}
 	}

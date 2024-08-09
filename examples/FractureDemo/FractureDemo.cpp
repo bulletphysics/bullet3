@@ -164,7 +164,7 @@ void FractureDemo::initPhysics()
 			btTransform trans;
 			trans.setIdentity();
 
-			btVector3 pos(i * 2 * CUBE_HALF_EXTENTS, 20, 0);
+			btVector3 pos((float)i * 2 * CUBE_HALF_EXTENTS, 20, 0);
 			trans.setOrigin(pos);
 
 			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects

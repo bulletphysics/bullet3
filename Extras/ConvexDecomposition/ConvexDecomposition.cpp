@@ -320,7 +320,7 @@ void calcConvexDecomposition(unsigned int vcount,
 		{
 			unsigned int vcount = Vl_getVcount(vfront);
 			const float *vertices = Vl_getVertices(vfront);
-			unsigned int tcount = ifront.size() / 3;
+			unsigned int tcount = (unsigned int)(ifront.size() / 3);
 
 			calcConvexDecomposition(vcount, vertices, tcount, &ifront[0], callback, masterVolume, depth + 1);
 		}
@@ -333,7 +333,7 @@ void calcConvexDecomposition(unsigned int vcount,
 		{
 			unsigned int vcount = Vl_getVcount(vback);
 			const float *vertices = Vl_getVertices(vback);
-			unsigned int tcount = iback.size() / 3;
+			unsigned int tcount = (unsigned int)(iback.size() / 3);
 
 			calcConvexDecomposition(vcount, vertices, tcount, &iback[0], callback, masterVolume, depth + 1);
 		}

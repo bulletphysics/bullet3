@@ -157,7 +157,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 			m_dynamicsWorld->serialize(serializer);
 
 			FILE* file = fopen("testFile.bullet", "wb");
-			fwrite(serializer->getBufferPointer(), serializer->getCurrentBufferSize(), 1, file);
+			fwrite(serializer->getBufferPointer(), (size_t)serializer->getCurrentBufferSize(), 1, file);
 			fclose(file);
 			//b3Printf("btDefaultSerializer wrote testFile.bullet");
 			delete serializer;

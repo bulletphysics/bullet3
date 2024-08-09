@@ -22,7 +22,7 @@
 static inline int PolarDecomposition(const btMatrix3x3& m, btMatrix3x3& q, btMatrix3x3& s)
 {
 	static const btPolarDecomposition polar;
-	return polar.decompose(m, q, s);
+	return (int)polar.decompose(m, q, s);
 }
 
 class btDeformableCorotatedForce : public btDeformableLagrangianForce
@@ -72,10 +72,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 
 				// elastic force
 				// explicit elastic force

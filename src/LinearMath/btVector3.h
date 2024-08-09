@@ -1026,7 +1026,7 @@ SIMD_FORCE_INLINE long btVector3::maxDot(const btVector3* array, long array_coun
 		return ptIndex;
 	}
 #if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined(BT_USE_NEON)
-	return _maxdot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return _maxdot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif
 }
 
@@ -1066,7 +1066,7 @@ SIMD_FORCE_INLINE long btVector3::minDot(const btVector3* array, long array_coun
 		return ptIndex;
 	}
 #if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined(BT_USE_NEON)
-	return _mindot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return _mindot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif  //BT_USE_SIMD_VECTOR3
 }
 

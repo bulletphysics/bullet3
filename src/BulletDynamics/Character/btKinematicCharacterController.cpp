@@ -657,7 +657,7 @@ void btKinematicCharacterController::setLinearVelocity(const btVector3& velocity
 			//there is a component in walkdirection for vertical velocity
 			btVector3 upComponent = m_up * (btSin(SIMD_HALF_PI - btAcos(c)) * m_walkDirection.length());
 			m_walkDirection -= upComponent;
-			m_verticalVelocity = (c < 0.0f ? -1 : 1) * upComponent.length();
+			m_verticalVelocity = (btScalar)(c < 0.0f ? -1 : 1) * upComponent.length();
 
 			if (c > 0.0f)
 			{

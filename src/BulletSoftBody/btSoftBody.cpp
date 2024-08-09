@@ -1193,7 +1193,7 @@ void btSoftBody::setPose(bool bvolume, bool bframe)
 
 	/* Weights		*/
 	const btScalar omass = getTotalMass();
-	const btScalar kmass = omass * m_nodes.size() * 1000;
+	const btScalar kmass = omass * (btScalar)m_nodes.size() * 1000;
 	btScalar tmass = omass;
 	m_pose.m_wgh.resize(m_nodes.size());
 	for (i = 0, ni = m_nodes.size(); i < ni; ++i)
@@ -1366,7 +1366,7 @@ int btSoftBody::generateBendingConstraints(int distance, Material* mat)
 		/* Build graph	*/
 		const int n = m_nodes.size();
 		const unsigned inf = (~(unsigned)0) >> 1;
-		unsigned* adj = new unsigned[n * n];
+		unsigned* adj = new unsigned[(size_t)(n * n)];
 
 #define IDX(_x_, _y_) ((_y_)*n + (_x_))
 		for (j = 0; j < n; ++j)
@@ -1480,11 +1480,11 @@ void btSoftBody::randomizeConstraints()
 
 	for (i = 0, ni = m_links.size(); i < ni; ++i)
 	{
-		btSwap(m_links[i], m_links[NEXTRAND % ni]);
+		btSwap(m_links[i], m_links[(int)(NEXTRAND % ni)]);
 	}
 	for (i = 0, ni = m_faces.size(); i < ni; ++i)
 	{
-		btSwap(m_faces[i], m_faces[NEXTRAND % ni]);
+		btSwap(m_faces[i], m_faces[(int)(NEXTRAND % ni)]);
 	}
 #undef NEXTRAND
 }
@@ -1551,7 +1551,7 @@ int btSoftBody::generateClusters(int k, int maxiterations)
 		int iterations = 0;
 		do
 		{
-			const btScalar w = 2 - btMin<btScalar>(1, iterations / slope);
+			const btScalar w = 2 - btMin<btScalar>(1, (btScalar)iterations / slope);
 			changed = false;
 			iterations++;
 			int i;
@@ -2259,7 +2259,7 @@ void btSoftBody::solveConstraints()
 	{
 		for (int isolve = 0; isolve < m_cfg.piterations; ++isolve)
 		{
-			const btScalar ti = isolve / (btScalar)m_cfg.piterations;
+			const btScalar ti = (btScalar)isolve / (btScalar)m_cfg.piterations;
 			for (int iseq = 0; iseq < m_cfg.m_psequence.size(); ++iseq)
 			{
 				getSolver(m_cfg.m_psequence[iseq])(this, 1, ti);
@@ -2422,37 +2422,37 @@ void btSoftBody::pointersToIndices()
 	btSoftBody::Node* base = m_nodes.size() ? &m_nodes[0] : 0;
 	size_t i, ni;
 
-	for (i = 0, ni = m_nodes.size(); i < ni; ++i)
+	for (i = 0, ni = (size_t)m_nodes.size(); i < ni; ++i)
 	{
-		if (m_nodes[i].m_leaf)
+		if (m_nodes[(int)i].m_leaf)
 		{
-			m_nodes[i].m_leaf->data = (void*)(size_t)i;
+			m_nodes[(int)i].m_leaf->data = (void*)(size_t)i;
 		}
 	}
-	for (i = 0, ni = m_links.size(); i < ni; ++i)
+	for (i = 0, ni = (size_t)m_links.size(); i < ni; ++i)
 	{
-		m_links[i].m_n[0] = PTR2IDX(m_links[i].m_n[0], base);
-		m_links[i].m_n[1] = PTR2IDX(m_links[i].m_n[1], base);
+		m_links[(int)i].m_n[0] = PTR2IDX(m_links[(int)i].m_n[0], base);
+		m_links[(int)i].m_n[1] = PTR2IDX(m_links[(int)i].m_n[1], base);
 	}
-	for (i = 0, ni = m_faces.size(); i < ni; ++i)
+	for (i = 0, ni = (size_t)m_faces.size(); i < ni; ++i)
 	{
-		m_faces[i].m_n[0] = PTR2IDX(m_faces[i].m_n[0], base);
-		m_faces[i].m_n[1] = PTR2IDX(m_faces[i].m_n[1], base);
-		m_faces[i].m_n[2] = PTR2IDX(m_faces[i].m_n[2], base);
-		if (m_faces[i].m_leaf)
+		m_faces[(int)i].m_n[0] = PTR2IDX(m_faces[(int)i].m_n[0], base);
+		m_faces[(int)i].m_n[1] = PTR2IDX(m_faces[(int)i].m_n[1], base);
+		m_faces[(int)i].m_n[2] = PTR2IDX(m_faces[(int)i].m_n[2], base);
+		if (m_faces[(int)i].m_leaf)
 		{
-			m_faces[i].m_leaf->data = (void*)(size_t)i;
+			m_faces[(int)i].m_leaf->data = (void*)(size_t)i;
 		}
 	}
-	for (i = 0, ni = m_anchors.size(); i < ni; ++i)
+	for (i = 0, ni = (size_t)m_anchors.size(); i < ni; ++i)
 	{
-		m_anchors[i].m_node = PTR2IDX(m_anchors[i].m_node, base);
+		m_anchors[(int)i].m_node = PTR2IDX(m_anchors[(int)i].m_node, base);
 	}
-	for (i = 0, ni = m_notes.size(); i < ni; ++i)
+	for (i = 0, ni = (size_t)m_notes.size(); i < ni; ++i)
 	{
-		for (int j = 0; j < m_notes[i].m_rank; ++j)
+		for (int j = 0; j < m_notes[(int)i].m_rank; ++j)
 		{
-			m_notes[i].m_nodes[j] = PTR2IDX(m_notes[i].m_nodes[j], base);
+			m_notes[(int)i].m_nodes[(int)j] = PTR2IDX(m_notes[(int)i].m_nodes[(int)j], base);
 		}
 	}
 #undef PTR2IDX
@@ -4349,7 +4349,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 
 	if (sbd->m_materials)
 	{
-		int sz = sizeof(SoftBodyMaterialData*);
+		size_t sz = sizeof(SoftBodyMaterialData*);
 		int numElem = sbd->m_numMaterials;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		//SoftBodyMaterialData** memPtr = chunk->m_oldPtr;
@@ -4377,7 +4377,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	sbd->m_nodes = sbd->m_numNodes ? (SoftBodyNodeData*)serializer->getUniquePointer((void*)&m_nodes) : 0;
 	if (sbd->m_nodes)
 	{
-		int sz = sizeof(SoftBodyNodeData);
+		size_t sz = sizeof(SoftBodyNodeData);
 		int numElem = sbd->m_numNodes;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		SoftBodyNodeData* memPtr = (SoftBodyNodeData*)chunk->m_oldPtr;
@@ -4385,7 +4385,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 		{
 			m_nodes[i].m_f.serializeFloat(memPtr->m_accumulatedForce);
 			memPtr->m_area = m_nodes[i].m_area;
-			memPtr->m_attach = m_nodes[i].m_battach;
+			memPtr->m_attach = (int)m_nodes[i].m_battach;
 			memPtr->m_inverseMass = m_nodes[i].m_im;
 			memPtr->m_material = m_nodes[i].m_material ? (SoftBodyMaterialData*)serializer->getUniquePointer((void*)m_nodes[i].m_material) : 0;
 			m_nodes[i].m_n.serializeFloat(memPtr->m_normal);
@@ -4401,13 +4401,13 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	sbd->m_links = sbd->m_numLinks ? (SoftBodyLinkData*)serializer->getUniquePointer((void*)&m_links[0]) : 0;
 	if (sbd->m_links)
 	{
-		int sz = sizeof(SoftBodyLinkData);
+		size_t sz = sizeof(SoftBodyLinkData);
 		int numElem = sbd->m_numLinks;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		SoftBodyLinkData* memPtr = (SoftBodyLinkData*)chunk->m_oldPtr;
 		for (int i = 0; i < numElem; i++, memPtr++)
 		{
-			memPtr->m_bbending = m_links[i].m_bbending;
+			memPtr->m_bbending = (int)m_links[i].m_bbending;
 			memPtr->m_material = m_links[i].m_material ? (SoftBodyMaterialData*)serializer->getUniquePointer((void*)m_links[i].m_material) : 0;
 			memPtr->m_nodeIndices[0] = m_links[i].m_n[0] ? m_links[i].m_n[0] - &m_nodes[0] : -1;
 			memPtr->m_nodeIndices[1] = m_links[i].m_n[1] ? m_links[i].m_n[1] - &m_nodes[0] : -1;
@@ -4422,7 +4422,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	sbd->m_faces = sbd->m_numFaces ? (SoftBodyFaceData*)serializer->getUniquePointer((void*)&m_faces[0]) : 0;
 	if (sbd->m_faces)
 	{
-		int sz = sizeof(SoftBodyFaceData);
+		size_t sz = sizeof(SoftBodyFaceData);
 		int numElem = sbd->m_numFaces;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		SoftBodyFaceData* memPtr = (SoftBodyFaceData*)chunk->m_oldPtr;
@@ -4443,7 +4443,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	sbd->m_tetrahedra = sbd->m_numTetrahedra ? (SoftBodyTetraData*)serializer->getUniquePointer((void*)&m_tetras[0]) : 0;
 	if (sbd->m_tetrahedra)
 	{
-		int sz = sizeof(SoftBodyTetraData);
+		size_t sz = sizeof(SoftBodyTetraData);
 		int numElem = sbd->m_numTetrahedra;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		SoftBodyTetraData* memPtr = (SoftBodyTetraData*)chunk->m_oldPtr;
@@ -4466,7 +4466,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	sbd->m_anchors = sbd->m_numAnchors ? (SoftRigidAnchorData*)serializer->getUniquePointer((void*)&m_anchors[0]) : 0;
 	if (sbd->m_anchors)
 	{
-		int sz = sizeof(SoftRigidAnchorData);
+		size_t sz = sizeof(SoftRigidAnchorData);
 		int numElem = sbd->m_numAnchors;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		SoftRigidAnchorData* memPtr = (SoftRigidAnchorData*)chunk->m_oldPtr;
@@ -4516,7 +4516,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	{
 		sbd->m_pose = (SoftBodyPoseData*)serializer->getUniquePointer((void*)&m_pose);
 
-		int sz = sizeof(SoftBodyPoseData);
+		size_t sz = sizeof(SoftBodyPoseData);
 		btChunk* chunk = serializer->allocate(sz, 1);
 		SoftBodyPoseData* memPtr = (SoftBodyPoseData*)chunk->m_oldPtr;
 
@@ -4530,7 +4530,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 		if (memPtr->m_numPositions)
 		{
 			int numElem = memPtr->m_numPositions;
-			int sz = sizeof(btVector3Data);
+			size_t sz = sizeof(btVector3Data);
 			btChunk* chunk = serializer->allocate(sz, numElem);
 			btVector3FloatData* memPtr = (btVector3FloatData*)chunk->m_oldPtr;
 			for (int i = 0; i < numElem; i++, memPtr++)
@@ -4548,7 +4548,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 		if (memPtr->m_numWeigts)
 		{
 			int numElem = memPtr->m_numWeigts;
-			int sz = sizeof(float);
+			size_t sz = sizeof(float);
 			btChunk* chunk = serializer->allocate(sz, numElem);
 			float* memPtr = (float*)chunk->m_oldPtr;
 			for (int i = 0; i < numElem; i++, memPtr++)
@@ -4568,7 +4568,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	if (sbd->m_numClusters)
 	{
 		int numElem = sbd->m_numClusters;
-		int sz = sizeof(SoftBodyClusterData);
+		size_t sz = sizeof(SoftBodyClusterData);
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		SoftBodyClusterData* memPtr = (SoftBodyClusterData*)chunk->m_oldPtr;
 		for (int i = 0; i < numElem; i++, memPtr++)
@@ -4608,7 +4608,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 			if (memPtr->m_framerefs)
 			{
 				int numElem = memPtr->m_numFrameRefs;
-				int sz = sizeof(btVector3FloatData);
+				size_t sz = sizeof(btVector3FloatData);
 				btChunk* chunk = serializer->allocate(sz, numElem);
 				btVector3FloatData* memPtr = (btVector3FloatData*)chunk->m_oldPtr;
 				for (int j = 0; j < numElem; j++, memPtr++)
@@ -4622,7 +4622,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 			if (memPtr->m_masses)
 			{
 				int numElem = memPtr->m_numMasses;
-				int sz = sizeof(float);
+				size_t sz = sizeof(float);
 				btChunk* chunk = serializer->allocate(sz, numElem);
 				float* memPtr = (float*)chunk->m_oldPtr;
 				for (int j = 0; j < numElem; j++, memPtr++)
@@ -4636,7 +4636,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 			if (memPtr->m_nodeIndices)
 			{
 				int numElem = memPtr->m_numMasses;
-				int sz = sizeof(int);
+				size_t sz = sizeof(int);
 				btChunk* chunk = serializer->allocate(sz, numElem);
 				int* memPtr = (int*)chunk->m_oldPtr;
 				for (int j = 0; j < numElem; j++, memPtr++)
@@ -4656,7 +4656,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 
 	if (sbd->m_joints)
 	{
-		int sz = sizeof(btSoftBodyJointData);
+		size_t sz = sizeof(btSoftBodyJointData);
 		int numElem = m_joints.size();
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		btSoftBodyJointData* memPtr = (btSoftBodyJointData*)chunk->m_oldPtr;

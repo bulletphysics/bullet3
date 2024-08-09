@@ -690,7 +690,7 @@ int btDeformableMultiBodyDynamicsWorld::stepSimulation(btScalar timeStep, int ma
 		if (m_localTime >= fixedTimeStep)
 		{
 			numSimulationSubSteps = int(m_localTime / fixedTimeStep);
-			m_localTime -= numSimulationSubSteps * fixedTimeStep;
+			m_localTime -= (btScalar)numSimulationSubSteps * fixedTimeStep;
 		}
 	}
 	else
@@ -722,7 +722,7 @@ int btDeformableMultiBodyDynamicsWorld::stepSimulation(btScalar timeStep, int ma
 		//clamp the number of substeps, to prevent simulation grinding spiralling down to a halt
 		int clampedSimulationSteps = (numSimulationSubSteps > maxSubSteps) ? maxSubSteps : numSimulationSubSteps;
 
-		saveKinematicState(fixedTimeStep * clampedSimulationSteps);
+		saveKinematicState(fixedTimeStep * (btScalar)clampedSimulationSteps);
 
 		for (int i = 0; i < clampedSimulationSteps; i++)
 		{

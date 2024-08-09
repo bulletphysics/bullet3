@@ -231,8 +231,8 @@ struct MyRenderCallbacks : public RenderCallbacks
 		{
 			if (textureWidth && textureHeight)
 			{
-				texture->m_texels = (unsigned char*)malloc(textureWidth * textureHeight);
-				memset(texture->m_texels, 0, textureWidth * textureHeight);
+				texture->m_texels = (unsigned char*)malloc((size_t)(textureWidth * textureHeight));
+				memset(texture->m_texels, 0, (size_t)(textureWidth * textureHeight));
 				if (m_textureIndex < 0)
 				{
 					m_rgbaTexture.resize(textureWidth * textureHeight * 3);
@@ -240,7 +240,7 @@ struct MyRenderCallbacks : public RenderCallbacks
 					m_textureIndex = m_instancingRenderer->registerTexture(&m_rgbaTexture[0], textureWidth, textureHeight, flipPixelsY);
 
 					int strideInBytes = 9 * sizeof(float);
-					int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+					int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 					int numIndices = sizeof(cube_indices) / sizeof(int);
 
 					float halfExtentsX = 1;
@@ -294,7 +294,7 @@ struct MyRenderCallbacks : public RenderCallbacks
 		indices.resize(texture->nverts);
 		for (int i = 0; i < indices.size(); i++)
 		{
-			indices[i] = i;
+			indices[i] = (unsigned int)i;
 		}
 
 		m_instancingRenderer->drawTexturedTriangleMesh(m_worldPosition, m_worldOrientation, &texture->newverts[0].position.p[0], texture->nverts, &indices[0], indices.size(), m_color, m_textureIndex);
@@ -504,7 +504,7 @@ void SimpleOpenGL3App::drawText3D(const char* txt, float position[3], float orie
 			return;
 		}
 		posX = winx;
-		posY = m_instancingRenderer->getScreenHeight() / 2 + (m_instancingRenderer->getScreenHeight() / 2) - winy;
+		posY = (float)(m_instancingRenderer->getScreenHeight() / 2 + (m_instancingRenderer->getScreenHeight() / 2)) - winy;
 		posZ = 0.f;
 	}
 
@@ -552,15 +552,15 @@ void SimpleOpenGL3App::drawText3D(const char* txt, float position[3], float orie
 		//float extraSpacing = 0.;
 
 		float startX = posX;
-		float startY = posY + g_DefaultLargeFont->m_CharHeight * size;
+		float startY = posY + (float)g_DefaultLargeFont->m_CharHeight * size;
 		float z = position[2];  //2.f*winz-1.f;//*(far
 
 		if (optionFlag & CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera)
 		{
 			posX = winx;
-			posY = m_instancingRenderer->getScreenHeight() / 2 + (m_instancingRenderer->getScreenHeight() / 2) - winy;
+			posY = (float)(m_instancingRenderer->getScreenHeight() / 2 + (m_instancingRenderer->getScreenHeight() / 2)) - winy;
 			z = 2.f * winz - 1.f;
-			startY = posY - g_DefaultLargeFont->m_CharHeight * size;
+			startY = posY - (float)g_DefaultLargeFont->m_CharHeight * size;
 		}
 
 		while (txt[pos])
@@ -568,10 +568,10 @@ void SimpleOpenGL3App::drawText3D(const char* txt, float position[3], float orie
 			int c = txt[pos];
 			//r.h = g_DefaultNormalFont->m_CharHeight;
 			//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
-			float endX = startX + g_DefaultLargeFont->m_CharWidth[c] * size;
+			float endX = startX + (float)g_DefaultLargeFont->m_CharWidth[c] * size;
 			if (optionFlag & CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera)
 			{
-				endX = startX + g_DefaultLargeFont->m_CharWidth[c] * size;
+				endX = startX + (float)g_DefaultLargeFont->m_CharWidth[c] * size;
 			}
 			float endY = posY;
 
@@ -685,8 +685,8 @@ void SimpleOpenGL3App::drawText(const char* txt, int posXi, int posYi, float siz
 			int c = txt[pos];
 			//r.h = g_DefaultNormalFont->m_CharHeight;
 			//r.w = g_DefaultNormalFont->m_CharWidth[c]+extraSpacing;
-			float endX = startX + g_DefaultLargeFont->m_CharWidth[c];
-			float endY = startY + g_DefaultLargeFont->m_CharHeight;
+			float endX = startX + (float)g_DefaultLargeFont->m_CharWidth[c];
+			float endY = startY + (float)g_DefaultLargeFont->m_CharHeight;
 
 			float currentColor[] = {0.2f, 0.2, 0.2f, 1.f};
 
@@ -718,8 +718,8 @@ void SimpleOpenGL3App::drawTexturedRect(float x0, float y0, float x1, float y1, 
 int SimpleOpenGL3App::registerCubeShape(float halfExtentsX, float halfExtentsY, float halfExtentsZ, int textureIndex, float textureScaling)
 {
 	int strideInBytes = 9 * sizeof(float);
-	int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
-	int numIndices = sizeof(cube_indices) / sizeof(int);
+	int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
+	int numIndices = (int)(sizeof(cube_indices) / sizeof(int));
 
 	b3AlignedObjectArray<GfxVertexFormat1> verts;
 	verts.resize(numVertices);
@@ -765,11 +765,11 @@ void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], f
 			}
 			if (this->m_data->m_upAxis == 1)
 			{
-				center = b3MakeVector3((i + 0.5f) - cells_x * 0.5f, -halfHeight, (j + 0.5f) - cells_z * 0.5f);
+				center = b3MakeVector3(((float)i + 0.5f) - (float)cells_x * 0.5f, -halfHeight, ((float)j + 0.5f) - (float)cells_z * 0.5f);
 			}
 			else
 			{
-				center = b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f, -halfHeight);
+				center = b3MakeVector3(((float)i + 0.5f) - (float)cells_x * 0.5f, ((float)j + 0.5f) - (float)cells_z * 0.5f, -halfHeight);
 			}
 			m_instancingRenderer->registerGraphicsInstance(cubeId, center, orn, color, scaling);
 		}
@@ -802,9 +802,9 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 
 					if (a == b)
 					{
-						texels[(i + j * texWidth) * 3 + 0] = red;
-						texels[(i + j * texWidth) * 3 + 1] = green;
-						texels[(i + j * texWidth) * 3 + 2] = blue;
+						texels[(i + j * texWidth) * 3 + 0] = (unsigned char)red;
+						texels[(i + j * texWidth) * 3 + 1] = (unsigned char)green;
+						texels[(i + j * texWidth) * 3 + 2] = (unsigned char)blue;
 						//					texels[(i+j*texWidth)*4+3] = 255;
 					}
 					/*else
@@ -831,7 +831,7 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 	{
 		case SPHERE_LOD_POINT_SPRITE:
 		{
-			int numVertices = sizeof(point_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(point_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(point_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&point_sphere_vertices[0], numVertices, point_sphere_indices, numIndices, B3_GL_POINTS, textureId);
 			break;
@@ -839,14 +839,14 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 
 		case SPHERE_LOD_LOW:
 		{
-			int numVertices = sizeof(low_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(low_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(low_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&low_sphere_vertices[0], numVertices, low_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 		case SPHERE_LOD_MEDIUM:
 		{
-			int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(textured_detailed_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&textured_detailed_sphere_vertices[0], numVertices, textured_detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
@@ -854,7 +854,7 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 		case SPHERE_LOD_HIGH:
 		default:
 		{
-			int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(textured_detailed_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&textured_detailed_sphere_vertices[0], numVertices, textured_detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
@@ -894,7 +894,7 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 
 	b3AlignedObjectArray<unsigned int> indices;
 	b3AlignedObjectArray<b3Vector3> vertices;
-	int lineIndex = 0;
+	unsigned int lineIndex = 0;
 	for (int i = -gridSize; i <= gridSize; i++)
 	{
 		{
@@ -985,7 +985,7 @@ void SimpleOpenGL3App::setViewport(int width, int height)
 	}
 	else
 	{
-		glViewport(0, 0, m_window->getRetinaScale() * m_instancingRenderer->getScreenWidth(), m_window->getRetinaScale() * m_instancingRenderer->getScreenHeight());
+		glViewport(0, 0, m_window->getRetinaScale() * (float)m_instancingRenderer->getScreenWidth(), m_window->getRetinaScale() * (float)m_instancingRenderer->getScreenHeight());
 	}
 }
 
@@ -999,7 +999,7 @@ void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSize
 	{
 		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuffer);
 		int glstat;
-		glstat = glGetError();
+		glstat = (int)glGetError();
 		b3Assert(glstat == GL_NO_ERROR);
 	}
 	b3Assert((int)(width * height * sizeof(float)) == depthBufferSizeInBytes);
@@ -1007,7 +1007,7 @@ void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSize
 	{
 		glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuffer);
 		int glstat;
-		glstat = glGetError();
+		glstat = (int)glGetError();
 		b3Assert(glstat == GL_NO_ERROR);
 	}
 }
@@ -1022,12 +1022,12 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 	b3Assert(glGetError() == GL_NO_ERROR);
 	//glReadBuffer(GL_BACK);//COLOR_ATTACHMENT0);
 
-	float* orgPixels = (float*)malloc(textureWidth * textureHeight * numComponents * 4);
+	float* orgPixels = (float*)malloc((size_t)(textureWidth * textureHeight * numComponents * 4));
 	glReadPixels(0, 0, textureWidth, textureHeight, GL_RGBA, GL_FLOAT, orgPixels);
 	//it is useful to have the actual float values for debugging purposes
 
 	//convert float->char
-	char* pixels = (char*)malloc(textureWidth * textureHeight * numComponents);
+	char* pixels = (char*)malloc((size_t)(textureWidth * textureHeight * numComponents));
 	assert(glGetError() == GL_NO_ERROR);
 
 	for (int j = 0; j < textureHeight; j++)
@@ -1043,7 +1043,7 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 
 	if (ffmpegVideo)
 	{
-		fwrite(pixels, textureWidth * textureHeight * numComponents, 1, ffmpegVideo);
+		fwrite(pixels, (size_t)(textureWidth * textureHeight * numComponents), 1, ffmpegVideo);
 		//fwrite(pixels, 100,1,ffmpegVideo);//textureWidth*textureHeight*numComponents, 1, ffmpegVideo);
 	}
 	else
@@ -1051,7 +1051,7 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 		if (1)
 		{
 			//swap the pixels
-			unsigned char tmp;
+			char tmp;
 
 			for (int j = 0; j < textureHeight / 2; j++)
 			{
@@ -1155,14 +1155,14 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
 		//glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, 0);
 		//glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_FLOAT, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-					 m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale(), m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale(), 0, GL_RGBA, GL_FLOAT, 0);
+					 (float)m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale(), (float)m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale(), 0, GL_RGBA, GL_FLOAT, 0);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		m_data->m_renderTexture->init(m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale(), this->m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale(), renderTextureId, RENDERTEXTURE_COLOR);
+		m_data->m_renderTexture->init((float)m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale(), (float)this->m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale(), renderTextureId, RENDERTEXTURE_COLOR);
 	}
 
 	m_data->m_renderTexture->enable();

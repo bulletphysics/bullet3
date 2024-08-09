@@ -213,10 +213,10 @@ void InverseDynamicsExample::initPhysics()
 			m_inverseModel = btInverseDynamics::CreateMultiBodyTree(id_creator);
 		}
 		// add joint target controls
-		qd.resize(m_multiBody->getNumDofs());
+		qd.resize((size_t)m_multiBody->getNumDofs());
 
-		qd_name.resize(m_multiBody->getNumDofs());
-		q_name.resize(m_multiBody->getNumDofs());
+		qd_name.resize((size_t)m_multiBody->getNumDofs());
+		q_name.resize((size_t)m_multiBody->getNumDofs());
 
 		if (m_timeSeriesCanvas && m_guiHelper->getParameterInterface())
 		{
@@ -267,7 +267,7 @@ void InverseDynamicsExample::stepSimulation(float /*deltaTime*/)
 
 			// pd_control is either desired joint torque for pd control,
 			// or the feedback contribution to nu
-			pd_control(dof) = kd * (qd_dot - qdot(dof)) + kp * (qd[dof] - q(dof));
+			pd_control(dof) = kd * (qd_dot - qdot(dof)) + kp * (qd[(size_t)dof] - q(dof));
 			// nu is the desired joint acceleration for computed torque control
 			nu(dof) = qd_ddot + pd_control(dof);
 		}

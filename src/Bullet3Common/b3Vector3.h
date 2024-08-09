@@ -985,7 +985,7 @@ B3_FORCE_INLINE long b3Vector3::maxDot(const b3Vector3* array, long array_count,
 		return ptIndex;
 	}
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
-	return b3_maxdot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return b3_maxdot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif
 }
 
@@ -1025,7 +1025,7 @@ B3_FORCE_INLINE long b3Vector3::minDot(const b3Vector3* array, long array_count,
 		return ptIndex;
 	}
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
-	return b3_mindot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return b3_mindot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif
 }
 

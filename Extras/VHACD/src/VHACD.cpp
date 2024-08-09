@@ -766,15 +766,15 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 	double minSymmetry = MAX_DOUBLE;
 	minConcavity = MAX_DOUBLE;
 
-	SArray<Vec3<double> >* chPts = new SArray<Vec3<double> >[2 * m_ompNumProcessors];
-	Mesh* chs = new Mesh[2 * m_ompNumProcessors];
+	SArray<Vec3<double> >* chPts = new SArray<Vec3<double> >[2 * (size_t)m_ompNumProcessors];
+	Mesh* chs = new Mesh[2 * (size_t)m_ompNumProcessors];
 	PrimitiveSet* onSurfacePSet = inputPSet->Create();
 	inputPSet->SelectOnSurface(onSurfacePSet);
 
 	PrimitiveSet** psets = 0;
 	if (!params.m_convexhullApproximation)
 	{
-		psets = new PrimitiveSet*[2 * m_ompNumProcessors];
+		psets = new PrimitiveSet*[2 * (size_t)m_ompNumProcessors];
 		for (int i = 0; i < 2 * m_ompNumProcessors; ++i)
 		{
 			psets[i] = inputPSet->Create();
@@ -877,7 +877,7 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 #pragma omp flush(cancel)
 #endif
 			}
-			Plane plane = planes[x];
+			Plane plane = planes[(size_t)x];
 
 			if (oclAcceleration)
 			{
@@ -950,7 +950,7 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 				SArray<Vec3<double> >& rightCHPts = chPts[threadID + m_ompNumProcessors];
 				rightCHPts.Resize(0);
 				leftCHPts.Resize(0);
-				onSurfacePSet->Intersect(plane, &rightCHPts, &leftCHPts, convexhullDownsampling * 32);
+				onSurfacePSet->Intersect(plane, &rightCHPts, &leftCHPts, (size_t)convexhullDownsampling * 32);
 				inputPSet->GetConvexHull().Clip(plane, rightCHPts, leftCHPts);
 				rightCH.ComputeConvexHull((double*)rightCHPts.Data(), rightCHPts.Size());
 				leftCH.ComputeConvexHull((double*)leftCHPts.Data(), leftCHPts.Size());
@@ -972,8 +972,8 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 				PrimitiveSet* const right = psets[threadID];
 				PrimitiveSet* const left = psets[threadID + m_ompNumProcessors];
 				onSurfacePSet->Clip(plane, right, left);
-				right->ComputeConvexHull(rightCH, convexhullDownsampling);
-				left->ComputeConvexHull(leftCH, convexhullDownsampling);
+				right->ComputeConvexHull(rightCH, (size_t)convexhullDownsampling);
+				left->ComputeConvexHull(leftCH, (size_t)convexhullDownsampling);
 			}
 			double volumeLeftCH = leftCH.ComputeVolume();
 			double volumeRightCH = rightCH.ComputeVolume();
@@ -1117,9 +1117,9 @@ void VHACD::ComputeACD(const Parameters& params)
 		Update(m_stageProgress, 0.0, params);
 		for (size_t p = 0; p < nInputParts && !m_cancel; ++p)
 		{
-			const double progress0 = p * 100.0 / nInputParts;
-			const double progress1 = (p + 0.75) * 100.0 / nInputParts;
-			const double progress2 = (p + 1.00) * 100.0 / nInputParts;
+			const double progress0 = (double)p * 100.0 / (double)nInputParts;
+			const double progress1 = ((double)p + 0.75) * 100.0 / (double)nInputParts;
+			const double progress2 = ((double)p + 1.00) * 100.0 / (double)nInputParts;
 
 			Update(m_stageProgress, progress0, params);
 
@@ -1168,12 +1168,12 @@ void VHACD::ComputeACD(const Parameters& params)
 				if (params.m_mode == 0)
 				{
 					VoxelSet* vset = (VoxelSet*)pset;
-					ComputeAxesAlignedClippingPlanes(*vset, params.m_planeDownsampling, planes);
+					ComputeAxesAlignedClippingPlanes(*vset, (short)params.m_planeDownsampling, planes);
 				}
 				else
 				{
 					TetrahedronSet* tset = (TetrahedronSet*)pset;
-					ComputeAxesAlignedClippingPlanes(*tset, params.m_planeDownsampling, planes);
+					ComputeAxesAlignedClippingPlanes(*tset, (short)params.m_planeDownsampling, planes);
 				}
 
 				if (params.m_logger)
@@ -1205,12 +1205,12 @@ void VHACD::ComputeACD(const Parameters& params)
 					if (params.m_mode == 0)
 					{
 						VoxelSet* vset = (VoxelSet*)pset;
-						RefineAxesAlignedClippingPlanes(*vset, bestPlane, params.m_planeDownsampling, planesRef);
+						RefineAxesAlignedClippingPlanes(*vset, bestPlane, (short)params.m_planeDownsampling, planesRef);
 					}
 					else
 					{
 						TetrahedronSet* tset = (TetrahedronSet*)pset;
-						RefineAxesAlignedClippingPlanes(*tset, bestPlane, params.m_planeDownsampling, planesRef);
+						RefineAxesAlignedClippingPlanes(*tset, bestPlane, (short)params.m_planeDownsampling, planesRef);
 					}
 
 					if (params.m_logger)
@@ -1317,7 +1317,7 @@ void VHACD::ComputeACD(const Parameters& params)
 	m_convexHulls.Resize(0);
 	for (size_t p = 0; p < nConvexHulls && !m_cancel; ++p)
 	{
-		Update(m_stageProgress, p * 100.0 / nConvexHulls, params);
+		Update(m_stageProgress, (double)p * 100.0 / (double)nConvexHulls, params);
 		m_convexHulls.PushBack(new Mesh);
 		parts[p]->ComputeConvexHull(*m_convexHulls[p]);
 		size_t nv = m_convexHulls[p]->GetNPoints();
@@ -1368,7 +1368,7 @@ void AddPoints(const Mesh* const mesh, SArray<Vec3<double> >& pts)
 	const int n = (int)mesh->GetNPoints();
 	for (int i = 0; i < n; ++i)
 	{
-		pts.PushBack(mesh->GetPoint(i));
+		pts.PushBack(mesh->GetPoint((size_t)i));
 	}
 }
 void ComputeConvexHull(const Mesh* const ch1, const Mesh* const ch2, SArray<Vec3<double> >& pts, Mesh* const combinedCH)
@@ -1451,7 +1451,7 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 
 			// Search for lowest cost
 			float bestCost = (std::numeric_limits<float>::max)();
-			const size_t addr = FindMinimumElement(costMatrix.Data(), &bestCost, 0, costMatrix.Size());
+			const size_t addr = (size_t)FindMinimumElement(costMatrix.Data(), &bestCost, 0, (int)costMatrix.Size());
 
 			// Check if we should merge these hulls
 			if (bestCost >= threshold)
@@ -1459,7 +1459,7 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 				break;
 			}
 			double nr = 1 + (8 * addr);
-			const size_t addrI = (static_cast<int>(sqrt(nr)) - 1) >> 1;
+			const size_t addrI = (size_t)((static_cast<int>(sqrt(nr)) - 1) >> 1);
 			const size_t p1 = addrI + 1;
 			const size_t p2 = addr - ((addrI * (addrI + 1)) >> 1);
 			assert(p1 < costSize);

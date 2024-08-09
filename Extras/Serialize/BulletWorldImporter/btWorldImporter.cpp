@@ -493,7 +493,7 @@ char* btWorldImporter::duplicateName(const char* name)
 {
 	if (name)
 	{
-		int l = (int)strlen(name);
+		size_t l = strlen(name);
 		char* newName = new char[l + 1];
 		memcpy(newName, name, l);
 		newName[l] = 0;
@@ -1504,7 +1504,7 @@ btStridingMeshInterfaceData* btWorldImporter::createStridingMeshInterfaceData(bt
 
 	newData->m_scaling = interfaceData->m_scaling;
 	newData->m_numMeshParts = interfaceData->m_numMeshParts;
-	newData->m_meshPartsPtr = new btMeshPartData[newData->m_numMeshParts];
+	newData->m_meshPartsPtr = new btMeshPartData[(size_t)newData->m_numMeshParts];
 
 	for (int i = 0; i < newData->m_numMeshParts; i++)
 	{
@@ -1516,7 +1516,7 @@ btStridingMeshInterfaceData* btWorldImporter::createStridingMeshInterfaceData(bt
 
 		if (curPart->m_vertices3f)
 		{
-			curNewPart->m_vertices3f = new btVector3FloatData[curNewPart->m_numVertices];
+			curNewPart->m_vertices3f = new btVector3FloatData[(size_t)curNewPart->m_numVertices];
 			memcpy(curNewPart->m_vertices3f, curPart->m_vertices3f, sizeof(btVector3FloatData) * curNewPart->m_numVertices);
 		}
 		else
@@ -1524,7 +1524,7 @@ btStridingMeshInterfaceData* btWorldImporter::createStridingMeshInterfaceData(bt
 
 		if (curPart->m_vertices3d)
 		{
-			curNewPart->m_vertices3d = new btVector3DoubleData[curNewPart->m_numVertices];
+			curNewPart->m_vertices3d = new btVector3DoubleData[(size_t)curNewPart->m_numVertices];
 			memcpy(curNewPart->m_vertices3d, curPart->m_vertices3d, sizeof(btVector3DoubleData) * curNewPart->m_numVertices);
 		}
 		else
@@ -1538,7 +1538,7 @@ btStridingMeshInterfaceData* btWorldImporter::createStridingMeshInterfaceData(bt
 		if (curPart->m_indices32)
 		{
 			uninitialized3indices8Workaround = true;
-			curNewPart->m_indices32 = new btIntIndexData[numIndices];
+			curNewPart->m_indices32 = new btIntIndexData[(size_t)numIndices];
 			memcpy(curNewPart->m_indices32, curPart->m_indices32, sizeof(btIntIndexData) * numIndices);
 		}
 		else
@@ -1547,7 +1547,7 @@ btStridingMeshInterfaceData* btWorldImporter::createStridingMeshInterfaceData(bt
 		if (curPart->m_3indices16)
 		{
 			uninitialized3indices8Workaround = true;
-			curNewPart->m_3indices16 = new btShortIntIndexTripletData[curNewPart->m_numTriangles];
+			curNewPart->m_3indices16 = new btShortIntIndexTripletData[(size_t)curNewPart->m_numTriangles];
 			memcpy(curNewPart->m_3indices16, curPart->m_3indices16, sizeof(btShortIntIndexTripletData) * curNewPart->m_numTriangles);
 		}
 		else
@@ -1556,7 +1556,7 @@ btStridingMeshInterfaceData* btWorldImporter::createStridingMeshInterfaceData(bt
 		if (curPart->m_indices16)
 		{
 			uninitialized3indices8Workaround = true;
-			curNewPart->m_indices16 = new btShortIntIndexData[numIndices];
+			curNewPart->m_indices16 = new btShortIntIndexData[(size_t)numIndices];
 			memcpy(curNewPart->m_indices16, curPart->m_indices16, sizeof(btShortIntIndexData) * numIndices);
 		}
 		else
@@ -1564,7 +1564,7 @@ btStridingMeshInterfaceData* btWorldImporter::createStridingMeshInterfaceData(bt
 
 		if (!uninitialized3indices8Workaround && curPart->m_3indices8)
 		{
-			curNewPart->m_3indices8 = new btCharIndexTripletData[curNewPart->m_numTriangles];
+			curNewPart->m_3indices8 = new btCharIndexTripletData[(size_t)curNewPart->m_numTriangles];
 			memcpy(curNewPart->m_3indices8, curPart->m_3indices8, sizeof(btCharIndexTripletData) * curNewPart->m_numTriangles);
 		}
 		else

@@ -28,7 +28,7 @@ namespace bullet_utils
 void split(btAlignedObjectArray<std::string> &pieces, const std::string &vector_str, const std::string &separator)
 {
 	char **strArray = str_split(vector_str.c_str(), separator.c_str());
-	int numSubStr = str_array_len(strArray);
+	int numSubStr = (int)str_array_len(strArray);
 	for (int i = 0; i < numSubStr; i++)
 		pieces.push_back(std::string(strArray[i]));
 	str_array_free(strArray);
@@ -122,7 +122,7 @@ char **str_split(const char *input, const char *sep)
 		else
 		{
 			item = start;
-			itemlen = next - item;
+			itemlen = (size_t)(next - item);
 		}
 		char **newstr = str_array_append(array, nitems, item, itemlen);
 		if (newstr == NULL)

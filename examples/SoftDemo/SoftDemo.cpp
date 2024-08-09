@@ -256,8 +256,8 @@ void SoftDemo::createStack(btCollisionShape* boxShape, float halfCubeSize, int s
 		{
 			btVector3 pos;
 			pos.setValue(
-				-rowSize * halfCubeSize + halfCubeSize + j * 2.0f * halfCubeSize,
-				halfCubeSize + i * halfCubeSize * 2.0f,
+				(float)-rowSize * halfCubeSize + halfCubeSize + (float)j * 2.0f * halfCubeSize,
+				halfCubeSize + (float)i * halfCubeSize * 2.0f,
 				zPos);
 
 			trans.setOrigin(pos);
@@ -350,7 +350,7 @@ struct TetraCube
 
 static inline btScalar UnitRand()
 {
-	return (rand() / (btScalar)RAND_MAX);
+	return ((btScalar)rand() / (btScalar)RAND_MAX);
 }
 
 static inline btScalar SignedUnitRand()
@@ -432,7 +432,7 @@ static void Ctor_LinearStair(SoftDemo* pdemo, const btVector3& org, const btVect
 	{
 		btTransform startTransform;
 		startTransform.setIdentity();
-		startTransform.setOrigin(org + btVector3(sizes.x() * i * 2, sizes.y() * i * 2, 0));
+		startTransform.setOrigin(org + btVector3(sizes.x() * (btScalar)(i * 2), sizes.y() * (btScalar)(i * 2), 0));
 		btRigidBody* body = pdemo->createRigidBody(0, startTransform, shape);
 		body->setFriction(1);
 	}
@@ -493,7 +493,7 @@ static void Init_Ropes(SoftDemo* pdemo)
 														16,
 														1 + 2);
 		psb->m_cfg.piterations = 4;
-		psb->m_materials[0]->m_kLST = 0.1 + (i / (btScalar)(n - 1)) * 0.9;
+		psb->m_materials[0]->m_kLST = 0.1 + ((btScalar)i / (btScalar)(n - 1)) * 0.9;
 		psb->setTotalMass(20);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	}
@@ -639,7 +639,7 @@ static void Init_Collide(SoftDemo* pdemo)
 	};
 	for (int i = 0; i < 3; ++i)
 	{
-		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (1 - (i & 1)), SIMD_PI / 2 * (i & 1), 0));
+		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (btScalar)(1 - (i & 1)), SIMD_PI / 2 * (btScalar)(i & 1), 0));
 	}
 	pdemo->m_cutting = true;
 }
@@ -676,7 +676,7 @@ static void Init_Collide2(SoftDemo* pdemo)
 	};
 	for (int i = 0; i < 3; ++i)
 	{
-		Functor::Create(pdemo, btVector3(0, -1 + 5 * i, 0), btVector3(0, SIMD_PI / 2 * (i & 1), 0));
+		Functor::Create(pdemo, btVector3(0, -1 + 5 * (btScalar)i, 0), btVector3(0, SIMD_PI / 2 * (btScalar)(i & 1), 0));
 	}
 	pdemo->m_cutting = true;
 }
@@ -826,9 +826,9 @@ static void Init_Friction(SoftDemo* pdemo)
 	const btScalar ts = bs + bs / 4;
 	for (int i = 0, ni = 20; i < ni; ++i)
 	{
-		const btVector3 p(-ni * ts / 2 + i * ts, -10 + bs, 40);
+		const btVector3 p((btScalar)-ni * ts / 2 + (btScalar)i * ts, -10 + bs, 40);
 		btSoftBody* psb = Ctor_SoftBox(pdemo, p, btVector3(bs, bs, bs));
-		psb->m_cfg.kDF = 0.1 * ((i + 1) / (btScalar)ni);
+		psb->m_cfg.kDF = 0.1 * ((btScalar)(i + 1) / (btScalar)ni);
 		psb->addVelocity(btVector3(0, 0, -10));
 	}
 }
@@ -889,9 +889,9 @@ static void Init_Sticks(SoftDemo* pdemo)
 	{
 		for (int x = 0; x < n; ++x)
 		{
-			const btVector3 org(-sz + sz * 2 * x * in,
+			const btVector3 org(-sz + sz * 2 * (btScalar)x * in,
 								-10,
-								-sz + sz * 2 * y * in);
+								-sz + sz * 2 * (btScalar)y * in);
 			btSoftBody* psb = btSoftBodyHelpers::CreateRope(pdemo->m_softBodyWorldInfo, org,
 															org + btVector3(hg * 0.001, hg, 0),
 															sg,
@@ -1246,7 +1246,7 @@ static void Init_ClusterCollide2(SoftDemo* pdemo)
 	};
 	for (int i = 0; i < 3; ++i)
 	{
-		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (1 - (i & 1)), SIMD_PI / 2 * (i & 1), 0));
+		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (btScalar)(1 - (i & 1)), SIMD_PI / 2 * (btScalar)(i & 1), 0));
 	}
 }
 
@@ -2059,10 +2059,10 @@ void SoftDemo::initPhysics()
 		{
 			for (j = 0; j < NUM_VERTS_Y; j++)
 			{
-				gGroundVertices[i + j * NUM_VERTS_X].setValue((i - NUM_VERTS_X * 0.5f) * TRIANGLE_SIZE,
+				gGroundVertices[i + j * NUM_VERTS_X].setValue(((float)i - (float)NUM_VERTS_X * 0.5f) * TRIANGLE_SIZE,
 															  //0.f,
 															  waveheight * sinf((float)i) * cosf((float)j + offset),
-															  (j - NUM_VERTS_Y * 0.5f) * TRIANGLE_SIZE);
+															  ((float)j - (float)NUM_VERTS_Y * 0.5f) * TRIANGLE_SIZE);
 			}
 		}
 

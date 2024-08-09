@@ -138,7 +138,7 @@ void TestHingeTorque::initPhysics()
 			btTransform linkTrans;
 			linkTrans = baseWorldTrans;
 
-			linkTrans.setOrigin(basePosition - btVector3(0, linkHalfExtents[1] * 2.f * (i + 1), 0));
+			linkTrans.setOrigin(basePosition - btVector3(0, linkHalfExtents[1] * 2.f * (btScalar)(i + 1), 0));
 
 			btCollisionShape* colOb = 0;
 

@@ -857,7 +857,7 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 		btMultiBody* mb = m_multiBodies[i];
 		{
 			int len = mb->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len, 1);
+			btChunk* chunk = serializer->allocate((size_t)len, 1);
 			const char* structType = mb->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_MULTIBODY_CODE, mb);
 		}
@@ -870,7 +870,7 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 		if (colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
 			int len = colObj->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len, 1);
+			btChunk* chunk = serializer->allocate((size_t)len, 1);
 			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_MB_LINKCOLLIDER_CODE, colObj);
 		}

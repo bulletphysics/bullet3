@@ -13,7 +13,7 @@ b3PrefixScanCL::b3PrefixScanCL(cl_context ctx, cl_device_id device, cl_command_q
 	cl_int pErrNum;
 	char* additionalMacros = 0;
 
-	m_workBuffer = new b3OpenCLArray<unsigned int>(ctx, queue, size);
+	m_workBuffer = new b3OpenCLArray<unsigned int>(ctx, queue, (size_t)size);
 	cl_program scanProg = b3OpenCLUtils::compileCLProgramFromString(ctx, device, scanKernelSource, &pErrNum, additionalMacros, B3_PREFIXSCAN_PROG_PATH);
 	b3Assert(scanProg);
 
@@ -52,7 +52,7 @@ void b3PrefixScanCL::execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<uns
 
 	b3Int4 constBuffer;
 	constBuffer.x = n;
-	constBuffer.y = numBlocks;
+	constBuffer.y = (int)numBlocks;
 	constBuffer.z = (int)b3NextPowerOf2(numBlocks);
 
 	b3OpenCLArray<unsigned int>* srcNative = &src;
@@ -64,7 +64,7 @@ void b3PrefixScanCL::execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<uns
 		b3LauncherCL launcher(m_commandQueue, m_localScanKernel, "m_localScanKernel");
 		launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
 		launcher.setConst(constBuffer);
-		launcher.launch1D(numBlocks * BLOCK_SIZE, BLOCK_SIZE);
+		launcher.launch1D((int)(numBlocks * BLOCK_SIZE), BLOCK_SIZE);
 	}
 
 	{
@@ -82,13 +82,13 @@ void b3PrefixScanCL::execute(b3OpenCLArray<unsigned int>& src, b3OpenCLArray<uns
 		b3LauncherCL launcher(m_commandQueue, m_propagationKernel, "m_propagationKernel");
 		launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
 		launcher.setConst(constBuffer);
-		launcher.launch1D((numBlocks - 1) * BLOCK_SIZE, BLOCK_SIZE);
+		launcher.launch1D((int)((numBlocks - 1) * BLOCK_SIZE), BLOCK_SIZE);
 	}
 
 	if (sum)
 	{
 		clFinish(m_commandQueue);
-		dstNative->copyToHostPointer(sum, 1, n - 1, true);
+		dstNative->copyToHostPointer(sum, 1, (size_t)(n - 1), true);
 	}
 }
 

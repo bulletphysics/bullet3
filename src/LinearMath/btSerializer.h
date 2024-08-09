@@ -192,8 +192,8 @@ protected:
 
 	virtual void writeDNA()
 	{
-		btChunk* dnaChunk = allocate(m_dnaLength, 1);
-		memcpy(dnaChunk->m_oldPtr, m_dna, m_dnaLength);
+		btChunk* dnaChunk = allocate((size_t)m_dnaLength, 1);
+		memcpy(dnaChunk->m_oldPtr, m_dna, (size_t)m_dnaLength);
 		finalizeChunk(dnaChunk, "DNA1", BT_DNA_CODE, m_dna);
 	}
 
@@ -216,8 +216,8 @@ protected:
 		int littleEndian = 1;
 		littleEndian = ((char*)&littleEndian)[0];
 
-		m_dna = btAlignedAlloc(dnalen, 16);
-		memcpy(m_dna, bdnaOrg, dnalen);
+		m_dna = btAlignedAlloc((size_t)dnalen, 16);
+		memcpy(m_dna, bdnaOrg, (size_t)dnalen);
 		m_dnaLength = dnalen;
 
 		int* intPtr = NULL;
@@ -243,7 +243,7 @@ protected:
 
 		// Parse names
 		if (!littleEndian)
-			*intPtr = btSwapEndian(*intPtr);
+			*intPtr = (int)btSwapEndian(*intPtr);
 
 		dataLen = *intPtr;
 
@@ -270,7 +270,7 @@ protected:
 		intPtr++;
 
 		if (!littleEndian)
-			*intPtr = btSwapEndian(*intPtr);
+			*intPtr = (int)btSwapEndian(*intPtr);
 
 		dataLen = *intPtr;
 		intPtr++;
@@ -302,7 +302,7 @@ protected:
 		for (i = 0; i < dataLen; i++, shtPtr++)
 		{
 			if (!littleEndian)
-				shtPtr[0] = btSwapEndian(shtPtr[0]);
+				shtPtr[0] = (short)btSwapEndian(shtPtr[0]);
 			mTlens.push_back(shtPtr[0]);
 		}
 
@@ -325,7 +325,7 @@ protected:
 		intPtr++;
 
 		if (!littleEndian)
-			*intPtr = btSwapEndian(*intPtr);
+			*intPtr = (int)btSwapEndian(*intPtr);
 		dataLen = *intPtr;
 		intPtr++;
 
@@ -336,16 +336,16 @@ protected:
 
 			if (!littleEndian)
 			{
-				shtPtr[0] = btSwapEndian(shtPtr[0]);
-				shtPtr[1] = btSwapEndian(shtPtr[1]);
+				shtPtr[0] = (short)btSwapEndian(shtPtr[0]);
+				shtPtr[1] = (short)btSwapEndian(shtPtr[1]);
 
 				int len = shtPtr[1];
 				shtPtr += 2;
 
 				for (int a = 0; a < len; a++, shtPtr += 2)
 				{
-					shtPtr[0] = btSwapEndian(shtPtr[0]);
-					shtPtr[1] = btSwapEndian(shtPtr[1]);
+					shtPtr[0] = (short)btSwapEndian(shtPtr[0]);
+					shtPtr[1] = (short)btSwapEndian(shtPtr[1]);
 				}
 			}
 			else
@@ -376,7 +376,7 @@ public:
 	{
 		if (buffer == NULL)
 		{
-			m_buffer = m_totalSize ? (unsigned char*)btAlignedAlloc(totalSize, 16) : NULL;
+			m_buffer = m_totalSize ? (unsigned char*)btAlignedAlloc((size_t)totalSize, 16) : NULL;
 			m_ownsBuffer = true;
 		}
 		else
@@ -507,7 +507,7 @@ public:
 				btAlignedFree(m_buffer);
 
 			m_currentSize += BT_HEADER_LENGTH;
-			m_buffer = (unsigned char*)btAlignedAlloc(m_currentSize, 16);
+			m_buffer = (unsigned char*)btAlignedAlloc((size_t)m_currentSize, 16);
 
 			unsigned char* currentPtr = m_buffer;
 			writeHeader(m_buffer);
@@ -515,7 +515,7 @@ public:
 			for (int i = 0; i < m_chunkPtrs.size(); i++)
 			{
 				int curLength = (int)sizeof(btChunk) + m_chunkPtrs[i]->m_length;
-				memcpy(currentPtr, m_chunkPtrs[i], curLength);
+				memcpy(currentPtr, m_chunkPtrs[i], (size_t)curLength);
 				btAlignedFree(m_chunkPtrs[i]);
 				currentPtr += curLength;
 			}

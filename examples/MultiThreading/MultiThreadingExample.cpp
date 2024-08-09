@@ -137,7 +137,7 @@ void SampleThreadFunc(void* userPtr, void* lsMemory)
 		b3Clock::usleep(250);
 
 		args->m_cs->lock();
-		int exitMagicNumber = args->m_cs->getSharedParam(1);
+		int exitMagicNumber = (int)args->m_cs->getSharedParam(1);
 		requestExit = (exitMagicNumber == MAGIC_RESET_NUMBER);
 		args->m_cs->unlock();
 	}

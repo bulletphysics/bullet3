@@ -267,11 +267,11 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 
 	int numRays = hitResults.size();
 	{
-		m_data->m_firstRayRigidPairIndexPerRay->resize(numRays);
-		m_data->m_numRayRigidPairsPerRay->resize(numRays);
+		m_data->m_firstRayRigidPairIndexPerRay->resize((size_t)numRays);
+		m_data->m_numRayRigidPairsPerRay->resize((size_t)numRays);
 
 		m_data->m_gpuNumRayRigidPairs->resize(1);
-		m_data->m_gpuRayRigidPairs->resize(numRays * 16);
+		m_data->m_gpuRayRigidPairs->resize((size_t)(numRays * 16));
 	}
 
 	//run kernel
@@ -306,11 +306,11 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 		m_data->m_gpuNumRayRigidPairs->copyToHostPointer(&numRayRigidPairs, 1);
 		if (numRayRigidPairs > (int)m_data->m_gpuRayRigidPairs->size())
 		{
-			numRayRigidPairs = m_data->m_gpuRayRigidPairs->size();
+			numRayRigidPairs = (int)m_data->m_gpuRayRigidPairs->size();
 			m_data->m_gpuNumRayRigidPairs->copyFromHostPointer(&numRayRigidPairs, 1);
 		}
 
-		m_data->m_gpuRayRigidPairs->resize(numRayRigidPairs);  //Radix sort needs b3OpenCLArray::size() to be correct
+		m_data->m_gpuRayRigidPairs->resize((size_t)numRayRigidPairs);  //Radix sort needs b3OpenCLArray::size() to be correct
 
 		//Sort ray-rigid pairs by ray index
 		{

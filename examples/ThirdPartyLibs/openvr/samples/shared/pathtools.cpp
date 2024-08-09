@@ -107,7 +107,7 @@ std::string Path_StripFilename(const std::string &sPath, char slash)
 	if (n == std::string::npos)
 		return sPath;
 	else
-		return std::string(sPath.begin(), sPath.begin() + n);
+		return std::string(sPath.begin(), sPath.begin() + (std::ptrdiff_t)n);
 }
 
 /** returns just the filename from the provided full or relative path. */
@@ -120,7 +120,7 @@ std::string Path_StripDirectory(const std::string &sPath, char slash)
 	if (n == std::string::npos)
 		return sPath;
 	else
-		return std::string(sPath.begin() + n + 1, sPath.end());
+		return std::string(sPath.begin() + (std::ptrdiff_t)n + 1, sPath.end());
 }
 
 /** returns just the filename with no extension of the provided filename. 
@@ -302,7 +302,7 @@ std::string Path_RemoveTrailingSlash(const std::string &sRawPath, char slash)
 
 	if (nLastFound >= 0)
 	{
-		sPath.erase(nLastFound, std::string::npos);
+		sPath.erase((size_t)nLastFound, std::string::npos);
 	}
 
 	return sPath;
@@ -561,8 +561,8 @@ unsigned char *Path_ReadBinaryFile(const std::string &strFilename, int *pSize)
 		int size = ftell(f);
 		fseek(f, 0, SEEK_SET);
 
-		buf = new unsigned char[size];
-		if (buf && fread(buf, size, 1, f) == 1)
+		buf = new unsigned char[(size_t)size];
+		if (buf && fread(buf, (size_t)size, 1, f) == 1)
 		{
 			if (pSize)
 				*pSize = size;

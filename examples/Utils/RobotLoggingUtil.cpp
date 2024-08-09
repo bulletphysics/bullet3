@@ -9,7 +9,7 @@ static bool readLine(FILE* file, btAlignedObjectArray<char>& line)
 	int c = 0;
 	for (c = fgetc(file); (c != EOF && c != '\n'); c = fgetc(file))
 	{
-		line.push_back(c);
+		line.push_back((char)c);
 	}
 	line.push_back(0);
 	return (c == EOF);
@@ -76,7 +76,7 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 
 				for (int i = 0; i < structNames.size(); i++)
 				{
-					switch (structTypes[i])
+					switch (structTypes[(size_t)i])
 					{
 						case 'I':
 						{
@@ -201,17 +201,17 @@ FILE* createMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::stri
 	{
 		for (int i = 0; i < structNames.size(); i++)
 		{
-			int len = strlen(structNames[i].c_str());
-			fwrite(structNames[i].c_str(), len, 1, f);
+			int len = (int)strlen(structNames[i].c_str());
+			fwrite(structNames[i].c_str(), (size_t)len, 1, f);
 			if (i < structNames.size() - 1)
 			{
 				fwrite(",", 1, 1, f);
 			}
 		}
 		int sz = sizeof("\n");
-		fwrite("\n", sz - 1, 1, f);
+		fwrite("\n", (size_t)sz - 1, 1, f);
 		fwrite(structTypes.c_str(), strlen(structTypes.c_str()), 1, f);
-		fwrite("\n", sz - 1, 1, f);
+		fwrite("\n", (size_t)sz - 1, 1, f);
 	}
 
 	return f;
@@ -227,7 +227,7 @@ void appendMinitaurLogData(FILE* f, std::string& structTypes, const MinitaurLogR
 		{
 			for (int i = 0; i < logData.m_values.size(); i++)
 			{
-				switch (structTypes[i])
+				switch (structTypes[(size_t)i])
 				{
 					case 'i':
 					case 'I':

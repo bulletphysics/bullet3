@@ -747,7 +747,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 					if (v0.length2() > SIMD_EPSILON)
 					{
 						btQuaternion perturbeRot(v0, perturbeAngle);
-						btScalar iterationAngle = i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
+						btScalar iterationAngle = (btScalar)i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
 						btQuaternion rotq(sepNormalWorldSpace, iterationAngle);
 
 						if (perturbeA)

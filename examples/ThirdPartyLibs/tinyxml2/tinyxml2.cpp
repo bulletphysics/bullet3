@@ -32,6 +32,11 @@ distribution.
 #include <cstdarg>
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2' - signed/unsigned mismatch
+#endif
+
 #if defined(_MSC_VER) && (_MSC_VER >= 1400) && (!defined WINCE)
 // Microsoft Visual Studio, version 2005 and higher. Not WinCE.
 /*int _snprintf_s(
@@ -2935,3 +2940,7 @@ bool XMLPrinter::Visit(const XMLUnknown& unknown)
 }
 
 }  // namespace tinyxml2
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif

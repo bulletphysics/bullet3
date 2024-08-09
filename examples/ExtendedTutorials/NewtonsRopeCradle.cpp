@@ -205,7 +205,7 @@ void NewtonsRopeCradleExample::initPhysics()
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
 		m_collisionShapes.push_back(pendulumShape);
 
-		for (int i = 0; i < std::floor(gPendulaQty); i++)
+		for (int i = 0; (btScalar)i < std::floor(gPendulaQty); i++)
 		{
 			// create pendulum
 			createRopePendulum(pendulumShape, position, orientation, gInitialPendulumWidth,
@@ -347,10 +347,10 @@ void NewtonsRopeCradleExample::applyPendulumForce(btScalar pendulumForce)
 	if (pendulumForce != 0)
 	{
 		b3Printf("Apply %f to pendulum", pendulumForce);
-		for (int i = 0; i < gDisplacedPendula; i++)
+		for (int i = 0; (btScalar)i < gDisplacedPendula; i++)
 		{
 			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
-				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
+				pendula[(size_t)i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
 		}
 	}
 }

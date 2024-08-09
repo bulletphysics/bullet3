@@ -1411,7 +1411,7 @@ private:
 static inline int PolarDecompose(const btMatrix3x3& m, btMatrix3x3& q, btMatrix3x3& s)
 {
 	static const btPolarDecomposition polar;
-	return polar.decompose(m, q, s);
+	return (int)polar.decompose(m, q, s);
 }
 
 //

@@ -51,10 +51,10 @@ B3_SHARED_API int executePluginCommand_tinyRendererPlugin(struct b3PluginContext
 		obj->m_returnData = new b3UserDataValue();
 		obj->m_returnData->m_type = 1;
 		obj->m_returnData->m_length = 123;
-		char* data = new char[obj->m_returnData->m_length];
+		char* data = new char[(size_t)obj->m_returnData->m_length];
 		for (int i = 0; i < obj->m_returnData->m_length; i++)
 		{
-			data[i] = i;
+			data[i] = (char)i;
 		}
 		obj->m_returnData->m_data1 = data;
 	}

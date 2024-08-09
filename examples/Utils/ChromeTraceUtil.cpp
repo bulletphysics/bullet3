@@ -177,7 +177,7 @@ void MyEnterProfileZoneFunc(const char* msg)
 	if (gProfileDisabled)
 		return;
 
-	int threadId = btQuickprofGetCurrentThreadIndex2();
+	int threadId = (int)btQuickprofGetCurrentThreadIndex2();
 	if (threadId < 0 || threadId >= (int)BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
@@ -200,7 +200,7 @@ void MyLeaveProfileZoneFunc()
 	if (gProfileDisabled)
 		return;
 
-	int threadId = btQuickprofGetCurrentThreadIndex2();
+	int threadId = (int)btQuickprofGetCurrentThreadIndex2();
 	if (threadId < 0 || threadId >= (int)BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 

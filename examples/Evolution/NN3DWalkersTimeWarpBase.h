@@ -604,7 +604,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			// model update - here you perform updates of your model, be it the physics model, the game or simulation state or anything not related to graphics and input
 
 			timeWarpSimulation(deltaTime);
-			if (mLoopTimer.getTimeSeconds() - speedUpPrintTimeStamp > 1)
+			if (mLoopTimer.getTimeSeconds() - (btScalar)speedUpPrintTimeStamp > 1)
 			{
 				// on reset, we calculate the performed speed up
 				//double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
@@ -624,7 +624,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			mApplicationRuntime = mThisModelIteration - mApplicationStart; /**!< Update main frame timer (in Milliseconds) */
 
 			mModelStart = mLoopTimer.getTimeMilliseconds();   /**!< Begin with the model update (in Milliseconds)*/
-			mLastGraphicsTick = mModelStart - mGraphicsStart; /**!< Update graphics timer (in Milliseconds) */
+			mLastGraphicsTick = (long)(mModelStart - mGraphicsStart); /**!< Update graphics timer (in Milliseconds) */
 
 			if (gMaximumSpeed /** If maximum speed is enabled*/)
 			{
@@ -636,12 +636,12 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			}
 
 			mInputStart = mLoopTimer.getTimeMilliseconds(); /**!< Start the input update */
-			mLastModelTick = mInputStart - mModelStart;     /**!< Calculate the time the model update took */
+			mLastModelTick = (long)(mInputStart - mModelStart);     /**!< Calculate the time the model update took */
 
 			//#############
 			// Input update - Game Clock part of the loop
 			/** This runs once every gApplicationTick milliseconds on average */
-			mInputDt = mThisModelIteration - mInputClock;
+			mInputDt = (long)(mThisModelIteration - mInputClock);
 			if (mInputDt >= gApplicationTick)
 			{
 				mInputClock = mThisModelIteration;
@@ -650,7 +650,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			}
 
 			mGraphicsStart = mLoopTimer.getTimeMilliseconds(); /**!< Start the graphics update */
-			mLastInputTick = mGraphicsStart - mInputStart;     /**!< Calculate the time the input injection took */
+			mLastInputTick = (long)(mGraphicsStart - mInputStart);     /**!< Calculate the time the input injection took */
 
 			//#############
 			// Graphics update - Here you perform the representation of your model, meaning graphics rendering according to what your game or simulation model describes
@@ -661,7 +661,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			//		"Physics time: %u milliseconds / Graphics time: %u milliseconds / Input time: %u milliseconds / Total time passed: %u milliseconds",
 			//		mLastModelTick, mLastGraphicsTick, mLastInputTick, mApplicationRuntime);
 
-		} while (mLoopTimer.getTimeMilliseconds() - fpsTimeStamp < fpsStep);  // escape the loop if it is time to render
+		} while ((double)(mLoopTimer.getTimeMilliseconds() - fpsTimeStamp) < fpsStep);  // escape the loop if it is time to render
 		// Unfortunately, the input is not included in the loop, therefore the input update frequency is equal to the fps
 
 		fpsTimeStamp = mLoopTimer.getTimeMilliseconds();
@@ -852,7 +852,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 	{  // force-perform the number of steps needed to achieve a certain speed (safe to too high speeds, meaning the application will lose time, not the physics)
 		if ((int)mFrameTime > gApplicationTick)
 		{                                   /** cap frametime to make the application lose time, not the physics (in Milliseconds) */
-			mFrameTime = gApplicationTick;  // This prevents the physics time accumulator to sum up too much time
+			mFrameTime = (unsigned long)gApplicationTick;  // This prevents the physics time accumulator to sum up too much time
 		}                                   // The simulation therefore gets slower, but still performs all requested physics steps
 
 		mModelAccumulator += mFrameTime; /**!< Accumulate the time the physics simulation has to perform in order to stay in real-time (in Milliseconds) */
@@ -864,7 +864,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		if (steps > 0)
 		{ /**!< Update if we can take at least one step */
 
-			double timeStep = gSimulationSpeed * steps * fixedPhysicsStepSizeSec; /**!< update the universe (in Seconds) */
+			double timeStep = (double)gSimulationSpeed * (double)steps * fixedPhysicsStepSizeSec; /**!< update the universe (in Seconds) */
 
 			if (gInterpolate)
 			{

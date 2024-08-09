@@ -51,7 +51,7 @@ struct PhysicsServerSharedMemoryInternalData
 		SharedMemoryStatus& serverCmd = m_testBlocks[blockIndex]->m_serverCommands[0];
 		serverCmd.m_type = statusType;
 		serverCmd.m_sequenceNumber = sequenceNumber;
-		serverCmd.m_timeStamp = timeStamp;
+		serverCmd.m_timeStamp = (size_t)timeStamp;
 		return serverCmd;
 	}
 	void submitServerStatus(SharedMemoryStatus& /*status*/, int blockIndex)

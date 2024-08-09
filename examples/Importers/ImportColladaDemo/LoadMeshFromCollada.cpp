@@ -598,7 +598,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 	if (xmlString.size()==0)
 		return;
 
-	if (doc.Parse(&xmlString[0], xmlString.size()) != XML_SUCCESS)
+	if (doc.Parse(&xmlString[0], (size_t)xmlString.size()) != XML_SUCCESS)
 	//if (doc.LoadFile(filename) != XML_SUCCESS)
 		return;
 

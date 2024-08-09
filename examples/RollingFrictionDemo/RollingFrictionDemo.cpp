@@ -221,7 +221,7 @@ void RollingFrictionDemo::initPhysics()
 		if (b3ResourcePath::findResourcePath("slope.bullet", resourcePath, 1024,0))
 		{
 			FILE* f = fopen(resourcePath, "wb");
-			fwrite(s->getBufferPointer(), s->getCurrentBufferSize(), 1, f);
+			fwrite(s->getBufferPointer(), (size_t)s->getCurrentBufferSize(), 1, f);
 			fclose(f);
 		}
 	}

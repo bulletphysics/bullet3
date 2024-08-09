@@ -34,7 +34,7 @@ struct b3CustomCollisionFilter
 		key ^= (key >> 6);
 		key += ~(key << 11);
 		key ^= (key >> 16);
-		return (int) key;
+		return (unsigned int)key;
 	}
 	bool equals(const b3CustomCollisionFilter& other) const
 	{

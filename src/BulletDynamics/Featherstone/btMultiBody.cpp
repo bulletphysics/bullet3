@@ -2313,7 +2313,7 @@ const char *btMultiBody::serialize(void *dataBuffer, class btSerializer *seriali
 	mbd->m_numLinks = this->getNumLinks();
 	if (mbd->m_numLinks)
 	{
-		int sz = sizeof(btMultiBodyLinkData);
+		size_t sz = sizeof(btMultiBodyLinkData);
 		int numElem = mbd->m_numLinks;
 		btChunk *chunk = serializer->allocate(sz, numElem);
 		btMultiBodyLinkData *memPtr = (btMultiBodyLinkData *)chunk->m_oldPtr;

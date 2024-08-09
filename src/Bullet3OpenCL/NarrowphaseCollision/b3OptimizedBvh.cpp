@@ -294,9 +294,9 @@ void b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface, int 
 			{
 				int graphicsindex=0;
                                 switch (indicestype) {
-                                        case PHY_INTEGER: graphicsindex = gfxbase[j]; break;
-                                        case PHY_SHORT: graphicsindex = ((unsigned short*)gfxbase)[j]; break;
-                                        case PHY_UCHAR: graphicsindex = ((unsigned char*)gfxbase)[j]; break;
+                                        case PHY_INTEGER: graphicsindex = (int)gfxbase[j]; break;
+                                        case PHY_SHORT: graphicsindex = (int)((unsigned short*)gfxbase)[j]; break;
+                                        case PHY_UCHAR: graphicsindex = (int)((unsigned char*)gfxbase)[j]; break;
                                         default: b3Assert(0);
                                 }
 				if (type == PHY_FLOAT)

@@ -1,9 +1,15 @@
 #pragma once
 
-
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2' - signed/unsigned misamtch
+#endif
 #include "Eigen/Dense"
 #include "Eigen/StdVector"
 #include "Eigen/Geometry"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #define _USE_MATH_DEFINES
 #include "math.h"

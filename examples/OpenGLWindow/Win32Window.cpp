@@ -293,7 +293,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_SYSKEYUP:
 		case WM_KEYUP:
 		{
-			int keycode = getSpecialKeyFromVirtualKeycode(wParam);
+			int keycode = getSpecialKeyFromVirtualKeycode((int)wParam);
 			switch (keycode)
 			{
 				case B3G_ALT:
@@ -339,7 +339,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
-			int keycode = getSpecialKeyFromVirtualKeycode(wParam);
+			int keycode = getSpecialKeyFromVirtualKeycode((int)wParam);
 			switch (keycode)
 			{
 				case B3G_ALT:
@@ -659,15 +659,15 @@ void Win32Window::createWindow(const b3gWindowConstructionInfo& ci)
 		dm.dmSize = sizeof(dm);
 		// use default values from current setting
 		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm);
-		m_data->m_oldScreenWidth = dm.dmPelsWidth;
-		m_data->m_oldHeight = dm.dmPelsHeight;
-		m_data->m_oldBitsPerPel = dm.dmBitsPerPel;
+		m_data->m_oldScreenWidth = (int)dm.dmPelsWidth;
+		m_data->m_oldHeight = (int)dm.dmPelsHeight;
+		m_data->m_oldBitsPerPel = (int)dm.dmBitsPerPel;
 
-		dm.dmPelsWidth = oglViewportWidth;
-		dm.dmPelsHeight = oglViewportHeight;
+		dm.dmPelsWidth = (DWORD)oglViewportWidth;
+		dm.dmPelsHeight = (DWORD)oglViewportHeight;
 		if (colorBitsPerPixel)
 		{
-			dm.dmBitsPerPel = colorBitsPerPixel;
+			dm.dmBitsPerPel = (DWORD)colorBitsPerPixel;
 		}
 		dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
 
@@ -693,32 +693,32 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 
 	if (fullscreen && !m_data->m_oldScreenWidth)
 	{
-		m_data->m_oldScreenWidth = dm.dmPelsWidth;
-		m_data->m_oldHeight = dm.dmPelsHeight;
-		m_data->m_oldBitsPerPel = dm.dmBitsPerPel;
+		m_data->m_oldScreenWidth = (int)dm.dmPelsWidth;
+		m_data->m_oldHeight = (int)dm.dmPelsHeight;
+		m_data->m_oldBitsPerPel = (int)dm.dmBitsPerPel;
 
 		if (width && height)
 		{
-			dm.dmPelsWidth = width;
-			dm.dmPelsHeight = height;
+			dm.dmPelsWidth = (DWORD)width;
+			dm.dmPelsHeight = (DWORD)height;
 		}
 		else
 		{
-			dm.dmPelsWidth = m_data->m_fullWindowWidth;
-			dm.dmPelsHeight = m_data->m_fullWindowHeight;
+			dm.dmPelsWidth = (DWORD)m_data->m_fullWindowWidth;
+			dm.dmPelsHeight = (DWORD)m_data->m_fullWindowHeight;
 		}
 		if (colorBitsPerPixel)
 		{
-			dm.dmBitsPerPel = colorBitsPerPixel;
+			dm.dmBitsPerPel = (DWORD)colorBitsPerPixel;
 		}
 	}
 	else
 	{
 		if (m_data->m_oldScreenWidth)
 		{
-			dm.dmPelsWidth = m_data->m_oldScreenWidth;
-			dm.dmPelsHeight = m_data->m_oldHeight;
-			dm.dmBitsPerPel = m_data->m_oldBitsPerPel;
+			dm.dmPelsWidth = (DWORD)m_data->m_oldScreenWidth;
+			dm.dmPelsHeight = (DWORD)m_data->m_oldHeight;
+			dm.dmBitsPerPel = (DWORD)m_data->m_oldBitsPerPel;
 		}
 	}
 
@@ -731,7 +731,7 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 			res = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
 		}
 
-		DWORD style = WS_POPUP;
+		LONG style = WS_POPUP;
 		SetWindowLong(m_data->m_hWnd, GWL_STYLE, style);
 
 		MoveWindow(m_data->m_hWnd, 0, 0, m_data->m_fullWindowWidth, m_data->m_fullWindowHeight, TRUE);
@@ -743,7 +743,7 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 	{
 		res = ChangeDisplaySettings(&dm, 0);
 
-		DWORD style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX;
+		LONG style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX;
 		SetWindowLong(m_data->m_hWnd, GWL_STYLE, style);
 
 		SetWindowPos(m_data->m_hWnd, NULL, 0, 0, (int)width, (int)height,

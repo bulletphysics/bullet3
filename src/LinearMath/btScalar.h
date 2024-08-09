@@ -739,7 +739,7 @@ template <typename T>
 SIMD_FORCE_INLINE void btSetZero(T *a, int n)
 {
 	T *acurr = a;
-	size_t ncurr = n;
+	size_t ncurr = (size_t)n;
 	while (ncurr > 0)
 	{
 		*(acurr++) = 0;
