@@ -708,7 +708,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 
 				if (mode & btIDebugDraw::DBG_DrawFrames)
 				{
-					getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), 0.1);
+					getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), btScalar(0.1));
 				}
 
 				for (int m = 0; m < bod->getNumLinks(); m++)
@@ -716,12 +716,12 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 					const btTransform& tr = bod->getLink(m).m_cachedWorldTransform;
 					if (mode & btIDebugDraw::DBG_DrawFrames)
 					{
-						getDebugDrawer()->drawTransform(tr, 0.1);
+						getDebugDrawer()->drawTransform(tr, btScalar(0.1));
 					}
 					//draw the joint axis
 					if (bod->getLink(m).m_jointType == btMultibodyLink::eRevolute)
 					{
-						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_topVec) * 0.1;
+						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_topVec) * btScalar(0.1);
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
@@ -730,7 +730,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::eFixed)
 					{
-						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * 0.1;
+						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * btScalar(0.1);
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
@@ -739,7 +739,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::ePrismatic)
 					{
-						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * 0.1;
+						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * btScalar(0.1);
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);

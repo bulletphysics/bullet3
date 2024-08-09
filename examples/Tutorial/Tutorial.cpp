@@ -418,10 +418,10 @@ public:
 			for (int i = 0; i < m_bodies.size(); i++)
 			{
 				int gfxShape = sphereOpaque;
-				b3Vector4 color = b3MakeVector4(.1, .1, 1, 1);
+				b3Vector4 color = b3MakeVector4(b3Scalar(.1), b3Scalar(.1), 1, 1);
 				if (i % 2)
 				{
-					color.setValue(1, .1, .1, 0.1);
+					color.setValue(1, b3Scalar(.1), b3Scalar(.1), b3Scalar(.1));
 					gfxShape = sphereTransparent;
 				}
 				m_bodies[i]->m_collisionShape.m_sphere.m_radius = SPHERE_RADIUS;

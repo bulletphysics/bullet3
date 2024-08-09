@@ -58,7 +58,7 @@ public:
     void stepSimulation(float deltaTime)
     {
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
@@ -102,7 +102,7 @@ void dynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     if (rbs.size()<2)
         return;
     btRigidBody* rb0 = rbs[0];
-    btScalar pressTime = 0.9;
+    btScalar pressTime = btScalar(0.9);
     btScalar liftTime = 2.5;
     btScalar shiftTime = 3.5;
     btScalar holdTime = 4.5*1000;
@@ -298,7 +298,7 @@ void Pinch::initPhysics()
         
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 4, 0));
-        psb->getCollisionShape()->setMargin(0.01);
+        psb->getCollisionShape()->setMargin(btScalar(0.01));
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -312,11 +312,11 @@ void Pinch::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(8,3, 0.02);
-        neohookean->setPoissonRatio(0.3);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(8,3, btScalar(0.02));
+        neohookean->setPoissonRatio(btScalar(0.3));
         neohookean->setYoungsModulus(25);
-        neohookean->setDamping(0.01);
-        psb->m_cfg.drag = 0.001;
+        neohookean->setDamping(btScalar(0.01));
+        psb->m_cfg.drag = btScalar(0.001);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
         // add a grippers

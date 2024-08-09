@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0001;
+static btScalar damping_beta = btScalar(0.0001);
 static int num_modes = 20;
 
 class ReducedGrasp : public CommonDeformableBodyBase
@@ -63,7 +63,7 @@ public:
     void stepSimulation(float deltaTime)
     {
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
         // float internalTimeStep = 1. / 60.f;
         // m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
@@ -101,7 +101,7 @@ public:
         startTransform.setOrigin(btVector3(0,9.5,0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setLinearVelocity(btVector3(0, 0, 0));
-        rb1->setFriction(0.7);
+        rb1->setFriction(btScalar(0.7));
     }
     
     virtual void renderScene()
@@ -141,7 +141,7 @@ void ReducedGrasp::GripperDynamics(btScalar time, btDeformableMultiBodyDynamicsW
     btRigidBody* rb0 = rbs[0];
     // btScalar pressTime = 0.9;
     // btScalar pressTime = 0.96;
-    btScalar pressTime = 1.26;
+    btScalar pressTime = btScalar(1.26);
     btScalar liftTime = 2.5;
     btScalar shiftTime = 6;
     btScalar holdTime = 7;
@@ -288,7 +288,7 @@ void ReducedGrasp::initPhysics()
                                             false);
                                             
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.015);
+        rsb->getCollisionShape()->setMargin(btScalar(0.015));
         
         btTransform init_transform;
         init_transform.setIdentity();
@@ -347,11 +347,11 @@ void ReducedGrasp::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.2);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     

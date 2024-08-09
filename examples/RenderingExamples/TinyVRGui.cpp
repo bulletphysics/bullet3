@@ -143,7 +143,7 @@ bool TinyVRGui::init()
 				float position[4] = {0, 0, 2, 1};
 				float orn[4] = {0, 0, 0, 1};
 				float color[4] = {1, 1, 1, 1};
-				float scaling[4] = {.1, .1, .1, 1};
+				float scaling[4] = {.1f, .1f, .1f, 1};
 
 				m_data->m_gfxObjectId = m_data->m_renderer->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 				m_data->m_renderer->writeTransforms();

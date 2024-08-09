@@ -10,8 +10,8 @@ namespace btInverseDynamics
 {
 // constants for random mass and inertia generation
 // these are arbitrary positive values.
-static const float mass_min = 0.001;
-static const float mass_max = 1.0;
+static const float mass_min = 0.001f;
+static const float mass_max = 1.0f;
 
 void randomInit() { srand((unsigned int)time(NULL)); }
 void randomInit(unsigned seed) { srand(seed); }

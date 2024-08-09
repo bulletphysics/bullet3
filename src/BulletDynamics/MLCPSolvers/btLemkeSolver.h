@@ -200,8 +200,8 @@ public:
 
 			int errorIndexMax = -1;
 			int errorIndexMin = -1;
-			float errorValueMax = -1e30;
-			float errorValueMin = 1e30;
+			float errorValueMax = -1e30f;
+			float errorValueMin = 1e30f;
 
 			for (int i = 0; i < n; i++)
 			{
@@ -281,8 +281,8 @@ public:
 			bool fail = false;
 			int errorIndexMax = -1;
 			int errorIndexMin = -1;
-			float errorValueMax = -1e30;
-			float errorValueMin = 1e30;
+			float errorValueMax = -1e30f;
+			float errorValueMin = 1e30f;
 
 			for (int i = 0; i < dimension; i++)
 			{

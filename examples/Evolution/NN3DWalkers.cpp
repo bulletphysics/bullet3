@@ -149,7 +149,7 @@ public:
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -357,9 +357,9 @@ public:
 		// Setup some damping on the m_bodies
 		for (i = 0; i < BODYPART_COUNT; ++i)
 		{
-			m_bodies[i]->setDamping(0.05, 0.85);
-			m_bodies[i]->setDeactivationTime(0.8);
-			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
+			m_bodies[i]->setDamping(0.05f, 0.85f);
+			m_bodies[i]->setDeactivationTime(0.8f);
+			//m_bodies[i]->setSleepingThresholds(1.6f, 2.5f);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
 		}
 
@@ -553,7 +553,7 @@ bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
 		{
 			if (!nn3DWalkers->mIsHeadless)
 			{
-				nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+				nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), btScalar(0.1), btVector3(1., 0., 0.));
 			}
 		}
 
@@ -775,10 +775,16 @@ bool NN3DWalkersExample::detectCollisions()
 						return collisionDetected;
 					}
 
-					if (m_dynamicsWorld->getDebugDrawer())
-					{
-						m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnA(), 0.1, btVector3(0., 0., 1.));
-						m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnB(), 0.1, btVector3(0., 0., 1.));
+						if (!DRAW_INTERPENETRATIONS)
+						{
+							return collisionDetected;
+						}
+
+						if (m_dynamicsWorld->getDebugDrawer())
+						{
+							m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnA(), btScalar(0.1), btVector3(0., 0., 1.));
+							m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnB(), btScalar(0.1), btVector3(0., 0., 1.));
+						}
 					}
 				}
 			}

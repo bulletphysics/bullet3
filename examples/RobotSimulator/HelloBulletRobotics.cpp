@@ -19,7 +19,7 @@ int main(int /*argc*/, char* /*argv*/[])
 
 	//remove all existing objects (if any)
 	sim->resetSimulation();
-	sim->setGravity(btVector3(0, 0, -9.8));
+	sim->setGravity(btVector3(0, 0, btScalar(-9.8)));
 	sim->setNumSolverIterations(100);
 	b3RobotSimulatorSetPhysicsEngineParameters args;
 	sim->getPhysicsEngineParameters(args);

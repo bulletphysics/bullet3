@@ -1747,7 +1747,7 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_commandLoggingUid(-1),
 		  m_logPlayback(0),
 		  m_logPlaybackUid(-1),
-		  m_physicsDeltaTime(1. / 240.),
+		  m_physicsDeltaTime(btScalar(1. / 240.)),
 		  m_numSimulationSubSteps(0),
 		  m_simulationTimestamp(0),
 		  m_userConstraintUIDGenerator(1),
@@ -1760,7 +1760,7 @@ struct PhysicsServerCommandProcessorInternalData
 #ifndef SKIP_DEFORMABLE_BODY
 		  m_pickedSoftBody(0),
 		  m_mouseForce(0),
-		  m_maxPickingForce(0.3),
+		  m_maxPickingForce(btScalar(0.3)),
 		  m_deformablebodySolver(0),
 #endif
 		  m_dynamicsWorld(0),
@@ -1779,7 +1779,7 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_collisionFilterPlugin(-1),
 		  m_grpcPlugin(-1),
 		  m_threadPool(0),
-		  m_defaultCollisionMargin(0.001),
+		  m_defaultCollisionMargin(btScalar(0.001)),
 		  m_remoteSyncTransformTime(1. / 30.),
 		  m_remoteSyncTransformInterval(1. / 30.),
 		m_useAlternativeDeformableIndexing(false)
@@ -2799,10 +2799,10 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
 
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
-	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
+	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = btScalar(0.08);
 
-	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;  //need to check if there are artifacts with frictionERP
-	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
+	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = btScalar(0.2);  //need to check if there are artifacts with frictionERP
+	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = btScalar(0.00001);
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
 	if (flags & RESET_USE_REDUCED_DEFORMABLE_WORLD)
 	{
@@ -2812,9 +2812,9 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
 	}
-	m_data->m_dynamicsWorld->getSolverInfo().m_warmstartingFactor = 0.1;
+	m_data->m_dynamicsWorld->getSolverInfo().m_warmstartingFactor = btScalar(0.1);
 	gDbvtMargin = btScalar(0);
-	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
+	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-7);
 
 	if (m_data->m_guiHelper)
 	{
@@ -5951,7 +5951,7 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 			}
 			else
 			{
-				visualShape.m_geometry.m_localMaterial.m_matColor.m_specularColor.setValue(0.4, 0.4, 0.4);
+				visualShape.m_geometry.m_localMaterial.m_matColor.m_specularColor.setValue(btScalar(0.4), btScalar(0.4), btScalar(0.4));
 			}
 		}
 
@@ -7324,14 +7324,14 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 								{
 									hasDesiredPosOrVel = true;
 									desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
-									kd = 0.1;
+									kd = btScalar(0.1);
 								}
 								btScalar desiredPosition = 0.f;
 								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[posIndex] & SIM_DESIRED_STATE_HAS_Q) != 0)
 								{
 									hasDesiredPosOrVel = true;
 									desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
-									kp = 0.1;
+									kp = btScalar(0.1);
 								}
 
 								if (hasDesiredPosOrVel)
@@ -7388,7 +7388,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex + 0],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex + 1],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex + 2]);
-									kd.setValue(0.1, 0.1, 0.1);
+									kd.setValue(btScalar(0.1), btScalar(0.1), btScalar(0.1));
 								}
 								btQuaternion desiredPosition(0, 0, 0, 1);
 								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[posIndex] & SIM_DESIRED_STATE_HAS_Q) != 0)
@@ -7399,7 +7399,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 1],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 2],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 3]);
-									kp.setValue(0.1, 0.1, 0.1);
+									kp.setValue(btScalar(0.1), btScalar(0.1), btScalar(0.1));
 								}
 
 								if (hasDesiredPosOrVel)

@@ -124,13 +124,13 @@ void AllConstraintDemo::initPhysics()
 	btRigidBody* bodyB = 0;
 
 	{
-		btCollisionShape* cylA = new btCylinderShape(btVector3(0.2, 0.25, 0.2));
-		btCollisionShape* cylB = new btCylinderShape(btVector3(L_1, 0.025, L_1));
+		btCollisionShape* cylA = new btCylinderShape(btVector3(btScalar(0.2), btScalar(0.25), btScalar(0.2)));
+		btCollisionShape* cylB = new btCylinderShape(btVector3(btScalar(L_1), btScalar(0.025), btScalar(L_1)));
 		btCompoundShape* cyl0 = new btCompoundShape();
 		cyl0->addChildShape(btTransform::getIdentity(), cylA);
 		cyl0->addChildShape(btTransform::getIdentity(), cylB);
 
-		btScalar massL = 6.28;
+		btScalar massL = btScalar(6.28);
 		btVector3 localInertia;
 		cyl0->calculateLocalInertia(massL, localInertia);
 		btRigidBody::btRigidBodyConstructionInfo ci(massL, 0, cyl0, localInertia);
@@ -144,13 +144,13 @@ void AllConstraintDemo::initPhysics()
 	}
 
 	{
-		btCollisionShape* cylA = new btCylinderShape(btVector3(0.2, 0.26, 0.2));
-		btCollisionShape* cylB = new btCylinderShape(btVector3(L_2, 0.025, L_2));
+		btCollisionShape* cylA = new btCylinderShape(btVector3(btScalar(0.2), btScalar(0.26), btScalar(0.2)));
+		btCollisionShape* cylB = new btCylinderShape(btVector3(btScalar(L_2), btScalar(0.025), btScalar(L_2)));
 		btCompoundShape* cyl0 = new btCompoundShape();
 		cyl0->addChildShape(btTransform::getIdentity(), cylA);
 		cyl0->addChildShape(btTransform::getIdentity(), cylB);
 
-		btScalar massL = 6.28;
+		btScalar massL = btScalar(6.28);
 		btVector3 localInertia;
 		cyl0->calculateLocalInertia(massL, localInertia);
 		btRigidBody::btRigidBodyConstructionInfo ci(massL, 0, cyl0, localInertia);
@@ -195,7 +195,7 @@ void AllConstraintDemo::initPhysics()
 		btVector3 pivotInA(CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS, 0);
 		btTypedConstraint* p2p = new btPoint2PointConstraint(*body0, pivotInA);
 		m_dynamicsWorld->addConstraint(p2p);
-		p2p->setBreakingImpulseThreshold(10.2);
+		p2p->setBreakingImpulseThreshold(btScalar(10.2));
 		p2p->setDbgDrawSize(btScalar(5.f));
 	}
 #endif

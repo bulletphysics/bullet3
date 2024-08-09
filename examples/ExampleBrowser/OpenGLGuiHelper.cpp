@@ -86,7 +86,7 @@ public:
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
-		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
+		drawLine(PointOnB, PointOnB + normalOnB * btScalar(0.01), ncolor);
 	}
 
 	virtual void reportErrorWarning(const char* /*warningString*/)

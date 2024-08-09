@@ -27,7 +27,7 @@
 #include "../Utils/b3ResourcePath.h"
 
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0001;
+static btScalar damping_beta = btScalar(0.0001);
 // static btScalar COLLIDING_VELOCITY = 0;
 static int num_modes = 20;
 static bool run_reduced = true;
@@ -98,7 +98,7 @@ public:
                                                 false);
 
             getDeformableDynamicsWorld()->addSoftBody(rsb);
-            rsb->getCollisionShape()->setMargin(0.01);
+            rsb->getCollisionShape()->setMargin(btScalar(0.01));
             // rsb->scale(btVector3(1, 1, 0.5));
 
             rsb->setTotalMass(10);
@@ -134,7 +134,7 @@ public:
             init_transform.setOrigin(origin);
             init_transform.setRotation(rotation);
             psb->transform(init_transform);
-            psb->getCollisionShape()->setMargin(0.015);
+            psb->getCollisionShape()->setMargin(btScalar(0.015));
             psb->setTotalMass(10);
             psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
             psb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -149,14 +149,14 @@ public:
             m_forces.push_back(gravity_force);
             
             btScalar E = 10000;
-            btScalar nu = 0.3;
+            btScalar nu = btScalar(0.3);
             btScalar lambda = E * nu / ((1 + nu) * (1 - 2 * nu));
             btScalar mu = E / (2 * (1 + nu));
-            btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(lambda, mu, 0.01);
+            btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(lambda, mu, btScalar(0.01));
             // neohookean->setPoissonRatio(0.3);
             // neohookean->setYoungsModulus(25);
-            neohookean->setDamping(0.01);
-            psb->m_cfg.drag = 0.001;
+            neohookean->setDamping(btScalar(0.01));
+            psb->m_cfg.drag = btScalar(0.001);
             getDeformableDynamicsWorld()->addForce(psb, neohookean);
             m_forces.push_back(neohookean);
 
@@ -192,7 +192,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      float internalTimeStep = 1. / 240.f;
+      float internalTimeStep = 1.f / 240.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
@@ -283,11 +283,11 @@ void ReducedBenchmark::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.2);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 0.5;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
 

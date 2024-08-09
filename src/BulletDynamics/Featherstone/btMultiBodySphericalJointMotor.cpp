@@ -28,7 +28,7 @@ btMultiBodySphericalJointMotor::btMultiBodySphericalJointMotor(btMultiBody* body
 	m_desiredPosition(0,0,0,1),
 	m_use_multi_dof_params(false),
 	m_kd(1., 1., 1.),
-	m_kp(0.2, 0.2, 0.2),
+	m_kp(btScalar(0.2), btScalar(0.2), btScalar(0.2)),
 	m_erp(1),
 	m_rhsClamp(SIMD_INFINITY),
 	m_maxAppliedImpulseMultiDof(maxMotorImpulse, maxMotorImpulse, maxMotorImpulse),

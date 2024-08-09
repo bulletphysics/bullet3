@@ -27,7 +27,7 @@ public:
 	btScalar m_mu, m_lambda;
 	btScalar m_E, m_nu;  // Young's modulus and Poisson ratio
 	btScalar m_damping_alpha, m_damping_beta;
-	btDeformableLinearElasticityForce() : m_mu(1), m_lambda(1), m_damping_alpha(0.01), m_damping_beta(0.01)
+	btDeformableLinearElasticityForce() : m_mu(1), m_lambda(1), m_damping_alpha(btScalar(0.01)), m_damping_beta(btScalar(0.01))
 	{
 		updateYoungsModulusAndPoissonRatio();
 	}

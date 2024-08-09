@@ -12,7 +12,7 @@ btReducedDeformableStaticConstraint::btReducedDeformableStaticConstraint(
 	btScalar dt)
   : btDeformableStaticConstraint(node, infoGlobal), m_rsb(rsb), m_dt(dt), m_ri(ri), m_targetPos(x0), m_impulseDirection(dir)
 {
-	m_erp = 0.2;
+	m_erp = btScalar(0.2);
 	m_appliedImpulse = 0;
 
 	// get impulse factor

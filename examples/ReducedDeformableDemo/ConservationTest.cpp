@@ -155,7 +155,7 @@ public:
         first_step = false;
       }
       
-      float internalTimeStep = 1. / 240.f;
+      float internalTimeStep = 1.f / 240.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
 
       sim_time += internalTimeStep;
@@ -183,9 +183,9 @@ public:
                 deformableWorld->getDebugDrawer()->drawLine(origin, line_y, btVector3(0, 1, 0));
                 deformableWorld->getDebugDrawer()->drawLine(origin, line_z, btVector3(0, 0, 1));
 
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.1, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), btScalar(0.1), btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), btScalar(0.1), btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), btScalar(0.1), btVector3(1, 1, 1));
             }
         }
     }
@@ -226,7 +226,7 @@ void ConservationTest::initPhysics()
                                             false);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.1);
+        rsb->getCollisionShape()->setMargin(btScalar(0.1));
         
         btTransform init_transform;
         init_transform.setIdentity();
@@ -252,10 +252,10 @@ void ConservationTest::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.3);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
 

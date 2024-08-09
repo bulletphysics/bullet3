@@ -34,7 +34,7 @@ struct SimpleJointExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -99,8 +99,8 @@ void SimpleJointExample::initPhysics()
 
 		//create a simple p2pjoint constraint
 		btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*dynamicBox, *staticBox, btVector3(0, 3, 0), btVector3(0, 0, 0));
-		p2p->m_setting.m_damping = 0.0625;
-		p2p->m_setting.m_impulseClamp = 0.95;
+		p2p->m_setting.m_damping = btScalar(0.0625);
+		p2p->m_setting.m_impulseClamp = btScalar(0.95);
 		m_dynamicsWorld->addConstraint(p2p);
 	}
 

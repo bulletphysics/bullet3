@@ -166,7 +166,7 @@ struct MyMJCFDefaults
 	MyMJCFDefaults()
 		: m_defaultCollisionGroup(1),
 		  m_defaultCollisionMask(1),
-		  m_defaultCollisionMargin(0.001),  //assume unit meters, margin is 1mm
+		  m_defaultCollisionMargin(btScalar(0.001)),  //assume unit meters, margin is 1mm
 		  m_defaultConDim(3),
 		  m_defaultLateralFriction(0.5),
 		  m_defaultSpinningFriction(0),

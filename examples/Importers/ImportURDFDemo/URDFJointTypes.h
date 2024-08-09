@@ -71,8 +71,8 @@ struct UrdfMaterialColor
 	btVector4 m_rgbaColor;
 	btVector3 m_specularColor;
 	UrdfMaterialColor()
-		: m_rgbaColor(0.8, 0.8, 0.8, 1),
-		  m_specularColor(0.4, 0.4, 0.4)
+		: m_rgbaColor(btScalar(0.8), btScalar(0.8), btScalar(0.8), btScalar(1)),
+		  m_specularColor(btScalar(0.4), btScalar(0.4), btScalar(0.4))
 	{
 	}
 };

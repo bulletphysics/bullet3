@@ -295,13 +295,13 @@ TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 {
 	//CAVEAT:these values are hand-tuned to work for the specific trajectory defined above.
 #ifdef BT_ID_USE_DOUBLE_PRECISION
-	const idScalar kDeltaT = 1e-7;
-	const idScalar kAcceptableError = 1e-4;
+	const idScalar kDeltaT = idScalar(1e-7);
+	const idScalar kAcceptableError = idScalar(1e-4);
 #else
-	const idScalar kDeltaT = 1e-4;
-	const idScalar kAcceptableError = 5e-3;
+	const idScalar kDeltaT = idScalar(1e-4);
+	const idScalar kAcceptableError = idScalar(5e-3);
 #endif
-	const idScalar kDuration = 0.01;
+	const idScalar kDuration = idScalar(0.01);
 
 	CoilCreator coil_creator(kNumBodies);
 	DillCreator dill_creator(kLevel);
@@ -347,8 +347,8 @@ TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 // is consitent with the second order approximation, ie, error ~ O(dt^2)
 TEST(InvDynKinematicsDifferentiation, errorOrder)
 {
-	const idScalar kDeltaTs[2] = {1e-4, 1e-5};
-	const idScalar kDuration = 1e-2;
+	const idScalar kDeltaTs[2] = {idScalar(1e-4), idScalar(1e-5)};
+	const idScalar kDuration = idScalar(1e-2);
 
 	CoilCreator coil_creator(kNumBodies);
 	//    DillCreator dill_creator(kLevel);

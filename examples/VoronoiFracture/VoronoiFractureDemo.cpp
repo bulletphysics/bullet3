@@ -105,7 +105,7 @@ public:
 		float dist = 18;
 		float pitch = -30;
 		float yaw = 129;
-		float targetPos[3] = {-1.5, 4.7, -2};
+		float targetPos[3] = {-1.5f, 4.7f, -2};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -355,7 +355,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 			continue;
 
 		// Clean-up voronoi convex shard vertices and generate edges & faces
-		convexHC->compute(&vertices[0].getX(), sizeof(btVector3), vertices.size(), CONVEX_MARGIN, 0.0);
+		convexHC->compute(&vertices[0].getX(), sizeof(btVector3), vertices.size(), btScalar(CONVEX_MARGIN), 0.0);
 
 		// At this point we have a complete 3D voronoi shard mesh contained in convexHC
 
@@ -399,7 +399,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 
 		// Create Bullet Physics rigid body shards
 		btCollisionShape* shardShape = new btConvexHullShape(&(convexHC->vertices[0].getX()), convexHC->vertices.size());
-		shardShape->setMargin(CONVEX_MARGIN);  // for this demo; note convexHC has optional margin parameter for this
+		shardShape->setMargin(btScalar(CONVEX_MARGIN));  // for this demo; note convexHC has optional margin parameter for this
 		m_collisionShapes.push_back(shardShape);
 		btTransform shardTransform;
 		shardTransform.setIdentity();
@@ -553,7 +553,7 @@ void VoronoiFractureDemo::voronoiConvexHullShatter(const btAlignedObjectArray<bt
 
 		// Create Bullet Physics rigid body shards
 		btCollisionShape* shardShape = new btConvexHullShape(&(convexHC->vertices[0].getX()), convexHC->vertices.size());
-		shardShape->setMargin(CONVEX_MARGIN);  // for this demo; note convexHC has optional margin parameter for this
+		shardShape->setMargin(btScalar(CONVEX_MARGIN));  // for this demo; note convexHC has optional margin parameter for this
 		m_collisionShapes.push_back(shardShape);
 		btTransform shardTransform;
 		shardTransform.setIdentity();
@@ -753,14 +753,14 @@ void VoronoiFractureDemo::initPhysics()
 	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		obj->getCollisionShape()->setMargin(CONVEX_MARGIN + 0.01);
+		obj->getCollisionShape()->setMargin(btScalar(CONVEX_MARGIN + 0.01));
 	}
 	m_dynamicsWorld->performDiscreteCollisionDetection();
 
 	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		obj->getCollisionShape()->setMargin(CONVEX_MARGIN);
+		obj->getCollisionShape()->setMargin(btScalar(CONVEX_MARGIN));
 	}
 
 	attachFixedConstraints();

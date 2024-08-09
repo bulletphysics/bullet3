@@ -29,7 +29,7 @@ public:
 	btScalar m_mu_damp, m_lambda_damp;
 	btDeformableNeoHookeanForce() : m_mu(1), m_lambda(1)
 	{
-		btScalar damping = 0.05;
+		btScalar damping = btScalar(0.05);
 		m_mu_damp = damping * m_mu;
 		m_lambda_damp = damping * m_lambda;
 		updateYoungsModulusAndPoissonRatio();

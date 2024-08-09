@@ -63,8 +63,8 @@ public:
 		{
 			int sphereId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_MEDIUM);
 			b3Quaternion orn(0, 0, 0, 1);
-			b3Vector4 color = b3MakeVector4(1., 0.3, 0.3, 1);
-			b3Vector3 scaling = b3MakeVector3(.02, .02, .02);
+			b3Vector4 color = b3MakeVector4(1., b3Scalar(0.3), b3Scalar(0.3), 1);
+			b3Vector3 scaling = b3MakeVector3(b3Scalar(.02), b3Scalar(.02), b3Scalar(.02));
 			m_targetSphereInstance = m_app->m_renderer->registerGraphicsInstance(sphereId, m_targetPos, orn, color, scaling);
 		}
 		m_app->m_renderer->writeTransforms();
@@ -123,7 +123,7 @@ public:
 		m_time += dt;
 		m_targetPos.setValue(0.4 - 0.4 * b3Cos(m_time), 0, 0.8 + 0.4 * b3Cos(m_time));
 		m_targetOri.setValue(0, 1.0, 0, 0);
-		m_targetPos.setValue(0.2 * b3Cos(m_time), 0.2 * b3Sin(m_time), 1.1);
+		m_targetPos.setValue(b3Scalar(0.2 * b3Cos(m_time)), b3Scalar(0.2 * b3Sin(m_time)), b3Scalar(1.1));
 
 		int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
 
@@ -271,7 +271,7 @@ public:
 		float dist = 3;
 		float pitch = -30;
 		float yaw = 0;
-		float targetPos[3] = {-0.2, 0.8, 0.3};
+		float targetPos[3] = {-0.2f, 0.8f, 0.3f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

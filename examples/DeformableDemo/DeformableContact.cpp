@@ -52,7 +52,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
@@ -143,7 +143,7 @@ void DeformableContact::initPhysics()
                                                          20,20,
                                                          1 + 2 + 4 + 8, true);
         
-        psb->getCollisionShape()->setMargin(0.05);
+        psb->getCollisionShape()->setMargin(btScalar(0.05));
         psb->generateBendingConstraints(2);
         psb->setSpringStiffness(10);
         psb->setTotalMass(1);
@@ -172,7 +172,7 @@ void DeformableContact::initPhysics()
                                                           btVector3(+s, h, +s),
                                                           10,10,
                                                           0, true);
-        psb2->getCollisionShape()->setMargin(0.05);
+        psb2->getCollisionShape()->setMargin(btScalar(0.05));
         psb2->generateBendingConstraints(2);
         psb2->setSpringStiffness(10);
         psb2->setTotalMass(1);

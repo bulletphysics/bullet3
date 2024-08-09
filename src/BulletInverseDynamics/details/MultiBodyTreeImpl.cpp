@@ -20,7 +20,7 @@ MultiBodyTree::MultiBodyImpl::MultiBodyImpl(int num_bodies_, int num_dofs_)
 
 	m_world_gravity(0) = 0.0;
 	m_world_gravity(1) = 0.0;
-	m_world_gravity(2) = -9.8;
+	m_world_gravity(2) = btScalar(-9.8);
 }
 
 const char *MultiBodyTree::MultiBodyImpl::jointTypeToString(const JointType &type) const

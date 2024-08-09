@@ -43,7 +43,7 @@ struct RigidBodyFromObjExample : public CommonRigidBodyBase
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -87,7 +87,7 @@ void RigidBodyFromObjExample::initPhysics()
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
 	btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));
 
-	float scaling[4] = {0.1, 0.1, 0.1, 1};
+	float scaling[4] = {0.1f, 0.1f, 0.1f, 1};
 
 	btVector3 localScaling(scaling[0], scaling[1], scaling[2]);
 	shape->setLocalScaling(localScaling);

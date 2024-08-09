@@ -311,7 +311,7 @@ void RaytracerPhysicsSetup::stepSimulation(float /*deltaTime*/)
 
 				rgba = btVector4(lightVec0, lightVec1, 0, 1.f);
 				rgba.setMin(btVector3(1, 1, 1));
-				rgba.setMax(btVector3(0.2, 0.2, 0.2));
+				rgba.setMax(btVector3(btScalar(0.2), btScalar(0.2), btScalar(0.2)));
 				rgba[3] = 1.f;
 				unsigned char red = rgba[0] * 255;
 				unsigned char green = rgba[1] * 255;

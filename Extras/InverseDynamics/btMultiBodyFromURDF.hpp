@@ -64,7 +64,7 @@ public:
 			ConvertURDF2Bullet(u2b, creation, identityTrans, m_dynamicsWorld, use_multibody,
 							   u2b.getPathPrefix(), m_flag);
 			m_multibody = creation.getBulletMultiBody();
-			m_dynamicsWorld->stepSimulation(1. / 240., 0);
+			m_dynamicsWorld->stepSimulation(btScalar(1. / 240.), 0);
 		}
 	}
 	/// @return pointer to the btMultiBody model

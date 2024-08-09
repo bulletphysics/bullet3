@@ -626,7 +626,7 @@ static SIMD_FORCE_INLINE bool bernsteinCCD(const btSoftBody::Face* face, const b
 {
 	if (!bernsteinVFTest(face, node, dt, mrg))
 		return false;
-	if (!continuousCollisionDetection(face, node, dt, 1e-6, bary))
+	if (!continuousCollisionDetection(face, node, dt, btScalar(1e-6), bary))
 		return false;
 	return true;
 }

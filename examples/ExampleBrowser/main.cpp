@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 				float deltaTimeInSeconds = (float)clock.getTimeMicroseconds() / 1000000.f;
 				if (deltaTimeInSeconds > 0.1)
 				{
-					deltaTimeInSeconds = 0.1;
+					deltaTimeInSeconds = 0.1f;
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs / 1e6))
 				{

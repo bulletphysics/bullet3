@@ -34,15 +34,15 @@ int main(int /*argc*/, char* /*argv*/[])
 	sim->setTimeOut(10);
 	//syncBodies is only needed when connecting to an existing physics server that has already some bodies
 	sim->syncBodies();
-	btScalar fixedTimeStep = 1. / 240.;
+	btScalar fixedTimeStep = btScalar(1. / 240.);
 
 	sim->setTimeStep(fixedTimeStep);
 
-	btQuaternion q = sim->getQuaternionFromEuler(btVector3(0.1, 0.2, 0.3));
+	btQuaternion q = sim->getQuaternionFromEuler(btVector3(btScalar(0.1), btScalar(0.2), btScalar(0.3)));
 	btVector3 rpy;
 	rpy = sim->getEulerFromQuaternion(q);
 
-	sim->setGravity(btVector3(0, 0, -9.8));
+	sim->setGravity(btVector3(0, 0, btScalar(-9.8)));
 
 	//int blockId = sim->loadURDF("cube.urdf");
 	//b3BodyInfo bodyInfo;
@@ -51,7 +51,7 @@ int main(int /*argc*/, char* /*argv*/[])
 	sim->loadURDF("plane.urdf");
 
 	MinitaurSetup minitaur;
-	int minitaurUid = minitaur.setupMinitaur(sim, btVector3(0, 0, .3));
+	int minitaurUid = minitaur.setupMinitaur(sim, btVector3(0, 0, btScalar(.3)));
 
 	//b3RobotSimulatorLoadUrdfFileArgs args;
 	//args.m_startPosition.setValue(2,0,1);

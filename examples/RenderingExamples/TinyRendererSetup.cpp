@@ -127,7 +127,7 @@ struct TinyRendererSetup : public CommonExampleInterface
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -381,9 +381,9 @@ void TinyRendererSetup::renderScene()
 					m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
 
 					m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
-					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
-					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
-					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
+					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6f;
+					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35f;
+					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05f;
 				}
 			}
 			TinyRenderer::renderObjectDepth(*m_internalData->m_renderObjects[o]);
@@ -410,9 +410,9 @@ void TinyRendererSetup::renderScene()
 					m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
 
 					m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
-					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
-					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
-					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
+					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6f;
+					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35f;
+					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05f;
 				}
 			}
 			TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);

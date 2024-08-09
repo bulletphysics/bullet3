@@ -690,7 +690,7 @@ void SimpleOpenGL3App::drawText(const char* txt, int posXi, int posYi, float siz
 			float endX = startX + (float)g_DefaultLargeFont->m_CharWidth[c];
 			float endY = startY + (float)g_DefaultLargeFont->m_CharHeight;
 
-			float currentColor[] = {0.2f, 0.2, 0.2f, 1.f};
+			float currentColor[] = {0.2f, 0.2f, 0.2f, 1.f};
 
 			m_primRenderer->drawTexturedRect(startX, startY, endX, endY, currentColor, g_DefaultLargeFont->m_CharU0[c], g_DefaultLargeFont->m_CharV0[c], g_DefaultLargeFont->m_CharU1[c], g_DefaultLargeFont->m_CharV1[c]);
 

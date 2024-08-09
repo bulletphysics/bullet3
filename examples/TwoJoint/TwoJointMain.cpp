@@ -16,7 +16,7 @@ const int CONTROL_RATE = 500;
 
 // Bullet globals
 b3PhysicsClientHandle kPhysClient = 0;
-const b3Scalar FIXED_TIMESTEP = 1.0 / ((b3Scalar)CONTROL_RATE);
+const b3Scalar FIXED_TIMESTEP = b3Scalar(1.0 / ((b3Scalar)CONTROL_RATE));
 // temp vars used a lot
 b3SharedMemoryCommandHandle command;
 b3SharedMemoryStatusHandle statusHandle;

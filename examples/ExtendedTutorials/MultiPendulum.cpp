@@ -64,7 +64,7 @@ struct MultiPendulumExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1],
 								 targetPos[2]);
 	}
@@ -124,7 +124,7 @@ void MultiPendulumExample::initPhysics()
 
 	{  // create a slider to change the force to displace the lowest pendulum
 		SliderParams slider("Displacement force", &gDisplacementForce);
-		slider.m_minVal = 0.1;
+		slider.m_minVal = btScalar(0.1);
 		slider.m_maxVal = 200;
 		slider.m_clampToNotches = false;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(

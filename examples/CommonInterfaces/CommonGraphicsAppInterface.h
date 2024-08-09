@@ -70,9 +70,9 @@ struct CommonGraphicsApp
 		m_mouseYpos(0.f),
 		m_mouseInitialized(false)
 	{
-		m_backgroundColorRGB[0] = 0.7;
-		m_backgroundColorRGB[1] = 0.7;
-		m_backgroundColorRGB[2] = 0.8;
+		m_backgroundColorRGB[0] = 0.7f;
+		m_backgroundColorRGB[1] = 0.7f;
+		m_backgroundColorRGB[2] = 0.8f;
 	}
 	virtual ~CommonGraphicsApp()
 	{
@@ -205,12 +205,12 @@ struct CommonGraphicsApp
 
 				if (m_middleMouseButton)
 				{
-					cameraTargetPosition += cameraUp * yDelta *m_mouseMoveMultiplier* 0.01;
+					cameraTargetPosition += cameraUp * yDelta *m_mouseMoveMultiplier* 0.01f;
 
 					b3Vector3 fwd = cameraTargetPosition - cameraPosition;
 					b3Vector3 side = cameraUp.cross(fwd);
 					side.normalize();
-					cameraTargetPosition += side * xDelta *m_mouseMoveMultiplier* 0.01;
+					cameraTargetPosition += side * xDelta *m_mouseMoveMultiplier* 0.01f;
 				}
 				if (m_rightMouseButton)
 				{

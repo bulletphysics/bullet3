@@ -27,18 +27,18 @@ subject to the following restrictions:
 #include "stb_image/stb_image.h"
 
 // constants -------------------------------------------------------------------
-static const btScalar s_gravity = 9.8;		// 9.8 m/s^2
+static const btScalar s_gravity = btScalar(9.8);		// 9.8 m/s^2
 
 static int s_gridSize = 16 + 1;  // must be (2^N) + 1
-static btScalar s_gridSpacing = 0.5;
-static btScalar s_gridHeightScale = 0.02;
+static btScalar s_gridSpacing = btScalar(0.5);
+static btScalar s_gridHeightScale = btScalar(0.02);
 
 // the singularity at the center of the radial model means we need a lot of
 //   finely-spaced time steps to get the physics right.
 // These numbers are probably too aggressive for a real game!
 
 // delta phase: radians per second
-static const btScalar s_deltaPhase = 0.25 * 2.0 * SIMD_PI;
+static const btScalar s_deltaPhase = btScalar(0.25 * 2.0 * SIMD_PI);
 
 // what type of terrain is generated?
 enum eTerrainModel {
@@ -470,8 +470,8 @@ getRawHeightfieldData
             {
                 printf("width=%d, height=%d at %d channels\n", width,height, n);
                 s_gridSize = width;
-                s_gridSpacing = 0.2;
-                s_gridHeightScale = 0.2;
+                s_gridSpacing = btScalar(0.2);
+                s_gridHeightScale = btScalar(0.2);
                 fileIO.fileClose(fileId);
                 long nElements = ((long)s_gridSize) * s_gridSize;
                 //	std::cerr << "  nElements = " << nElements << "\n";
@@ -569,8 +569,8 @@ getRawHeightfieldData
                 printf("done, rows=%d, cols=%d\n", rows, cols);
                 int width = rows-1;
                 s_gridSize = rows;
-                s_gridSpacing = 0.2;
-                s_gridHeightScale = 0.2;
+                s_gridSpacing = btScalar(0.2);
+                s_gridHeightScale = btScalar(0.2);
                 fileIO.fileClose(slot);
                 long nElements = ((long)s_gridSize) * s_gridSize;
                 //	std::cerr << "  nElements = " << nElements << "\n";
@@ -619,12 +619,12 @@ getRawHeightfieldData
         {
             s_gridSize = 16 + 1;  // must be (2^N) + 1
             s_gridSpacing = 0.5;
-            s_gridHeightScale = 0.02;
+            s_gridHeightScale = btScalar(0.02);
         } else
         {
             s_gridSize = 256 + 1;  // must be (2^N) + 1
             s_gridSpacing = 0.5;
-            s_gridHeightScale = 0.02;
+            s_gridHeightScale = btScalar(0.02);
         }
         //	std::cerr << "\nRegenerating terrain\n";
         //	std::cerr << "  model = " << model << "\n";
@@ -1045,7 +1045,7 @@ public:
 			btAlignedObjectArray<unsigned int> indices;
 			btAlignedObjectArray<btVector3FloatData> points;
 
-			float lineColor[4] = { 1, 0.4, .4, 1 };
+			float lineColor[4] = { 1, 0.4f, 0.4f, 1 };
 
 			for (int i = 0; i < NUMRAYS2; i++)
 			{

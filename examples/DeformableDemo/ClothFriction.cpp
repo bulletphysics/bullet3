@@ -54,7 +54,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
@@ -144,7 +144,7 @@ void ClothFriction::initPhysics()
                                                          10,10,
                                                          0, true);
         
-        psb->getCollisionShape()->setMargin(0.06);
+        psb->getCollisionShape()->setMargin(btScalar(0.06));
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->setSpringStiffness(100);
@@ -173,7 +173,7 @@ void ClothFriction::initPhysics()
                                                           btVector3(+s, h, +s),
                                                           5,5,
                                                           0, true);
-        psb2->getCollisionShape()->setMargin(0.06);
+        psb2->getCollisionShape()->setMargin(btScalar(0.06));
         psb2->generateBendingConstraints(2);
         psb2->setTotalMass(1);
         psb2->setSpringStiffness(100);
@@ -186,7 +186,7 @@ void ClothFriction::initPhysics()
         psb->translate(btVector3(0,0,0));
         getDeformableDynamicsWorld()->addSoftBody(psb2);
         
-        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,.1, true);
+        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,btScalar(.1), true);
         getDeformableDynamicsWorld()->addForce(psb2, mass_spring2);
         m_forces.push_back(mass_spring2);
         

@@ -250,7 +250,7 @@ void ExampleBrowserThreadFunc(void* userPtr, void* lsMemory)
 			{
 				if (deltaTimeInSeconds > 0.1)
 				{
-					deltaTimeInSeconds = 0.1;
+					deltaTimeInSeconds = btScalar(0.1);
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs / 1e6))
 				{

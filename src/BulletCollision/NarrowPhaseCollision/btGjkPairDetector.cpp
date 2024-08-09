@@ -33,7 +33,7 @@ subject to the following restrictions:
 btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
 #else
 #define REL_ERROR2 btScalar(1.0e-6)
-btScalar gGjkEpaPenetrationTolerance = 0.001;
+btScalar gGjkEpaPenetrationTolerance = btScalar(0.001);
 #endif
 
 

@@ -20,7 +20,7 @@ void btFractureBody::recomputeConnectivity(btCollisionWorld* world)
 				{
 					bool m_connected;
 					btScalar m_margin;
-					MyContactResultCallback() : m_connected(false), m_margin(0.05)
+					MyContactResultCallback() : m_connected(false), m_margin(btScalar(0.05))
 					{
 					}
 					virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* /*colObj0Wrap*/, int /*partId0*/, int /*index0*/, const btCollisionObjectWrapper* /*colObj1Wrap*/, int /*partId1*/, int /*index1*/)

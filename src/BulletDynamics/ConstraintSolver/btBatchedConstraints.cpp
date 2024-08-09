@@ -659,7 +659,7 @@ static btVector3 findMaxDynamicConstraintExtent(
 	int numBodies)
 {
 	BT_PROFILE("findMaxDynamicConstraintExtent");
-	btVector3 consExtent = btVector3(1, 1, 1) * 0.001;
+	btVector3 consExtent = btVector3(1, 1, 1) * btScalar(0.001);
 	for (int iCon = 0; iCon < numConstraints; ++iCon)
 	{
 		const btBatchedConstraintInfo& con = conInfos[iCon];

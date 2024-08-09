@@ -76,7 +76,7 @@ struct Dof6Spring2SetupInternalData
 
 	unsigned int frameID;
 	Dof6Spring2SetupInternalData()
-		: mDt(1. / 60.), frameID(0)
+		: mDt(1.f / 60.f), frameID(0)
 	{
 	}
 };
@@ -193,7 +193,7 @@ void Dof6Spring2Setup::initPhysics()
 		shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
 		shape->calculateLocalInertia(mass, localInertia);
 		bodyTransform.setIdentity();
-		bodyTransform.getBasis().setEulerZYX(0, 0, M_PI_2);
+		bodyTransform.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		motionState = new btDefaultMotionState(bodyTransform);
 		m_data->m_RotateSpringBody = new btRigidBody(mass, motionState, shape, localInertia);
 		m_data->m_RotateSpringBody->setActivationState(DISABLE_DEACTIVATION);
@@ -250,7 +250,7 @@ void Dof6Spring2Setup::initPhysics()
 #else  //bounce is named restitution in 6dofspring, but not implemented for translational limit motor, so the following line has no effect
 		constraint->getTranslationalLimitMotor()->m_restitution = 0.0;
 #endif
-		constraint->setParam(BT_CONSTRAINT_STOP_ERP, 0.995, 0);
+		constraint->setParam(BT_CONSTRAINT_STOP_ERP, btScalar(0.995), 0);
 		constraint->setParam(BT_CONSTRAINT_STOP_CFM, 0.0, 0);
 		constraint->setDbgDrawSize(btScalar(2.f));
 		m_dynamicsWorld->addConstraint(constraint, true);
@@ -266,7 +266,7 @@ void Dof6Spring2Setup::initPhysics()
 #else  //bounce is named restitution in 6dofspring, but not implemented for translational limit motor, so the following line has no effect
 		constraint->getTranslationalLimitMotor()->m_restitution = 1.0;
 #endif
-		constraint->setParam(BT_CONSTRAINT_STOP_ERP, 0.995, 0);
+		constraint->setParam(BT_CONSTRAINT_STOP_ERP, btScalar(0.995), 0);
 		constraint->setParam(BT_CONSTRAINT_STOP_CFM, 0.0, 0);
 		constraint->setDbgDrawSize(btScalar(2.f));
 		m_dynamicsWorld->addConstraint(constraint, true);
@@ -335,7 +335,7 @@ void Dof6Spring2Setup::initPhysics()
 		constraint->setTargetVelocity(5, 3.f);
 		constraint->setMaxMotorForce(5, 600.f);
 		constraint->setServo(5, true);
-		constraint->setServoTarget(5, M_PI_2);
+		constraint->setServoTarget(5, btScalar(M_PI_2));
 #else
 		constraint->getRotationalLimitMotor(2)->m_enableMotor = true;
 		constraint->getRotationalLimitMotor(2)->m_targetVelocity = 3.f;
@@ -350,7 +350,7 @@ void Dof6Spring2Setup::initPhysics()
 	////////// chain of boxes linked together with fully limited rotational and translational constraints
 	////////// the chain will be pulled to the left and to the right periodically. They should strictly stick together.
 	{
-		btScalar limitConstraintStrength = 0.6;
+		btScalar limitConstraintStrength = btScalar(0.6);
 		int bodycount = 10;
 		btRigidBody* prevBody = 0;
 		for (int i = 0; i < bodycount; ++i)
@@ -372,7 +372,7 @@ void Dof6Spring2Setup::initPhysics()
 				localAL.setIdentity();
 				localAL.setOrigin(btVector3(-0.5, 0, 0));
 				CONSTRAINT_TYPE* constraintL = new CONSTRAINT_TYPE(*prevBody, *body, localA, localB EXTRAPARAMS);
-				constraintL->setLimit(0, -0.01, 0.01);
+				constraintL->setLimit(0, btScalar(-0.01), btScalar(0.01));
 				constraintL->setLimit(1, 0, 0);
 				constraintL->setLimit(2, 0, 0);
 				constraintL->setLimit(3, 0, 0);
@@ -380,7 +380,7 @@ void Dof6Spring2Setup::initPhysics()
 				constraintL->setLimit(5, 0, 0);
 				for (int a = 0; a < 6; ++a)
 				{
-					constraintL->setParam(BT_CONSTRAINT_STOP_ERP, 0.9, a);
+					constraintL->setParam(BT_CONSTRAINT_STOP_ERP, btScalar(0.9), a);
 					constraintL->setParam(BT_CONSTRAINT_STOP_CFM, 0.0, a);
 				}
 				constraintL->setDbgDrawSize(btScalar(1.f));

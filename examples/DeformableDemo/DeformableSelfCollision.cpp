@@ -31,7 +31,7 @@ public:
     DeformableSelfCollision(struct GUIHelperInterface* helper)
     : CommonDeformableBodyBase(helper)
     {
-        m_maxPickingForce = 0.004;
+        m_maxPickingForce = btScalar(0.004);
     }
     virtual ~DeformableSelfCollision()
     {
@@ -51,7 +51,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
@@ -83,7 +83,7 @@ void DeformableSelfCollision::initPhysics()
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
     //    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
     //    m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
-    btVector3 gravity = btVector3(0, -9.8, 0);
+    btVector3 gravity = btVector3(0, btScalar(-9.8), 0);
     m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
     getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
@@ -94,7 +94,7 @@ void DeformableSelfCollision::initPhysics()
     {
         ///create a ground
         btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(2.5), btScalar(150.)));
-        groundShape->setMargin(0.02);
+        groundShape->setMargin(btScalar(0.02));
         m_collisionShapes.push_back(groundShape);
         
         btTransform groundTransform;
@@ -120,8 +120,8 @@ void DeformableSelfCollision::initPhysics()
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
-    addCloth(btVector3(0, -0.2, 0));
-    addCloth(btVector3(0, -0.1, 0));
+    addCloth(btVector3(0, btScalar(-0.2), 0));
+    addCloth(btVector3(0, btScalar(-0.1), 0));
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -129,7 +129,7 @@ void DeformableSelfCollision::initPhysics()
 void DeformableSelfCollision::addCloth(const btVector3& origin)
 // create a piece of cloth
 {
-    const btScalar s = 0.6;
+    const btScalar s = btScalar(0.6);
     const btScalar h = 0;
     
     btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -2*s),
@@ -141,16 +141,16 @@ void DeformableSelfCollision::addCloth(const btVector3& origin)
                                                      0, true, 0.0);
 
     
-    psb->getCollisionShape()->setMargin(0.02);
+    psb->getCollisionShape()->setMargin(btScalar(0.02));
     psb->generateBendingConstraints(2);
     psb->setTotalMass(.5);
     psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
     psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-    psb->m_cfg.kDF = 0.1;
+    psb->m_cfg.kDF = btScalar(0.1);
 //    psb->rotate(btQuaternion(0, SIMD_PI / 2, 0));
     btTransform clothTransform;
     clothTransform.setIdentity();
-    clothTransform.setOrigin(btVector3(0,0.2,0)+origin);
+    clothTransform.setOrigin(btVector3(0,btScalar(0.2),0)+origin);
     psb->transform(clothTransform);
     psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
     psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
@@ -159,11 +159,11 @@ void DeformableSelfCollision::addCloth(const btVector3& origin)
     getDeformableDynamicsWorld()->addSoftBody(psb);
     psb->setSelfCollision(true);
     
-    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,0.2, true);
+    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,btScalar(0.2), true);
     psb->setSpringStiffness(4);
     getDeformableDynamicsWorld()->addForce(psb, mass_spring);
     m_forces.push_back(mass_spring);
-    btVector3 gravity = btVector3(0, -9.8, 0);
+    btVector3 gravity = btVector3(0, btScalar(-9.8), 0);
     btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
     getDeformableDynamicsWorld()->addForce(psb, gravity_force);
     getDeformableDynamicsWorld()->setUseProjection(true);

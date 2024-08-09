@@ -669,7 +669,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 
 	if (useSolver)
 	{
-		float dt = 1. / 60.;
+		float dt = 1.f / 60.f;
 		b3ConstraintCfg csCfg(dt);
 		csCfg.m_enableParallelSolve = true;
 		csCfg.m_batchCellSize = 6;

@@ -104,7 +104,7 @@ public:
 		float dist = 120;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 10.46, 0};
+		float targetPos[3] = {0, 10.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -293,7 +293,7 @@ public:
 			btAlignedObjectArray<unsigned int> indices;
 			btAlignedObjectArray<btVector3FloatData> points;
 
-			float lineColor[4] = {1, 0.4, .4, 1};
+			float lineColor[4] = {1, 0.4f, .4f, 1};
 
 			for (int i = 0; i < NUMRAYS; i++)
 			{

@@ -236,22 +236,22 @@ void testSphereSphereDistance(SphereSphereTestMethod method, btScalar abs_error)
 
 TEST(BulletCollisionTest, GjkMPRSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_GJKMPR, 0.0001);
+	testSphereSphereDistance(SSTM_GJKMPR, btScalar(0.0001));
 }
 
 TEST(BulletCollisionTest, GjkEpaSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_GJKEPA, 0.00001);
+	testSphereSphereDistance(SSTM_GJKEPA, btScalar(0.00001));
 }
 
 TEST(BulletCollisionTest, GjkEpaSphereSphereRadiusNotFullMarginDistance)
 {
-	testSphereSphereDistance(SSTM_GJKEPA_RADIUS_NOT_FULL_MARGIN, 0.1);
+	testSphereSphereDistance(SSTM_GJKEPA_RADIUS_NOT_FULL_MARGIN, btScalar(0.1));
 }
 
 TEST(BulletCollisionTest, AnalyticSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_ANALYTIC, 0.00001);
+	testSphereSphereDistance(SSTM_ANALYTIC, btScalar(0.00001));
 }
 
 class TriangleCollector : public btTriangleCallback

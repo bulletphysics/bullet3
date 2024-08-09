@@ -400,7 +400,7 @@ void SimpleOpenGL2App::drawText3D(const char* txt, float worldPosX, float worldP
 			float endX = startX + (float)g_DefaultLargeFont->m_CharWidth[c] * size1;
 			float endY = posY;
 
-			float currentColor[] = {1.f, 0.2, 0.2f, 1.f};
+			float currentColor[] = {1.f, 0.2f, 0.2f, 1.f};
 			float u0 = g_DefaultLargeFont->m_CharU0[c];
 			float u1 = g_DefaultLargeFont->m_CharU1[c];
 			float v0 = g_DefaultLargeFont->m_CharV0[c];

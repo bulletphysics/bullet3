@@ -227,8 +227,8 @@ void InverseDynamicsExample::initPhysics()
 				sprintf(tmp, "q_desired[%u]", dof);
 				qd_name[dof] = tmp;
 				SliderParams slider(qd_name[dof].c_str(), &qd[dof]);
-				slider.m_minVal = -3.14;
-				slider.m_maxVal = 3.14;
+				slider.m_minVal = -3.14f;
+				slider.m_maxVal = 3.14f;
 
 				sprintf(tmp, "q[%lu]", (unsigned long)dof);
 				q_name[dof] = tmp;
@@ -333,7 +333,7 @@ void InverseDynamicsExample::stepSimulation(float /*deltaTime*/)
 	{
 		// todo(thomas) check that this is correct:
 		// want to advance by 10ms, with 1ms timesteps
-		m_dynamicsWorld->stepSimulation(1e-3, 0);  //,1e-3);
+		m_dynamicsWorld->stepSimulation(btScalar(1e-3), 0);  //,1e-3);
 		btAlignedObjectArray<btQuaternion> scratch_q;
 		btAlignedObjectArray<btVector3> scratch_m;
 		m_multiBody->forwardKinematics(scratch_q, scratch_m);

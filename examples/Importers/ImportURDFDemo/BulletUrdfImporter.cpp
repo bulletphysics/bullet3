@@ -33,7 +33,7 @@ subject to the following restrictions:
 #include "URDF2Bullet.h"  //for flags
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
-static btScalar gUrdfDefaultCollisionMargin = 0.001;
+static btScalar gUrdfDefaultCollisionMargin = btScalar(0.001);
 
 #include <iostream>
 #include <fstream>
@@ -448,7 +448,7 @@ void BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass, btVect
 				btMatrix3x3 inertiaTensor(link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
 										  link->m_inertia.m_ixy, link->m_inertia.m_iyy, link->m_inertia.m_iyz,
 										  link->m_inertia.m_ixz, link->m_inertia.m_iyz, link->m_inertia.m_izz);
-				btScalar threshold = 1.0e-6;
+				btScalar threshold = btScalar(1.0e-6);
 				int numIterations = 30;
 				inertiaTensor.diagonalize(linkInertiaBasis, threshold, numIterations);
 				principalInertiaX = inertiaTensor[0][0];

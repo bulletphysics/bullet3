@@ -85,7 +85,7 @@ public:
 			}
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(0, 0, .107);
+				args.m_startPosition.setValue(0, 0, btScalar(.107));
 				args.m_startOrientation.setEulerZYX(0, 0, 0);
 				args.m_useMultiBody = true;
 				m_robotSim.loadURDF("cube_small.urdf", args);
@@ -146,13 +146,13 @@ public:
 		{
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(0, 0, .107);
+				args.m_startPosition.setValue(0, 0, btScalar(.107));
 				m_robotSim.loadURDF("cube_small.urdf", args);
 			}
 
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(0.068, 0.02, 0.11);
+				args.m_startPosition.setValue(btScalar(0.068), btScalar(0.02), btScalar(0.11));
 				m_robotSim.loadURDF("cube_gripper_left.urdf", args);
 
 				b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
@@ -164,7 +164,7 @@ public:
 
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(-0.068, 0.02, 0.11);
+				args.m_startPosition.setValue(btScalar(-0.068), btScalar(0.02), btScalar(0.11));
 				m_robotSim.loadURDF("cube_gripper_right.urdf", args);
 
 				b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
@@ -200,7 +200,7 @@ public:
 			}
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(0, -0.2, .47);
+				args.m_startPosition.setValue(0, btScalar(-0.2), btScalar(.47));
 				args.m_startOrientation.setEulerZYX(SIMD_HALF_PI, 0, 0);
 				m_robotSim.loadURDF("dinnerware/pan_tefal.urdf", args);
 			}
@@ -321,7 +321,7 @@ public:
 			}
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(0, 0, -0.2);
+				args.m_startPosition.setValue(0, 0, btScalar(-0.2));
 				args.m_startOrientation.setEulerZYX(0, 0, 0);
 				m_robotSim.loadURDF("plane.urdf", args);
 				}
@@ -417,7 +417,7 @@ public:
 			}
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(0, 0, -0.2);
+				args.m_startPosition.setValue(0, 0, btScalar(-0.2));
 				args.m_startOrientation.setEulerZYX(0, 0, 0);
 				m_robotSim.loadURDF("plane.urdf", args);
 			}
@@ -483,7 +483,7 @@ public:
 		{
 			{
 				b3RobotSimulatorLoadUrdfFileArgs args;
-				args.m_startPosition.setValue(-0.5, 0, 0.1);
+				args.m_startPosition.setValue(btScalar(-0.5), 0, btScalar(0.1));
 				args.m_startOrientation.setEulerZYX(0, 0, 0);
 				args.m_forceOverrideFixedBase = true;
 				args.m_useMultiBody = true;
@@ -723,10 +723,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 1.5;
+		float dist = 1.5f;
 		float pitch = -10;
 		float yaw = 18;
-		float targetPos[3] = {-0.2, 0.8, 0.3};
+		float targetPos[3] = {-0.2f, 0.8f, 0.3f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

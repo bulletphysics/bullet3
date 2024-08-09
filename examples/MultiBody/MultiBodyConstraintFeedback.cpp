@@ -6,7 +6,7 @@
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
-static btScalar radius(0.2);
+static btScalar radius = btScalar(0.2);
 
 struct MultiBodyConstraintFeedbackSetup : public CommonMultiBodyBase
 {
@@ -28,7 +28,7 @@ public:
 		float dist = 5;
 		float pitch = -21;
 		float yaw = 270;
-		float targetPos[3] = {-1.34, 3.4, -0.44};
+		float targetPos[3] = {-1.34f, 3.4f, -0.44f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -71,7 +71,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 	//create a static ground object
 	if (1)
 	{
-		btVector3 groundHalfExtents(10, 10, 0.2);
+		btVector3 groundHalfExtents(10, 10, btScalar(0.2));
 		btBoxShape* box = new btBoxShape(groundHalfExtents);
 		box->initializePolyhedralFeatures();
 
@@ -81,9 +81,9 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 		btVector3 groundOrigin(-0.4f, 3.f, 0.f);
 		//btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
 		groundOrigin[upAxis] -= .5;
-		groundOrigin[2] -= 0.6;
+		groundOrigin[2] -= btScalar(0.6);
 		start.setOrigin(groundOrigin);
-		btQuaternion groundOrn(btVector3(0, 1, 0), 0.25 * SIMD_PI);
+		btQuaternion groundOrn(btVector3(0, 1, 0), btScalar(0.25 * SIMD_PI));
 
 		//	start.setRotation(groundOrn);
 		btRigidBody* body = createRigidBody(0, start, box);
@@ -102,8 +102,8 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 		bool spherical = false;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
 		bool canSleep = false;
 		bool selfCollide = false;
-		btVector3 linkHalfExtents(0.05, 0.5, 0.1);
-		btVector3 baseHalfExtents(0.05, 0.5, 0.1);
+		btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.5), btScalar(0.1));
+		btVector3 baseHalfExtents(btScalar(0.05), btScalar(0.5), btScalar(0.1));
 
 		btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
 		//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
@@ -270,7 +270,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 				//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
 
 				tr.setOrigin(local_origin[0]);
-				btQuaternion orn(btVector3(0, 0, 1), 0.25 * 3.1415926538);
+				btQuaternion orn(btVector3(0, 0, 1), btScalar(0.25 * 3.1415926538));
 
 				tr.setRotation(orn);
 				col->setWorldTransform(tr);
@@ -357,7 +357,7 @@ void MultiBodyConstraintFeedbackSetup::stepSimulation(float /*deltaTime*/)
 		btScalar torque = m_multiBody->getJointTorque(0);
 		b3Printf("t = %f,%f,%f\n", torque, torque, torque);  //[0],torque[1],torque[2]);
 	}
-	btScalar timeStep = 1. / 240.f;
+	btScalar timeStep = btScalar(1. / 240.f);
 
 	m_dynamicsWorld->stepSimulation(timeStep, 0);
 

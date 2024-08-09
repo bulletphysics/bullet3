@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 
 		btScalar dtSec = btScalar(clock.getTimeInSeconds());
 		if (dtSec > 0.1)
-			dtSec = 0.1;
+			dtSec = btScalar(0.1);
 
 		example->stepSimulation(dtSec);
 		clock.reset();

@@ -58,7 +58,7 @@ public:
     void stepSimulation(float deltaTime)
     {
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
@@ -102,11 +102,11 @@ void dynamics2(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     if (rbs.size()<2)
         return;
     btRigidBody* rb0 = rbs[0];
-    btScalar pressTime = 0.45;
+    btScalar pressTime = btScalar(0.45);
     btScalar liftTime = 5;
-    btScalar shiftTime = 1.75;
+    btScalar shiftTime = btScalar(1.75);
     btScalar holdTime = 7.5;
-    btScalar dropTime = 8.3;
+    btScalar dropTime = btScalar(8.3);
     btTransform rbTransform;
     rbTransform.setIdentity();
     btVector3 translation;
@@ -264,10 +264,10 @@ void PinchFriction::initPhysics()
                                                                   false, true, true);
         
         psb->scale(btVector3(2, 2, 1));
-        psb->translate(btVector3(0, 2.1, 2.2));
-        psb->getCollisionShape()->setMargin(0.025);
+        psb->translate(btVector3(0, btScalar(2.1), btScalar(2.2)));
+        psb->getCollisionShape()->setMargin(btScalar(0.025));
         psb->setSpringStiffness(10);
-        psb->setTotalMass(.6);
+        psb->setTotalMass(btScalar(.6));
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 2;
@@ -281,7 +281,7 @@ void PinchFriction::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(6,6,.003);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(6,6,btScalar(.003));
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
     }
@@ -295,9 +295,9 @@ void PinchFriction::initPhysics()
                                                                   false, true, true);
         
         psb2->scale(btVector3(2, 2, 1));
-        psb2->translate(btVector3(0, 2.1, -2.2));
-        psb2->getCollisionShape()->setMargin(0.025);
-        psb2->setTotalMass(.6);
+        psb2->translate(btVector3(0, btScalar(2.1), btScalar(-2.2)));
+        psb2->getCollisionShape()->setMargin(btScalar(0.025));
+        psb2->setTotalMass(btScalar(.6));
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb2->m_cfg.kDF = 2;
@@ -312,7 +312,7 @@ void PinchFriction::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb2, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(6,6,.003);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(6,6,btScalar(.003));
         getDeformableDynamicsWorld()->addForce(psb2, neohookean);
         m_forces.push_back(neohookean);
     }
@@ -326,9 +326,9 @@ void PinchFriction::initPhysics()
                                                                    false, true, true);
         
         psb3->scale(btVector3(2, 2, 1));
-        psb3->translate(btVector3(0, 2.1, 0));
-        psb3->getCollisionShape()->setMargin(0.025);
-        psb3->setTotalMass(.6);
+        psb3->translate(btVector3(0, btScalar(2.1), 0));
+        psb3->getCollisionShape()->setMargin(btScalar(0.025));
+        psb3->setTotalMass(btScalar(.6));
         psb3->setSpringStiffness(10);
         psb3->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb3->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -343,7 +343,7 @@ void PinchFriction::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb3, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(6,6,.003);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(6,6,btScalar(.003));
         getDeformableDynamicsWorld()->addForce(psb3, neohookean);
         m_forces.push_back(neohookean);
     }

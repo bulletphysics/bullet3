@@ -51,14 +51,14 @@ btDeformableMultiBodyDynamicsWorld::btDeformableMultiBodyDynamicsWorld(btDispatc
 	m_sbi.m_broadphase = pairCache;
 	m_sbi.m_dispatcher = dispatcher;
 	m_sbi.m_sparsesdf.Initialize();
-	m_sbi.m_sparsesdf.setDefaultVoxelsz(0.005);
+	m_sbi.m_sparsesdf.setDefaultVoxelsz(btScalar(0.005));
 	m_sbi.m_sparsesdf.Reset();
 
 	m_sbi.air_density = (btScalar)1.2;
 	m_sbi.water_density = 0;
 	m_sbi.water_offset = 0;
 	m_sbi.water_normal = btVector3(0, 0, 0);
-	m_sbi.m_gravity.setValue(0, -9.8, 0);
+	m_sbi.m_gravity.setValue(0, btScalar(-9.8), 0);
 	m_internalTime = 0.0;
 	m_implicit = false;
 	m_lineSearch = false;

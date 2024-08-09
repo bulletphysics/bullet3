@@ -431,9 +431,9 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 		if (fabs(f2s) < eps)
 		{
 #if defined(BT_USE_DOUBLE_PRECISION)
-			x2 = 1e99;
+			x2 = btScalar(1e99);
 #else
-			x2 = 1e36;
+			x2 = btScalar(1e36);
 #endif
 			continue;
 		}

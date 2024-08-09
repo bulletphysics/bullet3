@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.001;
+static btScalar damping_beta = btScalar(0.001);
 // static btScalar COLLIDING_VELOCITY = 0;
 static int num_modes = 20;
 
@@ -92,7 +92,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      float internalTimeStep = 1. / 60.f;
+      float internalTimeStep = 1.f / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
@@ -198,7 +198,7 @@ void FrictionSlope::initPhysics()
                                             false);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.01);
+        rsb->getCollisionShape()->setMargin(btScalar(0.01));
 
         btTransform init_transform;
         init_transform.setIdentity();
@@ -224,10 +224,10 @@ void FrictionSlope::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     getDeformableDynamicsWorld()->setSolverCallback(FrictionSlopeHelper::groundMotion);

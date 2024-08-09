@@ -42,10 +42,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 3.5;
+		float dist = 3.5f;
 		float pitch = -28;
 		float yaw = -136;
-		float targetPos[3] = {0.47, 0, -0.64};
+		float targetPos[3] = {0.47f, 0, -0.64f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -361,7 +361,7 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 		}
 
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		m_dynamicsWorld->stepSimulation(deltaTime, 10, 1. / 240.);
+		m_dynamicsWorld->stepSimulation(deltaTime, 10, btScalar(1. / 240.));
 	}
 }
 

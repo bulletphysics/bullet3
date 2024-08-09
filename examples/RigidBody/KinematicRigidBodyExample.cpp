@@ -33,7 +33,7 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	btRigidBody* groundBody = (btRigidBody*)world->getWorldUserInfo();
 	btTransform predictedTrans;
 	btVector3 linearVelocity(0, 0, 0);
-	btVector3 angularVelocity(0, 0.1, 0);
+	btVector3 angularVelocity(0, btScalar(0.1), 0);
 	btTransformUtil::integrateTransform(groundBody->getWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 #ifdef USE_MOTIONSTATE
 	groundBody->getMotionState()->setWorldTransform(predictedTrans);
@@ -85,7 +85,7 @@ void KinematicRigidBodyExample::initPhysics()
 
 	///create a few basic rigid bodies
 	btScalar halfExtentsX = 10.0;
-	btScalar halfExtentsY = 0.1;
+	btScalar halfExtentsY = btScalar(0.1);
 	btScalar halfExtentsZ = 10.0;
 
 	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10.), btScalar(0.1), btScalar(10.)));
@@ -183,7 +183,7 @@ void KinematicRigidBodyExample::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
+		btBoxShape* colShape = createBoxShape(btVector3(btScalar(.1), btScalar(.1), btScalar(.1)));
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);

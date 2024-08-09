@@ -64,7 +64,7 @@ public:
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -170,7 +170,7 @@ public:
 			// thigh
 			btVector3 vToBone = (vBoneOrigin - vRoot).normalize();
 			btVector3 vAxis = vToBone.cross(vUp);
-			transform.setRotation(btQuaternion(vAxis, M_PI_2));
+			transform.setRotation(btQuaternion(vAxis, btScalar(M_PI_2)));
 			m_bodies[1 + 2 * i] = localCreateRigidBody(btScalar(1.), offset * transform, m_shapes[1 + 2 * i]);
 
 			// shin
@@ -182,9 +182,9 @@ public:
 		// Setup some damping on the m_bodies
 		for (i = 0; i < BODYPART_COUNT; ++i)
 		{
-			m_bodies[i]->setDamping(0.05, 0.85);
-			m_bodies[i]->setDeactivationTime(0.8);
-			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
+			m_bodies[i]->setDamping(0.05f, 0.85f);
+			m_bodies[i]->setDeactivationTime(0.8f);
+			//m_bodies[i]->setSleepingThresholds(1.6f, 2.5f);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
 		}
 

@@ -235,7 +235,7 @@ struct MotionThreadLocalStorage
 	int threadId;
 };
 
-float clampedDeltaTime = 0.2;
+float clampedDeltaTime = 0.2f;
 
 void MotionThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
@@ -636,7 +636,7 @@ public:
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
-		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
+		drawLine(PointOnB, PointOnB + normalOnB * btScalar(0.01), ncolor);
 	}
 
 	virtual void reportErrorWarning(const char* /*warningString*/)
@@ -2462,7 +2462,7 @@ void PhysicsServerExample::updateGraphics()
 								if (depthValue > -1e20)
 								{
 									int rgb = 0;
-									btScalar frustumZNear = 0.1;
+									btScalar frustumZNear = btScalar(0.1);
 									btScalar frustumZFar = 30;
 									// btScalar minDepthValue = frustumZNear;  //todo: compute more reasonably min/max depth range
 									// btScalar maxDepthValue = frustumZFar;
@@ -3138,7 +3138,7 @@ void PhysicsServerExample::renderScene()
 			tr.setOrigin(b3MakeVector3(VRController2Pos[0], VRController2Pos[1], VRController2Pos[2]));
 			tr.setRotation(b3Quaternion(VRController2Orn[0], VRController2Orn[1], VRController2Orn[2], VRController2Orn[3]));
 			tr = tr * b3Transform(b3Quaternion(0, 0, -SIMD_HALF_PI), b3MakeVector3(0, 0, 0));
-			b3Scalar dt = 0.01;
+			b3Scalar dt = btScalar(0.01);
 			m_tinyVrGui->clearTextArea();
 			m_tinyVrGui->grapicalPrintf(line0, 0, 0, 0, 0, 0, 255);
 			m_tinyVrGui->grapicalPrintf(line1, 0, 16, 255, 255, 255, 255);

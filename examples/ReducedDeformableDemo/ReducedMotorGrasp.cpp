@@ -39,7 +39,7 @@
 static btScalar sGripperVerticalVelocity = 0.f;
 static btScalar sGripperClosingTargetVelocity = 0.f;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0001;
+static btScalar damping_beta = btScalar(0.0001);
 static int num_modes = 20;
 static float friction = 1.;
 struct TetraCube
@@ -84,7 +84,7 @@ public:
         startTransform.setOrigin(btVector3(0,0.25,0));
         btRigidBody* rb1 = createRigidBody(mass, startTransform, shape);
         rb1->setLinearVelocity(btVector3(0, 0, 0));
-        rb1->setFriction(0.7);
+        rb1->setFriction(btScalar(0.7));
     }
 
 	void resetCamera()
@@ -93,7 +93,7 @@ public:
         // float pitch = -45;
         // float yaw = 100;
         // float targetPos[3] = {0, -0.1, 0};
-        float dist = 0.4;
+        float dist = 0.4f;
         float pitch = -25;
         float yaw = 90;
         float targetPos[3] = {0, 0, 0};
@@ -140,7 +140,7 @@ public:
         }
         
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
         // float internalTimeStep = 1. / 60.f;
         // m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
@@ -217,7 +217,7 @@ void ReducedMotorGrasp::initPhysics()
 	m_broadphase = new btDbvtBroadphase();
     btReducedDeformableBodySolver* reducedSoftBodySolver = new btReducedDeformableBodySolver();
     // btVector3 gravity = btVector3(0, 0, 0);
-    btVector3 gravity = btVector3(0, -9.81, 0);
+    btVector3 gravity = btVector3(0, btScalar(-9.81), 0);
     reducedSoftBodySolver->setGravity(gravity);
 
 	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -231,7 +231,7 @@ void ReducedMotorGrasp::initPhysics()
     // getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0;
     // getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 150;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-    m_maxPickingForce = 0.001;
+    m_maxPickingForce = btScalar(0.001);
     // build a gripper
     {
         bool damping = true;
@@ -241,9 +241,9 @@ void ReducedMotorGrasp::initPhysics()
         int numLinks = 2;
         // btVector3 linkHalfExtents(0.02, 0.018, .003);
         // btVector3 baseHalfExtents(0.02, 0.002, .002);
-        btVector3 linkHalfExtents(0.03, 0.04, 0.006);
-        btVector3 baseHalfExtents(0.02, 0.015, 0.015);
-        btVector3 basePosition(0, 0.3, 0);
+        btVector3 linkHalfExtents(btScalar(0.03), btScalar(0.04), btScalar(0.006));
+        btVector3 baseHalfExtents(btScalar(0.02), btScalar(0.015), btScalar(0.015));
+        btVector3 basePosition(0, btScalar(0.3), 0);
         // btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 0.05f,0.f), baseHalfExtents, linkHalfExtents, false);
         btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), basePosition, baseHalfExtents, linkHalfExtents, false);
         
@@ -288,12 +288,12 @@ void ReducedMotorGrasp::initPhysics()
     //create a ground
     {
         btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(5.), btScalar(10.)));
-        groundShape->setMargin(0.001);
+        groundShape->setMargin(btScalar(0.001));
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -5.1, 0));
+        groundTransform.setOrigin(btVector3(0, btScalar(-5.1), 0));
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
@@ -326,17 +326,17 @@ void ReducedMotorGrasp::initPhysics()
                                             num_modes,
                                             false);
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.001);
+        rsb->getCollisionShape()->setMargin(btScalar(0.001));
 
         rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
 
-        rsb->scale(btVector3(0.075, 0.075, 0.075));
+        rsb->scale(btVector3(btScalar(0.075), btScalar(0.075), btScalar(0.075)));
         rsb->setTotalMass(1);
 
         btTransform init_transform;
         init_transform.setIdentity();
-        init_transform.setOrigin(btVector3(0, 0.1, 0));
+        init_transform.setOrigin(btVector3(0, btScalar(0.1), 0));
         // init_transform.setRotation(btQuaternion(SIMD_PI / 2.0, 0, SIMD_PI / 2.0));
         rsb->transform(init_transform);
         
@@ -356,11 +356,11 @@ void ReducedMotorGrasp::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.2);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-6);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 200;
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -369,8 +369,8 @@ void ReducedMotorGrasp::initPhysics()
         SliderParams slider("Moving velocity", &sGripperVerticalVelocity);
         // slider.m_minVal = -.02;
         // slider.m_maxVal = .02;
-        slider.m_minVal = -.2;
-        slider.m_maxVal = .2;
+        slider.m_minVal = btScalar(-.2);
+        slider.m_maxVal = btScalar(.2);
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     
@@ -503,7 +503,7 @@ void ReducedMotorGrasp::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamic
         if (1)
         {
             btCollisionShape* box = new btBoxShape(baseHalfExtents);
-            box->setMargin(0.001);
+            box->setMargin(btScalar(0.001));
             btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, -1);
             col->setCollisionShape(box);
             
@@ -534,7 +534,7 @@ void ReducedMotorGrasp::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamic
         btScalar quat[4] = {-world_to_local[i + 1].x(), -world_to_local[i + 1].y(), -world_to_local[i + 1].z(), world_to_local[i + 1].w()};
         
         btCollisionShape* box = new btBoxShape(linkHalfExtents);
-        box->setMargin(0.001);
+        box->setMargin(btScalar(0.001));
         btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, i);
         
         col->setCollisionShape(box);

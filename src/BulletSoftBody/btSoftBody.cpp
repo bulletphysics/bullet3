@@ -222,7 +222,7 @@ void btSoftBody::initDefaults()
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
 	m_dampingCoefficient = 1.0;
-	m_sleepingThreshold = .04;
+	m_sleepingThreshold = btScalar(.04);
 	m_useSelfCollision = false;
 	m_collisionFlags = 0;
 	m_softSoftCollision = false;
@@ -3444,7 +3444,7 @@ void btSoftBody::setCacheBarycenter(bool cacheBarycenter)
 
 void btSoftBody::initializeDmInverse()
 {
-	btScalar unit_simplex_measure = 1. / 6.;
+	btScalar unit_simplex_measure = btScalar(1. / 6.);
 
 	for (int i = 0; i < m_tetras.size(); ++i)
 	{
@@ -3526,7 +3526,7 @@ void btSoftBody::updateDeformation()
 					  Dot4(q2, t.m_P_inv[0]), Dot4(q2, t.m_P_inv[1]), Dot4(q2, t.m_P_inv[2]),
 					  Dot4(q3, t.m_P_inv[0]), Dot4(q3, t.m_P_inv[1]), Dot4(q3, t.m_P_inv[2]));
 		q.setRotation(btVector3(0, 0, 1), 0);
-		B.extractRotation(q, 0.01);  // precision of the rotation is not very important for visual correctness.
+		B.extractRotation(q, btScalar(0.01));  // precision of the rotation is not very important for visual correctness.
 		btMatrix3x3 Q(q);
 		s.m_corotation = Q;
 	}

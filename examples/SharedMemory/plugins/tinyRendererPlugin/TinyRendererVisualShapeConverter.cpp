@@ -102,13 +102,13 @@ struct TinyRendererVisualShapeConverterInternalData
 		m_hasLightDirection(false),
 		m_lightColor(btVector3(1.0, 1.0, 1.0)),
 		m_hasLightColor(false),
-		m_lightDistance(2.0),
+		m_lightDistance(2.0f),
 		m_hasLightDistance(false),
-		m_lightAmbientCoeff(0.6),
+		m_lightAmbientCoeff(0.6f),
 		m_hasLightAmbientCoeff(false),
-		m_lightDiffuseCoeff(0.35),
+		m_lightDiffuseCoeff(0.35f),
 		m_hasLightDiffuseCoeff(false),
-		m_lightSpecularCoeff(0.05),
+		m_lightSpecularCoeff(0.05f),
 		m_hasLightSpecularCoeff(false),
 		m_hasShadow(false),
 		m_flags(0)
@@ -284,7 +284,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 		btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
 		//btCapsuleShape* cylZShape = new btCapsuleShape(rad,len);//btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
 
-		cylZShape->setMargin(0.001);
+		cylZShape->setMargin(btScalar(0.001));
 		convexColShape = cylZShape;
 		break;
 	}
@@ -346,7 +346,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 		btScalar radius = visual->m_geometry.m_sphereRadius;
 		btSphereShape* sphereShape = new btSphereShape(radius);
 		convexColShape = sphereShape;
-		convexColShape->setMargin(0.001);
+		convexColShape->setMargin(btScalar(0.001));
 		break;
 	}
 	case URDF_GEOM_MESH:
@@ -1247,25 +1247,25 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 		lightColor = m_data->m_lightColor;
 	}
 
-	float lightDistance = 2.0;
+	float lightDistance = 2.0f;
 	if (m_data->m_hasLightDistance)
 	{
 		lightDistance = m_data->m_lightDistance;
 	}
 
-	float lightAmbientCoeff = 0.6;
+	float lightAmbientCoeff = 0.6f;
 	if (m_data->m_hasLightAmbientCoeff)
 	{
 		lightAmbientCoeff = m_data->m_lightAmbientCoeff;
 	}
 
-	float lightDiffuseCoeff = 0.35;
+	float lightDiffuseCoeff = 0.35f;
 	if (m_data->m_hasLightDiffuseCoeff)
 	{
 		lightDiffuseCoeff = m_data->m_lightDiffuseCoeff;
 	}
 
-	float lightSpecularCoeff = 0.05;
+	float lightSpecularCoeff = 0.05f;
 	if (m_data->m_hasLightSpecularCoeff)
 	{
 		lightSpecularCoeff = m_data->m_lightSpecularCoeff;

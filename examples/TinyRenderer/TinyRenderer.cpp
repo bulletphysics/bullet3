@@ -210,9 +210,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 
 }
 
@@ -235,9 +235,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedObjectArray<float>& depthBuffer)
@@ -259,9 +259,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedObjectArray<float>& depthBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
@@ -282,9 +282,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 }
 
 void TinyRenderObjectData::loadModel(const char* fileName, CommonFileIOInterface* fileIO)

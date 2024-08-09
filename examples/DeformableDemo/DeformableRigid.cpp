@@ -51,7 +51,7 @@ public:
     void stepSimulation(float deltaTime)
     {
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
         
 //
@@ -99,7 +99,7 @@ public:
     
     void Ctor_RbUpStack(int /*count*/)
     {
-        float mass = .2;
+        float mass = .2f;
         
         btCompoundShape* cylinderCompound = new btCompoundShape;
         btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
@@ -256,7 +256,7 @@ void DeformableRigid::initPhysics()
                                                  2,2,
                                                  0, true);
         
-        psb->getCollisionShape()->setMargin(0.05);
+        psb->getCollisionShape()->setMargin(btScalar(0.05));
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

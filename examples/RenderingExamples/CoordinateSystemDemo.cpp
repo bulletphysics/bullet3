@@ -24,10 +24,10 @@ public:
 		m_app->setUpAxis(2);
 
 		{
-			int boxId = m_app->registerCubeShape(0.1, 0.1, 0.1);
+			int boxId = m_app->registerCubeShape(0.1f, 0.1f, 0.1f);
 			btVector3 pos(0, 0, 0);
 			btQuaternion orn(0, 0, 0, 1);
-			btVector4 color(0.3, 0.3, 0.3, 1);
+			btVector4 color(btScalar(0.3), btScalar(0.3), btScalar(0.3), 1);
 			btVector3 scaling(1, 1, 1);
 			m_app->m_renderer->registerGraphicsInstance(boxId, pos, orn, color, scaling);
 		}
@@ -102,22 +102,22 @@ public:
 		btVector3 toY = radius * quatRotate(rotAroundY, xUnit);
 		btVector3 toZ = radius * quatRotate(rotAroundZ, xUnit);
 
-		m_app->m_renderer->drawLine(xUnit + toX + quatRotate(rotAroundX, btVector3(0, 0.1, -0.2)), xUnit + toX, xUnit, lineWidth);
-		m_app->m_renderer->drawLine(xUnit + toX + quatRotate(rotAroundX, btVector3(0, -0.2, -0.2)), xUnit + toX, xUnit, lineWidth);
+		m_app->m_renderer->drawLine(xUnit + toX + quatRotate(rotAroundX, btVector3(0, btScalar(0.1), btScalar(-0.2))), xUnit + toX, xUnit, lineWidth);
+		m_app->m_renderer->drawLine(xUnit + toX + quatRotate(rotAroundX, btVector3(0, btScalar(-0.2), btScalar(-0.2))), xUnit + toX, xUnit, lineWidth);
 		//draw the letter 'x' on the x-axis
 		//m_app->m_renderer->drawLine(xUnit-0.1*zUnit+0.1*yUnit,xUnit+0.1*zUnit-0.1*yUnit,xUnit,lineWidth);
 		//m_app->m_renderer->drawLine(xUnit+0.1*zUnit+0.1*yUnit,xUnit-0.1*zUnit-0.1*yUnit,xUnit,lineWidth);
 
-		m_app->m_renderer->drawLine(xUnit + toX + quatRotate(rotAroundX, btVector3(0, -0.2, -0.2)), xUnit + toX, xUnit, lineWidth);
+		m_app->m_renderer->drawLine(xUnit + toX + quatRotate(rotAroundX, btVector3(0, btScalar(-0.2), btScalar(-0.2))), xUnit + toX, xUnit, lineWidth);
 
-		m_app->m_renderer->drawLine(yUnit + toY + quatRotate(rotAroundY, btVector3(-0.2, 0, 0.2)), yUnit + toY, yUnit, lineWidth);
-		m_app->m_renderer->drawLine(yUnit + toY + quatRotate(rotAroundY, btVector3(0.1, 0, 0.2)), yUnit + toY, yUnit, lineWidth);
-		m_app->m_renderer->drawLine(zUnit + toZ + quatRotate(rotAroundZ, btVector3(0.1, -0.2, 0)), zUnit + toZ, zUnit, lineWidth);
-		m_app->m_renderer->drawLine(zUnit + toZ + quatRotate(rotAroundZ, btVector3(-0.2, -0.2, 0)), zUnit + toZ, zUnit, lineWidth);
+		m_app->m_renderer->drawLine(yUnit + toY + quatRotate(rotAroundY, btVector3(btScalar(-0.2), 0, btScalar(0.2))), yUnit + toY, yUnit, lineWidth);
+		m_app->m_renderer->drawLine(yUnit + toY + quatRotate(rotAroundY, btVector3(btScalar(0.1), 0, btScalar(0.2))), yUnit + toY, yUnit, lineWidth);
+		m_app->m_renderer->drawLine(zUnit + toZ + quatRotate(rotAroundZ, btVector3(btScalar(0.1), btScalar(-0.2), 0)), zUnit + toZ, zUnit, lineWidth);
+		m_app->m_renderer->drawLine(zUnit + toZ + quatRotate(rotAroundZ, btVector3(btScalar(-0.2), btScalar(-0.2), 0)), zUnit + toZ, zUnit, lineWidth);
 
-		drawArc(xUnit, xUnit, toX.normalized(), radius, radius, 0.4, SIMD_2_PI, xUnit, false);
-		drawArc(yUnit, yUnit, toY.normalized(), radius, radius, 0.4, SIMD_2_PI, yUnit, false);
-		drawArc(zUnit, zUnit, toZ.normalized(), radius, radius, 0.4, SIMD_2_PI, zUnit, false);
+		drawArc(xUnit, xUnit, toX.normalized(), radius, radius, btScalar(0.4), btScalar(SIMD_2_PI), xUnit, false);
+		drawArc(yUnit, yUnit, toY.normalized(), radius, radius, btScalar(0.4), btScalar(SIMD_2_PI), yUnit, false);
+		drawArc(zUnit, zUnit, toZ.normalized(), radius, radius, btScalar(0.4), btScalar(SIMD_2_PI), zUnit, false);
 	}
 	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{

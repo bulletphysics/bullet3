@@ -5,7 +5,7 @@
 
 int collisionFilterGroup = int(btBroadphaseProxy::CharacterFilter);
 int collisionFilterMask = int(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::CharacterFilter));
-static btScalar radius(0.2);
+static btScalar radius = btScalar(0.2);
 
 struct TestHingeTorque : public CommonRigidBodyBase
 {
@@ -23,7 +23,7 @@ struct TestHingeTorque : public CommonRigidBodyBase
 		float dist = 5;
 		float pitch = -21;
 		float yaw = 270;
-		float targetPos[3] = {-1.34, 3.4, -0.44};
+		float targetPos[3] = {-1.34f, 3.4f, -0.44f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -55,7 +55,7 @@ void TestHingeTorque::stepSimulation(float /*deltaTime*/)
 		hinge->getRigidBodyB().applyTorque(hingeAxisInWorld * 10);
 	}
 
-	m_dynamicsWorld->stepSimulation(1. / 240, 0);
+	m_dynamicsWorld->stepSimulation(btScalar(1. / 240), 0);
 
 	static int count = 0;
 	if ((count & 0x0f) == 0)
@@ -109,8 +109,8 @@ void TestHingeTorque::initPhysics()
 
 		int numLinks = 2;
 		//    bool selfCollide = false;
-		btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-		btVector3 baseHalfExtents(0.05, 0.37, 0.1);
+		btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
+		btVector3 baseHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
 
 		btBoxShape* baseBox = new btBoxShape(baseHalfExtents);
 		btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
@@ -197,7 +197,7 @@ void TestHingeTorque::initPhysics()
 
 	if (1)
 	{
-		btVector3 groundHalfExtents(1, 1, 0.2);
+		btVector3 groundHalfExtents(1, 1, btScalar(0.2));
 		groundHalfExtents[upAxis] = 1.f;
 		btBoxShape* box = new btBoxShape(groundHalfExtents);
 		box->initializePolyhedralFeatures();
@@ -209,7 +209,7 @@ void TestHingeTorque::initPhysics()
 		btQuaternion groundOrn(btVector3(0, 1, 0), 0.25 * SIMD_PI);
 
 		groundOrigin[upAxis] -= .5;
-		groundOrigin[2] -= 0.6;
+		groundOrigin[2] -= btScalar(0.6);
 		start.setOrigin(groundOrigin);
 		//	start.setRotation(groundOrn);
 		btRigidBody* body = createRigidBody(0, start, box);

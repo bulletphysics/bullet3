@@ -79,7 +79,7 @@ struct Dof6ConstraintTutorialInternalData
 
 	unsigned int frameID;
 	Dof6ConstraintTutorialInternalData()
-		: mDt(1. / 60.), frameID(0)
+		: mDt(1.f / 60.f), frameID(0)
 	{
 	}
 };

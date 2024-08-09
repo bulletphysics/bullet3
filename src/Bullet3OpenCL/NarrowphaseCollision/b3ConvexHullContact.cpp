@@ -1320,7 +1320,7 @@ void computeContactPlaneConvex(int pairIndex,
 	convexInPlane = planeTransform.inverse() * convexWorldTransform;
 
 	b3Vector3 planeNormalInConvex = planeInConvex.getBasis() * -planeNormal;
-	float maxDot = -1e30;
+	float maxDot = -1e30f;
 	int hitVertex = -1; (void)hitVertex;
 	b3Vector3 hitVtx;
 
@@ -1384,7 +1384,7 @@ void computeContactPlaneConvex(int pairIndex,
 
 			b3Contact4* c = &globalContactsOut[dstIdx];
 			c->m_worldNormalOnB = -planeNormalWorld;
-			c->setFrictionCoeff(0.7);
+			c->setFrictionCoeff(0.7f);
 			c->setRestituitionCoeff(0.f);
 
 			c->m_batchIdx = pairIndex;
@@ -2250,7 +2250,7 @@ void computeContactPlaneCompound(int pairIndex,
 		convexInPlane = planeTransform.inverse() * convexWorldTransform;
 
 		b3Vector3 planeNormalInConvex = planeInConvex.getBasis() * -planeNormal;
-		float maxDot = -1e30;
+		float maxDot = -1e30f;
 		int hitVertex = -1; (void)hitVertex;
 		b3Vector3 hitVtx;
 
@@ -2314,7 +2314,7 @@ void computeContactPlaneCompound(int pairIndex,
 
 				b3Contact4* contact = &globalContactsOut[dstIdx];
 				contact->m_worldNormalOnB = -planeNormalWorld;
-				contact->setFrictionCoeff(0.7);
+				contact->setFrictionCoeff(0.7f);
 				contact->setRestituitionCoeff(0.f);
 
 				contact->m_batchIdx = pairIndex;
@@ -2467,7 +2467,7 @@ void computeContactSphereConvex(int pairIndex,
 
 				b3Contact4* c = &globalContactsOut[dstIdx];
 				c->m_worldNormalOnB = normalOnSurfaceB1;
-				c->setFrictionCoeff(0.7);
+				c->setFrictionCoeff(0.7f);
 				c->setRestituitionCoeff(0.f);
 
 				c->m_batchIdx = pairIndex;

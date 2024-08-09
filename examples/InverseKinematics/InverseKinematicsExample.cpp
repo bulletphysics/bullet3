@@ -178,8 +178,8 @@ public:
 			b3Vector3 pos = b3MakeVector3(1, 1, 1);
 			pos[app->getUpAxis()] = 1;
 			b3Quaternion orn(0, 0, 0, 1);
-			b3Vector4 color = b3MakeVector4(1., 0.3, 0.3, 1);
-			b3Vector3 scaling = b3MakeVector3(.1, .1, .1);
+			b3Vector4 color = b3MakeVector4(b3Scalar(1.), b3Scalar(0.3), b3Scalar(0.3), b3Scalar(1.));
+			b3Vector3 scaling = b3MakeVector3(b3Scalar(.1), b3Scalar(.1), b3Scalar(.1));
 			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
 			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
 			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
@@ -231,14 +231,14 @@ public:
 			int pointSize = 10;
 			m_app->m_renderer->drawPoint(pos, color1, pointSize);
 
-			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(0), b3MakeVector3(1, 0, 0), lineWidth);
-			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(1), b3MakeVector3(0, 1, 0), lineWidth);
-			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(2), b3MakeVector3(0, 0, 1), lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(0), b3MakeVector3(1, 0, 0), lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(1), b3MakeVector3(0, 1, 0), lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(2), b3MakeVector3(0, 0, 1), lineWidth);
 
 			b3Vector3 axisLocal = b3MakeVector3(node->v.x, node->v.y, node->v.z);
 			b3Vector3 axisWorld = tr.getBasis() * axisLocal;
 
-			m_app->m_renderer->drawLine(pos, pos + 0.1 * axisWorld, b3MakeVector3(.2, 0.2, 0.7), 5);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.1) * axisWorld, b3MakeVector3(b3Scalar(0.2), b3Scalar(0.2), b3Scalar(0.7)), 5);
 
 			if (node->right)
 			{
@@ -303,10 +303,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 1.3;
+		float dist = 1.3f;
 		float pitch = -13;
 		float yaw = 120;
-		float targetPos[3] = {-0.35, 0.14, 0.25};
+		float targetPos[3] = {-0.35f, 0.14f, 0.25f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);
