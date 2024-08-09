@@ -70,9 +70,9 @@ if (BUILD_SHARED_LIBS)
 	FIND_PACKAGE(Threads)
 	target_link_libraries(OpenGLWindow ${CMAKE_THREAD_LIBS_INIT})
   endif()
+else()
+	target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
 endif()
-
-#target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
 
 INSTALL(TARGETS OpenGLWindow
         RUNTIME DESTINATION bin
