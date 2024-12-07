@@ -343,7 +343,7 @@ void b3QuantizedBvh::walkStacklessTree(b3NodeOverlapCallback* nodeCallback, cons
 		b3Assert(walkIterations < m_curNodeIndex);
 
 		walkIterations++;
-		aabbOverlap = b3TestAabbAgainstAabb2(aabbMin, aabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
+		aabbOverlap = (unsigned int)b3TestAabbAgainstAabb2(aabbMin, aabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
 		isLeafNode = rootNode->m_escapeIndex == -1;
 
 		//PCK: unsigned instead of bool
@@ -453,7 +453,7 @@ void b3QuantizedBvh::walkStacklessTreeAgainstRay(b3NodeOverlapCallback* nodeCall
 	rayDirectionInverse[0] = rayDir[0] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[0];
 	rayDirectionInverse[1] = rayDir[1] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[1];
 	rayDirectionInverse[2] = rayDir[2] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[2];
-	unsigned int sign[3] = {rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
+	unsigned int sign[3] = {(unsigned int)(rayDirectionInverse[0] < 0.0), (unsigned int)(rayDirectionInverse[1] < 0.0), (unsigned int)(rayDirectionInverse[2] < 0.0)};
 #endif
 
 	b3Vector3 bounds[2];
@@ -472,14 +472,14 @@ void b3QuantizedBvh::walkStacklessTreeAgainstRay(b3NodeOverlapCallback* nodeCall
 		bounds[0] -= aabbMax;
 		bounds[1] -= aabbMin;
 
-		aabbOverlap = b3TestAabbAgainstAabb2(rayAabbMin, rayAabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
+		aabbOverlap = (unsigned int)b3TestAabbAgainstAabb2(rayAabbMin, rayAabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
 		//perhaps profile if it is worth doing the aabbOverlap test first
 
 #ifdef RAYAABB2
 		///careful with this check: need to check division by zero (above) and fix the unQuantize method
 		///thanks Joerg/hiker for the reproduction case!
 		///http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1858
-		rayBoxOverlap = aabbOverlap ? b3RayAabb2(raySource, rayDirectionInverse, sign, bounds, param, 0.0f, lambda_max) : false;
+		rayBoxOverlap = (unsigned int)(aabbOverlap ? b3RayAabb2(raySource, rayDirectionInverse, sign, bounds, param, 0.0f, lambda_max) : false);
 
 #else
 		b3Vector3 normal;
@@ -538,7 +538,7 @@ void b3QuantizedBvh::walkStacklessQuantizedTreeAgainstRay(b3NodeOverlapCallback*
 	rayDirection[0] = rayDirection[0] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDirection[0];
 	rayDirection[1] = rayDirection[1] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDirection[1];
 	rayDirection[2] = rayDirection[2] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDirection[2];
-	unsigned int sign[3] = {rayDirection[0] < 0.0, rayDirection[1] < 0.0, rayDirection[2] < 0.0};
+	unsigned int sign[3] = {(unsigned int)(rayDirection[0] < 0.0), (unsigned int)(rayDirection[1] < 0.0), (unsigned int)(rayDirection[2] < 0.0)};
 #endif
 
 	/* Quick pruning by quantized box */
@@ -607,7 +607,7 @@ void b3QuantizedBvh::walkStacklessQuantizedTreeAgainstRay(b3NodeOverlapCallback*
 			///http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1858
 
 			//B3_PROFILE("b3RayAabb2");
-			rayBoxOverlap = b3RayAabb2(raySource, rayDirection, sign, bounds, param, 0.0f, lambda_max);
+			rayBoxOverlap = (unsigned int)b3RayAabb2(raySource, rayDirection, sign, bounds, param, 0.0f, lambda_max);
 
 #else
 			rayBoxOverlap = true;  //b3RayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);

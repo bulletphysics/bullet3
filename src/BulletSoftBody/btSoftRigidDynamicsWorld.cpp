@@ -201,9 +201,9 @@ struct btSoftSingleRayCallback : public btBroadphaseRayCallback
 		m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[0];
 		m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[1];
 		m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(1e30) : btScalar(1.0) / rayDir[2];
-		m_signs[0] = m_rayDirectionInverse[0] < 0.0;
-		m_signs[1] = m_rayDirectionInverse[1] < 0.0;
-		m_signs[2] = m_rayDirectionInverse[2] < 0.0;
+		m_signs[0] = (unsigned int)(m_rayDirectionInverse[0] < 0.0);
+		m_signs[1] = (unsigned int)(m_rayDirectionInverse[1] < 0.0);
+		m_signs[2] = (unsigned int)(m_rayDirectionInverse[2] < 0.0);
 
 		m_lambda_max = rayDir.dot(m_rayToWorld - m_rayFromWorld);
 	}

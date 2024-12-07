@@ -758,7 +758,7 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 
 	if (sThreadIndex == kNullIndex)
 	{
-		sThreadIndex = gThreadCounter++;
+		sThreadIndex = (unsigned int)gThreadCounter++;
 	}
 	return sThreadIndex;
 #endif  //BT_THREADSAFE

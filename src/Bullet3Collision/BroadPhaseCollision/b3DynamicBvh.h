@@ -1024,7 +1024,7 @@ inline void b3DynamicBvh::rayTestInternal(const b3DbvtNode* root,
 			bounds[1] = node->volume.Maxs() - aabbMin;
 			b3Scalar tmin = 1.f, lambda_min = 0.f;
 			unsigned int result1 = false;
-			result1 = b3RayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
+			result1 = (unsigned int)b3RayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
 			if (result1)
 			{
 				if (node->isinternal())

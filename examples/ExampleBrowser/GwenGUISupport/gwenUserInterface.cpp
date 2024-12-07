@@ -585,7 +585,7 @@ bool GwenUserInterface::mouseButtonCallback(int button, int state, float x, floa
 
 		if (button >= 0)
 		{
-			handled = m_data->pCanvas->InputMouseButton(button, (bool)state);
+			handled = m_data->pCanvas->InputMouseButton(button, state != 0);
 			if (handled)
 			{
 				//if (!state)
