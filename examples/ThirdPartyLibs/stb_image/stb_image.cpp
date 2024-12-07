@@ -31,7 +31,9 @@
 #pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
 #pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
 #pragma warning(disable: 4457) // declaration of 'name' hides function parameter
+#if(_MSC_VER > 1927) // from MSVC 2019 16.7 (19.27.29112.0)
 #pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
+#endif
 #endif
 
 // implementation:
