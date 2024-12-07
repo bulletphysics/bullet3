@@ -49,18 +49,19 @@ static std::vector<btScalar> qd;
 static std::vector<std::string> qd_name;
 static std::vector<std::string> q_name;
 
+// clang-format off
 static btVector4 sJointCurveColors[8] =
-	{
-		btVector4(1, 0.3, 0.3, 1),
-		btVector4(0.3, 1, 0.3, 1),
-		btVector4(0.3, 0.3, 1, 1),
-		btVector4(0.3, 1, 1, 1),
-		btVector4(1, 0.3, 1, 1),
-		btVector4(1, 1, 0.3, 1),
-		btVector4(1, 0.7, 0.7, 1),
-		btVector4(0.7, 1, 1, 1),
-
+{
+		btVector4(btScalar(1)  , btScalar(0.3), btScalar(0.3), btScalar(1)),
+		btVector4(btScalar(0.3), btScalar(1)  , btScalar(0.3), btScalar(1)),
+		btVector4(btScalar(0.3), btScalar(0.3), btScalar(1)  , btScalar(1)),
+		btVector4(btScalar(0.3), btScalar(1)  , btScalar(1)  , btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(0.3), btScalar(1)  , btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(1)  , btScalar(0.3), btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(0.7), btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(0.7), btScalar(1)  , btScalar(1)  , btScalar(1)),
 };
+// clang-format on
 
 void toggleUseInverseModel(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
 {

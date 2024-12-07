@@ -22,7 +22,14 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h>  //printf debugging
 #include "TaruData.h"
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4305) // 'initializing': truncation from 'double' to 'float'
+#endif
 #include "HaltonData.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 #include "landscapeData.h"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 

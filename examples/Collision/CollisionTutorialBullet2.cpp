@@ -27,13 +27,15 @@ const int sNumSpheres = 10;
 
 lwContactPoint pointsOut[sPointCapacity];
 int numNearCallbacks = 0;
+// clang-format off
 static btVector4 sColors[4] =
-	{
-		btVector4(1, 0.7, 0.7, 1),
-		btVector4(1, 1, 0.7, 1),
-		btVector4(0.7, 1, 0.7, 1),
-		btVector4(0.7, 1, 1, 1),
+{
+		btVector4(btScalar(1)  , btScalar(0.7), btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(1)  , btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(0.7), btScalar(1)  , btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(0.7), btScalar(1)  , btScalar(1)  , btScalar(1)),
 };
+// clang-format on
 
 void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* /*userData*/, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
 {
@@ -132,7 +134,7 @@ public:
 								}
 
 								{
-									btVector3 pos(j * sNumSpheres * 1.5, -2.4, 0);
+									btVector3 pos(btScalar(j * sNumSpheres * 1.5), btScalar(-2.4), btScalar(0));
 									btQuaternion orn(0, 0, 0, 1);
 									plCollisionObjectHandle colObjHandle = plCreateCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle, userPointer, -1, compoundShape, pos, orn);
 									if (m_tutorialIndex == TUT_SPHERE_PLANE_BULLET2)
@@ -189,7 +191,7 @@ public:
 		};
 
 		{
-			int boxId = m_app->registerCubeShape(100, 0.01, 100);
+			int boxId = m_app->registerCubeShape(btScalar(100), btScalar(0.01), btScalar(100));
 			b3Vector3 pos = b3MakeVector3(0, -3.5, 0);
 			b3Quaternion orn(0, 0, 0, 1);
 			b3Vector4 color = b3MakeVector4(1, 1, 1, 1);
