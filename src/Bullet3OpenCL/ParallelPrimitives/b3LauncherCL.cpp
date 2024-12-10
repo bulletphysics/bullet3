@@ -189,8 +189,9 @@ int b3LauncherCL::validateResults(unsigned char* goldBuffer, int /*goldBufferCap
 		if (argGold->m_isBuffer)
 		{
 			unsigned char* memBuf = (unsigned char*)malloc((size_t)m_kernelArguments[ii].m_argSizeInBytes);
+			b3Assert(memBuf);
 			unsigned char* goldBuf = &goldBuffer[index];
-			for (int j = 0; j < m_kernelArguments[j].m_argSizeInBytes; j++)
+			for (int j = 0; j < m_kernelArguments[ii].m_argSizeInBytes; j++)
 			{
 				memBuf[j] = 0xaa;
 			}
