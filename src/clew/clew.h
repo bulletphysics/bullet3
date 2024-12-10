@@ -2697,7 +2697,7 @@ float nanf(const char *);
 	int clewInit(const char *);
 
 	//! \brief Exit clew and unload OpenCL dynamic library
-	void clewExit();
+	void clewExit(void);
 
 	//! \brief Convert an OpenCL error code to its string equivalent
 	const char *clewErrorString(cl_int error);
