@@ -1481,6 +1481,7 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 	Point32 et0 = start0 ? start0->target->point : c0->point;
 	Point32 et1 = start1 ? start1->target->point : c1->point;
 	Point32 s = c1->point - c0->point;
+	btAssert(start0 || start1);
 	Point64 normal = ((start0 ? start0 : start1)->target->point - c0->point).cross(s);
 	int64_t dist = c0->point.dot(normal);
 	btAssert(!start1 || (start1->target->point.dot(normal) == dist));
@@ -1788,6 +1789,7 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 			if (firstRun || ((cmp >= 0) ? !minCot1.isNegativeInfinity() : !minCot0.isNegativeInfinity()))
 			{
 				Edge* e = newEdgePair(c0, c1);
+				btAssert(e);
 				if (pendingTail0)
 				{
 					pendingTail0->prev = e;

@@ -3054,12 +3054,14 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	for (int i = 0; i < m_data->m_allocatedTexturesRequireFree.size(); i++)
 	{
 		//we can't free them right away, due to caching based on memory pointer in PhysicsServerExample
-		free(m_data->m_allocatedTexturesRequireFree[i]);
+		if(m_data->m_allocatedTexturesRequireFree[i])
+			free(m_data->m_allocatedTexturesRequireFree[i]);
 	}
 
 	for (int i = 0; i < m_data->m_debugPointsDatas.size(); i++)
 	{
-		free(m_data->m_debugPointsDatas[i]);
+		if(m_data->m_debugPointsDatas[i])
+			free(m_data->m_debugPointsDatas[i]);
 	}
 
 	m_data->m_heightfieldDatas.clear();

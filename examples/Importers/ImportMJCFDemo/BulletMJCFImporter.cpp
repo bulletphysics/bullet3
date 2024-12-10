@@ -2232,7 +2232,7 @@ int BulletMJCFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 		for (int i = 0; i < textures.size(); i++)
 		{
 			B3_PROFILE("free textureData");
-			if (!textures[i].m_isCached)
+			if (!textures[i].m_isCached && textures[i].textureData1)
 			{
 				free(textures[i].textureData1);
 			}

@@ -337,7 +337,7 @@ int b3BulletFile::write(const char* fileName, bool fixupPointers)
 	FILE* fp = fopen(fileName, "wb");
 	if (fp)
 	{
-		char header[B3_SIZEOFBLENDERHEADER];
+		char header[B3_SIZEOFBLENDERHEADER] = {};
 		memcpy(header, m_headerString, 7);
 		int endian = 1;
 		endian = ((char*)&endian)[0];

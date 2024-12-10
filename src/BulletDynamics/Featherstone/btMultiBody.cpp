@@ -1499,6 +1499,8 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 		zeroAccSpatFrc[i + 1].setZero();
 	}
 
+	if(num_links)
+		btAssert(invD);
 	// 'Downward' loop.
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
@@ -1980,8 +1982,8 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
     btScalar* links = num_links? &scratch_r1[dofCount] : 0;
     int numLinksChildToRoot=0;
     int l = link;
-		if(l != -1)
-			btAssert(links);
+	if(l != -1)
+		btAssert(links);
     while (l != -1)
     {
         links[numLinksChildToRoot++]=l;

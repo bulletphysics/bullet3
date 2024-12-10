@@ -33,7 +33,7 @@ subject to the following restrictions:
 #define CATCH_DEGENERATE_TETRAHEDRON 1
 void btVoronoiSimplexSolver::removeVertex(int index)
 {
-	btAssert(m_numVertices > 0 && index > 0);
+	btAssert(m_numVertices > 0 && index > 0 && m_numVertices < VORONOI_SIMPLEX_MAX_VERTS);
 	m_numVertices--;
 	m_simplexVectorW[index] = m_simplexVectorW[m_numVertices];
 	m_simplexPointsP[index] = m_simplexPointsP[m_numVertices];

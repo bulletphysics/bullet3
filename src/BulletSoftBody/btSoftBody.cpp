@@ -1413,7 +1413,7 @@ int btSoftBody::generateBendingConstraints(int distance, Material* mat)
 						if (j != l)
 						{
 							const unsigned sum = adj[IDX(j, k)] + adj[IDX(k, l)];
-							btAssert(sum == 2);
+							btAssert(sum == 2 && IDX(j, l) < n*n);
 							if (adj[IDX(j, l)] > sum)
 							{
 								adj[IDX(j, l)] = adj[IDX(l, j)] = sum;
@@ -4132,6 +4132,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
 void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 {
 	BT_PROFILE("Deformable Collision");
+	btAssert(psb);
 	const int cf = m_cfg.collisions & psb->m_cfg.collisions;
 	switch (cf & fCollision::SVSmask)
 	{
@@ -4231,6 +4232,7 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 
 void btSoftBody::geometricCollisionHandler(btSoftBody* psb)
 {
+	btAssert(psb);
 	if (psb->isActive() || this->isActive())
 	{
 		if (this != psb)
