@@ -92,7 +92,7 @@ ENDIF(BUILD_CLSOCKET)
 
 IF(WIN32)
 	LINK_LIBRARIES(
-		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}  opengl32 winmm
 	)
 	IF(BUILD_ENET)
 		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
@@ -149,12 +149,12 @@ IF (WIN32)
 			${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
 	)
 	ADD_DEFINITIONS(-DGLEW_STATIC)
-	LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
+	LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}  opengl32 winmm)
 ELSE(WIN32)
 	IF(APPLE)
 		find_library(COCOA NAMES Cocoa)
 		MESSAGE(${COCOA})
-		link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+		link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} opengl32 winmm)
 
 	ELSE(APPLE)
 		INCLUDE_DIRECTORIES(
@@ -177,12 +177,12 @@ SET_TARGET_PROPERTIES(App_TwoJoint PROPERTIES DEBUG_POSTFIX "_d")
 
 IF(WIN32)
 	IF(BUILD_ENET OR BUILD_CLSOCKET)
-		TARGET_LINK_LIBRARIES(App_TwoJoint ws2_32 )
+		TARGET_LINK_LIBRARIES(App_TwoJoint ws2_32  opengl32 winmm)
 	ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ENDIF(WIN32)
 
 
 
-TARGET_LINK_LIBRARIES(App_TwoJoint BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common)
+TARGET_LINK_LIBRARIES(App_TwoJoint BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common opengl32 winmm)
 
 
