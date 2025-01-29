@@ -44,7 +44,6 @@ def test(args):
   print("action space:")
   sample = env.action_space.sample()
   action = sample * 0.0
-  action = [0,0]#sample * 0.0
   
   print("action=")
   print(action)

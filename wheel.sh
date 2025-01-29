@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e -x
 
+# use this docker command
+# sudo docker run -it -v $(pwd):/io quay.io/pypa/manylinux2014_x86_64
+
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
