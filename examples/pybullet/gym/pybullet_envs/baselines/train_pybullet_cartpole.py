@@ -18,7 +18,7 @@ def callback(lcl, glb):
 
 def main():
 
-  env = CartPoleBulletEnv(renders=False)
+  env = CartPoleBulletEnv(render_mode=False)
   model = deepq.models.mlp([64])
   act = deepq.learn(env,
                     q_func=model,

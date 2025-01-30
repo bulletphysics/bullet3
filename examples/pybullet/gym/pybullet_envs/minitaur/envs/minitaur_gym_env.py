@@ -89,7 +89,7 @@ class MinitaurGymEnv(gym.Env):
                motor_overheat_protection=False,
                hard_reset=True,
                on_rack=False,
-               render=False,
+               render_mode=False,
                num_steps_to_log=1000,
                action_repeat=1,
                control_time_step=None,
@@ -146,7 +146,7 @@ class MinitaurGymEnv(gym.Env):
       on_rack: Whether to place the minitaur on rack. This is only used to debug
         the walking gait. In this mode, the minitaur's base is hanged midair so
         that its walking gait is clearer to visualize.
-      render: Whether to render the simulation.
+      render_mode: Whether to render the simulation.
       num_steps_to_log: The max number of control steps in one episode that will
         be logged. If the number of steps is more than num_steps_to_log, the
         environment will still be running, but only first num_steps_to_log will
@@ -191,7 +191,7 @@ class MinitaurGymEnv(gym.Env):
     self._objective_weights = [distance_weight, energy_weight, drift_weight, shake_weight]
     self._env_step_counter = 0
     self._num_steps_to_log = num_steps_to_log
-    self._is_render = render
+    self._is_render = render_mode
     self._last_base_position = [0, 0, 0]
     self._distance_weight = distance_weight
     self._energy_weight = energy_weight
@@ -303,7 +303,7 @@ class MinitaurGymEnv(gym.Env):
     self._pybullet_client.resetDebugVisualizerCamera(self._cam_dist, self._cam_yaw,
                                                      self._cam_pitch, [0, 0, 0])
     self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_RENDERING, 1)
-    return self._get_observation()
+    return self._get_observation(), {}
 
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
@@ -362,7 +362,7 @@ class MinitaurGymEnv(gym.Env):
     self._env_step_counter += 1
     if done:
       self.minitaur.Terminate()
-    return np.array(self._get_observation()), reward, done, {}
+    return np.array(self._get_observation()), reward, done, False, {}
 
   def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":

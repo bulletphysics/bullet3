@@ -26,9 +26,9 @@ logger = logging.getLogger(__name__)
 class CartPoleBulletEnv(gym.Env):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False, discrete_actions=True):
+  def __init__(self, render_mode=False, discrete_actions=True):
     # start the bullet physics server
-    self._renders = renders
+    self._renders = render_mode
     self._discrete_actions = discrete_actions
     self._render_height = 200
     self._render_width = 320
@@ -84,7 +84,7 @@ class CartPoleBulletEnv(gym.Env):
     done = bool(done)
     reward = 1.0
     #print("state=",self.state)
-    return np.array(self.state), reward, done, {}
+    return np.array(self.state), reward, done, False, {}
 
   def reset(self):
     #    print("-----------reset simulation---------------")
@@ -115,7 +115,7 @@ class CartPoleBulletEnv(gym.Env):
     #print("randstate=",randstate)
     self.state = p.getJointState(self.cartpole, 1)[0:2] + p.getJointState(self.cartpole, 0)[0:2]
     #print("self.state=", self.state)
-    return np.array(self.state)
+    return np.array(self.state), {}
 
   def render(self, mode='human', close=False):
     if mode == "human":
@@ -163,6 +163,6 @@ class CartPoleBulletEnv(gym.Env):
 class CartPoleContinuousBulletEnv(CartPoleBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, render_mode=False):
     # start the bullet physics server
-    CartPoleBulletEnv.__init__(self, renders, discrete_actions=False)
+    CartPoleBulletEnv.__init__(self, render_mode, discrete_actions=False)

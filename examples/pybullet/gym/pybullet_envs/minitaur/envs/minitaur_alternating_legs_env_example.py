@@ -76,7 +76,7 @@ def hand_tuned_balance_example(log_path=None):
   randomizer = randomizer_lib.MinitaurAlternatingLegsEnvRandomizer()
   environment = minitaur_alternating_legs_env.MinitaurAlternatingLegsEnv(
       urdf_version=minitaur_gym_env.DERPY_V0_URDF_VERSION,
-      render=True,
+      render_mode=True,
       num_steps_to_log=steps,
       pd_latency=0.002,
       control_latency=0.02,
@@ -93,7 +93,7 @@ def hand_tuned_balance_example(log_path=None):
       # Sleep to prevent serial buffer overflow on microcontroller.
       time.sleep(0.002)
       action = hand_tuned_agent(observation, environment.minitaur.GetTimeSinceReset())
-      observation, reward, done, _ = environment.step(action)
+      observation, reward, done, _, _ = environment.step(action)
       sum_reward += reward
       if done:
         break

@@ -118,7 +118,7 @@ def pybullet_racecar():
   """Configuration for Bullet MIT Racecar task."""
   locals().update(default())
   # Environment
-  env = 'RacecarBulletEnv-v0'  #functools.partial(racecarGymEnv.RacecarGymEnv, isDiscrete=False, renders=True)
+  env = 'RacecarBulletEnv-v0'  #functools.partial(racecarGymEnv.RacecarGymEnv, isDiscrete=False, render_mode=True)
   max_length = 10
   steps = 1e7  # 10M
   return locals()
@@ -142,7 +142,7 @@ def pybullet_minitaur():
                           motor_overheat_protection=True,
                           pd_control_enabled=True,
                           env_randomizer=randomizer,
-                          render=False)
+                          render_mode=False)
   max_length = 1000
   steps = 3e7  # 30M
   return locals()
@@ -157,7 +157,7 @@ def pybullet_duck_minitaur():
                           motor_overheat_protection=True,
                           pd_control_enabled=True,
                           env_randomizer=randomizer,
-                          render=False)
+                          render_mode=False)
   max_length = 1000
   steps = 3e7  # 30M
   return locals()

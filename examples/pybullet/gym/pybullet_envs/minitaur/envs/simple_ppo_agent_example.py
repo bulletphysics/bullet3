@@ -39,7 +39,7 @@ def main(argv):
   config = utility.load_config(FLAGS.logdir)
   policy_layers = config.policy_layers
   value_layers = config.value_layers
-  env = config.env(render=True, log_path=FLAGS.log_path, env_randomizer=None)
+  env = config.env(render_mode=True, log_path=FLAGS.log_path, env_randomizer=None)
   network = config.network
 
   with tf.Session() as sess:
@@ -55,7 +55,7 @@ def main(argv):
     observation = env.reset()
     while True:
       action = agent.get_action([observation])
-      observation, reward, done, _ = env.step(action[0])
+      observation, reward, done, _, _ = env.step(action[0])
       # This sleep is to prevent serial communication error on the real robot.
       time.sleep(0.002)
       sum_reward += reward

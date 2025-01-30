@@ -21,12 +21,12 @@ def ResetTerrainExample():
   num_reset = 10
   steps = 100
   env = minitaur_randomize_terrain_gym_env.MinitaurRandomizeTerrainGymEnv(
-      render=True, leg_model_enabled=False, motor_velocity_limit=np.inf, pd_control_enabled=True)
+      render_mode=True, leg_model_enabled=False, motor_velocity_limit=np.inf, pd_control_enabled=True)
   action = [math.pi / 2] * 8
   for _ in xrange(num_reset):
     env.reset()
     for _ in xrange(steps):
-      _, _, done, _ = env.step(action)
+      _, _, done, _, _ = env.step(action)
       if done:
         break
 
@@ -34,7 +34,7 @@ def ResetTerrainExample():
 def SinePolicyExample():
   """An example of minitaur walking with a sine gait."""
   env = minitaur_randomize_terrain_gym_env.MinitaurRandomizeTerrainGymEnv(
-      render=True, motor_velocity_limit=np.inf, pd_control_enabled=True, on_rack=False)
+      render_mode=True, motor_velocity_limit=np.inf, pd_control_enabled=True, on_rack=False)
   sum_reward = 0
   steps = 200
   amplitude_1_bound = 0.5
@@ -61,7 +61,7 @@ def SinePolicyExample():
     a3 = math.sin(t * speed) * amplitude2
     a4 = math.sin(t * speed + math.pi) * amplitude2
     action = [a1, a2, a2, a1, a3, a4, a4, a3]
-    _, reward, _, _ = env.step(action)
+    _, reward, _, _, _ = env.step(action)
     sum_reward += reward
 
 

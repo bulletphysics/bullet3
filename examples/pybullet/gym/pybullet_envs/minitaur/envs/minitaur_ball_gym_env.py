@@ -38,7 +38,7 @@ class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
                pd_control_enabled=False,
                leg_model_enabled=True,
                on_rack=False,
-               render=False):
+               render_mode=False):
     """Initialize the minitaur and ball gym environment.
 
     Args:
@@ -50,14 +50,14 @@ class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
       on_rack: Whether to place the minitaur on rack. This is only used to debug
         the walking gait. In this mode, the minitaur's base is hanged midair so
         that its walking gait is clearer to visualize.
-      render: Whether to render the simulation.
+      render_mode: Whether to render the simulation.
     """
     super(MinitaurBallGymEnv, self).__init__(urdf_root=urdf_root,
                                              self_collision_enabled=self_collision_enabled,
                                              pd_control_enabled=pd_control_enabled,
                                              leg_model_enabled=leg_model_enabled,
                                              on_rack=on_rack,
-                                             render=render)
+                                             render_mode=render_mode)
     self._cam_dist = 2.0
     self._cam_yaw = -70
     self._cam_pitch = -30

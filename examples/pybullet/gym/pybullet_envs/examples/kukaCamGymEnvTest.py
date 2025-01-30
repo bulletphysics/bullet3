@@ -10,7 +10,7 @@ import time
 
 def main():
 
-  environment = KukaCamGymEnv(renders=True, isDiscrete=False)
+  environment = KukaCamGymEnv(render_mode=True, isDiscrete=False)
 
   motorsIds = []
   #motorsIds.append(environment._p.addUserDebugParameter("posX",0.4,0.75,0.537))
@@ -33,7 +33,7 @@ def main():
     for motorId in motorsIds:
       action.append(environment._p.readUserDebugParameter(motorId))
 
-    state, reward, done, info = environment.step(action)
+    state, reward, done, _, info = environment.step(action)
     obs = environment.getExtendedObservation()
 
 

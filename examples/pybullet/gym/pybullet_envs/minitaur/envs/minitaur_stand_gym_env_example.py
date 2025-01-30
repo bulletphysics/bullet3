@@ -13,14 +13,14 @@ from pybullet_envs.minitaur.envs import minitaur_stand_gym_env
 def StandUpExample():
   """An example that the minitaur stands up."""
   steps = 1000
-  environment = minitaur_stand_gym_env.MinitaurStandGymEnv(render=True,
+  environment = minitaur_stand_gym_env.MinitaurStandGymEnv(render_mode=True,
                                                            motor_velocity_limit=np.inf)
   action = [0.5]
-  _, _, done, _ = environment.step(action)
+  _, _, done, _, _ = environment.step(action)
   for t in range(steps):
     # A policy that oscillates between -1 and 1
     action = [math.sin(t * math.pi * 0.01)]
-    _, _, done, _ = environment.step(action)
+    _, _, done, _, _ = environment.step(action)
     if done:
       break
 

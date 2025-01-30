@@ -25,7 +25,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
                urdfRoot=pybullet_data.getDataPath(),
                actionRepeat=80,
                isEnableSelfCollision=True,
-               renders=False,
+               render_mode=False,
                isDiscrete=False,
                maxSteps=8,
                dv=0.06,
@@ -42,7 +42,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
       urdfRoot: The diretory from which to load environment URDF's.
       actionRepeat: The number of simulation steps to apply for each action.
       isEnableSelfCollision: If true, enable self-collision.
-      renders: If true, render the bullet GUI.
+      render_mode: If true, render the bullet GUI.
       isDiscrete: If true, the action space is discrete. If False, the
         action space is continuous.
       maxSteps: The maximum number of actions per episode.
@@ -68,7 +68,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     self._isEnableSelfCollision = isEnableSelfCollision
     self._observation = []
     self._envStepCounter = 0
-    self._renders = renders
+    self._renders = render_mode
     self._maxSteps = maxSteps
     self.terminated = 0
     self._cam_dist = 1.3

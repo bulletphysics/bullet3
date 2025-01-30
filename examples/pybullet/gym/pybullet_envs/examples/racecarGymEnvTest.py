@@ -10,7 +10,7 @@ isDiscrete = False
 
 def main():
 
-  environment = RacecarGymEnv(renders=True, isDiscrete=isDiscrete)
+  environment = RacecarGymEnv(render_mode=True, isDiscrete=isDiscrete)
   environment.reset()
 
   targetVelocitySlider = environment._p.addUserDebugParameter("wheelVelocity", -1, 1, 0)
@@ -36,7 +36,7 @@ def main():
       action = discreteAction
     else:
       action = [targetVelocity, steeringAngle]
-    state, reward, done, info = environment.step(action)
+    state, reward, done, _, info = environment.step(action)
     obs = environment.getExtendedObservation()
     print("obs")
     print(obs)
