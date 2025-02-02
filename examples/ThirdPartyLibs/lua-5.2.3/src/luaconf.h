@@ -458,7 +458,7 @@
 ** a single double value, using NaN values to represent non-number
 ** values. The trick only works on 32-bit machines (ints and pointers
 ** are 32-bit values) with numbers represented as IEEE 754-2008 doubles
-** with conventional endianess (12345678 or 87654321), in CPUs that do
+** with conventional endianness (12345678 or 87654321), in CPUs that do
 ** not produce signaling NaN values (all NaNs are quiet).
 */
 
