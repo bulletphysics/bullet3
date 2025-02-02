@@ -42,10 +42,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 3.5;
+		float dist = 3.5f;
 		float pitch = -28;
 		float yaw = -136;
-		float targetPos[3] = {0.47, 0, -0.64};
+		float targetPos[3] = {0.47f, 0, -0.64f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -107,14 +107,15 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		{
 			int result;
 			//warning: we don't avoid string buffer overflow in this basic example in fscanf
-			char fileName[1024];
+			char filename[1024];
+			filename[1023] = '\0';
 			do
 			{
-				result = fscanf(f, "%s", fileName);
-				b3Printf("urdf_files.txt entry %s", fileName);
+				result = fscanf(f, "%s", filename);
+				b3Printf("urdf_files.txt entry %s", filename);
 				if (result == 1)
 				{
-					gFileNameArray.push_back(fileName);
+					gFileNameArray.push_back(filename);
 				}
 			} while (result == 1);
 
@@ -361,7 +362,7 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 		}
 
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		m_dynamicsWorld->stepSimulation(deltaTime, 10, 1. / 240.);
+		m_dynamicsWorld->stepSimulation(deltaTime, 10, btScalar(1. / 240.));
 	}
 }
 

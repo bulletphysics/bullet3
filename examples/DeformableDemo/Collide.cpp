@@ -28,9 +28,9 @@
 
 ///The Collide shows the contact between volumetric deformable objects and rigid objects.
 static btScalar E = 50;
-static btScalar nu = 0.3;
-static btScalar damping_alpha = 0.1;
-static btScalar damping_beta = 0.01;
+static btScalar nu = btScalar(0.3);
+static btScalar damping_alpha = btScalar(0.1);
+static btScalar damping_beta = btScalar(0.01);
 static btScalar COLLIDING_VELOCITY = 15;
 
 struct TetraCube
@@ -80,7 +80,7 @@ public:
 		m_linearElasticity->setPoissonRatio(nu);
 		m_linearElasticity->setYoungsModulus(E);
 		m_linearElasticity->setDamping(damping_alpha, damping_beta);
-        float internalTimeStep = 1. / 60.f;
+        float internalTimeStep = 1.f / 60.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
@@ -132,7 +132,7 @@ void Collide::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(psb);
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 7, 0));
-        psb->getCollisionShape()->setMargin(0.1);
+        psb->getCollisionShape()->setMargin(btScalar(0.1));
         psb->setTotalMass(0.5);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -144,7 +144,7 @@ void Collide::initPhysics()
         
         psb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         
-        btDeformableLinearElasticityForce* linearElasticity = new btDeformableLinearElasticityForce(100,100,0.01);
+        btDeformableLinearElasticityForce* linearElasticity = new btDeformableLinearElasticityForce(100,100,btScalar(0.01));
 		m_linearElasticity = linearElasticity;
         getDeformableDynamicsWorld()->addForce(psb, linearElasticity);
         m_forces.push_back(linearElasticity);
@@ -152,9 +152,9 @@ void Collide::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(true);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.3);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
@@ -198,8 +198,8 @@ void Collide::initPhysics()
     }
     {
         SliderParams slider("Poisson Ratio", &nu);
-        slider.m_minVal = 0.05;
-        slider.m_maxVal = 0.49;
+        slider.m_minVal = btScalar(0.05);
+        slider.m_maxVal = btScalar(0.49);
         if (m_guiHelper->getParameterInterface())
             m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
@@ -213,7 +213,7 @@ void Collide::initPhysics()
     {
         SliderParams slider("Stiffness Damping", &damping_beta);
         slider.m_minVal = 0;
-        slider.m_maxVal = 0.1;
+        slider.m_maxVal = btScalar(0.1);
         if (m_guiHelper->getParameterInterface())
             m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }

@@ -50,7 +50,7 @@ btConvexPlaneCollisionAlgorithm::~btConvexPlaneCollisionAlgorithm()
 	}
 }
 
-void btConvexPlaneCollisionAlgorithm::collideSingleContact(const btQuaternion& perturbeRot, const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
+void btConvexPlaneCollisionAlgorithm::collideSingleContact(const btQuaternion& perturbeRot, const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* resultOut)
 {
 	const btCollisionObjectWrapper* convexObjWrap = m_isSwapped ? body1Wrap : body0Wrap;
 	const btCollisionObjectWrapper* planeObjWrap = m_isSwapped ? body0Wrap : body1Wrap;
@@ -145,7 +145,7 @@ void btConvexPlaneCollisionAlgorithm::processCollision(const btCollisionObjectWr
 		btQuaternion perturbeRot(v0, perturbeAngle);
 		for (int i = 0; i < m_numPerturbationIterations; i++)
 		{
-			btScalar iterationAngle = i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
+			btScalar iterationAngle = (btScalar)i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
 			btQuaternion rotq(planeNormal, iterationAngle);
 			collideSingleContact(rotq.inverse() * perturbeRot * rotq, body0Wrap, body1Wrap, dispatchInfo, resultOut);
 		}

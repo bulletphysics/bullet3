@@ -53,8 +53,8 @@ SIMD_FORCE_INLINE void PLANE_CLIP_POLYGON_COLLECT(
 	CLASS_POINT* clipped,
 	GUINT& clipped_count)
 {
-	GUINT _prevclassif = (dist0 > G_EPSILON);
-	GUINT _classif = (dist1 > G_EPSILON);
+	GUINT _prevclassif = (GUINT)(dist0 > G_EPSILON);
+	GUINT _classif = (GUINT)(dist1 > G_EPSILON);
 	if (_classif != _prevclassif)
 	{
 		GREAL blendfactor = -dist0 / (dist1 - dist0);

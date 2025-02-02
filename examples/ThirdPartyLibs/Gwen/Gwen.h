@@ -62,7 +62,7 @@ static const Color Grey(200, 200, 200, 255);
 static const Color GreyLight(230, 230, 230, 255);
 static const Color GwenPink(255, 65, 199, 255);
 
-};  // namespace Colors
+}  // namespace Colors
 
 extern GWEN_EXPORT Controls::Base* HoveredControl;
 extern GWEN_EXPORT Controls::Base* KeyboardFocus;

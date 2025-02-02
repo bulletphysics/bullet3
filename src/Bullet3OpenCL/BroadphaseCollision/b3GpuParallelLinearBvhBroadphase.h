@@ -45,7 +45,7 @@ public:
 	//call writeAabbsToGpu after done making all changes (createProxy etc)
 	virtual void writeAabbsToGpu();
 
-	virtual int getNumOverlap() { return m_overlappingPairsGpu.size(); }
+	virtual int getNumOverlap() { return (int)m_overlappingPairsGpu.size(); }
 	virtual cl_mem getOverlappingPairBuffer() { return m_overlappingPairsGpu.getBufferCL(); }
 
 	virtual cl_mem getAabbBufferWS() { return m_aabbsGpu.getBufferCL(); }

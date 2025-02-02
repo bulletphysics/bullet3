@@ -78,22 +78,22 @@ public:
 		m_linePoints.push_back(from);
 		m_linePoints.push_back(to);
 
-		m_lineIndices.push_back(m_lineIndices.size());
-		m_lineIndices.push_back(m_lineIndices.size());
+		m_lineIndices.push_back((unsigned int)m_lineIndices.size());
+		m_lineIndices.push_back((unsigned int)m_lineIndices.size());
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int /*lifeTime*/, const btVector3& color)
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
-		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
+		drawLine(PointOnB, PointOnB + normalOnB * btScalar(0.01), ncolor);
 	}
 
-	virtual void reportErrorWarning(const char* warningString)
+	virtual void reportErrorWarning(const char* /*warningString*/)
 	{
 	}
 
-	virtual void draw3dText(const btVector3& location, const char* textString)
+	virtual void draw3dText(const btVector3& /*location*/, const char* /*textString*/)
 	{
 	}
 
@@ -183,7 +183,7 @@ struct MyHashShape
 	//to our success
 	SIMD_FORCE_INLINE unsigned int getHash() const
 	{
-		unsigned int key = m_shapeKey;
+		unsigned int key = (unsigned int)m_shapeKey;
 		// Thomas Wang's hash
 		key += ~(key << 15);
 		key ^= (key >> 10);
@@ -229,7 +229,7 @@ void OpenGLGuiHelper::setVRMode(bool vrMode)
 	m_data->m_vrSkipShadowPass = 0;
 }
 
-OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool useOpenGL2)
+OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool /*useOpenGL2*/)
 {
 	m_data = new OpenGLGuiHelperInternalData;
 	m_data->m_glApp = glApp;
@@ -280,7 +280,7 @@ public:
 		m_pIndicesOut = 0;
 	}
 
-	virtual void processTriangle(btVector3* tris, int partId, int triangleIndex)
+	virtual void processTriangle(btVector3* tris, int /*partId*/, int /*triangleIndex*/)
 	{
 		for (int k = 0; k < 3; k++)
 		{
@@ -295,7 +295,7 @@ public:
 				v.normal[l] = normal[l];
 			}
 			
-			btVector3 extents = m_aabbMax - m_aabbMin;
+			// btVector3 extents = m_aabbMax - m_aabbMin;
 			
 			v.uv[0] = (1.-((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0])))*m_textureScaling;
 			v.uv[1] = (1.-(v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]))*m_textureScaling;
@@ -323,7 +323,7 @@ void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* bod
 			btSoftBody* sb = btSoftBody::upcast(body);
 			if (sb)
 			{
-				int graphicsInstanceId = body->getUserIndex();
+				graphicsInstanceId = body->getUserIndex();
 				changeInstanceFlags(graphicsInstanceId, B3_INSTANCE_DOUBLE_SIDED);
 			}
 		}
@@ -341,7 +341,7 @@ void OpenGLGuiHelper::removeTexture(int textureUid)
 	m_data->m_glApp->m_renderer->removeTexture(textureUid);
 }
 
-void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int /*width*/, int /*height*/)
 {
 	bool flipPixelsY = true;
 	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, rgbTexels, flipPixelsY);
@@ -441,9 +441,9 @@ int OpenGLGuiHelper::createCheckeredTexture(int red, int green, int blue)
 
 			if (a == b)
 			{
-				texels[(i + j * texWidth) * 3 + 0] = red;
-				texels[(i + j * texWidth) * 3 + 1] = green;
-				texels[(i + j * texWidth) * 3 + 2] = blue;
+				texels[(i + j * texWidth) * 3 + 0] = (unsigned char)red;
+				texels[(i + j * texWidth) * 3 + 1] = (unsigned char)green;
+				texels[(i + j * texWidth) * 3 + 2] = (unsigned char)blue;
 				//					texels[(i+j*texWidth)*4+3] = 255;
 			}
 			/*else
@@ -501,7 +501,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		}
 		else
 		{
-			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 			transformedVertices.resize(numVertices * 9);
 			for (int i = 0; i < numVertices; i++)
 			{
@@ -585,7 +585,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		if (ms->getSphereCount() == 2)
 		{
 			btAlignedObjectArray<float> transformedVertices;
-			int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices * 9);
 			btVector3 sphere0Pos = ms->getSpherePosition(0);
 			btVector3 sphere1Pos = ms->getSpherePosition(1);
@@ -672,7 +672,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		}
 		else
 		{
-			int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices * 9);
 			for (int i = 0; i < numVertices; i++)
 			{
@@ -728,7 +728,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 				else
 				{
 					btAlignedObjectArray<float> transformedVertices;
-					int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+					int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 					transformedVertices.resize(numVertices * 9);
 					for (int i = 0; i < numVertices; i++)
 					{
@@ -784,7 +784,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 				else
 				{
 					btAlignedObjectArray<float> transformedVertices;
-					int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+					int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 					transformedVertices.resize(numVertices * 9);
 					for (int i = 0; i < numVertices; i++)
 					{
@@ -827,7 +827,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 				if (ms->getSphereCount() == 2)
 				{
 					btAlignedObjectArray<float> transformedVertices;
-					int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+					int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 					transformedVertices.resize(numVertices * 9);
 					btVector3 sphere0Pos = ms->getSpherePosition(0);
 					btVector3 sphere1Pos = ms->getSpherePosition(1);
@@ -919,7 +919,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		else
 		{
 			btAlignedObjectArray<float> transformedVertices;
-			int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices * 9);
 			for (int i = 0; i < numVertices; i++)
 			{
@@ -1070,18 +1070,18 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 				{
 					
 					gfxVertices.resize(psb->m_renderNodes.size());
-					for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
+					for (int j = 0; j < psb->m_renderNodes.size(); j++)  // Foreach face
 					{
-						gfxVertices[i].xyzw[0] = psb->m_renderNodes[i].m_x[0];
-						gfxVertices[i].xyzw[1] = psb->m_renderNodes[i].m_x[1];
-						gfxVertices[i].xyzw[2] = psb->m_renderNodes[i].m_x[2];
-						gfxVertices[i].xyzw[3] = psb->m_renderNodes[i].m_x[3];
-						gfxVertices[i].uv[0] = psb->m_renderNodes[i].m_uv1[0];
-						gfxVertices[i].uv[1] = psb->m_renderNodes[i].m_uv1[1];
+						gfxVertices[j].xyzw[0] = psb->m_renderNodes[j].m_x[0];
+						gfxVertices[j].xyzw[1] = psb->m_renderNodes[j].m_x[1];
+						gfxVertices[j].xyzw[2] = psb->m_renderNodes[j].m_x[2];
+						gfxVertices[j].xyzw[3] = psb->m_renderNodes[j].m_x[3];
+						gfxVertices[j].uv[0] = psb->m_renderNodes[j].m_uv1[0];
+						gfxVertices[j].uv[1] = psb->m_renderNodes[j].m_uv1[1];
 						//gfxVertices[i].normal[0] = psb->m_renderNodes[i].
-						gfxVertices[i].normal[0] = psb->m_renderNodes[i].m_normal[0];
-						gfxVertices[i].normal[1] = psb->m_renderNodes[i].m_normal[1];
-						gfxVertices[i].normal[2] = psb->m_renderNodes[i].m_normal[2];
+						gfxVertices[j].normal[0] = psb->m_renderNodes[j].m_normal[0];
+						gfxVertices[j].normal[1] = psb->m_renderNodes[j].m_normal[1];
+						gfxVertices[j].normal[2] = psb->m_renderNodes[j].m_normal[2];
 					}
 				}
 				else
@@ -1107,7 +1107,7 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 	}
 }
 
-void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
+void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* /*rbWorld*/)
 {
 	if (m_data->m_vrMode)
 	{
@@ -1206,7 +1206,7 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		btVector3 camPos, camTarget;
 		getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
 		getRenderInterface()->getActiveCamera()->getCameraTargetPosition(camTarget);
-		btVector3 rayFrom = camPos;
+		// btVector3 rayFrom = camPos;
 		btVector3 rayForward = (camTarget - camPos);
 		rayForward.normalize();
 		float farPlane = 10000.f;
@@ -1256,13 +1256,13 @@ void OpenGLGuiHelper::setProjectiveTexture(bool useProjectiveTexture)
 
 void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
 										  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-										  float* depthBuffer, int depthBufferSizeInPixels,
-										  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+										  float* depthBuffer, int /*depthBufferSizeInPixels*/,
+										  int* segmentationMaskBuffer, int /*segmentationMaskBufferSizeInPixels*/,
 										  int startPixelIndex, int destinationWidth,
 										  int destinationHeight, int* numPixelsCopied)
 {
-	int sourceWidth = btMin(destinationWidth, (int)(m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale()));
-	int sourceHeight = btMin(destinationHeight, (int)(m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale()));
+	int sourceWidth = btMin(destinationWidth, (int)((float)m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale()));
+	int sourceHeight = btMin(destinationHeight, (int)((float)m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale()));
 	m_data->m_glApp->setViewport(sourceWidth, sourceHeight);
 
 	if (numPixelsCopied)
@@ -1294,7 +1294,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 				sourceDepthBuffer.resize(sourceWidth * sourceHeight);
 				{
 					BT_PROFILE("getScreenPixels");
-					m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]), sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0], sizeof(float) * sourceDepthBuffer.size());
+					m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]), sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0], (int)(sizeof(float) * sourceDepthBuffer.size()));
 				}
 
 				m_data->m_rgbaPixelBuffer1.resize(destinationWidth * destinationHeight * numBytesPerPixel);
@@ -1355,7 +1355,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 					sourceDepthBuffer.resize(sourceWidth * sourceHeight);
 					{
 						BT_PROFILE("getScreenPixelsSegmentationMask");
-						m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]), sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0], sizeof(float) * sourceDepthBuffer.size());
+						m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]), sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0], (int)(sizeof(float) * sourceDepthBuffer.size()));
 					}
 					m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight, -1);
 

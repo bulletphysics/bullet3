@@ -38,20 +38,20 @@ public:
 	btCapsuleShape(btScalar radius, btScalar height);
 
 	///CollisionShape Interface
-	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const;
+	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const BT_OVERRIDE;
 
 	/// btConvexShape Interface
-	virtual btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const;
+	virtual btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const BT_OVERRIDE;
 
-	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const;
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const BT_OVERRIDE;
 
-	virtual void setMargin(btScalar collisionMargin)
+	virtual void setMargin(btScalar collisionMargin) BT_OVERRIDE
 	{
 		//don't override the margin for capsules, their entire radius == margin
 		(void)collisionMargin;
 	}
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
+	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE
 	{
 		btVector3 halfExtents(getRadius(), getRadius(), getRadius());
 		halfExtents[m_upAxis] = getRadius() + getHalfHeight();
@@ -63,7 +63,7 @@ public:
 		aabbMax = center + extent;
 	}
 
-	virtual const char* getName() const
+	virtual const char* getName() const BT_OVERRIDE
 	{
 		return "CapsuleShape";
 	}
@@ -84,7 +84,7 @@ public:
 		return m_implicitShapeDimensions[m_upAxis];
 	}
 
-	virtual void setLocalScaling(const btVector3& scaling)
+	virtual void setLocalScaling(const btVector3& scaling) BT_OVERRIDE
 	{
 		btVector3 unScaledImplicitShapeDimensions = m_implicitShapeDimensions / m_localScaling;
 		btConvexInternalShape::setLocalScaling(scaling);
@@ -94,17 +94,17 @@ public:
 		m_collisionMargin = m_implicitShapeDimensions[radiusAxis];
 	}
 
-	virtual btVector3 getAnisotropicRollingFrictionDirection() const
+	virtual btVector3 getAnisotropicRollingFrictionDirection() const BT_OVERRIDE
 	{
 		btVector3 aniDir(0, 0, 0);
 		aniDir[getUpAxis()] = 1;
 		return aniDir;
 	}
 
-	virtual int calculateSerializeBufferSize() const;
+	virtual int calculateSerializeBufferSize() const BT_OVERRIDE;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const BT_OVERRIDE;
 
 	SIMD_FORCE_INLINE void deSerializeFloat(struct btCapsuleShapeData * dataBuffer);
 };
@@ -117,7 +117,7 @@ public:
 	btCapsuleShapeX(btScalar radius, btScalar height);
 
 	//debugging
-	virtual const char* getName() const
+	virtual const char* getName() const BT_OVERRIDE
 	{
 		return "CapsuleX";
 	}
@@ -131,7 +131,7 @@ public:
 	btCapsuleShapeZ(btScalar radius, btScalar height);
 
 	//debugging
-	virtual const char* getName() const
+	virtual const char* getName() const BT_OVERRIDE
 	{
 		return "CapsuleZ";
 	}

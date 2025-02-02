@@ -13,7 +13,7 @@ enum
 {
 	B3_INSTANCE_TRANSPARANCY = 1,
 	B3_INSTANCE_TEXTURE = 2,
-	B3_INSTANCE_DOUBLE_SIDED = 4,
+	B3_INSTANCE_DOUBLE_SIDED = 4
 };
 
 enum
@@ -25,7 +25,7 @@ enum
 	B3_USE_SHADOWMAP_RENDERMODE_REFLECTION,
 	B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE,
 	B3_USE_PROJECTIVE_TEXTURE_RENDERMODE,
-	B3_SEGMENTATION_MASK_RENDERMODE,
+	B3_SEGMENTATION_MASK_RENDERMODE
 };
 
 struct GfxVertexFormat0
@@ -63,11 +63,11 @@ struct CommonRenderInterface
 	
 	virtual void setShadowMapWorldSize(float worldSize) = 0;
 	
-	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]){};
-	virtual void setProjectiveTexture(bool useProjectiveTexture){};
+	virtual void setProjectiveTextureMatrices(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16]){};
+	virtual void setProjectiveTexture(bool /*useProjectiveTexture*/){};
 
 	virtual void renderScene() = 0;
-	virtual void renderSceneInternal(int renderMode = B3_DEFAULT_RENDERMODE){};
+	virtual void renderSceneInternal(int renderMode = B3_DEFAULT_RENDERMODE){ (void)renderMode; };
 	virtual int getScreenWidth() = 0;
 	virtual int getScreenHeight() = 0;
 
@@ -89,12 +89,12 @@ struct CommonRenderInterface
 	virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY = true) = 0;
 	virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY = true) = 0;
 	virtual void activateTexture(int textureIndex) = 0;
-	virtual void replaceTexture(int shapeIndex, int textureIndex){};
+	virtual void replaceTexture(int /*shapeIndex*/, int /*textureIndex*/){};
 	virtual void removeTexture(int textureIndex) = 0;
 
-	virtual void setPlaneReflectionShapeIndex(int index) {}
+	virtual void setPlaneReflectionShapeIndex(int /*index*/) {}
 
-	virtual int getShapeIndexFromInstance(int srcIndex) { return -1; }
+	virtual int getShapeIndexFromInstance(int /*srcIndex*/) { return -1; }
 
 	virtual bool readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex) = 0;
 
@@ -158,8 +158,8 @@ inline int projectWorldCoordToScreen(T objx, T objy, T objz,
 	out[2] = out[2] * T(0.5) + T(0.5);
 
 	/* Map x,y to viewport */
-	out[0] = out[0] * viewport[2] + viewport[0];
-	out[1] = out[1] * viewport[3] + viewport[1];
+	out[0] = out[0] * (T)viewport[2] + (T)viewport[0];
+	out[1] = out[1] * (T)viewport[3] + (T)viewport[1];
 
 	*winx = out[0];
 	*winy = out[1];

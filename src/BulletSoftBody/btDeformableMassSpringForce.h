@@ -27,7 +27,7 @@ class btDeformableMassSpringForce : public btDeformableLagrangianForce
 
 public:
 	typedef btAlignedObjectArray<btVector3> TVStack;
-	btDeformableMassSpringForce() : m_momentum_conserving(false), m_elasticStiffness(1), m_dampingStiffness(0.05)
+	btDeformableMassSpringForce() : m_momentum_conserving(false), m_elasticStiffness(1), m_dampingStiffness(btScalar(0.05))
 	{
 	}
 	btDeformableMassSpringForce(btScalar k, btScalar d, bool conserve_angular = true, double bending_k = -1) : m_momentum_conserving(conserve_angular), m_elasticStiffness(k), m_dampingStiffness(d), m_bendingStiffness(bending_k)
@@ -65,8 +65,8 @@ public:
 				const btSoftBody::Link& link = psb->m_links[j];
 				btSoftBody::Node* node1 = link.m_n[0];
 				btSoftBody::Node* node2 = link.m_n[1];
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
 
 				// damping force
 				btVector3 v_diff = (node2->m_v - node1->m_v);
@@ -102,8 +102,8 @@ public:
 				btSoftBody::Node* node1 = link.m_n[0];
 				btSoftBody::Node* node2 = link.m_n[1];
 				btScalar r = link.m_rl;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
 
 				// elastic force
 				btVector3 dir = (node2->m_q - node1->m_q);
@@ -132,8 +132,8 @@ public:
 				const btSoftBody::Link& link = psb->m_links[j];
 				btSoftBody::Node* node1 = link.m_n[0];
 				btSoftBody::Node* node2 = link.m_n[1];
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
 
 				btVector3 local_scaled_df = scaled_k_damp * (dv[id2] - dv[id1]);
 				if (m_momentum_conserving)
@@ -166,8 +166,8 @@ public:
 				const btSoftBody::Link& link = psb->m_links[j];
 				btSoftBody::Node* node1 = link.m_n[0];
 				btSoftBody::Node* node2 = link.m_n[1];
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
 				if (m_momentum_conserving)
 				{
 					if ((node2->m_x - node1->m_x).norm() > SIMD_EPSILON)
@@ -196,7 +196,7 @@ public:
 		}
 	}
 
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		double energy = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)
@@ -269,8 +269,8 @@ public:
 				const btSoftBody::Link& link = psb->m_links[j];
 				btSoftBody::Node* node1 = link.m_n[0];
 				btSoftBody::Node* node2 = link.m_n[1];
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
 				btScalar r = link.m_rl;
 
 				btVector3 dir = (node1->m_q - node2->m_q);

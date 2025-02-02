@@ -41,10 +41,10 @@ static inline bool isSpace(const char c)
 {
 	return (c == ' ') || (c == '\t');
 }
-static inline bool isNewLine(const char c)
-{
-	return (c == '\r') || (c == '\n') || (c == '\0');
-}
+//static inline bool isNewLine(const char c)
+//{
+//	return (c == '\r') || (c == '\n') || (c == '\0');
+//}
 static inline float parseFloat(const char*& token)
 {
 	token += strspn(token, " \t");
@@ -88,9 +88,9 @@ std::string CustomSoftBodyHelper::loadDeformableState(btAlignedObjectArray<btVec
 		std::string name;
 
 		int maxchars = 8192;              // Alloc enough size.
-		std::vector<char> buf(maxchars);  // Alloc enough size.
+		std::vector<char> buf((size_t)maxchars);  // Alloc enough size.
 		std::string linebuf;
-		linebuf.reserve(maxchars);
+		linebuf.reserve((size_t)maxchars);
 
 #ifdef USE_STREAM
 		while (ifs.peek() != -1)
@@ -184,9 +184,10 @@ public:
 		: CommonDeformableBodyBase(helper)
 	{
 		steps = 0;
-		psb = nullptr;
+		psb = NULL;
 		reset_frame = 0;
 		sim_time = 0;
+		(void)filename;
 	}
 	virtual ~LoadDeformed()
 	{
@@ -213,12 +214,12 @@ public:
 		{
 			//        if (reset_frame==0 && steps<100){
 			////            printf("steps %d, seconds %d, steps/seconds %d\n", steps,seconds,steps/seconds);
-			char filename[100];
-			sprintf(filename, "%s_%d_%d.txt", "states", reset_frame, steps);
-			btSoftBodyHelpers::writeState(filename, psb);
+			char file_name[100];
+			sprintf(file_name, "%s_%d_%d.txt", "states", reset_frame, steps);
+			btSoftBodyHelpers::writeState(file_name, psb);
 		}
 		if (sim_time + reset_frame * 0.05 >= 5) exit(0);
-		float internalTimeStep = 1. / 240.f;
+		float internalTimeStep = 1.f / 240.f;
 		//        float internalTimeStep = 0.1f;
 		m_dynamicsWorld->stepSimulation(deltaTime, deltaTime / internalTimeStep, internalTimeStep);
 	}
@@ -232,10 +233,10 @@ public:
 
 		for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
 		{
-			btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
+			btSoftBody* pSoftBody = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
 			{
-				btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
-				btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
+				btSoftBodyHelpers::DrawFrame(pSoftBody, deformableWorld->getDebugDrawer());
+				btSoftBodyHelpers::Draw(pSoftBody, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
 			}
 		}
 	}
@@ -259,7 +260,7 @@ void LoadDeformed::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-	btVector3 gravity = btVector3(0, -9.8, 0);
+	btVector3 gravity = btVector3(0, btScalar(-9.8), 0);
 	m_dynamicsWorld->setGravity(gravity);
 	getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
 	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
@@ -269,7 +270,7 @@ void LoadDeformed::initPhysics()
 	{
 		///create a ground
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(2.5), btScalar(150.)));
-		groundShape->setMargin(0.02);
+		groundShape->setMargin(btScalar(0.02));
 		m_collisionShapes.push_back(groundShape);
 
 		btTransform groundTransform;
@@ -303,7 +304,7 @@ void LoadDeformed::initPhysics()
 void LoadDeformed::addCloth(const btVector3& origin)
 // create a piece of cloth
 {
-	const btScalar s = 0.6;
+	const btScalar s = btScalar(0.6);
 	const btScalar h = 0;
 
 	psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -2 * s),
@@ -313,23 +314,23 @@ void LoadDeformed::addCloth(const btVector3& origin)
 										 15, 30,
 										 0, true, 0.0);
 
-	psb->getCollisionShape()->setMargin(0.02);
+	psb->getCollisionShape()->setMargin(btScalar(0.02));
 	psb->generateBendingConstraints(2);
 	psb->setTotalMass(.5);
 	psb->m_cfg.kKHR = 1;  // collision hardness with kinematic objects
 	psb->m_cfg.kCHR = 1;  // collision hardness with rigid body
-	psb->m_cfg.kDF = 0.1;
+	psb->m_cfg.kDF = btScalar(0.1);
 	psb->rotate(btQuaternion(0, SIMD_PI / 2, 0));
 	btTransform clothTransform;
 	clothTransform.setIdentity();
-	clothTransform.setOrigin(btVector3(0, 0.2, 0) + origin);
+	clothTransform.setOrigin(btVector3(0, btScalar(0.2), 0) + origin);
 	psb->transform(clothTransform);
 
 	b3BulletDefaultFileIO fileio;
 	char absolute_path[1024];
-	char filename[100];
-	sprintf(filename, "/Users/fuchuyuan/Documents/mybullet/build_cmake/examples/ExampleBrowser/states_0_%d.txt", reset_frame);
-	fileio.findResourcePath(filename, absolute_path, 1024);
+	char file_name[100];
+	sprintf(file_name, "/Users/fuchuyuan/Documents/mybullet/build_cmake/examples/ExampleBrowser/states_0_%d.txt", reset_frame);
+	fileio.findResourcePath(file_name, absolute_path, 1024);
 	btAlignedObjectArray<btVector3> qs;
 	btAlignedObjectArray<btVector3> vs;
 	CustomSoftBodyHelper::loadDeformableState(qs, vs, absolute_path, &fileio);
@@ -344,11 +345,11 @@ void LoadDeformed::addCloth(const btVector3& origin)
 	getDeformableDynamicsWorld()->addSoftBody(psb);
 	psb->setSelfCollision(false);
 
-	btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2, 0.2, true);
+	btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2, btScalar(0.2), true);
 	psb->setSpringStiffness(4);
 	getDeformableDynamicsWorld()->addForce(psb, mass_spring);
 	m_forces.push_back(mass_spring);
-	btVector3 gravity = btVector3(0, -9.8, 0);
+	btVector3 gravity = btVector3(0, btScalar(-9.8), 0);
 	btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
 	getDeformableDynamicsWorld()->addForce(psb, gravity_force);
 	//    getDeformableDynamicsWorld()->setUseProjection(true);

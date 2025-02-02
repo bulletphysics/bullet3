@@ -35,7 +35,7 @@ struct BridgeExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -68,13 +68,13 @@ void BridgeExample::initPhysics()
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
-		btScalar plankWidth = 0.4;
-		btScalar plankHeight = 0.2;
+		btScalar plankWidth = btScalar(0.4);
+		btScalar plankHeight = btScalar(0.2);
 		btScalar plankBreadth = 1;
 		btScalar plankOffset = plankWidth;  //distance between two planks
 		btScalar bridgeWidth = plankWidth * TOTAL_PLANKS + plankOffset * (TOTAL_PLANKS - 1);
 		btScalar bridgeHeight = 5;
-		btScalar halfBridgeWidth = bridgeWidth * 0.5f;
+		btScalar halfBridgeWidth = bridgeWidth * btScalar(0.5);
 
 		btBoxShape* colShape = createBoxShape(btVector3(plankWidth, plankHeight, plankBreadth));
 
@@ -98,7 +98,7 @@ void BridgeExample::initPhysics()
 		int lastBoxIndex = TOTAL_PLANKS - 1;
 		for (int i = 0; i < TOTAL_PLANKS; ++i)
 		{
-			float t = float(i) / lastBoxIndex;
+			float t = float(i) / (float)lastBoxIndex;
 			t = -(t * 2 - 1.0f) * halfBridgeWidth;
 			startTransform.setOrigin(btVector3(
 				btScalar(t),

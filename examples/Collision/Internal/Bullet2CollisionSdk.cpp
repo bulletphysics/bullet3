@@ -64,7 +64,7 @@ plCollisionShapeHandle Bullet2CollisionSdk::createSphereShape(plCollisionWorldHa
 	return (plCollisionShapeHandle)sphereShape;
 }
 
-plCollisionShapeHandle Bullet2CollisionSdk::createPlaneShape(plCollisionWorldHandle worldHandle,
+plCollisionShapeHandle Bullet2CollisionSdk::createPlaneShape(plCollisionWorldHandle /*worldHandle*/,
 															 plReal planeNormalX,
 															 plReal planeNormalY,
 															 plReal planeNormalZ,
@@ -74,7 +74,7 @@ plCollisionShapeHandle Bullet2CollisionSdk::createPlaneShape(plCollisionWorldHan
 	return (plCollisionShapeHandle)planeShape;
 }
 
-plCollisionShapeHandle Bullet2CollisionSdk::createCapsuleShape(plCollisionWorldHandle worldHandle,
+plCollisionShapeHandle Bullet2CollisionSdk::createCapsuleShape(plCollisionWorldHandle /*worldHandle*/,
 															   plReal radius,
 															   plReal height,
 															   int capsuleAxis)
@@ -106,11 +106,11 @@ plCollisionShapeHandle Bullet2CollisionSdk::createCapsuleShape(plCollisionWorldH
 	return (plCollisionShapeHandle)capsule;
 }
 
-plCollisionShapeHandle Bullet2CollisionSdk::createCompoundShape(plCollisionWorldHandle worldHandle)
+plCollisionShapeHandle Bullet2CollisionSdk::createCompoundShape(plCollisionWorldHandle /*worldHandle*/)
 {
 	return (plCollisionShapeHandle) new btCompoundShape();
 }
-void Bullet2CollisionSdk::addChildShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle compoundShapeHandle, plCollisionShapeHandle childShapeHandle, plVector3 childPos, plQuaternion childOrn)
+void Bullet2CollisionSdk::addChildShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle compoundShapeHandle, plCollisionShapeHandle childShapeHandle, plVector3 childPos, plQuaternion childOrn)
 {
 	btCompoundShape* compound = (btCompoundShape*)compoundShapeHandle;
 	btCollisionShape* childShape = (btCollisionShape*)childShapeHandle;
@@ -147,7 +147,7 @@ void Bullet2CollisionSdk::removeCollisionObject(plCollisionWorldHandle worldHand
 	}
 }
 
-plCollisionObjectHandle Bullet2CollisionSdk::createCollisionObject(plCollisionWorldHandle worldHandle, void* userPointer, int userIndex, plCollisionShapeHandle shapeHandle,
+plCollisionObjectHandle Bullet2CollisionSdk::createCollisionObject(plCollisionWorldHandle /*worldHandle*/, void* userPointer, int userIndex, plCollisionShapeHandle shapeHandle,
 																   plVector3 startPosition, plQuaternion startOrientation)
 
 {
@@ -194,7 +194,7 @@ struct Bullet2ContactResultCallback : public btCollisionWorld::ContactResultCall
 																				 m_pointCapacity(pointCapacity)
 	{
 	}
-	virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+	virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* /*colObj0Wrap*/, int /*partId0*/, int /*index0*/, const btCollisionObjectWrapper* /*colObj1Wrap*/, int /*partId1*/, int /*index1*/)
 	{
 		if (m_numContacts < m_pointCapacity)
 		{
@@ -239,7 +239,7 @@ static plCollisionWorldHandle gCollisionWorldHandle = 0;
 
 static void* gUserData = 0;
 
-void Bullet2NearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
+void Bullet2NearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& /*dispatcher*/, const btDispatcherInfo& /*dispatchInfo*/)
 {
 	btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
 	btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;

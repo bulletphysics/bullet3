@@ -152,7 +152,7 @@ public:
 		{
 		}
 
-		Int128(int64_t value) : low(value), high((value >= 0) ? 0 : (uint64_t)-1LL)
+		Int128(int64_t value) : low((uint64_t)value), high((value >= 0) ? 0 : (uint64_t)-1LL)
 		{
 		}
 
@@ -322,7 +322,7 @@ public:
 
 		btScalar toScalar() const
 		{
-			return sign * ((m_denominator == 0) ? SIMD_INFINITY : (btScalar)m_numerator / m_denominator);
+			return (btScalar)sign * ((m_denominator == 0) ? SIMD_INFINITY : (btScalar)m_numerator / (btScalar)m_denominator);
 		}
 	};
 
@@ -386,7 +386,7 @@ public:
 
 		btScalar toScalar() const
 		{
-			return sign * ((denominator.getSign() == 0) ? SIMD_INFINITY : numerator.toScalar() / denominator.toScalar());
+			return (btScalar)sign * ((denominator.getSign() == 0) ? SIMD_INFINITY : numerator.toScalar() / denominator.toScalar());
 		}
 	};
 
@@ -724,9 +724,9 @@ private:
 			freeObjects = NULL;
 		}
 
-		void setArraySize(int arraySize)
+		void setArraySize(int size)
 		{
-			this->arraySize = arraySize;
+			this->arraySize = size;
 		}
 
 		T* newObject()
@@ -1279,15 +1279,15 @@ void btConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 				return;
 			}
 			{
-				Vertex* v = originalVertices[start];
+				Vertex* vert = originalVertices[start];
 				v->edges = NULL;
-				v->next = v;
-				v->prev = v;
+				vert->next = vert;
+				vert->prev = vert;
 
-				result.minXy = v;
-				result.maxXy = v;
-				result.minYx = v;
-				result.maxYx = v;
+				result.minXy = vert;
+				result.maxXy = vert;
+				result.minYx = vert;
+				result.maxYx = vert;
 			}
 
 			return;
@@ -1481,6 +1481,7 @@ void btConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 	Point32 et0 = start0 ? start0->target->point : c0->point;
 	Point32 et1 = start1 ? start1->target->point : c1->point;
 	Point32 s = c1->point - c0->point;
+	btAssert(start0 || start1);
 	Point64 normal = ((start0 ? start0 : start1)->target->point - c0->point).cross(s);
 	int64_t dist = c0->point.dot(normal);
 	btAssert(!start1 || (start1->target->point.dot(normal) == dist));
@@ -1788,6 +1789,7 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 			if (firstRun || ((cmp >= 0) ? !minCot1.isNegativeInfinity() : !minCot0.isNegativeInfinity()))
 			{
 				Edge* e = newEdgePair(c0, c1);
+				btAssert(e);
 				if (pendingTail0)
 				{
 					pendingTail0->prev = e;
@@ -2204,7 +2206,7 @@ btScalar btConvexHullInternal::shrink(btScalar amount, btScalar clampAmount)
 	unsigned int seed = 243703;
 	for (int i = 0; i < faceCount; i++, seed = 1664525 * seed + 1013904223)
 	{
-		btSwap(faces[i], faces[seed % faceCount]);
+		btSwap(faces[i], faces[(int)(seed % faceCount)]);
 	}
 
 	for (int i = 0; i < faceCount; i++)
@@ -2548,6 +2550,7 @@ bool btConvexHullInternal::shiftFace(Face* face, btScalar amount, btAlignedObjec
 				stack.push_back(NULL);
 			}
 		}
+		btAssert(faceEdge);
 		faceEdge->face = face;
 		faceEdge->reverse->face = intersection->face;
 

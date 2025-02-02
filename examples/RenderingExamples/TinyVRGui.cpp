@@ -28,14 +28,14 @@ struct TestCanvasInterface2 : public Common2dCanvasInterface
 	virtual ~TestCanvasInterface2()
 	{
 	}
-	virtual int createCanvas(const char* canvasName, int width, int height, int posX, int posY)
+	virtual int createCanvas(const char* /*canvasName*/, int /*width*/, int /*height*/, int /*posX*/, int /*posY*/)
 	{
 		return 0;
 	}
-	virtual void destroyCanvas(int canvasId)
+	virtual void destroyCanvas(int /*canvasId*/)
 	{
 	}
-	virtual void setPixel(int canvasId, int x, int y, unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha)
+	virtual void setPixel(int /*canvasId*/, int x, int y, unsigned char red, unsigned char green, unsigned char blue, unsigned char /*alpha*/)
 	{
 		if (x >= 0 && x < m_width && y >= 0 && y < m_height)
 		{
@@ -44,7 +44,7 @@ struct TestCanvasInterface2 : public Common2dCanvasInterface
 			m_texelsRGB[(x + y * m_width) * 3 + 2] = blue;
 		}
 	}
-	virtual void getPixel(int canvasId, int x, int y, unsigned char& red, unsigned char& green, unsigned char& blue, unsigned char& alpha)
+	virtual void getPixel(int /*canvasId*/, int x, int y, unsigned char& red, unsigned char& green, unsigned char& blue, unsigned char& /*alpha*/)
 	{
 		if (x >= 0 && x < m_width && y >= 0 && y < m_height)
 		{
@@ -54,7 +54,7 @@ struct TestCanvasInterface2 : public Common2dCanvasInterface
 		}
 	}
 
-	virtual void refreshImageData(int canvasId)
+	virtual void refreshImageData(int /*canvasId*/)
 	{
 	}
 };
@@ -81,7 +81,7 @@ struct TinyVRGuiInternalData
 	}
 };
 
-TinyVRGui::TinyVRGui(struct ComboBoxParams& params, struct CommonRenderInterface* renderer)
+TinyVRGui::TinyVRGui(struct ComboBoxParams& /*params*/, struct CommonRenderInterface* renderer)
 {
 	m_data = new TinyVRGuiInternalData;
 	m_data->m_renderer = renderer;
@@ -143,7 +143,7 @@ bool TinyVRGui::init()
 				float position[4] = {0, 0, 2, 1};
 				float orn[4] = {0, 0, 0, 1};
 				float color[4] = {1, 1, 1, 1};
-				float scaling[4] = {.1, .1, .1, 1};
+				float scaling[4] = {.1f, .1f, .1f, 1};
 
 				m_data->m_gfxObjectId = m_data->m_renderer->registerGraphicsInstance(shapeId, position, orn, color, scaling);
 				m_data->m_renderer->writeTransforms();

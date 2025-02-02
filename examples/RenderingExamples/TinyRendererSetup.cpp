@@ -65,7 +65,7 @@ struct TinyRendererSetupInternalData
 		{
 			m_transforms[i].setIdentity();
 			//btVector3	pos(0.f,-(2.5* numObjects * 0.5)+i*2.5f, 0.f);
-			btVector3 pos(0.f, +i * 2.5f, 0.f);
+			btVector3 pos(0.f, (float)+i * 2.5f, 0.f);
 			m_transforms[i].setIdentity();
 			m_transforms[i].setOrigin(pos);
 			btQuaternion orn;
@@ -127,7 +127,7 @@ struct TinyRendererSetup : public CommonExampleInterface
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -140,8 +140,8 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(), gui->getAppInterface()->m_window->getHeight());
 
-	const char* fileName = "textured_sphere_smooth.obj";
-	fileName = "cube.obj";
+	const char* fileName;// = "textured_sphere_smooth.obj";
+	// fileName = "cube.obj";
 	fileName = "torus/torus_with_plane.obj";
 
 	{
@@ -212,7 +212,7 @@ TinyRendererSetup::~TinyRendererSetup()
 }
 
 const char* itemsanimate[] = {"Fixed", "Rotate"};
-void TinyRendererComboCallbackAnimate(int combobox, const char* item, void* userPointer)
+void TinyRendererComboCallbackAnimate(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);
@@ -230,7 +230,7 @@ void TinyRendererComboCallbackAnimate(int combobox, const char* item, void* user
 
 const char* items[] = {"Software", "OpenGL"};
 
-void TinyRendererComboCallback(int combobox, const char* item, void* userPointer)
+void TinyRendererComboCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);
@@ -303,7 +303,7 @@ void TinyRendererSetup::exitPhysics()
 {
 }
 
-void TinyRendererSetup::stepSimulation(float deltaTime)
+void TinyRendererSetup::stepSimulation(float /*deltaTime*/)
 {
 	m_internalData->updateTransforms();
 }
@@ -365,9 +365,9 @@ void TinyRendererSetup::renderScene()
 			const btTransform& tr = m_internalData->m_transforms[o];
 			tr.getOpenGLMatrix(modelMat2);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
 					m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i + 4 * j]);
 					m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i + 4 * j];
@@ -381,9 +381,9 @@ void TinyRendererSetup::renderScene()
 					m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
 
 					m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
-					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
-					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
-					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
+					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6f;
+					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35f;
+					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05f;
 				}
 			}
 			TinyRenderer::renderObjectDepth(*m_internalData->m_renderObjects[o]);
@@ -394,9 +394,9 @@ void TinyRendererSetup::renderScene()
 			const btTransform& tr = m_internalData->m_transforms[o];
 			tr.getOpenGLMatrix(modelMat2);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
 					m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i + 4 * j]);
 					m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i + 4 * j];
@@ -410,9 +410,9 @@ void TinyRendererSetup::renderScene()
 					m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
 
 					m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
-					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
-					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
-					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
+					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6f;
+					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35f;
+					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05f;
 				}
 			}
 			TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);
@@ -425,26 +425,26 @@ void TinyRendererSetup::renderScene()
 	}
 }
 
-void TinyRendererSetup::physicsDebugDraw(int debugDrawFlags)
+void TinyRendererSetup::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-bool TinyRendererSetup::mouseMoveCallback(float x, float y)
-{
-	return false;
-}
-
-bool TinyRendererSetup::mouseButtonCallback(int button, int state, float x, float y)
+bool TinyRendererSetup::mouseMoveCallback(float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-bool TinyRendererSetup::keyboardCallback(int key, int state)
+bool TinyRendererSetup::mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-void TinyRendererSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
+bool TinyRendererSetup::keyboardCallback(int /*key*/, int /*state*/)
+{
+	return false;
+}
+
+void TinyRendererSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& /*gfxBridge*/)
 {
 }
 

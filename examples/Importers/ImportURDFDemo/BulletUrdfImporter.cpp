@@ -33,7 +33,7 @@ subject to the following restrictions:
 #include "URDF2Bullet.h"  //for flags
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
-static btScalar gUrdfDefaultCollisionMargin = 0.001;
+static btScalar gUrdfDefaultCollisionMargin = btScalar(0.001);
 
 #include <iostream>
 #include <fstream>
@@ -193,7 +193,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 
 	if (xml_string.length())
 	{
-			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS));
+			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS) != 0);
 
 			if (m_data->m_flags & CUF_IGNORE_VISUAL_SHAPES)
 			{
@@ -240,7 +240,7 @@ void BulletURDFImporter::activateModel(int modelIndex)
 	m_data->m_urdfParser.activateModel(modelIndex);
 }
 
-bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
+bool BulletURDFImporter::loadSDF(const char* fileName, bool /*forceFixedBase*/)
 {
 	//int argc=0;
 	char relativeFileName[1024];
@@ -320,7 +320,7 @@ int BulletURDFImporter::getRootLinkIndex() const
 		return m_data->m_urdfParser.getModel().m_rootLinks[0]->m_linkIndex;
 	}
 	return -1;
-};
+}
 
 void BulletURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const
 {
@@ -445,10 +445,11 @@ void BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass, btVect
 			else
 			{
 				principalInertiaX = link->m_inertia.m_ixx;
+				(void)principalInertiaX;
 				btMatrix3x3 inertiaTensor(link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
 										  link->m_inertia.m_ixy, link->m_inertia.m_iyy, link->m_inertia.m_iyz,
 										  link->m_inertia.m_ixz, link->m_inertia.m_iyz, link->m_inertia.m_izz);
-				btScalar threshold = 1.0e-6;
+				btScalar threshold = btScalar(1.0e-6);
 				int numIterations = 30;
 				inertiaTensor.diagonalize(linkInertiaBasis, threshold, numIterations);
 				principalInertiaX = inertiaTensor[0][0];
@@ -527,7 +528,7 @@ bool BulletURDFImporter::getJointInfo3(int urdfLinkIndex, btTransform& parent2jo
 	}
 
 	return false;
-};
+}
 
 bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
 {
@@ -556,30 +557,30 @@ static btCollisionShape* createConvexHullFromShapes(const bt_tinyobj::attrib_t& 
 	btTransform identity;
 	identity.setIdentity();
 
-	for (int s = 0; s < (int)shapes.size(); s++)
+	for (size_t s = 0; s < shapes.size(); s++)
 	{
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(gUrdfDefaultCollisionMargin);
 		bt_tinyobj::shape_t& shape = shapes[s];
-		int faceCount = shape.mesh.indices.size();
+		size_t faceCount = shape.mesh.indices.size();
 
-		for (int f = 0; f < faceCount; f += 3)
+		for (size_t f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 0].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 
@@ -652,7 +653,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 				int numSteps = 32;
 				for (int i = 0; i < numSteps; i++)
 				{
-					btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / numSteps)), cylRadius * btCos(SIMD_2_PI * (float(i) / numSteps)), cylHalfLength);
+					btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / float(numSteps))), cylRadius * btCos(SIMD_2_PI * (float(i) / float(numSteps))), cylHalfLength);
 					vertices.push_back(vert);
 					vert[2] = -cylHalfLength;
 					vertices.push_back(vert);
@@ -791,17 +792,17 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 
 						int baseIndex = glmesh->m_vertices->size();
 
-						for (int i = 0; i < gfxShape->m_vertices->size(); i++)
+						for (int j = 0; j < gfxShape->m_vertices->size(); j++)
 						{
-							verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-							verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-							verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-							verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-							verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-							verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-							verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-							verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-							verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+							verts[j].normal[0] = gfxShape->m_vertices->at(j).normal[0];
+							verts[j].normal[1] = gfxShape->m_vertices->at(j).normal[1];
+							verts[j].normal[2] = gfxShape->m_vertices->at(j).normal[2];
+							verts[j].uv[0] = gfxShape->m_vertices->at(j).uv[0];
+							verts[j].uv[1] = gfxShape->m_vertices->at(j).uv[1];
+							verts[j].xyzw[0] = gfxShape->m_vertices->at(j).xyzw[0];
+							verts[j].xyzw[1] = gfxShape->m_vertices->at(j).xyzw[1];
+							verts[j].xyzw[2] = gfxShape->m_vertices->at(j).xyzw[2];
+							verts[j].xyzw[3] = gfxShape->m_vertices->at(j).xyzw[3];
 						}
 
 						int curNumIndices = glmesh->m_indices->size();
@@ -940,7 +941,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
 				btScalar cylLength = visual->m_geometry.m_capsuleHeight;
 
-				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / numSteps)), cylRadius * btCos(SIMD_2_PI * (float(i) / numSteps)), cylLength / 2.);
+				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / float(numSteps))), cylRadius * btCos(SIMD_2_PI * (float(i) / float(numSteps))), cylLength / 2.);
 				vertices.push_back(vert);
 				vert[2] = -cylLength / 2.;
 				vertices.push_back(vert);
@@ -957,7 +958,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		{
 			btVector3 extents = visual->m_geometry.m_boxSize;
 			int strideInBytes = 9 * sizeof(float);
-			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 			int numIndices = sizeof(cube_indices) / sizeof(int);
 			glmesh = new GLInstanceGraphicsShape;
 			glmesh->m_indices = new b3AlignedObjectArray<int>();
@@ -1110,17 +1111,17 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 						int baseIndex = glmesh->m_vertices->size();
 
-						for (int i = 0; i < gfxShape->m_vertices->size(); i++)
+						for (int j = 0; j < gfxShape->m_vertices->size(); j++)
 						{
-							verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-							verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-							verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-							verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-							verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-							verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-							verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-							verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-							verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+							verts[j].normal[0] = gfxShape->m_vertices->at(j).normal[0];
+							verts[j].normal[1] = gfxShape->m_vertices->at(j).normal[1];
+							verts[j].normal[2] = gfxShape->m_vertices->at(j).normal[2];
+							verts[j].uv[0] = gfxShape->m_vertices->at(j).uv[0];
+							verts[j].uv[1] = gfxShape->m_vertices->at(j).uv[1];
+							verts[j].xyzw[0] = gfxShape->m_vertices->at(j).xyzw[0];
+							verts[j].xyzw[1] = gfxShape->m_vertices->at(j).xyzw[1];
+							verts[j].xyzw[2] = gfxShape->m_vertices->at(j).xyzw[2];
+							verts[j].xyzw[3] = gfxShape->m_vertices->at(j).xyzw[3];
 						}
 
 						int curNumIndices = glmesh->m_indices->size();
@@ -1226,7 +1227,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < numIndices; i++)
 			{
-				glmesh->m_indices->push_back(hull->getIndexPointer()[i]);
+				glmesh->m_indices->push_back((int)hull->getIndexPointer()[i]);
 			}
 
 			glmesh->m_numvertices = glmesh->m_vertices->size();
@@ -1356,7 +1357,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 	for (int i = 0; i < textures.size(); i++)
 	{
 		B3_PROFILE("free textureData");
-		if (!textures[i].m_isCached)
+		if (!textures[i].m_isCached && textures[i].textureData1)
 		{
 			free(textures[i].textureData1);
 		}
@@ -1535,7 +1536,7 @@ class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIn
 
 const struct UrdfModel* BulletURDFImporter::getUrdfModel() const {
 	return &m_data->m_urdfParser.getModel();
-};
+}
 
 const struct UrdfDeformable& BulletURDFImporter::getDeformableModel() const
 {

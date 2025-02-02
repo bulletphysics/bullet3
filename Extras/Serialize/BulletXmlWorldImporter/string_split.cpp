@@ -28,13 +28,13 @@ namespace bullet_utils
 void split(btAlignedObjectArray<std::string> &pieces, const std::string &vector_str, const std::string &separator)
 {
 	char **strArray = str_split(vector_str.c_str(), separator.c_str());
-	int numSubStr = str_array_len(strArray);
+	int numSubStr = (int)str_array_len(strArray);
 	for (int i = 0; i < numSubStr; i++)
 		pieces.push_back(std::string(strArray[i]));
 	str_array_free(strArray);
 }
 
-};  // namespace bullet_utils
+}  // namespace bullet_utils
 
 /* Append an item to a dynamically allocated array of strings. On failure,
  return NULL, in which case the original array is intact. The item
@@ -60,12 +60,14 @@ char **str_array_append(char **array, size_t nitems, const char *item,
 	/* Extend array with one element. Except extend it by two elements,
 	 in case it did not yet exist. This might mean it is a teeny bit
 	 too big, but we don't care. */
-	array = (char **)realloc(array, (nitems + 2) * sizeof(array[0]));
-	if (array == NULL)
+	char ** reallocated = (char **)realloc(array, (nitems + 2) * sizeof(array[0]));
+	if (reallocated == NULL)
 	{
 		free(copy);
 		return NULL;
 	}
+	else
+		array = reallocated;
 
 	/* Add copy of item to array, and return it. */
 	array[nitems] = copy;
@@ -78,8 +80,12 @@ void str_array_free(char **array)
 {
 	if (array == NULL)
 		return;
-	for (size_t i = 0; array[i] != NULL; ++i)
+	size_t i = 0;
+	while(array[i] != NULL)
+	{
 		free(array[i]);
+		++i;
+	}
 	free(array);
 }
 
@@ -95,6 +101,7 @@ char **str_split(const char *input, const char *sep)
 	size_t seplen = strlen(sep);
 	const char *item;
 	size_t itemlen;
+	(void)next;
 
 	for (;;)
 	{
@@ -122,7 +129,7 @@ char **str_split(const char *input, const char *sep)
 		else
 		{
 			item = start;
-			itemlen = next - item;
+			itemlen = (size_t)(next - item);
 		}
 		char **newstr = str_array_append(array, nitems, item, itemlen);
 		if (newstr == NULL)

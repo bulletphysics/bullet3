@@ -161,7 +161,7 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 			m_dynamicsWorld->serialize(serializer);
 
 			FILE* file = fopen("testFile.bullet", "wb");
-			fwrite(serializer->getBufferPointer(), serializer->getCurrentBufferSize(), 1, file);
+			fwrite(serializer->getBufferPointer(), (size_t)serializer->getCurrentBufferSize(), 1, file);
 			fclose(file);
 			//b3Printf("btDefaultSerializer wrote testFile.bullet");
 			delete serializer;
@@ -398,13 +398,14 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 
 	btRigidBody* createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, const btVector4& color = btVector4(1, 0, 0, 1))
 	{
+		(void)color;
 		btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 
 		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
+		if (isDynamic && shape)
 			shape->calculateLocalInertia(mass, localInertia);
 
 			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects

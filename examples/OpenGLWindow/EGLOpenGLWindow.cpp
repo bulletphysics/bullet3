@@ -327,7 +327,7 @@ void EGLOpenGLWindow::endRendering()
 	eglSwapBuffers(m_data->egl_display, m_data->egl_surface);
 }
 
-bool EGLOpenGLWindow::isModifierKeyPressed(int key) { return false; }
+bool EGLOpenGLWindow::isModifierKeyPressed(int /*key*/) { return false; }
 
 void EGLOpenGLWindow::setMouseMoveCallback(b3MouseMoveCallback mouseCallback)
 {
@@ -380,18 +380,18 @@ b3KeyboardCallback EGLOpenGLWindow::getKeyboardCallback()
 	return m_data->m_keyboardCallback;
 }
 
-void EGLOpenGLWindow::setRenderCallback(b3RenderCallback renderCallback) {}
-void EGLOpenGLWindow::setWindowTitle(const char* title) {}
+void EGLOpenGLWindow::setRenderCallback(b3RenderCallback /*renderCallback*/) {}
+void EGLOpenGLWindow::setWindowTitle(const char* /*title*/) {}
 
 float EGLOpenGLWindow::getRetinaScale() const { return 1.f; }
 
-void EGLOpenGLWindow::setAllowRetina(bool allow) {}
+void EGLOpenGLWindow::setAllowRetina(bool /*allow*/) {}
 
 int EGLOpenGLWindow::getWidth() const { return m_data->m_windowWidth; }
 
 int EGLOpenGLWindow::getHeight() const { return m_data->m_windowHeight; }
 
-int EGLOpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
+int EGLOpenGLWindow::fileOpenDialog(char* /*fileName*/, int /*maxFileNameLength*/)
 {
 	return 0;
 }

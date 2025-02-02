@@ -31,8 +31,8 @@ struct GUIHelperInterface
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape) = 0;
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld) = 0;
-	virtual void syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWorld) {}
-	virtual void syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions) {}
+	virtual void syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* /*rbWorld*/) {}
+	virtual void syncPhysicsToGraphics2(const GUISyncPosition* /*positions*/, int /*numPositions*/) {}
 	
 	virtual void render(const btDiscreteDynamicsWorld* rbWorld) = 0;
 
@@ -42,17 +42,17 @@ struct GUIHelperInterface
 	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId) = 0;
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) = 0;
 	virtual void removeAllGraphicsInstances() = 0;
-	virtual void removeGraphicsInstance(int graphicsUid) {}
-	virtual void changeInstanceFlags(int instanceUid, int flags) {}
-	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
-	virtual void changeScaling(int instanceUid, const double scaling[3]) {}
-	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]) {}
-	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height) {}
-	virtual void updateShape(int shapeIndex, float* vertices, int numVertices) {}
-	virtual int getShapeIndexFromInstance(int instanceUid) { return -1; }
-	virtual void replaceTexture(int shapeIndex, int textureUid) {}
-	virtual void removeTexture(int textureUid) {}
-	virtual void setBackgroundColor(const double rgbBackground[3]) {}
+	virtual void removeGraphicsInstance(int /*graphicsUid*/) {}
+	virtual void changeInstanceFlags(int /*instanceUid*/, int /*flags*/) {}
+	virtual void changeRGBAColor(int /*instanceUid*/, const double /*rgbaColor*/[4]) {}
+	virtual void changeScaling(int /*instanceUid*/, const double /*scaling*/[3]) {}
+	virtual void changeSpecularColor(int /*instanceUid*/, const double /*specularColor*/[3]) {}
+	virtual void changeTexture(int /*textureUniqueId*/, const unsigned char* /*rgbTexels*/, int /*width*/, int /*height*/) {}
+	virtual void updateShape(int /*shapeIndex*/, float* /*vertices*/, int /*numVertices*/) {}
+	virtual int getShapeIndexFromInstance(int /*instanceUid*/) { return -1; }
+	virtual void replaceTexture(int /*shapeIndex*/, int /*textureUid*/) {}
+	virtual void removeTexture(int /*textureUid*/) {}
+	virtual void setBackgroundColor(const double /*rgbBackground*/[3]) {}
 	
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface() = 0;
@@ -72,12 +72,12 @@ struct GUIHelperInterface
 
 	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ) = 0;
 
-	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
+	virtual bool getCameraInfo(int* /*width*/, int* /*height*/, float /*viewMatrix*/[16], float /*projectionMatrix*/[16], float /*camUp*/[3], float /*camForward*/[3], float /*hor*/[3], float /*vert*/[3], float* /*yaw*/, float* /*pitch*/, float* /*camDist*/, float /*camTarget*/[3]) const
 	{
 		return false;
 	}
 
-	virtual void setVisualizerFlag(int flag, int enable){};
+	virtual void setVisualizerFlag(int /*flag*/, int /*enable*/){};
 
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
 									 unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
@@ -96,34 +96,34 @@ struct GUIHelperInterface
 									 float* depthBuffer, int depthBufferSizeInPixels,
 									 int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
 									 int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied) = 0;
-	virtual void debugDisplayCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
-											 unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-											 float* depthBuffer, int depthBufferSizeInPixels,
-											 int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
-											 int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied) {}
+	virtual void debugDisplayCameraImageData(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16],
+											 unsigned char* /*pixelsRGBA*/, int /*rgbaBufferSizeInPixels*/,
+											 float* /*depthBuffer*/, int /*depthBufferSizeInPixels*/,
+											 int* /*segmentationMaskBuffer*/, int /*segmentationMaskBufferSizeInPixels*/,
+											 int /*startPixelIndex*/, int /*destinationWidth*/, int /*destinationHeight*/, int* /*numPixelsCopied*/) {}
 
-	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]) {}
-	virtual void setProjectiveTexture(bool useProjectiveTexture) {}
+	virtual void setProjectiveTextureMatrices(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16]) {}
+	virtual void setProjectiveTexture(bool /*useProjectiveTexture*/) {}
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) = 0;
 
-	virtual void drawText3D(const char* txt, float posX, float posY, float posZ, float size) {}
-	virtual void drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag) {}
+	virtual void drawText3D(const char* /*txt*/, float /*posX*/, float /*posY*/, float /*posZ*/, float /*size*/) {}
+	virtual void drawText3D(const char* /*txt*/, float /*position*/[3], float /*orientation*/[4], float /*color*/[4], float /*size*/, int /*optionFlag*/) {}
 
-	virtual int addUserDebugText3D(const char* txt, const double positionXYZ[3], const double orientation[4], const double textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags, int replaceItemUid) { return -1; }
-	virtual int addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid) { return -1; };
-	virtual int addUserDebugPoints(const double debugPointPositionXYZ[], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum) { return -1; };
-	virtual int addUserDebugParameter(const char* txt, double rangeMin, double rangeMax, double startValue) { return -1; };
-	virtual int readUserDebugParameter(int itemUniqueId, double* value) { return 0; }
+	virtual int addUserDebugText3D(const char* /*txt*/, const double /*positionXYZ*/[3], const double /*orientation*/[4], const double /*textColorRGB*/[3], double /*size*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*optionFlags*/, int /*replaceItemUid*/) { return -1; }
+	virtual int addUserDebugLine(const double /*debugLineFromXYZ*/[3], const double /*debugLineToXYZ*/[3], const double /*debugLineColorRGB*/[3], double /*lineWidth*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*replaceItemUid*/) { return -1; };
+	virtual int addUserDebugPoints(const double /*debugPointPositionXYZ*/[], const double /*debugPointColorRGB*/[3], double /*pointSize*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*replaceItemUid*/, int /*debugPointNum*/) { return -1; };
+	virtual int addUserDebugParameter(const char* /*txt*/, double /*rangeMin*/, double /*rangeMax*/, double /*startValue*/) { return -1; };
+	virtual int readUserDebugParameter(int /*itemUniqueId*/, double* /*value*/) { return 0; }
 
-	virtual void removeUserDebugItem(int debugItemUniqueId){};
+	virtual void removeUserDebugItem(int /*debugItemUniqueId*/){};
 	virtual void removeAllUserDebugItems(){};
 	virtual void removeAllUserParameters() {};
 	
-	virtual void setVisualizerFlagCallback(VisualizerFlagCallback callback) {}
+	virtual void setVisualizerFlagCallback(VisualizerFlagCallback /*callback*/) {}
 
 	//empty name stops dumping video
-	virtual void dumpFramesToVideo(const char* mp4FileName){};
+	virtual void dumpFramesToVideo(const char* /*mp4FileName*/){};
 	virtual void drawDebugDrawerLines(){}
 	virtual void clearLines(){}
 	virtual bool isRemoteVisualizer() { return false; }
@@ -138,25 +138,25 @@ struct DummyGUIHelper : public GUIHelperInterface
 	}
 	virtual ~DummyGUIHelper() {}
 
-	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color) {}
+	virtual void createRigidBodyGraphicsObject(btRigidBody* /*body*/, const btVector3& /*color*/) {}
 
-	virtual void createCollisionObjectGraphicsObject(btCollisionObject* obj, const btVector3& color) {}
+	virtual void createCollisionObjectGraphicsObject(btCollisionObject* /*obj*/, const btVector3& /*color*/) {}
 
-	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape) {}
+	virtual void createCollisionShapeGraphicsObject(btCollisionShape* /*collisionShape*/) {}
 
-	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld) {}
+	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* /*rbWorld*/) {}
 
-	virtual void render(const btDiscreteDynamicsWorld* rbWorld) {}
+	virtual void render(const btDiscreteDynamicsWorld* /*rbWorld*/) {}
 
-	virtual void createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld) {}
+	virtual void createPhysicsDebugDrawer(btDiscreteDynamicsWorld* /*rbWorld*/) {}
 
-	virtual int registerTexture(const unsigned char* texels, int width, int height) { return -1; }
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId) { return -1; }
-	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) { return -1; }
+	virtual int registerTexture(const unsigned char* /*texels*/, int /*width*/, int /*height*/) { return -1; }
+	virtual int registerGraphicsShape(const float* /*vertices*/, int /*numvertices*/, const int* /*indices*/, int /*numIndices*/, int /*primitiveType*/, int /*textureId*/) { return -1; }
+	virtual int registerGraphicsInstance(int /*shapeIndex*/, const float* /*position*/, const float* /*quaternion*/, const float* /*color*/, const float* /*scaling*/) { return -1; }
 	virtual void removeAllGraphicsInstances() {}
-	virtual void removeGraphicsInstance(int graphicsUid) {}
-	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
-	virtual void changeScaling(int instanceUid, const double scaling[3]) {}
+	virtual void removeGraphicsInstance(int /*graphicsUid*/) {}
+	virtual void changeRGBAColor(int /*instanceUid*/, const double /*rgbaColor*/[4]) {}
+	virtual void changeScaling(int /*instanceUid*/, const double /*scaling*/[3]) {}
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
@@ -178,53 +178,53 @@ struct DummyGUIHelper : public GUIHelperInterface
 		return 0;
 	}
 
-	virtual void setUpAxis(int axis)
+	virtual void setUpAxis(int /*axis*/)
 	{
 	}
-	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
+	virtual void resetCamera(float /*camDist*/, float /*yaw*/, float /*pitch*/, float /*camPosX*/, float /*camPosY*/, float /*camPosZ*/)
 	{
 	}
 
-	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
-									 unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-									 float* depthBuffer, int depthBufferSizeInPixels,
-									 int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
-									 int startPixelIndex, int width, int height, int* numPixelsCopied)
+	virtual void copyCameraImageData(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16],
+									 unsigned char* /*pixelsRGBA*/, int /*rgbaBufferSizeInPixels*/,
+									 float* /*depthBuffer*/, int /*depthBufferSizeInPixels*/,
+									 int* /*segmentationMaskBuffer*/, int /*segmentationMaskBufferSizeInPixels*/,
+									 int /*startPixelIndex*/, int /*width*/, int /*height*/, int* numPixelsCopied)
 
 	{
 		if (numPixelsCopied)
 			*numPixelsCopied = 0;
 	}
 
-	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+	virtual void setProjectiveTextureMatrices(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16])
 	{
 	}
 
-	virtual void setProjectiveTexture(bool useProjectiveTexture)
+	virtual void setProjectiveTexture(bool /*useProjectiveTexture*/)
 	{
 	}
 
-	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld)
+	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* /*rbWorld*/)
 	{
 	}
 
-	virtual void drawText3D(const char* txt, float posX, float posZY, float posZ, float size)
+	virtual void drawText3D(const char* /*txt*/, float /*posX*/, float /*posZY*/, float /*posZ*/, float /*size*/)
 	{
 	}
 
-	virtual void drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+	virtual void drawText3D(const char* /*txt*/, float /*position*/[3], float /*orientation*/[4], float /*color*/[4], float /*size*/, int /*optionFlag*/)
 	{
 	}
 
-	virtual int addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid)
+	virtual int addUserDebugLine(const double /*debugLineFromXYZ*/[3], const double /*debugLineToXYZ*/[3], const double /*debugLineColorRGB*/[3], double /*lineWidth*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*replaceItemUid*/)
 	{
 		return -1;
 	}
-	virtual int addUserDebugPoints(const double debugPointPositionXYZ[3], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum)
+	virtual int addUserDebugPoints(const double /*debugPointPositionXYZ*/[3], const double /*debugPointColorRGB*/[3], double /*pointSize*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*replaceItemUid*/, int /*debugPointNum*/)
 	{
 		return -1;
 	};
-	virtual void removeUserDebugItem(int debugItemUniqueId)
+	virtual void removeUserDebugItem(int /*debugItemUniqueId*/)
 	{
 	}
 	virtual void removeAllUserDebugItems()

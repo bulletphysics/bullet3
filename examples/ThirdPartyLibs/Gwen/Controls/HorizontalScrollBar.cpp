@@ -36,13 +36,13 @@ void HorizontalScrollBar::Layout(Skin::Base* skin)
 	m_Bar->SetHeight(GetButtonSize());
 	m_Bar->SetPadding(Padding(GetButtonSize(), 0, GetButtonSize(), 0));
 
-	float barWidth = (m_fViewableContentSize / m_fContentSize) * (Width() - (GetButtonSize() * 2));
+	float barWidth = (m_fViewableContentSize / m_fContentSize) * (float)(Width() - (GetButtonSize() * 2));
 
 	if (barWidth < GetButtonSize() * 0.5)
 		barWidth = GetButtonSize() * 0.5;
 
 	m_Bar->SetWidth(barWidth);
-	m_Bar->SetHidden(Width() - (GetButtonSize() * 2) <= barWidth);
+	m_Bar->SetHidden((float)(Width() - (GetButtonSize() * 2)) <= barWidth);
 
 	//Based on our last scroll amount, produce a position for the bar
 	if (!m_Bar->IsDepressed())
@@ -107,14 +107,14 @@ float HorizontalScrollBar::CalculateScrolledAmount()
 
 bool HorizontalScrollBar::SetScrolledAmount(float amount, bool forceUpdate)
 {
-	amount = Gwen::Clamp(amount, 0, 1);
+	amount = Gwen::Clamp(amount, 0.0f, 1.0f);
 
 	if (!BaseClass::SetScrolledAmount(amount, forceUpdate))
 		return false;
 
 	if (forceUpdate)
 	{
-		int newX = GetButtonSize() + (amount * ((Width() - m_Bar->Width()) - (GetButtonSize() * 2)));
+		int newX = (float)GetButtonSize() + (amount * (float)((Width() - m_Bar->Width()) - (GetButtonSize() * 2)));
 		m_Bar->MoveTo(newX, m_Bar->Y());
 	}
 

@@ -403,8 +403,8 @@ void btSequentialImpulseConstraintSolverMt::internalCollectContactManifoldCached
 		cachedInfo->solverBodyIds[1] = solverBodyIdB;
 		cachedInfo->numTouchingContacts = 0;
 
-		btSolverBody* solverBodyA = &m_tmpSolverBodyPool[solverBodyIdA];
-		btSolverBody* solverBodyB = &m_tmpSolverBodyPool[solverBodyIdB];
+		//btSolverBody* solverBodyA = &m_tmpSolverBodyPool[solverBodyIdA];
+		//btSolverBody* solverBodyB = &m_tmpSolverBodyPool[solverBodyIdB];
 
 		// A contact manifold between 2 static object should not exist!
 		// check the collision flags of your objects if this assert fires.
@@ -478,7 +478,7 @@ void btSequentialImpulseConstraintSolverMt::internalAllocContactConstraints(cons
 			{
 				m_rollingFrictionIndexTable[contactIndex] = rollingFrictionIndex;
 				// allocate 3 (although we may use only 2 sometimes)
-				for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
 				{
 					m_tmpSolverContactRollingFrictionConstraintPool[rollingFrictionIndex].m_frictionIndex = contactIndex;
 					rollingFrictionIndex++;
@@ -893,7 +893,7 @@ struct ContactSplitPenetrationImpulseSolverLoop : public btIParallelSumBody
 	}
 };
 
-void btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
+void btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/)
 {
 	BT_PROFILE("solveGroupCacheFriendlySplitImpulseIterations");
 	if (infoGlobal.m_splitImpulse)
@@ -905,7 +905,6 @@ void btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlySplitImpulseI
 			{
 				const btBatchedConstraints& batchedCons = m_batchedContactConstraints;
 				ContactSplitPenetrationImpulseSolverLoop loop(this, &batchedCons);
-				btScalar leastSquaresResidual = 0.f;
 				for (int iiPhase = 0; iiPhase < batchedCons.m_phases.size(); ++iiPhase)
 				{
 					int iPhase = batchedCons.m_phaseOrder[iiPhase];
@@ -1101,7 +1100,7 @@ btScalar btSequentialImpulseConstraintSolverMt::resolveMultipleContactConstraint
 																							 int batchEnd)
 {
 	btScalar leastSquaresResidual = 0.f;
-	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
+	//int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
 
 	for (int iiCons = batchBegin; iiCons < batchEnd; iiCons++)
 	{
@@ -1408,7 +1407,6 @@ btScalar btSequentialImpulseConstraintSolverMt::resolveAllRollingFrictionConstra
 		// use batching if there are many rolling friction constraints
 		const btBatchedConstraints& batchedCons = m_batchedContactConstraints;
 		ContactRollingFrictionSolverLoop loop(this, &batchedCons);
-		btScalar leastSquaresResidual = 0.f;
 		for (int iiPhase = 0; iiPhase < batchedCons.m_phases.size(); ++iiPhase)
 		{
 			int iPhase = batchedCons.m_phaseOrder[iiPhase];
@@ -1522,7 +1520,7 @@ struct WriteBodiesLoop : public btIParallelForBody
 	}
 };
 
-btScalar btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlyFinish(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
+btScalar btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlyFinish(btCollisionObject** /*bodies*/, int /*numBodies*/, const btContactSolverInfo& infoGlobal)
 {
 	BT_PROFILE("solveGroupCacheFriendlyFinish");
 

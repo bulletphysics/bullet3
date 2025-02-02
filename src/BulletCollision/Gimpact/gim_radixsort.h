@@ -341,7 +341,7 @@ void gim_down_heap(T* pArr, GUINT k, GUINT n, COMP_CLASS CompareFunc)
 	/* k has child(s) */
 	while (k <= n / 2)
 	{
-		int child = 2 * k;
+		int child = (int)(2 * k);
 
 		if ((child < (int)n) && CompareFunc(pArr[child - 1], pArr[child]) < 0)
 		{
@@ -352,7 +352,7 @@ void gim_down_heap(T* pArr, GUINT k, GUINT n, COMP_CLASS CompareFunc)
 		{
 			/* move child up */
 			pArr[k - 1] = pArr[child - 1];
-			k = child;
+			k = (GUINT)child;
 		}
 		else
 		{

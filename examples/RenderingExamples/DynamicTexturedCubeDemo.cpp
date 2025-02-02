@@ -44,8 +44,8 @@ public:
 			int xres = 20;
 			int yres = 20;
 
-			b3Vector4 color0 = b3MakeVector4(0.1, 0.1, 0.5, 1);
-			b3Vector4 color1 = b3MakeVector4(0.6, 0.6, 0.6, 1);
+			b3Vector4 color0 = b3MakeVector4(b3Scalar(0.1), b3Scalar(0.1), b3Scalar(0.5), 1);
+			b3Vector4 color1 = b3MakeVector4(b3Scalar(0.6), b3Scalar(0.6), b3Scalar(0.6), 1);
 			m_app->registerGrid(xres, yres, color0, color1);
 		}
 
@@ -66,7 +66,7 @@ public:
 		delete m_tinyVrGUI;
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -95,25 +95,25 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
 
 	virtual void resetCamera()
 	{
-		float dist = 1.15;
-		float pitch = -33.7;
+		float dist = 1.15f;
+		float pitch = -33.7f;
 		float yaw = 396;
-		float targetPos[3] = {-0.5, 0.7, 1.45};
+		float targetPos[3] = {-0.5f, 0.7f, 1.45f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

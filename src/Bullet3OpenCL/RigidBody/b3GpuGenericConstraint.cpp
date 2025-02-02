@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include <new>
 #include "Bullet3Common/b3Transform.h"
 
-void b3GpuGenericConstraint::getInfo1(unsigned int* info, const b3RigidBodyData* bodies)
+void b3GpuGenericConstraint::getInfo1(unsigned int* info, const b3RigidBodyData* /*bodies*/)
 {
 	switch (m_constraintType)
 	{

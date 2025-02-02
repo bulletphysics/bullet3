@@ -58,10 +58,8 @@ public:
 					const btMatrix3x3& world2B,
 					const btVector3& inertiaInvA,
 					const btVector3& inertiaInvB)
-		: m_linearJointAxis(btVector3(btScalar(0.), btScalar(0.), btScalar(0.)))
+		: m_linearJointAxis(btVector3(btScalar(0.), btScalar(0.), btScalar(0.))), m_aJ(world2A * jointAxis), m_bJ(world2B * -jointAxis)
 	{
-		m_aJ = world2A * jointAxis;
-		m_bJ = world2B * -jointAxis;
 		m_0MinvJt = inertiaInvA * m_aJ;
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag = m_0MinvJt.dot(m_aJ) + m_1MinvJt.dot(m_bJ);
@@ -90,12 +88,14 @@ public:
 		const btVector3& jointAxis,
 		const btVector3& inertiaInvA,
 		const btScalar massInvA)
-		: m_linearJointAxis(jointAxis)
+		: m_linearJointAxis(jointAxis),
+		  m_aJ(world2A * (rel_pos1.cross(jointAxis))),
+		  m_bJ(world2A * (rel_pos2.cross(-jointAxis))),
+		  m_0MinvJt(inertiaInvA * m_aJ),
+		  m_1MinvJt(btVector3(btScalar(0.),
+		  btScalar(0.),
+		  btScalar(0.)))
 	{
-		m_aJ = world2A * (rel_pos1.cross(jointAxis));
-		m_bJ = world2A * (rel_pos2.cross(-jointAxis));
-		m_0MinvJt = inertiaInvA * m_aJ;
-		m_1MinvJt = btVector3(btScalar(0.), btScalar(0.), btScalar(0.));
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ);
 
 		btAssert(m_Adiag > btScalar(0.0));

@@ -75,7 +75,7 @@ bool CActiveSocket::ConnectTCP(const char *pAddr, uint16 nPort)
 		return bRetVal;
 	}
 
-	memcpy(&stIpAddress, m_pHE->h_addr_list[0], m_pHE->h_length);
+	memcpy(&stIpAddress, m_pHE->h_addr_list[0], (size_t)m_pHE->h_length);
 	m_stServerSockaddr.sin_addr.s_addr = stIpAddress.s_addr;
 
 	if ((int32)m_stServerSockaddr.sin_addr.s_addr == CSimpleSocket::SocketError)
@@ -155,7 +155,7 @@ bool CActiveSocket::ConnectUDP(const char *pAddr, uint16 nPort)
 		return bRetVal;
 	}
 
-	memcpy(&stIpAddress, m_pHE->h_addr_list[0], m_pHE->h_length);
+	memcpy(&stIpAddress, m_pHE->h_addr_list[0], (size_t)m_pHE->h_length);
 	m_stServerSockaddr.sin_addr.s_addr = stIpAddress.s_addr;
 
 	if ((int32)m_stServerSockaddr.sin_addr.s_addr == CSimpleSocket::SocketError)
@@ -213,7 +213,7 @@ bool CActiveSocket::ConnectRAW(const char *pAddr, uint16 nPort)
 		return bRetVal;
 	}
 
-	memcpy(&stIpAddress, m_pHE->h_addr_list[0], m_pHE->h_length);
+	memcpy(&stIpAddress, m_pHE->h_addr_list[0], (size_t)m_pHE->h_length);
 	m_stServerSockaddr.sin_addr.s_addr = stIpAddress.s_addr;
 
 	if ((int32)m_stServerSockaddr.sin_addr.s_addr == CSimpleSocket::SocketError)
@@ -295,11 +295,11 @@ bool CActiveSocket::Open(const char *pAddr, uint16 nPort)
 	{
 		socklen_t nSockLen = sizeof(struct sockaddr);
 
-		memset(&m_stServerSockaddr, 0, nSockLen);
+		memset(&m_stServerSockaddr, 0, (size_t)nSockLen);
 		getpeername(m_socket, (struct sockaddr *)&m_stServerSockaddr, &nSockLen);
 
 		nSockLen = sizeof(struct sockaddr);
-		memset(&m_stClientSockaddr, 0, nSockLen);
+		memset(&m_stClientSockaddr, 0, (size_t)nSockLen);
 		getsockname(m_socket, (struct sockaddr *)&m_stClientSockaddr, &nSockLen);
 
 		SetSocketError(SocketSuccess);

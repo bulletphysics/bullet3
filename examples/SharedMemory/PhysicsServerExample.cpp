@@ -64,7 +64,7 @@ static void loadCurrentSettingsVR(b3CommandLineArgs& args)
 		}
 		fclose(f);
 	}
-};
+}
 
 //remember the settings (you don't want to re-tune again and again...)
 
@@ -79,7 +79,7 @@ static void saveCurrentSettingsVR(const btVector3& VRTeleportPos1)
 		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
 		fclose(f);
 	}
-};
+}
 bool gDebugRenderToggle = false;
 void MotionThreadFunc(void* userPtr, void* lsMemory);
 void* MotionlsMemoryFunc();
@@ -134,7 +134,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperResetCamera,
 	eGUIHelperChangeGraphicsInstanceFlags,
 	eGUIHelperSetRgbBackground,
-	eGUIUserDebugAddPoints,
+	eGUIUserDebugAddPoints
 };
 
 #include <stdio.h>
@@ -235,9 +235,9 @@ struct MotionThreadLocalStorage
 	int threadId;
 };
 
-float clampedDeltaTime = 0.2;
+float clampedDeltaTime = 0.2f;
 
-void MotionThreadFunc(void* userPtr, void* lsMemory)
+void MotionThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("MotionThreadFunc thread started\n");
 	//MotionThreadLocalStorage* localStorage = (MotionThreadLocalStorage*) lsMemory;
@@ -257,7 +257,7 @@ void MotionThreadFunc(void* userPtr, void* lsMemory)
 		args->m_cs->unlock();
 
 		double deltaTimeInSeconds = 0;
-		int numCmdSinceSleep1ms = 0;
+		int numCmdSinceSleep1ms = 0; (void)numCmdSinceSleep1ms;
 		unsigned long long int prevTime = clock.getTimeMicroseconds();
 
 		do
@@ -514,7 +514,7 @@ struct UserDebugParameter
 	int m_itemUniqueId;
 };
 
-static void UserButtonToggle(int buttonId, bool buttonState, void* userPointer)
+static void UserButtonToggle(int /*buttonId*/, bool /*buttonState*/, void* userPointer)
 {
 	UserDebugParameter* param = (UserDebugParameter*)userPointer;
 	param->m_value += 1;
@@ -547,10 +547,10 @@ struct ColorWidth
 	int width;
 	int getHash() const
 	{
-		unsigned char r = (unsigned char)m_color.m_floats[0] * 255;
-		unsigned char g = (unsigned char)m_color.m_floats[1] * 255;
-		unsigned char b = (unsigned char)m_color.m_floats[2] * 255;
-		unsigned char w = width;
+		unsigned char r = (unsigned char)(m_color.m_floats[0] * 255);
+		unsigned char g = (unsigned char)(m_color.m_floats[1] * 255);
+		unsigned char b = (unsigned char)(m_color.m_floats[2] * 255);
+		unsigned char w = (unsigned char)width;
 		return r + (256 * g) + (256 * 256 * b) + (256 * 256 * 256 * w);
 	}
 	bool equals(const ColorWidth& other) const
@@ -622,27 +622,27 @@ public:
 			if (index >= 0)
 			{
 				btVector3FloatData from1, toX1;
-				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				m_sortedIndices[index].push_back((unsigned int)m_sortedLines[index].size());
 				from.serializeFloat(from1);
 				m_sortedLines[index].push_back(from1);
-				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				m_sortedIndices[index].push_back((unsigned int)m_sortedLines[index].size());
 				to.serializeFloat(toX1);
 				m_sortedLines[index].push_back(toX1);
 			}
 		}
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int /*lifeTime*/, const btVector3& color)
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
-		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
+		drawLine(PointOnB, PointOnB + normalOnB * btScalar(0.01), ncolor);
 	}
 
-	virtual void reportErrorWarning(const char* warningString)
+	virtual void reportErrorWarning(const char* /*warningString*/)
 	{
 	}
-	virtual void draw3dText(const btVector3& location, const char* textString)
+	virtual void draw3dText(const btVector3& /*location*/, const char* /*textString*/)
 	{
 	}
 	virtual void setDebugMode(int debugMode)
@@ -766,7 +766,7 @@ public:
 		}
 	}
 
-	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
+	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* /*app*/, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
 		:  //m_app(app),
 		m_cs(0),
 		m_cs2(0),
@@ -778,7 +778,7 @@ public:
 		m_shapeIndex(-1),
 		m_textureId(-1),
 		m_instanceId(-1),
-		m_skipGraphicsUpdate(skipGraphicsUpdate)
+		m_skipGraphicsUpdate(skipGraphicsUpdate != 0)
 	{
 		m_cameraUpdated = 0;
 		m_childGuiHelper = guiHelper;
@@ -895,7 +895,7 @@ public:
 		m_childGuiHelper->syncPhysicsToGraphics2(positions, numPositions);
 	}
 
-	virtual void render(const btDiscreteDynamicsWorld* rbWorld)
+	virtual void render(const btDiscreteDynamicsWorld* /*rbWorld*/)
 	{
 		m_childGuiHelper->render(0);
 	}
@@ -987,7 +987,7 @@ public:
   void setSharedParam(int slot, int param)
   {
     m_csGUI->lock();
-    m_cs->setSharedParam(slot, param);
+    m_cs->setSharedParam(slot, (unsigned int)param);
     m_csGUI->unlock();
   }
 	void setVisualizerFlag(int flag, int enable)
@@ -1295,11 +1295,11 @@ public:
 		workerThreadWait();
 	}
 
-	virtual void drawText3D(const char* txt, float posX, float posZY, float posZ, float size)
+	virtual void drawText3D(const char* /*txt*/, float /*posX*/, float /*posZY*/, float /*posZ*/, float /*size*/)
 	{
 	}
 
-	virtual void drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+	virtual void drawText3D(const char* /*txt*/, float /*position*/[3], float /*orientation*/[4], float /*color*/[4], float /*size*/, int /*optionFlag*/)
 	{
 	}
 
@@ -1892,7 +1892,7 @@ public:
 	}
 };
 
-PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int options)
+PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int /*options*/)
 	: SharedMemoryCommon(helper),
 	  m_physicsServer(commandProcessorCreator, sharedMem, 0),
 	  m_wantsShutdown(false),
@@ -2462,10 +2462,10 @@ void PhysicsServerExample::updateGraphics()
 								if (depthValue > -1e20)
 								{
 									int rgb = 0;
-									btScalar frustumZNear = 0.1;
+									btScalar frustumZNear = btScalar(0.1);
 									btScalar frustumZFar = 30;
-									btScalar minDepthValue = frustumZNear;  //todo: compute more reasonably min/max depth range
-									btScalar maxDepthValue = frustumZFar;
+									// btScalar minDepthValue = frustumZNear;  //todo: compute more reasonably min/max depth range
+									// btScalar maxDepthValue = frustumZFar;
 
 									float depth = depthValue;
 									btScalar linearDepth = 255. * (2.0 * frustumZNear) / (frustumZFar + frustumZNear - depth * (frustumZFar - frustumZNear));
@@ -2473,8 +2473,8 @@ void PhysicsServerExample::updateGraphics()
 									rgb = linearDepth;
 
 									m_canvas->setPixel(m_canvasDepthIndex, i, j,
-													   rgb,
-													   rgb,
+													   (unsigned char)rgb,
+													   (unsigned char)rgb,
 													   255, 255);  //alpha set to 255
 								}
 								else
@@ -2912,10 +2912,10 @@ void PhysicsServerExample::drawUserDebugLines()
 				if (index >= 0)
 				{
 					btVector3FloatData from1, toX1;
-					sortedIndices[index].push_back(sortedLines[index].size());
+					sortedIndices[index].push_back((unsigned int)sortedLines[index].size());
 					from.serializeFloat(from1);
 					sortedLines[index].push_back(from1);
-					sortedIndices[index].push_back(sortedLines[index].size());
+					sortedIndices[index].push_back((unsigned int)sortedLines[index].size());
 					toX.serializeFloat(toX1);
 					sortedLines[index].push_back(toX1);
 				}
@@ -3051,16 +3051,19 @@ void PhysicsServerExample::drawUserDebugLines()
 
 			float* pos = (float*)malloc(pointNum * 3 * sizeof(float));
 			float* clr = (float*)malloc(pointNum * 4 * sizeof(float));
-			for (int i = 0; i < pointNum; i++) {
-				pos[i * 3 + 0] = (float)positions[i * 3 + 0];
-				pos[i * 3 + 1] = (float)positions[i * 3 + 1];
-				pos[i * 3 + 2] = (float)positions[i * 3 + 2];
-				clr[i * 4 + 0] = (float)colors[i * 3 + 0];
-				clr[i * 4 + 1] = (float)colors[i * 3 + 1];
-				clr[i * 4 + 2] = (float)colors[i * 3 + 2];
-				clr[i * 4 + 3] = 1.f;
+			if(pos && clr)
+			{
+				for (int j = 0; j < pointNum; j++) {
+					pos[j * 3 + 0] = (float)positions[j * 3 + 0];
+					pos[j * 3 + 1] = (float)positions[j * 3 + 1];
+					pos[j * 3 + 2] = (float)positions[j * 3 + 2];
+					clr[j * 4 + 0] = (float)colors[j * 3 + 0];
+					clr[j * 4 + 1] = (float)colors[j * 3 + 1];
+					clr[j * 4 + 2] = (float)colors[j * 3 + 2];
+					clr[j * 4 + 3] = 1.f;
+				}
+				m_guiHelper->getAppInterface()->m_renderer->drawPoints(pos, clr, pointNum, 3 * sizeof(float), sz);
 			}
-			m_guiHelper->getAppInterface()->m_renderer->drawPoints(pos, clr, pointNum, 3 * sizeof(float), sz);
 			free(pos);
 			free(clr);
 		}
@@ -3078,13 +3081,14 @@ void PhysicsServerExample::renderScene()
 	if (m_physicsServer.isRealTimeSimulationEnabled())
 	{
 		static int frameCount = 0;
-		static btScalar prevTime = m_clock.getTimeSeconds();
 		frameCount++;
+		(void)frameCount;
 
 		static char line0[1024] = {0};
 		static char line1[1024] = {0};
 
 #if 0
+		static btScalar prevTime = m_clock.getTimeSeconds();
 
 		static btScalar worseFps = 1000000;
 		int numFrames = 200;
@@ -3137,13 +3141,16 @@ void PhysicsServerExample::renderScene()
 			tr.setOrigin(b3MakeVector3(VRController2Pos[0], VRController2Pos[1], VRController2Pos[2]));
 			tr.setRotation(b3Quaternion(VRController2Orn[0], VRController2Orn[1], VRController2Orn[2], VRController2Orn[3]));
 			tr = tr * b3Transform(b3Quaternion(0, 0, -SIMD_HALF_PI), b3MakeVector3(0, 0, 0));
-			b3Scalar dt = 0.01;
+			b3Scalar dt = btScalar(0.01);
 			m_tinyVrGui->clearTextArea();
 			m_tinyVrGui->grapicalPrintf(line0, 0, 0, 0, 0, 0, 255);
 			m_tinyVrGui->grapicalPrintf(line1, 0, 16, 255, 255, 255, 255);
 
 			m_tinyVrGui->tick(dt, tr);
 		}
+#else
+	(void)line0;
+	(void)line1;
 #endif  //BT_ENABLE_VR
 	}
 	///debug rendering

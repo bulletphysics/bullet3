@@ -30,7 +30,7 @@ namespace ControlsInternal
 class ColorDisplay;
 class Resizer;
 
-};  // namespace ControlsInternal
+}  // namespace ControlsInternal
 
 namespace Pos
 {
@@ -44,7 +44,7 @@ enum
 	CenterV = (1 << 5),
 	CenterH = (1 << 6),
 	Fill = (1 << 7),
-	Center = CenterV | CenterH,
+	Center = CenterV | CenterH
 };
 }
 
@@ -60,7 +60,7 @@ class Canvas;
 namespace Layout
 {
 class TableRow;
-};
+}
 
 class GWEN_EXPORT Base : public Event::Handler
 {

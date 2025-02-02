@@ -83,7 +83,7 @@ public:
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -164,7 +164,7 @@ void FractureDemo::initPhysics()
 			btTransform trans;
 			trans.setIdentity();
 
-			btVector3 pos(i * 2 * CUBE_HALF_EXTENTS, 20, 0);
+			btVector3 pos((float)i * 2 * CUBE_HALF_EXTENTS, 20, 0);
 			trans.setOrigin(pos);
 
 			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -177,7 +177,7 @@ void FractureDemo::initPhysics()
 		}
 	}
 
-	fractureWorld->stepSimulation(1. / 60., 0);
+	fractureWorld->stepSimulation(btScalar(1. / 60.), 0);
 	fractureWorld->glueCallback();
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

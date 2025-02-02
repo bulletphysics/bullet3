@@ -64,7 +64,7 @@ struct GL3TexLoader : public MyTextureLoader
 			pTexture->m_intData = *texIdPtr;
 		}
 	}
-	virtual void FreeTexture(Gwen::Texture* pTexture)
+	virtual void FreeTexture(Gwen::Texture* /*pTexture*/)
 	{
 	}
 };
@@ -189,6 +189,7 @@ void MyKeyboardCallback(int key, int state)
 	if (!handled && sCurrentDemo)
 	{
 		handled = sCurrentDemo->keyboardCallback(key, state);
+		(void)handled;
 	}
 
 	//checkout: is it desired to ignore keys, if the demo already handles them?
@@ -504,9 +505,9 @@ void selectDemo(int demoIndex)
 
 #include <stdio.h>
 
-static void saveCurrentSettings(int currentEntry, const char* startFileName)
+static void saveCurrentSettings(int /*currentEntry*/, const char* startFileNameL)
 {
-	FILE* f = fopen(startFileName, "w");
+	FILE* f = fopen(startFileNameL, "w");
 	if (f)
 	{
 		fprintf(f, "--start_demo_name=%s\n", gAllExamples->getExampleName(sCurrentDemoIndex));
@@ -534,12 +535,12 @@ static void saveCurrentSettings(int currentEntry, const char* startFileName)
 
 		fclose(f);
 	}
-};
+}
 
-static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& args)
+static void loadCurrentSettings(const char* startFileNameL, b3CommandLineArgs& args)
 {
 	//int currentEntry= 0;
-	FILE* f = fopen(startFileName, "r");
+	FILE* f = fopen(startFileNameL, "r");
 	if (f)
 	{
 		char oneline[1024];
@@ -554,7 +555,7 @@ static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& ar
 		}
 		fclose(f);
 	}
-};
+}
 
 void MyComboBoxCallback(int comboId, const char* item)
 {
@@ -648,7 +649,7 @@ struct MyMenuItemHander : public Gwen::Event::Handler
 			saveCurrentSettings(sCurrentDemoIndex, startFileName);
 		}
 	}
-	void onButtonC(Gwen::Controls::Base* pControl)
+	void onButtonC(Gwen::Controls::Base* /*pControl*/)
 	{
 		/*Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
 		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
@@ -659,7 +660,7 @@ struct MyMenuItemHander : public Gwen::Event::Handler
 		printf("onButtonC ! %s\n", ha);
 		*/
 	}
-	void onButtonD(Gwen::Controls::Base* pControl)
+	void onButtonD(Gwen::Controls::Base* /*pControl*/)
 	{
 		/*		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
 		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
@@ -675,19 +676,19 @@ struct MyMenuItemHander : public Gwen::Event::Handler
 		}
 	}
 
-	void onButtonE(Gwen::Controls::Base* pControl)
+	void onButtonE(Gwen::Controls::Base* /*pControl*/)
 	{
 		//	printf("select %d\n",m_buttonId);
 		sCurrentHightlighted = m_buttonId;
 		gui2->setExampleDescription(gAllExamples->getExampleDescription(sCurrentHightlighted));
 	}
 
-	void onButtonF(Gwen::Controls::Base* pControl)
+	void onButtonF(Gwen::Controls::Base* /*pControl*/)
 	{
 		//printf("selection changed!\n");
 	}
 
-	void onButtonG(Gwen::Controls::Base* pControl)
+	void onButtonG(Gwen::Controls::Base* /*pControl*/)
 	{
 		//printf("onButtonG !\n");
 	}
@@ -762,7 +763,7 @@ struct QuickCanvas : public Common2dCanvasInterface
 	}
 	virtual void destroyCanvas(int canvasId)
 	{
-		btAssert(canvasId >= 0);
+		btAssert(canvasId >= 0 && canvasId < 5);
 		delete m_gt[canvasId];
 		m_gt[canvasId] = 0;
 		destroyTextureWindow(m_gw[canvasId]);
@@ -1314,7 +1315,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			B3_PROFILE("updateOpenGL");
 			if (sUseOpenGL2)
 			{
-				saveOpenGLState(s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale(), s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale());
+				saveOpenGLState((float)s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale(), (float)s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale());
 			}
 
 			if (m_internalData->m_gui)

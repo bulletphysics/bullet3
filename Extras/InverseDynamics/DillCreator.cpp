@@ -71,7 +71,7 @@ int DillCreator::getBody(const int body_index, int* parent_index, JointType* joi
 	return 0;
 }
 
-int DillCreator::recurseDill(const int level, const int parent, const idScalar d_DH_in,
+int DillCreator::recurseDill(const int level, const int parent, const idScalar /*d_DH_in*/,
 							 const idScalar a_DH_in, const idScalar alpha_DH_in)
 {
 	if (level < 0)
@@ -126,7 +126,7 @@ int DillCreator::recurseDill(const int level, const int parent, const idScalar d
 			d_DH = 0.0;
 		}
 		const idScalar a_DH = i * 0.1;
-		const idScalar alpha_DH = i * BT_ID_PI / 3.0;
+		const idScalar alpha_DH = (btScalar)i * BT_ID_PI / 3.0;
 		m_current_body++;
 		recurseDill(i - 1, body, d_DH, a_DH, alpha_DH);
 	}

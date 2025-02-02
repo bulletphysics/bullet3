@@ -244,7 +244,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 	//#endif
 
 	btScalar dmin = FLT_MAX;
-	int curPlaneTests = 0;
+	// int curPlaneTests = 0;
 
 	int numFacesA = hullA.m_faces.size();
 	// Test normals from hullA
@@ -255,7 +255,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 		if (DeltaC2.dot(faceANormalWS) < 0)
 			faceANormalWS *= -1.f;
 
-		curPlaneTests++;
+		// curPlaneTests++;
 #ifdef TEST_INTERNAL_OBJECTS
 		gExpectedNbTests++;
 		if (gUseInternalObject && !TestInternalObjects(transA, transB, DeltaC2, faceANormalWS, hullA, hullB, dmin))
@@ -284,7 +284,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 		if (DeltaC2.dot(WorldNormal) < 0)
 			WorldNormal *= -1.f;
 
-		curPlaneTests++;
+		// curPlaneTests++;
 #ifdef TEST_INTERNAL_OBJECTS
 		gExpectedNbTests++;
 		if (gUseInternalObject && !TestInternalObjects(transA, transB, DeltaC2, WorldNormal, hullA, hullB, dmin))
@@ -311,7 +311,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 	btVector3 worldEdgeB;
 	btVector3 witnessPointA(0, 0, 0), witnessPointB(0, 0, 0);
 
-	int curEdgeEdge = 0;
+	// int curEdgeEdge = 0;
 	// Test edges
 	for (int e0 = 0; e0 < hullA.m_uniqueEdges.size(); e0++)
 	{
@@ -323,7 +323,7 @@ bool btPolyhedralContactClipping::findSeparatingAxis(const btConvexPolyhedron& h
 			const btVector3 WorldEdge1 = transB.getBasis() * edge1;
 
 			btVector3 Cross = WorldEdge0.cross(WorldEdge1);
-			curEdgeEdge++;
+			// curEdgeEdge++;
 			if (!IsAlmostZero(Cross))
 			{
 				Cross = Cross.normalize();
@@ -486,7 +486,7 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 
 			if (depth <= maxDist)
 			{
-				btVector3 point = pVtxIn->at(i);
+				btVector3 pointVtx = pVtxIn->at(i);
 #ifdef ONLY_REPORT_DEEPEST_POINT
 				curMaxDist = depth;
 #else
@@ -497,7 +497,7 @@ void btPolyhedralContactClipping::clipFaceAgainstHull(const btVector3& separatin
 					printf("likely wrong separatingNormal passed in\n");
 				}
 #endif
-				resultOut.addContactPoint(separatingNormal, point, depth);
+				resultOut.addContactPoint(separatingNormal, pointVtx, depth);
 #endif
 			}
 		}

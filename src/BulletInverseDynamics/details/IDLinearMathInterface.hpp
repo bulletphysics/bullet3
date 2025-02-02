@@ -131,12 +131,11 @@ class mat3x : public matxx
 {
 public:
 	mat3x() {}
-	mat3x(const mat3x& rhs)
+	mat3x(const mat3x& rhs) : matxx(rhs.rows(), rhs.cols())
 	{
-		matxx::resize(rhs.rows(), rhs.cols());
 		*this = rhs;
 	}
-	mat3x(int rows, int cols) : matxx(3, cols)
+	mat3x(int /*rows*/, int cols) : matxx(3, cols)
 	{
 	}
 	void operator=(const mat3x& rhs)

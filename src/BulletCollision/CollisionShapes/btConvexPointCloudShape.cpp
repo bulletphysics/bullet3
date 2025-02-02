@@ -101,7 +101,7 @@ int btConvexPointCloudShape::getNumEdges() const
 	return 0;
 }
 
-void btConvexPointCloudShape::getEdge(int i, btVector3& pa, btVector3& pb) const
+void btConvexPointCloudShape::getEdge(int /*i*/, btVector3& /*pa*/, btVector3& /*pb*/) const
 {
 	btAssert(0);
 }

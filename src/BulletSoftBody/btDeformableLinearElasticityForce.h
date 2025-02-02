@@ -27,7 +27,7 @@ public:
 	btScalar m_mu, m_lambda;
 	btScalar m_E, m_nu;  // Young's modulus and Poisson ratio
 	btScalar m_damping_alpha, m_damping_beta;
-	btDeformableLinearElasticityForce() : m_mu(1), m_lambda(1), m_damping_alpha(0.01), m_damping_beta(0.01)
+	btDeformableLinearElasticityForce() : m_mu(1), m_lambda(1), m_damping_alpha(btScalar(0.01)), m_damping_beta(btScalar(0.01))
 	{
 		updateYoungsModulusAndPoissonRatio();
 	}
@@ -114,10 +114,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 				btMatrix3x3 dF = DsFromVelocity(node0, node1, node2, node3) * tetra.m_Dm_inverse;
 				if (!close_to_flat)
 				{
@@ -142,7 +142,7 @@ public:
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
 				const btSoftBody::Node& node = psb->m_nodes[j];
-				size_t id = node.index;
+				int id = node.index;
 				if (node.m_im > 0)
 				{
 					force[id] -= scale * node.m_v / node.m_im * m_damping_alpha;
@@ -151,7 +151,7 @@ public:
 		}
 	}
 
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		double energy = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)
@@ -227,7 +227,9 @@ public:
 			{
 				continue;
 			}
+#if USE_SVD
 			btScalar max_p = psb->m_cfg.m_maxStress;
+#endif
 			for (int j = 0; j < psb->m_tetras.size(); ++j)
 			{
 				btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -267,10 +269,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 
 				// elastic force
 				btScalar scale1 = scale * tetra.m_element_measure;
@@ -282,7 +284,7 @@ public:
 		}
 	}
 
-	virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA) {}
+	virtual void buildDampingForceDifferentialDiagonal(btScalar /*scale*/, TVStack& /*diagA*/) {}
 
 	// The damping matrix is calculated using the time n state as described in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
 	virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
@@ -309,10 +311,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 				btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
 				if (!close_to_flat)
 				{
@@ -338,7 +340,7 @@ public:
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
 				const btSoftBody::Node& node = psb->m_nodes[j];
-				size_t id = node.index;
+				int id = node.index;
 				if (node.m_im > 0)
 				{
 					df[id] -= scale * dv[id] / node.m_im * m_damping_alpha;
@@ -366,10 +368,10 @@ public:
 				btSoftBody::Node* node1 = tetra.m_n[1];
 				btSoftBody::Node* node2 = tetra.m_n[2];
 				btSoftBody::Node* node3 = tetra.m_n[3];
-				size_t id0 = node0->index;
-				size_t id1 = node1->index;
-				size_t id2 = node2->index;
-				size_t id3 = node3->index;
+				int id0 = node0->index;
+				int id1 = node1->index;
+				int id2 = node2->index;
+				int id3 = node3->index;
 				btMatrix3x3 dF = psb->m_tetraScratches[j].m_corotation.transpose() * Ds(id0, id1, id2, id3, dx) * tetra.m_Dm_inverse;
 				btMatrix3x3 dP;
 				firstPiolaDifferential(psb->m_tetraScratches[j], dF, dP);
@@ -398,7 +400,7 @@ public:
 
 	// Let P be the first piola stress.
 	// This function calculates the dP = dP/dF * dF
-	void firstPiolaDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF, btMatrix3x3& dP)
+	void firstPiolaDifferential(const btSoftBody::TetraScratch& /*s*/, const btMatrix3x3& dF, btMatrix3x3& dP)
 	{
 		btScalar trace = (dF[0][0] + dF[1][1] + dF[2][2]);
 		dP = (dF + dF.transpose()) * m_mu + btMatrix3x3::getIdentity() * m_lambda * trace;
@@ -406,7 +408,7 @@ public:
 
 	// Let Q be the damping stress.
 	// This function calculates the dP = dQ/dF * dF
-	void firstPiolaDampingDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF, btMatrix3x3& dP)
+	void firstPiolaDampingDifferential(const btSoftBody::TetraScratch& /*s*/, const btMatrix3x3& dF, btMatrix3x3& dP)
 	{
 		btScalar mu_damp = m_damping_beta * m_mu;
 		btScalar lambda_damp = m_damping_beta * m_lambda;

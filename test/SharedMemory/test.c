@@ -55,17 +55,18 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 		{
 			b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
 			b3SharedMemoryStatusHandle statusHandle;
-			ret = b3PhysicsParamSetGravity(command, gravx, gravy, gravz);
-			ret = b3PhysicsParamSetTimeStep(command, timeStep);
+			ret = b3PhysicsParamSetGravity(command, gravx, gravy, gravz); (void)ret;
+			ret = b3PhysicsParamSetTimeStep(command, timeStep); (void)ret;
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
+			(void)ret;
 		}
 
 		{
 			b3SharedMemoryStatusHandle statusHandle;
 			int statusType;
 			int bodyIndicesOut[10];  //MAX_SDF_BODIES = 10
-			int numJoints, numBodies;
+			int numJointsL, numBodies;
 			int bodyUniqueId;
 			b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(sm, sdfFileName);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -77,25 +78,26 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			bodyUniqueId = bodyIndicesOut[0];
 			{
 				{
-					b3SharedMemoryStatusHandle statusHandle;
-					int statusType;
-					b3SharedMemoryCommandHandle command = b3InitRequestVisualShapeInformation(sm, bodyUniqueId);
-					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-					statusType = b3GetStatusType(statusHandle);
-					if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED)
+					b3SharedMemoryStatusHandle statusHandleL;
+					int statusTypeL;
+					b3SharedMemoryCommandHandle commandL = b3InitRequestVisualShapeInformation(sm, bodyUniqueId);
+					statusHandleL = b3SubmitClientCommandAndWaitStatus(sm, commandL);
+					statusTypeL = b3GetStatusType(statusHandle);
+					if (statusTypeL == CMD_VISUAL_SHAPE_INFO_COMPLETED)
 					{
 						struct b3VisualShapeInformation vi;
 						b3GetVisualShapeInformation(sm, &vi);
 					}
+					(void)statusHandleL;
 				}
 			}
 
-			numJoints = b3GetNumJoints(sm, bodyUniqueId);
-			ASSERT_EQ(numJoints, 7);
+			numJointsL = b3GetNumJoints(sm, bodyUniqueId);
+			ASSERT_EQ(numJointsL, 7);
 
 #if 0
-            b3Printf("numJoints: %d\n", numJoints);
-            for (i=0;i<numJoints;i++)
+            b3Printf("numJointsL: %d\n", numJointsL);
+            for (i=0;i<numJointsL;i++)
             {
                 struct b3JointInfo jointInfo;
                 if (b3GetJointInfo(sm,bodyUniqueId, i,&jointInfo))
@@ -105,19 +107,19 @@ void testSharedMemory(b3PhysicsClientHandle sm)
             }
 #endif
 			{
-				b3SharedMemoryStatusHandle statusHandle;
+				b3SharedMemoryStatusHandle statusHandleL;
 				b3SharedMemoryCommandHandle commandHandle;
 				double jointAngle = 0.f;
 				int jointIndex;
 				commandHandle = b3CreatePoseCommandInit(sm, bodyUniqueId);
-				for (jointIndex = 0; jointIndex < numJoints; jointIndex++)
+				for (jointIndex = 0; jointIndex < numJointsL; jointIndex++)
 				{
 					b3CreatePoseCommandSetJointPosition(sm, commandHandle, jointIndex, jointAngle);
 				}
 
-				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+				statusHandleL = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 
-				ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
+				ASSERT_EQ(b3GetStatusType(statusHandleL), CMD_CLIENT_COMMAND_COMPLETED);
 			}
 		}
 
@@ -169,16 +171,16 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 				b3SharedMemoryStatusHandle statusHandle;
 				if (imuLinkIndex >= 0)
 				{
-					ret = b3CreateSensorEnableIMUForLink(command, imuLinkIndex, 1);
+					ret = b3CreateSensorEnableIMUForLink(command, imuLinkIndex, 1); (void)ret;
 				}
 
 				if (sensorJointIndexLeft >= 0)
 				{
-					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexLeft, 1);
+					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexLeft, 1); (void)ret;
 				}
 				if (sensorJointIndexRight >= 0)
 				{
-					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1);
+					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1); (void)ret;
 				}
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 				ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
@@ -188,9 +190,9 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 		{
 			b3SharedMemoryStatusHandle statusHandle;
 			b3SharedMemoryCommandHandle command = b3CreateBoxShapeCommandInit(sm);
-			ret = b3CreateBoxCommandSetStartPosition(command, 0, 0, -1);
-			ret = b3CreateBoxCommandSetStartOrientation(command, 0, 0, 0, 1);
-			ret = b3CreateBoxCommandSetHalfExtents(command, 10, 10, 1);
+			ret = b3CreateBoxCommandSetStartPosition(command, 0, 0, -1); (void)ret;
+			ret = b3CreateBoxCommandSetStartOrientation(command, 0, 0, 0, 1); (void)ret;
+			ret = b3CreateBoxCommandSetHalfExtents(command, 10, 10, 1); (void)ret;
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RIGID_BODY_CREATION_COMPLETED);
 		}
@@ -254,6 +256,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			b3RequestCameraImageSetPixelResolution(command, width, height);
 			b3RequestCameraImageSelectRenderer(command, ER_BULLET_HARDWARE_OPENGL);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			(void)statusHandle;
 		}
 
 		if (b3CanSubmitCommand(sm))

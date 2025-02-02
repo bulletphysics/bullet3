@@ -40,7 +40,7 @@ struct btDispatcherInfo
 		  m_dispatchFunc(DISPATCH_DISCRETE),
 		  m_timeOfImpact(btScalar(1.)),
 		  m_useContinuous(true),
-		  m_debugDraw(0),
+		  m_debugDraw(NULL),
 		  m_enableSatConvex(false),
 		  m_enableSPU(true),
 		  m_useEpa(true),

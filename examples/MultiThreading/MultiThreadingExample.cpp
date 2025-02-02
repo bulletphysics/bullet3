@@ -14,6 +14,7 @@
 #include "../Utils/b3Clock.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
+#include "LinearMath/btOverride.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #define stdvector btAlignedObjectArray
 
@@ -55,6 +56,7 @@ b3ThreadSupportInterface* createThreadSupport(int numThreads)
 
 struct SampleJobInterface
 {
+	virtual ~SampleJobInterface() {};
 	virtual void executeJob(int threadIndex) = 0;
 };
 
@@ -68,9 +70,9 @@ struct SampleJob1 : public SampleJobInterface
 		  m_jobId(jobId)
 	{
 	}
-	virtual ~SampleJob1() {}
+	virtual ~SampleJob1() BT_OVERRIDE {}
 
-	virtual void executeJob(int threadIndex)
+	virtual void executeJob(int threadIndex) BT_OVERRIDE
 	{
 		printf("start SampleJob1 %d using threadIndex %d\n", m_jobId, threadIndex);
 		//do some fake work
@@ -121,12 +123,12 @@ void SampleThreadFunc(void* userPtr, void* lsMemory)
 
 	SampleThreadLocalStorage* localStorage = (SampleThreadLocalStorage*)lsMemory;
 
-	SampleArgs* args = (SampleArgs*)userPtr;
+	SampleArgs* sampleArgs = (SampleArgs*)userPtr;
 
 	bool requestExit = false;
 	while (!requestExit)
 	{
-		SampleJobInterface* job = args->consumeJob();
+		SampleJobInterface* job = sampleArgs->consumeJob();
 		if (job)
 		{
 			job->executeJob(localStorage->threadId);
@@ -134,10 +136,10 @@ void SampleThreadFunc(void* userPtr, void* lsMemory)
 
 		b3Clock::usleep(250);
 
-		args->m_cs->lock();
-		int exitMagicNumber = args->m_cs->getSharedParam(1);
+		sampleArgs->m_cs->lock();
+		int exitMagicNumber = (int)sampleArgs->m_cs->getSharedParam(1);
 		requestExit = (exitMagicNumber == MAGIC_RESET_NUMBER);
-		args->m_cs->unlock();
+		sampleArgs->m_cs->unlock();
 	}
 
 	printf("finished\n");
@@ -164,7 +166,7 @@ class MultiThreadingExample : public CommonExampleInterface
 	int m_numThreads;
 
 public:
-	MultiThreadingExample(GUIHelperInterface* guiHelper, int tutorialIndex)
+	MultiThreadingExample(GUIHelperInterface* guiHelper, int /*tutorialIndex*/)
 		: m_app(guiHelper->getAppInterface()),
 		  m_threadSupport(0),
 		  m_numThreads(8)
@@ -255,22 +257,22 @@ public:
 		m_jobs.clear();
 	}
 
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
-	{
-		return false;
-	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
+	{
+		return false;
+	}
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

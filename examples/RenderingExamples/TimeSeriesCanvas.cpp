@@ -46,7 +46,7 @@ struct TimeSeriesInternalData
 
 	float getTime()
 	{
-		return m_timeTicks / (float)m_ticksPerSecond;
+		return (float)m_timeTicks / (float)m_ticksPerSecond;
 	}
 
 	TimeSeriesInternalData(int width, int height)
@@ -102,12 +102,12 @@ void TimeSeriesCanvas::addDataSource(const char* dataSourceLabel, unsigned char 
 
 	m_internalData->m_dataSources.push_back(dataSource);
 }
-void TimeSeriesCanvas::setupTimeSeries(float yScale, int ticksPerSecond, int startTime, bool clearCanvas)
+void TimeSeriesCanvas::setupTimeSeries(float yScale, int ticksPerSecond, int /*startTime*/, bool clearCanvas)
 {
 	if (0 == m_internalData->m_canvasInterface)
 		return;
 
-	m_internalData->m_pixelsPerUnit = -(m_internalData->m_height / 3.f) / yScale;
+	m_internalData->m_pixelsPerUnit = -((float)m_internalData->m_height / 3.f) / yScale;
 	m_internalData->m_ticksPerSecond = ticksPerSecond;
 	m_internalData->m_yScale = yScale;
 	m_internalData->m_dataSources.clear();
@@ -162,7 +162,8 @@ void TimeSeriesCanvas::grapicalPrintf(const char* str, void* fontData, int raste
 	int x = 0;
 	int xx = 0;
 
-	while ((c = (unsigned char)*str++))
+	c = (unsigned char)*str++;
+	while (c)
 	{
 		x = xx;
 		unsigned char* fontPtr = (unsigned char*)fontData;
@@ -194,6 +195,7 @@ void TimeSeriesCanvas::grapicalPrintf(const char* str, void* fontData, int raste
 			x++;
 		}
 		xx += 10;
+		c = (unsigned char)*str++;
 	}
 }
 
@@ -230,21 +232,21 @@ void TimeSeriesCanvas::shift1PixelToLeft()
 	}
 
 	{
-		int resetVal = 2;
-		static int countdown = resetVal;
-		if (!countdown--)
+		int resetValL = 2;
+		static int countdownL = resetValL;
+		if (!countdownL--)
 		{
-			countdown = resetVal;
+			countdownL = resetValL;
 			m_internalData->m_canvasInterface->setPixel(m_internalData->m_canvasIndex, m_internalData->m_width - 1, m_internalData->m_zero, 0, 0, 0, 255);
 		}
 	}
 
 	{
-		int resetVal = 10;
-		static int countdown = resetVal;
-		if (!countdown--)
+		int resetValL = 10;
+		static int countdownL = resetValL;
+		if (!countdownL--)
 		{
-			countdown = resetVal;
+			countdownL = resetValL;
 			float zeroPixelCoord = m_internalData->m_zero;
 			float pixelsPerUnit = m_internalData->m_pixelsPerUnit;
 
@@ -295,9 +297,9 @@ void TimeSeriesCanvas::insertDataAtCurrentTime(float orgV, int dataSourceIndex, 
 
 		if (connectToPrevious && m_internalData->m_dataSources[dataSourceIndex].m_hasLastValue)
 		{
-			for (int value = m_internalData->m_dataSources[dataSourceIndex].m_lastValue; value <= v; value++)
+			for (int value = m_internalData->m_dataSources[dataSourceIndex].m_lastValue; (float)value <= v; value++)
 			{
-				if (value >= 0 && value < float(m_internalData->m_height - 1))
+				if (value >= 0 && (float)value < float(m_internalData->m_height - 1))
 				{
 					m_internalData->m_canvasInterface->setPixel(m_internalData->m_canvasIndex, m_internalData->m_width - 1, value,
 																m_internalData->m_dataSources[dataSourceIndex].m_red,
@@ -307,9 +309,9 @@ void TimeSeriesCanvas::insertDataAtCurrentTime(float orgV, int dataSourceIndex, 
 				}
 			}
 
-			for (int value = v; value <= m_internalData->m_dataSources[dataSourceIndex].m_lastValue; value++)
+			for (int value = v; (float)value <= m_internalData->m_dataSources[dataSourceIndex].m_lastValue; value++)
 			{
-				if (value >= 0 && value < float(m_internalData->m_height - 1))
+				if (value >= 0 && (float)value < float(m_internalData->m_height - 1))
 				{
 					m_internalData->m_canvasInterface->setPixel(m_internalData->m_canvasIndex, m_internalData->m_width - 1, value,
 																m_internalData->m_dataSources[dataSourceIndex].m_red,

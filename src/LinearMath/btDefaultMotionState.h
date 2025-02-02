@@ -18,20 +18,20 @@ btDefaultMotionState : public btMotionState
 		: m_graphicsWorldTrans(startTrans),
 		  m_centerOfMassOffset(centerOfMassOffset),
 		  m_startWorldTrans(startTrans),
-		  m_userPointer(0)
+		  m_userPointer(NULL)
 
 	{
 	}
 
 	///synchronizes world transform from user to physics
-	virtual void getWorldTransform(btTransform & centerOfMassWorldTrans) const
+	virtual void getWorldTransform(btTransform & centerOfMassWorldTrans) const BT_OVERRIDE
 	{
 		centerOfMassWorldTrans = m_graphicsWorldTrans * m_centerOfMassOffset.inverse();
 	}
 
 	///synchronizes world transform from physics to user
 	///Bullet only calls the update of worldtransform for active objects
-	virtual void setWorldTransform(const btTransform& centerOfMassWorldTrans)
+	virtual void setWorldTransform(const btTransform& centerOfMassWorldTrans) BT_OVERRIDE
 	{
 		m_graphicsWorldTrans = centerOfMassWorldTrans * m_centerOfMassOffset;
 	}

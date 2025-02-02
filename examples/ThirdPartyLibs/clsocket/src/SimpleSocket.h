@@ -201,7 +201,7 @@ public:
 	///  @return true if the socket object contains a valid socket descriptor.
 	virtual bool IsSocketValid(void)
 	{
-		return (m_socket != SocketError);
+		return (m_socket != (SOCKET)SocketError);
 	};
 
 	/// Provides a standard error code for cross platform development by
@@ -281,7 +281,7 @@ public:
 	uint8 *GetData(void)
 	{
 		return m_pBuffer;
-	};
+	}
 
 	/// Returns the number of bytes received on the last call to
 	/// CSocket::Receive().
@@ -289,7 +289,7 @@ public:
 	int32 GetBytesReceived(void)
 	{
 		return m_nBytesReceived;
-	};
+	}
 
 	/// Returns the number of bytes sent on the last call to
 	/// CSocket::Send().
@@ -297,7 +297,7 @@ public:
 	int32 GetBytesSent(void)
 	{
 		return m_nBytesSent;
-	};
+	}
 
 	/// Controls the actions taken when CSimpleSocket::Close is executed on a
 	/// socket object that has unsent data.  The default value for this option
@@ -328,7 +328,7 @@ public:
 	int32 GetConnectTimeoutSec(void)
 	{
 		return m_stConnectTimeout.tv_sec;
-	};
+	}
 
 	/// Gets the timeout value that specifies the maximum number of microseconds
 	/// a call to CSimpleSocket::Open waits until it completes.
@@ -336,7 +336,7 @@ public:
 	int32 GetConnectTimeoutUSec(void)
 	{
 		return m_stConnectTimeout.tv_usec;
-	};
+	}
 
 	/// Sets the timeout value that specifies the maximum amount of time a call
 	/// to CSimpleSocket::Receive waits until it completes. Use the method
@@ -352,7 +352,7 @@ public:
 	{
 		m_stConnectTimeout.tv_sec = nConnectTimeoutSec;
 		m_stConnectTimeout.tv_usec = nConnectTimeoutUsec;
-	};
+	}
 
 	/// Gets the timeout value that specifies the maximum number of seconds a
 	/// a call to CSimpleSocket::Receive waits until it completes.
@@ -360,7 +360,7 @@ public:
 	int32 GetReceiveTimeoutSec(void)
 	{
 		return m_stRecvTimeout.tv_sec;
-	};
+	}
 
 	/// Gets the timeout value that specifies the maximum number of microseconds
 	/// a call to CSimpleSocket::Receive waits until it completes.
@@ -368,7 +368,7 @@ public:
 	int32 GetReceiveTimeoutUSec(void)
 	{
 		return m_stRecvTimeout.tv_usec;
-	};
+	}
 
 	/// Sets the timeout value that specifies the maximum amount of time a call
 	/// to CSimpleSocket::Receive waits until it completes. Use the method
@@ -394,7 +394,7 @@ public:
 	bool GetMulticast()
 	{
 		return m_bIsMulticast;
-	};
+	}
 
 	/// Bind socket to a specific interface when using multicast.
 	/// @return true if successfully bound to interface
@@ -406,7 +406,7 @@ public:
 	int32 GetSendTimeoutSec(void)
 	{
 		return m_stSendTimeout.tv_sec;
-	};
+	}
 
 	/// Gets the timeout value that specifies the maximum number of microseconds
 	/// a call to CSimpleSocket::Send waits until it completes.
@@ -414,7 +414,7 @@ public:
 	int32 GetSendTimeoutUSec(void)
 	{
 		return m_stSendTimeout.tv_usec;
-	};
+	}
 
 	/// Gets the timeout value that specifies the maximum amount of time a call
 	/// to CSimpleSocket::Send waits until it completes.
@@ -428,7 +428,7 @@ public:
 	CSocketError GetSocketError(void)
 	{
 		return m_socketErrno;
-	};
+	}
 	/*
      CSocketError GetSocketError(void) {
      CSocketError err = m_socketErrno;
@@ -443,14 +443,14 @@ public:
 	uint32 GetTotalTimeMs()
 	{
 		return m_timer.GetMilliSeconds();
-	};
+	}
 
 	/// Get the total time the of the last operation in microseconds.
 	///  @return number of microseconds or last operation.
 	uint32 GetTotalTimeUsec()
 	{
 		return m_timer.GetMicroSeconds();
-	};
+	}
 
 	/// Return Differentiated Services Code Point (DSCP) value currently set on the socket object.
 	/// @return DSCP for current socket object.
@@ -468,42 +468,42 @@ public:
 	SOCKET GetSocketDescriptor()
 	{
 		return m_socket;
-	};
+	}
 
 	/// Return socket descriptor
 	///  @return socket descriptor which is a signed 32 bit integer.
 	CSocketType GetSocketType()
 	{
 		return m_nSocketType;
-	};
+	}
 
 	/// Returns clients Internet host address as a string in standard numbers-and-dots notation.
 	///  @return NULL if invalid
 	const char *GetClientAddr()
 	{
 		return inet_ntoa(m_stClientSockaddr.sin_addr);
-	};
+	}
 
 	/// Returns the port number on which the client is connected.
 	///  @return client port number.
 	uint16 GetClientPort()
 	{
 		return m_stClientSockaddr.sin_port;
-	};
+	}
 
 	/// Returns server Internet host address as a string in standard numbers-and-dots notation.
 	///  @return NULL if invalid
 	const char *GetServerAddr()
 	{
 		return inet_ntoa(m_stServerSockaddr.sin_addr);
-	};
+	}
 
 	/// Returns the port number on which the server is connected.
 	///  @return server port number.
 	uint16 GetServerPort()
 	{
 		return ntohs(m_stServerSockaddr.sin_port);
-	};
+	}
 
 	/// Get the TCP receive buffer window size for the current socket object.
 	/// <br><br>\b NOTE: Linux will set the receive buffer to twice the value passed.
@@ -511,7 +511,7 @@ public:
 	uint32 GetReceiveWindowSize()
 	{
 		return GetWindowSize(SO_RCVBUF);
-	};
+	}
 
 	/// Get the TCP send buffer window size for the current socket object.
 	/// <br><br>\b NOTE: Linux will set the send buffer to twice the value passed.
@@ -519,7 +519,7 @@ public:
 	uint32 GetSendWindowSize()
 	{
 		return GetWindowSize(SO_SNDBUF);
-	};
+	}
 
 	/// Set the TCP receive buffer window size for the current socket object.
 	/// <br><br>\b NOTE: Linux will set the receive buffer to twice the value passed.
@@ -527,7 +527,7 @@ public:
 	uint32 SetReceiveWindowSize(uint32 nWindowSize)
 	{
 		return SetWindowSize(SO_RCVBUF, nWindowSize);
-	};
+	}
 
 	/// Set the TCP send buffer window size for the current socket object.
 	/// <br><br>\b NOTE: Linux will set the send buffer to twice the value passed.
@@ -535,7 +535,7 @@ public:
 	uint32 SetSendWindowSize(uint32 nWindowSize)
 	{
 		return SetWindowSize(SO_SNDBUF, nWindowSize);
-	};
+	}
 
 	/// Disable the Nagle algorithm (Set TCP_NODELAY to true)
 	/// @return false if failed to set socket option otherwise return true;
@@ -551,14 +551,14 @@ protected:
 	void SetSocketError(CSimpleSocket::CSocketError error)
 	{
 		m_socketErrno = error;
-	};
+	}
 
 	/// Set object socket handle to that specified as parameter
 	///  @param socket value of socket descriptor
 	void SetSocketHandle(SOCKET socket)
 	{
 		m_socket = socket;
-	};
+	}
 
 private:
 	/// Generic function used to get the send/receive window size

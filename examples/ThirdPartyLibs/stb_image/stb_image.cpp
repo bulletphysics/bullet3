@@ -25,6 +25,17 @@
 #define stbi_inline __forceinline
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4312) // 'type cast': conversion from 'type1' to 'type2' of greater size
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
+#pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
+#pragma warning(disable: 4457) // declaration of 'name' hides function parameter
+#if(_MSC_VER > 1927) // from MSVC 2019 16.7 (19.27.29112.0)
+#pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
+#endif
+#endif
+
 // implementation:
 typedef unsigned char uint8;
 typedef unsigned short uint16;
@@ -40,7 +51,7 @@ typedef unsigned char validate_uint32[sizeof(uint32) == 4 ? 1 : -1];
 #define STBI_NO_WRITE
 #endif
 
-#define STBI_NOTUSED(v) (void)sizeof(v)
+#define STBI_NOTUSED(v) (void)v
 
 #ifdef _MSC_VER
 #define STBI_HAS_LROTL
@@ -877,7 +888,7 @@ stbi_inline static int extend_receive(jpeg *j, int n)
 	// predict well. I tried to table accelerate it but failed.
 	// maybe it's compiling as a conditional move?
 	if (k < m)
-		return (-1 << n) + k + 1;
+		return (int)((unsigned int)-1 << n) + k + 1;
 	else
 		return k;
 }
@@ -1540,7 +1551,7 @@ static uint8 *resample_row_hv_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w
 	return out;
 }
 
-static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 * /*in_far*/, int w, int hs)
 {
 	// resample with nearest-neighbor
 	int i, j;
@@ -4341,7 +4352,7 @@ static uint8 *stbi_gif_load_next(stbi *s, stbi_gif *g, int *comp, int req_comp)
 static stbi_uc *stbi_gif_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
 	uint8 *u = 0;
-	stbi_gif g = {0};
+	stbi_gif g = {};
 
 	u = stbi_gif_load_next(s, &g, comp, req_comp);
 	if (u == (void *)1) u = 0;  // end of animated gif marker
@@ -4798,6 +4809,10 @@ int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int *x, int
 	start_callbacks(&s, (stbi_io_callbacks *)c, user);
 	return stbi_info_main(&s, x, y, comp);
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #endif  // STBI_HEADER_FILE_ONLY
 

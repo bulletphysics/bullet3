@@ -51,16 +51,16 @@ struct PhysicsServerSharedMemoryInternalData
 		SharedMemoryStatus& serverCmd = m_testBlocks[blockIndex]->m_serverCommands[0];
 		serverCmd.m_type = statusType;
 		serverCmd.m_sequenceNumber = sequenceNumber;
-		serverCmd.m_timeStamp = timeStamp;
+		serverCmd.m_timeStamp = (size_t)timeStamp;
 		return serverCmd;
 	}
-	void submitServerStatus(SharedMemoryStatus& status, int blockIndex)
+	void submitServerStatus(SharedMemoryStatus& /*status*/, int blockIndex)
 	{
 		m_testBlocks[blockIndex]->m_numServerCommands++;
 	}
 };
 
-PhysicsServerSharedMemory::PhysicsServerSharedMemory(CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int bla)
+PhysicsServerSharedMemory::PhysicsServerSharedMemory(CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int /*bla*/)
 {
 	m_data = new PhysicsServerSharedMemoryInternalData();
 	m_data->m_commandProcessorCreator = commandProcessorCreator;
@@ -126,6 +126,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory(struct GUIHelperInterface* g
 		if (m_data->m_areConnected[block])
 		{
 			allConnected = true;
+			(void)allConnected;
 			numConnected++;
 			b3Warning("connectSharedMemory, while already connected");
 			continue;

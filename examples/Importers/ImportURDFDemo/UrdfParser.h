@@ -56,7 +56,7 @@ enum UrdfGeomTypes
 	URDF_GEOM_CAPSULE,  //non-standard URDF
 	URDF_GEOM_CDF,      //signed-distance-field, non-standard URDF
 	URDF_GEOM_HEIGHTFIELD,   //heightfield, non-standard URDF
-	URDF_GEOM_UNKNOWN,
+	URDF_GEOM_UNKNOWN
 };
 
 struct UrdfGeometry
@@ -82,7 +82,7 @@ struct UrdfGeometry
 		FILE_OBJ = 3,
 		FILE_CDF = 4,
 		MEMORY_VERTICES = 5,
-	        FILE_VTK = 6,
+		FILE_VTK = 6
 
 	};
 	int m_meshFileType;
@@ -335,7 +335,7 @@ struct UrdfModel
 namespace tinyxml2
 {
 class XMLElement;
-};
+}
 
 class UrdfParser
 {

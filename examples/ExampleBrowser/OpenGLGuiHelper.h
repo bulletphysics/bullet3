@@ -72,21 +72,21 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void drawText3D(const char* txt, float posX, float posY, float posZ, float size);
 
-	virtual int addUserDebugText3D(const char* txt, const double positionXYZ[3], const double textColorRGB[3], double size, double lifeTime)
+	virtual int addUserDebugText3D(const char* /*txt*/, const double /*positionXYZ*/[3], const double /*textColorRGB*/[3], double /*size*/, double /*lifeTime*/)
 	{
 		return -1;
 	}
 
-	virtual int addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid)
+	virtual int addUserDebugLine(const double /*debugLineFromXYZ*/[3], const double /*debugLineToXYZ*/[3], const double /*debugLineColorRGB*/[3], double /*lineWidth*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*replaceItemUid*/)
 	{
 		return -1;
 	}
-	virtual int addUserDebugParameter(const char* txt, double rangeMin, double rangeMax, double startValue)
+	virtual int addUserDebugParameter(const char* /*txt*/, double /*rangeMin*/, double /*rangeMax*/, double /*startValue*/)
 	{
 		return -1;
 	}
 
-	virtual void removeUserDebugItem(int debugItemUniqueId)
+	virtual void removeUserDebugItem(int /*debugItemUniqueId*/)
 	{
 	}
 	virtual void removeAllUserDebugItems()

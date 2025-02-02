@@ -19,6 +19,7 @@ subject to the following restrictions:
 #define BT_OPTIMIZED_BVH_H
 
 #include "BulletCollision/BroadphaseCollision/btQuantizedBvh.h"
+#include "LinearMath/btOverride.h"
 
 class btStridingMeshInterface;
 
@@ -33,7 +34,7 @@ protected:
 public:
 	btOptimizedBvh();
 
-	virtual ~btOptimizedBvh();
+	virtual ~btOptimizedBvh() BT_OVERRIDE;
 
 	void build(btStridingMeshInterface * triangles, bool useQuantizedAabbCompression, const btVector3& bvhAabbMin, const btVector3& bvhAabbMax);
 

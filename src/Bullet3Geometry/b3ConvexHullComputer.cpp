@@ -156,7 +156,7 @@ public:
 		{
 		}
 
-		Int128(btInt64_t value) : low(value), high((value >= 0) ? 0 : (btUint64_t)-1LL)
+		Int128(btInt64_t value) : low((btUint64_t)value), high((value >= 0) ? 0 : (btUint64_t)-1LL)
 		{
 		}
 
@@ -326,7 +326,7 @@ public:
 
 		b3Scalar toScalar() const
 		{
-			return sign * ((m_denominator == 0) ? B3_INFINITY : (b3Scalar)m_numerator / m_denominator);
+			return (b3Scalar)sign * ((m_denominator == 0) ? B3_INFINITY : (b3Scalar)m_numerator / (b3Scalar)m_denominator);
 		}
 	};
 
@@ -390,7 +390,7 @@ public:
 
 		b3Scalar toScalar() const
 		{
-			return sign * ((denominator.getSign() == 0) ? B3_INFINITY : numerator.toScalar() / denominator.toScalar());
+			return (b3Scalar)sign * ((denominator.getSign() == 0) ? B3_INFINITY : numerator.toScalar() / denominator.toScalar());
 		}
 	};
 
@@ -728,9 +728,9 @@ private:
 			freeObjects = NULL;
 		}
 
-		void setArraySize(int arraySize)
+		void setArraySize(int size)
 		{
-			this->arraySize = arraySize;
+			this->arraySize = size;
 		}
 
 		T* newObject()
@@ -1283,7 +1283,7 @@ void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 				return;
 			}
 		}
-		// lint -fallthrough
+		// fallthrough
 		case 1:
 		{
 			Vertex* v = originalVertices[start];
@@ -1472,6 +1472,7 @@ void b3ConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 	Point32 et0 = start0 ? start0->target->point : c0->point;
 	Point32 et1 = start1 ? start1->target->point : c1->point;
 	Point32 s = c1->point - c0->point;
+	b3Assert(start0 || start1);
 	Point64 normal = ((start0 ? start0 : start1)->target->point - c0->point).cross(s);
 	btInt64_t dist = c0->point.dot(normal);
 	b3Assert(!start1 || (start1->target->point.dot(normal) == dist));
@@ -1779,6 +1780,7 @@ void b3ConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 			if (firstRun || ((cmp >= 0) ? !minCot1.isNegativeInfinity() : !minCot0.isNegativeInfinity()))
 			{
 				Edge* e = newEdgePair(c0, c1);
+				b3Assert(e);
 				if (pendingTail0)
 				{
 					pendingTail0->prev = e;
@@ -2191,7 +2193,7 @@ b3Scalar b3ConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 	unsigned int seed = 243703;
 	for (int i = 0; i < faceCount; i++, seed = 1664525 * seed + 1013904223)
 	{
-		b3Swap(faces[i], faces[seed % faceCount]);
+		b3Swap(faces[i], faces[(int)(seed % faceCount)]);
 	}
 
 	for (int i = 0; i < faceCount; i++)
@@ -2535,6 +2537,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 				stack.push_back(NULL);
 			}
 		}
+		b3Assert(faceEdge);
 		faceEdge->face = face;
 		faceEdge->reverse->face = intersection->face;
 

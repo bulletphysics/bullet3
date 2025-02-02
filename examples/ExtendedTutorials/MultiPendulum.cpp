@@ -64,7 +64,7 @@ struct MultiPendulumExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1],
 								 targetPos[2]);
 	}
@@ -124,7 +124,7 @@ void MultiPendulumExample::initPhysics()
 
 	{  // create a slider to change the force to displace the lowest pendulum
 		SliderParams slider("Displacement force", &gDisplacementForce);
-		slider.m_minVal = 0.1;
+		slider.m_minVal = btScalar(0.1);
 		slider.m_maxVal = 200;
 		slider.m_clampToNotches = false;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
@@ -219,13 +219,13 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 
 	btRigidBody* parentSphere = topSphere;  // set the top sphere as the parent sphere for the next sphere to be created
 
-	for (int i = 0; i < pendulaQty; i++)
+	for (int i = 0; (btScalar)i < pendulaQty; i++)
 	{  // produce the number of pendula
 
 		// create joint element to make the pendulum rotate it
 
 		// position the joint sphere at the same position as the top sphere
-		startTransform.setOrigin(position - btVector3(0, length * (i), 0));
+		startTransform.setOrigin(position - btVector3(0, length * (btScalar)i, 0));
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
@@ -251,20 +251,20 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 				parentSphere->getWorldTransform().getOrigin()));
 		constraintPivotInJointSphereRF.setOrigin(parentSphereInJointSphereRF);
 
-		btPoint2PointConstraint* p2pconst = new btPoint2PointConstraint(
+		btPoint2PointConstraint* p2pconstraint = new btPoint2PointConstraint(
 			*parentSphere, *jointSphere, constraintPivotInParentSphereRF.getOrigin(), constraintPivotInJointSphereRF.getOrigin());
 
-		p2pconst->setDbgDrawSize(btScalar(5.f));  // set the size of the debug drawing
+		p2pconstraint->setDbgDrawSize(btScalar(5.f));  // set the size of the debug drawing
 
 		// add the constraint to the world
-		m_dynamicsWorld->addConstraint(p2pconst, true);
+		m_dynamicsWorld->addConstraint(p2pconstraint, true);
 
 		// create a slider constraint to change the length of the pendula while it swings
 
 		startTransform.setIdentity();  // reset start transform
 
 		// position the child sphere below the joint sphere
-		startTransform.setOrigin(position - btVector3(0, length * (i + 1), 0));
+		startTransform.setOrigin(position - btVector3(0, length * (btScalar)(i + 1), 0));
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
@@ -351,7 +351,7 @@ void MultiPendulumExample::renderScene()
 	CommonRigidBodyBase::renderScene();
 }
 
-bool MultiPendulumExample::keyboardCallback(int key, int state)
+bool MultiPendulumExample::keyboardCallback(int key, int /*state*/)
 {
 	//b3Printf("Key pressed: %d in state %d \n",key,state);
 
@@ -399,10 +399,10 @@ void MultiPendulumExample::applyPendulumForce(btScalar pendulumForce)
 	if (pendulumForce != 0)
 	{
 		b3Printf("Apply %f to pendulum", pendulumForce);
-		for (int i = 0; i < gDisplacedPendula; i++)
+		for (int i = 0; (btScalar)i < gDisplacedPendula; i++)
 		{
 			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
-				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
+				pendula[(size_t)i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
 		}
 	}
 }

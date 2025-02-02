@@ -33,7 +33,7 @@ subject to the following restrictions:
 btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
 #else
 #define REL_ERROR2 btScalar(1.0e-6)
-btScalar gGjkEpaPenetrationTolerance = 0.001;
+btScalar gGjkEpaPenetrationTolerance = btScalar(0.001);
 #endif
 
 
@@ -552,10 +552,10 @@ static int btDoSimplex3(btSimplex *simplex, btVector3 *dir)
 			}
 			else
 			{
-				btSupportVector tmp;
-				btSupportCopy(&tmp, C);
+				btSupportVector tmpVec;
+				btSupportCopy(&tmpVec, C);
 				btSimplexSet(simplex, 0, B);
-				btSimplexSet(simplex, 1, &tmp);
+				btSimplexSet(simplex, 1, &tmpVec);
 
 				btVec3Copy(dir, &ABC);
 				btVec3Scale(dir, -btScalar(1));
@@ -767,8 +767,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 				// check if farthest point in Minkowski difference in direction dir
 				// isn't somewhere before origin (the test on negative dot product)
 				// - because if it is, objects are not intersecting at all.
-				btScalar delta = lastSupV.dot(dir);
-				if (delta < 0)
+				btScalar deltaDiff = lastSupV.dot(dir);
+				if (deltaDiff < 0)
 				{
 					//no intersection, besides margin
 					status = -1;

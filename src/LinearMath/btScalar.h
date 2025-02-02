@@ -150,7 +150,7 @@ inline int btIsDoublePrecision()
 			#define btAssert assert
 		#endif//_MSC_VER
 	#else
-		#define btAssert(x)
+		#define btAssert(x) (void)(x)
 	#endif
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
@@ -178,7 +178,7 @@ inline int btIsDoublePrecision()
 			#endif
 	
 		#else//BT_DEBUG
-				#define btAssert(x)
+				#define btAssert(x) (void)(x)
 		#endif//BT_DEBUG
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
@@ -200,7 +200,7 @@ inline int btIsDoublePrecision()
 	#ifdef BT_DEBUG
 			#define btAssert assert
 	#else
-			#define btAssert(x)
+			#define btAssert(x) (void)(x)
 	#endif
 			//btFullAssert is optional, slows down a lot
 			#define btFullAssert(x)
@@ -267,7 +267,7 @@ inline int btIsDoublePrecision()
 					#define btAssert assert
 				#endif//defined (__i386__) || defined (__x86_64__)
 				#else//defined(DEBUG) || defined (_DEBUG)
-					#define btAssert(x)
+					#define btAssert(x) (void)(x)
 				#endif//defined(DEBUG) || defined (_DEBUG)
 
 				//btFullAssert is optional, slows down a lot
@@ -292,7 +292,7 @@ inline int btIsDoublePrecision()
 				#if defined(DEBUG) || defined (_DEBUG)
 					#define btAssert assert
 				#else
-					#define btAssert(x)
+					#define btAssert(x) (void)(x)
 				#endif
 
 				//btFullAssert is optional, slows down a lot
@@ -529,7 +529,7 @@ inline int btIsDoublePrecision()
 #define SIMD_RADS_PER_DEG (SIMD_2_PI / btScalar(360.0))
 #define SIMD_DEGS_PER_RAD (btScalar(360.0) / SIMD_2_PI)
 #define SIMDSQRT12 btScalar(0.7071067811865475244008443621048490)
-#define btRecipSqrt(x) ((btScalar)(btScalar(1.0) / btSqrt(btScalar(x)))) /* reciprocal square root */
+#define btRecipSqrt(x) (x!=BT_ZERO ? (btScalar)(btScalar(1.0) / btSqrt(btScalar(x))) : SIMD_INFINITY) /* reciprocal square root */
 #define btRecip(x) (btScalar(1.0) / btScalar(x))
 
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -739,7 +739,7 @@ template <typename T>
 SIMD_FORCE_INLINE void btSetZero(T *a, int n)
 {
 	T *acurr = a;
-	size_t ncurr = n;
+	size_t ncurr = (size_t)n;
 	while (ncurr > 0)
 	{
 		*(acurr++) = 0;

@@ -1226,7 +1226,7 @@ struct btLCP
 		  bool *_state, int *_findex, int *p, int *c, btScalar **Arows);
 	int getNub() const { return m_nub; }
 	void transfer_i_to_C(int i);
-	void transfer_i_to_N(int i) { m_nN++; }  // because we can assume C and N span 1:i-1
+	void transfer_i_to_N(int /*i*/) { m_nN++; }  // because we can assume C and N span 1:i-1
 	void transfer_i_from_N_to_C(int i);
 	void transfer_i_from_C_to_N(int i, btAlignedObjectArray<btScalar> &scratch);
 	int numC() const { return m_nC; }
@@ -1283,9 +1283,9 @@ btLCP::btLCP(int _n, int _nskip, int _nub, btScalar *_Adata, btScalar *_x, btSca
 	}
 
 	{
-		int *p = m_p;
+		int *mp = m_p;
 		const int n = m_n;
-		for (int k = 0; k < n; ++k) p[k] = k;  // initially unpermuted
+		for (int k = 0; k < n; ++k) mp[k] = k;  // initially unpermuted
 	}
 
 	/*
@@ -1531,6 +1531,7 @@ void btLDLTAddTL(btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, 
 		alpha1 = alphanew;
 		alphanew = alpha2 - (W21 * W21) * dee;
 		dee /= alphanew;
+		(void)dee;
 		//btScalar gamma2 = W21 * dee;
 		alpha2 = alphanew;
 		btScalar k1 = btScalar(1.0) - W21 * gamma1;
@@ -1597,6 +1598,8 @@ void btLDLTRemove(btScalar **A, const int *p, btScalar *L, btScalar *d,
 #ifdef BT_DEBUG
 	for (int i = 0; i < n2; ++i)
 		btAssert(p[i] >= 0 && p[i] < n1);
+#else
+	(void)n1;
 #endif
 
 	if (r == n2 - 1)
@@ -1796,14 +1799,14 @@ void btLCP::solve1(btScalar *a, int i, int dir, int only_transfer)
 			if (dir > 0)
 			{
 				int *C = m_C;
-				btScalar *tmp = m_tmp;
+				tmp = m_tmp;
 				const int nC = m_nC;
 				for (int j = 0; j < nC; ++j) a[C[j]] = -tmp[j];
 			}
 			else
 			{
 				int *C = m_C;
-				btScalar *tmp = m_tmp;
+				tmp = m_tmp;
 				const int nC = m_nC;
 				for (int j = 0; j < nC; ++j) a[C[j]] = tmp[j];
 			}

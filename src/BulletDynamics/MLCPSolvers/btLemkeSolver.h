@@ -39,8 +39,9 @@ public:
 		  m_useLoHighBounds(true)
 	{
 	}
-	virtual bool solveMLCP(const btMatrixXu& A, const btVectorXu& b, btVectorXu& x, const btVectorXu& lo, const btVectorXu& hi, const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
+	virtual bool solveMLCP(const btMatrixXu& A, const btVectorXu& b, btVectorXu& x, const btVectorXu& lo, const btVectorXu& hi, const btAlignedObjectArray<int>& /*limitDependency*/, int /*numIterations*/, bool useSparsity = true)
 	{
+		(void)useSparsity;
 		if (m_useLoHighBounds)
 		{
 			BT_PROFILE("btLemkeSolver::solveMLCP");
@@ -109,6 +110,7 @@ public:
 							if (btFuzzyZero(v))
 							{
 								a = 0.000001f;
+								(void)a;
 							}
 							ratio = matrix(j, i) / matrix(i, i);
 							for (k = 0; k < 2 * n; k++)
@@ -176,7 +178,7 @@ public:
 			{
 				//BT_PROFILE("lemke.solve");
 				lemke.setSystem(M, qq);
-				z1 = lemke.solve(m_maxLoops);
+				z1 = lemke.solve((unsigned int)m_maxLoops);
 			}
 			for (int row = 0; row < n; row++)
 			{
@@ -199,8 +201,8 @@ public:
 
 			int errorIndexMax = -1;
 			int errorIndexMin = -1;
-			float errorValueMax = -1e30;
-			float errorValueMin = 1e30;
+			float errorValueMax = -1e30f;
+			float errorValueMin = 1e30f;
 
 			for (int i = 0; i < n; i++)
 			{
@@ -243,6 +245,9 @@ public:
 					errorValueMin = 0.f;
 				if (errorIndexMax < 0)
 					errorValueMax = 0.f;
+				(void)m_errorCountTimes;
+				(void)errorValueMin;
+				(void)errorValueMax;
 				m_errorCountTimes++;
 				//	printf("Error (x[%d] = %f, x[%d] = %f), resetting %d times\n", errorIndexMin,errorValueMin, errorIndexMax, errorValueMax, errorCountTimes++);
 				for (int i = 0; i < n; i++)
@@ -272,15 +277,15 @@ public:
 
 			lemke.setSystem(A, q);
 
-			btVectorXu solution = lemke.solve(m_maxLoops);
+			btVectorXu solution = lemke.solve((unsigned int)m_maxLoops);
 
 			//check solution
 
 			bool fail = false;
 			int errorIndexMax = -1;
 			int errorIndexMin = -1;
-			float errorValueMax = -1e30;
-			float errorValueMin = 1e30;
+			float errorValueMax = -1e30f;
+			float errorValueMin = 1e30f;
 
 			for (int i = 0; i < dimension; i++)
 			{
@@ -331,7 +336,7 @@ public:
 
 			return !fail;
 		}
-		return true;
+		// return true;
 	}
 };
 

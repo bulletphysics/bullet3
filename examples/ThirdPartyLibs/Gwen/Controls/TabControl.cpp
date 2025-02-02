@@ -36,8 +36,8 @@ public:
 
 	Gwen::Rect m_ButtonRect;
 };
-};  // namespace Controls
-};  // namespace Gwen
+}  // namespace Controls
+}  // namespace Gwen
 
 using namespace Gwen;
 using namespace Gwen::Controls;
@@ -131,10 +131,10 @@ void TabControl::OnTabPressed(Controls::Base* control)
 
 	if (m_pCurrentButton)
 	{
-		Base* pPage = m_pCurrentButton->GetPage();
-		if (pPage)
+		Base* pPageL = m_pCurrentButton->GetPage();
+		if (pPageL)
 		{
-			pPage->SetHidden(true);
+			pPageL->SetHidden(true);
 		}
 		m_pCurrentButton = NULL;
 	}
@@ -230,12 +230,12 @@ void TabControl::HandleOverflow()
 	m_pScroll[1]->SetPos(m_pScroll[0]->Right(), 5);
 }
 
-void TabControl::ScrollPressLeft(Base* pFrom)
+void TabControl::ScrollPressLeft(Base* /*pFrom*/)
 {
 	m_iScrollOffset -= 120;
 }
 
-void TabControl::ScrollPressRight(Base* pFrom)
+void TabControl::ScrollPressRight(Base* /*pFrom*/)
 {
 	m_iScrollOffset += 120;
 }

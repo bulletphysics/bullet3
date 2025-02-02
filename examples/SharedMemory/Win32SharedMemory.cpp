@@ -16,9 +16,9 @@ struct Win32SharedMemorySegment
 	TCHAR m_szName[1024];
 
 	Win32SharedMemorySegment()
-		: m_hMapFile(0),
-		  m_buf(0),
-		  m_key(-1)
+		: m_key(-1),
+			m_hMapFile(0),
+			m_buf(0)
 	{
 		m_szName[0] = 0;
 	}
@@ -86,8 +86,13 @@ void* Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 				NULL,                  // default security
 				PAGE_READWRITE,        // read/write access
 				0,                     // maximum object size (high-order DWORD)
-				size,                  // maximum object size (low-order DWORD)
+				(DWORD)size,           // maximum object size (low-order DWORD)
 				seg.m_szName);         // name of mapping object
+				if(seg.m_hMapFile == NULL)
+				{
+					b3Warning("Could not create map file (%d).\n", GetLastError());
+					return 0;
+				}
 		}
 		else
 		{
@@ -100,7 +105,7 @@ void* Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 							  FILE_MAP_ALL_ACCESS,  // read/write permission
 							  0,
 							  0,
-							  size);
+							  (SIZE_T)size);
 
 	if (seg.m_buf == NULL)
 	{
@@ -112,7 +117,7 @@ void* Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 	m_internalData->m_segments.push_back(seg);
 	return seg.m_buf;
 }
-void Win32SharedMemory::releaseSharedMemory(int key, int size)
+void Win32SharedMemory::releaseSharedMemory(int key, int /*size*/)
 {
 	Win32SharedMemorySegment* seg = 0;
 	int i = 0;

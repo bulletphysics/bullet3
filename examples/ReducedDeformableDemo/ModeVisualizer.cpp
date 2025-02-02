@@ -70,7 +70,7 @@ public:
     void exitPhysics();
 
     // disable pick force. non-interactive example.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 
@@ -145,7 +145,7 @@ void ModeVisualizer::initPhysics()
                                           false);
 
       getDeformableDynamicsWorld()->addSoftBody(rsb);
-      rsb->getCollisionShape()->setMargin(0.1);
+      rsb->getCollisionShape()->setMargin(btScalar(0.1));
 
       btTransform init_transform;
       init_transform.setIdentity();

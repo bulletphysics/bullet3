@@ -74,8 +74,8 @@ b3GpuRigidBodyPipeline::b3GpuRigidBodyPipeline(cl_context ctx, cl_device_id devi
 	m_data->m_solver = new b3PgsJacobiSolver(true);                            //new b3PgsJacobiSolver(true);
 	m_data->m_gpuSolver = new b3GpuPgsConstraintSolver(ctx, device, q, true);  //new b3PgsJacobiSolver(true);
 
-	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx, q, config.m_maxConvexBodies);
-	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx, q, config.m_maxBroadphasePairs);
+	m_data->m_allAabbsGPU = new b3OpenCLArray<b3SapAabb>(ctx, q, (size_t)config.m_maxConvexBodies);
+	m_data->m_overlappingPairsGPU = new b3OpenCLArray<b3BroadphasePair>(ctx, q, (size_t)config.m_maxBroadphasePairs);
 
 	m_data->m_gpuConstraints = new b3OpenCLArray<b3GpuGenericConstraint>(ctx, q);
 #ifdef TEST_OTHER_GPU_SOLVER
@@ -287,13 +287,13 @@ void b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 			aabbsWS = m_data->m_broadphaseSap->getAabbBufferWS();
 		}
 
-		m_data->m_overlappingPairsGPU->resize(numPairs);
+		m_data->m_overlappingPairsGPU->resize((size_t)numPairs);
 
 		//mark the contacts for each pair as 'unused'
 		if (numPairs)
 		{
 			b3OpenCLArray<b3BroadphasePair> gpuPairs(this->m_data->m_context, m_data->m_queue);
-			gpuPairs.setFromOpenCLBuffer(pairs, numPairs);
+			gpuPairs.setFromOpenCLBuffer(pairs, (size_t)numPairs);
 
 			if (gClearPairsOnGpu)
 			{
@@ -352,11 +352,11 @@ void b3GpuRigidBodyPipeline::stepSimulation(float deltaTime)
 	//solve constraints
 
 	b3OpenCLArray<b3RigidBodyData> gpuBodies(m_data->m_context, m_data->m_queue, 0, true);
-	gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(), m_data->m_narrowphase->getNumRigidBodies());
+	gpuBodies.setFromOpenCLBuffer(m_data->m_narrowphase->getBodiesGpu(), (size_t)m_data->m_narrowphase->getNumRigidBodies());
 	b3OpenCLArray<b3InertiaData> gpuInertias(m_data->m_context, m_data->m_queue, 0, true);
-	gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(), m_data->m_narrowphase->getNumRigidBodies());
+	gpuInertias.setFromOpenCLBuffer(m_data->m_narrowphase->getBodyInertiasGpu(), (size_t)m_data->m_narrowphase->getNumRigidBodies());
 	b3OpenCLArray<b3Contact4> gpuContacts(m_data->m_context, m_data->m_queue, 0, true);
-	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(), m_data->m_narrowphase->getNumContactsGpu());
+	gpuContacts.setFromOpenCLBuffer(m_data->m_narrowphase->getContactsGpu(), (size_t)m_data->m_narrowphase->getNumContactsGpu());
 
 	int numJoints = m_data->m_joints.size() ? m_data->m_joints.size() : m_data->m_cpuConstraints.size();
 	if (useBullet2CpuSolver && numJoints)
@@ -600,7 +600,7 @@ void b3GpuRigidBodyPipeline::writeAllInstancesToGpu()
 	m_data->m_gpuConstraints->copyFromHost(m_data->m_cpuConstraints);
 }
 
-int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userIndex, bool writeInstanceToGpu)
+int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int /*userIndex*/, bool writeInstanceToGpu)
 {
 	b3Vector3 aabbMin = b3MakeVector3(0, 0, 0), aabbMax = b3MakeVector3(0, 0, 0);
 
@@ -625,6 +625,7 @@ int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* pos
 
 	bool writeToGpu = false;
 	int bodyIndex = m_data->m_narrowphase->getNumRigidBodies();
+	(void)bodyIndex;
 	bodyIndex = m_data->m_narrowphase->registerRigidBody(collidableIndex, mass, position, orientation, &aabbMin.getX(), &aabbMax.getX(), writeToGpu);
 
 	if (bodyIndex >= 0)

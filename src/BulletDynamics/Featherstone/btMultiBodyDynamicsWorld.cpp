@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btSerializer.h"
 
-void btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, int group, int mask)
+void btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, int /*group*/, int /*mask*/)
 {
 	m_multiBodies.push_back(body);
 }
@@ -149,11 +149,11 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 				}
 				for (int b = 0; b < body->getNumLinks(); b++)
 				{
-					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
-					if (col && col->getActivationState() == ACTIVE_TAG)
+					btMultiBodyLinkCollider* collider = body->getLink(b).m_collider;
+					if (collider && collider->getActivationState() == ACTIVE_TAG)
 					{
-						col->setActivationState(WANTS_DEACTIVATION);
-						col->setDeactivationTime(0.f);
+						collider->setActivationState(WANTS_DEACTIVATION);
+						collider->setDeactivationTime(0.f);
 					}
 				}
 			}
@@ -165,9 +165,9 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 
 				for (int b = 0; b < body->getNumLinks(); b++)
 				{
-					btMultiBodyLinkCollider* col = body->getLink(b).m_collider;
-					if (col && col->getActivationState() != DISABLE_DEACTIVATION)
-						col->setActivationState(ACTIVE_TAG);
+					btMultiBodyLinkCollider* collider = body->getLink(b).m_collider;
+					if (collider && collider->getActivationState() != DISABLE_DEACTIVATION)
+						collider->setActivationState(ACTIVE_TAG);
 				}
 			}
 		}
@@ -353,9 +353,9 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
     
     {
         BT_PROFILE("btMultiBody stepVelocities");
-        for (int i = 0; i < this->m_multiBodies.size(); i++)
+        for (int j = 0; j < this->m_multiBodies.size(); j++)
         {
-            btMultiBody* bod = m_multiBodies[i];
+            btMultiBody* bod = m_multiBodies[j];
             
             bool isSleeping = false;
             
@@ -451,8 +451,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         {
                             void operator()(btScalar dt, const btScalar* pDer, const btScalar* pCurVal, btScalar* pVal, int size)
                             {
-                                for (int i = 0; i < size; ++i)
-                                    pVal[i] = pCurVal[i] + dt * pDer[i];
+                                for (int k = 0; k < size; ++k)
+                                    pVal[k] = pCurVal[k] + dt * pDer[k];
                             }
                             
                         } pEulerIntegrate;
@@ -463,8 +463,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                             {
                                 btScalar* pVel = const_cast<btScalar*>(pBody->getVelocityVector());
                                 
-                                for (int i = 0; i < pBody->getNumDofs() + 6; ++i)
-                                    pVel[i] = pData[i];
+                                for (int k = 0; k < pBody->getNumDofs() + 6; ++k)
+                                    pVel[k] = pData[k];
                             }
                         } pCopyToVelocityVector;
                         //
@@ -472,8 +472,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         {
                             void operator()(const btScalar* pSrc, btScalar* pDst, int start, int size)
                             {
-                                for (int i = 0; i < size; ++i)
-                                    pDst[i] = pSrc[start + i];
+                                for (int k = 0; k < size; ++k)
+                                    pDst[k] = pSrc[start + k];
                             }
                         } pCopy;
                         //
@@ -529,10 +529,10 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                         delta_q.resize(numDofs);
                         btAlignedObjectArray<btScalar> delta_qd;
                         delta_qd.resize(numDofs);
-                        for (int i = 0; i < numDofs; ++i)
+                        for (int k = 0; k < numDofs; ++k)
                         {
-                            delta_q[i] = h / btScalar(6.) * (scratch_qd0[i] + 2 * scratch_qd1[i] + 2 * scratch_qd2[i] + scratch_qd3[i]);
-                            delta_qd[i] = h / btScalar(6.) * (scratch_qdd0[i] + 2 * scratch_qdd1[i] + 2 * scratch_qdd2[i] + scratch_qdd3[i]);
+                            delta_q[k] = h / btScalar(6.) * (scratch_qd0[k] + 2 * scratch_qd1[k] + 2 * scratch_qd2[k] + scratch_qd3[k]);
+                            delta_qd[k] = h / btScalar(6.) * (scratch_qdd0[k] + 2 * scratch_qdd1[k] + 2 * scratch_qdd2[k] + scratch_qdd3[k]);
                             //delta_q[i] = h*scratch_qd0[i];
                             //delta_qd[i] = h*scratch_qdd0[i];
                         }
@@ -545,8 +545,8 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                             btScalar* pRealBuf = const_cast<btScalar*>(bod->getVelocityVector());
                             pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs() * bod->getNumDofs();
                             
-                            for (int i = 0; i < numDofs; ++i)
-                                pRealBuf[i] = delta_q[i];
+                            for (int k = 0; k < numDofs; ++k)
+                                pRealBuf[k] = delta_q[k];
                             
                             //bod->stepPositionsMultiDof(1, 0, &delta_q[0]);
                             bod->setPosUpdated(true);
@@ -591,9 +591,9 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 			{
 				isSleeping = true;
 			}
-			for (int b = 0; b < bod->getNumLinks(); b++)
+			for (int l = 0; l < bod->getNumLinks(); l++)
 			{
-				if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+				if (bod->getLink(l).m_collider && bod->getLink(l).m_collider->getActivationState() == ISLAND_SLEEPING)
 					isSleeping = true;
 			}
 
@@ -640,9 +640,9 @@ void btMultiBodyDynamicsWorld::predictMultiBodyTransforms(btScalar timeStep)
         {
             isSleeping = true;
         }
-        for (int b = 0; b < bod->getNumLinks(); b++)
+        for (int l = 0; l < bod->getNumLinks(); l++)
         {
-            if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+            if (bod->getLink(l).m_collider && bod->getLink(l).m_collider->getActivationState() == ISLAND_SLEEPING)
                 isSleeping = true;
         }
         
@@ -708,7 +708,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 
 				if (mode & btIDebugDraw::DBG_DrawFrames)
 				{
-					getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), 0.1);
+					getDebugDrawer()->drawTransform(bod->getBaseWorldTransform(), btScalar(0.1));
 				}
 
 				for (int m = 0; m < bod->getNumLinks(); m++)
@@ -716,12 +716,12 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 					const btTransform& tr = bod->getLink(m).m_cachedWorldTransform;
 					if (mode & btIDebugDraw::DBG_DrawFrames)
 					{
-						getDebugDrawer()->drawTransform(tr, 0.1);
+						getDebugDrawer()->drawTransform(tr, btScalar(0.1));
 					}
 					//draw the joint axis
 					if (bod->getLink(m).m_jointType == btMultibodyLink::eRevolute)
 					{
-						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_topVec) * 0.1;
+						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_topVec) * btScalar(0.1);
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
@@ -730,7 +730,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::eFixed)
 					{
-						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * 0.1;
+						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * btScalar(0.1);
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
@@ -739,7 +739,7 @@ void btMultiBodyDynamicsWorld::debugDrawWorld()
 					}
 					if (bod->getLink(m).m_jointType == btMultibodyLink::ePrismatic)
 					{
-						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * 0.1;
+						btVector3 vec = quatRotate(tr.getRotation(), bod->getLink(m).m_axes[0].m_bottomVec) * btScalar(0.1);
 
 						btVector4 color(0, 0, 0, 1);  //1,1,1);
 						btVector3 from = vec + tr.getOrigin() - quatRotate(tr.getRotation(), bod->getLink(m).m_dVector);
@@ -816,8 +816,8 @@ void btMultiBodyDynamicsWorld::clearMultiBodyForces()
 
 			if (!isSleeping)
 			{
-				btMultiBody* bod = m_multiBodies[i];
-				bod->clearForcesAndTorques();
+				btMultiBody* body = m_multiBodies[i];
+				body->clearForcesAndTorques();
 			}
 		}
 	}
@@ -857,7 +857,7 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 		btMultiBody* mb = m_multiBodies[i];
 		{
 			int len = mb->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len, 1);
+			btChunk* chunk = serializer->allocate((size_t)len, 1);
 			const char* structType = mb->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_MULTIBODY_CODE, mb);
 		}
@@ -870,7 +870,7 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 		if (colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
 		{
 			int len = colObj->calculateSerializeBufferSize();
-			btChunk* chunk = serializer->allocate(len, 1);
+			btChunk* chunk = serializer->allocate((size_t)len, 1);
 			const char* structType = colObj->serialize(chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_MB_LINKCOLLIDER_CODE, colObj);
 		}

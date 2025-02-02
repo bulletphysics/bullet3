@@ -92,7 +92,7 @@ void tokenize(const std::string& str, AddToken& tokenAdder, const std::string& d
 
 void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride)
 {
-	int numVals, stride;
+	int numVals = 0, stride;
 	XMLElement* array = source->FirstChildElement("float_array");
 	if (array)
 	{
@@ -229,15 +229,15 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 						if (semName == "VERTEX")
 						{
 							//now we have POSITION and possibly NORMAL too, using same index array (<p>)
-							VertexSource* vs = vertexSources[source_name.c_str()];
-							if (vs->m_positionArrayId.length())
+							VertexSource* vertSrc = vertexSources[source_name.c_str()];
+							if (vertSrc->m_positionArrayId.length())
 							{
-								positionSourceName = vs->m_positionArrayId;
+								positionSourceName = vertSrc->m_positionArrayId;
 								posOffset = offset;
 							}
-							if (vs->m_normalArrayId.length())
+							if (vertSrc->m_normalArrayId.length())
 							{
-								normalSourceName = vs->m_normalArrayId;
+								normalSourceName = vertSrc->m_normalArrayId;
 								normalOffset = offset;
 							}
 						}
@@ -335,6 +335,7 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 				indexBase = visualShape.m_vertices->size();
 				visualShape.m_numIndices = visualShape.m_indices->size();
 				visualShape.m_numvertices = visualShape.m_vertices->size();
+				(void)indexBase;
 			}
 			//b3Printf("geometry name=%s\n",geometryName);
 			name2Shape.insert(geometryName, shapeIndex);
@@ -598,7 +599,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 	if (xmlString.size()==0)
 		return;
 
-	if (doc.Parse(&xmlString[0], xmlString.size()) != XML_SUCCESS)
+	if (doc.Parse(&xmlString[0], (size_t)xmlString.size()) != XML_SUCCESS)
 	//if (doc.LoadFile(filename) != XML_SUCCESS)
 		return;
 

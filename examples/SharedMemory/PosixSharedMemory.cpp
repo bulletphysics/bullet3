@@ -113,12 +113,15 @@ void* PosixSharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 		}
 	}
 #else
+	(void)key;
+	(void)size;
+	(void)allowCreation;
 	//not implemented yet
 	btAssert(0);
 #endif
 	return 0;
 }
-void PosixSharedMemory::releaseSharedMemory(int key, int size)
+void PosixSharedMemory::releaseSharedMemory(int key, int /*size*/)
 {
 #ifdef TEST_SHARED_MEMORY
 
@@ -170,5 +173,7 @@ void PosixSharedMemory::releaseSharedMemory(int key, int size)
 
 	m_internalData->m_segments.removeAtIndex(i);
 
+#else
+	(void)key;
 #endif
 }

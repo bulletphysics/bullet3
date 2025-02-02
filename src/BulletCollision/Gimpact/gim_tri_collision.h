@@ -247,7 +247,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 		btVector3 _axe1 = m_vertices[1] - m_vertices[0];
 		btVector3 _axe2 = m_vertices[2] - m_vertices[0];
 		btVector3 _vecproj = point - m_vertices[0];
-		GUINT _i1 = (tri_plane.closestAxis() + 1) % 3;
+		GUINT _i1 = (GUINT)(tri_plane.closestAxis() + 1) % 3;
 		GUINT _i2 = (_i1 + 1) % 3;
 		if (btFabs(_axe2[_i2]) < G_EPSILON)
 		{

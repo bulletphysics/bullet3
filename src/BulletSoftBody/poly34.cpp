@@ -5,6 +5,7 @@
 // public domain
 //
 #include <math.h>
+#include <float.h>
 
 #include "poly34.h"  // solution of cubic and quartic equation
 #define TwoPi 6.28318530717958648
@@ -401,6 +402,8 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 			x0 = x2;
 			f0 = f2;
 		}
+		(void)f0;
+		(void)f1;
 	}
 
 	// At each step:
@@ -426,10 +429,16 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 			x0 = x2;
 			f0 = f2;
 		}
+		(void)f0;
+		(void)f1;
 		f2s = (((5 * x2 + 4 * a) * x2 + 3 * b) * x2 + 2 * c) * x2 + d;  // f'(x2)
 		if (fabs(f2s) < eps)
 		{
-			x2 = 1e99;
+#if defined(BT_USE_DOUBLE_PRECISION)
+			x2 = btScalar(1e99);
+#else
+			x2 = btScalar(1e36);
+#endif
 			continue;
 		}
 		dx = f2 / f2s;

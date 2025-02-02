@@ -82,11 +82,11 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 
 					for (int j = 2; j >= 0; j--)
 					{
-						int graphicsindex;
+						int graphicsindex=0;
                                                 switch (indicestype) {
-                                                        case PHY_INTEGER: graphicsindex = gfxbase[j]; break;
-                                                        case PHY_SHORT: graphicsindex = ((unsigned short*)gfxbase)[j]; break;
-                                                        case PHY_UCHAR: graphicsindex = ((unsigned char*)gfxbase)[j]; break;
+                                                        case PHY_INTEGER: graphicsindex = (int)gfxbase[j]; break;
+                                                        case PHY_SHORT: graphicsindex = (int)((unsigned short*)gfxbase)[j]; break;
+                                                        case PHY_UCHAR: graphicsindex = (int)((unsigned char*)gfxbase)[j]; break;
                                                         default: btAssert(0);
                                                 }
 						if (type == PHY_FLOAT)
@@ -179,9 +179,9 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 							{
 								btVector3 triNormal;
 
-								int index0 = hull->getIndexPointer()[t * 3 + 0];
-								int index1 = hull->getIndexPointer()[t * 3 + 1];
-								int index2 = hull->getIndexPointer()[t * 3 + 2];
+								int index0 = (int)hull->getIndexPointer()[t * 3 + 0];
+								int index1 = (int)hull->getIndexPointer()[t * 3 + 1];
+								int index2 = (int)hull->getIndexPointer()[t * 3 + 2];
 								btVector3 pos0 = parentTransform * hull->getVertexPointer()[index0];
 								btVector3 pos1 = parentTransform * hull->getVertexPointer()[index1];
 								btVector3 pos2 = parentTransform * hull->getVertexPointer()[index2];
@@ -190,7 +190,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 
 								for (int v = 0; v < 3; v++)
 								{
-									int index = hull->getIndexPointer()[t * 3 + v];
+									int index = (int)hull->getIndexPointer()[t * 3 + v];
 									btVector3 pos = parentTransform * hull->getVertexPointer()[index];
 									indicesOut.push_back(vertexPositions.size());
 									vertexPositions.push_back(pos);

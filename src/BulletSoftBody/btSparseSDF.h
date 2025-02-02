@@ -30,7 +30,7 @@ subject to the following restrictions:
 //
 inline unsigned int HsiehHash(const char* data, int len)
 {
-	unsigned int hash = len, tmp;
+	unsigned int hash = (unsigned int)len, tmp;
 	len >>= 2;
 
 	/* Main loop */
@@ -294,13 +294,13 @@ struct btSparseSdf
 							  CELLSIZE * voxelsz;
 		for (int k = 0; k <= CELLSIZE; ++k)
 		{
-			const btScalar z = voxelsz * k + org.z();
+			const btScalar z = voxelsz * (btScalar)k + org.z();
 			for (int j = 0; j <= CELLSIZE; ++j)
 			{
-				const btScalar y = voxelsz * j + org.y();
+				const btScalar y = voxelsz * (btScalar)j + org.y();
 				for (int i = 0; i <= CELLSIZE; ++i)
 				{
-					const btScalar x = voxelsz * i + org.x();
+					const btScalar x = voxelsz * (btScalar)i + org.x();
 					c.d[i][j][k] = DistanceToShape(btVector3(x, y, z),
 												   c.pclient);
 				}
@@ -329,11 +329,11 @@ struct btSparseSdf
 		IntFrac r;
 		x /= CELLSIZE;
 		const int o = x < 0 ? (int)(-x + 1) : 0;
-		x += o;
+		x += (btScalar)o;
 		r.b = (int)x;
-		const btScalar k = (x - r.b) * CELLSIZE;
+		const btScalar k = (x - (btScalar)r.b) * (btScalar)CELLSIZE;
 		r.i = (int)k;
-		r.f = k - r.i;
+		r.f = k - (btScalar)r.i;
 		r.b -= o;
 		return (r);
 	}

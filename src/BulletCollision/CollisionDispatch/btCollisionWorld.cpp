@@ -64,7 +64,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 
-btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
+btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btCollisionConfiguration* /*collisionConfiguration*/)
 	: m_dispatcher1(dispatcher),
 	  m_broadphasePairCache(pairCache),
 	  m_debugDrawer(0),
@@ -419,23 +419,23 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 			{
 				///optimized version for btHeightfieldTerrainShape
 				btHeightfieldTerrainShape* heightField = (btHeightfieldTerrainShape*)collisionShape;
-				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-				btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
-				btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
+				btTransform worldToCollisionObject = colObjWorldTransform.inverse();
+				btVector3 rayFromLocalL = worldToCollisionObject * rayFromTrans.getOrigin();
+				btVector3 rayToLocalL = worldToCollisionObject * rayToTrans.getOrigin();
 
-				BridgeTriangleRaycastCallback rcb(rayFromLocal, rayToLocal, &resultCallback, collisionObjectWrap->getCollisionObject(), heightField, colObjWorldTransform);
+				BridgeTriangleRaycastCallback rcb(rayFromLocalL, rayToLocalL, &resultCallback, collisionObjectWrap->getCollisionObject(), heightField, colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
-				heightField->performRaycast(&rcb, rayFromLocal, rayToLocal);
+				heightField->performRaycast(&rcb, rayFromLocalL, rayToLocalL);
 			}
 			else
 			{
 				//generic (slower) case
 				btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;
 
-				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
+				btTransform worldToCollisionObject = colObjWorldTransform.inverse();
 
-				btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
-				btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
+				btVector3 rayFromLocalL = worldToCollisionObject * rayFromTrans.getOrigin();
+				btVector3 rayToLocalL = worldToCollisionObject * rayToTrans.getOrigin();
 
 				//ConvexCast::CastResult
 
@@ -475,13 +475,13 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 					}
 				};
 
-				BridgeTriangleRaycastCallback rcb(rayFromLocal, rayToLocal, &resultCallback, collisionObjectWrap->getCollisionObject(), concaveShape, colObjWorldTransform);
+				BridgeTriangleRaycastCallback rcb(rayFromLocalL, rayToLocalL, &resultCallback, collisionObjectWrap->getCollisionObject(), concaveShape, colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 
-				btVector3 rayAabbMinLocal = rayFromLocal;
-				rayAabbMinLocal.setMin(rayToLocal);
-				btVector3 rayAabbMaxLocal = rayFromLocal;
-				rayAabbMaxLocal.setMax(rayToLocal);
+				btVector3 rayAabbMinLocal = rayFromLocalL;
+				rayAabbMinLocal.setMin(rayToLocalL);
+				btVector3 rayAabbMaxLocal = rayFromLocalL;
+				rayAabbMaxLocal.setMax(rayToLocalL);
 
 				concaveShape->processAllTriangles(&rcb, rayAabbMinLocal, rayAabbMaxLocal);
 			}
@@ -955,9 +955,9 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 		m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
 		m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
 		m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
-		m_signs[0] = m_rayDirectionInverse[0] < 0.0;
-		m_signs[1] = m_rayDirectionInverse[1] < 0.0;
-		m_signs[2] = m_rayDirectionInverse[2] < 0.0;
+		m_signs[0] = (unsigned int)(m_rayDirectionInverse[0] < 0.0);
+		m_signs[1] = (unsigned int)(m_rayDirectionInverse[1] < 0.0);
+		m_signs[2] = (unsigned int)(m_rayDirectionInverse[2] < 0.0);
 
 		m_lambda_max = rayDir.dot(m_rayToWorld - m_rayFromWorld);
 	}
@@ -1041,9 +1041,9 @@ struct btSingleSweepCallback : public btBroadphaseRayCallback
 		m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
 		m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
 		m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
-		m_signs[0] = m_rayDirectionInverse[0] < 0.0;
-		m_signs[1] = m_rayDirectionInverse[1] < 0.0;
-		m_signs[2] = m_rayDirectionInverse[2] < 0.0;
+		m_signs[0] = (unsigned int)(m_rayDirectionInverse[0] < 0.0);
+		m_signs[1] = (unsigned int)(m_rayDirectionInverse[1] < 0.0);
+		m_signs[2] = (unsigned int)(m_rayDirectionInverse[2] < 0.0);
 
 		m_lambda_max = rayDir.dot(unnormalizedRayDir);
 	}
@@ -1302,7 +1302,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 	// Draw a small simplex at the center of the object
 	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawFrames)
 	{
-		getDebugDrawer()->drawTransform(worldTransform, .1);
+		getDebugDrawer()->drawTransform(worldTransform, btScalar(.1));
 	}
 
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
@@ -1605,7 +1605,7 @@ void btCollisionWorld::serializeContactManifolds(btSerializer* serializer)
 			if (manifold->getNumContacts() == 0)
 				continue;
 
-			btChunk* chunk = serializer->allocate(manifold->calculateSerializeBufferSize(), 1);
+			btChunk* chunk = serializer->allocate((size_t)manifold->calculateSerializeBufferSize(), 1);
 			const char* structType = manifold->serialize(manifold, chunk->m_oldPtr, serializer);
 			serializer->finalizeChunk(chunk, structType, BT_CONTACTMANIFOLD_CODE, (void*)manifold);
 		}

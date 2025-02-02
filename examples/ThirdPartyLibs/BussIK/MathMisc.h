@@ -66,7 +66,7 @@ const double LnTwoInv = 1.0 / log(2.0);
 const double OnePlusEpsilon15 = 1.0 + 1.0e-15;
 const double OneMinusEpsilon15 = 1.0 - 1.0e-15;
 
-inline double ZeroValue(const double& x)
+inline double ZeroValue(const double& /*x*/)
 {
 	return 0.0;
 }

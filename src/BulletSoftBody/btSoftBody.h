@@ -35,7 +35,7 @@ subject to the following restrictions:
 //#else
 #define btSoftBodyData btSoftBodyFloatData
 #define btSoftBodyDataName "btSoftBodyFloatData"
-static const btScalar OVERLAP_REDUCTION_FACTOR = 0.1;
+static const btScalar OVERLAP_REDUCTION_FACTOR = btScalar(0.1);
 static unsigned long seed = 243703;
 //#endif //BT_USE_DOUBLE_PRECISION
 
@@ -278,7 +278,7 @@ public:
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
 		int m_constrained;   // depth of penetration
-		int m_battach : 1;   // Attached
+		unsigned int m_battach : 1;   // Attached
 		int index;
 		btVector3 m_splitv;               // velocity associated with split impulse
 		btMatrix3x3 m_effectiveMass;      // effective mass in contact
@@ -291,7 +291,7 @@ public:
 		btVector3 m_c3;      // gradient
 		Node* m_n[2];        // Node pointers
 		btScalar m_rl;       // Rest length
-		int m_bbending : 1;  // Bending link
+		unsigned int m_bbending : 1;  // Bending link
 		btScalar m_c0;       // (ima+imb)*kLST
 		btScalar m_c1;       // rl^2
 		btScalar m_c2;       // |gradient|^2/c0
@@ -493,8 +493,8 @@ public:
 	{
 		btVector3 m_velocity;
 		btVector3 m_drift;
-		int m_asVelocity : 1;
-		int m_asDrift : 1;
+		unsigned int m_asVelocity : 1;
+		unsigned int m_asDrift : 1;
 		Impulse() : m_velocity(0, 0, 0), m_drift(0, 0, 0), m_asVelocity(0), m_asDrift(0) {}
 		Impulse operator-() const
 		{
@@ -891,7 +891,7 @@ public:
 	}
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library
-	virtual void setCollisionShape(btCollisionShape* collisionShape)
+	virtual void setCollisionShape(btCollisionShape* /*collisionShape*/)
 	{
 	}
 
@@ -1106,7 +1106,7 @@ public:
 	void setZeroVelocity();
 	bool wantsSleeping();
 
-	virtual btMatrix3x3 getImpulseFactor(int n_node)
+	virtual btMatrix3x3 getImpulseFactor(int /*n_node*/)
 	{
 		btMatrix3x3 tmp;
 		tmp.setIdentity();
@@ -1325,12 +1325,11 @@ public:
 			for (int i = 0; i < m_faceNodeContacts.size(); ++i)
 				indices[i] = i;
 #define NEXTRAND (seed = (1664525L * seed + 1013904223L) & 0xffffffff)
-			int i, ni;
-
-			for (i = 0, ni = indices.size(); i < ni; ++i)
+			for (int i = 0, ni = indices.size(); i < ni; ++i)
 			{
-				btSwap(indices[i], indices[NEXTRAND % ni]);
+				btSwap(indices[i], indices[(int)(NEXTRAND % ni)]);
 			}
+#undef NEXTRAND
 		}
 		for (int k = 0; k < m_faceNodeContacts.size(); ++k)
 		{

@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
+#include "LinearMath/btOverride.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
@@ -45,7 +46,7 @@ enum btRigidBodyFlags
 	BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT = 2,
 	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD = 4,
 	BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY = 8,
-	BT_ENABLE_GYROPSCOPIC_FORCE = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY,
+	BT_ENABLE_GYROPSCOPIC_FORCE = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY
 };
 
 ///The btRigidBody is the main class for rigid body objects. It is derived from btCollisionObject, so it keeps a pointer to a btCollisionShape.
@@ -170,7 +171,7 @@ public:
 	///To specify friction (etc) during rigid body construction, please use the other constructor (using btRigidBodyConstructionInfo)
 	btRigidBody(btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia = btVector3(0, 0, 0));
 
-	virtual ~btRigidBody()
+	virtual ~btRigidBody() BT_OVERRIDE
 	{
 		//No constraints should point to this rigidbody
 		//Remove constraints from the dynamics world before you delete the related rigidbodies.
@@ -190,13 +191,13 @@ public:
 	{
 		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
 			return (const btRigidBody*)colObj;
-		return 0;
+		return NULL;
 	}
 	static btRigidBody* upcast(btCollisionObject* colObj)
 	{
 		if (colObj->getInternalType() & btCollisionObject::CO_RIGID_BODY)
 			return (btRigidBody*)colObj;
-		return 0;
+		return NULL;
 	}
 
 	/// continuous collision detection needs prediction
@@ -584,7 +585,7 @@ public:
 	//is this rigidbody added to a btCollisionWorld/btDynamicsWorld/btBroadphase?
 	bool isInWorld() const
 	{
-		return (getBroadphaseProxy() != 0);
+		return (getBroadphaseProxy() != NULL);
 	}
 
 	void addConstraintRef(btTypedConstraint* c);
@@ -622,12 +623,12 @@ public:
 
 	///////////////////////////////////////////////
 
-	virtual int calculateSerializeBufferSize() const;
+	virtual int calculateSerializeBufferSize() const BT_OVERRIDE;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const;
+	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const BT_OVERRIDE;
 
-	virtual void serializeSingleObject(class btSerializer* serializer) const;
+	virtual void serializeSingleObject(class btSerializer* serializer) const BT_OVERRIDE;
 };
 
 //@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData

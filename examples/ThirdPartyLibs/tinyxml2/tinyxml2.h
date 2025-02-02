@@ -351,7 +351,7 @@ private:
 		{
 			TIXMLASSERT(cap <= INT_MAX / 2);
 			int newAllocated = cap * 2;
-			T* newMem = new T[newAllocated];
+			T* newMem = new T[(size_t)newAllocated];
 			TIXMLASSERT(newAllocated >= _size);
 			memcpy(newMem, _mem, sizeof(T) * _size);  // warning: not using constructors, only works for PODs
 			if (_mem != _pool)
@@ -678,7 +678,7 @@ public:
 		TIXMLASSERT(p);
 		TIXMLASSERT(q);
 		TIXMLASSERT(nChar >= 0);
-		return strncmp(p, q, nChar) == 0;
+		return strncmp(p, q, (size_t)nChar) == 0;
 	}
 
 	inline static bool IsUTF8Continuation(char p)

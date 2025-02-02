@@ -23,7 +23,7 @@ bool gDebugSkipLoadingBinary = false;
 
 #include <string.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4996)
 #endif
 #include "b3OpenCLUtils.h"
@@ -72,9 +72,9 @@ static const char* spPlatformVendor =
 #endif
 
 void MyFatalBreakAPPLE(const char* errstr,
-					   const void* private_info,
-					   size_t cb,
-					   void* user_data)
+					   const void* /*private_info*/,
+					   size_t /*cb*/,
+					   void* /*user_data*/)
 {
 	const char* patloc = strstr(errstr, "Warning");
 	//find out if it is a warning or error, exit if error
@@ -100,7 +100,7 @@ int b3OpenCLUtils_clewInit()
 	const char* cl = "OpenCL.dll";
 #elif defined __APPLE__
 	const char* cl = "/System/Library/Frameworks/OpenCL.framework/Versions/Current/OpenCL";
-#else  //presumable Linux? \
+#else  //presumable Linux?
 	   //linux (tested on Ubuntu 12.10 with Catalyst 13.4 beta drivers, not that there is no symbolic link from libOpenCL.so
 	const char* cl = "libOpenCL.so.1";
 	result = clewInit(cl);
@@ -143,7 +143,7 @@ int b3OpenCLUtils_getNumPlatforms(cl_int* pErrNum)
 		if (pErrNum != NULL)
 			*pErrNum = ciErrNum;
 	}
-	return numPlatforms;
+	return (int)numPlatforms;
 }
 
 const char* b3OpenCLUtils_getSdkVendorName()
@@ -166,10 +166,12 @@ cl_platform_id b3OpenCLUtils_getPlatform(int platformIndex0, cl_int* pErrNum)
 	unsigned int platformIndex = (unsigned int)platformIndex0;
 	cl_uint numPlatforms;
 	cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
+	(void)ciErrNum;
 
 	if (platformIndex < numPlatforms)
 	{
 		cl_platform_id* platforms = (cl_platform_id*)malloc(sizeof(cl_platform_id) * numPlatforms);
+		if(!platforms) return platform;
 		ciErrNum = clGetPlatformIDs(numPlatforms, platforms, NULL);
 		if (ciErrNum != CL_SUCCESS)
 		{
@@ -208,7 +210,7 @@ void b3OpenCLUtils_printPlatformInfo(cl_platform_id platform)
 	b3Printf("  CL_PLATFORM_VERSION: \t\t\t%s\n", platformInfo.m_platformVersion);
 }
 
-cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* pGLDC, int preferredDeviceIndex, int preferredPlatformIndex)
+cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_device_type deviceType, cl_int* pErrNum, void* pGLContext, void* /*pGLDC*/, int preferredDeviceIndex, int /*preferredPlatformIndex*/)
 {
 	cl_context retContext = 0;
 	cl_int ciErrNum = 0;
@@ -237,7 +239,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 #endif  //_WIN32
 	num_entries = B3_MAX_CL_DEVICES;
 
-	num_devices = -1;
+	num_devices = (cl_uint)-1;
 
 	ciErrNum = clGetDeviceIDs(
 		platform,
@@ -313,6 +315,7 @@ cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int
 	if (numPlatforms > 0)
 	{
 		cl_platform_id* platforms = (cl_platform_id*)malloc(sizeof(cl_platform_id) * numPlatforms);
+		if(!platforms) return NULL;
 		ciErrNum = clGetPlatformIDs(numPlatforms, platforms, NULL);
 		if (ciErrNum != CL_SUCCESS)
 		{
@@ -325,6 +328,7 @@ cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int
 		for (i = 0; i < numPlatforms; ++i)
 		{
 			char pbuf[128];
+			pbuf[127] = '\0';
 			ciErrNum = clGetPlatformInfo(platforms[i],
 										 CL_PLATFORM_VENDOR,
 										 sizeof(pbuf),
@@ -336,7 +340,7 @@ cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int
 				return NULL;
 			}
 
-			if (preferredPlatformIndex >= 0 && i == preferredPlatformIndex)
+			if (preferredPlatformIndex >= 0 && (int)i == preferredPlatformIndex)
 			{
 				cl_platform_id tmpPlatform = platforms[0];
 				platforms[0] = platforms[i];
@@ -404,6 +408,8 @@ cl_device_id b3OpenCLUtils_getDevice(cl_context cxMainContext, int deviceIndex)
 	}
 
 	cdDevices = (cl_device_id*)malloc(szParmDataBytes);
+	if(!cdDevices) 
+		return (cl_device_id)-1;
 
 	clGetContextInfo(cxMainContext, CL_CONTEXT_DEVICES, szParmDataBytes, cdDevices, NULL);
 
@@ -418,7 +424,7 @@ int b3OpenCLUtils_getNumDevices(cl_context cxMainContext)
 	size_t szParamDataBytes;
 	int device_count;
 	clGetContextInfo(cxMainContext, CL_CONTEXT_DEVICES, 0, NULL, &szParamDataBytes);
-	device_count = (int)szParamDataBytes / sizeof(cl_device_id);
+	device_count = (int)(szParamDataBytes / sizeof(cl_device_id));
 	return device_count;
 }
 
@@ -564,13 +570,15 @@ void b3OpenCLUtils_printDeviceInfo(cl_device_id device)
 static const char* strip2(const char* name, const char* pattern)
 {
 	size_t const patlen = strlen(pattern);
-	size_t patcnt = 0;
-	const char* oriptr;
-	const char* patloc;
+	size_t patcnt = 0; (void)patcnt;
+	const char* oriptr = name;
+	const char* patloc = strstr(oriptr, pattern);
 	// find how many times the pattern occurs in the original string
-	for (oriptr = name; (patloc = strstr(oriptr, pattern)); oriptr = patloc + patlen)
+	while (patloc)
 	{
 		patcnt++;
+		oriptr = patloc + patlen;
+		patloc = strstr(oriptr, pattern);
 	}
 	return oriptr;
 }
@@ -613,11 +621,9 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	if (clFileNameForCaching && !(disableBinaryCaching || gDebugSkipLoadingBinary || gDebugForceLoadingFromSource))
 	{
 #ifdef _WIN32
-		char* bla = 0;
-
 		//printf("searching for %s\n", binaryFileName);
 
-		FILETIME modtimeBinary;
+		FILETIME modtimeBinary = {};
 		CreateDirectoryA(sCachedBinaryPath, 0);
 		{
 			HANDLE binaryFileHandle = CreateFileA(binaryFileName, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
@@ -675,7 +681,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 				if (srcFileHandle != INVALID_HANDLE_VALUE)
 				{
-					FILETIME modtimeSrc;
+					FILETIME modtimeSrc = {};
 					if (GetFileTime(srcFileHandle, NULL, NULL, &modtimeSrc) == 0)
 					{
 						DWORD errorCode;
@@ -755,11 +761,12 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			char* binary = 0;
 
 			fseek(file, 0L, SEEK_END);
-			binarySize = ftell(file);
+			binarySize = (size_t)ftell(file);
 			rewind(file);
 			binary = (char*)malloc(sizeof(char) * binarySize);
 			int bytesRead;
-			bytesRead = fread(binary, sizeof(char), binarySize, file);
+			bytesRead = (int)fread(binary, sizeof(char), binarySize, file);
+			(void)bytesRead;
 			fclose(file);
 
 			m_cpProgram = clCreateProgramWithBinary(clContext, 1, &device, &binarySize, (const unsigned char**)&binary, 0, &status);
@@ -825,10 +832,14 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					fseek(file, 0L, SEEK_END);
 					int kernelSize = ftell(file);
 					rewind(file);
-					kernelSrc = (char*)malloc(kernelSize + 1);
-					int readBytes;
-					readBytes = fread((void*)kernelSrc, 1, kernelSize, file);
-					kernelSrc[kernelSize] = 0;
+					kernelSrc = (char*)malloc((size_t)kernelSize + 1);
+					if(kernelSrc)
+					{
+						int readBytes;
+						readBytes = (int)fread((void*)kernelSrc, 1, (size_t)kernelSize, file);
+						(void)readBytes;
+						kernelSrc[kernelSize] = 0;
+					}
 					fclose(file);
 					kernelSource = kernelSrc;
 				}
@@ -852,10 +863,15 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 		// Build the program with 'mad' Optimization option
 
-		flagsize = sizeof(char) * (strlen(additionalMacros) + strlen(flags) + 5);
-		compileFlags = (char*)malloc(flagsize);
+		flagsize = (int)(sizeof(char) * (strlen(additionalMacros) + strlen(flags) + 5));
+		compileFlags = (char*)malloc((size_t)flagsize);
+		if(!compileFlags)
+		{
+			b3Error("Error in clBuildProgram, Line %u in file %s, Failed to allocate buffer for compileFlags\n !!!\n\n", __LINE__, __FILE__);
+			return 0;
+		}
 #ifdef _MSC_VER
-		sprintf_s(compileFlags, flagsize, "%s %s", flags, additionalMacros);
+		sprintf_s(compileFlags, (size_t)flagsize, "%s %s", flags, additionalMacros);
 #else
 		sprintf(compileFlags, "%s %s", flags, additionalMacros);
 #endif
@@ -866,6 +882,11 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			size_t ret_val_size;
 			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
 			build_log = (char*)malloc(sizeof(char) * (ret_val_size + 1));
+			if(!build_log) 
+			{
+				b3Error("Error in clBuildProgram, Line %u in file %s, Failed to allocate buffer to print build log\n !!!\n\n", __LINE__, __FILE__);
+				return 0;
+			}
 			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
 
 			// to be carefully, terminate with \0

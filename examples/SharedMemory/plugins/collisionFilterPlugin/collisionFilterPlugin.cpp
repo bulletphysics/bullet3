@@ -8,6 +8,7 @@
 #include "../b3PluginContext.h"
 #include <stdio.h>
 #include "Bullet3Common/b3HashMap.h"
+#include "LinearMath/btOverride.h"
 
 #include "../b3PluginCollisionInterface.h"
 
@@ -33,7 +34,7 @@ struct b3CustomCollisionFilter
 		key ^= (key >> 6);
 		key += ~(key << 11);
 		key ^= (key >> 16);
-		return (int) key;
+		return (unsigned int)key;
 	}
 	bool equals(const b3CustomCollisionFilter& other) const
 	{
@@ -48,10 +49,12 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 {
 	b3HashMap<b3CustomCollisionFilter, b3CustomCollisionFilter> m_customCollisionFilters;
 
+	virtual ~DefaultPluginCollisionInterface() BT_OVERRIDE {};
+
 	virtual void setBroadphaseCollisionFilter(
 		int objectUniqueIdA, int objectUniqueIdB,
 		int linkIndexA, int linkIndexB,
-		bool enableCollision)
+		bool enableCollision) BT_OVERRIDE
 	{
 		b3CustomCollisionFilter keyValue;
 		keyValue.m_objectUniqueIdA = objectUniqueIdA;
@@ -78,7 +81,7 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 
 	virtual void removeBroadphaseCollisionFilter(
 		int objectUniqueIdA, int objectUniqueIdB,
-		int linkIndexA, int linkIndexB)
+		int linkIndexA, int linkIndexB) BT_OVERRIDE
 	{
 		b3CustomCollisionFilter keyValue;
 		keyValue.m_objectUniqueIdA = objectUniqueIdA;
@@ -102,12 +105,12 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 		m_customCollisionFilters.remove(keyValue);
 	}
 
-	virtual int getNumRules() const
+	virtual int getNumRules() const BT_OVERRIDE
 	{
 		return m_customCollisionFilters.size();
 	}
 
-	virtual void resetAll()
+	virtual void resetAll() BT_OVERRIDE
 	{
 		m_customCollisionFilters.clear();
 	}
@@ -116,7 +119,7 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 										 int collisionFilterGroupA, int collisionFilterMaskA,
 										 int objectUniqueIdB, int linkIndexB,
 										 int collisionFilterGroupB, int collisionFilterMaskB,
-										 int filterMode)
+										 int filterMode) BT_OVERRIDE
 	{
 		//check and apply any custom rules for those objects/links
 		b3CustomCollisionFilter keyValue;
@@ -191,7 +194,7 @@ B3_SHARED_API struct b3PluginCollisionInterface* getCollisionInterface_collision
 	return &obj->m_collisionFilter;
 }
 
-B3_SHARED_API int executePluginCommand_collisionFilterPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
+B3_SHARED_API int executePluginCommand_collisionFilterPlugin(struct b3PluginContext* /*context*/, const struct b3PluginArguments* /*arguments*/)
 {
 	return 0;
 }

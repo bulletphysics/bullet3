@@ -28,7 +28,7 @@ btMultiBodySphericalJointMotor::btMultiBodySphericalJointMotor(btMultiBody* body
 	m_desiredPosition(0,0,0,1),
 	m_use_multi_dof_params(false),
 	m_kd(1., 1., 1.),
-	m_kp(0.2, 0.2, 0.2),
+	m_kp(btScalar(0.2), btScalar(0.2), btScalar(0.2)),
 	m_erp(1),
 	m_rhsClamp(SIMD_INFINITY),
 	m_maxAppliedImpulseMultiDof(maxMotorImpulse, maxMotorImpulse, maxMotorImpulse),
@@ -45,7 +45,7 @@ void btMultiBodySphericalJointMotor::finalizeMultiDof()
 	// note: we rely on the fact that data.m_jacobians are
 	// always initialized to zero by the Constraint ctor
 	int linkDoF = 0;
-	unsigned int offset = 6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF);
+	unsigned int offset = (unsigned int)(6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF));
 
 	// row 0: the lower bound
 	// row 0: the lower bound
@@ -115,11 +115,11 @@ void btMultiBodySphericalJointMotor::createConstraintRows(btMultiBodyConstraintA
 	if (m_maxAppliedImpulse == 0.f)
 		return;
 
-	const btScalar posError = 0;
+	//const btScalar posError = 0;
 	const btVector3 dummy(0, 0, 0);
 
 	
-	btVector3 axis[3] = { btVector3(1, 0, 0), btVector3(0, 1, 0), btVector3(0, 0, 1) };
+	//btVector3 axis[3] = { btVector3(1, 0, 0), btVector3(0, 1, 0), btVector3(0, 0, 1) };
 	
 	btQuaternion desiredQuat = m_desiredPosition;
 	btQuaternion currentQuat(m_bodyA->getJointPosMultiDof(m_linkA)[0],
@@ -137,13 +137,13 @@ btQuaternion relRot = currentQuat.inverse() * desiredQuat;
 	{
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 
-		int dof = row;
+		// int dof = row;
 		
-		btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
-		btScalar desiredVelocity = this->m_desiredVelocity[row];
+		// btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
+		// btScalar desiredVelocity = this->m_desiredVelocity[row];
 		
-		double kd = m_use_multi_dof_params ? m_kd[row % 3] : m_kd[0];
-		btScalar velocityError = (desiredVelocity - currentVelocity) * kd;
+		// double kd = m_use_multi_dof_params ? m_kd[row % 3] : m_kd[0];
+		// btScalar velocityError = (desiredVelocity - currentVelocity) * kd;
 
 		btMatrix3x3 frameAworld;
 		frameAworld.setIdentity();

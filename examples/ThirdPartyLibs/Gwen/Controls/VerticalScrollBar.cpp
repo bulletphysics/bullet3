@@ -38,13 +38,13 @@ void VerticalScrollBar::Layout(Skin::Base* skin)
 	m_Bar->SetPadding(Padding(0, GetButtonSize(), 0, GetButtonSize()));
 
 	//Calculate bar sizes
-	float barHeight = (m_fViewableContentSize / m_fContentSize) * (Height() - (GetButtonSize() * 2));
+	float barHeight = (m_fViewableContentSize / m_fContentSize) * (float)(Height() - (GetButtonSize() * 2));
 
 	if (barHeight < GetButtonSize() * 0.5)
 		barHeight = GetButtonSize() * 0.5;
 
 	m_Bar->SetHeight(barHeight);
-	m_Bar->SetHidden(Height() - (GetButtonSize() * 2) <= barHeight);
+	m_Bar->SetHidden((float)(Height() - (GetButtonSize() * 2)) <= barHeight);
 
 	if (Hidden())
 		SetScrolledAmount(0, true);
@@ -111,14 +111,14 @@ float VerticalScrollBar::CalculateScrolledAmount()
 
 bool VerticalScrollBar::SetScrolledAmount(float amount, bool forceUpdate)
 {
-	amount = Gwen::Clamp(amount, 0, 1);
+	amount = Gwen::Clamp(amount, 0.0f, 1.0f);
 
 	if (!BaseClass::SetScrolledAmount(amount, forceUpdate))
 		return false;
 
 	if (forceUpdate)
 	{
-		int newY = GetButtonSize() + (amount * ((Height() - m_Bar->Height()) - (GetButtonSize() * 2)));
+		int newY = (float)GetButtonSize() + (amount * (float)((Height() - m_Bar->Height()) - (GetButtonSize() * 2)));
 		m_Bar->MoveTo(m_Bar->X(), newY);
 	}
 

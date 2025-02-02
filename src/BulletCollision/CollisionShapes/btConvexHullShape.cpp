@@ -186,7 +186,7 @@ const char* btConvexHullShape::serialize(void* dataBuffer, btSerializer* seriali
 
 	if (numElem)
 	{
-		int sz = sizeof(btVector3Data);
+		size_t sz = sizeof(btVector3Data);
 		//	int sz2 = sizeof(btVector3DoubleData);
 		//	int sz3 = sizeof(btVector3FloatData);
 		btChunk* chunk = serializer->allocate(sz, numElem);

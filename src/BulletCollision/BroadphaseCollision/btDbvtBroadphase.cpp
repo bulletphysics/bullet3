@@ -245,14 +245,14 @@ void btDbvtBroadphase::rayTest(const btVector3& rayFrom, const btVector3& rayTo,
 	// for this function to be threadsafe, each thread must have a separate copy
 	// of this stack.  This could be thread-local static to avoid dynamic allocations,
 	// instead of just a local.
-	int threadIndex = btGetCurrentThreadIndex();
+	unsigned int threadIndex = btGetCurrentThreadIndex();
 	btAlignedObjectArray<const btDbvtNode*> localStack;
 	//todo(erwincoumans, "why do we get tsan issue here?")
 	if (0)//threadIndex < m_rayTestStacks.size())
 	//if (threadIndex < m_rayTestStacks.size())
 	{
 		// use per-thread preallocated stack if possible to avoid dynamic allocations
-		stack = &m_rayTestStacks[threadIndex];
+		stack = &m_rayTestStacks[(int)threadIndex];
 	}
 	else
 	{
@@ -473,7 +473,7 @@ void btDbvtBroadphase::performDeferredRemoval(btDispatcher* dispatcher)
 				//important to perform AABB check that is consistent with the broadphase
 				btDbvtProxy* pa = (btDbvtProxy*)pair.m_pProxy0;
 				btDbvtProxy* pb = (btDbvtProxy*)pair.m_pProxy1;
-				bool hasOverlap = Intersect(pa->leaf->volume, pb->leaf->volume);
+				bool hasOverlap = pa && pb ? Intersect(pa->leaf->volume, pb->leaf->volume) : false;
 
 				if (hasOverlap)
 				{
@@ -613,7 +613,7 @@ void btDbvtBroadphase::collide(btDispatcher* dispatcher)
 	m_needcleanup = false;
 	if (m_updates_call > 0)
 	{
-		m_updates_ratio = m_updates_done / (btScalar)m_updates_call;
+		m_updates_ratio = (btScalar)m_updates_done / (btScalar)m_updates_call;
 	}
 	else
 	{
@@ -662,7 +662,7 @@ void btDbvtBroadphase::getBroadphaseAabb(btVector3& aabbMin, btVector3& aabbMax)
 	aabbMax = bounds.Maxs();
 }
 
-void btDbvtBroadphase::resetPool(btDispatcher* dispatcher)
+void btDbvtBroadphase::resetPool(btDispatcher* /*dispatcher*/)
 {
 	int totalObjects = m_sets[0].m_leaves + m_sets[1].m_leaves;
 	if (!totalObjects)

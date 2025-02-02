@@ -247,7 +247,6 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 
 		if (allSleeping)
 		{
-			int idx;
 			for (idx = startIslandIndex; idx < endIslandIndex; idx++)
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
@@ -267,7 +266,6 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 		}
 		else
 		{
-			int idx;
 			for (idx = startIslandIndex; idx < endIslandIndex; idx++)
 			{
 				int i = getUnionFind().getElement(idx).m_sz;
@@ -318,14 +316,14 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 			((colObj1) && colObj1->getActivationState() != ISLAND_SLEEPING))
 		{
 			//kinematic objects don't merge islands, but wake up all connected objects
-			if (colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
+			if (colObj0 && colObj0->isKinematicObject() && colObj0->getActivationState() != ISLAND_SLEEPING)
 			{
-				if (colObj0->hasContactResponse())
+				if (colObj0->hasContactResponse() && colObj1)
 					colObj1->activate();
 			}
-			if (colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
+			if (colObj1 && colObj1->isKinematicObject() && colObj1->getActivationState() != ISLAND_SLEEPING)
 			{
-				if (colObj1->hasContactResponse())
+				if (colObj1->hasContactResponse() && colObj0)
 					colObj0->activate();
 			}
 			if (m_splitIslands)

@@ -84,8 +84,8 @@ public:
 	{
 	}
 	/**@brief Axis angle Constructor
-   * @param axis The axis which the rotation is around
-   * @param angle The magnitude of the rotation around the angle (Radians) */
+   * @param _axis The axis which the rotation is around
+   * @param _angle The magnitude of the rotation around the angle (Radians) */
 	btQuaternion(const btVector3& _axis, const btScalar& _angle)
 	{
 		setRotation(_axis, _angle);
@@ -104,7 +104,7 @@ public:
 	}
 	/**@brief Set the rotation using axis angle notation 
    * @param axis The axis around which to rotate
-   * @param angle The magnitude of the rotation in Radians */
+   * @param _angle The magnitude of the rotation in Radians */
 	void setRotation(const btVector3& axis, const btScalar& _angle)
 	{
 		btScalar d = axis.length();
@@ -134,9 +134,9 @@ public:
 				 cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw);
 	}
 	/**@brief Set the quaternion using euler angles 
-   * @param yaw Angle around Z
-   * @param pitch Angle around Y
-   * @param roll Angle around X */
+   * @param yawZ Angle around Z
+   * @param pitchY Angle around Y
+   * @param rollX Angle around X */
 	void setEulerZYX(const btScalar& yawZ, const btScalar& pitchY, const btScalar& rollX)
 	{
 		btScalar halfYaw = btScalar(yawZ) * btScalar(0.5);
@@ -155,9 +155,9 @@ public:
 	}
 
 	/**@brief Get the euler angles from this quaternion
-	   * @param yaw Angle around Z
-	   * @param pitch Angle around Y
-	   * @param roll Angle around X */
+	   * @param yawZ Angle around Z
+	   * @param pitchY Angle around Y
+	   * @param rollX Angle around X */
 	void getEulerZYX(btScalar& yawZ, btScalar& pitchY, btScalar& rollX) const
 	{
 		btScalar squ;
@@ -582,7 +582,7 @@ public:
 		const btScalar product = dot(q) / magnitude;
 		const btScalar absproduct = btFabs(product);
 
-		if (absproduct < btScalar(1.0 - SIMD_EPSILON))
+		if (absproduct < (btScalar(1.0) - SIMD_EPSILON))
 		{
 			// Take care of long angle case see http://en.wikipedia.org/wiki/Slerp
 			const btScalar theta = btAcos(absproduct);
@@ -942,7 +942,7 @@ shortestArcQuat(const btVector3& v0, const btVector3& v1)  // Game Programming G
 	btVector3 c = v0.cross(v1);
 	btScalar d = v0.dot(v1);
 
-	if (d < -1.0 + SIMD_EPSILON)
+	if (d < (btScalar(-1.0) + SIMD_EPSILON))
 	{
 		btVector3 n, unused;
 		btPlaneSpace1(v0, n, unused);

@@ -157,7 +157,7 @@ void btDeformableContactProjection::project(TVStack& x)
 	for (int index = 0; index < m_projectionsDict.size(); ++index)
 	{
 		btAlignedObjectArray<btVector3>& projectionDirs = *m_projectionsDict.getAtIndex(index);
-		size_t i = m_projectionsDict.getKeyAtIndex(index).getUid1();
+		int i = m_projectionsDict.getKeyAtIndex(index).getUid1();
 		if (projectionDirs.size() >= dim)
 		{
 			// static node
@@ -598,13 +598,13 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 				int index = node->index;
 				f[index] += constraint.getDv(node) * (1. / node->m_im);
 			}
-			for (int k = 0; k < 3; ++k)
+			for (int l = 0; l < 3; ++l)
 			{
-				const btSoftBody::Node* node = face->m_n[k];
-				if (node->m_im != 0)
+				const btSoftBody::Node* softNode = face->m_n[l];
+				if (softNode->m_im != 0)
 				{
-					int index = node->index;
-					f[index] += constraint.getDv(node) * (1. / node->m_im);
+					int index = softNode->index;
+					f[index] += constraint.getDv(softNode) * (1. / softNode->m_im);
 				}
 			}
 		}

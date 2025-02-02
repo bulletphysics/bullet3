@@ -24,6 +24,9 @@ Color HSVToColor(float h, float s, float v)
 	if (!h && !s)
 	{
 		r = g = b = v;
+		(void)r;
+		(void)g;
+		(void)b;
 	}
 	double min, max, delta, hue;
 
@@ -164,8 +167,8 @@ void ColorLerpBox::SetColor(Gwen::Color color, bool onlyHue)
 	m_Hue = hsv.h;
 	if (!onlyHue)
 	{
-		cursorPos.x = hsv.s * Width();
-		cursorPos.y = (1 - hsv.v) * Height();
+		cursorPos.x = hsv.s * (float)Width();
+		cursorPos.y = (1 - hsv.v) * (float)Height();
 	}
 
 	onSelectionChanged.Call(this);
@@ -306,7 +309,7 @@ void ColorSlider::SetColor(Gwen::Color color)
 {
 	HSV hsv = RGBtoHSV(color.r, color.g, color.b);
 
-	m_iSelectedDist = hsv.h / 360 * Height();
+	m_iSelectedDist = hsv.h / 360 * (float)Height();
 
 	onSelectionChanged.Call(this);
 }

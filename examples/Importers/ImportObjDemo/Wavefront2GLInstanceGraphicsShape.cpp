@@ -17,12 +17,12 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 		//	int numIndices = 0;
 		b3AlignedObjectArray<int>* indicesPtr = new b3AlignedObjectArray<int>;
 
-		for (int s = 0; s < (int)shapes.size(); s++)
+		for (size_t s = 0; s < shapes.size(); s++)
 		{
 			bt_tinyobj::shape_t& shape = shapes[s];
-			int faceCount = shape.mesh.indices.size();
+			size_t faceCount = shape.mesh.indices.size();
 
-			for (int f = 0; f < faceCount; f += 3)
+			for (size_t f = 0; f < faceCount; f += 3)
 			{
 				//btVector3 normal(face.m_plane[0],face.m_plane[1],face.m_plane[2]);
 				if (1)
@@ -30,26 +30,26 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 					btVector3 normal(0, 1, 0);
 					int vtxBaseIndex = vertices->size();
 
-					if (f < 0 && f >= int(shape.mesh.indices.size()))
+					if (f >= shape.mesh.indices.size())
 					{
 						continue;
 					}
 
 					GLInstanceVertex vtx0;
 					bt_tinyobj::index_t v_0 = shape.mesh.indices[f];
-					vtx0.xyzw[0] = attribute.vertices[3 * v_0.vertex_index];
-					vtx0.xyzw[1] = attribute.vertices[3 * v_0.vertex_index + 1];
-					vtx0.xyzw[2] = attribute.vertices[3 * v_0.vertex_index + 2];
+					vtx0.xyzw[0] = attribute.vertices[3 * (size_t)v_0.vertex_index];
+					vtx0.xyzw[1] = attribute.vertices[3 * (size_t)v_0.vertex_index + 1];
+					vtx0.xyzw[2] = attribute.vertices[3 * (size_t)v_0.vertex_index + 2];
 					vtx0.xyzw[3] = 0.f;
 
 					if (attribute.texcoords.size())
 					{
 						int uv0Index = 2 * v_0.texcoord_index;
 						int uv1Index = 2 * v_0.texcoord_index + 1;
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < int(attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size())))
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < int(attribute.texcoords.size()) && (uv1Index < (int)attribute.texcoords.size())))
 						{
-							vtx0.uv[0] = attribute.texcoords[uv0Index];
-							vtx0.uv[1] = attribute.texcoords[uv1Index];
+							vtx0.uv[0] = attribute.texcoords[(size_t)uv0Index];
+							vtx0.uv[1] = attribute.texcoords[(size_t)uv1Index];
 						}
 						else
 						{
@@ -66,19 +66,19 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 
 					GLInstanceVertex vtx1;
 					bt_tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-					vtx1.xyzw[0] = attribute.vertices[3 * v_1.vertex_index];
-					vtx1.xyzw[1] = attribute.vertices[3 * v_1.vertex_index + 1];
-					vtx1.xyzw[2] = attribute.vertices[3 * v_1.vertex_index + 2];
+					vtx1.xyzw[0] = attribute.vertices[3 * (size_t)v_1.vertex_index];
+					vtx1.xyzw[1] = attribute.vertices[3 * (size_t)v_1.vertex_index + 1];
+					vtx1.xyzw[2] = attribute.vertices[3 * (size_t)v_1.vertex_index + 2];
 					vtx1.xyzw[3] = 0.f;
 
 					if (attribute.texcoords.size())
 					{
 						int uv0Index = 2 * v_1.texcoord_index;
 						int uv1Index = 2 * v_1.texcoord_index + 1;
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size()))
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < (int)attribute.texcoords.size()) && (uv1Index < (int)attribute.texcoords.size()))
 						{
-							vtx1.uv[0] = attribute.texcoords[uv0Index];
-							vtx1.uv[1] = attribute.texcoords[uv1Index];
+							vtx1.uv[0] = attribute.texcoords[(size_t)uv0Index];
+							vtx1.uv[1] = attribute.texcoords[(size_t)uv1Index];
 						}
 						else
 						{
@@ -95,19 +95,19 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 
 					GLInstanceVertex vtx2;
 					bt_tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
-					vtx2.xyzw[0] = attribute.vertices[3 * v_2.vertex_index];
-					vtx2.xyzw[1] = attribute.vertices[3 * v_2.vertex_index + 1];
-					vtx2.xyzw[2] = attribute.vertices[3 * v_2.vertex_index + 2];
+					vtx2.xyzw[0] = attribute.vertices[3 * (size_t)v_2.vertex_index];
+					vtx2.xyzw[1] = attribute.vertices[3 * (size_t)v_2.vertex_index + 1];
+					vtx2.xyzw[2] = attribute.vertices[3 * (size_t)v_2.vertex_index + 2];
 					vtx2.xyzw[3] = 0.f;
 					if (attribute.texcoords.size())
 					{
 						int uv0Index = 2 * v_2.texcoord_index;
 						int uv1Index = 2 * v_2.texcoord_index + 1;
 
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size()))
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < (int)attribute.texcoords.size()) && (uv1Index < (int)attribute.texcoords.size()))
 						{
-							vtx2.uv[0] = attribute.texcoords[uv0Index];
-							vtx2.uv[1] = attribute.texcoords[uv1Index];
+							vtx2.uv[0] = attribute.texcoords[(size_t)uv0Index];
+							vtx2.uv[1] = attribute.texcoords[(size_t)uv1Index];
 						}
 						else
 						{
@@ -127,9 +127,9 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 					btVector3 v2(vtx2.xyzw[0], vtx2.xyzw[1], vtx2.xyzw[2]);
 
 					unsigned int maxIndex = 0;
-					unsigned n0Index = shape.mesh.indices[f].normal_index;
-					unsigned n1Index = shape.mesh.indices[f + 1].normal_index;
-					unsigned n2Index = shape.mesh.indices[f + 2].normal_index;
+					unsigned n0Index = (unsigned)shape.mesh.indices[f].normal_index;
+					unsigned n1Index = (unsigned)shape.mesh.indices[f + 1].normal_index;
+					unsigned n2Index = (unsigned)shape.mesh.indices[f + 2].normal_index;
 
 					maxIndex = b3Max(maxIndex, 3 * n0Index + 0);
 					maxIndex = b3Max(maxIndex, 3 * n0Index + 1);

@@ -71,12 +71,12 @@ void Reset(Tree& tree, Jacobian* m_ikJacobian)
 
 // Update target positions
 
-void UpdateTargets(double T, Tree& treeY)
+void UpdateTargets(double t, Tree& /*treeY*/)
 {
-	targetaa[0].Set(2.0f + 1.5*sin(3 * T) * 2, -0.5 + 1.0f + 0.2*sin(7 * T) * 2, 0.3f + 0.7*sin(5 * T) * 2);
-	targetaa[1].Set(0.5f + 0.4*sin(4 * T) * 2, -0.5 + 0.9f + 0.3*sin(4 * T) * 2, -0.2f + 1.0*sin(3 * T) * 2);
-	targetaa[2].Set(-0.5f + 0.8*sin(6 * T) * 2, -0.5 + 1.1f + 0.2*sin(7 * T) * 2, 0.3f + 0.5*sin(8 * T) * 2);
-	targetaa[3].Set(-1.6f + 0.8*sin(4 * T) * 2, -0.5 + 0.8f + 0.3*sin(4 * T) * 2, -0.2f + 0.3*sin(3 * T) * 2);
+	targetaa[0].Set(2.0f + 1.5*sin(3 * t) * 2, -0.5 + 1.0f + 0.2*sin(7 * t) * 2, 0.3f + 0.7*sin(5 * t) * 2);
+	targetaa[1].Set(0.5f + 0.4*sin(4 * t) * 2, -0.5 + 0.9f + 0.3*sin(4 * t) * 2, -0.2f + 1.0*sin(3 * t) * 2);
+	targetaa[2].Set(-0.5f + 0.8*sin(6 * t) * 2, -0.5 + 1.1f + 0.2*sin(7 * t) * 2, 0.3f + 0.5*sin(8 * t) * 2);
+	targetaa[3].Set(-1.6f + 0.8*sin(4 * t) * 2, -0.5 + 0.8f + 0.3*sin(4 * t) * 2, -0.2f + 0.3*sin(3 * t) * 2);
 
 }
 
@@ -163,11 +163,11 @@ public:
 			b3Vector3 extents = b3MakeVector3(100, 100, 100);
 			extents[m_app->getUpAxis()] = 1;
 
-			int xres = 20;
-			int yres = 20;
+			// int xres = 20;
+			// int yres = 20;
 
-			b3Vector4 color0 = b3MakeVector4(0.4, 0.4, 0.4, 1);
-			b3Vector4 color1 = b3MakeVector4(0.6, 0.6, 0.6, 1);
+			// b3Vector4 color0 = b3MakeVector4(0.4, 0.4, 0.4, 1);
+			// b3Vector4 color1 = b3MakeVector4(0.6, 0.6, 0.6, 1);
 			//m_app->registerGrid(xres, yres, color0, color1);
 		}
 
@@ -178,8 +178,8 @@ public:
 			b3Vector3 pos = b3MakeVector3(1, 1, 1);
 			pos[app->getUpAxis()] = 1;
 			b3Quaternion orn(0, 0, 0, 1);
-			b3Vector4 color = b3MakeVector4(1., 0.3, 0.3, 1);
-			b3Vector3 scaling = b3MakeVector3(.1, .1, .1);
+			b3Vector4 color = b3MakeVector4(b3Scalar(1.), b3Scalar(0.3), b3Scalar(0.3), b3Scalar(1.));
+			b3Vector3 scaling = b3MakeVector3(b3Scalar(.1), b3Scalar(.1), b3Scalar(.1));
 			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
 			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
 			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
@@ -191,7 +191,7 @@ public:
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -231,20 +231,20 @@ public:
 			int pointSize = 10;
 			m_app->m_renderer->drawPoint(pos, color1, pointSize);
 
-			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(0), b3MakeVector3(1, 0, 0), lineWidth);
-			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(1), b3MakeVector3(0, 1, 0), lineWidth);
-			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(2), b3MakeVector3(0, 0, 1), lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(0), b3MakeVector3(1, 0, 0), lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(1), b3MakeVector3(0, 1, 0), lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(2), b3MakeVector3(0, 0, 1), lineWidth);
 
 			b3Vector3 axisLocal = b3MakeVector3(node->v.x, node->v.y, node->v.z);
 			b3Vector3 axisWorld = tr.getBasis() * axisLocal;
 
-			m_app->m_renderer->drawLine(pos, pos + 0.1 * axisWorld, b3MakeVector3(.2, 0.2, 0.7), 5);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.1) * axisWorld, b3MakeVector3(b3Scalar(0.2), b3Scalar(0.2), b3Scalar(0.7)), 5);
 
 			if (node->right)
 			{
 				b3Transform act;
 				getLocalTransform(node->right, act);
-				b3Transform trr = tr * act;
+				// b3Transform trr = tr * act;
 				b3Transform ptrr = parentTr * act;
 				b3Vector3 lineColor = b3MakeVector3(0, 1, 0);
 				m_app->m_renderer->drawLine(tr.getOrigin(), ptrr.getOrigin(), lineColor, lineWidth);
@@ -288,25 +288,25 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
 
 	virtual void resetCamera()
 	{
-		float dist = 1.3;
+		float dist = 1.3f;
 		float pitch = -13;
 		float yaw = 120;
-		float targetPos[3] = {-0.35, 0.14, 0.25};
+		float targetPos[3] = {-0.35f, 0.14f, 0.25f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

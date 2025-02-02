@@ -102,13 +102,13 @@ struct TinyRendererVisualShapeConverterInternalData
 		m_hasLightDirection(false),
 		m_lightColor(btVector3(1.0, 1.0, 1.0)),
 		m_hasLightColor(false),
-		m_lightDistance(2.0),
+		m_lightDistance(2.0f),
 		m_hasLightDistance(false),
-		m_lightAmbientCoeff(0.6),
+		m_lightAmbientCoeff(0.6f),
 		m_hasLightAmbientCoeff(false),
-		m_lightDiffuseCoeff(0.35),
+		m_lightDiffuseCoeff(0.35f),
 		m_hasLightDiffuseCoeff(false),
-		m_lightSpecularCoeff(0.05),
+		m_lightSpecularCoeff(0.05f),
 		m_hasLightSpecularCoeff(false),
 		m_hasShadow(false),
 		m_flags(0)
@@ -185,7 +185,7 @@ void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff
 	m_data->m_hasLightSpecularCoeff = true;
 }
 
-static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
+static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdfPathPrefix*/, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
@@ -234,11 +234,11 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 			for (int i = 0; i < numSteps; i++)
 			{
 				{
-					btVector3 vert = p1 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
+					btVector3 vert = p1 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / float(numSteps))) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / float(numSteps)));
 					vertices.push_back(vert);
 				}
 				{
-					btVector3 vert = p2 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
+					btVector3 vert = p2 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / float(numSteps))) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / float(numSteps)));
 					vertices.push_back(vert);
 				}
 			}
@@ -258,7 +258,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 			rad = visual->m_geometry.m_capsuleRadius;
 			for (int i = 0; i < numSteps; i++)
 			{
-				btVector3 vert(rad * btSin(SIMD_2_PI * (float(i) / numSteps)), rad * btCos(SIMD_2_PI * (float(i) / numSteps)), len / 2.);
+				btVector3 vert(rad * btSin(SIMD_2_PI * (float(i) / float(numSteps))), rad * btCos(SIMD_2_PI * (float(i) / float(numSteps))), len / 2.);
 				vertices.push_back(vert);
 				vert[2] = -len / 2.;
 				vertices.push_back(vert);
@@ -284,7 +284,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 		btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
 		//btCapsuleShape* cylZShape = new btCapsuleShape(rad,len);//btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
 
-		cylZShape->setMargin(0.001);
+		cylZShape->setMargin(btScalar(0.001));
 		convexColShape = cylZShape;
 		break;
 	}
@@ -298,7 +298,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 
 
 		int strideInBytes = 9 * sizeof(float);
-		int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+		int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 		int numIndices = sizeof(cube_indices) / sizeof(int);
 
 		glmesh = new GLInstanceGraphicsShape;
@@ -346,7 +346,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 		btScalar radius = visual->m_geometry.m_sphereRadius;
 		btSphereShape* sphereShape = new btSphereShape(radius);
 		convexColShape = sphereShape;
-		convexColShape->setMargin(0.001);
+		convexColShape->setMargin(btScalar(0.001));
 		break;
 	}
 	case URDF_GEOM_MESH:
@@ -485,17 +485,17 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 
 				int baseIndex = glmesh->m_vertices->size();
 
-				for (int i = 0; i < gfxShape->m_vertices->size(); i++)
+				for (int j = 0; j < gfxShape->m_vertices->size(); j++)
 				{
-					verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-					verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-					verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-					verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-					verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-					verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-					verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-					verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-					verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+					verts[j].normal[0] = gfxShape->m_vertices->at(j).normal[0];
+					verts[j].normal[1] = gfxShape->m_vertices->at(j).normal[1];
+					verts[j].normal[2] = gfxShape->m_vertices->at(j).normal[2];
+					verts[j].uv[0] = gfxShape->m_vertices->at(j).uv[0];
+					verts[j].uv[1] = gfxShape->m_vertices->at(j).uv[1];
+					verts[j].xyzw[0] = gfxShape->m_vertices->at(j).xyzw[0];
+					verts[j].xyzw[1] = gfxShape->m_vertices->at(j).xyzw[1];
+					verts[j].xyzw[2] = gfxShape->m_vertices->at(j).xyzw[2];
+					verts[j].xyzw[3] = gfxShape->m_vertices->at(j).xyzw[3];
 				}
 
 				int curNumIndices = glmesh->m_indices->size();
@@ -694,7 +694,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < numIndices; i++)
 			{
-				glmesh->m_indices->push_back(hull->getIndexPointer()[i]);
+				glmesh->m_indices->push_back((int)hull->getIndexPointer()[i]);
 			}
 
 			glmesh->m_numvertices = glmesh->m_vertices->size();
@@ -896,9 +896,9 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 
 								if (a == b)
 								{
-									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 0] = red;
-									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 1] = green;
-									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 2] = blue;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 0] = (unsigned char)red;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 1] = (unsigned char)green;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 2] = (unsigned char)blue;
 								}
 							}
 						}
@@ -923,13 +923,13 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 				unsigned char* textureImage1 = 0;
 				int textureWidth = 0;
 				int textureHeight = 0;
-				bool isCached = false;
+				// bool isCached = false;
 				if (textures.size())
 				{
 					textureImage1 = textures[0].textureData1;
 					textureWidth = textures[0].m_width;
 					textureHeight = textures[0].m_height;
-					isCached = textures[0].m_isCached;
+					// isCached = textures[0].m_isCached;
 				}
 
 				{
@@ -960,7 +960,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 	return uniqueId;
 }
 
-int TinyRendererVisualShapeConverter::registerShapeAndInstance( const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
+int TinyRendererVisualShapeConverter::registerShapeAndInstance( const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int /*primitiveType*/, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
 {
 	btAlignedObjectArray<b3VisualShapeData>* shapes1 =
 		m_data->m_visualShapesMap[bodyUniqueId];
@@ -1084,7 +1084,6 @@ void TinyRendererVisualShapeConverter::changeInstanceFlags(int bodyUniqueId, int
 	{
 		return;
 	}
-	int start = -1;
 
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
@@ -1114,7 +1113,7 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 	{
 		return;
 	}
-	int start = -1;
+
 	for (int i = 0; i < shapes->size(); i++)
 	{
 		if (shapes->at(i).m_linkIndex == linkIndex)
@@ -1248,25 +1247,25 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 		lightColor = m_data->m_lightColor;
 	}
 
-	float lightDistance = 2.0;
+	float lightDistance = 2.0f;
 	if (m_data->m_hasLightDistance)
 	{
 		lightDistance = m_data->m_lightDistance;
 	}
 
-	float lightAmbientCoeff = 0.6;
+	float lightAmbientCoeff = 0.6f;
 	if (m_data->m_hasLightAmbientCoeff)
 	{
 		lightAmbientCoeff = m_data->m_lightAmbientCoeff;
 	}
 
-	float lightDiffuseCoeff = 0.35;
+	float lightDiffuseCoeff = 0.35f;
 	if (m_data->m_hasLightDiffuseCoeff)
 	{
 		lightDiffuseCoeff = m_data->m_lightDiffuseCoeff;
 	}
 
-	float lightSpecularCoeff = 0.05;
+	float lightSpecularCoeff = 0.05f;
 	if (m_data->m_hasLightSpecularCoeff)
 	{
 		lightSpecularCoeff = m_data->m_lightSpecularCoeff;
@@ -1289,13 +1288,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 				const btTransform& tr = visualArray->m_worldTransform;
 				tr.getOpenGLMatrix(modelMat);
 
-				for (int i = 0; i < 4; i++)
+				for (size_t i = 0; i < 4; i++)
 				{
-					for (int j = 0; j < 4; j++)
+					for (size_t j = 0; j < 4; j++)
 					{
-						renderObj->m_projectionMatrix[i][j] = projMat[i + 4 * j];
-						renderObj->m_modelMatrix[i][j] = modelMat[i + 4 * j];
-						renderObj->m_viewMatrix[i][j] = viewMat[i + 4 * j];
+						renderObj->m_projectionMatrix[i][j] = projMat[(size_t)(i + 4 * j)];
+						renderObj->m_modelMatrix[i][j] = modelMat[(size_t)(i + 4 * j)];
+						renderObj->m_viewMatrix[i][j] = viewMat[(size_t)(i + 4 * j)];
 					}
 				}
 				renderObj->m_localScaling = visualArray->m_localScaling;
@@ -1325,13 +1324,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 			const btTransform& tr = visualArray->m_worldTransform;
 			tr.getOpenGLMatrix(modelMat);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
-					renderObj->m_projectionMatrix[i][j] = projMat[i + 4 * j];
-					renderObj->m_modelMatrix[i][j] = modelMat[i + 4 * j];
-					renderObj->m_viewMatrix[i][j] = viewMat[i + 4 * j];
+					renderObj->m_projectionMatrix[i][j] = projMat[(size_t)(i + 4 * j)];
+					renderObj->m_modelMatrix[i][j] = modelMat[(size_t)(i + 4 * j)];
+					renderObj->m_viewMatrix[i][j] = viewMat[(size_t)(i + 4 * j)];
 				}
 			}
 			renderObj->m_localScaling = visualArray->m_localScaling;
@@ -1354,13 +1353,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 		int half = m_data->m_swHeight >> 1;
 		for (int j = 0; j < half; j++)
 		{
-			unsigned long l1 = j * m_data->m_swWidth;
-			unsigned long l2 = (m_data->m_swHeight - 1 - j) * m_data->m_swWidth;
+			unsigned long l1 = (unsigned long)(j * m_data->m_swWidth);
+			unsigned long l2 = (unsigned long)((m_data->m_swHeight - 1 - j) * m_data->m_swWidth);
 			for (int i = 0; i < m_data->m_swWidth; i++)
 			{
-				btSwap(m_data->m_depthBuffer[l1 + i], m_data->m_depthBuffer[l2 + i]);
-				btSwap(m_data->m_shadowBuffer[l1 + i], m_data->m_shadowBuffer[l2 + i]);
-				btSwap(m_data->m_segmentationMaskBuffer[l1 + i], m_data->m_segmentationMaskBuffer[l2 + i]);
+				btSwap(m_data->m_depthBuffer[(int)l1 + i], m_data->m_depthBuffer[(int)l2 + i]);
+				btSwap(m_data->m_shadowBuffer[(int)l1 + i], m_data->m_shadowBuffer[(int)l2 + i]);
+				btSwap(m_data->m_segmentationMaskBuffer[(int)l1 + i], m_data->m_segmentationMaskBuffer[(int)l2 + i]);
 			}
 		}
 	}
@@ -1384,8 +1383,8 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 }
 
 void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-	float* depthBuffer, int depthBufferSizeInPixels,
-	int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
+	float* depthBuffer, int /*depthBufferSizeInPixels*/,
+	int* segmentationMaskBuffer, int /*segmentationMaskSizeInPixels*/,
 	int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
 {
 	int w = m_data->m_rgbColorBuffer.get_width();
@@ -1555,7 +1554,7 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
 int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadTextureFile");
-	int width, height, n;
+	int width=0, height=0, n;
 	unsigned char* image = 0;
 	if (fileIO)
 	{

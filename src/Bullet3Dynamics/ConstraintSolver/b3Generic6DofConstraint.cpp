@@ -259,7 +259,7 @@ void b3Generic6DofConstraint::getInfo1(b3ConstraintInfo1* info, const b3RigidBod
 	//	printf("info->m_numConstraintRows=%d\n",info->m_numConstraintRows);
 }
 
-void b3Generic6DofConstraint::getInfo1NonVirtual(b3ConstraintInfo1* info, const b3RigidBodyData* bodies)
+void b3Generic6DofConstraint::getInfo1NonVirtual(b3ConstraintInfo1* info, const b3RigidBodyData* /*bodies*/)
 {
 	//pre-allocate all 6
 	info->m_numConstraintRows = 6;

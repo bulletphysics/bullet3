@@ -299,7 +299,7 @@ SIMD_FORCE_INLINE GUINT LINE_PLANE_COLLISION(
 
 	VEC_SCALE(pout, tparam, vDir);
 	VEC_SUM(pout, vPoint, pout);
-	return returnvalue;
+	return (GUINT)returnvalue;
 }
 
 /*! \brief Returns the Ray on which 2 planes intersect if they do.

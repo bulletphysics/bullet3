@@ -74,7 +74,7 @@ public:
 	}
 
 	virtual void OnStart() { m_Control->SetHeight(m_iStartSize); }
-	virtual void Run(float delta) { m_Control->SetHeight(m_iStartSize + (((float)m_iDelta) * delta)); }
+	virtual void Run(float delta) { m_Control->SetHeight((float)m_iStartSize + (((float)m_iDelta) * delta)); }
 	virtual void OnFinish()
 	{
 		m_Control->SetHeight(m_iStartSize + m_iDelta);
@@ -98,7 +98,7 @@ public:
 	}
 
 	virtual void OnStart() { m_Control->SetWidth(m_iStartSize); }
-	virtual void Run(float delta) { m_Control->SetWidth(m_iStartSize + (((float)m_iDelta) * delta)); }
+	virtual void Run(float delta) { m_Control->SetWidth((float)m_iStartSize + (((float)m_iDelta) * delta)); }
 	virtual void OnFinish()
 	{
 		m_Control->SetWidth(m_iStartSize + m_iDelta);

@@ -63,8 +63,8 @@ public:
 		{
 			int sphereId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_MEDIUM);
 			b3Quaternion orn(0, 0, 0, 1);
-			b3Vector4 color = b3MakeVector4(1., 0.3, 0.3, 1);
-			b3Vector3 scaling = b3MakeVector3(.02, .02, .02);
+			b3Vector4 color = b3MakeVector4(1., b3Scalar(0.3), b3Scalar(0.3), 1);
+			b3Vector3 scaling = b3MakeVector3(b3Scalar(.02), b3Scalar(.02), b3Scalar(.02));
 			m_targetSphereInstance = m_app->m_renderer->registerGraphicsInstance(sphereId, m_targetPos, orn, color, scaling);
 		}
 		m_app->m_renderer->writeTransforms();
@@ -123,13 +123,14 @@ public:
 		m_time += dt;
 		m_targetPos.setValue(0.4 - 0.4 * b3Cos(m_time), 0, 0.8 + 0.4 * b3Cos(m_time));
 		m_targetOri.setValue(0, 1.0, 0, 0);
-		m_targetPos.setValue(0.2 * b3Cos(m_time), 0.2 * b3Sin(m_time), 1.1);
+		m_targetPos.setValue(b3Scalar(0.2 * b3Cos(m_time)), b3Scalar(0.2 * b3Sin(m_time)), b3Scalar(1.1));
 
 		int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
 
 		if (numJoints == 7)
 		{
 			double q_current[7] = {0, 0, 0, 0, 0, 0, 0};
+			(void)q_current;
 
 			b3JointStates2 jointStates;
 
@@ -252,15 +253,15 @@ public:
 	{
 		m_robotSim.debugDraw(debugDrawMode);
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -270,7 +271,7 @@ public:
 		float dist = 3;
 		float pitch = -30;
 		float yaw = 0;
-		float targetPos[3] = {-0.2, 0.8, 0.3};
+		float targetPos[3] = {-0.2f, 0.8f, 0.3f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

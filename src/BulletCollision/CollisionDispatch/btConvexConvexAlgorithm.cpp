@@ -422,8 +422,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				{
 				}
 
-				virtual void setShapeIdentifiersA(int partId0, int index0) {}
-				virtual void setShapeIdentifiersB(int partId1, int index1) {}
+				virtual void setShapeIdentifiersA(int /*partId0*/, int /*index0*/) {}
+				virtual void setShapeIdentifiersB(int /*partId1*/, int /*index1*/) {}
 				virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth)
 				{
 					m_hasContact = true;
@@ -450,8 +450,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				{
 				}
 
-				virtual void setShapeIdentifiersA(int partId0, int index0) {}
-				virtual void setShapeIdentifiersB(int partId1, int index1) {}
+				virtual void setShapeIdentifiersA(int /*partId0*/, int /*index0*/) {}
+				virtual void setShapeIdentifiersB(int /*partId1*/, int /*index1*/) {}
 				virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorldOrg, btScalar depthOrg)
 				{
 					m_reportedDistance = depthOrg;
@@ -747,7 +747,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 					if (v0.length2() > SIMD_EPSILON)
 					{
 						btQuaternion perturbeRot(v0, perturbeAngle);
-						btScalar iterationAngle = i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
+						btScalar iterationAngle = (btScalar)i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
 						btQuaternion rotq(sepNormalWorldSpace, iterationAngle);
 
 						if (perturbeA)

@@ -39,7 +39,7 @@ struct btMprCollisionDescription
 		: m_firstDir(0, 1, 0),
 		  m_maxGjkIterations(1000),
 		  m_maximumDistanceSquared(1e30f),
-		  m_gjkRelError2(1.0e-6)
+		  m_gjkRelError2(1.0e-6f)
 	{
 	}
 	virtual ~btMprCollisionDescription()
@@ -162,7 +162,7 @@ inline int btMprVec3Eq(const btVector3 *a, const btVector3 *b)
 }
 
 template <typename btConvexTemplate>
-inline void btFindOrigin(const btConvexTemplate &a, const btConvexTemplate &b, const btMprCollisionDescription &colDesc, btMprSupport_t *center)
+inline void btFindOrigin(const btConvexTemplate &a, const btConvexTemplate &b, const btMprCollisionDescription & /*colDesc*/, btMprSupport_t *center)
 {
 	center->v1 = a.getObjectCenterInWorld();
 	center->v2 = b.getObjectCenterInWorld();
@@ -262,7 +262,7 @@ inline int portalReachTolerance(const btMprSimplex_t *portal,
 	return btMprEq(dot1, BT_MPR_TOLERANCE) || dot1 < BT_MPR_TOLERANCE;
 }
 
-inline int portalCanEncapsuleOrigin(const btMprSimplex_t *portal,
+inline int portalCanEncapsuleOrigin(const btMprSimplex_t * /*portal*/,
 									const btMprSupport_t *v4,
 									const btVector3 *dir)
 {
@@ -306,7 +306,7 @@ inline void btExpandPortal(btMprSimplex_t *portal,
 }
 template <typename btConvexTemplate>
 inline void btMprSupport(const btConvexTemplate &a, const btConvexTemplate &b,
-						 const btMprCollisionDescription &colDesc,
+						 const btMprCollisionDescription & /*colDesc*/,
 						 const btVector3 &dir, btMprSupport_t *supp)
 {
 	btVector3 separatingAxisInA = dir * a.getWorldTransform().getBasis();
@@ -548,11 +548,11 @@ static void btFindPos(const btMprSimplex_t *portal, btVector3 *pos)
 	btMprVec3Copy(&p2, origin);
 	for (i = 0; i < 4; i++)
 	{
-		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, i)->v1);
+		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, (int)i)->v1);
 		btMprVec3Scale(&vec, b[i]);
 		btMprVec3Add(&p1, &vec);
 
-		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, i)->v2);
+		btMprVec3Copy(&vec, &btMprSimplexPoint(portal, (int)i)->v2);
 		btMprVec3Scale(&vec, b[i]);
 		btMprVec3Add(&p2, &vec);
 	}
@@ -673,6 +673,7 @@ inline float btMprVec3PointTriDist2(const btVector3 *P,
 	if (btMprIsZero(div))
 	{
 		s = -1;
+		t = 0;
 	}
 	else
 	{
@@ -860,7 +861,7 @@ inline int btMprPenetration(const btConvexTemplate &a, const btConvexTemplate &b
 	};
 
 	return result;
-};
+}
 
 template <typename btConvexTemplate, typename btMprDistanceTemplate>
 inline int btComputeMprPenetration(const btConvexTemplate &a, const btConvexTemplate &b, const btMprCollisionDescription &colDesc, btMprDistanceTemplate *distInfo)

@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btOverride.h"
 
 /// This interface is made to be used by an iterative approach to do TimeOfImpact calculations
 /// This interface allows to query for closest points and penetration depth between two (convex) objects
@@ -69,9 +70,9 @@ protected:
 	}
 
 public:
-	virtual ~btStorageResult(){};
+	virtual ~btStorageResult() BT_OVERRIDE {};
 
-	virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth)
+	virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth) BT_OVERRIDE
 	{
 		if (depth < m_distance)
 		{

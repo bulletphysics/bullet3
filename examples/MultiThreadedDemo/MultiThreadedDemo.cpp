@@ -34,7 +34,7 @@ static btScalar gSliderGroundTilt = 0.0f;
 static btScalar gSliderRollingFriction = 0.0f;
 static bool gSpheresNotBoxes = false;
 
-static void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
+static void boolPtrButtonCallback(int /*buttonId*/, bool /*buttonState*/, void* userPointer)
 {
 	if (bool* val = static_cast<bool*>(userPointer))
 	{
@@ -262,7 +262,7 @@ void MultiThreadedDemo::createStack(const btTransform& parentTrans, btCollisionS
 	float halfBoxHeight = halfBoxSize.y();
 	float halfBoxWidth = halfBoxSize.x();
 
-	btVector3 offset = btVector3(0, 0, -halfBoxSize.z() * (width - 1));
+	btVector3 offset = btVector3(0, 0, -halfBoxSize.z() * (btScalar)(width - 1));
 	for (int iZ = 0; iZ < width; iZ++)
 	{
 		offset += btVector3(0, 0, halfBoxSize.z() * 2.0f);
@@ -272,8 +272,8 @@ void MultiThreadedDemo::createStack(const btTransform& parentTrans, btCollisionS
 			int rowSize = height - iY;
 			for (int iX = 0; iX < rowSize; iX++)
 			{
-				btVector3 pos = offset + btVector3(halfBoxWidth * (1 + iX * 2 - rowSize),
-												   halfBoxHeight * (1 + iY * 2),
+				btVector3 pos = offset + btVector3(halfBoxWidth * (float)(1 + iX * 2 - rowSize),
+												   halfBoxHeight * (float)(1 + iY * 2),
 												   0.0f);
 
 				trans.setOrigin(parentTrans(pos));
@@ -314,7 +314,7 @@ void MultiThreadedDemo::createSceneObjects()
 		int numStackCols = btMax(1, int(gSliderStackColumns));
 		int stackHeight = int(gSliderStackHeight);
 		int stackWidth = int(gSliderStackWidth);
-		float stackZSpacing = 2.0f + stackWidth * halfExtents.x() * 2.0f;
+		float stackZSpacing = 2.0f + (btScalar)stackWidth * halfExtents.x() * 2.0f;
 		float stackXSpacing = 20.0f;
 
 		btBoxShape* boxShape = new btBoxShape(halfExtents);
@@ -336,7 +336,7 @@ void MultiThreadedDemo::createSceneObjects()
 		{
 			for (int iZ = 0; iZ < numStackRows; ++iZ)
 			{
-				btVector3 center = btVector3(iX * stackXSpacing, 0.0f, (iZ - numStackRows / 2) * stackZSpacing);
+				btVector3 center = btVector3((float)iX * stackXSpacing, 0.0f, (float)(iZ - numStackRows / 2) * stackZSpacing);
 				btTransform trans = groundTrans;
 				trans.setOrigin(groundTrans(center));
 				createStack(trans, shape, halfExtents, stackHeight, stackWidth);

@@ -109,7 +109,7 @@ public:
 		m_damping = damping;
 	}
 
-	virtual void debugDraw(class btIDebugDraw* drawer)
+	virtual void debugDraw(class btIDebugDraw* /*drawer*/)
 	{
 		//todo(erwincoumans)
 	}

@@ -458,7 +458,7 @@ void btMultiBodyMLCPConstraintSolver::createMLCPFastRigidBody(const btContactSol
 					if (j0 < c)
 					{
 						int numRowsOther = cr0 < m_tmpSolverNonContactConstraintPool.size() ? m_tmpConstraintSizesPool[j0].m_numConstraintRows : numContactRows;
-						size_t ofsother = (m_allConstraintPtrArray[cr0]->m_solverBodyIdB == sbA) ? 8 * numRowsOther : 0;
+						size_t ofsother = (size_t)((m_allConstraintPtrArray[cr0]->m_solverBodyIdB == sbA) ? 8 * numRowsOther : 0);
 						//printf("%d joint i %d and j0: %d: ",count++,i,j0);
 						m_A.multiplyAdd2_p8r(JinvMrow,
 											 Jptr + 2 * 8 * (size_t)ofs[j0] + ofsother, numRows, numRowsOther, row__, ofs[j0]);
@@ -477,7 +477,7 @@ void btMultiBodyMLCPConstraintSolver::createMLCPFastRigidBody(const btContactSol
 					if (j1 < c)
 					{
 						int numRowsOther = cj1 < m_tmpSolverNonContactConstraintPool.size() ? m_tmpConstraintSizesPool[j1].m_numConstraintRows : numContactRows;
-						size_t ofsother = (m_allConstraintPtrArray[cj1]->m_solverBodyIdB == sbB) ? 8 * numRowsOther : 0;
+						size_t ofsother = (size_t)((m_allConstraintPtrArray[cj1]->m_solverBodyIdB == sbB) ? 8 * numRowsOther : 0);
 						m_A.multiplyAdd2_p8r(JinvMrow + 8 * (size_t)numRows,
 											 Jptr + 2 * 8 * (size_t)ofs[j1] + ofsother, numRows, numRowsOther, row__, ofs[j1]);
 					}
@@ -501,14 +501,14 @@ void btMultiBodyMLCPConstraintSolver::createMLCPFastRigidBody(const btContactSol
 				//	btRigidBody* orgBodyA = m_tmpSolverBodyPool[sbA].m_originalBody;
 				btRigidBody* orgBodyB = m_tmpSolverBodyPool[sbB].m_originalBody;
 
-				const unsigned int infom = row__ < m_tmpSolverNonContactConstraintPool.size() ? m_tmpConstraintSizesPool[jj].m_numConstraintRows : numContactRows;
+				const unsigned int infom = (unsigned int)(row__ < m_tmpSolverNonContactConstraintPool.size() ? m_tmpConstraintSizesPool[jj].m_numConstraintRows : numContactRows);
 
 				const btScalar* JinvMrow = JinvM + 2 * 8 * (size_t)row__;
 				const btScalar* Jrow = Jptr + 2 * 8 * (size_t)row__;
-				m_A.multiply2_p8r(JinvMrow, Jrow, infom, infom, row__, row__);
+				m_A.multiply2_p8r(JinvMrow, Jrow, (int)infom, (int)infom, row__, row__);
 				if (orgBodyB)
 				{
-					m_A.multiplyAdd2_p8r(JinvMrow + 8 * (size_t)infom, Jrow + 8 * (size_t)infom, infom, infom, row__, row__);
+					m_A.multiplyAdd2_p8r(JinvMrow + 8 * (size_t)infom, Jrow + 8 * (size_t)infom, (int)infom, (int)infom, row__, row__);
 				}
 				row__ += infom;
 				jj++;
@@ -540,9 +540,9 @@ void btMultiBodyMLCPConstraintSolver::createMLCPFastRigidBody(const btContactSol
 		{
 			for (int i = 0; i < m_allConstraintPtrArray.size(); i++)
 			{
-				const btSolverConstraint& c = *m_allConstraintPtrArray[i];
-				m_x[i] = c.m_appliedImpulse;
-				m_xSplit[i] = c.m_appliedPushImpulse;
+				const btSolverConstraint& sc = *m_allConstraintPtrArray[i];
+				m_x[i] = sc.m_appliedImpulse;
+				m_xSplit[i] = sc.m_appliedPushImpulse;
 			}
 		}
 		else

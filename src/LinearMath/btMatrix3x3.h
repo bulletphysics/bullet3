@@ -333,7 +333,7 @@ public:
 #endif
 	}
     
-    /**@brief Set the matrix to the identity */
+    /**@brief Set the matrix to zero */
     void setZero()
     {
 #if (defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)) || defined(BT_USE_NEON)
@@ -708,7 +708,7 @@ public:
 	* @param rot stores the rotation from the coordinate system in which the matrix is diagonal to the original
 	* coordinate system, i.e., old_this = rot * new_this * rot^T.
 	* @param threshold See iteration
-	* @param iteration The iteration stops when all off-diagonal elements are less than the threshold multiplied
+	* @param maxSteps The iteration stops when all off-diagonal elements are less than the threshold multiplied
 	* by the sum of the absolute values of the diagonal, or when maxSteps have been executed.
 	*
 	* Note that this matrix is assumed to be symmetric.
@@ -794,8 +794,8 @@ public:
 	/**@brief Calculate the matrix cofactor 
 	* @param r1 The first row to use for calculating the cofactor
 	* @param c1 The first column to use for calculating the cofactor
-	* @param r1 The second row to use for calculating the cofactor
-	* @param c1 The second column to use for calculating the cofactor
+	* @param r2 The second row to use for calculating the cofactor
+	* @param c2 The second column to use for calculating the cofactor
 	* See http://en.wikipedia.org/wiki/Cofactor_(linear_algebra) for more details
 	*/
 	btScalar cofac(int r1, int c1, int r2, int c2) const

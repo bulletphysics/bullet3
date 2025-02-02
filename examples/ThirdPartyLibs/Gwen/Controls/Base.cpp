@@ -321,7 +321,7 @@ int Base::NumChildren()
 {
 	// Include m_InnerPanel's children here?
 
-	return Children.size();
+	return (int)Children.size();
 }
 
 void Base::OnChildAdded(Base* /*pChild*/)
@@ -713,12 +713,12 @@ void Base::RecurseLayout(Skin::Base* skin)
 	rBounds.y += m_Padding.top;
 	rBounds.h -= m_Padding.top + m_Padding.bottom;
 
-	int sz = Children.size();
+	int sz = (int)Children.size();
 	if (sz > 100)
 	{
 		//		printf("!\n");
 	}
-	int curChild = 0;
+	int curChild = 0; (void)curChild;
 	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
 	{
 		Base* pChild = *iter;

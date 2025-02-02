@@ -979,7 +979,7 @@ float3 operator*(const Quaternion &q, const float3 &v)
 		(2 * (qxqz - qyqw)) * v.x + (2 * (qyqz + qxqw)) * v.y + (1 - 2 * (qx2 + qy2)) * v.z);
 }
 
-float3 operator*(const float3 &v, const Quaternion &q)
+float3 operator*(const float3 & /*v*/, const Quaternion & /*q*/)
 {
 	assert(0);  // must multiply with the quat on the left
 	return float3(0.0f, 0.0f, 0.0f);
@@ -1543,9 +1543,12 @@ void Array<Type>::allocate(int s)
 	array_size = s;
 	element = (Type *)malloc(sizeof(Type) * array_size);
 	assert(element);
-	for (int i = 0; i < count; i++)
+	if(element)
 	{
-		element[i] = old[i];
+		for (int i = 0; i < count; i++)
+		{
+			element[i] = old[i];
+		}
 	}
 	if (old)
 	{
@@ -1945,7 +1948,7 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 
 	EdgeFlag edgeflag[512];
 	VertFlag vertflag[256];
-	PlaneFlag planeflag[128];
+	PlaneFlag planeflag[128]; (void)planeflag;
 	HalfEdge tmpunderedges[512];
 	Plane tmpunderplanes[128];
 	Coplanar coplanaredges[512];
@@ -1955,21 +1958,21 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 	// do the side-of-plane tests
 	for (i = 0; i < convex.vertices.count; i++)
 	{
-		vertflag[i].planetest = PlaneTest(slice, convex.vertices[i]);
+		vertflag[i].planetest = (unsigned char)PlaneTest(slice, convex.vertices[i]);
 		if (vertflag[i].planetest == COPLANAR)
 		{
 			// ? vertscoplanar.Add(i);
-			vertflag[i].undermap = vertcountunder++;
-			vertflag[i].overmap = vertcountover++;
+			vertflag[i].undermap = (unsigned char)vertcountunder++;
+			vertflag[i].overmap = (unsigned char)vertcountover++;
 		}
 		else if (vertflag[i].planetest == UNDER)
 		{
-			vertflag[i].undermap = vertcountunder++;
+			vertflag[i].undermap = (unsigned char)vertcountunder++;
 		}
 		else
 		{
 			assert(vertflag[i].planetest == OVER);
-			vertflag[i].overmap = vertcountover++;
+			vertflag[i].overmap = (unsigned char)vertcountover++;
 			vertflag[i].undermap = 255;  // for debugging purposes
 		}
 	}
@@ -2014,15 +2017,15 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 			{
 				// at least one endpoint under, the other coplanar or under
 
-				edgeflag[e0].undermap = under_edge_count;
+				edgeflag[e0].undermap = (short)under_edge_count;
 				tmpunderedges[under_edge_count].v = vertflag[edge0.v].undermap;
-				tmpunderedges[under_edge_count].p = underplanescount;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 				if (edge0.ea < e0)
 				{
 					// connect the neighbors
 					assert(edgeflag[edge0.ea].undermap != -1);
 					tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
-					tmpunderedges[edgeflag[edge0.ea].undermap].ea = under_edge_count;
+					tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
 				}
 				under_edge_count++;
 			}
@@ -2039,9 +2042,9 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 				HalfEdge &edge2 = convex.edges[e2];
 				if (vertflag[edge2.v].planetest == UNDER)
 				{
-					edgeflag[e0].undermap = under_edge_count;
+					edgeflag[e0].undermap = (short)under_edge_count;
 					tmpunderedges[under_edge_count].v = vertflag[edge0.v].undermap;
-					tmpunderedges[under_edge_count].p = underplanescount;
+					tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 					tmpunderedges[under_edge_count].ea = -1;
 					// make sure this edge is added to the "coplanar" list
 					coplanaredge = under_edge_count;
@@ -2058,15 +2061,15 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 			{
 				// first is under 2nd is over
 
-				edgeflag[e0].undermap = under_edge_count;
+				edgeflag[e0].undermap = (short)under_edge_count;
 				tmpunderedges[under_edge_count].v = vertflag[edge0.v].undermap;
-				tmpunderedges[under_edge_count].p = underplanescount;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 				if (edge0.ea < e0)
 				{
 					assert(edgeflag[edge0.ea].undermap != -1);
 					// connect the neighbors
 					tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
-					tmpunderedges[edgeflag[edge0.ea].undermap].ea = under_edge_count;
+					tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
 					vout = tmpunderedges[edgeflag[edge0.ea].undermap].v;
 				}
 				else
@@ -2081,8 +2084,8 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 				under_edge_count++;
 				/// hmmm something to think about: i might be able to output this edge regarless of
 				// wheter or not we know v-in yet.  ok i;ll try this now:
-				tmpunderedges[under_edge_count].v = vout;
-				tmpunderedges[under_edge_count].p = underplanescount;
+				tmpunderedges[under_edge_count].v = (unsigned char)vout;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 				tmpunderedges[under_edge_count].ea = -1;
 				coplanaredge = under_edge_count;
 				under_edge_count++;
@@ -2111,8 +2114,8 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 				}
 				if (planeside & UNDER)
 				{
-					tmpunderedges[under_edge_count].v = vout;
-					tmpunderedges[under_edge_count].p = underplanescount;
+					tmpunderedges[under_edge_count].v = (unsigned char)vout;
+					tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 					tmpunderedges[under_edge_count].ea = -1;
 					coplanaredge = under_edge_count;  // hmmm should make a note of the edge # for later on
 					under_edge_count++;
@@ -2140,6 +2143,7 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 					vin = tmpunderedges[nea + 1].v;
 					assert(vin < vertcountunder);
 					assert(vin >= vertcountunderold);  // for debugging only
+					(void)vertcountunderold;
 				}
 				if (vout != -1)
 				{
@@ -2148,15 +2152,15 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 					// ADD THIS EDGE TO THE LIST OF EDGES THAT NEED NEIGHBOR ON PARTITION PLANE!!
 				}
 				// output edge
-				tmpunderedges[under_edge_count].v = vin;
-				tmpunderedges[under_edge_count].p = underplanescount;
-				edgeflag[e0].undermap = under_edge_count;
+				tmpunderedges[under_edge_count].v = (unsigned char)vin;
+				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
+				edgeflag[e0].undermap = (short)under_edge_count;
 				if (e0 > edge0.ea)
 				{
 					assert(edgeflag[edge0.ea].undermap != -1);
 					// connect the neighbors
 					tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
-					tmpunderedges[edgeflag[edge0.ea].undermap].ea = under_edge_count;
+					tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
 				}
 				assert(edgeflag[e0].undermap == under_edge_count);
 				under_edge_count++;
@@ -2187,7 +2191,7 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 		e0 = enextface;
 		if (planeside & UNDER)
 		{
-			planeflag[currentplane].undermap = underplanescount;
+			planeflag[currentplane].undermap = (unsigned char)underplanescount;
 			tmpunderplanes[underplanescount] = convex.facets[currentplane];
 			underplanescount++;
 		}
@@ -2200,9 +2204,9 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 			assert(vin >= 0);
 			assert(coplanaredge >= 0);
 			assert(coplanaredge != 511);
-			coplanaredges[coplanaredges_num].ea = coplanaredge;
-			coplanaredges[coplanaredges_num].v0 = vin;
-			coplanaredges[coplanaredges_num].v1 = vout;
+			coplanaredges[coplanaredges_num].ea = (unsigned short)coplanaredge;
+			coplanaredges[coplanaredges_num].v0 = (unsigned char)vin;
+			coplanaredges[coplanaredges_num].v1 = (unsigned char)vout;
 			coplanaredges_num++;
 		}
 	}
@@ -2253,8 +2257,8 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 
 	for (i = 0; i < coplanaredges_num; i++)
 	{
-		under.edges[under_edge_count + i].p = underplanescount - 1;
-		under.edges[under_edge_count + i].ea = coplanaredges[i].ea;
+		under.edges[under_edge_count + i].p = (unsigned char)(underplanescount - 1);
+		under.edges[under_edge_count + i].ea = (short)coplanaredges[i].ea;
 		tmpunderedges[coplanaredges[i].ea].ea = under_edge_count + i;
 		under.edges[under_edge_count + i].v = coplanaredges[i].v0;
 	}
@@ -2366,9 +2370,9 @@ int maxdirsterid(const T *p, int count, const T &dir, Array<int> &allow)
 				int mc = ma;
 				for (float xx = x - 40.0f; xx <= x; xx += 5.0f)
 				{
-					float s = sinf(DEG2RAD * (xx));
-					float c = cosf(DEG2RAD * (xx));
-					int md = maxdirfiltered(p, count, dir + (u * s + v * c) * 0.025f, allow);
+					float sin = sinf(DEG2RAD * (xx));
+					float cos = cosf(DEG2RAD * (xx));
+					int md = maxdirfiltered(p, count, dir + (u * sin + v * cos) * 0.025f, allow);
 					if (mc == m && md == m)
 					{
 						allow[m] = 3;
@@ -2505,10 +2509,11 @@ void removeb2b(btHullTriangle *s, btHullTriangle *t, Array<btHullTriangle *> &tr
 	delete t;
 }
 
-void checkit(btHullTriangle *t, Array<btHullTriangle *> &tris)
+void checkit(btHullTriangle *t, Array<btHullTriangle *> & tris)
 {
 	int i;
 	assert(tris[t->id] == t);
+	(void)tris;
 	for (i = 0; i < 3; i++)
 	{
 		int i1 = (i + 1) % 3;
@@ -2517,6 +2522,8 @@ void checkit(btHullTriangle *t, Array<btHullTriangle *> &tris)
 		int b = (*t)[i2];
 		assert(a != b);
 		assert(tris[t->n[i]]->neib(b, a) == t->id);
+		(void)a;
+		(void)b;
 	}
 }
 void extrude(btHullTriangle *t0, int v, Array<btHullTriangle *> &tris)
@@ -2552,7 +2559,7 @@ btHullTriangle *extrudable(float epsilon, Array<btHullTriangle *> &tris)
 			t = tris[i];
 		}
 	}
-	return (t->rise > epsilon) ? t : NULL;
+	return (t && t->rise > epsilon) ? t : NULL;
 }
 
 class int4
@@ -2650,7 +2657,11 @@ int calchullgen(float3 *verts, int verts_count, int vlimit, Array<btHullTriangle
 	}
 	btHullTriangle *te;
 	vlimit -= 4;
-	while (vlimit > 0 && (te = extrudable(epsilon, tris)))
+	if(vlimit > 0)
+		te = extrudable(epsilon, tris);
+	else
+		te = NULL;
+	while (vlimit > 0 && te)
 	{
 		//	int3 ti=*te;
 		int v = te->vmax;
@@ -2702,6 +2713,7 @@ int calchullgen(float3 *verts, int verts_count, int vlimit, Array<btHullTriangle
 			}
 		}
 		vlimit--;
+		te = extrudable(epsilon, tris);
 	}
 	return 1;
 }
@@ -2809,24 +2821,27 @@ int overhull(Plane *planes, int planes_count, float3 *verts, int verts_count, in
 	faces_out = (int *)malloc(sizeof(int) * (1 + c->facets.count + c->edges.count));  // new int[1+c->facets.count+c->edges.count];
 	faces_count_out = 0;
 	i = 0;
-	faces_out[faces_count_out++] = -1;
 	k = 0;
-	while (i < c->edges.count)
+	if(faces_out)
 	{
-		j = 1;
-		while (j + i < c->edges.count && c->edges[i].p == c->edges[i + j].p)
+		faces_out[faces_count_out++] = -1;
+		while (i < c->edges.count)
 		{
-			j++;
+			j = 1;
+			while (j + i < c->edges.count && c->edges[i].p == c->edges[i + j].p)
+			{
+				j++;
+			}
+			faces_out[faces_count_out++] = j;
+			while (j--)
+			{
+				faces_out[faces_count_out++] = c->edges[i].v;
+				i++;
+			}
+			k++;
 		}
-		faces_out[faces_count_out++] = j;
-		while (j--)
-		{
-			faces_out[faces_count_out++] = c->edges[i].v;
-			i++;
-		}
-		k++;
+		faces_out[0] = k;  // number of faces.
 	}
-	faces_out[0] = k;  // number of faces.
 	assert(k == c->facets.count);
 	assert(faces_count_out == 1 + c->facets.count + c->edges.count);
 	verts_out = c->vertices.element;  // new float3[c->vertices.count];
@@ -2863,7 +2878,7 @@ bool ComputeHull(unsigned int vcount, const float *vertices, PHullResult &result
 	{
 		int *tris_out;
 		int tris_count;
-		int ret = calchull((float3 *)vertices, (int)vcount, tris_out, tris_count, vlimit, arrtris);
+		int ret = calchull((float3 *)vertices, (int)vcount, tris_out, tris_count, (int)vlimit, arrtris);
 		if (!ret) return false;
 		result.mIndexCount = (unsigned int)(tris_count * 3);
 		result.mFaceCount = (unsigned int)tris_count;
@@ -2873,7 +2888,7 @@ bool ComputeHull(unsigned int vcount, const float *vertices, PHullResult &result
 		return true;
 	}
 
-	int ret = overhullv((float3 *)vertices, vcount, 35, verts_out, verts_count_out, faces, index_count, inflate, 120.0f, vlimit, arrtris);
+	int ret = overhullv((float3 *)vertices, (int)vcount, 35, verts_out, verts_count_out, faces, index_count, inflate, 120.0f, (int)vlimit, arrtris);
 	if (!ret) return false;
 
 	Array<int3> tris;
@@ -2980,25 +2995,29 @@ HullError HullLibrary::CreateConvexHull(const HullDesc &desc,  // describes the 
 
 				result.mIndices = (unsigned int *)malloc(sizeof(unsigned int) * hr.mIndexCount);
 
-				memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
+				if(result.mOutputVertices)
+					memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
 
-				if (desc.HasHullFlag(QF_REVERSE_ORDER))
+				if(result.mIndices && hr.mIndices)
 				{
-					const unsigned int *source = hr.mIndices;
-					unsigned int *dest = result.mIndices;
-
-					for (unsigned int i = 0; i < hr.mFaceCount; i++)
+					if (desc.HasHullFlag(QF_REVERSE_ORDER))
 					{
-						dest[0] = source[2];
-						dest[1] = source[1];
-						dest[2] = source[0];
-						dest += 3;
-						source += 3;
+						const unsigned int *source = hr.mIndices;
+						unsigned int *dest = result.mIndices;
+
+						for (unsigned int i = 0; i < hr.mFaceCount; i++)
+						{
+							dest[0] = source[2];
+							dest[1] = source[1];
+							dest[2] = source[0];
+							dest += 3;
+							source += 3;
+						}
 					}
-				}
-				else
-				{
-					memcpy(result.mIndices, hr.mIndices, sizeof(unsigned int) * hr.mIndexCount);
+					else
+					{
+						memcpy(result.mIndices, hr.mIndices, sizeof(unsigned int) * hr.mIndexCount);
+					}
 				}
 			}
 			else
@@ -3009,9 +3028,10 @@ HullError HullLibrary::CreateConvexHull(const HullDesc &desc,  // describes the 
 				result.mNumFaces = hr.mFaceCount;
 				result.mNumIndices = hr.mIndexCount + hr.mFaceCount;
 				result.mIndices = (unsigned int *)malloc(sizeof(unsigned int) * result.mNumIndices);
-				memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
+				if(result.mOutputVertices && vscratch)
+					memcpy(result.mOutputVertices, vscratch, sizeof(float) * 3 * ovcount);
 
-				if (1)
+				if (result.mIndices && hr.mIndices)
 				{
 					const unsigned int *source = hr.mIndices;
 					unsigned int *dest = result.mIndices;
@@ -3099,7 +3119,7 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 
 	vcount = 0;
 
-	float recip[3];
+	float recip[3] = {};
 
 	if (scale)
 	{
@@ -3226,11 +3246,11 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 				float y = v[1];
 				float z = v[2];
 
-				float dx = fabsf(x - px);
-				float dy = fabsf(y - py);
-				float dz = fabsf(z - pz);
+				float dxL = fabsf(x - px);
+				float dyL = fabsf(y - py);
+				float dzL = fabsf(z - pz);
 
-				if (dx < normalepsilon && dy < normalepsilon && dz < normalepsilon)
+				if (dxL < normalepsilon && dyL < normalepsilon && dzL < normalepsilon)
 				{
 					// ok, it is close enough to the old one
 					// now let us see if it is further from the center of the point cloud than the one we already recorded.
@@ -3264,54 +3284,54 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 	// ok..now make sure we didn't prune so many vertices it is now invalid.
 	if (1)
 	{
-		float bmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
-		float bmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+		float bbmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
+		float bbmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
 		for (unsigned int i = 0; i < vcount; i++)
 		{
 			const float *p = &vertices[i * 3];
 			for (int j = 0; j < 3; j++)
 			{
-				if (p[j] < bmin[j]) bmin[j] = p[j];
-				if (p[j] > bmax[j]) bmax[j] = p[j];
+				if (p[j] < bbmin[j]) bbmin[j] = p[j];
+				if (p[j] > bbmax[j]) bbmax[j] = p[j];
 			}
 		}
 
-		float dx = bmax[0] - bmin[0];
-		float dy = bmax[1] - bmin[1];
-		float dz = bmax[2] - bmin[2];
+		float dxL = bbmax[0] - bbmin[0];
+		float dyL = bbmax[1] - bbmin[1];
+		float dzL = bbmax[2] - bbmin[2];
 
-		if (dx < EPSILON || dy < EPSILON || dz < EPSILON || vcount < 3)
+		if (dxL < EPSILON || dyL < EPSILON || dzL < EPSILON || vcount < 3)
 		{
-			float cx = dx * 0.5f + bmin[0];
-			float cy = dy * 0.5f + bmin[1];
-			float cz = dz * 0.5f + bmin[2];
+			float cx = dxL * 0.5f + bbmin[0];
+			float cy = dyL * 0.5f + bbmin[1];
+			float cz = dzL * 0.5f + bbmin[2];
 
 			float len = FLT_MAX;
 
-			if (dx >= EPSILON && dx < len) len = dx;
-			if (dy >= EPSILON && dy < len) len = dy;
-			if (dz >= EPSILON && dz < len) len = dz;
+			if (dxL >= EPSILON && dxL < len) len = dxL;
+			if (dyL >= EPSILON && dyL < len) len = dyL;
+			if (dzL >= EPSILON && dzL < len) len = dzL;
 
 			if (len == FLT_MAX)
 			{
-				dx = dy = dz = 0.01f;  // one centimeter
+				dxL = dyL = dzL = 0.01f;  // one centimeter
 			}
 			else
 			{
-				if (dx < EPSILON) dx = len * 0.05f;  // 1/5th the shortest non-zero edge.
-				if (dy < EPSILON) dy = len * 0.05f;
-				if (dz < EPSILON) dz = len * 0.05f;
+				if (dxL < EPSILON) dxL = len * 0.05f;  // 1/5th the shortest non-zero edge.
+				if (dyL < EPSILON) dyL = len * 0.05f;
+				if (dzL < EPSILON) dzL = len * 0.05f;
 			}
 
-			float x1 = cx - dx;
-			float x2 = cx + dx;
+			float x1 = cx - dxL;
+			float x2 = cx + dxL;
 
-			float y1 = cy - dy;
-			float y2 = cy + dy;
+			float y1 = cy - dyL;
+			float y2 = cy + dyL;
 
-			float z1 = cz - dz;
-			float z2 = cz + dz;
+			float z1 = cz - dzL;
+			float z2 = cz + dzL;
 
 			vcount = 0;  // add box
 
@@ -3334,7 +3354,8 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 void HullLibrary::BringOutYourDead(const float *verts, unsigned int vcount, float *overts, unsigned int &ocount, unsigned int *indices, unsigned indexcount)
 {
 	unsigned int *used = (unsigned int *)malloc(sizeof(unsigned int) * vcount);
-	memset(used, 0, sizeof(unsigned int) * vcount);
+	if(!used) return;
+	 memset(used, 0, sizeof(unsigned int) * vcount);
 
 	ocount = 0;
 
@@ -3342,7 +3363,7 @@ void HullLibrary::BringOutYourDead(const float *verts, unsigned int vcount, floa
 	{
 		unsigned int v = indices[i];  // original array index
 
-		assert(v >= 0 && v < vcount);
+		assert(v < vcount);
 
 		if (used[v])  // if already remapped
 		{
@@ -3358,7 +3379,7 @@ void HullLibrary::BringOutYourDead(const float *verts, unsigned int vcount, floa
 
 			ocount++;  // increment output vert count
 
-			assert(ocount >= 0 && ocount <= vcount);
+			assert(ocount <= vcount);
 
 			used[v] = ocount;  // assign new index remapping
 		}

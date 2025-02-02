@@ -7,7 +7,7 @@
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-static btScalar radius(0.2);
+static btScalar radius = btScalar(0.2);
 static btScalar kp = 100;
 static btScalar kd = 20;
 static btScalar maxForce = 100;
@@ -32,7 +32,7 @@ public:
 		float dist = 5;
 		float pitch = -21;
 		float yaw = 270;
-		float targetPos[3] = {-1.34, 1.4, 3.44};
+		float targetPos[3] = {-1.34f, 1.4f, 3.44f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -66,8 +66,8 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
 	bool spherical = false;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
 	bool canSleep = false;
 	bool selfCollide = false;
-	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-	btVector3 baseHalfExtents(0.04, 0.35, 0.08);
+	btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
+	btVector3 baseHalfExtents(btScalar(0.04), btScalar(0.35), btScalar(0.08));
 
 	//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
 	//init the base
@@ -135,17 +135,17 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
 			}
 			else
 			{
-				btVector3 parentComToCurrentCom(0, -radius * 2.f, 0);                                  //par body's COM to cur body's COM offset
-				btVector3 currentPivotToCurrentCom(0, -radius, 0);                                     //cur body's COM to cur body's PIV offset
-				btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;  //par body's COM to cur body's PIV offset
+				btVector3 parentComToCurrentComL(0, -radius * 2.f, 0);                                  //par body's COM to cur body's COM offset
+				btVector3 currentPivotToCurrentComL(0, -radius, 0);                                     //cur body's COM to cur body's PIV offset
+				btVector3 parentComToCurrentPivotL = parentComToCurrentComL - currentPivotToCurrentComL; //par body's COM to cur body's PIV offset
 
 				pMultiBody->setupFixed(i, linkMass, linkInertiaDiag, i - 1,
 									   btQuaternion(0.f, 0.f, 0.f, 1.f),
-									   parentComToCurrentPivot,
-									   currentPivotToCurrentCom);
+									   parentComToCurrentPivotL,
+									   currentPivotToCurrentComL);
 			}
 
-			//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivot,currentPivotToCurrentCom,false);
+			//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivotL,currentPivotToCurrentComL,false);
 		}
 		else
 		{
@@ -178,16 +178,16 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
 	//////////////////////////////////////////////
 	if (numLinks > 0)
 	{
-		btScalar q0 = 180.f * SIMD_PI / 180.f;
+		btScalar q0L = 180.f * SIMD_PI / 180.f;
 		if (!spherical)
 		{
-			mbC->setJointPosMultiDof(0, &q0);
+			mbC->setJointPosMultiDof(0, &q0L);
 		}
 		else
 		{
-			btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
-			quat0.normalize();
-			mbC->setJointPosMultiDof(0, quat0);
+			btQuaternion quat0L(btVector3(1, 1, 0).normalized(), q0L);
+			quat0L.normalize();
+			mbC->setJointPosMultiDof(0, quat0L);
 		}
 	}
 	///
@@ -218,7 +218,7 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
 			//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
 
 			tr.setOrigin(local_origin[0]);
-			btQuaternion orn(btVector3(0, 0, 1), 0.25 * 3.1415926538);
+			btQuaternion orn(btVector3(0, 0, 1), btScalar(0.25 * 3.1415926538));
 
 			tr.setRotation(orn);
 			col->setWorldTransform(tr);
@@ -345,7 +345,7 @@ void InvertedPendulumPDControl::initPhysics()
 char fileName[1024];
 
 static btAlignedObjectArray<btScalar> qDesiredArray;
-void InvertedPendulumPDControl::stepSimulation(float deltaTime)
+void InvertedPendulumPDControl::stepSimulation(float /*deltaTime*/)
 {
 	static btScalar offset = -0.1 * SIMD_PI;
 
@@ -384,7 +384,7 @@ void InvertedPendulumPDControl::stepSimulation(float deltaTime)
 			this->m_guiHelper->getAppInterface()->dumpNextFrameToPng(fileName);
 		}
 	}
-	m_dynamicsWorld->stepSimulation(1. / 60., 0);  //240,0);
+	m_dynamicsWorld->stepSimulation(btScalar(1. / 60.), 0);  //240,0);
 
 	static int count = 0;
 	if ((count & 0x0f) == 0)

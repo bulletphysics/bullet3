@@ -29,7 +29,7 @@ class btMultiBody* MyMultiBodyCreator::allocateMultiBody(int /* urdfLinkIndex */
 	return m_bulletMultiBody;
 }
 
-class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int urdfLinkIndex, btScalar mass, const btVector3& localInertiaDiagonal, const btTransform& initialWorldTrans, class btCollisionShape* colShape)
+class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int /*urdfLinkIndex*/, btScalar mass, const btVector3& localInertiaDiagonal, const btTransform& initialWorldTrans, class btCollisionShape* colShape)
 {
 	btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
 	rbci.m_startWorldTransform = initialWorldTrans;
@@ -52,7 +52,7 @@ class btMultiBodyLinkCollider* MyMultiBodyCreator::allocateMultiBodyLinkCollider
 	return mbCol;
 }
 
-class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::allocateGeneric6DofSpring2Constraint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB, int rotateOrder)
+class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::allocateGeneric6DofSpring2Constraint(int /*urdfLinkIndex*/, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB, int rotateOrder)
 {
 	btGeneric6DofSpring2Constraint* c = new btGeneric6DofSpring2Constraint(rbA, rbB, offsetInA, offsetInB, (RotateOrder)rotateOrder);
 
@@ -197,12 +197,12 @@ void MyMultiBodyCreator::addLinkMapping(int urdfLinkIndex, int mbLinkIndex)
 	m_mb2urdfLink[mbLinkIndex] = urdfLinkIndex;
 }
 
-void MyMultiBodyCreator::createRigidBodyGraphicsInstance(int linkIndex, btRigidBody* body, const btVector3& colorRgba, int graphicsIndex)
+void MyMultiBodyCreator::createRigidBodyGraphicsInstance(int /*linkIndex*/, btRigidBody* body, const btVector3& colorRgba, int /*graphicsIndex*/)
 {
 	m_guiHelper->createRigidBodyGraphicsObject(body, colorRgba);
 }
 
-void MyMultiBodyCreator::createRigidBodyGraphicsInstance2(int linkIndex, class btRigidBody* body, const btVector3& colorRgba, const btVector3& specularColor, int graphicsIndex)
+void MyMultiBodyCreator::createRigidBodyGraphicsInstance2(int /*linkIndex*/, class btRigidBody* body, const btVector3& colorRgba, const btVector3& specularColor, int /*graphicsIndex*/)
 {
 	m_guiHelper->createRigidBodyGraphicsObject(body, colorRgba);
 	int graphicsInstanceId = body->getUserIndex();
@@ -211,7 +211,7 @@ void MyMultiBodyCreator::createRigidBodyGraphicsInstance2(int linkIndex, class b
 	m_guiHelper->changeSpecularColor(graphicsInstanceId, speculard.m_floats);
 }
 
-void MyMultiBodyCreator::createCollisionObjectGraphicsInstance(int linkIndex, class btCollisionObject* colObj, const btVector3& colorRgba)
+void MyMultiBodyCreator::createCollisionObjectGraphicsInstance(int /*linkIndex*/, class btCollisionObject* colObj, const btVector3& colorRgba)
 {
 	m_guiHelper->createCollisionObjectGraphicsObject(colObj, colorRgba);
 }

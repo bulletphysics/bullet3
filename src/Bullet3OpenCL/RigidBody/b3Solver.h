@@ -37,7 +37,7 @@ enum
 	B3_SOLVER_N_SPLIT_Z = 8,  //,
 	B3_SOLVER_N_CELLS = B3_SOLVER_N_SPLIT_X * B3_SOLVER_N_SPLIT_Y * B3_SOLVER_N_SPLIT_Z,
 	B3_SOLVER_N_BATCHES = 8,  //4,//8,//4,
-	B3_MAX_NUM_BATCHES = 128,
+	B3_MAX_NUM_BATCHES = 128
 };
 
 class b3SolverBase
@@ -86,7 +86,7 @@ public:
 
 	enum
 	{
-		DYNAMIC_CONTACT_ALLOCATION_THRESHOLD = 2000000,
+		DYNAMIC_CONTACT_ALLOCATION_THRESHOLD = 2000000
 	};
 
 	b3Solver(cl_context ctx, cl_device_id device, cl_command_queue queue, int pairCapacity);

@@ -60,11 +60,11 @@ inline bool b3FindSeparatingAxis(const b3ConvexPolyhedronData& hullA, const b3Co
 								 const b3AlignedObjectArray<b3Vector3>& verticesA,
 								 const b3AlignedObjectArray<b3Vector3>& uniqueEdgesA,
 								 const b3AlignedObjectArray<b3GpuFace>& facesA,
-								 const b3AlignedObjectArray<int>& indicesA,
+								 const b3AlignedObjectArray<int>& /*indicesA*/,
 								 const b3AlignedObjectArray<b3Vector3>& verticesB,
 								 const b3AlignedObjectArray<b3Vector3>& uniqueEdgesB,
 								 const b3AlignedObjectArray<b3GpuFace>& facesB,
-								 const b3AlignedObjectArray<int>& indicesB,
+								 const b3AlignedObjectArray<int>& /*indicesB*/,
 
 								 b3Vector3& sep)
 {
@@ -85,6 +85,7 @@ inline bool b3FindSeparatingAxis(const b3ConvexPolyhedronData& hullA, const b3Co
 
 	b3Scalar dmin = FLT_MAX;
 	int curPlaneTests = 0;
+	(void)curPlaneTests;
 
 	int numFacesA = hullA.m_numFaces;
 	// Test normals from hullA
@@ -148,6 +149,7 @@ inline bool b3FindSeparatingAxis(const b3ConvexPolyhedronData& hullA, const b3Co
 	//	b3Vector3 edgeAstart,edgeAend,edgeBstart,edgeBend;
 
 	int curEdgeEdge = 0;
+	(void)curEdgeEdge;
 	// Test edges
 	for (int e0 = 0; e0 < hullA.m_numUniqueEdges; e0++)
 	{

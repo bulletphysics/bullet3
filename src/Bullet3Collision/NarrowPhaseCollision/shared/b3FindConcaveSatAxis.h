@@ -65,14 +65,14 @@ bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3
 						  b3Float4ConstArg DeltaC2,
 
 						  const b3Float4* verticesA,
-						  const b3Float4* uniqueEdgesA,
+						  const b3Float4* /*uniqueEdgesA*/,
 						  const b3GpuFace* facesA,
-						  const int* indicesA,
+						  const int* /*indicesA*/,
 
 						  __global const b3Float4* verticesB,
-						  __global const b3Float4* uniqueEdgesB,
-						  __global const b3GpuFace* facesB,
-						  __global const int* indicesB,
+						  __global const b3Float4* /*uniqueEdgesB*/,
+						  __global const b3GpuFace* /*facesB*/,
+						  __global const int* /*indicesB*/,
 						  b3Float4* sep,
 						  float* dmin)
 {
@@ -97,6 +97,7 @@ bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3
 */
 
 	int curPlaneTests = 0;
+	(void)curPlaneTests;
 	{
 		int numFacesA = hullA->m_numFaces;
 		// Test normals from hullA
@@ -124,170 +125,172 @@ bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3
 	return true;
 }
 
+// clang-format off
 b3Vector3 unitSphere162[] =
 	{
-		b3MakeVector3(0.000000, -1.000000, 0.000000),
-		b3MakeVector3(0.203181, -0.967950, 0.147618),
-		b3MakeVector3(-0.077607, -0.967950, 0.238853),
-		b3MakeVector3(0.723607, -0.447220, 0.525725),
-		b3MakeVector3(0.609547, -0.657519, 0.442856),
-		b3MakeVector3(0.812729, -0.502301, 0.295238),
-		b3MakeVector3(-0.251147, -0.967949, 0.000000),
-		b3MakeVector3(-0.077607, -0.967950, -0.238853),
-		b3MakeVector3(0.203181, -0.967950, -0.147618),
-		b3MakeVector3(0.860698, -0.251151, 0.442858),
-		b3MakeVector3(-0.276388, -0.447220, 0.850649),
-		b3MakeVector3(-0.029639, -0.502302, 0.864184),
-		b3MakeVector3(-0.155215, -0.251152, 0.955422),
-		b3MakeVector3(-0.894426, -0.447216, 0.000000),
-		b3MakeVector3(-0.831051, -0.502299, 0.238853),
-		b3MakeVector3(-0.956626, -0.251149, 0.147618),
-		b3MakeVector3(-0.276388, -0.447220, -0.850649),
-		b3MakeVector3(-0.483971, -0.502302, -0.716565),
-		b3MakeVector3(-0.436007, -0.251152, -0.864188),
-		b3MakeVector3(0.723607, -0.447220, -0.525725),
-		b3MakeVector3(0.531941, -0.502302, -0.681712),
-		b3MakeVector3(0.687159, -0.251152, -0.681715),
-		b3MakeVector3(0.687159, -0.251152, 0.681715),
-		b3MakeVector3(-0.436007, -0.251152, 0.864188),
-		b3MakeVector3(-0.956626, -0.251149, -0.147618),
-		b3MakeVector3(-0.155215, -0.251152, -0.955422),
-		b3MakeVector3(0.860698, -0.251151, -0.442858),
-		b3MakeVector3(0.276388, 0.447220, 0.850649),
-		b3MakeVector3(0.483971, 0.502302, 0.716565),
-		b3MakeVector3(0.232822, 0.657519, 0.716563),
-		b3MakeVector3(-0.723607, 0.447220, 0.525725),
-		b3MakeVector3(-0.531941, 0.502302, 0.681712),
-		b3MakeVector3(-0.609547, 0.657519, 0.442856),
-		b3MakeVector3(-0.723607, 0.447220, -0.525725),
-		b3MakeVector3(-0.812729, 0.502301, -0.295238),
-		b3MakeVector3(-0.609547, 0.657519, -0.442856),
-		b3MakeVector3(0.276388, 0.447220, -0.850649),
-		b3MakeVector3(0.029639, 0.502302, -0.864184),
-		b3MakeVector3(0.232822, 0.657519, -0.716563),
-		b3MakeVector3(0.894426, 0.447216, 0.000000),
-		b3MakeVector3(0.831051, 0.502299, -0.238853),
-		b3MakeVector3(0.753442, 0.657515, 0.000000),
-		b3MakeVector3(-0.232822, -0.657519, 0.716563),
-		b3MakeVector3(-0.162456, -0.850654, 0.499995),
-		b3MakeVector3(0.052790, -0.723612, 0.688185),
-		b3MakeVector3(0.138199, -0.894429, 0.425321),
-		b3MakeVector3(0.262869, -0.525738, 0.809012),
-		b3MakeVector3(0.361805, -0.723611, 0.587779),
-		b3MakeVector3(0.531941, -0.502302, 0.681712),
-		b3MakeVector3(0.425323, -0.850654, 0.309011),
-		b3MakeVector3(0.812729, -0.502301, -0.295238),
-		b3MakeVector3(0.609547, -0.657519, -0.442856),
-		b3MakeVector3(0.850648, -0.525736, 0.000000),
-		b3MakeVector3(0.670817, -0.723611, -0.162457),
-		b3MakeVector3(0.670817, -0.723610, 0.162458),
-		b3MakeVector3(0.425323, -0.850654, -0.309011),
-		b3MakeVector3(0.447211, -0.894428, 0.000001),
-		b3MakeVector3(-0.753442, -0.657515, 0.000000),
-		b3MakeVector3(-0.525730, -0.850652, 0.000000),
-		b3MakeVector3(-0.638195, -0.723609, 0.262864),
-		b3MakeVector3(-0.361801, -0.894428, 0.262864),
-		b3MakeVector3(-0.688189, -0.525736, 0.499997),
-		b3MakeVector3(-0.447211, -0.723610, 0.525729),
-		b3MakeVector3(-0.483971, -0.502302, 0.716565),
-		b3MakeVector3(-0.232822, -0.657519, -0.716563),
-		b3MakeVector3(-0.162456, -0.850654, -0.499995),
-		b3MakeVector3(-0.447211, -0.723611, -0.525727),
-		b3MakeVector3(-0.361801, -0.894429, -0.262863),
-		b3MakeVector3(-0.688189, -0.525736, -0.499997),
-		b3MakeVector3(-0.638195, -0.723609, -0.262863),
-		b3MakeVector3(-0.831051, -0.502299, -0.238853),
-		b3MakeVector3(0.361804, -0.723612, -0.587779),
-		b3MakeVector3(0.138197, -0.894429, -0.425321),
-		b3MakeVector3(0.262869, -0.525738, -0.809012),
-		b3MakeVector3(0.052789, -0.723611, -0.688186),
-		b3MakeVector3(-0.029639, -0.502302, -0.864184),
-		b3MakeVector3(0.956626, 0.251149, 0.147618),
-		b3MakeVector3(0.956626, 0.251149, -0.147618),
-		b3MakeVector3(0.951058, -0.000000, 0.309013),
-		b3MakeVector3(1.000000, 0.000000, 0.000000),
-		b3MakeVector3(0.947213, -0.276396, 0.162458),
-		b3MakeVector3(0.951058, 0.000000, -0.309013),
-		b3MakeVector3(0.947213, -0.276396, -0.162458),
-		b3MakeVector3(0.155215, 0.251152, 0.955422),
-		b3MakeVector3(0.436007, 0.251152, 0.864188),
-		b3MakeVector3(-0.000000, -0.000000, 1.000000),
-		b3MakeVector3(0.309017, 0.000000, 0.951056),
-		b3MakeVector3(0.138199, -0.276398, 0.951055),
-		b3MakeVector3(0.587786, 0.000000, 0.809017),
-		b3MakeVector3(0.447216, -0.276398, 0.850648),
-		b3MakeVector3(-0.860698, 0.251151, 0.442858),
-		b3MakeVector3(-0.687159, 0.251152, 0.681715),
-		b3MakeVector3(-0.951058, -0.000000, 0.309013),
-		b3MakeVector3(-0.809018, 0.000000, 0.587783),
-		b3MakeVector3(-0.861803, -0.276396, 0.425324),
-		b3MakeVector3(-0.587786, 0.000000, 0.809017),
-		b3MakeVector3(-0.670819, -0.276397, 0.688191),
-		b3MakeVector3(-0.687159, 0.251152, -0.681715),
-		b3MakeVector3(-0.860698, 0.251151, -0.442858),
-		b3MakeVector3(-0.587786, -0.000000, -0.809017),
-		b3MakeVector3(-0.809018, -0.000000, -0.587783),
-		b3MakeVector3(-0.670819, -0.276397, -0.688191),
-		b3MakeVector3(-0.951058, 0.000000, -0.309013),
-		b3MakeVector3(-0.861803, -0.276396, -0.425324),
-		b3MakeVector3(0.436007, 0.251152, -0.864188),
-		b3MakeVector3(0.155215, 0.251152, -0.955422),
-		b3MakeVector3(0.587786, -0.000000, -0.809017),
-		b3MakeVector3(0.309017, -0.000000, -0.951056),
-		b3MakeVector3(0.447216, -0.276398, -0.850648),
-		b3MakeVector3(0.000000, 0.000000, -1.000000),
-		b3MakeVector3(0.138199, -0.276398, -0.951055),
-		b3MakeVector3(0.670820, 0.276396, 0.688190),
-		b3MakeVector3(0.809019, -0.000002, 0.587783),
-		b3MakeVector3(0.688189, 0.525736, 0.499997),
-		b3MakeVector3(0.861804, 0.276394, 0.425323),
-		b3MakeVector3(0.831051, 0.502299, 0.238853),
-		b3MakeVector3(-0.447216, 0.276397, 0.850649),
-		b3MakeVector3(-0.309017, -0.000001, 0.951056),
-		b3MakeVector3(-0.262869, 0.525738, 0.809012),
-		b3MakeVector3(-0.138199, 0.276397, 0.951055),
-		b3MakeVector3(0.029639, 0.502302, 0.864184),
-		b3MakeVector3(-0.947213, 0.276396, -0.162458),
-		b3MakeVector3(-1.000000, 0.000001, 0.000000),
-		b3MakeVector3(-0.850648, 0.525736, -0.000000),
-		b3MakeVector3(-0.947213, 0.276397, 0.162458),
-		b3MakeVector3(-0.812729, 0.502301, 0.295238),
-		b3MakeVector3(-0.138199, 0.276397, -0.951055),
-		b3MakeVector3(-0.309016, -0.000000, -0.951057),
-		b3MakeVector3(-0.262869, 0.525738, -0.809012),
-		b3MakeVector3(-0.447215, 0.276397, -0.850649),
-		b3MakeVector3(-0.531941, 0.502302, -0.681712),
-		b3MakeVector3(0.861804, 0.276396, -0.425322),
-		b3MakeVector3(0.809019, 0.000000, -0.587782),
-		b3MakeVector3(0.688189, 0.525736, -0.499997),
-		b3MakeVector3(0.670821, 0.276397, -0.688189),
-		b3MakeVector3(0.483971, 0.502302, -0.716565),
-		b3MakeVector3(0.077607, 0.967950, 0.238853),
-		b3MakeVector3(0.251147, 0.967949, 0.000000),
-		b3MakeVector3(0.000000, 1.000000, 0.000000),
-		b3MakeVector3(0.162456, 0.850654, 0.499995),
-		b3MakeVector3(0.361800, 0.894429, 0.262863),
-		b3MakeVector3(0.447209, 0.723612, 0.525728),
-		b3MakeVector3(0.525730, 0.850652, 0.000000),
-		b3MakeVector3(0.638194, 0.723610, 0.262864),
-		b3MakeVector3(-0.203181, 0.967950, 0.147618),
-		b3MakeVector3(-0.425323, 0.850654, 0.309011),
-		b3MakeVector3(-0.138197, 0.894430, 0.425320),
-		b3MakeVector3(-0.361804, 0.723612, 0.587778),
-		b3MakeVector3(-0.052790, 0.723612, 0.688185),
-		b3MakeVector3(-0.203181, 0.967950, -0.147618),
-		b3MakeVector3(-0.425323, 0.850654, -0.309011),
-		b3MakeVector3(-0.447210, 0.894429, 0.000000),
-		b3MakeVector3(-0.670817, 0.723611, -0.162457),
-		b3MakeVector3(-0.670817, 0.723611, 0.162457),
-		b3MakeVector3(0.077607, 0.967950, -0.238853),
-		b3MakeVector3(0.162456, 0.850654, -0.499995),
-		b3MakeVector3(-0.138197, 0.894430, -0.425320),
-		b3MakeVector3(-0.052790, 0.723612, -0.688185),
-		b3MakeVector3(-0.361804, 0.723612, -0.587778),
-		b3MakeVector3(0.361800, 0.894429, -0.262863),
-		b3MakeVector3(0.638194, 0.723610, -0.262864),
-		b3MakeVector3(0.447209, 0.723612, -0.525728)};
+		b3MakeVector3(b3Scalar( 0.000000), b3Scalar(-1.000000), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar( 0.203181), b3Scalar(-0.967950), b3Scalar( 0.147618)),
+		b3MakeVector3(b3Scalar(-0.077607), b3Scalar(-0.967950), b3Scalar( 0.238853)),
+		b3MakeVector3(b3Scalar( 0.723607), b3Scalar(-0.447220), b3Scalar( 0.525725)),
+		b3MakeVector3(b3Scalar( 0.609547), b3Scalar(-0.657519), b3Scalar( 0.442856)),
+		b3MakeVector3(b3Scalar( 0.812729), b3Scalar(-0.502301), b3Scalar( 0.295238)),
+		b3MakeVector3(b3Scalar(-0.251147), b3Scalar(-0.967949), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar(-0.077607), b3Scalar(-0.967950), b3Scalar(-0.238853)),
+		b3MakeVector3(b3Scalar( 0.203181), b3Scalar(-0.967950), b3Scalar(-0.147618)),
+		b3MakeVector3(b3Scalar( 0.860698), b3Scalar(-0.251151), b3Scalar( 0.442858)),
+		b3MakeVector3(b3Scalar(-0.276388), b3Scalar(-0.447220), b3Scalar( 0.850649)),
+		b3MakeVector3(b3Scalar(-0.029639), b3Scalar(-0.502302), b3Scalar( 0.864184)),
+		b3MakeVector3(b3Scalar(-0.155215), b3Scalar(-0.251152), b3Scalar( 0.955422)),
+		b3MakeVector3(b3Scalar(-0.894426), b3Scalar(-0.447216), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar(-0.831051), b3Scalar(-0.502299), b3Scalar( 0.238853)),
+		b3MakeVector3(b3Scalar(-0.956626), b3Scalar(-0.251149), b3Scalar( 0.147618)),
+		b3MakeVector3(b3Scalar(-0.276388), b3Scalar(-0.447220), b3Scalar(-0.850649)),
+		b3MakeVector3(b3Scalar(-0.483971), b3Scalar(-0.502302), b3Scalar(-0.716565)),
+		b3MakeVector3(b3Scalar(-0.436007), b3Scalar(-0.251152), b3Scalar(-0.864188)),
+		b3MakeVector3(b3Scalar( 0.723607), b3Scalar(-0.447220), b3Scalar(-0.525725)),
+		b3MakeVector3(b3Scalar( 0.531941), b3Scalar(-0.502302), b3Scalar(-0.681712)),
+		b3MakeVector3(b3Scalar( 0.687159), b3Scalar(-0.251152), b3Scalar(-0.681715)),
+		b3MakeVector3(b3Scalar( 0.687159), b3Scalar(-0.251152), b3Scalar( 0.681715)),
+		b3MakeVector3(b3Scalar(-0.436007), b3Scalar(-0.251152), b3Scalar( 0.864188)),
+		b3MakeVector3(b3Scalar(-0.956626), b3Scalar(-0.251149), b3Scalar(-0.147618)),
+		b3MakeVector3(b3Scalar(-0.155215), b3Scalar(-0.251152), b3Scalar(-0.955422)),
+		b3MakeVector3(b3Scalar( 0.860698), b3Scalar(-0.251151), b3Scalar(-0.442858)),
+		b3MakeVector3(b3Scalar( 0.276388), b3Scalar( 0.447220), b3Scalar( 0.850649)),
+		b3MakeVector3(b3Scalar( 0.483971), b3Scalar( 0.502302), b3Scalar( 0.716565)),
+		b3MakeVector3(b3Scalar( 0.232822), b3Scalar( 0.657519), b3Scalar( 0.716563)),
+		b3MakeVector3(b3Scalar(-0.723607), b3Scalar( 0.447220), b3Scalar( 0.525725)),
+		b3MakeVector3(b3Scalar(-0.531941), b3Scalar( 0.502302), b3Scalar( 0.681712)),
+		b3MakeVector3(b3Scalar(-0.609547), b3Scalar( 0.657519), b3Scalar( 0.442856)),
+		b3MakeVector3(b3Scalar(-0.723607), b3Scalar( 0.447220), b3Scalar(-0.525725)),
+		b3MakeVector3(b3Scalar(-0.812729), b3Scalar( 0.502301), b3Scalar(-0.295238)),
+		b3MakeVector3(b3Scalar(-0.609547), b3Scalar( 0.657519), b3Scalar(-0.442856)),
+		b3MakeVector3(b3Scalar( 0.276388), b3Scalar( 0.447220), b3Scalar(-0.850649)),
+		b3MakeVector3(b3Scalar( 0.029639), b3Scalar( 0.502302), b3Scalar(-0.864184)),
+		b3MakeVector3(b3Scalar( 0.232822), b3Scalar( 0.657519), b3Scalar(-0.716563)),
+		b3MakeVector3(b3Scalar( 0.894426), b3Scalar( 0.447216), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar( 0.831051), b3Scalar( 0.502299), b3Scalar(-0.238853)),
+		b3MakeVector3(b3Scalar( 0.753442), b3Scalar( 0.657515), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar(-0.232822), b3Scalar(-0.657519), b3Scalar( 0.716563)),
+		b3MakeVector3(b3Scalar(-0.162456), b3Scalar(-0.850654), b3Scalar( 0.499995)),
+		b3MakeVector3(b3Scalar( 0.052790), b3Scalar(-0.723612), b3Scalar( 0.688185)),
+		b3MakeVector3(b3Scalar( 0.138199), b3Scalar(-0.894429), b3Scalar( 0.425321)),
+		b3MakeVector3(b3Scalar( 0.262869), b3Scalar(-0.525738), b3Scalar( 0.809012)),
+		b3MakeVector3(b3Scalar( 0.361805), b3Scalar(-0.723611), b3Scalar( 0.587779)),
+		b3MakeVector3(b3Scalar( 0.531941), b3Scalar(-0.502302), b3Scalar( 0.681712)),
+		b3MakeVector3(b3Scalar( 0.425323), b3Scalar(-0.850654), b3Scalar( 0.309011)),
+		b3MakeVector3(b3Scalar( 0.812729), b3Scalar(-0.502301), b3Scalar(-0.295238)),
+		b3MakeVector3(b3Scalar( 0.609547), b3Scalar(-0.657519), b3Scalar(-0.442856)),
+		b3MakeVector3(b3Scalar( 0.850648), b3Scalar(-0.525736), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar( 0.670817), b3Scalar(-0.723611), b3Scalar(-0.162457)),
+		b3MakeVector3(b3Scalar( 0.670817), b3Scalar(-0.723610), b3Scalar( 0.162458)),
+		b3MakeVector3(b3Scalar( 0.425323), b3Scalar(-0.850654), b3Scalar(-0.309011)),
+		b3MakeVector3(b3Scalar( 0.447211), b3Scalar(-0.894428), b3Scalar( 0.000001)),
+		b3MakeVector3(b3Scalar(-0.753442), b3Scalar(-0.657515), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar(-0.525730), b3Scalar(-0.850652), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar(-0.638195), b3Scalar(-0.723609), b3Scalar( 0.262864)),
+		b3MakeVector3(b3Scalar(-0.361801), b3Scalar(-0.894428), b3Scalar( 0.262864)),
+		b3MakeVector3(b3Scalar(-0.688189), b3Scalar(-0.525736), b3Scalar( 0.499997)),
+		b3MakeVector3(b3Scalar(-0.447211), b3Scalar(-0.723610), b3Scalar( 0.525729)),
+		b3MakeVector3(b3Scalar(-0.483971), b3Scalar(-0.502302), b3Scalar( 0.716565)),
+		b3MakeVector3(b3Scalar(-0.232822), b3Scalar(-0.657519), b3Scalar(-0.716563)),
+		b3MakeVector3(b3Scalar(-0.162456), b3Scalar(-0.850654), b3Scalar(-0.499995)),
+		b3MakeVector3(b3Scalar(-0.447211), b3Scalar(-0.723611), b3Scalar(-0.525727)),
+		b3MakeVector3(b3Scalar(-0.361801), b3Scalar(-0.894429), b3Scalar(-0.262863)),
+		b3MakeVector3(b3Scalar(-0.688189), b3Scalar(-0.525736), b3Scalar(-0.499997)),
+		b3MakeVector3(b3Scalar(-0.638195), b3Scalar(-0.723609), b3Scalar(-0.262863)),
+		b3MakeVector3(b3Scalar(-0.831051), b3Scalar(-0.502299), b3Scalar(-0.238853)),
+		b3MakeVector3(b3Scalar( 0.361804), b3Scalar(-0.723612), b3Scalar(-0.587779)),
+		b3MakeVector3(b3Scalar( 0.138197), b3Scalar(-0.894429), b3Scalar(-0.425321)),
+		b3MakeVector3(b3Scalar( 0.262869), b3Scalar(-0.525738), b3Scalar(-0.809012)),
+		b3MakeVector3(b3Scalar( 0.052789), b3Scalar(-0.723611), b3Scalar(-0.688186)),
+		b3MakeVector3(b3Scalar(-0.029639), b3Scalar(-0.502302), b3Scalar(-0.864184)),
+		b3MakeVector3(b3Scalar( 0.956626), b3Scalar( 0.251149), b3Scalar( 0.147618)),
+		b3MakeVector3(b3Scalar( 0.956626), b3Scalar( 0.251149), b3Scalar(-0.147618)),
+		b3MakeVector3(b3Scalar( 0.951058), b3Scalar(-0.000000), b3Scalar( 0.309013)),
+		b3MakeVector3(b3Scalar( 1.000000), b3Scalar( 0.000000), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar( 0.947213), b3Scalar(-0.276396), b3Scalar( 0.162458)),
+		b3MakeVector3(b3Scalar( 0.951058), b3Scalar( 0.000000), b3Scalar(-0.309013)),
+		b3MakeVector3(b3Scalar( 0.947213), b3Scalar(-0.276396), b3Scalar(-0.162458)),
+		b3MakeVector3(b3Scalar( 0.155215), b3Scalar( 0.251152), b3Scalar( 0.955422)),
+		b3MakeVector3(b3Scalar( 0.436007), b3Scalar( 0.251152), b3Scalar( 0.864188)),
+		b3MakeVector3(b3Scalar(-0.000000), b3Scalar(-0.000000), b3Scalar( 1.000000)),
+		b3MakeVector3(b3Scalar( 0.309017), b3Scalar( 0.000000), b3Scalar( 0.951056)),
+		b3MakeVector3(b3Scalar( 0.138199), b3Scalar(-0.276398), b3Scalar( 0.951055)),
+		b3MakeVector3(b3Scalar( 0.587786), b3Scalar( 0.000000), b3Scalar( 0.809017)),
+		b3MakeVector3(b3Scalar( 0.447216), b3Scalar(-0.276398), b3Scalar( 0.850648)),
+		b3MakeVector3(b3Scalar(-0.860698), b3Scalar( 0.251151), b3Scalar( 0.442858)),
+		b3MakeVector3(b3Scalar(-0.687159), b3Scalar( 0.251152), b3Scalar( 0.681715)),
+		b3MakeVector3(b3Scalar(-0.951058), b3Scalar(-0.000000), b3Scalar( 0.309013)),
+		b3MakeVector3(b3Scalar(-0.809018), b3Scalar( 0.000000), b3Scalar( 0.587783)),
+		b3MakeVector3(b3Scalar(-0.861803), b3Scalar(-0.276396), b3Scalar( 0.425324)),
+		b3MakeVector3(b3Scalar(-0.587786), b3Scalar( 0.000000), b3Scalar( 0.809017)),
+		b3MakeVector3(b3Scalar(-0.670819), b3Scalar(-0.276397), b3Scalar( 0.688191)),
+		b3MakeVector3(b3Scalar(-0.687159), b3Scalar( 0.251152), b3Scalar(-0.681715)),
+		b3MakeVector3(b3Scalar(-0.860698), b3Scalar( 0.251151), b3Scalar(-0.442858)),
+		b3MakeVector3(b3Scalar(-0.587786), b3Scalar(-0.000000), b3Scalar(-0.809017)),
+		b3MakeVector3(b3Scalar(-0.809018), b3Scalar(-0.000000), b3Scalar(-0.587783)),
+		b3MakeVector3(b3Scalar(-0.670819), b3Scalar(-0.276397), b3Scalar(-0.688191)),
+		b3MakeVector3(b3Scalar(-0.951058), b3Scalar( 0.000000), b3Scalar(-0.309013)),
+		b3MakeVector3(b3Scalar(-0.861803), b3Scalar(-0.276396), b3Scalar(-0.425324)),
+		b3MakeVector3(b3Scalar( 0.436007), b3Scalar( 0.251152), b3Scalar(-0.864188)),
+		b3MakeVector3(b3Scalar( 0.155215), b3Scalar( 0.251152), b3Scalar(-0.955422)),
+		b3MakeVector3(b3Scalar( 0.587786), b3Scalar(-0.000000), b3Scalar(-0.809017)),
+		b3MakeVector3(b3Scalar( 0.309017), b3Scalar(-0.000000), b3Scalar(-0.951056)),
+		b3MakeVector3(b3Scalar( 0.447216), b3Scalar(-0.276398), b3Scalar(-0.850648)),
+		b3MakeVector3(b3Scalar( 0.000000), b3Scalar( 0.000000), b3Scalar(-1.000000)),
+		b3MakeVector3(b3Scalar( 0.138199), b3Scalar(-0.276398), b3Scalar(-0.951055)),
+		b3MakeVector3(b3Scalar( 0.670820), b3Scalar( 0.276396), b3Scalar( 0.688190)),
+		b3MakeVector3(b3Scalar( 0.809019), b3Scalar(-0.000002), b3Scalar( 0.587783)),
+		b3MakeVector3(b3Scalar( 0.688189), b3Scalar( 0.525736), b3Scalar( 0.499997)),
+		b3MakeVector3(b3Scalar( 0.861804), b3Scalar( 0.276394), b3Scalar( 0.425323)),
+		b3MakeVector3(b3Scalar( 0.831051), b3Scalar( 0.502299), b3Scalar( 0.238853)),
+		b3MakeVector3(b3Scalar(-0.447216), b3Scalar( 0.276397), b3Scalar( 0.850649)),
+		b3MakeVector3(b3Scalar(-0.309017), b3Scalar(-0.000001), b3Scalar( 0.951056)),
+		b3MakeVector3(b3Scalar(-0.262869), b3Scalar( 0.525738), b3Scalar( 0.809012)),
+		b3MakeVector3(b3Scalar(-0.138199), b3Scalar( 0.276397), b3Scalar( 0.951055)),
+		b3MakeVector3(b3Scalar( 0.029639), b3Scalar( 0.502302), b3Scalar( 0.864184)),
+		b3MakeVector3(b3Scalar(-0.947213), b3Scalar( 0.276396), b3Scalar(-0.162458)),
+		b3MakeVector3(b3Scalar(-1.000000), b3Scalar( 0.000001), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar(-0.850648), b3Scalar( 0.525736), b3Scalar(-0.000000)),
+		b3MakeVector3(b3Scalar(-0.947213), b3Scalar( 0.276397), b3Scalar( 0.162458)),
+		b3MakeVector3(b3Scalar(-0.812729), b3Scalar( 0.502301), b3Scalar( 0.295238)),
+		b3MakeVector3(b3Scalar(-0.138199), b3Scalar( 0.276397), b3Scalar(-0.951055)),
+		b3MakeVector3(b3Scalar(-0.309016), b3Scalar(-0.000000), b3Scalar(-0.951057)),
+		b3MakeVector3(b3Scalar(-0.262869), b3Scalar( 0.525738), b3Scalar(-0.809012)),
+		b3MakeVector3(b3Scalar(-0.447215), b3Scalar( 0.276397), b3Scalar(-0.850649)),
+		b3MakeVector3(b3Scalar(-0.531941), b3Scalar( 0.502302), b3Scalar(-0.681712)),
+		b3MakeVector3(b3Scalar( 0.861804), b3Scalar( 0.276396), b3Scalar(-0.425322)),
+		b3MakeVector3(b3Scalar( 0.809019), b3Scalar( 0.000000), b3Scalar(-0.587782)),
+		b3MakeVector3(b3Scalar( 0.688189), b3Scalar( 0.525736), b3Scalar(-0.499997)),
+		b3MakeVector3(b3Scalar( 0.670821), b3Scalar( 0.276397), b3Scalar(-0.688189)),
+		b3MakeVector3(b3Scalar( 0.483971), b3Scalar( 0.502302), b3Scalar(-0.716565)),
+		b3MakeVector3(b3Scalar( 0.077607), b3Scalar( 0.967950), b3Scalar( 0.238853)),
+		b3MakeVector3(b3Scalar( 0.251147), b3Scalar( 0.967949), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar( 0.000000), b3Scalar( 1.000000), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar( 0.162456), b3Scalar( 0.850654), b3Scalar( 0.499995)),
+		b3MakeVector3(b3Scalar( 0.361800), b3Scalar( 0.894429), b3Scalar( 0.262863)),
+		b3MakeVector3(b3Scalar( 0.447209), b3Scalar( 0.723612), b3Scalar( 0.525728)),
+		b3MakeVector3(b3Scalar( 0.525730), b3Scalar( 0.850652), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar( 0.638194), b3Scalar( 0.723610), b3Scalar( 0.262864)),
+		b3MakeVector3(b3Scalar(-0.203181), b3Scalar( 0.967950), b3Scalar( 0.147618)),
+		b3MakeVector3(b3Scalar(-0.425323), b3Scalar( 0.850654), b3Scalar( 0.309011)),
+		b3MakeVector3(b3Scalar(-0.138197), b3Scalar( 0.894430), b3Scalar( 0.425320)),
+		b3MakeVector3(b3Scalar(-0.361804), b3Scalar( 0.723612), b3Scalar( 0.587778)),
+		b3MakeVector3(b3Scalar(-0.052790), b3Scalar( 0.723612), b3Scalar( 0.688185)),
+		b3MakeVector3(b3Scalar(-0.203181), b3Scalar( 0.967950), b3Scalar(-0.147618)),
+		b3MakeVector3(b3Scalar(-0.425323), b3Scalar( 0.850654), b3Scalar(-0.309011)),
+		b3MakeVector3(b3Scalar(-0.447210), b3Scalar( 0.894429), b3Scalar( 0.000000)),
+		b3MakeVector3(b3Scalar(-0.670817), b3Scalar( 0.723611), b3Scalar(-0.162457)),
+		b3MakeVector3(b3Scalar(-0.670817), b3Scalar( 0.723611), b3Scalar( 0.162457)),
+		b3MakeVector3(b3Scalar( 0.077607), b3Scalar( 0.967950), b3Scalar(-0.238853)),
+		b3MakeVector3(b3Scalar( 0.162456), b3Scalar( 0.850654), b3Scalar(-0.499995)),
+		b3MakeVector3(b3Scalar(-0.138197), b3Scalar( 0.894430), b3Scalar(-0.425320)),
+		b3MakeVector3(b3Scalar(-0.052790), b3Scalar( 0.723612), b3Scalar(-0.688185)),
+		b3MakeVector3(b3Scalar(-0.361804), b3Scalar( 0.723612), b3Scalar(-0.587778)),
+		b3MakeVector3(b3Scalar( 0.361800), b3Scalar( 0.894429), b3Scalar(-0.262863)),
+		b3MakeVector3(b3Scalar( 0.638194), b3Scalar( 0.723610), b3Scalar(-0.262864)),
+		b3MakeVector3(b3Scalar( 0.447209), b3Scalar( 0.723612), b3Scalar(-0.525728))};
+// clang-format on
 
 bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB,
 								  b3Float4ConstArg posA1,
@@ -297,12 +300,12 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 								  b3Float4ConstArg DeltaC2,
 								  const b3Float4* verticesA,
 								  const b3Float4* uniqueEdgesA,
-								  const b3GpuFace* facesA,
-								  const int* indicesA,
+								  const b3GpuFace* /*facesA*/,
+								  const int* /*indicesA*/,
 								  __global const b3Float4* verticesB,
 								  __global const b3Float4* uniqueEdgesB,
-								  __global const b3GpuFace* facesB,
-								  __global const int* indicesB,
+								  __global const b3GpuFace* /*facesB*/,
+								  __global const int* /*indicesB*/,
 								  b3Float4* sep,
 								  float* dmin,
 								  bool searchAllEdgeEdge)
@@ -315,6 +318,7 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 	//	int curPlaneTests=0;
 
 	int curEdgeEdge = 0;
+	(void)curEdgeEdge;
 	// Test edges
 	static int maxEdgeTests = 0;
 	int curEdgeTests = hullA->m_numUniqueEdges * hullB->m_numUniqueEdges;
@@ -362,6 +366,7 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 						float d1 = Max1 - Min0;
 						dist = d0 < d1 ? d0 : d1;
 						result = true;
+						(void)result;
 					}
 
 					if (dist < *dmin)
@@ -399,6 +404,7 @@ bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global 
 						float d1 = Max1 - Min0;
 						dist = d0 < d1 ? d0 : d1;
 						result = true;
+						(void)result;
 					}
 
 					if (dist < *dmin)
@@ -425,7 +431,7 @@ inline int b3FindClippingFaces(b3Float4ConstArg separatingNormal,
 							   __global b3Float4* worldNormalsA1,
 							   __global b3Float4* worldVertsB1,
 							   int capacityWorldVerts,
-							   const float minDist, float maxDist,
+							   const float /*minDist*/, float /*maxDist*/,
 							   __global const b3Float4* verticesA,
 							   __global const b3GpuFace_t* facesA,
 							   __global const int* indicesA,
@@ -520,7 +526,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 												__global b3Vector3* worldVertsB1Out,
 												__global int* hasSeparatingNormals,
 												int vertexFaceCapacity,
-												int numConcavePairs,
+												int /*numConcavePairs*/,
 												int pairIdx)
 {
 	int i = pairIdx;
@@ -550,6 +556,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 
 	//	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 	int numActualConcaveConvexTests = 0;
+	(void)numActualConcaveConvexTests;
 
 	int f = concavePairs[i].z;
 
@@ -568,11 +575,11 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 	triAabb.m_maxVec = b3MakeFloat4(-1e30f, -1e30f, -1e30f, 0.f);
 
 	b3Float4 verticesA[3];
-	for (int i = 0; i < 3; i++)
+	for (int j = 0; j < 3; j++)
 	{
-		int index = indices[face.m_indexOffset + i];
+		int index = indices[face.m_indexOffset + j];
 		b3Float4 vert = vertices[convexShapes[shapeIndexA].m_vertexOffset + index];
-		verticesA[i] = vert;
+		verticesA[j] = vert;
 		localCenter += vert;
 
 		triAabb.m_minVec = b3MinFloat4(triAabb.m_minVec, vert);
@@ -648,9 +655,9 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 		{
 			int numVertices = 3;
 			int prevVertex = numVertices - 1;
-			for (int i = 0; i < numVertices; i++)
+			for (int j = 0; j < numVertices; j++)
 			{
-				b3Float4 v0 = verticesA[i];
+				b3Float4 v0 = verticesA[j];
 				b3Float4 v1 = verticesA[prevVertex];
 
 				b3Float4 edgeNormal = b3Normalized(b3Cross(normal, v1 - v0));
@@ -658,7 +665,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 
 				facesA[fidx].m_numIndices = 2;
 				facesA[fidx].m_indexOffset = curUsedIndices;
-				indicesA[curUsedIndices++] = i;
+				indicesA[curUsedIndices++] = j;
 				indicesA[curUsedIndices++] = prevVertex;
 
 				facesA[fidx].m_plane.x = edgeNormal.x;
@@ -666,7 +673,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 				facesA[fidx].m_plane.z = edgeNormal.z;
 				facesA[fidx].m_plane.w = c;
 				fidx++;
-				prevVertex = i;
+				prevVertex = j;
 			}
 		}
 		convexPolyhedronA.m_numFaces = B3_TRIANGLE_NUM_CONVEX_FACES;
@@ -712,6 +719,7 @@ __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 										 vertices, uniqueEdges, faces, indices,
 										 &sepAxis, &dmin);
 		hasSeparatingAxis = 4;
+		(void)hasSeparatingAxis;
 		if (!sepA)
 		{
 			hasSeparatingAxis = 0;

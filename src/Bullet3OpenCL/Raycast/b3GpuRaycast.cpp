@@ -173,7 +173,7 @@ bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const
 }
 
 void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays, b3AlignedObjectArray<b3RayHit>& hitResults,
-								int numBodies, const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
+								int numBodies, const struct b3RigidBodyData* bodies, int /*numCollidables*/, const struct b3Collidable* collidables, const struct b3GpuNarrowPhaseInternalData* narrowphaseData)
 {
 	//	return castRays(rays,hitResults,numBodies,bodies,numCollidables,collidables);
 
@@ -186,6 +186,10 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays, b3A
 
 		int hitBodyIndex = -1;
 		b3Vector3 hitNormal;
+		hitNormal.m_floats[0] = 0.0f;
+		hitNormal.m_floats[1] = 0.0f;
+		hitNormal.m_floats[2] = 0.0f;
+		hitNormal.m_floats[3] = 0.0f;
 
 		for (int b = 0; b < numBodies; b++)
 		{
@@ -205,6 +209,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays, b3A
 						hitNormal = (hitPoint - bodies[b].m_pos).normalize();
 					}
 				}
+				// fallthrough
 				case SHAPE_CONVEX_HULL:
 				{
 					b3Transform convexWorldTransform;
@@ -247,7 +252,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays, b3A
 }
 ///todo: add some acceleration structure (AABBs, tree etc)
 void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3AlignedObjectArray<b3RayHit>& hitResults,
-							int numBodies, const struct b3RigidBodyData* bodies, int numCollidables, const struct b3Collidable* collidables,
+							int numBodies, const struct b3RigidBodyData* /*bodies*/, int /*numCollidables*/, const struct b3Collidable* /*collidables*/,
 							const struct b3GpuNarrowPhaseInternalData* narrowphaseData, class b3GpuBroadphaseInterface* broadphase)
 {
 	//castRaysHost(rays,hitResults,numBodies,bodies,numCollidables,collidables,narrowphaseData);
@@ -262,11 +267,11 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 
 	int numRays = hitResults.size();
 	{
-		m_data->m_firstRayRigidPairIndexPerRay->resize(numRays);
-		m_data->m_numRayRigidPairsPerRay->resize(numRays);
+		m_data->m_firstRayRigidPairIndexPerRay->resize((size_t)numRays);
+		m_data->m_numRayRigidPairsPerRay->resize((size_t)numRays);
 
 		m_data->m_gpuNumRayRigidPairs->resize(1);
-		m_data->m_gpuRayRigidPairs->resize(numRays * 16);
+		m_data->m_gpuRayRigidPairs->resize((size_t)(numRays * 16));
 	}
 
 	//run kernel
@@ -276,8 +281,8 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 		B3_PROFILE("raycast launch1D");
 
 		b3LauncherCL launcher(m_data->m_q, m_data->m_raytraceKernel, "m_raytraceKernel");
-		int numRays = rays.size();
-		launcher.setConst(numRays);
+		int nRays = rays.size();
+		launcher.setConst(nRays);
 
 		launcher.setBuffer(m_data->m_gpuRays->getBufferCL());
 		launcher.setBuffer(m_data->m_gpuHitResults->getBufferCL());
@@ -288,7 +293,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 		launcher.setBuffer(narrowphaseData->m_convexFacesGPU->getBufferCL());
 		launcher.setBuffer(narrowphaseData->m_convexPolyhedraGPU->getBufferCL());
 
-		launcher.launch1D(numRays);
+		launcher.launch1D(nRays);
 		clFinish(m_data->m_q);
 	}
 	else
@@ -299,13 +304,13 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays, b3Align
 
 		int numRayRigidPairs = -1;
 		m_data->m_gpuNumRayRigidPairs->copyToHostPointer(&numRayRigidPairs, 1);
-		if (numRayRigidPairs > m_data->m_gpuRayRigidPairs->size())
+		if (numRayRigidPairs > (int)m_data->m_gpuRayRigidPairs->size())
 		{
-			numRayRigidPairs = m_data->m_gpuRayRigidPairs->size();
+			numRayRigidPairs = (int)m_data->m_gpuRayRigidPairs->size();
 			m_data->m_gpuNumRayRigidPairs->copyFromHostPointer(&numRayRigidPairs, 1);
 		}
 
-		m_data->m_gpuRayRigidPairs->resize(numRayRigidPairs);  //Radix sort needs b3OpenCLArray::size() to be correct
+		m_data->m_gpuRayRigidPairs->resize((size_t)numRayRigidPairs);  //Radix sort needs b3OpenCLArray::size() to be correct
 
 		//Sort ray-rigid pairs by ray index
 		{

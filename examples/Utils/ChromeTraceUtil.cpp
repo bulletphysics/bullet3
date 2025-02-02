@@ -77,33 +77,33 @@ struct btTimings
 
 			if (startTimeRem1000 < 10)
 			{
-				sprintf(startTimeRem1000Str, "00%d", startTimeRem1000);
+				sprintf(startTimeRem1000Str, "00%u", startTimeRem1000);
 			}
 			else
 			{
 				if (startTimeRem1000 < 100)
 				{
-					sprintf(startTimeRem1000Str, "0%d", startTimeRem1000);
+					sprintf(startTimeRem1000Str, "0%u", startTimeRem1000);
 				}
 				else
 				{
-					sprintf(startTimeRem1000Str, "%d", startTimeRem1000);
+					sprintf(startTimeRem1000Str, "%u", startTimeRem1000);
 				}
 			}
 
 			if (endTimeRem1000 < 10)
 			{
-				sprintf(endTimeRem1000Str, "00%d", endTimeRem1000);
+				sprintf(endTimeRem1000Str, "00%u", endTimeRem1000);
 			}
 			else
 			{
 				if (endTimeRem1000 < 100)
 				{
-					sprintf(endTimeRem1000Str, "0%d", endTimeRem1000);
+					sprintf(endTimeRem1000Str, "0%u", endTimeRem1000);
 				}
 				else
 				{
-					sprintf(endTimeRem1000Str, "%d", endTimeRem1000);
+					sprintf(endTimeRem1000Str, "%u", endTimeRem1000);
 				}
 			}
 
@@ -112,9 +112,9 @@ struct btTimings
 			sprintf(newname, "%s%d", name, counter2++);
 
 #ifdef _WIN32
-			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%I64d.%s ,\"ph\":\"B\",\"name\":\"%s\",\"args\":{}},\n",
+			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%llu.%s ,\"ph\":\"B\",\"name\":\"%s\",\"args\":{}},\n",
 					threadId, startTimeDiv1000, startTimeRem1000Str, newname);
-			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%I64d.%s ,\"ph\":\"E\",\"name\":\"%s\",\"args\":{}}",
+			fprintf(gTimingFile, "{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%llu.%s ,\"ph\":\"E\",\"name\":\"%s\",\"args\":{}}",
 					threadId, endTimeDiv1000, endTimeRem1000Str, newname);
 #else
 			// Note: on 64b build, PRIu64 resolves in 'lu' whereas timings ('ts') have to be printed as 'llu'.
@@ -164,7 +164,7 @@ btClock clk;
 
 bool gProfileDisabled = true;
 
-void MyDummyEnterProfileZoneFunc(const char* msg)
+void MyDummyEnterProfileZoneFunc(const char* /*msg*/)
 {
 }
 
@@ -177,8 +177,8 @@ void MyEnterProfileZoneFunc(const char* msg)
 	if (gProfileDisabled)
 		return;
 
-	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId < 0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
+	int threadId = (int)btQuickprofGetCurrentThreadIndex2();
+	if (threadId < 0 || threadId >= (int)BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	if (gStackDepths[threadId] >= MAX_NESTING)
@@ -200,8 +200,8 @@ void MyLeaveProfileZoneFunc()
 	if (gProfileDisabled)
 		return;
 
-	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId < 0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
+	int threadId = (int)btQuickprofGetCurrentThreadIndex2();
+	if (threadId < 0 || threadId >= (int)BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	if (gStackDepths[threadId] <= 0)
@@ -246,7 +246,7 @@ void b3ChromeUtilsStopTimingsAndWriteJsonFile(const char* fileNamePrefix)
 	{
 		fprintf(gTimingFile, "{\"traceEvents\":[\n");
 		//dump the content to file
-		for (int i = 0; i < BT_QUICKPROF_MAX_THREAD_COUNT; i++)
+		for (int i = 0; i < (int)BT_QUICKPROF_MAX_THREAD_COUNT; i++)
 		{
 			if (gTimings[i].m_numTimings)
 			{

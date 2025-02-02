@@ -96,8 +96,8 @@ public:
 
 		m_Render->SetDrawColor(Gwen::Color(218, 224, 241, 150));
 
-		m_Render->DrawFilledRect(Gwen::Rect(0, h * 0.4f, w, h * 0.6f));
-		m_Render->DrawFilledRect(Gwen::Rect(0, h * 0.5f, w, h * 0.5f));
+		m_Render->DrawFilledRect(Gwen::Rect(0, (float)h * 0.4f, (float)w, (float)h * 0.6f));
+		m_Render->DrawFilledRect(Gwen::Rect(0, (float)h * 0.5f, (float)w, (float)h * 0.5f));
 	}
 
 	virtual void DrawMenu(Gwen::Controls::Base* control, bool bPaddingDisabled)
@@ -171,7 +171,7 @@ public:
 		m_Render->DrawShavedCornerRect(Gwen::Rect(0, 0, w, h), bSquared);
 	}
 
-	virtual void DrawRadioButton(Gwen::Controls::Base* control, bool bSelected, bool bDepressed)
+	virtual void DrawRadioButton(Gwen::Controls::Base* control, bool bSelected, bool /*bDepressed*/)
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 
@@ -193,8 +193,8 @@ public:
 
 		m_Render->SetDrawColor(Gwen::Color(0, 50, 60, 15));
 		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w * 0.3f, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h * 0.3f));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)rect.w * 0.3f, (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), (float)rect.h * 0.3f));
 
 		if (control->IsHovered())
 			m_Render->SetDrawColor(Gwen::Color(121, 198, 249, 255));
@@ -232,17 +232,17 @@ public:
 		m_Render->DrawLinedRect(rect);
 
 		m_Render->SetDrawColor(Gwen::Color(0, 50, 60, 15));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w * 0.3f, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h * 0.3f));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)rect.w * 0.3f, (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), (float)rect.h * 0.3f));
 
 		if (control->IsHovered())
 			m_Render->SetDrawColor(Gwen::Color(121, 198, 249, 255));
 		else
 			m_Render->SetDrawColor(Gwen::Color(0, 50, 60, 50));
 
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, 1, rect.h - 4));
-		m_Render->DrawFilledRect(Gwen::Rect(rect.x + 2, rect.y + 2, rect.w - 4, 1));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), 1, (float)(rect.h - 4)));
+		m_Render->DrawFilledRect(Gwen::Rect((float)(rect.x + 2), (float)(rect.y + 2), (float)(rect.w - 4), 1));
 
 		if (bDepressed)
 		{
@@ -262,8 +262,8 @@ public:
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 
-		rect.y += textHeight * 0.5f;
-		rect.h -= textHeight * 0.5f;
+		rect.y += (float)textHeight * 0.5f;
+		rect.h -= (float)textHeight * 0.5f;
 
 		Gwen::Color m_colDarker = Gwen::Color(0, 50, 60, 50);
 		Gwen::Color m_colLighter = Gwen::Color(255, 255, 255, 150);
@@ -403,7 +403,7 @@ public:
 		m_Render->DrawFilledRect(rect);
 	}
 
-	virtual void DrawScrollBar(Gwen::Controls::Base* control, bool isHorizontal, bool bDepressed)
+	virtual void DrawScrollBar(Gwen::Controls::Base* control, bool /*isHorizontal*/, bool bDepressed)
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 		if (bDepressed)
@@ -413,7 +413,7 @@ public:
 		m_Render->DrawFilledRect(rect);
 	}
 
-	virtual void DrawScrollBarBar(Controls::Base* control, bool bDepressed, bool isHovered, bool isHorizontal)
+	virtual void DrawScrollBarBar(Controls::Base* control, bool bDepressed, bool isHovered, bool /*isHorizontal*/)
 	{
 		//TODO: something specialized
 		DrawButton(control, bDepressed, isHovered);
@@ -444,10 +444,10 @@ public:
 
 			//Right half
 			m_Render->SetDrawColor(FillColour);
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w * progress - 2, rect.h - 2));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1, (float)rect.w * progress - 2, rect.h - 2));
 
 			m_Render->SetDrawColor(Gwen::Color(255, 255, 255, 150));
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w - 2, rect.h * 0.45f));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w - 2, (float)rect.h * 0.45f));
 		}
 		else
 		{
@@ -457,10 +457,10 @@ public:
 
 			//Top half
 			m_Render->SetDrawColor(FillColour);
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1 + (rect.h * (1 - progress)), rect.w - 2, rect.h * progress - 2));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1 + ((float)rect.h * (1 - progress)), rect.w - 2, (float)rect.h * progress - 2));
 
 			m_Render->SetDrawColor(Gwen::Color(255, 255, 255, 150));
-			m_Render->DrawFilledRect(Gwen::Rect(1, 1, rect.w * 0.45f, rect.h - 2));
+			m_Render->DrawFilledRect(Gwen::Rect(1, 1, (float)rect.w * 0.45f, rect.h - 2));
 		}
 
 		m_Render->SetDrawColor(Gwen::Color(255, 255, 255, 150));
@@ -500,7 +500,7 @@ public:
 		}
 	}
 
-	virtual void DrawSlider(Gwen::Controls::Base* control, bool bIsHorizontal, int numNotches, int barSize)
+	virtual void DrawSlider(Gwen::Controls::Base* control, bool bIsHorizontal, int /*numNotches*/, int /*barSize*/)
 	{
 		Gwen::Rect rect = control->GetRenderBounds();
 		//					Gwen::Rect notchRect = rect;
@@ -537,7 +537,7 @@ public:
 		m_Render->DrawLinedRect(rect);
 	}
 
-	virtual void DrawKeyboardHighlight(Gwen::Controls::Base* control, const Gwen::Rect& r, int iOffset)
+	virtual void DrawKeyboardHighlight(Gwen::Controls::Base* /*control*/, const Gwen::Rect& r, int iOffset)
 	{
 		Gwen::Rect rect = r;
 
@@ -606,7 +606,7 @@ public:
 			DrawArrowRight(r);
 	}
 
-	virtual void DrawComboBoxButton(Gwen::Controls::Base* control, bool bDepressed)
+	virtual void DrawComboBoxButton(Gwen::Controls::Base* control, bool /*bDepressed*/)
 	{
 		//DrawButton( control->Width(), control->Height(), bDepressed, false, true );
 
@@ -616,7 +616,7 @@ public:
 		DrawArrowDown(r);
 	}
 
-	virtual void DrawNumericUpDownButton(Gwen::Controls::Base* control, bool bDepressed, bool bUp)
+	virtual void DrawNumericUpDownButton(Gwen::Controls::Base* control, bool /*bDepressed*/, bool bUp)
 	{
 		//DrawButton( control->Width(), control->Height(), bDepressed, false, true );
 
@@ -663,7 +663,7 @@ public:
 		m_Render->DrawLinedRect(rect);
 	}
 
-	void DrawTreeNode(Controls::Base* ctrl, bool bOpen, bool bSelected, int iLabelHeight, int iLabelWidth, int iHalfWay, int iLastBranch, bool bIsRoot)
+	void DrawTreeNode(Controls::Base* /*ctrl*/, bool bOpen, bool bSelected, int iLabelHeight, int iLabelWidth, int iHalfWay, int iLastBranch, bool bIsRoot)
 	{
 		if (bSelected)
 		{

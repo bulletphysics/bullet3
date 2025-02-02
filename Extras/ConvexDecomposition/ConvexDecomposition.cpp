@@ -318,11 +318,11 @@ void calcConvexDecomposition(unsigned int vcount,
 		// ok... here we recursively call
 		if (ifront.size())
 		{
-			unsigned int vcount = Vl_getVcount(vfront);
-			const float *vertices = Vl_getVertices(vfront);
-			unsigned int tcount = ifront.size() / 3;
+			unsigned int vertCount = Vl_getVcount(vfront);
+			const float *verts = Vl_getVertices(vfront);
+			unsigned int triCount = (unsigned int)(ifront.size() / 3);
 
-			calcConvexDecomposition(vcount, vertices, tcount, &ifront[0], callback, masterVolume, depth + 1);
+			calcConvexDecomposition(vertCount, verts, triCount, &ifront[0], callback, masterVolume, depth + 1);
 		}
 
 		ifront.clear();
@@ -331,11 +331,11 @@ void calcConvexDecomposition(unsigned int vcount,
 
 		if (iback.size())
 		{
-			unsigned int vcount = Vl_getVcount(vback);
-			const float *vertices = Vl_getVertices(vback);
-			unsigned int tcount = iback.size() / 3;
+			unsigned int vertCount = Vl_getVcount(vback);
+			const float *verts = Vl_getVertices(vback);
+			unsigned int triCount = (unsigned int)(iback.size() / 3);
 
-			calcConvexDecomposition(vcount, vertices, tcount, &iback[0], callback, masterVolume, depth + 1);
+			calcConvexDecomposition(vertCount, verts, triCount, &iback[0], callback, masterVolume, depth + 1);
 		}
 
 		iback.clear();

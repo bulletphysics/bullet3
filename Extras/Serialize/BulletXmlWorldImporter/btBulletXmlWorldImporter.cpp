@@ -132,10 +132,10 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(XMLNode* pParent, btA
 		btAssert(node);                                              \
 		if (node)                                                    \
 		{                                                            \
-			const char* txt = (node)->ToElement()->GetText();        \
-			MyLocalCaster cast;                                      \
-			cast.m_int = (int)atof(txt);                             \
-			(targetdata).argname = (pointertype)cast.m_ptr;          \
+			const char* text = (node)->ToElement()->GetText();        \
+			MyLocalCaster caster;                                      \
+			caster.m_int = (int)atof(text);                             \
+			(targetdata).argname = (pointertype)caster.m_ptr;          \
 		}                                                            \
 	}
 
@@ -145,12 +145,12 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(XMLNode* pParent, btA
 		btAssert(flNode);                                                          \
 		if (flNode && flNode->FirstChildElement())                                 \
 		{                                                                          \
-			const char* txt = flNode->FirstChildElement()->ToElement()->GetText(); \
-			btVector3FloatData vec4 = TextToVector3Data(txt);                      \
-			(targetdata)->argname.m_floats[0] = vec4.m_floats[0];                  \
-			(targetdata)->argname.m_floats[1] = vec4.m_floats[1];                  \
-			(targetdata)->argname.m_floats[2] = vec4.m_floats[2];                  \
-			(targetdata)->argname.m_floats[3] = vec4.m_floats[3];                  \
+			const char* text = flNode->FirstChildElement()->ToElement()->GetText(); \
+			btVector3FloatData v4 = TextToVector3Data(text);                      \
+			(targetdata)->argname.m_floats[0] = v4.m_floats[0];                  \
+			(targetdata)->argname.m_floats[1] = v4.m_floats[1];                  \
+			(targetdata)->argname.m_floats[2] = v4.m_floats[2];                  \
+			(targetdata)->argname.m_floats[3] = v4.m_floats[3];                  \
 		}                                                                          \
 	}
 
@@ -165,33 +165,33 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(XMLNode* pParent, btA
 			if (eleNode && eleNode->FirstChildElement())                                \
 			{                                                                           \
 				const char* txt = eleNode->FirstChildElement()->ToElement()->GetText(); \
-				btVector3FloatData vec4 = TextToVector3Data(txt);                       \
-				(targetdata)->argname.m_el[0].m_floats[0] = vec4.m_floats[0];           \
-				(targetdata)->argname.m_el[0].m_floats[1] = vec4.m_floats[1];           \
-				(targetdata)->argname.m_el[0].m_floats[2] = vec4.m_floats[2];           \
-				(targetdata)->argname.m_el[0].m_floats[3] = vec4.m_floats[3];           \
+				btVector3FloatData vec41 = TextToVector3Data(txt);                       \
+				(targetdata)->argname.m_el[0].m_floats[0] = vec41.m_floats[0];           \
+				(targetdata)->argname.m_el[0].m_floats[1] = vec41.m_floats[1];           \
+				(targetdata)->argname.m_el[0].m_floats[2] = vec41.m_floats[2];           \
+				(targetdata)->argname.m_el[0].m_floats[3] = vec41.m_floats[3];           \
                                                                                         \
 				XMLNode* n1 = eleNode->FirstChildElement()->NextSibling();              \
 				btAssert(n1);                                                           \
 				if (n1)                                                                 \
 				{                                                                       \
-					const char* txt = n1->ToElement()->GetText();                       \
-					btVector3FloatData vec4 = TextToVector3Data(txt);                   \
-					(targetdata)->argname.m_el[1].m_floats[0] = vec4.m_floats[0];       \
-					(targetdata)->argname.m_el[1].m_floats[1] = vec4.m_floats[1];       \
-					(targetdata)->argname.m_el[1].m_floats[2] = vec4.m_floats[2];       \
-					(targetdata)->argname.m_el[1].m_floats[3] = vec4.m_floats[3];       \
+					const char* txt2 = n1->ToElement()->GetText();                       \
+					btVector3FloatData vec42 = TextToVector3Data(txt2);                   \
+					(targetdata)->argname.m_el[1].m_floats[0] = vec42.m_floats[0];       \
+					(targetdata)->argname.m_el[1].m_floats[1] = vec42.m_floats[1];       \
+					(targetdata)->argname.m_el[1].m_floats[2] = vec42.m_floats[2];       \
+					(targetdata)->argname.m_el[1].m_floats[3] = vec42.m_floats[3];       \
                                                                                         \
 					XMLNode* n2 = n1->NextSibling();                                    \
 					btAssert(n2);                                                       \
 					if (n2)                                                             \
 					{                                                                   \
-						const char* txt = n2->ToElement()->GetText();                   \
-						btVector3FloatData vec4 = TextToVector3Data(txt);               \
-						(targetdata)->argname.m_el[2].m_floats[0] = vec4.m_floats[0];   \
-						(targetdata)->argname.m_el[2].m_floats[1] = vec4.m_floats[1];   \
-						(targetdata)->argname.m_el[2].m_floats[2] = vec4.m_floats[2];   \
-						(targetdata)->argname.m_el[2].m_floats[3] = vec4.m_floats[3];   \
+						const char* txt3 = n2->ToElement()->GetText();                   \
+						btVector3FloatData vec43 = TextToVector3Data(txt3);               \
+						(targetdata)->argname.m_el[2].m_floats[0] = vec43.m_floats[0];   \
+						(targetdata)->argname.m_el[2].m_floats[1] = vec43.m_floats[1];   \
+						(targetdata)->argname.m_el[2].m_floats[2] = vec43.m_floats[2];   \
+						(targetdata)->argname.m_el[2].m_floats[3] = vec43.m_floats[3];   \
 					}                                                                   \
 				}                                                                       \
 			}                                                                           \
@@ -243,9 +243,9 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(XMLNode* pParent)
 		if (node)
 		{
 			const char* txt = (node)->ToElement()->GetText();
-			MyLocalCaster cast;
-			cast.m_int = (int)atof(txt);
-			(*convexHullData).m_unscaledPointsFloatPtr = (btVector3FloatData*)cast.m_ptr;
+			MyLocalCaster caster;
+			caster.m_int = (int)atof(txt);
+			(*convexHullData).m_unscaledPointsFloatPtr = (btVector3FloatData*)caster.m_ptr;
 		}
 	}
 
@@ -278,9 +278,9 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(XMLNode* pParen
 			SET_MATRIX33_VALUE(transNode, &compoundChildArrayPtr->at(i).m_transform, m_basis)
 
 			const char* txt = (colShapeNode)->ToElement()->GetText();
-			MyLocalCaster cast;
-			cast.m_int = (int)atof(txt);
-			compoundChildArrayPtr->at(i).m_childShape = (btCollisionShapeData*)cast.m_ptr;
+			MyLocalCaster caster;
+			caster.m_int = (int)atof(txt);
+			compoundChildArrayPtr->at(i).m_childShape = (btCollisionShapeData*)caster.m_ptr;
 
 			btAssert(childTypeNode->ToElement());
 			if (childTypeNode->ToElement())
@@ -335,9 +335,9 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeData(XMLNode* pParent)
 		while (node)
 		{
 			const char* txt = (node)->ToElement()->GetText();
-			MyLocalCaster cast;
-			cast.m_int = (int)atof(txt);
-			compoundData->m_childShapePtr = (btCompoundShapeChildData*)cast.m_ptr;
+			MyLocalCaster caster;
+			caster.m_int = (int)atof(txt);
+			compoundData->m_childShapePtr = (btCompoundShapeChildData*)caster.m_ptr;
 			node = node->NextSiblingElement("m_childShapePtr");
 		}
 		//SET_POINTER_VALUE(xmlColShape, *compoundData,m_childShapePtr,btCompoundShapeChildData*);
@@ -367,7 +367,7 @@ void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(XMLNode* pParent)
 	m_pointerLookup.insert(cast.m_ptr, planeData);
 }
 
-void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(XMLNode* pParent)
+void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(XMLNode* /*pParent*/)
 {
 	btContactSolverInfo solverInfo;
 	//btVector3 gravity(0,0,0);

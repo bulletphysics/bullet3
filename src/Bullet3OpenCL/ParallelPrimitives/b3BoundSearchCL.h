@@ -34,7 +34,7 @@ public:
 	{
 		BOUND_LOWER,
 		BOUND_UPPER,
-		COUNT,
+		COUNT
 	};
 
 	cl_context m_context;

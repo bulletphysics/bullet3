@@ -14,6 +14,7 @@ subject to the following restrictions:
 
 #include "btThreads.h"
 #include "btQuickprof.h"
+#include "LinearMath/btOverride.h"
 #include <algorithm>  // for min and max
 
 #if BT_USE_OPENMP && BT_THREADSAFE
@@ -385,7 +386,7 @@ bool btThreadsAreRunning()
 
 void btSetTaskScheduler(btITaskScheduler* ts)
 {
-	int threadId = btGetCurrentThreadIndex();  // make sure we call this on main thread at least once before any workers run
+	int threadId = (int)btGetCurrentThreadIndex();  // make sure we call this on main thread at least once before any workers run
 	if (threadId != 0)
 	{
 		btAssert(!"btSetTaskScheduler must be called from the main thread!");
@@ -428,7 +429,7 @@ void btParallelFor(int iBegin, int iEnd, int grainSize, const btIParallelForBody
 	gBtTaskScheduler->parallelFor(iBegin, iEnd, grainSize, body);
 
 #else  // #if BT_THREADSAFE
-
+	(void)grainSize;
 	// non-parallel version of btParallelFor
 	btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
 	body.forLoop(iBegin, iEnd);
@@ -455,7 +456,7 @@ btScalar btParallelSum(int iBegin, int iEnd, int grainSize, const btIParallelSum
 	return gBtTaskScheduler->parallelSum(iBegin, iEnd, grainSize, body);
 
 #else  // #if BT_THREADSAFE
-
+	(void)grainSize;
 	// non-parallel version of btParallelSum
 	btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
 	return body.sumLoop(iBegin, iEnd);
@@ -473,13 +474,13 @@ public:
 	btTaskSchedulerSequential() : btITaskScheduler("Sequential") {}
 	virtual int getMaxNumThreads() const BT_OVERRIDE { return 1; }
 	virtual int getNumThreads() const BT_OVERRIDE { return 1; }
-	virtual void setNumThreads(int numThreads) BT_OVERRIDE {}
-	virtual void parallelFor(int iBegin, int iEnd, int grainSize, const btIParallelForBody& body) BT_OVERRIDE
+	virtual void setNumThreads(int /*numThreads*/) BT_OVERRIDE {}
+	virtual void parallelFor(int iBegin, int iEnd, int /*grainSize*/, const btIParallelForBody& body) BT_OVERRIDE
 	{
 		BT_PROFILE("parallelFor_sequential");
 		body.forLoop(iBegin, iEnd);
 	}
-	virtual btScalar parallelSum(int iBegin, int iEnd, int grainSize, const btIParallelSumBody& body) BT_OVERRIDE
+	virtual btScalar parallelSum(int iBegin, int iEnd, int /*grainSize*/, const btIParallelSumBody& body) BT_OVERRIDE
 	{
 		BT_PROFILE("parallelSum_sequential");
 		return body.sumLoop(iBegin, iEnd);

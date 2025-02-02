@@ -19,7 +19,7 @@ subject to the following restrictions:
 
 /// This is a Hello World program for running a basic Bullet physics simulation
 
-int main(int argc, char** argv)
+int main(int /*argc*/, char** /*argv*/)
 {
 	///-----includes_end-----
 

@@ -22,14 +22,13 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include <stdio.h>  //printf debugging
-#include <random>
 
 #include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.0;
-static int start_mode = 6;
+// static int start_mode = 6;
 static int num_modes = 20;
 
 class ConservationTest : public CommonDeformableBodyBase
@@ -38,8 +37,9 @@ class ConservationTest : public CommonDeformableBodyBase
     bool first_step;
 
     // get deformed shape
-    void getDeformedShape(btReducedDeformableBody* rsb, const int mode_n, const btScalar scale = 1)
+    void getDeformedShape(btReducedDeformableBody* rsb, const int /*mode_n*/, const btScalar scale = 1)
     {
+      (void)scale;
       // for (int i = 0; i < rsb->m_nodes.size(); ++i)
       //   for (int k = 0; k < 3; ++k)
       //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
@@ -75,7 +75,7 @@ public:
     void exitPhysics();
 
     // TODO: disable pick force, non-interactive for now.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 
@@ -155,7 +155,7 @@ public:
         first_step = false;
       }
       
-      float internalTimeStep = 1. / 240.f;
+      float internalTimeStep = 1.f / 240.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
 
       sim_time += internalTimeStep;
@@ -183,9 +183,9 @@ public:
                 deformableWorld->getDebugDrawer()->drawLine(origin, line_y, btVector3(0, 1, 0));
                 deformableWorld->getDebugDrawer()->drawLine(origin, line_z, btVector3(0, 0, 1));
 
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.1, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), btScalar(0.1), btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), btScalar(0.1), btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), btScalar(0.1), btVector3(1, 1, 1));
             }
         }
     }
@@ -226,7 +226,7 @@ void ConservationTest::initPhysics()
                                             false);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.1);
+        rsb->getCollisionShape()->setMargin(btScalar(0.1));
         
         btTransform init_transform;
         init_transform.setIdentity();
@@ -252,10 +252,10 @@ void ConservationTest::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.3);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
 

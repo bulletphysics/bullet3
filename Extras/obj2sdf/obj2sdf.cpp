@@ -47,6 +47,7 @@ struct ShapeContainer
 b3HashMap<b3HashString, ShapeContainer> gMaterialNames;
 
 #define MAX_PATH_LEN 1024
+#define APPEND_SIZE 20
 
 std::string StripExtension(const std::string& sPath)
 {
@@ -86,10 +87,11 @@ int main(int argc, char* argv[])
 	}
 	bool mergeMaterials = args.CheckCmdLineFlag("mergeMaterials");
 
-	char fileNameWithPath[MAX_PATH_LEN];
+	char fileNameWithPath[MAX_PATH_LEN-APPEND_SIZE];
 	bool fileFound = (b3ResourcePath::findResourcePath(fileName, fileNameWithPath, MAX_PATH_LEN,0)) > 0;
-	char materialPrefixPath[MAX_PATH_LEN];
-	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN);
+	(void)fileFound;
+	char materialPrefixPath[MAX_PATH_LEN-APPEND_SIZE];
+	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN-APPEND_SIZE);
 
 	std::vector<bt_tinyobj::shape_t> shapes;
 	bt_tinyobj::attrib_t attribute;
@@ -108,7 +110,7 @@ int main(int argc, char* argv[])
 
 	fprintf(sdfFile, "<sdf version='1.6'>\n\t<world name='default'>\n\t<gravity>0 0 -9.8</gravity>\n");
 
-	for (int s = 0; s < (int)shapes.size(); s++)
+	for (size_t s = 0; s < shapes.size(); s++)
 	{
 		bt_tinyobj::shape_t& shape = shapes[s];
 		bt_tinyobj::material_t mat = shape.material;
@@ -126,42 +128,42 @@ int main(int argc, char* argv[])
 		ShapeContainer* shapeC = gMaterialNames.find(key);
 		if (shapeC)
 		{
-			shapeC->m_shapeIndices.push_back(s);
+			shapeC->m_shapeIndices.push_back((int)s);
 
-			int curPositions = shapeC->positions.size() / 3;
-			int curNormals = shapeC->normals.size() / 3;
-			int curTexcoords = shapeC->texcoords.size() / 2;
+			size_t curPositions = shapeC->positions.size() / 3;
+			size_t curNormals = shapeC->normals.size() / 3;
+			size_t curTexcoords = shapeC->texcoords.size() / 2;
 
-			int faceCount = shape.mesh.indices.size();
-			int vertexCount = attribute.vertices.size();
-			for (int v = 0; v < vertexCount; v++)
+			size_t faceCount = shape.mesh.indices.size();
+			size_t vertexCount = attribute.vertices.size();
+			for (size_t v = 0; v < vertexCount; v++)
 			{
 				shapeC->positions.push_back(attribute.vertices[v]);
 			}
-			int numNormals = int(attribute.normals.size());
-			for (int vn = 0; vn < numNormals; vn++)
+			size_t numNormals = attribute.normals.size();
+			for (size_t vn = 0; vn < numNormals; vn++)
 			{
 				shapeC->normals.push_back(attribute.normals[vn]);
 			}
-			int numTexCoords = int(attribute.texcoords.size());
-			for (int vt = 0; vt < numTexCoords; vt++)
+			size_t numTexCoords = attribute.texcoords.size();
+			for (size_t vt = 0; vt < numTexCoords; vt++)
 			{
 				shapeC->texcoords.push_back(attribute.texcoords[vt]);
 			}
 
-			for (int face = 0; face < faceCount; face += 3)
+			for (size_t face = 0; face < faceCount; face += 3)
 			{
-				if (face < 0 && face >= int(shape.mesh.indices.size()))
+				if (face >= shape.mesh.indices.size())
 				{
 					continue;
 				}
 
 				index_t index;
-				for (int ii = 0; ii < 3; ii++)
+				for (size_t ii = 0; ii < 3; ii++)
 				{
-					index.vertex_index = shape.mesh.indices[face + ii].vertex_index + curPositions;
-					index.normal_index = shape.mesh.indices[face + ii].normal_index + curNormals;
-					index.texcoord_index = shape.mesh.indices[face + ii].texcoord_index + curTexcoords;
+					index.vertex_index = shape.mesh.indices[face + ii].vertex_index + (int)curPositions;
+					index.normal_index = shape.mesh.indices[face + ii].normal_index + (int)curNormals;
+					index.texcoord_index = shape.mesh.indices[face + ii].texcoord_index + (int)curTexcoords;
 					shapeC->indices.push_back(index);
 				}
 			}
@@ -210,8 +212,8 @@ int main(int argc, char* argv[])
 				fprintf(f, "mtllib bedroom.mtl\n");
 			}
 
-			int faceCount = shapeCon->indices.size();
-			int vertexCount = shapeCon->positions.size();
+			size_t faceCount = shapeCon->indices.size();
+			size_t vertexCount = shapeCon->positions.size();
 			bt_tinyobj::material_t mat = shapeCon->material;
 			if (shapeCon->m_matName.length())
 			{
@@ -219,7 +221,7 @@ int main(int argc, char* argv[])
 				printf("mat.name = %s\n", objName);
 				fprintf(f, "#object %s\n\n", objName);
 			}
-			for (int v = 0; v < vertexCount / 3; v++)
+			for (size_t v = 0; v < vertexCount / 3; v++)
 			{
 				fprintf(f, "v %f %f %f\n", shapeCon->positions[v * 3 + 0], shapeCon->positions[v * 3 + 1], shapeCon->positions[v * 3 + 2]);
 			}
@@ -234,25 +236,25 @@ int main(int argc, char* argv[])
 			}
 
 			fprintf(f, "\n");
-			int numNormals = int(shapeCon->normals.size());
+			size_t numNormals = shapeCon->normals.size();
 
-			for (int vn = 0; vn < numNormals / 3; vn++)
+			for (size_t vn = 0; vn < numNormals / 3; vn++)
 			{
 				fprintf(f, "vn %f %f %f\n", shapeCon->normals[vn * 3 + 0], shapeCon->normals[vn * 3 + 1], shapeCon->normals[vn * 3 + 2]);
 			}
 
 			fprintf(f, "\n");
-			int numTexCoords = int(shapeCon->texcoords.size());
-			for (int vt = 0; vt < numTexCoords / 2; vt++)
+			size_t numTexCoords = shapeCon->texcoords.size();
+			for (size_t vt = 0; vt < numTexCoords / 2; vt++)
 			{
 				fprintf(f, "vt %f %f\n", shapeCon->texcoords[vt * 2 + 0], shapeCon->texcoords[vt * 2 + 1]);
 			}
 
 			fprintf(f, "s off\n");
 
-			for (int face = 0; face < faceCount; face += 3)
+			for (size_t face = 0; face < faceCount; face += 3)
 			{
-				if (face < 0 && face >= int(shapeCon->indices.size()))
+				if (face >= shapeCon->indices.size())
 				{
 					continue;
 				}
@@ -317,7 +319,7 @@ int main(int argc, char* argv[])
 	{
 		for (int s = 0; s < (int)shapes.size(); s++)
 		{
-			bt_tinyobj::shape_t& shape = shapes[s];
+			bt_tinyobj::shape_t& shape = shapes[(size_t)s];
 
 			if (shape.name.length())
 			{
@@ -349,8 +351,8 @@ int main(int argc, char* argv[])
 				fprintf(f, "mtllib bedroom.mtl\n");
 			}
 
-			int faceCount = shape.mesh.indices.size();
-			int vertexCount = attribute.vertices.size();
+			size_t faceCount = shape.mesh.indices.size();
+			size_t vertexCount = attribute.vertices.size();
 			bt_tinyobj::material_t mat = shape.material;
 			if (shape.name.length())
 			{
@@ -358,7 +360,7 @@ int main(int argc, char* argv[])
 				printf("mat.name = %s\n", objName);
 				fprintf(f, "#object %s\n\n", objName);
 			}
-			for (int v = 0; v < vertexCount / 3; v++)
+			for (size_t v = 0; v < vertexCount / 3; v++)
 			{
 				fprintf(f, "v %f %f %f\n", attribute.vertices[v * 3 + 0], attribute.vertices[v * 3 + 1], attribute.vertices[v * 3 + 2]);
 			}
@@ -373,25 +375,25 @@ int main(int argc, char* argv[])
 			}
 
 			fprintf(f, "\n");
-			int numNormals = int(attribute.normals.size());
+			size_t numNormals = attribute.normals.size();
 
-			for (int vn = 0; vn < numNormals / 3; vn++)
+			for (size_t vn = 0; vn < numNormals / 3; vn++)
 			{
 				fprintf(f, "vn %f %f %f\n", attribute.normals[vn * 3 + 0], attribute.normals[vn * 3 + 1], attribute.normals[vn * 3 + 2]);
 			}
 
 			fprintf(f, "\n");
-			int numTexCoords = int(attribute.texcoords.size());
-			for (int vt = 0; vt < numTexCoords / 2; vt++)
+			size_t numTexCoords = attribute.texcoords.size();
+			for (size_t vt = 0; vt < numTexCoords / 2; vt++)
 			{
 				fprintf(f, "vt %f %f\n", attribute.texcoords[vt * 2 + 0], attribute.texcoords[vt * 2 + 1]);
 			}
 
 			fprintf(f, "s off\n");
 
-			for (int face = 0; face < faceCount; face += 3)
+			for (size_t face = 0; face < faceCount; face += 3)
 			{
-				if (face < 0 && face >= int(shape.mesh.indices.size()))
+				if (face >= shape.mesh.indices.size())
 				{
 					continue;
 				}

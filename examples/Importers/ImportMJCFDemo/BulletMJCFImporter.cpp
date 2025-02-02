@@ -166,7 +166,7 @@ struct MyMJCFDefaults
 	MyMJCFDefaults()
 		: m_defaultCollisionGroup(1),
 		  m_defaultCollisionMask(1),
-		  m_defaultCollisionMargin(0.001),  //assume unit meters, margin is 1mm
+		  m_defaultCollisionMargin(btScalar(0.001)),  //assume unit meters, margin is 1mm
 		  m_defaultConDim(3),
 		  m_defaultLateralFriction(0.5),
 		  m_defaultSpinningFriction(0),
@@ -261,7 +261,7 @@ struct BulletMJCFImporterInternalData
 		return 0;
 	}
 
-	void parseCompiler(XMLElement* root_xml, MJCFErrorLogger* logger)
+	void parseCompiler(XMLElement* root_xml, MJCFErrorLogger* /*logger*/)
 	{
 		const char* meshDirStr = root_xml->Attribute("meshdir");
 		if (meshDirStr)
@@ -282,7 +282,7 @@ struct BulletMJCFImporterInternalData
 		}
 	}
 
-	void parseAssets(XMLElement* root_xml, MJCFErrorLogger* logger)
+	void parseAssets(XMLElement* root_xml, MJCFErrorLogger* /*logger*/)
 	{
 		//		<mesh name="index0" 	file="index0.stl"/>
 		for (XMLElement* child_xml = root_xml->FirstChildElement(); child_xml; child_xml = child_xml->NextSiblingElement())
@@ -345,7 +345,7 @@ struct BulletMJCFImporterInternalData
 				// armature="1"
 				// damping="1"
 				// limited="true"
-				if (const char* conTypeStr = child_xml->Attribute("limited"))
+				if (/*const char* conTypeStr =*/ child_xml->Attribute("limited"))
 				{
 					defaults.m_defaultJointLimited = child_xml->Attribute("limited");
 				}
@@ -374,7 +374,7 @@ struct BulletMJCFImporterInternalData
 				{
 					defaults.m_defaultConDim = urdfLexicalCast<int>(conDimS);
 				}
-				int conDim = defaults.m_defaultConDim;
+				// int conDim = defaults.m_defaultConDim;
 
 				const char* frictionS = child_xml->Attribute("friction");
 				if (frictionS)
@@ -467,7 +467,7 @@ struct BulletMJCFImporterInternalData
 		return true;
 	}
 
-	bool parseJoint(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
+	bool parseJoint(MyMJCFDefaults& /*defaults*/, XMLElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
 	{
 		bool jointHandled = false;
 		const char* jType = link_xml->Attribute("type");
@@ -519,7 +519,7 @@ struct BulletMJCFImporterInternalData
 		}
 		bool isLimited = lim == "true";
 
-		UrdfJointTypes ejtype;
+		UrdfJointTypes ejtype = (UrdfJointTypes)0;
 		if (jType)
 		{
 			std::string jointType = jType;
@@ -1002,7 +1002,7 @@ struct BulletMJCFImporterInternalData
 		return tr;
 	}
 
-	double computeVolume(const UrdfLink* linkPtr, MJCFErrorLogger* logger) const
+	double computeVolume(const UrdfLink* linkPtr, MJCFErrorLogger* /*logger*/) const
 	{
 		double totalVolume = 0;
 
@@ -1436,7 +1436,7 @@ BulletMJCFImporter::~BulletMJCFImporter()
 	delete m_data;
 }
 
-bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger, bool forceFixedBase)
+bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger, bool /*forceFixedBase*/)
 {
 	if (strlen(fileName) == 0)
 		return false;
@@ -1447,7 +1447,7 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 	b3FileUtils fu;
 
 	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-	bool fileFound = (m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024) > 0);
+	bool fileFound = m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024);
 	m_data->m_sourceFileName = relativeFileName;
 
 	std::string xml_string;
@@ -1595,8 +1595,8 @@ bool BulletMJCFImporter::getLinkColor2(int linkIndex, struct UrdfMaterialColor& 
 					{
 						matCol = link->m_collisionArray[0].m_geometry.m_localMaterial.m_matColor;
 						hasLinkColor = true;
+						break;
 					}
-					break;
 				}
 			}
 		}
@@ -1612,7 +1612,7 @@ bool BulletMJCFImporter::getLinkColor2(int linkIndex, struct UrdfMaterialColor& 
 	return hasLinkColor;
 }
 
-bool BulletMJCFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
+bool BulletMJCFImporter::getLinkColor(int /*linkIndex*/, btVector4& /*colorRGBA*/) const
 {
 	//	UrdfLink* link = m_data->getLink(linkIndex);
 	return false;
@@ -1795,7 +1795,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 			btScalar diam = 2. * visual->m_geometry.m_capsuleRadius;
 			b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
-			int numVertices = sizeof(mjcf_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(mjcf_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices);
 			for (int i = 0; i < numVertices; i++)
 			{
@@ -1883,7 +1883,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
 				btScalar cylLength = visual->m_geometry.m_capsuleHeight;
 
-				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / numSteps)), cylRadius * btCos(SIMD_2_PI * (float(i) / numSteps)), cylLength / 2.);
+				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / float(numSteps))), cylRadius * btCos(SIMD_2_PI * (float(i) / float(numSteps))), cylLength / 2.);
 				vertices.push_back(vert);
 				vert[2] = -cylLength / 2.;
 				vertices.push_back(vert);
@@ -1911,7 +1911,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 #if 1
 			btScalar sphereSize = 2. * visual->m_geometry.m_sphereRadius;
 			b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
-			int numVertices = sizeof(mjcf_sphere_vertices) / strideInBytes;
+			int numVertices = (int)(sizeof(mjcf_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices);
 
 			glmesh = new GLInstanceGraphicsShape;
@@ -2029,17 +2029,17 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 						int baseIndex = glmesh->m_vertices->size();
 
-						for (int i = 0; i < gfxShape->m_vertices->size(); i++)
+						for (int j = 0; j < gfxShape->m_vertices->size(); j++)
 						{
-							verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-							verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-							verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-							verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-							verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-							verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-							verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-							verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-							verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+							verts[j].normal[0] = gfxShape->m_vertices->at(j).normal[0];
+							verts[j].normal[1] = gfxShape->m_vertices->at(j).normal[1];
+							verts[j].normal[2] = gfxShape->m_vertices->at(j).normal[2];
+							verts[j].uv[0] = gfxShape->m_vertices->at(j).uv[0];
+							verts[j].uv[1] = gfxShape->m_vertices->at(j).uv[1];
+							verts[j].xyzw[0] = gfxShape->m_vertices->at(j).xyzw[0];
+							verts[j].xyzw[1] = gfxShape->m_vertices->at(j).xyzw[1];
+							verts[j].xyzw[2] = gfxShape->m_vertices->at(j).xyzw[2];
+							verts[j].xyzw[3] = gfxShape->m_vertices->at(j).xyzw[3];
 						}
 
 						int curNumIndices = glmesh->m_indices->size();
@@ -2145,7 +2145,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			btAlignedObjectArray<int> indices;
 			for (int i = 0; i < numIndices; i++)
 			{
-				glmesh->m_indices->push_back(hull->getIndexPointer()[i]);
+				glmesh->m_indices->push_back((int)hull->getIndexPointer()[i]);
 			}
 
 			glmesh->m_numvertices = glmesh->m_vertices->size();
@@ -2207,7 +2207,7 @@ int BulletMJCFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 				const UrdfVisual& vis = link->m_visualArray[v];
 				btTransform childTrans = vis.m_linkLocalFrame;
 				btHashString matName(vis.m_materialName.c_str());
-				UrdfMaterial* const* matPtr = model.m_materials[matName];
+				/*UrdfMaterial* const* matPtr =*/ model.m_materials[matName];
 
 				convertURDFToVisualShapeInternal(&vis, pathPrefix, inertialFrame.inverse() * childTrans, vertices, indices, textures);
 			}
@@ -2232,7 +2232,7 @@ int BulletMJCFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 		for (int i = 0; i < textures.size(); i++)
 		{
 			B3_PROFILE("free textureData");
-			if (!textures[i].m_isCached)
+			if (!textures[i].m_isCached && textures[i].textureData1)
 			{
 				free(textures[i].textureData1);
 			}
@@ -2281,31 +2281,31 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(const bt_tinyobj::attrib
 	btTransform identity;
 	identity.setIdentity();
 
-	for (int s = 0; s < (int)shapes.size(); s++)
+	for (size_t s = 0; s < shapes.size(); s++)
 	{
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(collisionMargin);
 		bt_tinyobj::shape_t& shape = shapes[s];
 
-		int faceCount = shape.mesh.indices.size();
+		size_t faceCount = shape.mesh.indices.size();
 
-		for (int f = 0; f < faceCount; f += 3)
+		for (size_t f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
-						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
+			pt.setValue(attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * (size_t)shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 
@@ -2317,7 +2317,7 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(const bt_tinyobj::attrib
 	return compound;
 }
 
-class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
+class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIndex, const char* /*pathPrefix*/, const btTransform& localInertiaFrame) const
 {
 	btCompoundShape* compound = new btCompoundShape();
 	m_data->m_allocatedCollisionShapes.push_back(compound);
@@ -2373,10 +2373,10 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 						}
 						btCylinderShapeZ* cyl = new btCylinderShapeZ(btVector3(col->m_geometry.m_capsuleRadius, col->m_geometry.m_capsuleRadius, btScalar(0.5) * height));
 
-						btCompoundShape* compound = new btCompoundShape();
+						btCompoundShape* compoundShape = new btCompoundShape();
 						btTransform localTransform(localOrn, localPosition);
-						compound->addChildShape(localTransform, cyl);
-						childShape = compound;
+						compoundShape->addChildShape(localTransform, cyl);
+						childShape = compoundShape;
 					}
 					else
 					{
@@ -2432,12 +2432,12 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 						//convex->setUserIndex(shapeId);
 						btAlignedObjectArray<btVector3> convertedVerts;
 						convertedVerts.reserve(glmesh->m_numvertices);
-						for (int i = 0; i < glmesh->m_numvertices; i++)
+						for (int j = 0; j < glmesh->m_numvertices; j++)
 						{
 							convertedVerts.push_back(btVector3(
-								glmesh->m_vertices->at(i).xyzw[0] * col->m_geometry.m_meshScale[0],
-								glmesh->m_vertices->at(i).xyzw[1] * col->m_geometry.m_meshScale[1],
-								glmesh->m_vertices->at(i).xyzw[2] * col->m_geometry.m_meshScale[2]));
+								glmesh->m_vertices->at(j).xyzw[0] * col->m_geometry.m_meshScale[0],
+								glmesh->m_vertices->at(j).xyzw[1] * col->m_geometry.m_meshScale[1],
+								glmesh->m_vertices->at(j).xyzw[2] * col->m_geometry.m_meshScale[2]));
 						}
 
 						if (col->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
@@ -2445,11 +2445,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							btTriangleMesh* meshInterface = new btTriangleMesh();
 							m_data->m_allocatedMeshInterfaces.push_back(meshInterface);
 
-							for (int i = 0; i < glmesh->m_numIndices / 3; i++)
+							for (int j = 0; j < glmesh->m_numIndices / 3; j++)
 							{
-								float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3)).xyzw;
-								float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 1)).xyzw;
-								float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 2)).xyzw;
+								float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(j * 3)).xyzw;
+								float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(j * 3 + 1)).xyzw;
+								float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(j * 3 + 2)).xyzw;
 								meshInterface->addTriangle(btVector3(v0[0], v0[1], v0[2]),
 														   btVector3(v1[0], v1[1], v1[2]),
 														   btVector3(v2[0], v2[1], v2[2]));
@@ -2499,10 +2499,10 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							}
 							btCapsuleShapeZ* capsule = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius, height);
 
-							btCompoundShape* compound = new btCompoundShape();
+							btCompoundShape* compoundShape = new btCompoundShape();
 							btTransform localTransform(localOrn, localPosition);
-							compound->addChildShape(localTransform, capsule);
-							childShape = compound;
+							compoundShape->addChildShape(localTransform, capsule);
+							childShape = compoundShape;
 						}
 						else
 						{

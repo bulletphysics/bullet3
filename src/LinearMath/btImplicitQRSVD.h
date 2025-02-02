@@ -47,7 +47,7 @@ class btMatrix2x2
 {
 public:
     btScalar m_00, m_01, m_10, m_11;
-    btMatrix2x2(): m_00(0), m_10(0), m_01(0), m_11(0)
+    btMatrix2x2(): m_00(0), m_01(0), m_10(0), m_11(0)
     {
     }
     btMatrix2x2(const btMatrix2x2& other): m_00(other.m_00),m_01(other.m_01),m_10(other.m_10),m_11(other.m_11)
@@ -473,6 +473,7 @@ inline void singularValueDecomposition(
                            GivensRotation& V,
                            const btScalar tol = 64 * std::numeric_limits<btScalar>::epsilon())
 {
+    (void)tol;
     btMatrix2x2& sigma = const_cast<btMatrix2x2&>(Sigma);
     sigma.setIdentity();
     btMatrix2x2 S_Sym;
@@ -553,6 +554,7 @@ inline void singularValueDecomposition(
                            const btMatrix2x2& V,
                            const btScalar tol = 64 * std::numeric_limits<btScalar>::epsilon())
 {
+    (void)tol;
     GivensRotation gv(0, 1);
     GivensRotation gu(0, 1);
     singularValueDecomposition(A, gu, Sigma, gv);
@@ -597,7 +599,8 @@ inline void process(btMatrix3x3& B, btMatrix3x3& U, btVector3& sigma, btMatrix3x
     sigma[other] = B[other][other];
     
     btMatrix2x2 B_sub, sigma_sub;
-    if (t == 0)
+    const bool isZero = t == 0;
+    if (isZero)
     {
         B_sub.m_00 = B[0][0];
         B_sub.m_10 = B[1][0];

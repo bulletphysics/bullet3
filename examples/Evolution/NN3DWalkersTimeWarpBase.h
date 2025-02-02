@@ -53,7 +53,7 @@ static double /*8*/ QUINCENTUPLE_SPEED = 500;
 static double /*9*/ MILLITUPLE_SPEED = 1000;
 static double /*0*/ MAX_SPEED = MILLITUPLE_SPEED;
 static double /**/ NUM_SPEEDS = 10;
-};  // namespace SimulationSpeeds
+}  // namespace SimulationSpeeds
 
 // add speeds from the namespace here
 static double speeds[] = {
@@ -104,7 +104,7 @@ static char NNCGSOLVER[] = "NNCG Solver";
 static char DANZIGSOLVER[] = "Danzig Solver";
 static char LEMKESOLVER[] = "Lemke Solver";
 
-};  // namespace SolverType
+}  // namespace SolverType
 
 static const char* solverTypes[NUM_SOLVERS];
 
@@ -150,12 +150,12 @@ inline void twxChangeFPS(float framesPerSecond, void*)
 	gFramesPerSecond = framesPerSecond;
 }
 
-inline void twxChangeERPCFM(float notUsed, void*)
+inline void twxChangeERPCFM(float /*notUsed*/, void*)
 {  // function to change ERP/CFM appropriately
 	gChangeErpCfm = true;
 }
 
-inline void changeSolver(int comboboxId, const char* item, void* userPointer)
+inline void changeSolver(int /*comboboxId*/, const char* item, void* /*userPointer*/)
 {  // function to change the solver
 	for (int i = 0; i < NUM_SOLVERS; i++)
 	{
@@ -169,7 +169,7 @@ inline void changeSolver(int comboboxId, const char* item, void* userPointer)
 	b3Printf("No Change");
 }
 
-inline void twxChangeSolverIterations(float notUsed, void* userPtr)
+inline void twxChangeSolverIterations(float /*notUsed*/, void* /*userPtr*/)
 {  // change the solver iterations
 }
 
@@ -190,19 +190,19 @@ inline void clampToCustomSpeedNotches(float speed, void*)
 	gSimulationSpeed = minSpeed;
 }
 
-inline void switchInterpolated(int buttonId, bool buttonState, void* userPointer)
+inline void switchInterpolated(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
 {  // toggle if interpolation steps are taken
 	gInterpolate = !gInterpolate;
 	//	b3Printf("Interpolate substeps %s", gInterpolate?"on":"off");
 }
 
-inline void switchHeadless(int buttonId, bool buttonState, void* userPointer)
+inline void switchHeadless(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
 {  // toggle if the demo should run headless
 	gIsHeadless = !gIsHeadless;
 	//	b3Printf("Run headless %s", gIsHeadless?"on":"off");
 }
 
-inline void switchMaximumSpeed(int buttonId, bool buttonState, void* userPointer)
+inline void switchMaximumSpeed(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
 {   // toggle it the demo should run as fast as possible
 	//	b3Printf("Run maximum speed %s", gMaximumSpeed?"on":"off");
 }
@@ -561,7 +561,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		return speedUp;
 	}
 
-	void timeWarpSimulation(float deltaTime)  // Override this
+	void timeWarpSimulation(float /*deltaTime*/)  // Override this
 	{
 	}
 
@@ -604,7 +604,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			// model update - here you perform updates of your model, be it the physics model, the game or simulation state or anything not related to graphics and input
 
 			timeWarpSimulation(deltaTime);
-			if (mLoopTimer.getTimeSeconds() - speedUpPrintTimeStamp > 1)
+			if (mLoopTimer.getTimeSeconds() - (btScalar)speedUpPrintTimeStamp > 1)
 			{
 				// on reset, we calculate the performed speed up
 				//double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
@@ -624,7 +624,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			mApplicationRuntime = mThisModelIteration - mApplicationStart; /**!< Update main frame timer (in Milliseconds) */
 
 			mModelStart = mLoopTimer.getTimeMilliseconds();   /**!< Begin with the model update (in Milliseconds)*/
-			mLastGraphicsTick = mModelStart - mGraphicsStart; /**!< Update graphics timer (in Milliseconds) */
+			mLastGraphicsTick = (long)(mModelStart - mGraphicsStart); /**!< Update graphics timer (in Milliseconds) */
 
 			if (gMaximumSpeed /** If maximum speed is enabled*/)
 			{
@@ -636,12 +636,12 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			}
 
 			mInputStart = mLoopTimer.getTimeMilliseconds(); /**!< Start the input update */
-			mLastModelTick = mInputStart - mModelStart;     /**!< Calculate the time the model update took */
+			mLastModelTick = (long)(mInputStart - mModelStart);     /**!< Calculate the time the model update took */
 
 			//#############
 			// Input update - Game Clock part of the loop
 			/** This runs once every gApplicationTick milliseconds on average */
-			mInputDt = mThisModelIteration - mInputClock;
+			mInputDt = (long)(mThisModelIteration - mInputClock);
 			if (mInputDt >= gApplicationTick)
 			{
 				mInputClock = mThisModelIteration;
@@ -650,7 +650,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			}
 
 			mGraphicsStart = mLoopTimer.getTimeMilliseconds(); /**!< Start the graphics update */
-			mLastInputTick = mGraphicsStart - mInputStart;     /**!< Calculate the time the input injection took */
+			mLastInputTick = (long)(mGraphicsStart - mInputStart);     /**!< Calculate the time the input injection took */
 
 			//#############
 			// Graphics update - Here you perform the representation of your model, meaning graphics rendering according to what your game or simulation model describes
@@ -661,7 +661,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			//		"Physics time: %u milliseconds / Graphics time: %u milliseconds / Input time: %u milliseconds / Total time passed: %u milliseconds",
 			//		mLastModelTick, mLastGraphicsTick, mLastInputTick, mApplicationRuntime);
 
-		} while (mLoopTimer.getTimeMilliseconds() - fpsTimeStamp < fpsStep);  // escape the loop if it is time to render
+		} while ((double)(mLoopTimer.getTimeMilliseconds() - fpsTimeStamp) < fpsStep);  // escape the loop if it is time to render
 		// Unfortunately, the input is not included in the loop, therefore the input update frequency is equal to the fps
 
 		fpsTimeStamp = mLoopTimer.getTimeMilliseconds();
@@ -774,7 +774,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		m_dynamicsWorld->getSolverInfo().m_numIterations = iterations;
 	}
 
-	void changeFPS(float framesPerSecond)
+	void changeFPS(float /*framesPerSecond*/)
 	{  // change the frames per second
 		fpsStep = 1000.0f / gFramesPerSecond;
 	}
@@ -788,10 +788,10 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			if (timeStep && m_dynamicsWorld)
 			{
 				// since we want to perform all proper steps, we perform no interpolated substeps
-				int subSteps = 1;
+				int subStepsL = 1;
 
 				m_dynamicsWorld->stepSimulation(btScalar(timeStep),
-												btScalar(subSteps), btScalar(fixedPhysicsStepSizeSec));
+												btScalar(subStepsL), btScalar(fixedPhysicsStepSizeSec));
 			}
 		}
 	}
@@ -829,7 +829,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			mPhysicsStepStart = mLoopTimer.getTimeMilliseconds(); /**!< The physics updates start (in Milliseconds)*/
 			mPhysicsStepEnd = mPhysicsStepStart;
 
-			while (mPhysicsTick > mPhysicsStepEnd - mPhysicsStepStart)
+			while (mPhysicsTick > (long)(mPhysicsStepEnd - mPhysicsStepStart))
 			{ /**!< Update the physics until we run out of time (in Milliseconds) */
 				//			b3Printf("Physics passed: %u", mPhysicsStepEnd - mPhysicsStepStart);
 				double timeStep = fixedPhysicsStepSizeSec; /**!< update the world (in Seconds) */
@@ -850,9 +850,9 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 	void performSpeedStep()
 	{  // force-perform the number of steps needed to achieve a certain speed (safe to too high speeds, meaning the application will lose time, not the physics)
-		if (mFrameTime > gApplicationTick)
+		if ((int)mFrameTime > gApplicationTick)
 		{                                   /** cap frametime to make the application lose time, not the physics (in Milliseconds) */
-			mFrameTime = gApplicationTick;  // This prevents the physics time accumulator to sum up too much time
+			mFrameTime = (unsigned long)gApplicationTick;  // This prevents the physics time accumulator to sum up too much time
 		}                                   // The simulation therefore gets slower, but still performs all requested physics steps
 
 		mModelAccumulator += mFrameTime; /**!< Accumulate the time the physics simulation has to perform in order to stay in real-time (in Milliseconds) */
@@ -864,7 +864,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		if (steps > 0)
 		{ /**!< Update if we can take at least one step */
 
-			double timeStep = gSimulationSpeed * steps * fixedPhysicsStepSizeSec; /**!< update the universe (in Seconds) */
+			double timeStep = (double)gSimulationSpeed * (double)steps * fixedPhysicsStepSizeSec; /**!< update the universe (in Seconds) */
 
 			if (gInterpolate)
 			{
@@ -897,7 +897,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = 52;
 		float yaw = 35;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, pitch, yaw, targetPos[0], targetPos[1],
 								 targetPos[2]);
 	}

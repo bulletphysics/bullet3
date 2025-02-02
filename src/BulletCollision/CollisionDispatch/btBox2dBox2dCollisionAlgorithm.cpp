@@ -50,7 +50,7 @@ btBox2dBox2dCollisionAlgorithm::~btBox2dBox2dCollisionAlgorithm()
 void b2CollidePolygons(btManifoldResult* manifold, const btBox2dShape* polyA, const btTransform& xfA, const btBox2dShape* polyB, const btTransform& xfB);
 
 //#include <stdio.h>
-void btBox2dBox2dCollisionAlgorithm::processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
+void btBox2dBox2dCollisionAlgorithm::processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* resultOut)
 {
 	if (!m_manifoldPtr)
 		return;
@@ -387,7 +387,7 @@ void b2CollidePolygons(btManifoldResult* manifold,
 	// Now clipPoints2 contains the clipped points.
 	btVector3 manifoldNormal = flip ? -frontNormal : frontNormal;
 
-	int pointCount = 0;
+	// int pointCount = 0;
 	for (int i = 0; i < b2_maxManifoldPoints; ++i)
 	{
 		btScalar separation = b2Dot(frontNormal, clipPoints2[i].v) - frontOffset;
@@ -403,7 +403,7 @@ void b2CollidePolygons(btManifoldResult* manifold,
 
 			//			cp->id = clipPoints2[i].id;
 			//			cp->id.features.flip = flip;
-			++pointCount;
+			// ++pointCount;
 		}
 	}
 

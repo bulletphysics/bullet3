@@ -46,6 +46,7 @@ void btFractureDynamicsWorld::glueCallback()
 	unionFind.reset(index);
 
 	int numElem = unionFind.getNumElements();
+	(void)numElem;
 
 	for (int i = 0; i < numManifolds; i++)
 	{
@@ -356,6 +357,7 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 
 	unionFind.reset(index);
 	int numElem = unionFind.getNumElements();
+	(void)numElem;
 	for (i = 0; i < fracObj->m_connections.size(); i++)
 	{
 		btConnection& connection = fracObj->m_connections[i];
@@ -387,6 +389,7 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 	btAlignedObjectArray<btCollisionObject*> removedObjects;
 
 	int numIslands = 0;
+	(void)numIslands;
 
 	for (startIslandIndex = 0; startIslandIndex < numElem; startIslandIndex = endIslandIndex)
 	{
@@ -405,10 +408,10 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 		int idx;
 		for (idx = startIslandIndex; idx < endIslandIndex; idx++)
 		{
-			int i = unionFind.getElement(idx).m_sz;
+			int ii = unionFind.getElement(idx).m_sz;
 			//		btCollisionShape* shape = compound->getChildShape(i);
-			newCompound->addChildShape(compound->getChildTransform(i), compound->getChildShape(i));
-			masses.push_back(fracObj->m_masses[i]);
+			newCompound->addChildShape(compound->getChildTransform(ii), compound->getChildShape(ii));
+			masses.push_back(fracObj->m_masses[ii]);
 			numShapes++;
 		}
 		if (numShapes)
@@ -480,7 +483,7 @@ void btFractureDynamicsWorld::fractureCallback()
 		int f0 = m_fractureBodies.findLinearSearch((btFractureBody*)manifold->getBody0());
 		int f1 = m_fractureBodies.findLinearSearch((btFractureBody*)manifold->getBody1());
 
-		if (f0 == f1 == m_fractureBodies.size())
+		if ((f0 == f1) && (f1 == m_fractureBodies.size()))
 			continue;
 
 		if (f0 < m_fractureBodies.size())

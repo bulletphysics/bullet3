@@ -49,7 +49,7 @@ btSimpleBroadphase::btSimpleBroadphase(int maxProxies, btOverlappingPairCache* o
 
 	// allocate handles buffer and put all handles on free list
 	m_pHandlesRawPtr = btAlignedAlloc(sizeof(btSimpleBroadphaseProxy) * maxProxies, 16);
-	m_pHandles = new (m_pHandlesRawPtr) btSimpleBroadphaseProxy[maxProxies];
+	m_pHandles = new (m_pHandlesRawPtr) btSimpleBroadphaseProxy[(size_t)maxProxies];
 	m_maxHandles = maxProxies;
 	m_numHandles = 0;
 	m_firstFreeHandle = 0;
@@ -145,7 +145,7 @@ void btSimpleBroadphase::setAabb(btBroadphaseProxy* proxy, const btVector3& aabb
 	sbp->m_aabbMax = aabbMax;
 }
 
-void btSimpleBroadphase::rayTest(const btVector3& rayFrom, const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin, const btVector3& aabbMax)
+void btSimpleBroadphase::rayTest(const btVector3& /*rayFrom*/, const btVector3& /*rayTo*/, btBroadphaseRayCallback& rayCallback, const btVector3& /*aabbMin*/, const btVector3& /*aabbMax*/)
 {
 	for (int i = 0; i <= m_LastHandleIndex; i++)
 	{
@@ -319,7 +319,7 @@ bool btSimpleBroadphase::testAabbOverlap(btBroadphaseProxy* proxy0, btBroadphase
 	return aabbOverlap(p0, p1);
 }
 
-void btSimpleBroadphase::resetPool(btDispatcher* dispatcher)
+void btSimpleBroadphase::resetPool(btDispatcher* /*dispatcher*/)
 {
 	//not yet
 }

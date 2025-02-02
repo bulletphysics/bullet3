@@ -32,10 +32,19 @@
 #define BORDER_Y_BOTTOM 2
 #define ADDITIONAL_HEIGHT 2
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2' - signed/unsigned mismatch
+#pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
+#if(_MSC_VER > 1927) // from MSVC 2019 16.7 (19.27.29112.0)
+#pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
+#endif
+#endif
 #define STB_TRUETYPE_IMPLEMENTATION
-#define STBTT_malloc(x, u) malloc(x)
-#define STBTT_free(x, u) free(x)
 #include "stb_image/stb_truetype.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #define HASH_LUT_SIZE 256
 
@@ -137,13 +146,13 @@ struct sth_stash* sth_create(int cachew, int cacheh, RenderCallbacks* renderCall
 		assert(0);
 		free(stash);
 	}
-	memset(texture, 0, sizeof(struct sth_texture));
+	if(texture) memset((void*)texture, 0, sizeof(struct sth_texture));
 
 	// Create first texture for the cache.
 	stash->tw = cachew;
 	stash->th = cacheh;
-	stash->itw = 1.0f / cachew;
-	stash->ith = 1.0f / cacheh;
+	stash->itw = 1.0f / (float)cachew;
+	stash->ith = 1.0f / (float)cacheh;
 	stash->textures = texture;
 
 	stash->m_renderCallbacks->updateTexture(texture, 0, stash->tw, stash->th);
@@ -200,7 +209,7 @@ int sth_add_font(struct sth_stash* stash, const char* path)
 	FILE* fp = 0;
 	int datasize;
 	unsigned char* data = NULL;
-	int idx = 0;
+	int index = 0;
 
 	// Read in the font data.
 	fp = fopen(path, "rb");
@@ -208,24 +217,24 @@ int sth_add_font(struct sth_stash* stash, const char* path)
 	fseek(fp, 0, SEEK_END);
 	datasize = (int)ftell(fp);
 	fseek(fp, 0, SEEK_SET);
-	data = (unsigned char*)malloc(datasize);
+	data = (unsigned char*)malloc((size_t)datasize);
 	if (data == NULL) goto error;
 	int bytesRead;
-	bytesRead = fread(data, 1, datasize, fp);
+	bytesRead = (int)fread(data, 1, (size_t)datasize, fp);
 	if (bytesRead)
 	{
-		idx = sth_add_font_from_memory(stash, data);
+		index = sth_add_font_from_memory(stash, data);
 	}
 	fclose(fp);
 	fp = 0;
 
 	// Modify type of the loaded font.
-	if (idx)
+	if (index)
 		stash->fonts->type = TTFONT_FILE;
 	else
 		free(data);
 
-	return idx;
+	return index;
 
 error:
 	if (data) free(data);
@@ -265,7 +274,7 @@ error:
 }
 
 /*void sth_add_glyph(struct sth_stash* stash,
-                  int idx,
+                  int index,
                   unsigned int id1,
                   const char* s,
                   short size, short base,
@@ -295,7 +304,7 @@ error:
 	}
 
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT) return;
 
@@ -338,6 +347,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 	float scale;
 	struct sth_texture* texture = NULL;
 	struct sth_glyph* glyph = NULL;
+	sth_glyph* reallocated = NULL;
 
 	unsigned int h;
 	float size = isize / 10.0f;
@@ -360,7 +370,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 
 	// For truetype fonts: create this glyph.
 	scale = stbtt_ScaleForPixelHeight(&fnt->font, size);
-	g = stbtt_FindGlyphIndex(&fnt->font, codepoint);
+	g = stbtt_FindGlyphIndex(&fnt->font, (int)codepoint);
 	stbtt_GetGlyphHMetrics(&fnt->font, g, &advance, &lsb);
 	stbtt_GetGlyphBitmapBox(&fnt->font, g, scale, scale, &x0, &y0, &x1, &y1);
 	gw = x1 - x0;
@@ -405,7 +415,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 						texture->next = (struct sth_texture*)malloc(sizeof(struct sth_texture));
 						texture = texture->next;
 						if (texture == NULL) goto error;
-						memset(texture, 0, sizeof(struct sth_texture));
+						memset((void*)texture, 0, sizeof(struct sth_texture));
 
 						stash->m_renderCallbacks->updateTexture(texture, 0, stash->tw, stash->th);
 					}
@@ -423,8 +433,10 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 
 	// Alloc space for new glyph.
 	fnt->nglyphs++;
-	fnt->glyphs = (sth_glyph*)realloc(fnt->glyphs, fnt->nglyphs * sizeof(struct sth_glyph));
-	if (!fnt->glyphs) return 0;
+	reallocated = (sth_glyph*)realloc(fnt->glyphs, fnt->nglyphs * sizeof(struct sth_glyph));
+	if(!reallocated)
+		return 0;
+	fnt->glyphs = reallocated;
 
 	// Init glyph.
 	glyph = &fnt->glyphs[fnt->nglyphs - 1];
@@ -436,7 +448,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 	glyph->y0 = br->y;
 	glyph->x1 = glyph->x0_ + gw;
 	glyph->y1 = glyph->y0 + gh;
-	glyph->xadv = scale * advance;
+	glyph->xadv = scale * (float)advance;
 	glyph->xoff = (float)x0;
 	glyph->yoff = (float)y0;
 	glyph->next = 0;
@@ -491,7 +503,7 @@ static int get_quad(struct sth_stash* stash, struct sth_font* fnt, struct sth_gl
 	return 1;
 }
 
-static int get_quad3D(struct sth_stash* stash, struct sth_font* fnt, struct sth_glyph* glyph, short isize2, float* x, float* y, struct sth_quad* q, float fontSize, float textScale)
+static int get_quad3D(struct sth_stash* stash, struct sth_font* fnt, struct sth_glyph* glyph, short /*isize2*/, float* x, float* y, struct sth_quad* q, float fontSize, float textScale)
 {
 	short isize = 1;
 	float rx, ry;
@@ -519,7 +531,7 @@ static int get_quad3D(struct sth_stash* stash, struct sth_font* fnt, struct sth_
 	return 1;
 }
 
-static Vertex* setv(Vertex* v, float x, float y, float s, float t, float width, float height, float colorRGBA[4])
+static Vertex* setv(Vertex* v, float x, float y, float s, float t, float width, float height, float /*colorRGBA*/[4])
 {
 	bool scale = true;
 	if (scale)
@@ -538,10 +550,10 @@ static Vertex* setv(Vertex* v, float x, float y, float s, float t, float width, 
 	v->uv.p[0] = s;
 	v->uv.p[1] = t;
 
-	v->colour.p[0] = 0.1;  //colorRGBA[0];
-	v->colour.p[1] = 0.1;  //colorRGBA[1];
-	v->colour.p[2] = 0.1;  //colorRGBA[2];
-	v->colour.p[3] = 1.0;  //colorRGBA[3];
+	v->colour.p[0] = 0.1f;  //colorRGBA[0];
+	v->colour.p[1] = 0.1f;  //colorRGBA[1];
+	v->colour.p[2] = 0.1f;  //colorRGBA[2];
+	v->colour.p[3] = 1.0f;  //colorRGBA[3];
 
 	return v + 1;
 }
@@ -614,7 +626,7 @@ void sth_end_draw(struct sth_stash* stash)
 }
 
 void sth_draw_texture(struct sth_stash* stash,
-					  int idx, float size,
+					  int index, float size,
 					  float x, float y,
 					  int screenwidth, int screenheight,
 					  const char* s, float* dx, float colorRGBA[4])
@@ -635,7 +647,7 @@ void sth_draw_texture(struct sth_stash* stash,
 
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -658,8 +670,8 @@ void sth_draw_texture(struct sth_stash* stash,
 		v = &texture->newverts[texture->nverts];
 		q.x0 = 0;
 		q.y0 = 0;
-		q.x1 = q.x0 + width;
-		q.y1 = q.y0 + height;
+		q.x1 = q.x0 + (float)width;
+		q.y1 = q.y0 + (float)height;
 
 		v = setv(v, q.x0, q.y0, 0, 0, (float)screenwidth, (float)screenheight, colorRGBA);
 		v = setv(v, q.x1, q.y0, 1, 0, (float)screenwidth, (float)screenheight, colorRGBA);
@@ -668,6 +680,7 @@ void sth_draw_texture(struct sth_stash* stash,
 		v = setv(v, q.x0, q.y0, 0, 0, (float)screenwidth, (float)screenheight, colorRGBA);
 		v = setv(v, q.x1, q.y1, 1, 1, (float)screenwidth, (float)screenheight, colorRGBA);
 		v = setv(v, q.x0, q.y1, 0, 1, (float)screenwidth, (float)screenheight, colorRGBA);
+		(void)v;
 		texture->nverts += 6;
 	}
 
@@ -681,7 +694,7 @@ void sth_flush_draw(struct sth_stash* stash)
 	flush_draw(stash);
 }
 void sth_draw_text(struct sth_stash* stash,
-				   int idx, float size,
+				   int index, float size,
 				   float x, float y,
 				   const char* s, float* dx, int screenwidth, int screenheight, int measureOnly, float retinaScale, float colorRGBA[4])
 {
@@ -699,7 +712,7 @@ void sth_draw_text(struct sth_stash* stash,
 
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -730,6 +743,7 @@ void sth_draw_text(struct sth_stash* stash,
 			v = setv(v, q.x0, q.y0, q.s0, q.t0, (float)screenwidth, (float)screenheight, colorRGBA);
 			v = setv(v, q.x1, q.y1, q.s1, q.t1, (float)screenwidth, (float)screenheight, colorRGBA);
 			v = setv(v, q.x0, q.y1, q.s0, q.t1, (float)screenwidth, (float)screenheight, colorRGBA);
+			(void)v;
 
 			texture->nverts += 6;
 		}
@@ -739,9 +753,9 @@ void sth_draw_text(struct sth_stash* stash,
 }
 
 void sth_draw_text3D(struct sth_stash* stash,
-					 int idx, float fontSize,
+					 int index, float fontSize,
 					 float x, float y, float z,
-					 const char* s, float* dx, float textScale, float colorRGBA[4], int unused)
+					 const char* s, float* dx, float textScale, float colorRGBA[4], int /*unused*/)
 {
 	unsigned int codepoint;
 	struct sth_glyph* glyph = NULL;
@@ -757,7 +771,7 @@ void sth_draw_text3D(struct sth_stash* stash,
 
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -784,6 +798,7 @@ void sth_draw_text3D(struct sth_stash* stash,
 			v = setv3D(v, q.x0, q.y0, z, q.s0, q.t0, colorRGBA);
 			v = setv3D(v, q.x1, q.y1, z, q.s1, q.t1, colorRGBA);
 			v = setv3D(v, q.x0, q.y1, z, q.s0, q.t1, colorRGBA);
+			(void)v;
 
 			texture->nverts += 6;
 		}
@@ -793,7 +808,7 @@ void sth_draw_text3D(struct sth_stash* stash,
 }
 
 void sth_dim_text(struct sth_stash* stash,
-				  int idx, float size,
+				  int index, float size,
 				  const char* s,
 				  float* minx, float* miny, float* maxx, float* maxy)
 {
@@ -810,7 +825,7 @@ void sth_dim_text(struct sth_stash* stash,
 	if (!stash->textures)
 		return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 
@@ -831,7 +846,7 @@ void sth_dim_text(struct sth_stash* stash,
 }
 
 void sth_vmetrics(struct sth_stash* stash,
-				  int idx, float size,
+				  int index, float size,
 				  float* ascender, float* descender, float* lineh)
 {
 	struct sth_font* fnt = NULL;
@@ -839,7 +854,7 @@ void sth_vmetrics(struct sth_stash* stash,
 	if (stash == NULL) return;
 	if (!stash->textures) return;
 	fnt = stash->fonts;
-	while (fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	while (fnt != NULL && fnt->idx != index) fnt = fnt->next;
 	if (fnt == NULL) return;
 	if (fnt->type != BMFONT && !fnt->data) return;
 	if (ascender)

@@ -171,7 +171,7 @@ public:
 		{
 			m_pointCache[index] = m_pointCache[lastUsedIndex];
 			//get rid of duplicated userPersistentData pointer
-			m_pointCache[lastUsedIndex].m_userPersistentData = 0;
+			m_pointCache[lastUsedIndex].m_userPersistentData = NULL;
 			m_pointCache[lastUsedIndex].m_appliedImpulse = 0.f;
 			m_pointCache[lastUsedIndex].m_prevRHS = 0.f;
 			m_pointCache[lastUsedIndex].m_contactPointFlags = 0;
@@ -180,7 +180,7 @@ public:
 			m_pointCache[lastUsedIndex].m_lifeTime = 0;
 		}
 
-		btAssert(m_pointCache[lastUsedIndex].m_userPersistentData == 0);
+		btAssert(m_pointCache[lastUsedIndex].m_userPersistentData == NULL);
 		m_cachedPoints--;
 
 		if (gContactEndedCallback && m_cachedPoints == 0)

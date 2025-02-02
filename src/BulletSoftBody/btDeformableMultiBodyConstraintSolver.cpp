@@ -70,7 +70,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 	return 0.f;
 }
 
-void btDeformableMultiBodyConstraintSolver::solveDeformableBodyGroup(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher)
+void btDeformableMultiBodyConstraintSolver::solveDeformableBodyGroup(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* /*dispatcher*/)
 {
 	m_tmpMultiBodyConstraints = multiBodyConstraints;
 	m_tmpNumMultiBodyConstraints = numMultiBodyConstraints;
@@ -110,7 +110,7 @@ void btDeformableMultiBodyConstraintSolver::writeToSolverBody(btCollisionObject*
 	}
 }
 
-void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactSolverInfo& infoGlobal)
+void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactSolverInfo& /*infoGlobal*/)
 {
 	// reduced soft body solver directly modifies the solver body
 	if (m_deformableSolver->isReducedSolver())
@@ -130,7 +130,7 @@ void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactS
 }
 
 
-void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollisionObject** bodies, int numBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
+void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollisionObject** bodies, int /*numBodies*/, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
 	if (!m_deformableSolver->isReducedSolver())
 	{
@@ -176,7 +176,7 @@ void btDeformableMultiBodyConstraintSolver::pairDeformableAndSolverBody(btCollis
 	}
 }
 
-void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
+void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** /*bodies*/, int /*numBodies*/, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/)
 {
 	BT_PROFILE("solveGroupCacheFriendlySplitImpulseIterations");
 	int iteration;

@@ -71,7 +71,7 @@ public:
 public:
 	union {
 		b3Scalar m_floats[4];
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			b3Scalar x, y, z, w;
 		};

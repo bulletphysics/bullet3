@@ -191,7 +191,7 @@ bool btExtractJointBodyFromTempLinks(btAlignedObjectArray<TempLink>& links, Eige
 
 
 		btVector3 jointAttachPointMy = links[j].m_eVector;
-		btVector3 jointAttachPointMyv0 = jointAttachPointMy;
+		// btVector3 jointAttachPointMyv0 = jointAttachPointMy;
 		btVector3 parentBodyAttachPtMy(0, 0, 0);
 		btQuaternion parentBodyToLink;
 		parentBodyToLink = btQuaternion::getIdentity();
@@ -216,8 +216,8 @@ bool btExtractJointBodyFromTempLinks(btAlignedObjectArray<TempLink>& links, Eige
 		}
 		btQuaternion myparent_body_to_body(0, 0, 0, 1);
 		btQuaternion mybody_to_parent_body(0, 0, 0, 1);
-		btQuaternion parent_body_to_body1 = links[i].m_zeroRotParentToThis;
-		btQuaternion body_to_parent_body1 = parent_body_to_body1.inverse();
+		// btQuaternion parent_body_to_body1 = links[i].m_zeroRotParentToThis;
+		// btQuaternion body_to_parent_body1 = parent_body_to_body1.inverse();
 
 		bodyToLinkRotations[i] = body_to_this1;
 
@@ -301,7 +301,7 @@ void btExtractJointBodyFromBullet(const btMultiBody* bulletMB, Eigen::MatrixXd& 
 	links.resize(bulletMB->getNumLinks() + baseLink);
 	for (int i = 0; i < links.size(); i++)
 	{
-		memset(&links[i], 0xffffffff, sizeof(TempLink));
+		memset((void*)&links[i], 0xffffffff, sizeof(TempLink));
 	}
 
 	int totalDofs = 0;

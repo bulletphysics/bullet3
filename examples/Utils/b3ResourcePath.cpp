@@ -35,7 +35,7 @@ int b3ResourcePath::getExePath(char* path, int maxPathLenInBytes)
 	//https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx
 
 	HMODULE hModule = GetModuleHandle(NULL);
-	numBytes = GetModuleFileNameA(hModule, path, maxPathLenInBytes);
+	numBytes = (int)GetModuleFileNameA(hModule, path, (DWORD)maxPathLenInBytes);
 
 #else
 	///http://stackoverflow.com/questions/933850/how-to-find-the-location-of-the-executable-in-c
@@ -59,8 +59,9 @@ struct TempResourcePath
 	char* m_path;
 	TempResourcePath(int len)
 	{
-		m_path = (char*)malloc(len);
-		memset(m_path, 0, len);
+		m_path = (char*)malloc((size_t)len);
+		if(m_path)
+			memset(m_path, 0, (size_t)len);
 	}
 	virtual ~TempResourcePath()
 	{
@@ -74,7 +75,7 @@ void b3ResourcePath::setAdditionalSearchPath(const char* path)
 {
 	if (path)
 	{
-		int len = strlen(path);
+		int len = (int)strlen(path);
 		if (len < (B3_MAX_EXE_PATH_LEN - 1))
 		{
 			strcpy(sAdditionalSearchPath, path);
@@ -87,7 +88,7 @@ void b3ResourcePath::setAdditionalSearchPath(const char* path)
 	}
 }
 
-bool b3MyFindFile(void* userPointer, const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
+bool b3MyFindFile(void* /*userPointer*/, const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
 {
 	return b3FileUtils::findFile(orgFileName, relativeFileName, maxRelativeFileNameMaxLen);
 }
@@ -104,7 +105,7 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
 	bool res = findFile(userPointer, resourceName, resourcePathOut, resourcePathMaxNumBytes);
 	if (res)
 	{
-		return strlen(resourcePathOut);
+		return (int)strlen(resourcePathOut);
 	}
 
 	if (sAdditionalSearchPath[0])
@@ -115,7 +116,7 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
 		//printf("try resource at %s\n", resourcePath);
 		if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 		{
-			return strlen(resourcePathOut);
+			return (int)strlen(resourcePathOut);
 		}
 	}
 
@@ -133,20 +134,20 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
 			//printf("try resource at %s\n", resourcePath);
 			if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 			{
-				return strlen(resourcePathOut);
+				return (int)strlen(resourcePathOut);
 			}
 
 			sprintf(resourcePathIn, "%s../resources/%s/%s", pathToExe, &exePath[exeNamePos], resourceName);
 			//printf("try resource at %s\n", resourcePath);
 			if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 			{
-				return strlen(resourcePathOut);
+				return (int)strlen(resourcePathOut);
 			}
 			sprintf(resourcePathIn, "%s.runfiles/google3/third_party/bullet/data/%s", exePath, resourceName);
 			//printf("try resource at %s\n", resourcePath);
 			if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 			{
-				return strlen(resourcePathOut);
+				return (int)strlen(resourcePathOut);
 			}
 		}
 	}

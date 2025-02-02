@@ -308,7 +308,7 @@ void ForEach(const Container& c, Functor functor)
 template <typename E>
 inline E GetElementOr(const std::vector<E>& v, int i, E default_value)
 {
-	return (i < 0 || i >= static_cast<int>(v.size())) ? default_value : v[i];
+	return (i < 0 || i >= static_cast<int>(v.size())) ? default_value : v[(size_t)i];
 }
 
 // Performs an in-place shuffle of a range of the vector's elements.
@@ -332,8 +332,8 @@ void ShuffleRange(internal::Random* random, int begin, int end,
 	for (int range_width = end - begin; range_width >= 2; range_width--)
 	{
 		const int last_in_range = begin + range_width - 1;
-		const int selected = begin + random->Generate(range_width);
-		std::swap((*v)[selected], (*v)[last_in_range]);
+		const int selected = (int)(begin + random->Generate((testing::internal::UInt32)range_width));
+		std::swap((*v)[(size_t)selected], (*v)[(size_t)last_in_range]);
 	}
 }
 
@@ -608,7 +608,7 @@ public:
 	const TestCase* GetTestCase(int i) const
 	{
 		const int index = GetElementOr(test_case_indices_, i, -1);
-		return index < 0 ? NULL : test_cases_[i];
+		return index < 0 ? NULL : test_cases_[(size_t)i];
 	}
 
 	// Gets the i-th test case among all the test cases. i can range from 0 to
@@ -616,7 +616,7 @@ public:
 	TestCase* GetMutableTestCase(int i)
 	{
 		const int index = GetElementOr(test_case_indices_, i, -1);
-		return index < 0 ? NULL : test_cases_[index];
+		return index < 0 ? NULL : test_cases_[(size_t)index];
 	}
 
 	// Provides access to the event listener list.

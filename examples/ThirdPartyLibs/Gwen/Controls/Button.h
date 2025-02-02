@@ -55,7 +55,7 @@ public:
 	virtual void SizeToContents();
 	virtual void Layout(Skin::Base* pSkin);
 
-	virtual bool OnKeyReturn(bool bDown)
+	virtual bool OnKeyReturn(bool /*bDown*/)
 	{
 		onKeyboardReturn.Call(this);
 		return true;

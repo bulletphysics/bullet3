@@ -34,7 +34,7 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	btMultiBody* groundBody = (btMultiBody*)world->getWorldUserInfo();
 	btTransform predictedTrans;
 	btVector3 linearVelocity(0, 0, 0);
-	btVector3 angularVelocity(0, 0.1, 0);
+	btVector3 angularVelocity(0, btScalar(0.1), 0);
 	btTransformUtil::integrateTransform(groundBody->getBaseWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 	groundBody->setBaseWorldTransform(predictedTrans);
 	groundBody->setBaseVel(linearVelocity);
@@ -153,7 +153,7 @@ void KinematicMultiBodyExample::initPhysics()
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
-		btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
+		btBoxShape* colShape = createBoxShape(btVector3(btScalar(.1), btScalar(.1), btScalar(.1)));
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);

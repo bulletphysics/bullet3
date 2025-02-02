@@ -282,8 +282,8 @@ private:
 				params.m_logger->Log(msg.str().c_str());
 			}
 
-			double a = pow((double)(params.m_resolution) / n, 0.33);
-			size_t dim_next = (size_t)(m_dim * a + 0.5);
+			double a = pow((double)(params.m_resolution) / (double)n, 0.33);
+			size_t dim_next = (size_t)((double)m_dim * a + 0.5);
 			if (n < params.m_resolution && iteration < maxIteration && m_volume->GetNPrimitivesOnSurf() < params.m_resolution / 8 && m_dim != dim_next)
 			{
 				delete m_volume;

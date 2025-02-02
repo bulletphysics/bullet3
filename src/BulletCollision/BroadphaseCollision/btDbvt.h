@@ -181,7 +181,7 @@ struct btDbvtNode
 {
 	btDbvtVolume volume;
 	btDbvtNode* parent;
-	DBVT_INLINE bool isleaf() const { return (childs[1] == 0); }
+	DBVT_INLINE bool isleaf() const { return (childs[1] == NULL); }
 	DBVT_INLINE bool isinternal() const { return (!isleaf()); }
 	union {
 		btDbvtNode* childs[2];
@@ -196,7 +196,7 @@ struct btDbvntNode
     btDbvtVolume volume;
     btVector3 normal;
     btScalar angle;
-    DBVT_INLINE bool isleaf() const { return (childs[1] == 0); }
+    DBVT_INLINE bool isleaf() const { return (childs[1] == NULL); }
     DBVT_INLINE bool isinternal() const { return (!isleaf()); }
     btDbvntNode* childs[2];
     void* data;
@@ -207,8 +207,8 @@ struct btDbvntNode
     , angle(0)
     , data(n->data)
     {
-        childs[0] = 0;
-        childs[1] = 0;
+        childs[0] = NULL;
+        childs[1] = NULL;
     }
     
     ~btDbvntNode()
@@ -239,7 +239,7 @@ struct btDbvt
 	{
 		const btDbvtNode* node;
 		int mask;
-		sStkNP(const btDbvtNode* n, unsigned m) : node(n), mask(m) {}
+		sStkNP(const btDbvtNode* n, unsigned m) : node(n), mask((int)m) {}
 	};
 	struct sStkNPS
 	{
@@ -247,7 +247,7 @@ struct btDbvt
 		int mask;
 		btScalar value;
 		sStkNPS() {}
-		sStkNPS(const btDbvtNode* n, unsigned m, btScalar v) : node(n), mask(m), value(v) {}
+		sStkNPS(const btDbvtNode* n, unsigned m, btScalar v) : node(n), mask((int)m), value(v) {}
 	};
 	struct sStkCLN
 	{
@@ -311,7 +311,7 @@ struct btDbvt
 	btDbvt();
 	~btDbvt();
 	void clear();
-	bool empty() const { return (0 == m_root); }
+	bool empty() const { return (NULL == m_root); }
 	void optimizeBottomUp();
 	void optimizeTopDown(int bu_treshold = 128);
 	void optimizeIncremental(int passes);
@@ -323,7 +323,7 @@ struct btDbvt
 	bool update(btDbvtNode* leaf, btDbvtVolume& volume, btScalar margin);
 	void remove(btDbvtNode* leaf);
 	void write(IWriter* iwriter) const;
-	void clone(btDbvt& dest, IClone* iclone = 0) const;
+	void clone(btDbvt& dest, IClone* iclone = NULL) const;
 	static int maxdepth(const btDbvtNode* node);
 	static int countLeaves(const btDbvtNode* node);
 	static void extractLeaves(const btDbvtNode* node, btAlignedObjectArray<const btDbvtNode*>& leaves);
@@ -912,7 +912,7 @@ inline void btDbvt::selfCollideT(const btDbvntNode* root,
                     stkStack[depth++] = sStknNN(p.a->childs[0], p.a->childs[1]);
                 }
             }
-            else if (Intersect(p.a->volume, p.b->volume))
+            else if (p.a && p.b && Intersect(p.a->volume, p.b->volume))
             {
                 if (p.a->isinternal())
                 {
@@ -1249,7 +1249,7 @@ inline void btDbvt::rayTestInternal(const btDbvtNode* root,
 			bounds[1] = node->volume.Maxs() - aabbMin;
 			btScalar tmin = 1.f, lambda_min = 0.f;
 			unsigned int result1 = false;
-			result1 = btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
+			result1 = (unsigned int)btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
 			if (result1)
 			{
 				if (node->isinternal())
@@ -1289,7 +1289,7 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 		rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
 		rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
 		rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
-		unsigned int signs[3] = {rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
+		unsigned int signs[3] = {(unsigned int)(rayDirectionInverse[0] < btScalar(0.0)), (unsigned int)(rayDirectionInverse[1] < btScalar(0.0)), (unsigned int)(rayDirectionInverse[2] < btScalar(0.0))};
 
 		btScalar lambda_max = rayDir.dot(rayTo - rayFrom);
 
@@ -1316,7 +1316,7 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 			bounds[1] = node->volume.Maxs();
 
 			btScalar tmin = 1.f, lambda_min = 0.f;
-			unsigned int result1 = btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
+			unsigned int result1 = (unsigned int)btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
 
 #ifdef COMPARE_BTRAY_AABB2
 			btScalar param = 1.f;

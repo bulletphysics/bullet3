@@ -108,9 +108,9 @@ class btReducedDeformableRigidContactConstraint : public btDeformableRigidContac
                                   const btScalar upper_limit,
                                   const btVector3& deltaV_rel);
 
-  virtual void applyImpulse(const btVector3& impulse) {}
+  virtual void applyImpulse(const btVector3& /*impulse*/) {}
 
-  virtual void applySplitImpulse(const btVector3& impulse) {} // TODO: may need later
+  virtual void applySplitImpulse(const btVector3& /*impulse*/) {} // TODO: may need later
 
   virtual btVector3 getVa() const;
   virtual btVector3 getDeltaVa() const = 0;

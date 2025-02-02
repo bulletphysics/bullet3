@@ -14,11 +14,12 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 
-#include "ActiveSocket.h"
 #include <string>
+#include "ActiveSocket.h"
+
 static unsigned int b3DeserializeInt3(const unsigned char* input)
 {
-	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
+	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;
 }
 static bool gVerboseNetworkMessagesClient3 = true;//false;
@@ -106,7 +107,7 @@ struct RemoteGUIHelperTCPInternalData
 		btAssert(!m_waitingForServer);
 		if (!m_waitingForServer)
 		{
-			int sz = 0;
+			size_t sz = 0;
 			unsigned char* data = 0;
 			m_tempBuffer.clear();
 			sz = sizeof(GraphicsSharedMemoryCommand);
@@ -123,6 +124,7 @@ struct RemoteGUIHelperTCPInternalData
 	{
 
 		bool hasStatus = false;
+		(void)hasStatus;
 
 		//int serviceResult = enet_host_service(m_client, &m_event, 0);
 		int maxLen = 4 + sizeof(GraphicsSharedMemoryStatus) + GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
@@ -147,7 +149,7 @@ struct RemoteGUIHelperTCPInternalData
 
 		if (m_tempBuffer.size() >= 4)
 		{
-			packetSizeInBytes = b3DeserializeInt3(&m_tempBuffer[0]);
+			packetSizeInBytes = (int)b3DeserializeInt3(&m_tempBuffer[0]);
 		}
 
 		if (m_tempBuffer.size() == packetSizeInBytes)
@@ -159,6 +161,7 @@ struct RemoteGUIHelperTCPInternalData
 			}
 
 			hasStatus = true;
+			(void)hasStatus;
 			GraphicsSharedMemoryStatus* statPtr = (GraphicsSharedMemoryStatus*)&data[4];
 #if 0
 			if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
@@ -177,7 +180,7 @@ struct RemoteGUIHelperTCPInternalData
 				m_stream.resize(numStreamBytes);
 				for (int i = 0; i < numStreamBytes; i++)
 				{
-					m_stream[i] = data[i + streamOffsetInBytes];
+					m_stream[i] = (char)data[i + streamOffsetInBytes];
 				}
 			}
 			m_tempBuffer.clear();
@@ -197,7 +200,7 @@ struct RemoteGUIHelperTCPInternalData
 
 		m_tcpSocket.Initialize();
     
-		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
+		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), (uint16)m_port);
 		if (m_isConnected)
 		{
 			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
@@ -249,9 +252,10 @@ void RemoteGUIHelperTCP::setVisualizerFlag(int flag, int enable)
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 }
 
-void RemoteGUIHelperTCP::createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
+void RemoteGUIHelperTCP::createRigidBodyGraphicsObject(btRigidBody* /*body*/, const btVector3& /*color*/)
 {
 	printf("todo: createRigidBodyGraphicsObject\n");
 }
@@ -316,12 +320,12 @@ void RemoteGUIHelperTCP::createCollisionObjectGraphicsObject(btCollisionObject* 
 	}
 }
 
-void RemoteGUIHelperTCP::createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
+void RemoteGUIHelperTCP::createCollisionShapeGraphicsObject(btCollisionShape* /*collisionShape*/)
 {
 	printf("todo; createCollisionShapeGraphicsObject\n");
 }
 
-void RemoteGUIHelperTCP::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* /*rbWorld*/)
 {
 }
 
@@ -336,7 +340,7 @@ void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* r
 		{
 			//B3_PROFILE("writeSingleInstanceTransformToCPU");
 			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
-			btCollisionShape* collisionShape = colObj->getCollisionShape();
+			// btCollisionShape* collisionShape = colObj->getCollisionShape();
 
 			btVector3 pos = colObj->getWorldTransform().getOrigin();
 			btQuaternion orn = colObj->getWorldTransform().getRotation();
@@ -366,7 +370,7 @@ void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const GUISyncPosition* positions
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
-		uploadData((unsigned char*)positions, numPositions * sizeof(GUISyncPosition), 0);
+		uploadData((unsigned char*)positions, (int)(numPositions * sizeof(GUISyncPosition)), 0);
 		cmd->m_updateFlags = 0;
 		cmd->m_syncTransformsCommand.m_numPositions = numPositions;
 		cmd->m_type = GFX_CMD_SYNCHRONIZE_TRANSFORMS;
@@ -376,13 +380,14 @@ void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const GUISyncPosition* positions
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 }
 
-void RemoteGUIHelperTCP::render(const btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::render(const btDiscreteDynamicsWorld* /*rbWorld*/)
 {
 }
 
-void RemoteGUIHelperTCP::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* /*rbWorld*/)
 {
 }
 
@@ -407,11 +412,12 @@ int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, i
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 
 	while (remainingBytes > 0)
 	{
 		int curBytes = btMin(remainingBytes, chunkSize);
-		m_data->m_tcpSocket.Send((const uint8*)data+offset, curBytes);
+		m_data->m_tcpSocket.Send((const uint8*)data+offset, (size_t)curBytes);
 		if (gVerboseNetworkMessagesClient3)
 			printf("sending %d bytes\n", curBytes);
 		remainingBytes -= curBytes;
@@ -424,6 +430,7 @@ int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, i
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
+	(void)status;
 	return 0;
 }
 
@@ -463,8 +470,8 @@ int RemoteGUIHelperTCP::registerGraphicsShape(const float* vertices, int numvert
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
-		uploadData((unsigned char*)vertices, numvertices * 9 * sizeof(float), 0);
-		uploadData((unsigned char*)indices, numIndices * sizeof(int), 1);
+		uploadData((unsigned char*)vertices, (int)(numvertices * 9 * sizeof(float)), 0);
+		uploadData((unsigned char*)indices, (int)(numIndices * sizeof(int)), 1);
 		cmd->m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE;
 		cmd->m_updateFlags = 0;
 		cmd->m_registerGraphicsShapeCommand.m_numVertices = numvertices;
@@ -528,6 +535,7 @@ void RemoteGUIHelperTCP::removeAllGraphicsInstances()
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 
@@ -544,6 +552,7 @@ void RemoteGUIHelperTCP::removeGraphicsInstance(int graphicsUid)
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 void RemoteGUIHelperTCP::changeRGBAColor(int instanceUid, const double rgbaColor[4])
@@ -563,6 +572,7 @@ void RemoteGUIHelperTCP::changeRGBAColor(int instanceUid, const double rgbaColor
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
 Common2dCanvasInterface* RemoteGUIHelperTCP::get2dCanvasInterface()
@@ -598,52 +608,53 @@ void RemoteGUIHelperTCP::setUpAxis(int axis)
 		while ((status = m_data->processServerStatus()) == 0)
 		{
 		}
+		(void)status;
 	}
 }
-void RemoteGUIHelperTCP::resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
+void RemoteGUIHelperTCP::resetCamera(float /*camDist*/, float /*yaw*/, float /*pitch*/, float /*camPosX*/, float /*camPosY*/, float /*camPosZ*/)
 {
 }
 
-void RemoteGUIHelperTCP::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
-										  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-										  float* depthBuffer, int depthBufferSizeInPixels,
-										  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
-										  int startPixelIndex, int width, int height, int* numPixelsCopied)
+void RemoteGUIHelperTCP::copyCameraImageData(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16],
+										  unsigned char* /*pixelsRGBA*/, int /*rgbaBufferSizeInPixels*/,
+										  float* /*depthBuffer*/, int /*depthBufferSizeInPixels*/,
+										  int* /*segmentationMaskBuffer*/, int /*segmentationMaskBufferSizeInPixels*/,
+										  int /*startPixelIndex*/, int /*width*/, int /*height*/, int* numPixelsCopied)
 
 {
 	if (numPixelsCopied)
 		*numPixelsCopied = 0;
 }
 
-void RemoteGUIHelperTCP::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+void RemoteGUIHelperTCP::setProjectiveTextureMatrices(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16])
 {
 }
 
-void RemoteGUIHelperTCP::setProjectiveTexture(bool useProjectiveTexture)
+void RemoteGUIHelperTCP::setProjectiveTexture(bool /*useProjectiveTexture*/)
 {
 }
 
-void RemoteGUIHelperTCP::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* /*rbWorld*/)
 {
 }
 
-void RemoteGUIHelperTCP::drawText3D(const char* txt, float posX, float posZY, float posZ, float size)
+void RemoteGUIHelperTCP::drawText3D(const char* /*txt*/, float /*posX*/, float /*posY*/, float /*posZ*/, float /*size*/)
 {
 }
 
-void RemoteGUIHelperTCP::drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+void RemoteGUIHelperTCP::drawText3D(const char* /*txt*/, float /*position*/[3], float /*orientation*/[4], float /*color*/[4], float /*size*/, int /*optionFlag*/)
 {
 }
 
-int RemoteGUIHelperTCP::addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid)
+int RemoteGUIHelperTCP::addUserDebugLine(const double /*debugLineFromXYZ*/[3], const double /*debugLineToXYZ*/[3], const double /*debugLineColorRGB*/[3], double /*lineWidth*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*replaceItemUid*/)
 {
 	return -1;
 }
-int RemoteGUIHelperTCP::addUserDebugPoints(const double debugPointPositionXYZ[3], const double debugPointColorRGB[3], double pointSize, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid, int debugPointNum)
+int RemoteGUIHelperTCP::addUserDebugPoints(const double /*debugPointPositionXYZ*/[3], const double /*debugPointColorRGB*/[3], double /*pointSize*/, double /*lifeTime*/, int /*trackingVisualShapeIndex*/, int /*replaceItemUid*/, int /*debugPointNum*/)
 {
 	return -1;
 }
-void RemoteGUIHelperTCP::removeUserDebugItem(int debugItemUniqueId)
+void RemoteGUIHelperTCP::removeUserDebugItem(int /*debugItemUniqueId*/)
 {
 }
 void RemoteGUIHelperTCP::removeAllUserDebugItems()

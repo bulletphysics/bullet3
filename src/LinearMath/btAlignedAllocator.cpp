@@ -25,7 +25,8 @@ int gTotalBytesAlignedAllocs = 0;  //detect memory leaks
 static void *btAllocDefault(size_t size)
 {
   char* data = (char*) malloc(size);
-  memset(data,0,size);//keep msan happy
+	if(data)
+  	memset(data,0,size);//keep msan happy
   return data;
 }
 
@@ -69,7 +70,7 @@ static inline void *btAlignedAllocDefault(size_t size, int alignment)
 	real = (char *)sAllocFunc(size + sizeof(void *) + (alignment - 1));
 	if (real)
 	{
-		ret = btAlignPointer(real + sizeof(void *), alignment);
+		ret = btAlignPointer(real + sizeof(void *), (size_t)alignment);
 		*((void **)(ret)-1) = (void *)(real);
 	}
 	else
@@ -77,7 +78,8 @@ static inline void *btAlignedAllocDefault(size_t size, int alignment)
 		ret = (void *)(real);
 	}
   //keep msan happy
-  memset((char*) ret, 0, size);
+	if(ret)
+  	memset((char*) ret, 0, size);
 	return (ret);
 }
 

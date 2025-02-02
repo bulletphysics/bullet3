@@ -113,7 +113,7 @@ void btConvexPolyhedron::initialize()
 		for (int j = 0; j < NbTris; j++)
 		{
 			int k = (j + 1) % numVertices;
-			btInternalVertexPair vp(m_faces[i].m_indices[j], m_faces[i].m_indices[k]);
+			btInternalVertexPair vp((short)m_faces[i].m_indices[j], (short)m_faces[i].m_indices[k]);
 			btInternalEdge* edptr = edges.find(vp);
 			btVector3 edge = m_vertices[vp.m_v1] - m_vertices[vp.m_v0];
 			edge.normalize();
@@ -139,12 +139,12 @@ void btConvexPolyhedron::initialize()
 			{
 				btAssert(edptr->m_face0 >= 0);
 				btAssert(edptr->m_face1 < 0);
-				edptr->m_face1 = i;
+				edptr->m_face1 = (short)i;
 			}
 			else
 			{
 				btInternalEdge ed;
-				ed.m_face0 = i;
+				ed.m_face0 = (short)i;
 				edges.insert(vp, ed);
 			}
 		}
@@ -252,7 +252,7 @@ void btConvexPolyhedron::initialize2()
 		else
 		{
 			// Refine the box
-			const btScalar Step = (m_radius - r) / 1024.0f;
+			const btScalar RefineStep = (m_radius - r) / 1024.0f;
 			const int e0 = (1 << LargestExtent) & 3;
 			const int e1 = (1 << e0) & 3;
 
@@ -260,8 +260,8 @@ void btConvexPolyhedron::initialize2()
 			{
 				const btScalar Saved0 = m_extents[e0];
 				const btScalar Saved1 = m_extents[e1];
-				m_extents[e0] += Step;
-				m_extents[e1] += Step;
+				m_extents[e0] += RefineStep;
+				m_extents[e1] += RefineStep;
 
 				if (!testContainment())
 				{

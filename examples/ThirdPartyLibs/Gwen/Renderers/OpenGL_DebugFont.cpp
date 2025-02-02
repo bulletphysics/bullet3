@@ -292,19 +292,19 @@ void OpenGL_DebugFont::StartClip()
 	{
 		GLint view[4];
 		glGetIntegerv(GL_VIEWPORT, &view[0]);
-		rect.y = view[3] / retinaScale - (rect.y + rect.h);
+		rect.y = (float)view[3] / retinaScale - (float)(rect.y + rect.h);
 	}
 
-	glScissor(retinaScale * rect.x * Scale(), retinaScale * rect.y * Scale(), retinaScale * rect.w * Scale(), retinaScale * rect.h * Scale());
+	glScissor(retinaScale * (float)rect.x * Scale(), retinaScale * (float)rect.y * Scale(), retinaScale * (float)rect.w * Scale(), retinaScale * (float)rect.h * Scale());
 	glEnable(GL_SCISSOR_TEST);
 	//glDisable( GL_SCISSOR_TEST );
-};
+}
 
 void OpenGL_DebugFont::EndClip()
 {
 	Flush();
 	glDisable(GL_SCISSOR_TEST);
-};
+}
 
 void OpenGL_DebugFont::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text)
 {
@@ -319,9 +319,9 @@ void OpenGL_DebugFont::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen
 	for (int i = 0; i < (int)text.length(); i++)
 	{
 		//	wchar_t chr = text[i];
-		char ch = converted_string[i];
+		char ch = converted_string[(size_t)i];
 		float curSpacing = sGwenDebugFontSpacing[(int)ch] * m_fLetterSpacing * fSize * m_fFontScale[0];
-		Gwen::Rect r(pos.x + yOffset, pos.y - fSize * 0.2f, (fSize * m_fFontScale[0]), fSize * m_fFontScale[1]);
+		Gwen::Rect r((float)pos.x + yOffset, (float)pos.y - fSize * 0.2f, (fSize * m_fFontScale[0]), fSize * m_fFontScale[1]);
 
 		if (m_pFontTexture)
 		{
@@ -390,7 +390,7 @@ Gwen::Point OpenGL_DebugFont::MeasureText(Gwen::Font* pFont, const Gwen::Unicode
 
 	for (int i = 0; i < (int)text.length(); i++)
 	{
-		char ch = converted_string[i];
+		char ch = converted_string[(size_t)i];
 		spacing += sGwenDebugFontSpacing[(int)ch];
 	}
 

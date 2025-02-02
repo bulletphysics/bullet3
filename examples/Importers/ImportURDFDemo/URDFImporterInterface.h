@@ -14,7 +14,7 @@ public:
 
 	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false) = 0;
 
-	virtual bool loadSDF(const char* fileName, bool forceFixedBase = false) { return false; }
+	virtual bool loadSDF(const char* /*fileName*/, bool forceFixedBase = false) { (void)forceFixedBase; return false; }
 
 	virtual const char* getPathPrefix() = 0;
 
@@ -31,22 +31,22 @@ public:
 	}
 
 	/// optional method to provide the link color. return true if the color is available and copied into colorRGBA, return false otherwise
-	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const { return false; }
+	virtual bool getLinkColor(int /*linkIndex*/, btVector4& /*colorRGBA*/) const { return false; }
 
-	virtual bool getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const { return false; }
-	virtual void setLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const {}
+	virtual bool getLinkColor2(int /*linkIndex*/, struct UrdfMaterialColor& /*matCol*/) const { return false; }
+	virtual void setLinkColor2(int /*linkIndex*/, struct UrdfMaterialColor& /*matCol*/) const {}
 
-	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const { return 0; }
+	virtual int getCollisionGroupAndMask(int /*linkIndex*/, int& /*colGroup*/, int& /*colMask*/) const { return 0; }
 	///this API will likely change, don't override it!
-	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo) const { return false; }
+	virtual bool getLinkContactInfo(int /*linkIndex*/, URDFLinkContactInfo& /*contactInfo*/) const { return false; }
 
-	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const { return false; }
+	virtual bool getLinkAudioSource(int /*linkIndex*/, SDFAudioSource& /*audioSource*/) const { return false; }
 
 	virtual std::string getJointName(int linkIndex) const = 0;
 
 	//fill mass and inertial data. If inertial data is missing, please initialize mass, inertia to sensitive values, and inertialFrame to identity.
 	virtual void getMassAndInertia(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame) const = 0;
-	virtual void getMassAndInertia2(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame, int flags) const
+	virtual void getMassAndInertia2(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame, int /*flags*/) const
 	{
 		getMassAndInertia(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrame);
 	}
@@ -72,23 +72,23 @@ public:
 	};
 
 	virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const = 0;
-	virtual void setRootTransformInWorld(const btTransform& rootTransformInWorld) {}
+	virtual void setRootTransformInWorld(const btTransform& /*rootTransformInWorld*/) {}
 
 	///quick hack: need to rethink the API/dependencies of this
-	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const { return -1; }
+	virtual int convertLinkVisualShapes(int /*linkIndex*/, const char* /*pathPrefix*/, const btTransform& /*inertialFrame*/) const { return -1; }
 
-	virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const {}
-	virtual void setBodyUniqueId(int bodyId) {}
+	virtual void convertLinkVisualShapes2(int /*linkIndex*/, int /*urdfIndex*/, const char* /*pathPrefix*/, const btTransform& /*inertialFrame*/, class btCollisionObject* /*colObj*/, int /*objectIndex*/) const {}
+	virtual void setBodyUniqueId(int /*bodyId*/) {}
 	virtual int getBodyUniqueId() const { return 0; }
 
 	//default implementation for backward compatibility
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const = 0;
-	virtual int getUrdfFromCollisionShape(const class btCollisionShape* collisionShape, struct UrdfCollision& collision) const
+	virtual int getUrdfFromCollisionShape(const class btCollisionShape* /*collisionShape*/, struct UrdfCollision& /*collision*/) const
 	{
 		return 0;
 	}
 
-	virtual const struct UrdfLink* getUrdfLink(int urdfLinkIndex) const
+	virtual const struct UrdfLink* getUrdfLink(int /*urdfLinkIndex*/) const
 	{
 		return 0;
 	}
@@ -102,9 +102,9 @@ public:
 	virtual int getNumAllocatedMeshInterfaces() const { return 0; }
 
 	virtual int getNumAllocatedTextures() const { return 0; }
-	virtual int getAllocatedTexture(int index) const { return 0; }
+	virtual int getAllocatedTexture(int /*index*/) const { return 0; }
 
-	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index) { return 0; }
+	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int /*index*/) { return 0; }
 };
 
 #endif  //URDF_IMPORTER_INTERFACE_H

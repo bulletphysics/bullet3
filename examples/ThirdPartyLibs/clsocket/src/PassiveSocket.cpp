@@ -56,6 +56,7 @@ bool CPassiveSocket::BindMulticast(const char *pInterface, const char *pGroup, u
 	in_addr_t inAddr;
 
 	nReuse = IPTOS_LOWDELAY;
+	(void)nReuse;
 #endif
 
 	//--------------------------------------------------------------------------
@@ -214,7 +215,7 @@ CActiveSocket *CPassiveSocket::Accept()
 {
 	uint32 nSockLen;
 	CActiveSocket *pClientSocket = NULL;
-	SOCKET socket = CSimpleSocket::SocketError;
+	SOCKET socket = (SOCKET)CSimpleSocket::SocketError;
 
 	if (m_nSocketType != CSimpleSocket::SocketTypeTcp)
 	{
@@ -241,22 +242,22 @@ CActiveSocket *CPassiveSocket::Accept()
 			errno = 0;
 			socket = accept(m_socket, (struct sockaddr *)&m_stClientSockaddr, (socklen_t *)&nSockLen);
 
-			if (socket != -1)
+			if (socket != (SOCKET)-1)
 			{
 				pClientSocket->SetSocketHandle(socket);
 				pClientSocket->TranslateSocketError();
 				socketErrno = pClientSocket->GetSocketError();
-				socklen_t nSockLen = sizeof(struct sockaddr);
+				socklen_t nSockLength = sizeof(struct sockaddr);
 
 				//-------------------------------------------------------------
 				// Store client and server IP and port information for this
 				// connection.
 				//-------------------------------------------------------------
-				getpeername(m_socket, (struct sockaddr *)&pClientSocket->m_stClientSockaddr, &nSockLen);
-				memcpy((void *)&pClientSocket->m_stClientSockaddr, (void *)&m_stClientSockaddr, nSockLen);
+				getpeername(m_socket, (struct sockaddr *)&pClientSocket->m_stClientSockaddr, &nSockLength);
+				memcpy((void *)&pClientSocket->m_stClientSockaddr, (void *)&m_stClientSockaddr, (size_t)nSockLength);
 
-				memset(&pClientSocket->m_stServerSockaddr, 0, nSockLen);
-				getsockname(m_socket, (struct sockaddr *)&pClientSocket->m_stServerSockaddr, &nSockLen);
+				memset(&pClientSocket->m_stServerSockaddr, 0, (size_t)nSockLength);
+				getsockname(m_socket, (struct sockaddr *)&pClientSocket->m_stServerSockaddr, &nSockLength);
 			}
 			else
 			{

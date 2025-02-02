@@ -36,7 +36,7 @@ DiffType toDiffType(ValueType& fd, ValueType& val);
 
 // vector case: just return finite difference approximation
 template <>
-vec3 toDiffType(vec3& fd, vec3& val)
+vec3 toDiffType(vec3& fd, vec3& /*val*/)
 {
 	return fd;
 }
@@ -146,20 +146,21 @@ template <typename ValueType, typename DiffType>
 class VecDiffFD
 {
 public:
-	VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd(dim), m_dt(dt)
+	VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd((size_t)dim), m_dt(dt)
 	{
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			char buf[256];
-			BT_ID_SNPRINTF(buf, 256, "%s-%.2d", name.c_str(), i);
+			buf[255]='\0';
+			BT_ID_SNPRINTF(buf, 255, "%s-%.2d", name.c_str(), (int)i);
 			m_fd[i].init(buf, dt);
 		}
 	}
-	void update(int i, ValueType& val, DiffType& true_diff) { m_fd[i].update(val, true_diff); }
+	void update(int i, ValueType& val, DiffType& true_diff) { m_fd[(size_t)i].update(val, true_diff); }
 	idScalar getMaxError() const
 	{
 		idScalar max_error = 0;
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			const idScalar error = m_fd[i].getMaxError();
 			if (error > max_error)
@@ -172,7 +173,7 @@ public:
 	idScalar getMaxValue() const
 	{
 		idScalar max_value = 0;
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			const idScalar value = m_fd[i].getMaxValue();
 			if (value > max_value)
@@ -189,7 +190,7 @@ public:
 
 	void printCurrent()
 	{
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			m_fd[i].printCurrent();
 		}
@@ -295,13 +296,13 @@ TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 {
 	//CAVEAT:these values are hand-tuned to work for the specific trajectory defined above.
 #ifdef BT_ID_USE_DOUBLE_PRECISION
-	const idScalar kDeltaT = 1e-7;
-	const idScalar kAcceptableError = 1e-4;
+	const idScalar kDeltaT = idScalar(1e-7);
+	const idScalar kAcceptableError = idScalar(1e-4);
 #else
-	const idScalar kDeltaT = 1e-4;
-	const idScalar kAcceptableError = 5e-3;
+	const idScalar kDeltaT = idScalar(1e-4);
+	const idScalar kAcceptableError = idScalar(5e-3);
 #endif
-	const idScalar kDuration = 0.01;
+	const idScalar kDuration = idScalar(0.01);
 
 	CoilCreator coil_creator(kNumBodies);
 	DillCreator dill_creator(kLevel);
@@ -347,8 +348,8 @@ TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 // is consitent with the second order approximation, ie, error ~ O(dt^2)
 TEST(InvDynKinematicsDifferentiation, errorOrder)
 {
-	const idScalar kDeltaTs[2] = {1e-4, 1e-5};
-	const idScalar kDuration = 1e-2;
+	const idScalar kDeltaTs[2] = {idScalar(1e-4), idScalar(1e-5)};
+	const idScalar kDuration = idScalar(1e-2);
 
 	CoilCreator coil_creator(kNumBodies);
 	//    DillCreator dill_creator(kLevel);
@@ -400,5 +401,5 @@ int main(int argc, char** argv)
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 
-	return EXIT_SUCCESS;
+	// return EXIT_SUCCESS;
 }

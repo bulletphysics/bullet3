@@ -32,7 +32,7 @@ enum btTypedMultiBodyConstraintType
 	MULTIBODY_CONSTRAINT_SPHERICAL_MOTOR,
 	MULTIBODY_CONSTRAINT_FIXED,
 	MULTIBODY_CONSTRAINT_SPHERICAL_LIMIT,
-	MAX_MULTIBODY_CONSTRAINT_TYPE,
+	MAX_MULTIBODY_CONSTRAINT_TYPE
 };
 
 class btMultiBody;
@@ -110,8 +110,8 @@ public:
 		return m_type;
 	}
 	//many constraints have setFrameInB/setPivotInB. Will use 'getConstraintType' later.
-	virtual void setFrameInB(const btMatrix3x3& frameInB) {}
-	virtual void setPivotInB(const btVector3& pivotInB) {}
+	virtual void setFrameInB(const btMatrix3x3& /*frameInB*/) {}
+	virtual void setPivotInB(const btVector3& /*pivotInB*/) {}
 
 	virtual void finalizeMultiDof() = 0;
 
@@ -206,10 +206,10 @@ public:
 
 	virtual void debugDraw(class btIDebugDraw * drawer) = 0;
 
-	virtual void setGearRatio(btScalar ratio) {}
-	virtual void setGearAuxLink(int gearAuxLink) {}
-	virtual void setRelativePositionTarget(btScalar relPosTarget) {}
-	virtual void setErp(btScalar erp) {}
+	virtual void setGearRatio(btScalar /*ratio*/) {}
+	virtual void setGearAuxLink(int /*gearAuxLink*/) {}
+	virtual void setRelativePositionTarget(btScalar /*relPosTarget*/) {}
+	virtual void setErp(btScalar /*erp*/) {}
 };
 
 #endif  //BT_MULTIBODY_CONSTRAINT_H

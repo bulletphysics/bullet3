@@ -70,7 +70,7 @@ public:
 	virtual void solveDeformableConstraints(btScalar solverdt);
 
 	// set gravity (get from deformable world)
-	virtual void setGravity(const btVector3& gravity)
+	virtual void setGravity(const btVector3& /*gravity*/)
 	{
 		// for full deformable object, we don't store gravity in the solver
 		// this function is overriden in the reduced deformable object
@@ -110,7 +110,7 @@ public:
 	// calculate the change in dv resulting from the momentum solve when line search is turned on
 	btScalar computeDescentStep(TVStack& ddv, const TVStack& residual, bool verbose = false);
 
-	virtual void copySoftBodyToVertexBuffer(const btSoftBody* const softBody, btVertexBufferDescriptor* vertexBuffer) {}
+	virtual void copySoftBodyToVertexBuffer(const btSoftBody* const /*softBody*/, btVertexBufferDescriptor* /*vertexBuffer*/) {}
 
 	// process collision between deformable and rigid
 	virtual void processCollision(btSoftBody* softBody, const btCollisionObjectWrapper* collisionObjectWrap)
@@ -215,10 +215,10 @@ public:
 	virtual void deformableBodyInternalWriteBack() {}
 
 	// unused functions
-	virtual void optimize(btAlignedObjectArray<btSoftBody*>& softBodies, bool forceUpdate = false) {}
-	virtual void solveConstraints(btScalar dt) {}
+	virtual void optimize(btAlignedObjectArray<btSoftBody*>& /*softBodies*/, bool /*forceUpdate*/ = false) {}
+	virtual void solveConstraints(btScalar /*dt*/) {}
 	virtual bool checkInitialized() { return true; }
-	virtual void copyBackToSoftBodies(bool bMove = true) {}
+	virtual void copyBackToSoftBodies(bool /*bMove*/ = true) {}
 };
 
 #endif /* btDeformableBodySolver_h */

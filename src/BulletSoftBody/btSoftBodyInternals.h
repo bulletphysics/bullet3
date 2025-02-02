@@ -220,7 +220,7 @@ static SIMD_FORCE_INLINE bool getSigns(bool type_c, const btScalar& k0, const bt
 	return false;
 }
 
-static SIMD_FORCE_INLINE void getBernsteinCoeff(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, btScalar& k0, btScalar& k1, btScalar& k2, btScalar& k3)
+static SIMD_FORCE_INLINE void getBernsteinCoeff(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& /*dt*/, btScalar& k0, btScalar& k1, btScalar& k2, btScalar& k3)
 {
 	const btVector3& n0 = face->m_n0;
 	const btVector3& n1 = face->m_n1;
@@ -496,7 +496,7 @@ static SIMD_FORCE_INLINE bool coplanarAndInsideTest(const btScalar& k0, const bt
 		// inside test
 		return signDetermination1(k0, k1, k2, k3, face, node, dt);
 	}
-	return false;
+	// return false;
 }
 static SIMD_FORCE_INLINE bool conservativeCulling(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& mrg)
 {
@@ -530,14 +530,14 @@ static SIMD_FORCE_INLINE bool bernsteinVFTest(const btSoftBody::Face* face, cons
 	if (conservativeCulling(k0, k1, k2, k3, mrg))
 		return false;
 	return true;
-	if (diffSign(k2 - 2.0 * k1 + k0, k3 - 2.0 * k2 + k1))
-	{
-		btScalar k10, k20, k30, k21, k12;
-		btScalar t0 = (k2 - 2.0 * k1 + k0) / (k0 - 3.0 * k1 + 3.0 * k2 - k3);
-		deCasteljau(k0, k1, k2, k3, t0, k10, k20, k30, k21, k12);
-		return bernsteinVFTest(k0, k10, k20, k30, mrg, face, node, dt) || bernsteinVFTest(k30, k21, k12, k3, mrg, face, node, dt);
-	}
-	return coplanarAndInsideTest(k0, k1, k2, k3, face, node, dt);
+	// if (diffSign(k2 - 2.0 * k1 + k0, k3 - 2.0 * k2 + k1))
+	// {
+	// 	btScalar k10, k20, k30, k21, k12;
+	// 	btScalar t0 = (k2 - 2.0 * k1 + k0) / (k0 - 3.0 * k1 + 3.0 * k2 - k3);
+	// 	deCasteljau(k0, k1, k2, k3, t0, k10, k20, k30, k21, k12);
+	// 	return bernsteinVFTest(k0, k10, k20, k30, mrg, face, node, dt) || bernsteinVFTest(k30, k21, k12, k3, mrg, face, node, dt);
+	// }
+	// return coplanarAndInsideTest(k0, k1, k2, k3, face, node, dt);
 }
 
 static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, const btScalar& mrg, btVector3& bary)
@@ -626,7 +626,7 @@ static SIMD_FORCE_INLINE bool bernsteinCCD(const btSoftBody::Face* face, const b
 {
 	if (!bernsteinVFTest(face, node, dt, mrg))
 		return false;
-	if (!continuousCollisionDetection(face, node, dt, 1e-6, bary))
+	if (!continuousCollisionDetection(face, node, dt, btScalar(1e-6), bary))
 		return false;
 	return true;
 }
@@ -753,15 +753,15 @@ public:
 		return (localGetSupportingVertex(vec));
 	}
 	//notice that the vectors should be unit length
-	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* /*vectors*/, btVector3* /*supportVerticesOut*/, int /*numVectors*/) const
 	{
 	}
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3& inertia) const
+	virtual void calculateLocalInertia(btScalar /*mass*/, btVector3& /*inertia*/) const
 	{
 	}
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
+	virtual void getAabb(const btTransform& /*t*/, btVector3& /*aabbMin*/, btVector3& /*aabbMax*/) const
 	{
 	}
 
@@ -788,7 +788,7 @@ public:
 template <typename T>
 static inline void ZeroInitialize(T& value)
 {
-	memset(&value, 0, sizeof(T));
+	memset((void*)&value, 0, sizeof(T));
 }
 //
 template <typename T>
@@ -1411,7 +1411,7 @@ private:
 static inline int PolarDecompose(const btMatrix3x3& m, btMatrix3x3& q, btMatrix3x3& s)
 {
 	static const btPolarDecomposition polar;
-	return polar.decompose(m, q, s);
+	return (int)polar.decompose(m, q, s);
 }
 
 //
@@ -1584,8 +1584,8 @@ struct btSoftColliders
 			}
 			else
 			{
-				static int count = 0;
-				count++;
+				// static int count = 0;
+				// count++;
 				//printf("count=%d\n",count);
 			}
 		}
@@ -1882,7 +1882,7 @@ struct btSoftColliders
 			}
 
 			btVector3 o = node->m_x;
-			btVector3 p;
+			btVector3 p(btScalar(0),btScalar(0),btScalar(0));
 			btScalar d = SIMD_INFINITY;
 			ProjectOrigin(face->m_n[0]->m_x - o,
 						  face->m_n[1]->m_x - o,
@@ -2000,7 +2000,9 @@ struct btSoftColliders
 				}
 			}
 #endif
+#ifdef REPEL_NEIGHBOR
 			bool skip = false;
+#endif
 			for (int node_id = 0; node_id < 3; ++node_id)
 			{
 				btSoftBody::Node* node = f1->m_n[node_id];
@@ -2097,7 +2099,9 @@ struct btSoftColliders
 				}
 			}
 #endif
+#ifdef REPEL_NEIGHBOR
 			bool skip = false;
+#endif
 			for (int node_id = 0; node_id < 3; ++node_id)
 			{
 				btSoftBody::Node* node = f1->m_n[node_id];

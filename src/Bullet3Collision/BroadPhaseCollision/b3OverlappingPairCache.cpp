@@ -38,7 +38,7 @@ b3HashedOverlappingPairCache::~b3HashedOverlappingPairCache()
 {
 }
 
-void b3HashedOverlappingPairCache::cleanOverlappingPair(b3BroadphasePair& pair, b3Dispatcher* dispatcher)
+void b3HashedOverlappingPairCache::cleanOverlappingPair(b3BroadphasePair& /*pair*/, b3Dispatcher* /*dispatcher*/)
 {
 	/*	if (pair.m_algorithm)
 	{
@@ -485,7 +485,7 @@ b3SortedOverlappingPairCache::~b3SortedOverlappingPairCache()
 {
 }
 
-void b3SortedOverlappingPairCache::cleanOverlappingPair(b3BroadphasePair& pair, b3Dispatcher* dispatcher)
+void b3SortedOverlappingPairCache::cleanOverlappingPair(b3BroadphasePair& /*pair*/, b3Dispatcher* /*dispatcher*/)
 {
 	/*	if (pair.m_algorithm)
 	{
@@ -553,7 +553,7 @@ void b3SortedOverlappingPairCache::removeOverlappingPairsContainingProxy(int pro
 	processAllOverlappingPairs(&removeCallback, dispatcher);
 }
 
-void b3SortedOverlappingPairCache::sortOverlappingPairs(b3Dispatcher* dispatcher)
+void b3SortedOverlappingPairCache::sortOverlappingPairs(b3Dispatcher* /*dispatcher*/)
 {
 	//should already be sorted
 }

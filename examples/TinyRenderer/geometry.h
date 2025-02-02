@@ -244,7 +244,7 @@ public:
 
 	T cofactor(size_t row, size_t col) const
 	{
-		return get_minor(row, col).det() * ((row + col) % 2 ? -1 : 1);
+		return (T)get_minor(row, col).det() * (T)(((row + col) % 2) ? -1 : 1);
 	}
 
 	mat<DimRows, DimCols, T> adjugate() const

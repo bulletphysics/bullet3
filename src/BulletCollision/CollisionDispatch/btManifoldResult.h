@@ -25,6 +25,7 @@ class btManifoldPoint;
 #include "BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h"
 
 #include "LinearMath/btTransform.h"
+#include "LinearMath/btOverride.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
@@ -72,7 +73,7 @@ public:
 
 	btManifoldResult(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap);
 
-	virtual ~btManifoldResult(){};
+	virtual ~btManifoldResult() BT_OVERRIDE {};
 
 	void setPersistentManifold(btPersistentManifold* manifoldPtr)
 	{
@@ -88,19 +89,19 @@ public:
 		return m_manifoldPtr;
 	}
 
-	virtual void setShapeIdentifiersA(int partId0, int index0)
+	virtual void setShapeIdentifiersA(int partId0, int index0) BT_OVERRIDE
 	{
 		m_partId0 = partId0;
 		m_index0 = index0;
 	}
 
-	virtual void setShapeIdentifiersB(int partId1, int index1)
+	virtual void setShapeIdentifiersB(int partId1, int index1) BT_OVERRIDE
 	{
 		m_partId1 = partId1;
 		m_index1 = index1;
 	}
 
-	virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth);
+	virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth) BT_OVERRIDE;
 
 	SIMD_FORCE_INLINE void refreshContactPoints()
 	{

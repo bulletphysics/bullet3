@@ -121,7 +121,7 @@ enum EnumSharedMemoryClientCommand
 
 	CMD_REQUEST_TETRA_MESH_DATA,
 	//don't go beyond this command!
-	CMD_MAX_CLIENT_COMMANDS,
+	CMD_MAX_CLIENT_COMMANDS
 };
 
 enum EnumSharedMemoryServerStatus
@@ -255,7 +255,7 @@ enum EnumSharedMemoryServerStatus
 
 enum JointInfoFlags
 {
-	JOINT_HAS_MOTORIZED_POWER = 1,
+	JOINT_HAS_MOTORIZED_POWER = 1
 };
 
 enum
@@ -286,7 +286,7 @@ enum b3JointInfoFlags
 {
 	eJointChangeMaxForce = 1,
 	eJointChangeChildFramePosition = 2,
-	eJointChangeChildFrameOrientation = 4,
+	eJointChangeChildFrameOrientation = 4
 };
 
 struct b3JointInfo
@@ -317,7 +317,7 @@ enum UserDataValueType
 	// Data represents generic byte array.
 	USER_DATA_VALUE_TYPE_BYTES = 0,
 	// Data represents C-string
-	USER_DATA_VALUE_TYPE_STRING = 1,
+	USER_DATA_VALUE_TYPE_STRING = 1
 };
 
 struct b3UserDataValue
@@ -341,7 +341,7 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET = 512,
 	USER_CONSTRAINT_CHANGE_ERP = 1024,
 	USER_CONSTRAINT_REQUEST_STATE = 2048,
-	USER_CONSTRAINT_ADD_SOFT_BODY_ANCHOR = 4096,
+	USER_CONSTRAINT_ADD_SOFT_BODY_ANCHOR = 4096
 };
 
 struct b3UserConstraint
@@ -375,14 +375,14 @@ enum DynamicsActivationState
 	eActivationStateWakeUp = 4,
 	eActivationStateSleep = 8,
 	eActivationStateEnableWakeup = 16,
-	eActivationStateDisableWakeup = 32,
+	eActivationStateDisableWakeup = 32
 };
 
 enum b3BodyType
 {
 	BT_RIGID_BODY = 1,
 	BT_MULTI_BODY = 2,
-	BT_SOFT_BODY = 3,
+	BT_SOFT_BODY = 3
 };
 
 struct b3DynamicsInfo
@@ -411,7 +411,7 @@ struct b3DynamicsInfo
 // copied from btMultiBodyLink.h
 enum SensorType
 {
-	eSensorForceTorqueType = 1,
+	eSensorForceTorqueType = 1
 };
 
 struct b3JointSensorState
@@ -471,13 +471,13 @@ enum eMeshDataFlags
 	B3_MESH_DATA_SIMULATION_MESH = 1,
 	B3_MESH_DATA_SIMULATION_INDICES = 2,
 	B3_MESH_DATA_GRAPHICS_INDICES = 4,
-	B3_MESH_DATA_SIMULATION_MESH_VELOCITY = 8,
+	B3_MESH_DATA_SIMULATION_MESH_VELOCITY = 8
 };
 
 enum eMeshDataEnum
 {
 	B3_MESH_DATA_COLLISIONSHAPEINDEX=1,
-	B3_MESH_DATA_FLAGS=2,
+	B3_MESH_DATA_FLAGS=2
 };
 
 struct b3MeshData
@@ -488,7 +488,7 @@ struct b3MeshData
 
 enum eTetraMeshDataEnum
 {
-	B3_TETRA_MESH_DATA_FLAGS=2,
+	B3_TETRA_MESH_DATA_FLAGS=2
 };
 
 struct b3TetraMeshData
@@ -527,7 +527,7 @@ enum b3VREventType
 	VR_CONTROLLER_MOVE_EVENT = 1,
 	VR_CONTROLLER_BUTTON_EVENT = 2,
 	VR_HMD_MOVE_EVENT = 4,
-	VR_GENERIC_TRACKER_MOVE_EVENT = 8,
+	VR_GENERIC_TRACKER_MOVE_EVENT = 8
 };
 
 #define MAX_VR_ANALOG_AXIS 5
@@ -545,19 +545,19 @@ enum b3VRButtonInfo
 {
 	eButtonIsDown = 1,
 	eButtonTriggered = 2,
-	eButtonReleased = 4,
+	eButtonReleased = 4
 };
 
 enum eVRDeviceTypeEnums
 {
 	VR_DEVICE_CONTROLLER = 1,
 	VR_DEVICE_HMD = 2,
-	VR_DEVICE_GENERIC_TRACKER = 4,
+	VR_DEVICE_GENERIC_TRACKER = 4
 };
 
 enum EVRCameraFlags
 {
-	VR_CAMERA_TRACK_OBJECT_ORIENTATION = 1,
+	VR_CAMERA_TRACK_OBJECT_ORIENTATION = 1
 };
 
 struct b3VRControllerEvent
@@ -596,7 +596,7 @@ struct b3KeyboardEventsData
 enum eMouseEventTypeEnums
 {
 	MOUSE_MOVE_EVENT = 1,
-	MOUSE_BUTTON_EVENT = 2,
+	MOUSE_BUTTON_EVENT = 2
 };
 
 struct b3MouseEvent
@@ -625,7 +625,7 @@ enum b3NotificationType
 	VISUAL_SHAPE_CHANGED = 6,
 	TRANSFORM_CHANGED = 7,
 	SIMULATION_STEPPED = 8,
-	SOFTBODY_CHANGED = 9,
+	SOFTBODY_CHANGED = 9
 };
 
 enum b3ResetSimulationFlags
@@ -633,7 +633,7 @@ enum b3ResetSimulationFlags
 	RESET_USE_DEFORMABLE_WORLD=1,
 	RESET_USE_DISCRETE_DYNAMICS_WORLD=2,
 	RESET_USE_SIMPLE_BROADPHASE=4,
-	RESET_USE_REDUCED_DEFORMABLE_WORLD=8,
+	RESET_USE_REDUCED_DEFORMABLE_WORLD=8
 };
 
 struct b3BodyNotificationArgs
@@ -715,7 +715,7 @@ struct b3ContactPointData
 enum
 {
 	CONTACT_QUERY_MODE_REPORT_EXISTING_CONTACT_POINTS = 0,
-	CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS = 1,
+	CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS = 1
 };
 
 enum b3StateLoggingType
@@ -729,7 +729,7 @@ enum b3StateLoggingType
 	STATE_LOGGING_PROFILE_TIMINGS = 6,
 	STATE_LOGGING_ALL_COMMANDS = 7,
 	STATE_REPLAY_ALL_COMMANDS = 8,
-	STATE_LOGGING_CUSTOM_TIMER = 9,
+	STATE_LOGGING_CUSTOM_TIMER = 9
 };
 
 struct b3ContactInformation
@@ -777,7 +777,7 @@ typedef union {
 
 enum b3VisualShapeDataFlags
 {
-	eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS = 1,
+	eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS = 1
 };
 
 struct b3VisualShapeData
@@ -820,7 +820,7 @@ struct b3CollisionShapeInformation
 enum eLinkStateFlags
 {
 	ACTUAL_STATE_COMPUTE_LINKVELOCITY = 1,
-	ACTUAL_STATE_COMPUTE_FORWARD_KINEMATICS = 2,
+	ACTUAL_STATE_COMPUTE_FORWARD_KINEMATICS = 2
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates
@@ -856,21 +856,21 @@ enum
 	CONTROL_MODE_TORQUE,
 	CONTROL_MODE_POSITION_VELOCITY_PD,
 	CONTROL_MODE_PD,  // The standard PD control implemented as soft constraint.
-	CONTROL_MODE_STABLE_PD,
+	CONTROL_MODE_STABLE_PD
 };
 
 ///flags for b3ApplyExternalTorque and b3ApplyExternalForce
 enum EnumExternalForceFlags
 {
 	EF_LINK_FRAME = 1,
-	EF_WORLD_FRAME = 2,
+	EF_WORLD_FRAME = 2
 };
 
 ///flags to pick the renderer for synthetic camera
 enum EnumRenderer
 {
 	ER_TINY_RENDERER = (1 << 16),
-	ER_BULLET_HARDWARE_OPENGL = (1 << 17),
+	ER_BULLET_HARDWARE_OPENGL = (1 << 17)
 	//ER_FIRE_RAYS=(1<<18),
 };
 
@@ -878,7 +878,7 @@ enum EnumRendererAuxFlags
 {
 	ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX = 1,
 	ER_USE_PROJECTIVE_TEXTURE = 2,
-	ER_NO_SEGMENTATION_MASK = 4,
+	ER_NO_SEGMENTATION_MASK = 4
 };
 
 ///flags to pick the IK solver and other options
@@ -892,7 +892,7 @@ enum EnumCalculateInverseKinematicsFlags
 	IK_HAS_JOINT_DAMPING = 128,
 	IK_HAS_CURRENT_JOINT_POSITIONS = 256,
 	IK_HAS_MAX_ITERATIONS = 512,
-	IK_HAS_RESIDUAL_THRESHOLD = 1024,
+	IK_HAS_RESIDUAL_THRESHOLD = 1024
 };
 
 enum b3ConfigureDebugVisualizerEnum
@@ -913,14 +913,14 @@ enum b3ConfigureDebugVisualizerEnum
 	COV_ENABLE_DEPTH_BUFFER_PREVIEW,
 	COV_ENABLE_SEGMENTATION_MARK_PREVIEW,
 	COV_ENABLE_PLANAR_REFLECTION,
-	COV_ENABLE_SINGLE_STEP_RENDERING,
+	COV_ENABLE_SINGLE_STEP_RENDERING
 };
 
 enum b3AddUserDebugItemEnum
 {
 	DEB_DEBUG_TEXT_ALWAYS_FACE_CAMERA = 1,
 	DEB_DEBUG_TEXT_USE_TRUE_TYPE_FONTS = 2,
-	DEB_DEBUG_TEXT_HAS_TRACKING_OBJECT = 4,
+	DEB_DEBUG_TEXT_HAS_TRACKING_OBJECT = 4
 };
 
 enum eCONNECT_METHOD
@@ -967,7 +967,7 @@ enum eURDF_Flags
 	URDF_IGNORE_VISUAL_SHAPES = 1 << 20,
 	URDF_IGNORE_COLLISION_SHAPES = 1 << 21,
 	URDF_PRINT_URDF_INFO = 1 << 22,
-	URDF_GOOGLEY_UNDEFINED_COLORS = 1 << 23,
+	URDF_GOOGLEY_UNDEFINED_COLORS = 1 << 23
 };
 
 enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
@@ -980,33 +980,33 @@ enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
 	GEOM_CAPSULE,  //non-standard URDF?
 	GEOM_SDF,      //signed-distance-field, non-standard URDF
 	GEOM_HEIGHTFIELD,
-	GEOM_UNKNOWN,
+	GEOM_UNKNOWN
 };
 
 enum eUrdfCollisionFlags
 {
 	GEOM_FORCE_CONCAVE_TRIMESH = 1,
 	GEOM_CONCAVE_INTERNAL_EDGE = 2,
-	GEOM_INITIALIZE_SAT_FEATURES = URDF_INITIALIZE_SAT_FEATURES,
+	GEOM_INITIALIZE_SAT_FEATURES = URDF_INITIALIZE_SAT_FEATURES
 };
 
 enum eUrdfVisualFlags
 {
 	GEOM_VISUAL_HAS_RGBA_COLOR = 1,
-	GEOM_VISUAL_HAS_SPECULAR_COLOR = 2,
+	GEOM_VISUAL_HAS_SPECULAR_COLOR = 2
 };
 
 enum eStateLoggingFlags
 {
 	STATE_LOG_JOINT_MOTOR_TORQUES = 1,
 	STATE_LOG_JOINT_USER_TORQUES = 2,
-	STATE_LOG_JOINT_TORQUES = STATE_LOG_JOINT_MOTOR_TORQUES + STATE_LOG_JOINT_USER_TORQUES,
+	STATE_LOG_JOINT_TORQUES = STATE_LOG_JOINT_MOTOR_TORQUES + STATE_LOG_JOINT_USER_TORQUES
 };
 
 enum eJointFeedbackModes
 {
 	JOINT_FEEDBACK_IN_WORLD_SPACE = 1,
-	JOINT_FEEDBACK_IN_JOINT_FRAME = 2,
+	JOINT_FEEDBACK_IN_JOINT_FRAME = 2
 };
 
 #define B3_MAX_PLUGIN_ARG_SIZE 128
@@ -1024,7 +1024,7 @@ struct b3PluginArguments
 enum eInternalSimFlags
 {
 	eVRTinyGUI = 1<<1,
-	eDeformableAlternativeIndexing = 1<<2,
+	eDeformableAlternativeIndexing = 1<<2
 };
 
 struct b3PhysicsSimulationParameters
@@ -1071,7 +1071,7 @@ enum eConstraintSolverTypes
 	eConstraintSolverLCP_DANTZIG,
 	eConstraintSolverLCP_LEMKE,
 	eConstraintSolverLCP_NNCG,
-	eConstraintSolverLCP_BLOCK_PGS,
+	eConstraintSolverLCP_BLOCK_PGS
 };
 
 struct b3ForwardDynamicsAnalyticsIslandData
@@ -1103,7 +1103,7 @@ enum eDynamicTypes
 enum eFileIOActions
 {
 	eAddFileIOAction = 1024,//avoid collision with eFileIOTypes
-	eRemoveFileIOAction,
+	eRemoveFileIOAction
 };
 
 
@@ -1112,12 +1112,12 @@ enum eFileIOTypes
 	ePosixFileIO = 1,
 	eZipFileIO,
 	eCNSFileIO,
-	eInMemoryFileIO,
+	eInMemoryFileIO
 };
 
 enum eEnumUpdateVisualShapeFlags
 {
-	eVISUAL_SHAPE_DOUBLE_SIDED = 4,//see B3_INSTANCE_DOUBLE_SIDED
+	eVISUAL_SHAPE_DOUBLE_SIDED = 4//see B3_INSTANCE_DOUBLE_SIDED
 };
 
 //limits for vertices/indices in PyBullet::createCollisionShape

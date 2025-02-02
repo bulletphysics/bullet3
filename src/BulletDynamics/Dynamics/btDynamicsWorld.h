@@ -50,11 +50,11 @@ protected:
 
 public:
 	btDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* broadphase, btCollisionConfiguration* collisionConfiguration)
-		: btCollisionWorld(dispatcher, broadphase, collisionConfiguration), m_internalTickCallback(0), m_internalPreTickCallback(0), m_worldUserInfo(0)
+		: btCollisionWorld(dispatcher, broadphase, collisionConfiguration), m_internalTickCallback(NULL), m_internalPreTickCallback(NULL), m_worldUserInfo(NULL)
 	{
 	}
 
-	virtual ~btDynamicsWorld()
+	virtual ~btDynamicsWorld() BT_OVERRIDE
 	{
 	}
 
@@ -64,7 +64,7 @@ public:
 	///You can disable subdividing the timestep/substepping by passing maxSubSteps=0 as second argument to stepSimulation, but in that case you have to keep the timeStep constant.
 	virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.)) = 0;
 
-	virtual void debugDrawWorld() = 0;
+	virtual void debugDrawWorld() BT_OVERRIDE {};
 
 	virtual void addConstraint(btTypedConstraint* constraint, bool disableCollisionsBetweenLinkedBodies = false)
 	{
@@ -100,13 +100,13 @@ public:
 	virtual btTypedConstraint* getConstraint(int index)
 	{
 		(void)index;
-		return 0;
+		return NULL;
 	}
 
 	virtual const btTypedConstraint* getConstraint(int index) const
 	{
 		(void)index;
-		return 0;
+		return NULL;
 	}
 
 	virtual btDynamicsWorldType getWorldType() const = 0;
@@ -114,7 +114,7 @@ public:
 	virtual void clearForces() = 0;
 
 	/// Set the callback for when an internal tick (simulation substep) happens, optional user info
-	void setInternalTickCallback(btInternalTickCallback cb, void* worldUserInfo = 0, bool isPreTick = false)
+	void setInternalTickCallback(btInternalTickCallback cb, void* worldUserInfo = NULL, bool isPreTick = false)
 	{
 		if (isPreTick)
 		{

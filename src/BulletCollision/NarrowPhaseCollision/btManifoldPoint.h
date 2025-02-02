@@ -43,7 +43,7 @@ enum btContactPointFlags
 	BT_CONTACT_FLAG_HAS_CONTACT_CFM = 2,
 	BT_CONTACT_FLAG_HAS_CONTACT_ERP = 4,
 	BT_CONTACT_FLAG_CONTACT_STIFFNESS_DAMPING = 8,
-	BT_CONTACT_FLAG_FRICTION_ANCHOR = 16,
+	BT_CONTACT_FLAG_FRICTION_ANCHOR = 16
 };
 
 /// ManifoldContactPoint collects and maintains persistent contactpoints.
@@ -52,7 +52,7 @@ class btManifoldPoint
 {
 public:
 	btManifoldPoint()
-		: m_userPersistentData(0),
+		: m_userPersistentData(NULL),
 		  m_contactPointFlags(0),
 		  m_appliedImpulse(0.f),
 		  m_prevRHS(0.f),
@@ -83,7 +83,7 @@ public:
 										 m_partId1(-1),
 										 m_index0(-1),
 										 m_index1(-1),
-										 m_userPersistentData(0),
+										 m_userPersistentData(NULL),
 										 m_contactPointFlags(0),
 										 m_appliedImpulse(0.f),
 										 m_prevRHS(0.f),

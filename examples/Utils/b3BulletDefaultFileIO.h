@@ -72,7 +72,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 			FILE* f = m_fileHandles[fileHandle];
 			if (f)
 			{
-				int readBytes = ::fread(destBuffer, 1, numBytes, f);
+				int readBytes = (int)::fread(destBuffer, 1, (size_t)numBytes, f);
 				return readBytes;
 			}
 		}
@@ -86,7 +86,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 			FILE* f = m_fileHandles[fileHandle];
 			if (f)
 			{
-				return ::fwrite(sourceBuffer, 1, numBytes,m_fileHandles[fileHandle]);
+				return (int)::fwrite(sourceBuffer, 1, (size_t)numBytes,m_fileHandles[fileHandle]);
 			}
 		}
 		return -1;
@@ -132,8 +132,9 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 		for (int i = 0; !f && i < numPrefixes; i++)
 		{
 #ifdef _MSC_VER
-			sprintf_s(relativeFileName, maxRelativeFileNameMaxLen, "%s%s", prefix[i], orgFileName);
+			sprintf_s(relativeFileName, (size_t)maxRelativeFileNameMaxLen, "%s%s", prefix[i], orgFileName);
 #else
+			(void)maxRelativeFileNameMaxLen;
 			sprintf(relativeFileName, "%s%s", prefix[i], orgFileName);
 #endif
 			f = fopen(relativeFileName, "rb");
@@ -157,7 +158,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 			FILE* f = m_fileHandles[fileHandle];
 			if (f)
 			{
-                                memset(destBuffer, 0, numBytes);
+                                memset(destBuffer, 0, (size_t)numBytes);
 				char* txt = ::fgets(destBuffer, numBytes, m_fileHandles[fileHandle]);
 				for (int i=0;i<numBytes;i++)
 				{

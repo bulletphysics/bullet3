@@ -9,7 +9,7 @@
 struct b3GjkPairDetector;
 
 inline b3Vector3 localGetSupportVertexWithMargin(const float4& supportVec, const struct b3ConvexPolyhedronData* hull,
-												 const b3AlignedObjectArray<b3Vector3>& verticesA, b3Scalar margin)
+												 const b3AlignedObjectArray<b3Vector3>& verticesA, b3Scalar /*margin*/)
 {
 	b3Vector3 supVec = b3MakeVector3(b3Scalar(0.), b3Scalar(0.), b3Scalar(0.));
 	b3Scalar maxDot = b3Scalar(-B3_LARGE_FLOAT);

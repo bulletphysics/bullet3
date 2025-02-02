@@ -7,7 +7,7 @@
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-static btScalar radius(0.2);
+static btScalar radius = btScalar(0.2);
 
 struct TestJointTorqueSetup : public CommonMultiBodyBase
 {
@@ -29,7 +29,7 @@ public:
 		float dist = 5;
 		float pitch = -21;
 		float yaw = 270;
-		float targetPos[3] = {-1.34, 3.4, -0.44};
+		float targetPos[3] = {-1.34f, 3.4f, -0.44f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -73,7 +73,7 @@ void TestJointTorqueSetup::initPhysics()
 	//create a static ground object
 	if (1)
 	{
-		btVector3 groundHalfExtents(1, 1, 0.2);
+		btVector3 groundHalfExtents(1, 1, btScalar(0.2));
 		groundHalfExtents[upAxis] = 1.f;
 		btBoxShape* box = new btBoxShape(groundHalfExtents);
 		box->initializePolyhedralFeatures();
@@ -83,9 +83,9 @@ void TestJointTorqueSetup::initPhysics()
 		start.setIdentity();
 		btVector3 groundOrigin(-0.4f, 3.f, 0.f);
 		groundOrigin[upAxis] -= .5;
-		groundOrigin[2] -= 0.6;
+		groundOrigin[2] -= btScalar(0.6);
 		start.setOrigin(groundOrigin);
-		btQuaternion groundOrn(btVector3(0, 1, 0), 0.25 * SIMD_PI);
+		btQuaternion groundOrn(btVector3(0, 1, 0), btScalar(0.25 * SIMD_PI));
 
 		//	start.setRotation(groundOrn);
 		btRigidBody* body = createRigidBody(0, start, box);
@@ -104,8 +104,8 @@ void TestJointTorqueSetup::initPhysics()
 		bool spherical = false;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
 		bool canSleep = false;
 		bool selfCollide = false;
-		btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-		btVector3 baseHalfExtents(0.05, 0.37, 0.1);
+		btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
+		btVector3 baseHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
 
 		btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
 		//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
@@ -178,17 +178,17 @@ void TestJointTorqueSetup::initPhysics()
 				}
 				else
 				{
-					btVector3 parentComToCurrentCom(0, -radius * 2.f, 0);                                  //par body's COM to cur body's COM offset
-					btVector3 currentPivotToCurrentCom(0, -radius, 0);                                     //cur body's COM to cur body's PIV offset
-					btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;  //par body's COM to cur body's PIV offset
+					btVector3 parentComToCurrentComL(0, -radius * 2.f, 0);                                  //par body's COM to cur body's COM offset
+					btVector3 currentPivotToCurrentComL(0, -radius, 0);                                     //cur body's COM to cur body's PIV offset
+					btVector3 parentComToCurrentPivotL = parentComToCurrentComL - currentPivotToCurrentComL; //par body's COM to cur body's PIV offset
 
 					pMultiBody->setupFixed(i, linkMass, linkInertiaDiag, i - 1,
 										   btQuaternion(0.f, 0.f, 0.f, 1.f),
-										   parentComToCurrentPivot,
-										   currentPivotToCurrentCom);
+										   parentComToCurrentPivotL,
+										   currentPivotToCurrentComL);
 				}
 
-				//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivot,currentPivotToCurrentCom,false);
+				//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivotL,currentPivotToCurrentComL,false);
 			}
 			else
 			{
@@ -232,16 +232,16 @@ void TestJointTorqueSetup::initPhysics()
 		//////////////////////////////////////////////
 		if (/* DISABLES CODE */ (0))  //numLinks > 0)
 		{
-			btScalar q0 = 45.f * SIMD_PI / 180.f;
+			btScalar q0L = 45.f * SIMD_PI / 180.f;
 			if (!spherical)
 			{
-				mbC->setJointPosMultiDof(0, &q0);
+				mbC->setJointPosMultiDof(0, &q0L);
 			}
 			else
 			{
-				btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
-				quat0.normalize();
-				mbC->setJointPosMultiDof(0, quat0);
+				btQuaternion quat0L(btVector3(1, 1, 0).normalized(), q0L);
+				quat0L.normalize();
+				mbC->setJointPosMultiDof(0, quat0L);
 			}
 		}
 		///
@@ -272,7 +272,7 @@ void TestJointTorqueSetup::initPhysics()
 				//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
 
 				tr.setOrigin(local_origin[0]);
-				btQuaternion orn(btVector3(0, 0, 1), 0.25 * 3.1415926538);
+				btQuaternion orn(btVector3(0, 0, 1), btScalar(0.25 * 3.1415926538));
 
 				tr.setRotation(orn);
 				col->setWorldTransform(tr);
@@ -348,12 +348,12 @@ void TestJointTorqueSetup::initPhysics()
 	if (b3ResourcePath::findResourcePath("multibody.bullet", resourcePath, 1024,0))
 	{
 		FILE* f = fopen(resourcePath, "wb");
-		fwrite(s->getBufferPointer(), s->getCurrentBufferSize(), 1, f);
+		fwrite(s->getBufferPointer(), (size_t)s->getCurrentBufferSize(), 1, f);
 		fclose(f);
 	}
 }
 
-void TestJointTorqueSetup::stepSimulation(float deltaTime)
+void TestJointTorqueSetup::stepSimulation(float /*deltaTime*/)
 {
 	//m_multiBody->addLinkForce(0,btVector3(100,100,100));
 	if (/* DISABLES CODE */ (0))  //m_once)
@@ -365,7 +365,7 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
 		b3Printf("t = %f,%f,%f\n", torque, torque, torque);  //[0],torque[1],torque[2]);
 	}
 
-	m_dynamicsWorld->stepSimulation(1. / 240, 0);
+	m_dynamicsWorld->stepSimulation(btScalar(1. / 240), 0);
 
 	static int count = 0;
 	if ((count & 0x0f) == 0)

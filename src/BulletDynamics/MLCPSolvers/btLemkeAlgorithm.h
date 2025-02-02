@@ -48,7 +48,7 @@ public:
    */
 	int getSteps(void)
 	{
-		return steps;
+		return (int)steps;
 	}
 
 	/**

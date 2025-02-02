@@ -191,9 +191,9 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 			J2[srow + 0] = -ax1[0];
 			J2[srow + 1] = -ax1[1];
 			J2[srow + 2] = -ax1[2];
-			btScalar k = info->fps * m_biasFactor;
+			btScalar kb = info->fps * m_biasFactor;
 
-			info->m_constraintError[srow] = k * m_swingCorrection;
+			info->m_constraintError[srow] = kb * m_swingCorrection;
 			if (m_flags & BT_CONETWIST_FLAGS_ANG_CFM)
 			{
 				info->cfm[srow] = m_angCFM;
@@ -215,8 +215,8 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 		J2[srow + 0] = -ax1[0];
 		J2[srow + 1] = -ax1[1];
 		J2[srow + 2] = -ax1[2];
-		btScalar k = info->fps * m_biasFactor;
-		info->m_constraintError[srow] = k * m_twistCorrection;
+		btScalar kb = info->fps * m_biasFactor;
+		info->m_constraintError[srow] = kb * m_twistCorrection;
 		if (m_flags & BT_CONETWIST_FLAGS_ANG_CFM)
 		{
 			info->cfm[srow] = m_angCFM;
@@ -240,6 +240,7 @@ void btConeTwistConstraint::getInfo2NonVirtual(btConstraintInfo2* info, const bt
 			info->m_upperLimit[srow] = SIMD_INFINITY;
 		}
 		srow += info->rowskip;
+		(void)srow;
 	}
 }
 
@@ -520,7 +521,7 @@ void btConeTwistConstraint::calcAngleInfo()
 	m_solveSwingLimit = false;
 
 	btVector3 b1Axis1(0, 0, 0), b1Axis2(0, 0, 0), b1Axis3(0, 0, 0);
-	btVector3 b2Axis1(0, 0, 0), b2Axis2(0, 0, 0);
+	btVector3 b2Axis1(0, 0, 0); // b2Axis2(0, 0, 0);
 
 	b1Axis1 = getRigidBodyA().getCenterOfMassTransform().getBasis() * this->m_rbAFrame.getBasis().getColumn(0);
 	b2Axis1 = getRigidBodyB().getCenterOfMassTransform().getBasis() * this->m_rbBFrame.getBasis().getColumn(0);

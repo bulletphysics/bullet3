@@ -1003,23 +1003,23 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				}
 			}
 			{
-				XMLElement* damping_xml = ci->FirstChildElement("damping");
-				if (damping_xml)
+				XMLElement* damping_xml_node = ci->FirstChildElement("damping");
+				if (damping_xml_node)
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml->GetText());
+						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml_node->GetText());
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 					else
 					{
-						if (!damping_xml->Attribute("value"))
+						if (!damping_xml_node->Attribute("value"))
 						{
 							logger->reportError("Link/contact: damping element must have value attribute");
 							return false;
 						}
 
-						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml->Attribute("value"));
+						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml_node->Attribute("value"));
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 				}
@@ -1447,7 +1447,7 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 	return true;
 }
 
-bool UrdfParser::parseJointLimits(UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
+bool UrdfParser::parseJointLimits(UrdfJoint& joint, XMLElement* config, ErrorLogger* /*logger*/)
 {
 	joint.m_lowerLimit = 0.f;
 	joint.m_upperLimit = -1.f;
@@ -1845,7 +1845,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement* config, ErrorLogger* l
 	return true;
 }
 
-bool UrdfParser::parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
+bool UrdfParser::parseSensor(UrdfModel& /*model*/, UrdfLink& link, UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
 {
 	// Sensors are mapped to Links with a Fixed Joints connecting to the parents.
 	// They has no extent or mass so they will work with the existing

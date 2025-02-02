@@ -3,8 +3,10 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btThreads.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btOverride.h"
 #include <stdio.h>
 #include <algorithm>
+#include <cstring>
 
 #if BT_THREADSAFE
 
@@ -35,7 +37,7 @@ struct WorkerThreadStatus
 		kInvalid,
 		kWaitingForWork,
 		kWorking,
-		kSleeping,
+		kSleeping
 	};
 };
 
@@ -52,7 +54,7 @@ public:
 		kInvalid,
 		kGoToSleep,         // go to sleep
 		kStayAwakeButIdle,  // wait for not checking job queue
-		kScanForJobs,       // actively scan job queue for jobs
+		kScanForJobs        // actively scan job queue for jobs
 	};
 	WorkerThreadDirectives()
 	{
@@ -98,6 +100,7 @@ ThreadLocalStorage
 
 struct IJob
 {
+	virtual ~IJob() {};
 	virtual void executeJob(int threadId) = 0;
 };
 
@@ -114,7 +117,7 @@ public:
 		m_begin = iBegin;
 		m_end = iEnd;
 	}
-	virtual void executeJob(int threadId) BT_OVERRIDE
+	virtual void executeJob(int /*threadId*/) BT_OVERRIDE
 	{
 		BT_PROFILE("executeJob");
 
@@ -185,7 +188,7 @@ JobQueue
 		if (newSize > m_jobMemSize)
 		{
 			freeJobMem();
-			m_jobMem = static_cast<char*>(btAlignedAlloc(newSize, kCacheLineSize));
+			m_jobMem = static_cast<char*>(btAlignedAlloc((size_t)newSize, kCacheLineSize));
 			m_jobMemSize = newSize;
 		}
 	}
@@ -195,11 +198,13 @@ public:
 	{
 		m_jobMem = NULL;
 		m_jobMemSize = 0;
+		m_queueIsEmpty = true;
 		m_threadSupport = NULL;
 		m_queueLock = NULL;
 		m_headIndex = 0;
 		m_tailIndex = 0;
 		m_useSpinMutex = false;
+		memset(&m_cachePadding,0,sizeof(m_cachePadding));
 	}
 	~JobQueue()
 	{
@@ -759,9 +764,9 @@ public:
 
 			// add up all the thread sums
 			btScalar sum = btScalar(0);
-			for (int iThread = 0; iThread < m_numThreads; ++iThread)
+			for (int idxThread = 0; idxThread < m_numThreads; ++idxThread)
 			{
-				sum += m_threadLocalStorage[iThread].m_sumResult;
+				sum += m_threadLocalStorage[idxThread].m_sumResult;
 			}
 			m_antiNestingLock.unlock();
 			return sum;

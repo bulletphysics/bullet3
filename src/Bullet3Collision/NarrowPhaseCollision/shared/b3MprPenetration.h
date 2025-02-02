@@ -136,11 +136,11 @@ inline b3Float4 b3LocalGetSupportVertex(b3Float4ConstArg supportVec, __global co
 	return supVec;
 }
 
-B3_STATIC void b3MprConvexSupport(int pairIndex, int bodyIndex, b3ConstArray(b3RigidBodyData_t) cpuBodyBuf,
+B3_STATIC void b3MprConvexSupport(int /*pairIndex*/, int bodyIndex, b3ConstArray(b3RigidBodyData_t) cpuBodyBuf,
 								  b3ConstArray(b3ConvexPolyhedronData_t) cpuConvexData,
 								  b3ConstArray(b3Collidable_t) cpuCollidables,
 								  b3ConstArray(b3Float4) cpuVertices,
-								  __global b3Float4 *sepAxis,
+								  __global b3Float4 * /*sepAxis*/,
 								  const b3Float4 *_dir, b3Float4 *outp, int logme)
 {
 	//dir is in worldspace, move to local space
@@ -300,7 +300,7 @@ inline int portalReachTolerance(const b3MprSimplex_t *portal,
 	return b3MprEq(dot1, B3_MPR_TOLERANCE) || dot1 < B3_MPR_TOLERANCE;
 }
 
-inline int portalCanEncapsuleOrigin(const b3MprSimplex_t *portal,
+inline int portalCanEncapsuleOrigin(const b3MprSimplex_t * /*portal*/,
 									const b3MprSupport_t *v4,
 									const b3Float4 *dir)
 {
@@ -348,7 +348,7 @@ B3_STATIC int b3DiscoverPortal(int pairIndex, int bodyIndexA, int bodyIndexB, b3
 							   b3ConstArray(b3Collidable_t) cpuCollidables,
 							   b3ConstArray(b3Float4) cpuVertices,
 							   __global b3Float4 *sepAxis,
-							   __global int *hasSepAxis,
+							   __global int * /*hasSepAxis*/,
 							   b3MprSimplex_t *portal)
 {
 	b3Float4 dir, va, vb;
@@ -576,11 +576,11 @@ B3_STATIC void b3FindPos(const b3MprSimplex_t *portal, b3Float4 *pos)
 	b3MprVec3Copy(&p2, b3mpr_vec3_origin);
 	for (i = 0; i < 4; i++)
 	{
-		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, i)->v1);
+		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, (int)i)->v1);
 		b3MprVec3Scale(&vec, b[i]);
 		b3MprVec3Add(&p1, &vec);
 
-		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, i)->v2);
+		b3MprVec3Copy(&vec, &b3MprSimplexPoint(portal, (int)i)->v2);
 		b3MprVec3Scale(&vec, b[i]);
 		b3MprVec3Add(&p2, &vec);
 	}
@@ -883,6 +883,6 @@ inline int b3MprPenetration(int pairIndex, int bodyIndexA, int bodyIndexB,
 	};
 
 	return 0;
-};
+}
 
 #endif  //B3_MPR_PENETRATION_H

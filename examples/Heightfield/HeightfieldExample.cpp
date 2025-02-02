@@ -27,25 +27,25 @@ subject to the following restrictions:
 #include "stb_image/stb_image.h"
 
 // constants -------------------------------------------------------------------
-static const btScalar s_gravity = 9.8;		// 9.8 m/s^2
+static const btScalar s_gravity = btScalar(9.8);		// 9.8 m/s^2
 
 static int s_gridSize = 16 + 1;  // must be (2^N) + 1
-static btScalar s_gridSpacing = 0.5;
-static btScalar s_gridHeightScale = 0.02;
+static btScalar s_gridSpacing = btScalar(0.5);
+static btScalar s_gridHeightScale = btScalar(0.02);
 
 // the singularity at the center of the radial model means we need a lot of
 //   finely-spaced time steps to get the physics right.
 // These numbers are probably too aggressive for a real game!
 
 // delta phase: radians per second
-static const btScalar s_deltaPhase = 0.25 * 2.0 * SIMD_PI;
+static const btScalar s_deltaPhase = btScalar(0.25 * 2.0 * SIMD_PI);
 
 // what type of terrain is generated?
 enum eTerrainModel {
 	eRadial = 0,	// deterministic
 	eFractal = 1,	// random
-	eCSVFile = 2,//csv file used in DeepLoco for example
-	eImageFile = 3,//terrain from png/jpg files, asset from https://www.beamng.com/threads/tutorial-adding-heightmap-roads-using-blender.16356/
+	eCSVFile = 2, //csv file used in DeepLoco for example
+	eImageFile = 3 //terrain from png/jpg files, asset from https://www.beamng.com/threads/tutorial-adding-heightmap-roads-using-blender.16356/
 
 };
 
@@ -271,9 +271,9 @@ setRadial
 	btScalar cy = cx;		// assume square grid
 	byte_t * p = grid;
 	for (int i = 0; i < s_gridSize; ++i) {
-		float x = i * s_gridSpacing;
+		float x = (btScalar)i * s_gridSpacing;
 		for (int j = 0; j < s_gridSize; ++j) {
-			float y = j * s_gridSpacing;
+			float y = (btScalar)j * s_gridSpacing;
 
 			float dx = x - cx;
 			float dy = y - cy;
@@ -281,6 +281,7 @@ setRadial
 			float r = sqrt((dx * dx) + (dy * dy));
 
 			float z = period;
+			(void)z;
 			if (r < min_r) {
 				r = min_r;
 			}
@@ -439,6 +440,7 @@ getRawHeightfieldData
         b3BulletDefaultFileIO fileIO;
         char relativeFileName[1024];
         int found = fileIO.findFile("heightmaps/wm_height_out.png", relativeFileName, 1024);
+				(void)found;
         
 
         b3AlignedObjectArray<char> buffer;
@@ -469,8 +471,8 @@ getRawHeightfieldData
             {
                 printf("width=%d, height=%d at %d channels\n", width,height, n);
                 s_gridSize = width;
-                s_gridSpacing = 0.2;
-                s_gridHeightScale = 0.2;
+                s_gridSpacing = btScalar(0.2);
+                s_gridHeightScale = btScalar(0.2);
                 fileIO.fileClose(fileId);
                 long nElements = ((long)s_gridSize) * s_gridSize;
                 //	std::cerr << "  nElements = " << nElements << "\n";
@@ -481,7 +483,7 @@ getRawHeightfieldData
 
                 long nBytes = nElements * bytesPerElement;
                 //	std::cerr << "  nBytes = " << nBytes << "\n";
-                byte_t * raw = new byte_t[nBytes];
+                byte_t * raw = new byte_t[(size_t)nBytes];
                 btAssert(raw && "out of memory");
 
                 byte_t * p = raw;
@@ -491,8 +493,8 @@ getRawHeightfieldData
                     
 					for (int i = 0; i < width; ++i)
                     {
-						float x = i * s_gridSpacing;
-                        float y = j * s_gridSpacing;
+						// float x = i * s_gridSpacing;
+						// float y = j * s_gridSpacing;
 						float heightScaling = (14. / 256.);
 						float z = double(image[(width - 1 - i) * 3 + width*j * 3]) * heightScaling;
                         convertFromFloat(p, z, type);
@@ -539,16 +541,16 @@ getRawHeightfieldData
             btAlignedObjectArray<double> allValues;
             if (slot>=0)
             {
-                char* lineChar;
-                while (lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH))
+                char* lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH);
+                while (lineChar)
                 {
                     rows=0;
                     char** values = urdfStrSplit(lineChar, ",");
                     if (values)
                     {
                         int index = 0;
-                        char* value;
-                        while (value = values[index++])
+                        char* value = values[index++];
+                        while (value)
                         {
                             std::string strval(value);
                             double v;
@@ -559,16 +561,17 @@ getRawHeightfieldData
                                 allValues.push_back(v);
                                 rows++;
                             }
+														value = values[index++];
                         }
                     }
                     cols++;
-
+										lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH);
                 }
                 printf("done, rows=%d, cols=%d\n", rows, cols);
                 int width = rows-1;
                 s_gridSize = rows;
-                s_gridSpacing = 0.2;
-                s_gridHeightScale = 0.2;
+                s_gridSpacing = btScalar(0.2);
+                s_gridHeightScale = btScalar(0.2);
                 fileIO.fileClose(slot);
                 long nElements = ((long)s_gridSize) * s_gridSize;
                 //	std::cerr << "  nElements = " << nElements << "\n";
@@ -579,16 +582,16 @@ getRawHeightfieldData
 
                 long nBytes = nElements * bytesPerElement;
                 //	std::cerr << "  nBytes = " << nBytes << "\n";
-                byte_t * raw = new byte_t[nBytes];
+                byte_t * raw = new byte_t[(size_t)nBytes];
                 btAssert(raw && "out of memory");
 
                 byte_t * p = raw;
                 for (int i = 0; i < width; ++i)
                 {
-                    float x = i * s_gridSpacing;
+                    // float x = i * s_gridSpacing;
                     for (int j = 0; j < width; ++j)
                     {
-                        float y = j * s_gridSpacing;
+                        // float y = j * s_gridSpacing;
                         float z = allValues[i+width*j];
                         convertFromFloat(p, z, type);
 						// update min/max
@@ -617,12 +620,12 @@ getRawHeightfieldData
         {
             s_gridSize = 16 + 1;  // must be (2^N) + 1
             s_gridSpacing = 0.5;
-            s_gridHeightScale = 0.02;
+            s_gridHeightScale = btScalar(0.02);
         } else
         {
             s_gridSize = 256 + 1;  // must be (2^N) + 1
             s_gridSpacing = 0.5;
-            s_gridHeightScale = 0.02;
+            s_gridHeightScale = btScalar(0.02);
         }
         //	std::cerr << "\nRegenerating terrain\n";
         //	std::cerr << "  model = " << model << "\n";
@@ -637,7 +640,7 @@ getRawHeightfieldData
 
         long nBytes = nElements * bytesPerElement;
         //	std::cerr << "  nBytes = " << nBytes << "\n";
-        byte_t * raw = new byte_t[nBytes];
+        byte_t * raw = new byte_t[(size_t)nBytes];
         btAssert(raw && "out of memory");
 
         // reseed randomization every 30 seconds
@@ -754,7 +757,7 @@ private:
 #define HEIGHTFIELD_TYPE_COUNT 4
 eTerrainModel gHeightfieldType = eRadial;
 
-void setHeightfieldTypeComboBoxCallback(int combobox, const char* item, void* userPointer)
+void setHeightfieldTypeComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < HEIGHTFIELD_TYPE_COUNT; ++i)
@@ -819,7 +822,7 @@ public:
 		m_pIndicesOut = 0;
 	}
 
-	virtual void processTriangle(btVector3* tris, int partId, int triangleIndex)
+	virtual void processTriangle(btVector3* tris, int /*partId*/, int /*triangleIndex*/)
 	{
 		for (int k = 0; k < 3; k++)
 		{
@@ -898,7 +901,7 @@ public:
 		btScalar dalpha = 2 * SIMD_2_PI / NUMRAYS2;
 		for (int i = 0; i < NUMRAYS2; i++)
 		{
-			btScalar alpha = dalpha * i;
+			btScalar alpha = dalpha * (btScalar)i;
 			// rotate around by alpha degrees y
 			btVector3 upAxis(0, 0, 0);
 			upAxis[upAxisIndex] = 1;
@@ -1019,7 +1022,7 @@ public:
 			castRays(cw, 0, NUMRAYS2);
 		}
 #ifdef USE_BT_CLOCK
-		ms += frame_timer.getTimeMilliseconds();
+		ms += (int)frame_timer.getTimeMilliseconds();
 #endif  //USE_BT_CLOCK
 		frame_counter++;
 		if (frame_counter > 50)
@@ -1043,7 +1046,7 @@ public:
 			btAlignedObjectArray<unsigned int> indices;
 			btAlignedObjectArray<btVector3FloatData> points;
 
-			float lineColor[4] = { 1, 0.4, .4, 1 };
+			float lineColor[4] = { 1, 0.4f, 0.4f, 1 };
 
 			for (int i = 0; i < NUMRAYS2; i++)
 			{
@@ -1056,8 +1059,8 @@ public:
 
 				points.push_back(s);
 				points.push_back(h);
-				indices.push_back(indices.size());
-				indices.push_back(indices.size());
+				indices.push_back((unsigned int)indices.size());
+				indices.push_back((unsigned int)indices.size());
 			}
 
 			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], lineColor, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), 1);
@@ -1088,7 +1091,7 @@ void HeightfieldExample::stepSimulation(float deltaTime)
 	{
 		btAlignedObjectArray<GLInstanceVertex> gfxVertices;
 		btAlignedObjectArray<int> indices;
-		int strideInBytes = 9 * sizeof(float);
+		// int strideInBytes = 9 * sizeof(float);
 
 		m_phase += s_deltaPhase * deltaTime;
 		if (m_phase > 2.0 * SIMD_PI) {
@@ -1197,6 +1200,7 @@ void HeightfieldExample::resetPhysics(void)
 		b3BulletDefaultFileIO fileIO;
 		char relativeFileName[1024];
 		int found = fileIO.findFile("heightmaps/gimp_overlay_out.png", relativeFileName, 1024);
+		(void)found;
 
 		b3AlignedObjectArray<char> buffer;
 		buffer.reserve(1024);

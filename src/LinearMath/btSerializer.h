@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "btScalar.h"  // has definitions like SIMD_FORCE_INLINE
 #include "btHashMap.h"
+#include "LinearMath/btOverride.h"
 
 #if !defined(__CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
@@ -59,7 +60,7 @@ enum btSerializationFlags
 	BT_SERIALIZE_NO_BVH = 1,
 	BT_SERIALIZE_NO_TRIANGLEINFOMAP = 2,
 	BT_SERIALIZE_NO_DUPLICATE_ASSERT = 4,
-	BT_SERIALIZE_CONTACT_MANIFOLDS = 8,
+	BT_SERIALIZE_CONTACT_MANIFOLDS = 8
 };
 
 class btSerializer
@@ -181,18 +182,18 @@ protected:
 	btAlignedObjectArray<btChunk*> m_chunkPtrs;
 
 protected:
-	virtual void* findPointer(void* oldPtr)
+	virtual void* findPointer(void* oldPtr) BT_OVERRIDE
 	{
 		void** ptr = m_chunkP.find(oldPtr);
 		if (ptr && *ptr)
 			return *ptr;
-		return 0;
+		return NULL;
 	}
 
 	virtual void writeDNA()
 	{
-		btChunk* dnaChunk = allocate(m_dnaLength, 1);
-		memcpy(dnaChunk->m_oldPtr, m_dna, m_dnaLength);
+		btChunk* dnaChunk = allocate((size_t)m_dnaLength, 1);
+		memcpy(dnaChunk->m_oldPtr, m_dna, (size_t)m_dnaLength);
 		finalizeChunk(dnaChunk, "DNA1", BT_DNA_CODE, m_dna);
 	}
 
@@ -215,13 +216,13 @@ protected:
 		int littleEndian = 1;
 		littleEndian = ((char*)&littleEndian)[0];
 
-		m_dna = btAlignedAlloc(dnalen, 16);
-		memcpy(m_dna, bdnaOrg, dnalen);
+		m_dna = btAlignedAlloc((size_t)dnalen, 16);
+		memcpy(m_dna, bdnaOrg, (size_t)dnalen);
 		m_dnaLength = dnalen;
 
-		int* intPtr = 0;
-		short* shtPtr = 0;
-		char* cp = 0;
+		int* intPtr = NULL;
+		short* shtPtr = NULL;
+		char* cp = NULL;
 		int dataLen = 0;
 		intPtr = (int*)m_dna;
 
@@ -242,7 +243,7 @@ protected:
 
 		// Parse names
 		if (!littleEndian)
-			*intPtr = btSwapEndian(*intPtr);
+			*intPtr = (int)btSwapEndian(*intPtr);
 
 		dataLen = *intPtr;
 
@@ -269,7 +270,7 @@ protected:
 		intPtr++;
 
 		if (!littleEndian)
-			*intPtr = btSwapEndian(*intPtr);
+			*intPtr = (int)btSwapEndian(*intPtr);
 
 		dataLen = *intPtr;
 		intPtr++;
@@ -301,7 +302,7 @@ protected:
 		for (i = 0; i < dataLen; i++, shtPtr++)
 		{
 			if (!littleEndian)
-				shtPtr[0] = btSwapEndian(shtPtr[0]);
+				shtPtr[0] = (short)btSwapEndian(shtPtr[0]);
 			mTlens.push_back(shtPtr[0]);
 		}
 
@@ -324,7 +325,7 @@ protected:
 		intPtr++;
 
 		if (!littleEndian)
-			*intPtr = btSwapEndian(*intPtr);
+			*intPtr = (int)btSwapEndian(*intPtr);
 		dataLen = *intPtr;
 		intPtr++;
 
@@ -335,16 +336,16 @@ protected:
 
 			if (!littleEndian)
 			{
-				shtPtr[0] = btSwapEndian(shtPtr[0]);
-				shtPtr[1] = btSwapEndian(shtPtr[1]);
+				shtPtr[0] = (short)btSwapEndian(shtPtr[0]);
+				shtPtr[1] = (short)btSwapEndian(shtPtr[1]);
 
 				int len = shtPtr[1];
 				shtPtr += 2;
 
 				for (int a = 0; a < len; a++, shtPtr += 2)
 				{
-					shtPtr[0] = btSwapEndian(shtPtr[0]);
-					shtPtr[1] = btSwapEndian(shtPtr[1]);
+					shtPtr[0] = (short)btSwapEndian(shtPtr[0]);
+					shtPtr[1] = (short)btSwapEndian(shtPtr[1]);
 				}
 			}
 			else
@@ -365,17 +366,17 @@ protected:
 public:
 	btHashMap<btHashPtr, void*> m_skipPointers;
 
-	btDefaultSerializer(int totalSize = 0, unsigned char* buffer = 0)
+	btDefaultSerializer(int totalSize = 0, unsigned char* buffer = NULL)
 		: m_uniqueIdGenerator(0),
 		  m_totalSize(totalSize),
 		  m_currentSize(0),
-		  m_dna(0),
+		  m_dna(NULL),
 		  m_dnaLength(0),
 		  m_serializationFlags(0)
 	{
-		if (buffer == 0)
+		if (buffer == NULL)
 		{
-			m_buffer = m_totalSize ? (unsigned char*)btAlignedAlloc(totalSize, 16) : 0;
+			m_buffer = m_totalSize ? (unsigned char*)btAlignedAlloc((size_t)totalSize, 16) : NULL;
 			m_ownsBuffer = true;
 		}
 		else
@@ -416,7 +417,7 @@ public:
 #endif  //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 	}
 
-	virtual ~btDefaultSerializer()
+	virtual ~btDefaultSerializer() BT_OVERRIDE
 	{
 		if (m_buffer && m_ownsBuffer)
 			btAlignedFree(m_buffer);
@@ -461,7 +462,8 @@ public:
 		int littleEndian = 1;
 		littleEndian = ((char*)&littleEndian)[0];
 
-		if (sizeof(void*) == 8)
+		const bool is64BitSystem = ((sizeof(void*) == 8));
+		if (is64BitSystem)
 		{
 			buffer[7] = '-';
 		}
@@ -484,7 +486,7 @@ public:
 		buffer[11] = '6';
 	}
 
-	virtual void startSerialization()
+	virtual void startSerialization() BT_OVERRIDE
 	{
 		m_uniqueIdGenerator = 1;
 		if (m_totalSize)
@@ -494,7 +496,7 @@ public:
 		}
 	}
 
-	virtual void finishSerialization()
+	virtual void finishSerialization() BT_OVERRIDE
 	{
 		writeDNA();
 
@@ -505,7 +507,7 @@ public:
 				btAlignedFree(m_buffer);
 
 			m_currentSize += BT_HEADER_LENGTH;
-			m_buffer = (unsigned char*)btAlignedAlloc(m_currentSize, 16);
+			m_buffer = (unsigned char*)btAlignedAlloc((size_t)m_currentSize, 16);
 
 			unsigned char* currentPtr = m_buffer;
 			writeHeader(m_buffer);
@@ -513,7 +515,7 @@ public:
 			for (int i = 0; i < m_chunkPtrs.size(); i++)
 			{
 				int curLength = (int)sizeof(btChunk) + m_chunkPtrs[i]->m_length;
-				memcpy(currentPtr, m_chunkPtrs[i], curLength);
+				memcpy(currentPtr, m_chunkPtrs[i], (size_t)curLength);
 				btAlignedFree(m_chunkPtrs[i]);
 				currentPtr += curLength;
 			}
@@ -531,11 +533,11 @@ public:
 		m_chunkPtrs.clear();
 	}
 
-	virtual void* getUniquePointer(void* oldPtr)
+	virtual void* getUniquePointer(void* oldPtr) BT_OVERRIDE
 	{
 		btAssert(m_uniqueIdGenerator >= 0);
 		if (!oldPtr)
-			return 0;
+			return NULL;
 
 		btPointerUid* uptr = (btPointerUid*)m_uniquePointers.find(oldPtr);
 		if (uptr)
@@ -546,7 +548,7 @@ public:
 		void** ptr2 = m_skipPointers[oldPtr];
 		if (ptr2)
 		{
-			return 0;
+			return NULL;
 		}
 
 		m_uniqueIdGenerator++;
@@ -558,17 +560,17 @@ public:
 		return uid.m_ptr;
 	}
 
-	virtual const unsigned char* getBufferPointer() const
+	virtual const unsigned char* getBufferPointer() const BT_OVERRIDE
 	{
 		return m_buffer;
 	}
 
-	virtual int getCurrentBufferSize() const
+	virtual int getCurrentBufferSize() const BT_OVERRIDE
 	{
 		return m_currentSize;
 	}
 
-	virtual void finalizeChunk(btChunk* chunk, const char* structType, int chunkCode, void* oldPtr)
+	virtual void finalizeChunk(btChunk* chunk, const char* structType, int chunkCode, void* oldPtr) BT_OVERRIDE
 	{
 		if (!(m_serializationFlags & BT_SERIALIZE_NO_DUPLICATE_ASSERT))
 		{
@@ -587,7 +589,7 @@ public:
 
 	virtual unsigned char* internalAlloc(size_t size)
 	{
-		unsigned char* ptr = 0;
+		unsigned char* ptr = NULL;
 
 		if (m_totalSize)
 		{
@@ -603,7 +605,7 @@ public:
 		return ptr;
 	}
 
-	virtual btChunk* allocate(size_t size, int numElements)
+	virtual btChunk* allocate(size_t size, int numElements) BT_OVERRIDE
 	{
 		unsigned char* ptr = internalAlloc(int(size) * numElements + sizeof(btChunk));
 
@@ -620,20 +622,20 @@ public:
 		return chunk;
 	}
 
-	virtual const char* findNameForPointer(const void* ptr) const
+	virtual const char* findNameForPointer(const void* ptr) const BT_OVERRIDE
 	{
 		const char* const* namePtr = m_nameMap.find(ptr);
 		if (namePtr && *namePtr)
 			return *namePtr;
-		return 0;
+		return NULL;
 	}
 
-	virtual void registerNameForPointer(const void* ptr, const char* name)
+	virtual void registerNameForPointer(const void* ptr, const char* name) BT_OVERRIDE
 	{
 		m_nameMap.insert(ptr, name);
 	}
 
-	virtual void serializeName(const char* name)
+	virtual void serializeName(const char* name) BT_OVERRIDE
 	{
 		if (name)
 		{
@@ -661,21 +663,21 @@ public:
 		}
 	}
 
-	virtual int getSerializationFlags() const
+	virtual int getSerializationFlags() const BT_OVERRIDE
 	{
 		return m_serializationFlags;
 	}
 
-	virtual void setSerializationFlags(int flags)
+	virtual void setSerializationFlags(int flags) BT_OVERRIDE
 	{
 		m_serializationFlags = flags;
 	}
-	int getNumChunks() const
+	int getNumChunks() const BT_OVERRIDE
 	{
 		return m_chunkPtrs.size();
 	}
 
-	const btChunk* getChunk(int chunkIndex) const
+	const btChunk* getChunk(int chunkIndex) const BT_OVERRIDE
 	{
 		return m_chunkPtrs[chunkIndex];
 	}

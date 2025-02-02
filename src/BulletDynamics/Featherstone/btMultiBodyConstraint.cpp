@@ -61,7 +61,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 														btScalar lowerLimit, btScalar upperLimit,
 														bool angConstraint,
 														btScalar relaxation,
-														bool isFriction, btScalar desiredVelocity, btScalar cfmSlip,
+														bool isFriction, btScalar desiredVelocity, btScalar /*cfmSlip*/,
 														btScalar damping)
 {
 	solverConstraint.m_multiBodyA = m_bodyA;
@@ -352,6 +352,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		btScalar velocityError = (desiredVelocity - rel_vel) * damping;
 
 		btScalar erp = infoGlobal.m_erp2;
+		(void)erp;
 
 		//split impulse is not implemented yet for btMultiBody*
 		//if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))

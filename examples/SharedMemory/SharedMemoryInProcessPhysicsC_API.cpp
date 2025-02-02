@@ -23,6 +23,7 @@ public:
 	{
 		int newargc = argc + 3;
 		char** newargv = (char**)malloc(sizeof(void*) * newargc);
+		btAssert(newargv);
 		char* t0 = (char*)"--unused";
 		newargv[0] = t0;
 		for (int i = 0; i < argc; i++)
@@ -108,6 +109,7 @@ public:
 	{
 		int newargc = argc + 2;
 		m_newargv = (char**)malloc(sizeof(void*) * newargc);
+		btAssert(m_newargv);
 		char* t0 = (char*)"--unused";
 		m_newargv[0] = t0;
 
@@ -363,6 +365,7 @@ public:
 	{
 		int newargc = 3;
 		m_newargv = (char**)malloc(sizeof(void*) * newargc);
+		btAssert(m_newargv);
 		char* t0 = (char*)"--unused";
 		m_newargv[0] = t0;
 
@@ -420,12 +423,13 @@ public:
 
 	virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
 	{
-		switch (command.m_type)
-		{
-		default:
-		{
-		}
-		}
+		(void)command;
+		// switch (command.m_type)
+		// {
+		// default:
+		// {
+		// }
+		// }
 		return true;
 	}
 
@@ -508,12 +512,13 @@ public:
 
 	virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
 	{
-		switch (command.m_type)
-		{
-		default:
-		{
-		}
-		}
+		(void)command;
+		// switch (command.m_type)
+		// {
+		// default:
+		// {
+		// }
+		// }
 		return true;
 	}
 

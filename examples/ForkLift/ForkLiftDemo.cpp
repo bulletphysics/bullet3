@@ -117,21 +117,21 @@ public:
 
 	virtual void specialKeyboardUp(int key, int x, int y);
 
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
 
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
 
-	virtual bool keyboardCallback(int key, int state);
+	virtual bool keyboardCallback(int /*key*/, int /*state*/);
 
 	virtual void renderScene();
 
-	virtual void physicsDebugDraw(int debugFlags);
+	virtual void physicsDebugDraw(int /*debugFlags*/);
 
 	void initPhysics();
 	void exitPhysics();
@@ -141,7 +141,7 @@ public:
 		float dist = 8;
 		float pitch = -32;
 		float yaw = -45;
-		float targetPos[3] = {-0.33, -0.72, 4.5};
+		float targetPos[3] = {-0.33f, -0.72f, 4.5f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -207,7 +207,7 @@ float suspensionDamping = 2.3f;
 float suspensionCompression = 4.4f;
 float rollInfluence = 0.1f;  //1.0f;
 
-btScalar suspensionRestLength(0.6);
+btScalar suspensionRestLength = btScalar(0.6);
 
 #define CUBE_HALF_EXTENTS 1
 
@@ -342,7 +342,7 @@ void ForkLiftDemo::initPhysics()
 	{
 		m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 128;  //for direct solver, it is better to solve multiple objects together, small batches have high overhead
 	}
-	m_dynamicsWorld->getSolverInfo().m_globalCfm = 0.00001;
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(0.00001);
 
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
@@ -409,10 +409,10 @@ void ForkLiftDemo::initPhysics()
 		btTransform localA, localB;
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
-		localA.setOrigin(btVector3(0.0, 1.0, 3.05));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
-		localB.setOrigin(btVector3(0.0, -1.5, -0.05));
+		localA.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
+		localA.setOrigin(btVector3(0.0, 1.0, btScalar(3.05)));
+		localB.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
+		localB.setOrigin(btVector3(0.0, -1.5, btScalar(-0.05)));
 		m_liftHinge = new btHingeConstraint(*m_carChassis, *m_liftBody, localA, localB);
 		//		m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
 		m_liftHinge->setLimit(0.0f, 0.0f);
@@ -446,10 +446,10 @@ void ForkLiftDemo::initPhysics()
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, 0, M_PI_2);
+		localA.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		localA.setOrigin(btVector3(0.0f, -1.9f, 0.05f));
-		localB.getBasis().setEulerZYX(0, 0, M_PI_2);
-		localB.setOrigin(btVector3(0.0, 0.0, -0.1));
+		localB.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
+		localB.setOrigin(btVector3(0.0, 0.0, -0.1f));
 		m_forkSlider = new btSliderConstraint(*m_liftBody, *m_forkBody, localA, localB, true);
 		m_forkSlider->setLowerLinLimit(0.1f);
 		m_forkSlider->setUpperLinLimit(0.1f);
@@ -665,6 +665,7 @@ void ForkLiftDemo::stepSimulation(float deltaTime)
 
 		int numSimSteps;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt, maxSimSubSteps);
+		(void)numSimSteps;
 
 		if (m_dynamicsWorld->getConstraintSolver()->getSolverType() == BT_MLCP_SOLVER)
 		{
@@ -784,15 +785,15 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 			{
 				case B3G_LEFT_ARROW:
 				{
-					m_liftHinge->setLimit(-M_PI / 16.0f, M_PI / 8.0f);
-					m_liftHinge->enableAngularMotor(true, -0.1, maxMotorImpulse);
+					m_liftHinge->setLimit(btScalar(-M_PI / 16.0f), btScalar(M_PI / 8.0f));
+					m_liftHinge->enableAngularMotor(true, -0.1f, maxMotorImpulse);
 					handled = true;
 					break;
 				}
 				case B3G_RIGHT_ARROW:
 				{
-					m_liftHinge->setLimit(-M_PI / 16.0f, M_PI / 8.0f);
-					m_liftHinge->enableAngularMotor(true, 0.1, maxMotorImpulse);
+					m_liftHinge->setLimit(btScalar(-M_PI / 16.0f), btScalar(M_PI / 8.0f));
+					m_liftHinge->enableAngularMotor(true, 0.1f, maxMotorImpulse);
 					handled = true;
 					break;
 				}
@@ -860,7 +861,7 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*)m_dynamicsWorld;
 					world->setLatencyMotionStateInterpolation(!world->getLatencyMotionStateInterpolation());
-					printf("world latencyMotionStateInterpolation = %d\n", world->getLatencyMotionStateInterpolation());
+					printf("world latencyMotionStateInterpolation = %u\n", world->getLatencyMotionStateInterpolation());
 					break;
 				}
 				case B3G_F6:
@@ -868,7 +869,7 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					//switch solver (needs demo restart)
 					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+					printf("switching to useMLCPSolver = %u\n", useMCLPSolver);
 
 					delete m_constraintSolver;
 					if (useMCLPSolver)
@@ -934,14 +935,14 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 	return handled;
 }
 
-void ForkLiftDemo::specialKeyboardUp(int key, int x, int y)
+void ForkLiftDemo::specialKeyboardUp(int /*key*/, int /*x*/, int /*y*/)
 {
 #if 0
 
 #endif
 }
 
-void ForkLiftDemo::specialKeyboard(int key, int x, int y)
+void ForkLiftDemo::specialKeyboard(int /*key*/, int /*x*/, int /*y*/)
 {
 #if 0
 	if (key==GLUT_KEY_END)
@@ -1129,7 +1130,7 @@ btRigidBody* ForkLiftDemo::localCreateRigidBody(btScalar mass, const btTransform
 	bool isDynamic = (mass != 0.f);
 
 	btVector3 localInertia(0, 0, 0);
-	if (isDynamic)
+	if (isDynamic && shape)
 		shape->calculateLocalInertia(mass, localInertia);
 
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects

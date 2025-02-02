@@ -363,7 +363,7 @@ void btQuantizedBvh::walkStacklessTree(btNodeOverlapCallback* nodeCallback, cons
 		btAssert(walkIterations < m_curNodeIndex);
 
 		walkIterations++;
-		aabbOverlap = TestAabbAgainstAabb2(aabbMin, aabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
+		aabbOverlap = (unsigned int)TestAabbAgainstAabb2(aabbMin, aabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
 		isLeafNode = rootNode->m_escapeIndex == -1;
 
 		//PCK: unsigned instead of bool
@@ -385,6 +385,7 @@ void btQuantizedBvh::walkStacklessTree(btNodeOverlapCallback* nodeCallback, cons
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 /*
@@ -439,7 +440,7 @@ void btQuantizedBvh::walkRecursiveQuantizedTreeAgainstQueryAabb(const btQuantize
 	}
 }
 
-void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex, int endNodeIndex) const
+void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int /*startNodeIndex*/, int /*endNodeIndex*/) const
 {
 	btAssert(!m_useQuantization);
 
@@ -471,7 +472,7 @@ void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCall
 	rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
 	rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
 	rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
-	unsigned int sign[3] = {rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
+	unsigned int sign[3] = {(unsigned int)(rayDirectionInverse[0] < 0.0), (unsigned int)(rayDirectionInverse[1] < 0.0), (unsigned int)(rayDirectionInverse[2] < 0.0)};
 #endif
 
 	btVector3 bounds[2];
@@ -490,14 +491,14 @@ void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCall
 		bounds[0] -= aabbMax;
 		bounds[1] -= aabbMin;
 
-		aabbOverlap = TestAabbAgainstAabb2(rayAabbMin, rayAabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
+		aabbOverlap = (unsigned int)TestAabbAgainstAabb2(rayAabbMin, rayAabbMax, rootNode->m_aabbMinOrg, rootNode->m_aabbMaxOrg);
 		//perhaps profile if it is worth doing the aabbOverlap test first
 
 #ifdef RAYAABB2
 		///careful with this check: need to check division by zero (above) and fix the unQuantize method
 		///thanks Joerg/hiker for the reproduction case!
 		///http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1858
-		rayBoxOverlap = aabbOverlap ? btRayAabb2(raySource, rayDirectionInverse, sign, bounds, param, 0.0f, lambda_max) : false;
+		rayBoxOverlap = (unsigned int)(aabbOverlap ? btRayAabb2(raySource, rayDirectionInverse, sign, bounds, param, 0.0f, lambda_max) : false);
 
 #else
 		btVector3 normal;
@@ -525,6 +526,7 @@ void btQuantizedBvh::walkStacklessTreeAgainstRay(btNodeOverlapCallback* nodeCall
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 void btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback* nodeCallback, const btVector3& raySource, const btVector3& rayTarget, const btVector3& aabbMin, const btVector3& aabbMax, int startNodeIndex, int endNodeIndex) const
@@ -554,7 +556,7 @@ void btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 	rayDirection[0] = rayDirection[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDirection[0];
 	rayDirection[1] = rayDirection[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDirection[1];
 	rayDirection[2] = rayDirection[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDirection[2];
-	unsigned int sign[3] = {rayDirection[0] < 0.0, rayDirection[1] < 0.0, rayDirection[2] < 0.0};
+	unsigned int sign[3] = {(unsigned int)(rayDirection[0] < 0.0), (unsigned int)(rayDirection[1] < 0.0), (unsigned int)(rayDirection[2] < 0.0)};
 #endif
 
 	/* Quick pruning by quantized box */
@@ -623,7 +625,7 @@ void btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			///http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?f=9&t=1858
 
 			//BT_PROFILE("btRayAabb2");
-			rayBoxOverlap = btRayAabb2(raySource, rayDirection, sign, bounds, param, 0.0f, lambda_max);
+			rayBoxOverlap = (unsigned int)btRayAabb2(raySource, rayDirection, sign, bounds, param, 0.0f, lambda_max);
 
 #else
 			rayBoxOverlap = true;  //btRayAabb(raySource, rayTarget, bounds[0], bounds[1], param, normal);
@@ -648,6 +650,7 @@ void btQuantizedBvh::walkStacklessQuantizedTreeAgainstRay(btNodeOverlapCallback*
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 void btQuantizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallback, unsigned short int* quantizedQueryAabbMin, unsigned short int* quantizedQueryAabbMax, int startNodeIndex, int endNodeIndex) const
@@ -710,6 +713,7 @@ void btQuantizedBvh::walkStacklessQuantizedTree(btNodeOverlapCallback* nodeCallb
 			curIndex += escapeIndex;
 		}
 	}
+	(void)walkIterations;
 }
 
 //This traversal can be called from Playstation 3 SPU
@@ -991,6 +995,7 @@ bool btQuantizedBvh::serialize(void* o_alignedDataBuffer, unsigned /*i_dataBuffe
 		}
 	}
 	nodeData += sizeof(btBvhSubtreeInfo) * m_subtreeHeaderCount;
+	(void)nodeData;
 
 	// this clears the pointer in the member variable it doesn't really do anything to the data
 	// it does call the destructor on the contained objects, but they are all classes with no destructor defined
@@ -1274,7 +1279,7 @@ const char* btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer
 	quantizedData->m_contiguousNodesPtr = (btOptimizedBvhNodeData*)(m_contiguousNodes.size() ? serializer->getUniquePointer((void*)&m_contiguousNodes[0]) : 0);
 	if (quantizedData->m_contiguousNodesPtr)
 	{
-		int sz = sizeof(btOptimizedBvhNodeData);
+		size_t sz = sizeof(btOptimizedBvhNodeData);
 		int numElem = m_contiguousNodes.size();
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		btOptimizedBvhNodeData* memPtr = (btOptimizedBvhNodeData*)chunk->m_oldPtr;
@@ -1296,7 +1301,7 @@ const char* btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer
 	quantizedData->m_quantizedContiguousNodesPtr = (btQuantizedBvhNodeData*)(m_quantizedContiguousNodes.size() ? serializer->getUniquePointer((void*)&m_quantizedContiguousNodes[0]) : 0);
 	if (quantizedData->m_quantizedContiguousNodesPtr)
 	{
-		int sz = sizeof(btQuantizedBvhNodeData);
+		size_t sz = sizeof(btQuantizedBvhNodeData);
 		int numElem = m_quantizedContiguousNodes.size();
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		btQuantizedBvhNodeData* memPtr = (btQuantizedBvhNodeData*)chunk->m_oldPtr;
@@ -1319,7 +1324,7 @@ const char* btQuantizedBvh::serialize(void* dataBuffer, btSerializer* serializer
 	quantizedData->m_subTreeInfoPtr = (btBvhSubtreeInfoData*)(m_SubtreeHeaders.size() ? serializer->getUniquePointer((void*)&m_SubtreeHeaders[0]) : 0);
 	if (quantizedData->m_subTreeInfoPtr)
 	{
-		int sz = sizeof(btBvhSubtreeInfoData);
+		size_t sz = sizeof(btBvhSubtreeInfoData);
 		int numElem = m_SubtreeHeaders.size();
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		btBvhSubtreeInfoData* memPtr = (btBvhSubtreeInfoData*)chunk->m_oldPtr;

@@ -64,7 +64,7 @@ int clipFaceGlobal(__global const b3Float4* pVtxIn, int numVertsIn, b3Float4Cons
 	return numVertsOut;
 }
 
-__kernel void clipFacesAndFindContactsKernel(__global const b3Float4* separatingNormals,
+__kernel void clipFacesAndFindContactsKernel(__global const b3Float4* /*separatingNormals*/,
 											 __global const int* hasSeparatingAxis,
 											 __global b3Int4* clippingFacesOut,
 											 __global b3Float4* worldVertsA1,
@@ -126,14 +126,15 @@ __kernel void clipFacesAndFindContactsKernel(__global const b3Float4* separating
 						pVtxIn = tmp;
 						numVertsInB = numVertsOut;
 						numVertsOut = 0;
+						(void)numVertsOut;
 					}
 
 					b3Float4 planeNormalWS = worldNormalsA1[pairIndex];
 					float planeEqWS = -b3Dot(planeNormalWS, worldVertsA1[pairIndex * capacityWorldVertsB2]);
 
-					for (int i = 0; i < numVertsInB; i++)
+					for (int j = 0; j < numVertsInB; j++)
 					{
-						float depth = b3Dot(planeNormalWS, pVtxIn[i]) + planeEqWS;
+						float depth = b3Dot(planeNormalWS, pVtxIn[j]) + planeEqWS;
 						if (depth <= minDist)
 						{
 							depth = minDist;
@@ -153,7 +154,7 @@ __kernel void clipFacesAndFindContactsKernel(__global const b3Float4* separating
 */
 						if (depth <= maxDist)
 						{
-							b3Float4 pointInWorld = pVtxIn[i];
+							b3Float4 pointInWorld = pVtxIn[j];
 							pVtxOut[numLocalContactsOut++] = b3MakeFloat4(pointInWorld.x, pointInWorld.y, pointInWorld.z, depth);
 						}
 					}
@@ -161,8 +162,8 @@ __kernel void clipFacesAndFindContactsKernel(__global const b3Float4* separating
 				clippingFaces[pairIndex].w = numLocalContactsOut;
 			}
 
-			for (int i = 0; i < numLocalContactsOut; i++)
-				pVtxIn[i] = pVtxOut[i];
+			for (int j = 0; j < numLocalContactsOut; j++)
+				pVtxIn[j] = pVtxOut[j];
 
 		}  //		if (hasSeparatingAxis[i])
 	}      //	if (i<numPairs)

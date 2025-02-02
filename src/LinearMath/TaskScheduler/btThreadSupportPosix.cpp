@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btThreads.h"
 #include "LinearMath/btMinMax.h"
+#include "LinearMath/btOverride.h"
 #include "btThreadSupportInterface.h"
 
 #include <stdio.h>
@@ -136,10 +137,10 @@ btThreadSupportPosix::~btThreadSupportPosix()
 #define NAMED_SEMAPHORES
 #endif
 
-static sem_t* createSem(const char* baseName)
+static sem_t* createSem(const char* /*baseName*/)
 {
-	static int semCount = 0;
 #ifdef NAMED_SEMAPHORES
+	static int semCount = 0;
 	/// Named semaphore begin
 	char name[32];
 	snprintf(name, 32, "/%8.s-%4.d-%4.4d", baseName, getpid(), semCount++);
@@ -253,7 +254,7 @@ int btThreadSupportPosix::waitForResponse()
 	threadStatus.m_status = 0;
 
 	// need to find an active spu
-	btAssert(last >= 0);
+	btAssert(last != size_t(-1));
 	m_startedThreadsMask &= ~(UINT64(1) << last);
 
 	return last;

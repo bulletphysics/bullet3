@@ -17,7 +17,7 @@ void b3BvhTraversal(__global const b3Int4* pairs,
 					__global const b3BvhSubtreeInfo* subtreeHeadersRoot,
 					__global const b3QuantizedBvhNode* quantizedNodesRoot,
 					__global const b3BvhInfo* bvhInfos,
-					int numPairs,
+					int /*numPairs*/,
 					int maxNumConcavePairsCapacity,
 					int id)
 {

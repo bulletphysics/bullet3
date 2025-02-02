@@ -61,6 +61,7 @@ void b3CpuRigidBodyPipeline::updateAabbWorldSpace()
 void b3CpuRigidBodyPipeline::computeOverlappingPairs()
 {
 	int numPairs = m_data->m_bp->getOverlappingPairCache()->getNumOverlappingPairs();
+	(void)numPairs;
 	m_data->m_bp->calculateOverlappingPairs();
 	numPairs = m_data->m_bp->getOverlappingPairCache()->getNumOverlappingPairs();
 	printf("numPairs=%d\n", numPairs);
@@ -148,8 +149,8 @@ static inline void b3SolveContact(b3ContactConstraint4& cs,
 			b3Vector3 angImp0 = (invInertiaA * angular0) * rambdaDt;
 			b3Vector3 angImp1 = (invInertiaB * angular1) * rambdaDt;
 #ifdef _WIN32
-			b3Assert(_finite(linImp0.getX()));
-			b3Assert(_finite(linImp1.getX()));
+			b3Assert(isfinite(linImp0.getX()));
+			b3Assert(isfinite(linImp1.getX()));
 #endif
 			{
 				linVelA += linImp0;
@@ -166,7 +167,7 @@ static inline void b3SolveFriction(b3ContactConstraint4& cs,
 								   const b3Vector3& posB, b3Vector3& linVelB, b3Vector3& angVelB, float invMassB, const b3Matrix3x3& invInertiaB,
 								   float maxRambdaDt[4], float minRambdaDt[4])
 {
-	if (cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[0] == 0) return;
+	if (cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[1] == 0) return;
 	const b3Vector3& center = (const b3Vector3&)cs.m_center;
 
 	b3Vector3 n = -(const b3Vector3&)cs.m_linear;
@@ -200,8 +201,8 @@ static inline void b3SolveFriction(b3ContactConstraint4& cs,
 		b3Vector3 angImp0 = (invInertiaA * angular0) * rambdaDt;
 		b3Vector3 angImp1 = (invInertiaB * angular1) * rambdaDt;
 #ifdef _WIN32
-		b3Assert(_finite(linImp0.getX()));
-		b3Assert(_finite(linImp1.getX()));
+		b3Assert(isfinite(linImp0.getX()));
+		b3Assert(isfinite(linImp1.getX()));
 #endif
 		linVelA += linImp0;
 		angVelA += angImp0;
@@ -237,7 +238,7 @@ struct b3SolveTask  // : public ThreadPool::Task
 
 	unsigned short int getType() { return 0; }
 
-	void run(int tIdx)
+	void run(int /*tIdx*/)
 	{
 		b3AlignedObjectArray<int> usedBodies;
 		//printf("run..............\n");
@@ -253,6 +254,7 @@ struct b3SolveTask  // : public ThreadPool::Task
 					continue;
 
 				float frictionCoeff = b3GetFrictionCoeff(&m_constraints[i]);
+				(void)frictionCoeff;
 				int aIdx = (int)m_constraints[i].m_bodyA;
 				int bIdx = (int)m_constraints[i].m_bodyB;
 				//int localBatch = m_constraints[i].m_batchIdx;
@@ -394,7 +396,7 @@ void b3CpuRigidBodyPipeline::integrate(float deltaTime)
 	}
 }
 
-int b3CpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int userData)
+int b3CpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* position, const float* orientation, int collidableIndex, int /*userData*/)
 {
 	b3RigidBodyData body;
 	int bodyIndex = m_data->m_rigidBodies.size();

@@ -12,7 +12,9 @@
  
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include "LinearMath/btConvexHullComputer.h"
 #include "vhacdMesh.h"
@@ -50,12 +52,12 @@ double Mesh::ComputeVolume() const
 
 	Vec3<double> ver0, ver1, ver2;
 	double totalVolume = 0.0;
-	for (int t = 0; t < nT; t++)
+	for (unsigned int t = 0; t < nT; t++)
 	{
 		const Vec3<int>& tri = GetTriangle(t);
-		ver0 = GetPoint(tri[0]);
-		ver1 = GetPoint(tri[1]);
-		ver2 = GetPoint(tri[2]);
+		ver0 = GetPoint((size_t)tri[0]);
+		ver1 = GetPoint((size_t)tri[1]);
+		ver2 = GetPoint((size_t)tri[2]);
 		totalVolume += ComputeVolume4(ver0, ver1, ver2, bary);
 	}
 	return totalVolume / 6.0;
@@ -128,12 +130,12 @@ bool Mesh::IsInside(const Vec3<double>& pt) const
 	}
 	Vec3<double> ver0, ver1, ver2;
 	double volume;
-	for (int t = 0; t < nT; t++)
+	for (unsigned int t = 0; t < nT; t++)
 	{
 		const Vec3<int>& tri = GetTriangle(t);
-		ver0 = GetPoint(tri[0]);
-		ver1 = GetPoint(tri[1]);
-		ver2 = GetPoint(tri[2]);
+		ver0 = GetPoint((size_t)tri[0]);
+		ver1 = GetPoint((size_t)tri[1]);
+		ver2 = GetPoint((size_t)tri[2]);
 		volume = ComputeVolume4(ver0, ver1, ver2, pt);
 		if (volume < 0.0)
 		{
@@ -291,7 +293,9 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 	{
 		const std::string strOFF("OFF");
 		char temp[1024];
-		fscanf(fid, "%s", temp);
+		temp[1023] = '\0';
+		int len = fscanf(fid, "%s", temp);
+		(void)len;
 		if (std::string(temp) != strOFF)
 		{
 			fclose(fid);
@@ -302,47 +306,49 @@ bool Mesh::LoadOFF(const std::string& fileName, bool invert)
 			int nv = 0;
 			int nf = 0;
 			int ne = 0;
-			fscanf(fid, "%i", &nv);
-			fscanf(fid, "%i", &nf);
-			fscanf(fid, "%i", &ne);
-			m_points.Resize(nv);
-			m_triangles.Resize(nf);
+			len = fscanf(fid, "%i", &nv); (void)len;
+			len = fscanf(fid, "%i", &nf); (void)len;
+			len = fscanf(fid, "%i", &ne); (void)len;
+			m_points.Resize((size_t)nv);
+			m_triangles.Resize((size_t)nf);
 			Vec3<double> coord;
 			float x, y, z;
 			for (int p = 0; p < nv; p++)
 			{
-				fscanf(fid, "%f", &x);
-				fscanf(fid, "%f", &y);
-				fscanf(fid, "%f", &z);
-				m_points[p][0] = x;
-				m_points[p][1] = y;
-				m_points[p][2] = z;
+				len = fscanf(fid, "%f", &x); (void)len;
+				len = fscanf(fid, "%f", &y); (void)len;
+				len = fscanf(fid, "%f", &z); (void)len;
+				m_points[(size_t)p][0] = x;
+				m_points[(size_t)p][1] = y;
+				m_points[(size_t)p][2] = z;
 			}
 			int i, j, k, s;
 			for (int t = 0; t < nf; ++t)
 			{
-				fscanf(fid, "%i", &s);
+				len = fscanf(fid, "%i", &s); (void)len;
 				if (s == 3)
 				{
-					fscanf(fid, "%i", &i);
-					fscanf(fid, "%i", &j);
-					fscanf(fid, "%i", &k);
-					m_triangles[t][0] = i;
+					len = fscanf(fid, "%i", &i); (void)len;
+					len = fscanf(fid, "%i", &j); (void)len;
+					len = fscanf(fid, "%i", &k); (void)len;
+					m_triangles[(size_t)t][0] = i;
 					if (invert)
 					{
-						m_triangles[t][1] = k;
-						m_triangles[t][2] = j;
+						m_triangles[(size_t)t][1] = k;
+						m_triangles[(size_t)t][2] = j;
 					}
 					else
 					{
-						m_triangles[t][1] = j;
-						m_triangles[t][2] = k;
+						m_triangles[(size_t)t][1] = j;
+						m_triangles[(size_t)t][2] = k;
 					}
 				}
 				else  // Fix me: support only triangular meshes
 				{
 					for (int h = 0; h < s; ++h)
-						fscanf(fid, "%i", &s);
+					{
+						len = fscanf(fid, "%i", &s); (void)len;
+					}
 				}
 			}
 			fclose(fid);

@@ -70,7 +70,7 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
 {
 	BT_PROFILE("multiply");
 	// add in the mass term
-	size_t counter = 0;
+	int counter = 0;
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];
@@ -136,7 +136,7 @@ void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 
 void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero)
 {
-	size_t counter = 0;
+	int counter = 0;
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];
@@ -219,7 +219,7 @@ void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 	if (m_implicit)
 	{
 		// apply forces except gravity force
-		btVector3 gravity;
+		btVector3 gravity(btScalar(0),btScalar(0),btScalar(0));
 		for (int i = 0; i < m_lf.size(); ++i)
 		{
 			if (m_lf[i]->getForceType() == BT_GRAVITY_FORCE)
@@ -275,7 +275,7 @@ void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 
 void btDeformableBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack& residual)
 {
-	size_t counter = 0;
+	int counter = 0;
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];

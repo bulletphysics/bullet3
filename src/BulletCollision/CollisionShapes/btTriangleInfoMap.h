@@ -128,11 +128,11 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 
 	tmapData->m_hashTableSize = m_hashTable.size();
 
-	tmapData->m_hashTablePtr = tmapData->m_hashTableSize ? (int*)serializer->getUniquePointer((void*)&m_hashTable[0]) : 0;
+	tmapData->m_hashTablePtr = tmapData->m_hashTableSize ? (int*)serializer->getUniquePointer((void*)&m_hashTable[0]) : NULL;
 	if (tmapData->m_hashTablePtr)
 	{
 		//serialize an int buffer
-		int sz = sizeof(int);
+		size_t sz = sizeof(int);
 		int numElem = tmapData->m_hashTableSize;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		int* memPtr = (int*)chunk->m_oldPtr;
@@ -144,10 +144,10 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 
 	tmapData->m_nextSize = m_next.size();
-	tmapData->m_nextPtr = tmapData->m_nextSize ? (int*)serializer->getUniquePointer((void*)&m_next[0]) : 0;
+	tmapData->m_nextPtr = tmapData->m_nextSize ? (int*)serializer->getUniquePointer((void*)&m_next[0]) : NULL;
 	if (tmapData->m_nextPtr)
 	{
-		int sz = sizeof(int);
+		size_t sz = sizeof(int);
 		int numElem = tmapData->m_nextSize;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		int* memPtr = (int*)chunk->m_oldPtr;
@@ -159,10 +159,10 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 
 	tmapData->m_numValues = m_valueArray.size();
-	tmapData->m_valueArrayPtr = tmapData->m_numValues ? (btTriangleInfoData*)serializer->getUniquePointer((void*)&m_valueArray[0]) : 0;
+	tmapData->m_valueArrayPtr = tmapData->m_numValues ? (btTriangleInfoData*)serializer->getUniquePointer((void*)&m_valueArray[0]) : NULL;
 	if (tmapData->m_valueArrayPtr)
 	{
-		int sz = sizeof(btTriangleInfoData);
+		size_t sz = sizeof(btTriangleInfoData);
 		int numElem = tmapData->m_numValues;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		btTriangleInfoData* memPtr = (btTriangleInfoData*)chunk->m_oldPtr;
@@ -177,10 +177,10 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 
 	tmapData->m_numKeys = m_keyArray.size();
-	tmapData->m_keyArrayPtr = tmapData->m_numKeys ? (int*)serializer->getUniquePointer((void*)&m_keyArray[0]) : 0;
+	tmapData->m_keyArrayPtr = tmapData->m_numKeys ? (int*)serializer->getUniquePointer((void*)&m_keyArray[0]) : NULL;
 	if (tmapData->m_keyArrayPtr)
 	{
-		int sz = sizeof(int);
+		size_t sz = sizeof(int);
 		int numElem = tmapData->m_numValues;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		int* memPtr = (int*)chunk->m_oldPtr;

@@ -70,7 +70,7 @@ btPersistentManifold* btCollisionDispatcherMt::getNewManifold(const btCollisionO
 	}
 	else
 	{
-		m_batchManifoldsPtr[btGetCurrentThreadIndex()].push_back(manifold);
+		m_batchManifoldsPtr[(int)btGetCurrentThreadIndex()].push_back(manifold);
 	}
 
 	return manifold;
@@ -91,7 +91,7 @@ void btCollisionDispatcherMt::releaseManifold(btPersistentManifold* manifold)
 		m_manifoldsPtr[findIndex]->m_index1a = findIndex;
 		m_manifoldsPtr.pop_back();
 	} else {
-		m_batchReleasePtr[btGetCurrentThreadIndex()].push_back(manifold);
+		m_batchReleasePtr[(int)btGetCurrentThreadIndex()].push_back(manifold);
 		return;
 	}
 
@@ -130,7 +130,7 @@ struct CollisionDispatcherUpdater : public btIParallelForBody
 	}
 };
 
-void btCollisionDispatcherMt::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache, const btDispatcherInfo& info, btDispatcher* dispatcher)
+void btCollisionDispatcherMt::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache, const btDispatcherInfo& info, btDispatcher* /*dispatcher*/)
 {
 	const int pairCount = pairCache->getNumOverlappingPairs();
 	if (pairCount == 0)

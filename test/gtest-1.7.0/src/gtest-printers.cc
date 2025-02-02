@@ -184,7 +184,7 @@ static CharFormat PrintAsCharLiteralTo(Char c, ostream* os)
 			*os << "\\v";
 			break;
 		default:
-			if (IsPrintableAscii(c))
+			if (IsPrintableAscii((wchar_t)c))
 			{
 				*os << static_cast<char>(c);
 				return kAsIs;

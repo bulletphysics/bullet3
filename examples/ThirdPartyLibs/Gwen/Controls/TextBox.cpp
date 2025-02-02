@@ -66,7 +66,7 @@ void TextBox::InsertText(const Gwen::UnicodeString& strInsert)
 		return;
 
 	UnicodeString str = GetText();
-	str.insert(m_iCursorPos, strInsert);
+	str.insert((size_t)m_iCursorPos, strInsert);
 	SetText(str);
 
 	m_iCursorPos += (int)strInsert.size();
@@ -162,7 +162,7 @@ UnicodeString TextBox::GetSelection()
 	int iEnd = Utility::Max(m_iCursorPos, m_iCursorEnd);
 
 	const UnicodeString& str = GetText();
-	return str.substr(iStart, iEnd - iStart);
+	return str.substr((size_t)iStart, (size_t)(iEnd - iStart));
 }
 
 bool TextBox::OnKeyReturn(bool bDown)
@@ -293,7 +293,7 @@ void TextBox::SetCursorEnd(int i)
 void TextBox::DeleteText(int iStartPos, int iLength)
 {
 	UnicodeString str = GetText();
-	str.erase(iStartPos, iLength);
+	str.erase((size_t)iStartPos, (size_t)iLength);
 	SetText(str);
 
 	if (m_iCursorPos > iStartPos)
@@ -368,12 +368,12 @@ void TextBox::MakeCaratVisible()
 	// If the carat is already in a semi-good position, leave it.
 	{
 		int iRealCaratPos = iCaratPos + m_Text->X();
-		if (iRealCaratPos > Width() * 0.1f && iRealCaratPos < Width() * 0.9f)
+		if ((float)iRealCaratPos > (float)Width() * 0.1f && (float)iRealCaratPos < (float)Width() * 0.9f)
 			return;
 	}
 
 	// The ideal position is for the carat to be right in the middle
-	int idealx = -iCaratPos + Width() * 0.5f;
+	int idealx = (int)((float)-iCaratPos + (float)Width() * 0.5f);
 	;
 
 	// Don't show too much whitespace to the right

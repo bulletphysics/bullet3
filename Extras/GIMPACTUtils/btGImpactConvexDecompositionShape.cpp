@@ -129,7 +129,7 @@ public:
 		for (int vi = 0; vi < trimeshInterface->get_vertex_count(); vi++)
 		{
 			btVector3 vec;
-			trimeshInterface->get_vertex(vi, vec);
+			trimeshInterface->get_vertex((unsigned int)vi, vec);
 			vertices.push_back(vec[0]);
 			vertices.push_back(vec[1]);
 			vertices.push_back(vec[2]);
@@ -157,9 +157,9 @@ public:
 		float skinWidth = 0.0f;
 
 		ConvexDecomposition::DecompDesc desc;
-		desc.mVcount = trimeshInterface->get_vertex_count();
+		desc.mVcount = (unsigned int)trimeshInterface->get_vertex_count();
 		desc.mVertices = &vertices[0];
-		desc.mTcount = trimeshInterface->get_primitive_count();
+		desc.mTcount = (unsigned int)trimeshInterface->get_primitive_count();
 		desc.mIndices = &indices[0];
 		desc.mDepth = depth;
 		desc.mCpercent = cpercent;
@@ -192,7 +192,7 @@ btGImpactConvexDecompositionShape::~btGImpactConvexDecompositionShape()
 {
 	delete m_decomposition;
 }
-void btGImpactConvexDecompositionShape::processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const
+void btGImpactConvexDecompositionShape::processAllTriangles(btTriangleCallback* callback, const btVector3& /*aabbMin*/, const btVector3& /*aabbMax*/) const
 {
 	int part_count = m_trimeshInterfaces.size();
 	for (int part = 0; part < part_count; part++)

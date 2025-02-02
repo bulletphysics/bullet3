@@ -81,15 +81,15 @@ CommonCameraInterface* SimpleOpenGL2Renderer::getActiveCamera()
 {
 	return &m_data->m_camera;
 }
-void SimpleOpenGL2Renderer::setActiveCamera(CommonCameraInterface* cam)
+void SimpleOpenGL2Renderer::setActiveCamera(CommonCameraInterface* /*cam*/)
 {
 	b3Assert(0);  //not supported yet
 }
 
-void SimpleOpenGL2Renderer::setLightPosition(const float lightPos[3])
+void SimpleOpenGL2Renderer::setLightPosition(const float /*lightPos*/[3])
 {
 }
-void SimpleOpenGL2Renderer::setLightPosition(const double lightPos[3])
+void SimpleOpenGL2Renderer::setLightPosition(const double /*lightPos*/[3])
 {
 }
 
@@ -137,22 +137,22 @@ void SimpleOpenGL2Renderer::removeGraphicsInstance(int instanceUid)
 	m_data->m_graphicsInstancesPool.freeHandle(instanceUid);
 }
 
-bool SimpleOpenGL2Renderer::readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex)
+bool SimpleOpenGL2Renderer::readSingleInstanceTransformToCPU(float* /*position*/, float* /*orientation*/, int /*srcIndex*/)
 {
 	return false;
 }
 
-void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const float* color, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const float* /*color*/, int /*srcIndex*/)
 {
 }
-void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const double* color, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const double* /*color*/, int /*srcIndex*/)
 {
 }
 
-void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const float* scale, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const float* /*scale*/, int /*srcIndex*/)
 {
 }
-void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const double* scale, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const double* /*scale*/, int /*srcIndex*/)
 {
 }
 
@@ -161,11 +161,11 @@ int SimpleOpenGL2Renderer::getTotalNumInstances() const
 	return m_data->m_graphicsInstancesPool.getNumHandles();
 }
 
-void SimpleOpenGL2Renderer::getCameraViewMatrix(float viewMat[16]) const
+void SimpleOpenGL2Renderer::getCameraViewMatrix(float /*viewMat*/[16]) const
 {
 	b3Assert(0);
 }
-void SimpleOpenGL2Renderer::getCameraProjectionMatrix(float projMat[16]) const
+void SimpleOpenGL2Renderer::getCameraProjectionMatrix(float /*projMat*/[16]) const
 {
 	b3Assert(0);
 }
@@ -262,7 +262,7 @@ void SimpleOpenGL2Renderer::drawOpenGL(int instanceIndex)
 	glPopMatrix();
 }
 
-void SimpleOpenGL2Renderer::drawSceneInternal(int pass, int cameraUpAxis)
+void SimpleOpenGL2Renderer::drawSceneInternal(int /*pass*/, int /*cameraUpAxis*/)
 {
 	b3AlignedObjectArray<int> usedHandles;
 	m_data->m_graphicsInstancesPool.getUsedHandles(usedHandles);
@@ -511,14 +511,14 @@ int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const float*
 	return newHandle;
 }
 
-void SimpleOpenGL2Renderer::drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize)
+void SimpleOpenGL2Renderer::drawLines(const float* positions, const float color[4], int /*numPoints*/, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize)
 {
 	int pointStrideInFloats = pointStrideInBytes / 4;
 	glLineWidth(pointDrawSize);
 	for (int i = 0; i < numIndices; i += 2)
 	{
-		int index0 = indices[i];
-		int index1 = indices[i + 1];
+		int index0 = (int)indices[(size_t)i];
+		int index1 = (int)indices[(size_t)i + 1];
 
 		b3Vector3 fromColor = b3MakeVector3(color[0], color[1], color[2]);
 		b3Vector3 toColor = b3MakeVector3(color[0], color[1], color[2]);
@@ -545,7 +545,7 @@ void SimpleOpenGL2Renderer::drawLine(const float from[4], const float to[4], con
 	glEnd();
 }
 
-int SimpleOpenGL2Renderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureIndex)
+int SimpleOpenGL2Renderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int /*primitiveType*/, int textureIndex)
 {
 	SimpleGL2Shape* shape = new SimpleGL2Shape();
 	shape->m_textureIndex = textureIndex;
@@ -630,13 +630,13 @@ void SimpleOpenGL2Renderer::drawLine(const double from[4], const double to[4], c
 	glVertex3d(to[0], to[1], to[2]);
 	glEnd();
 }
-void SimpleOpenGL2Renderer::drawPoint(const float* position, const float color[4], float pointDrawSize)
+void SimpleOpenGL2Renderer::drawPoint(const float* /*position*/, const float /*color*/[4], float /*pointDrawSize*/)
 {
 }
-void SimpleOpenGL2Renderer::drawPoint(const double* position, const double color[4], double pointDrawSize)
+void SimpleOpenGL2Renderer::drawPoint(const double* /*position*/, const double /*color*/[4], double /*pointDrawSize*/)
 {
 }
-void SimpleOpenGL2Renderer::drawPoints(const float* positions, const float* colors, int numPoints, int pointStrideInBytes, float pointDrawSize)
+void SimpleOpenGL2Renderer::drawPoints(const float* /*positions*/, const float* /*colors*/, int /*numPoints*/, int /*pointStrideInBytes*/, float /*pointDrawSize*/)
 {
 }
 
@@ -644,7 +644,7 @@ void SimpleOpenGL2Renderer::updateShape(int shapeIndex, const float* vertices, i
 {
 	SimpleGL2Shape* shape = m_data->m_shapes[shapeIndex];
 	int numvertices = shape->m_vertices.size();
-	b3Assert(numVertices = numvertices);
+	b3Assert(numVertices == numvertices);
 	if (numVertices != numvertices)
 		return;
 

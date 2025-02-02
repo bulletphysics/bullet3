@@ -36,6 +36,8 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 	b3PhysicsClientHandle sm = 0;
 	int udpPort = 1234;
 	int tcpPort = 6667;
+	(void)udpPort;
+	(void)tcpPort;
 	int key = SHARED_MEMORY_KEY;
 
 	switch (mode)
@@ -59,14 +61,15 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 		}
 		case eCONNECT_UDP:
 		{
+#ifdef BT_ENABLE_ENET
 			if (portOrKey >= 0)
 			{
 				udpPort = portOrKey;
 			}
-#ifdef BT_ENABLE_ENET
 
 			sm = b3ConnectPhysicsUDP(hostName.c_str(), udpPort);
 #else
+			(void)hostName;
 			b3Warning("UDP is not enabled in this build");
 #endif  //BT_ENABLE_ENET
 
@@ -74,11 +77,11 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 		}
 		case eCONNECT_TCP:
 		{
+#ifdef BT_ENABLE_CLSOCKET
 			if (portOrKey >= 0)
 			{
 				tcpPort = portOrKey;
 			}
-#ifdef BT_ENABLE_CLSOCKET
 
 			sm = b3ConnectPhysicsTCP(hostName.c_str(), tcpPort);
 #else

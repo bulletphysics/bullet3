@@ -38,13 +38,13 @@ public:
 			int xres = 20;
 			int yres = 20;
 
-			b3Vector4 color0 = b3MakeVector4(0.1, 0.1, 0.1, 1);
-			b3Vector4 color1 = b3MakeVector4(0.6, 0.6, 0.6, 1);
+			b3Vector4 color0 = b3MakeVector4(b3Scalar(0.1), b3Scalar(0.1), b3Scalar(0.1), 1);
+			b3Vector4 color1 = b3MakeVector4(b3Scalar(0.6), b3Scalar(0.6), b3Scalar(0.6), 1);
 			m_app->registerGrid(xres, yres, color0, color1);
 		}
 
 		{
-			int boxId = m_app->registerCubeShape(0.1, 0.1, 0.1);
+			int boxId = m_app->registerCubeShape(0.1f, 0.1f, 0.1f);
 
 			for (int i = -numCubesX / 2; i < numCubesX / 2; i++)
 			{
@@ -53,7 +53,7 @@ public:
 					b3Vector3 pos = b3MakeVector3(i, j, j);
 					pos[app->getUpAxis()] = 1;
 					b3Quaternion orn(0, 0, 0, 1);
-					b3Vector4 color = b3MakeVector4(0.3, 0.3, 0.3, 1);
+					b3Vector4 color = b3MakeVector4(b3Scalar(0.3), b3Scalar(0.3), b3Scalar(0.3), 1);
 					b3Vector3 scaling = b3MakeVector3(1, 1, 1);
 					int instanceId = m_app->m_renderer->registerGraphicsInstance(boxId, pos, orn, color, scaling);
 					m_movingInstances.push_back(instanceId);
@@ -67,7 +67,7 @@ public:
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -76,7 +76,7 @@ public:
 	virtual void exitPhysics()
 	{
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_x += 0.01f;
 		m_y += 0.01f;
@@ -87,7 +87,7 @@ public:
 			for (int j = -numCubesY / 2; j < numCubesY / 2; j++)
 			{
 				b3Vector3 pos = b3MakeVector3(i, j, j);
-				pos[m_app->getUpAxis()] = 1 + 1 * b3Sin(m_x + i - j);
+				pos[m_app->getUpAxis()] = 1 + 1 * b3Sin(m_x + (float)(i - j));
 				float orn[4] = {0, 0, 0, 1};
 				m_app->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, m_movingInstances[index++]);
 			}
@@ -102,15 +102,15 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -120,7 +120,7 @@ public:
 		float dist = 13;
 		float pitch = -13;
 		float yaw = 50;
-		float targetPos[3] = {-1, 0, -0.3};
+		float targetPos[3] = {-1, 0, -0.3f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

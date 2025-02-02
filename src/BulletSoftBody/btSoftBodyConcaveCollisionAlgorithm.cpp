@@ -112,9 +112,12 @@ void btSoftBodyTriangleCallback::processTriangle(btVector3* triangle, int partId
 		ebtDispatcherQueryType algoType = m_resultOut->m_closestPointDistanceThreshold > 0 ? BT_CLOSEST_POINT_ALGORITHMS : BT_CONTACT_POINT_ALGORITHMS;
 		btCollisionAlgorithm* colAlgo = ci.m_dispatcher1->findAlgorithm(&softBody, &triBody, 0, algoType);  //m_manifoldPtr);
 
-		colAlgo->processCollision(&softBody, &triBody, *m_dispatchInfoPtr, m_resultOut);
-		colAlgo->~btCollisionAlgorithm();
-		ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);
+		if(colAlgo && m_dispatchInfoPtr)
+		{
+			colAlgo->processCollision(&softBody, &triBody, *m_dispatchInfoPtr, m_resultOut);
+			colAlgo->~btCollisionAlgorithm();
+			ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);
+		}
 
 		return;
 	}
@@ -154,9 +157,12 @@ void btSoftBodyTriangleCallback::processTriangle(btVector3* triangle, int partId
 		ebtDispatcherQueryType algoType = m_resultOut->m_closestPointDistanceThreshold > 0 ? BT_CLOSEST_POINT_ALGORITHMS : BT_CONTACT_POINT_ALGORITHMS;
 		btCollisionAlgorithm* colAlgo = ci.m_dispatcher1->findAlgorithm(&softBody, &triBody, 0, algoType);  //m_manifoldPtr);
 
-		colAlgo->processCollision(&softBody, &triBody, *m_dispatchInfoPtr, m_resultOut);
-		colAlgo->~btCollisionAlgorithm();
-		ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);
+		if(colAlgo && m_dispatchInfoPtr)
+		{
+			colAlgo->processCollision(&softBody, &triBody, *m_dispatchInfoPtr, m_resultOut);
+			colAlgo->~btCollisionAlgorithm();
+			ci.m_dispatcher1->freeCollisionAlgorithm(colAlgo);
+		}
 
 		triIndex.m_childShape = tm;
 		m_shapeCache.insert(triKey, triIndex);

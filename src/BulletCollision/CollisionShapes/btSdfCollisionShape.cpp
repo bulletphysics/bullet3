@@ -58,7 +58,7 @@ const btVector3& btSdfCollisionShape::getLocalScaling() const
 {
 	return m_data->m_localScaling;
 }
-void btSdfCollisionShape::calculateLocalInertia(btScalar mass, btVector3& inertia) const
+void btSdfCollisionShape::calculateLocalInertia(btScalar /*mass*/, btVector3& inertia) const
 {
 	inertia.setValue(0, 0, 0);
 }
@@ -75,7 +75,7 @@ btScalar btSdfCollisionShape::getMargin() const
 	return m_data->m_margin;
 }
 
-void btSdfCollisionShape::processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const
+void btSdfCollisionShape::processAllTriangles(btTriangleCallback* /*callback*/, const btVector3& /*aabbMin*/, const btVector3& /*aabbMax*/) const
 {
 	//not yet
 }
@@ -85,7 +85,7 @@ bool btSdfCollisionShape::queryPoint(const btVector3& ptInSDF, btScalar& distOut
 	int field = 0;
 	btVector3 grad;
 	double dist;
-	bool hasResult = m_data->m_sdf.interpolate(field, dist, ptInSDF, &grad);
+	bool hasResult = m_data->m_sdf.interpolate((unsigned int)field, dist, ptInSDF, &grad);
 	if (hasResult)
 	{
 		normal.setValue(grad[0], grad[1], grad[2]);

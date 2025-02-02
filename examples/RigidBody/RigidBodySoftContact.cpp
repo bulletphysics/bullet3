@@ -43,7 +43,7 @@ struct RigidBodySoftContact : public CommonRigidBodyBase
 		float dist = 3;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -142,6 +142,7 @@ void RigidBodySoftContact::initPhysics()
 					btRigidBody* body;
 					body = createRigidBody(mass, startTransform, colShape);
 					//body->setAngularVelocity(btVector3(1,1,1));
+					(void)body;
 				}
 			}
 		}

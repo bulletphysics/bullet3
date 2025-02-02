@@ -19,6 +19,7 @@ subject to the following restrictions:
 struct btDispatcherInfo;
 class btDispatcher;
 #include "btBroadphaseProxy.h"
+#include "LinearMath/btOverride.h"
 
 class btOverlappingPairCache;
 
@@ -35,7 +36,7 @@ struct btBroadphaseRayCallback : public btBroadphaseAabbCallback
 	unsigned int m_signs[3];
 	btScalar m_lambda_max;
 
-	virtual ~btBroadphaseRayCallback() {}
+	virtual ~btBroadphaseRayCallback() BT_OVERRIDE {}
 
 protected:
 	btBroadphaseRayCallback() {}

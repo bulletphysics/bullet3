@@ -75,7 +75,7 @@ TARGET_LINK_LIBRARIES(App_RobotSimulator BulletRobotics BulletExampleBrowserLib 
 
 IF(WIN32)
 	IF(BUILD_ENET OR BUILD_CLSOCKET)
-		TARGET_LINK_LIBRARIES(App_RobotSimulator ws2_32 Winmm)
+		TARGET_LINK_LIBRARIES(App_RobotSimulator ws2_32 winmm)
 	ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ENDIF(WIN32)
 
@@ -106,7 +106,7 @@ TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI BulletRobotics BulletFileLoader B
 
 IF(WIN32)
 	IF(BUILD_ENET OR BUILD_CLSOCKET)
-		TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI ws2_32 Winmm)
+		TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI ws2_32 winmm)
 	ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ELSE()
 	IF(APPLE)
@@ -143,7 +143,7 @@ TARGET_LINK_LIBRARIES(App_HelloBulletRobotics BulletRobotics BulletFileLoader Bu
 
 IF(WIN32)
         IF(BUILD_ENET OR BUILD_CLSOCKET)
-                TARGET_LINK_LIBRARIES(App_HelloBulletRobotics ws2_32 Winmm)
+                TARGET_LINK_LIBRARIES(App_HelloBulletRobotics ws2_32 winmm)
         ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ELSE()
 	IF(NOT APPLE)

@@ -16,7 +16,7 @@ const int CONTROL_RATE = 500;
 
 // Bullet globals
 b3PhysicsClientHandle kPhysClient = 0;
-const b3Scalar FIXED_TIMESTEP = 1.0 / ((b3Scalar)CONTROL_RATE);
+const b3Scalar FIXED_TIMESTEP = b3Scalar(1.0 / ((b3Scalar)CONTROL_RATE));
 // temp vars used a lot
 b3SharedMemoryCommandHandle command;
 b3SharedMemoryStatusHandle statusHandle;
@@ -77,12 +77,12 @@ int main(int argc, char* argv[])
 	}
 
 	//disable default linear/angular damping
-	b3SharedMemoryCommandHandle command = b3InitChangeDynamicsInfo(kPhysClient);
+	b3SharedMemoryCommandHandle commandL = b3InitChangeDynamicsInfo(kPhysClient);
 	double linearDamping = 0;
 	double angularDamping = 0;
-	b3ChangeDynamicsInfoSetLinearDamping(command, twojoint, linearDamping);
-	b3ChangeDynamicsInfoSetAngularDamping(command, twojoint, angularDamping);
-	statusHandle = b3SubmitClientCommandAndWaitStatus(kPhysClient, command);
+	b3ChangeDynamicsInfoSetLinearDamping(commandL, twojoint, linearDamping);
+	b3ChangeDynamicsInfoSetAngularDamping(commandL, twojoint, angularDamping);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(kPhysClient, commandL);
 
 	int numJoints = b3GetNumJoints(kPhysClient, twojoint);
 	printf("twojoint numjoints = %d\n", numJoints);
@@ -99,10 +99,11 @@ int main(int argc, char* argv[])
 			continue;
 		}
 		// Reset before torque control - see #1459
-		command = b3JointControlCommandInit2(kPhysClient, twojoint, CONTROL_MODE_VELOCITY);
+		commandL = b3JointControlCommandInit2(kPhysClient, twojoint, CONTROL_MODE_VELOCITY);
 		b3JointControlSetDesiredVelocity(command, jointInfo.m_uIndex, 0);
 		b3JointControlSetMaximumForce(command, jointInfo.m_uIndex, 0);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(kPhysClient, command);
+		(void)commandL;
 	}
 
 	// loop
@@ -114,13 +115,15 @@ int main(int argc, char* argv[])
 		simTimeS += 0.000001 * dtus1;
 		// apply some torque
 		b3GetJointInfo(kPhysClient, twojoint, jointNameToId["joint_2"], &jointInfo);
-		command = b3JointControlCommandInit2(kPhysClient, twojoint, CONTROL_MODE_TORQUE);
+		commandL = b3JointControlCommandInit2(kPhysClient, twojoint, CONTROL_MODE_TORQUE);
 		b3JointControlSetDesiredForceTorque(command, jointInfo.m_uIndex, 0.5 * sin(10 * simTimeS));
 		statusHandle = b3SubmitClientCommandAndWaitStatus(kPhysClient, command);
+		(void)commandL;
 
 		// get joint values
-		command = b3RequestActualStateCommandInit(kPhysClient, twojoint);
+		commandL = b3RequestActualStateCommandInit(kPhysClient, twojoint);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(kPhysClient, command);
+		(void)commandL;
 		b3GetJointState(kPhysClient, statusHandle, jointNameToId["joint_1"], &state);
 		q[0] = state.m_jointPosition;
 		v[0] = state.m_jointVelocity;

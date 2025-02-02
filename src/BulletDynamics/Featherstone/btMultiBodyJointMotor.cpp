@@ -40,7 +40,7 @@ void btMultiBodyJointMotor::finalizeMultiDof()
 	// note: we rely on the fact that data.m_jacobians are
 	// always initialized to zero by the Constraint ctor
 	int linkDoF = 0;
-	unsigned int offset = 6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF);
+	unsigned int offset = (unsigned int)(6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF));
 
 	// row 0: the lower bound
 	// row 0: the lower bound

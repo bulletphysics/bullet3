@@ -109,19 +109,25 @@ enum GIM_SCALAR_TYPES
 		a = a - b;             \
 	}
 
-#define GIM_INV_SQRT(va, isva)                         \
+#define GIM_INV_SQRT(va, isva)                       \
 	{                                                  \
-		if (va <= 0.0000001f)                          \
-		{                                              \
-			isva = G_REAL_INFINITY;                    \
-		}                                              \
-		else                                           \
-		{                                              \
-			GREAL _x = va * 0.5f;                      \
-			GUINT _y = 0x5f3759df - (GIM_IR(va) >> 1); \
-			isva = GIM_FR(_y);                         \
-			isva = isva * (1.5f - (_x * isva * isva)); \
-		}                                              \
+		const bool isFloat = sizeof(va)==sizeof(float);  \
+		if(!isFloat)                                     \
+			isva = 1.0 / sqrt(va);                         \
+		else                                             \
+		{                                                \
+			if (va <= 0.0000001f)                          \
+			{                                              \
+				isva = G_REAL_INFINITY;                      \
+			}                                              \
+			else                                           \
+			{                                              \
+				GREAL _x = va * 0.5f;                        \
+				GUINT _y = 0x5f3759df - (GIM_IR(va) >> 1);   \
+				isva = GIM_FR(_y);                           \
+				isva = isva * (1.5f - (_x * isva * isva));   \
+			}                                              \
+		}\
 	}
 
 #define GIM_SQRT(va, sva)      \

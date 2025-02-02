@@ -76,7 +76,7 @@ bool ConvexBuilder::isDuplicate(unsigned int i1, unsigned int i2, unsigned int i
 	return dcount == 3;
 }
 
-void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr, VertexLookup vc, UintVector &indices)
+void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr, VertexLookup vc, UintVector & /*indices*/)
 {
 	unsigned int *src = cr.mHullIndices;
 
@@ -93,6 +93,9 @@ void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr, VertexL
 		i1 = Vl_getIndex(vc, p1);
 		i2 = Vl_getIndex(vc, p2);
 		i3 = Vl_getIndex(vc, p3);
+		(void)i1;
+		(void)i2;
+		(void)i3;
 
 #if 0
 		bool duplicate = false;
@@ -138,7 +141,7 @@ CHull *ConvexBuilder::canMerge(CHull *a, CHull *b)
 
 	unsigned int vcount = Vl_getVcount(vc);
 	const float *vertices = Vl_getVertices(vc);
-	unsigned int tcount = indices.size() / 3;
+	unsigned int tcount = (unsigned int)(indices.size() / 3);
 
 	//don't do anything if hull is empty
 	if (!tcount)
@@ -207,10 +210,10 @@ bool ConvexBuilder::combineHulls(void)
 					++i;
 					while (i != mChulls.size())
 					{
-						CHull *cr = mChulls[i];
-						if (cr != match)
+						CHull *ch = mChulls[i];
+						if (ch != match)
 						{
-							output.push_back(cr);
+							output.push_back(ch);
 						}
 						i++;
 					}
@@ -283,9 +286,9 @@ unsigned int ConvexBuilder::process(const ConvexDecomposition::DecompDesc &desc)
 			hdesc.SetHullFlag(ConvexDecomposition::QF_SKIN_WIDTH);  // do skin width computation.
 		}
 
-		ConvexDecomposition::HullError ret = hl.CreateConvexHull(hdesc, result);
+		ConvexDecomposition::HullError retCreate = hl.CreateConvexHull(hdesc, result);
 
-		if (ret == ConvexDecomposition::QE_OK)
+		if (retCreate == ConvexDecomposition::QE_OK)
 		{
 			ConvexDecomposition::ConvexResult r(result.mNumOutputVertices, result.mOutputVertices, result.mNumFaces, result.mIndices);
 
@@ -311,7 +314,7 @@ unsigned int ConvexBuilder::process(const ConvexDecomposition::DecompDesc &desc)
 		delete cr;
 	}
 
-	ret = mChulls.size();
+	ret = (unsigned int)mChulls.size();
 
 	mChulls.clear();
 

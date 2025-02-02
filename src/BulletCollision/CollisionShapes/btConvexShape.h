@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "LinearMath/btMatrix3x3.h"
 #include "btCollisionMargin.h"
 #include "LinearMath/btAlignedAllocator.h"
+#include "LinearMath/btOverride.h"
 
 #define MAX_PREFERRED_PENETRATION_DIRECTIONS 10
 
@@ -36,7 +37,7 @@ public:
 
 	btConvexShape();
 
-	virtual ~btConvexShape();
+	virtual ~btConvexShape() BT_OVERRIDE;
 
 	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const = 0;
 
@@ -56,16 +57,16 @@ public:
 	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const = 0;
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const = 0;
+	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE = 0;
 
 	virtual void getAabbSlow(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const = 0;
 
-	virtual void setLocalScaling(const btVector3& scaling) = 0;
-	virtual const btVector3& getLocalScaling() const = 0;
+	virtual void setLocalScaling(const btVector3& scaling) BT_OVERRIDE = 0;
+	virtual const btVector3& getLocalScaling() const BT_OVERRIDE = 0;
 
-	virtual void setMargin(btScalar margin) = 0;
+	virtual void setMargin(btScalar margin) BT_OVERRIDE = 0;
 
-	virtual btScalar getMargin() const = 0;
+	virtual btScalar getMargin() const BT_OVERRIDE = 0;
 
 	virtual int getNumPreferredPenetrationDirections() const = 0;
 

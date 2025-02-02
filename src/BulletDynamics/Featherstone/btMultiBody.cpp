@@ -99,9 +99,9 @@ btMultiBody::btMultiBody(int n_links,
 	: m_baseCollider(0),
 	  m_baseName(0),
 	  m_basePos(0, 0, 0),
-	  m_baseQuat(0, 0, 0, 1),
-      m_basePos_interpolate(0, 0, 0),
-      m_baseQuat_interpolate(0, 0, 0, 1),
+		m_basePos_interpolate(0, 0, 0),
+		m_baseQuat(0, 0, 0, 1),
+		m_baseQuat_interpolate(0, 0, 0, 1),
 	  m_baseMass(mass),
 	  m_baseInertia(inertia),
 
@@ -795,6 +795,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	btSpatialForceVector *h = (btSpatialForceVector *)(m_dofCount > 0 ? &m_vectorBuf[0] : 0);
 	btSpatialMotionVector *spatAcc = (btSpatialMotionVector *)v_ptr;
 	v_ptr += num_links * 2 + 2;
+	(void)v_ptr;
 	//
 	// Y_i, invD_i
 	btScalar *invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : 0;
@@ -811,6 +812,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	btSymmetricSpatialDyad dyadTemp;            //inertia matrix temp
 	btSpatialTransformationMatrix fromWorld;
 	fromWorld.m_trnVec.setZero();
+	D[0] = 0;
 	/////////////////
 
 	// ptr to the joint accel part of the output
@@ -968,6 +970,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 		//printf("c[%d] = [%.4f %.4f %.4f]\n", i, coriolis_bottom_linear[i].x(), coriolis_bottom_linear[i].y(), coriolis_bottom_linear[i].z());
 	}
 
+	if(num_links)
+		btAssert(invD && Y && h);
 	// 'Downward' loop.
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
@@ -1109,6 +1113,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 		spatAcc[0] = -result;
 	}
 
+	if(num_links)
+		btAssert(h && invD && Y);
 	// now do the loop over the m_links
 	for (int i = 0; i < num_links; ++i)
 	{
@@ -1343,12 +1349,12 @@ void btMultiBody::solveImatrix(const btVector3 &rhs_top, const btVector3 &rhs_bo
 		//multiply result = invI * rhs
 		{
 			btVector3 vtop = invI_upper_left * rhs_top;
-			btVector3 tmp;
-			tmp = invIupper_right * rhs_bot;
-			vtop += tmp;
+			btVector3 tmpVec;
+			tmpVec = invIupper_right * rhs_bot;
+			vtop += tmpVec;
 			btVector3 vbot = invI_lower_left * rhs_top;
-			tmp = invI_lower_right * rhs_bot;
-			vbot += tmp;
+			tmpVec = invI_lower_right * rhs_bot;
+			vbot += tmpVec;
 			result[0] = vtop[0];
 			result[1] = vtop[1];
 			result[2] = vtop[2];
@@ -1408,12 +1414,12 @@ void btMultiBody::solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionV
 		//multiply result = invI * rhs
 		{
 			btVector3 vtop = invI_upper_left * rhs.getLinear();
-			btVector3 tmp;
-			tmp = invIupper_right * rhs.getAngular();
-			vtop += tmp;
+			btVector3 tmpVec;
+			tmpVec = invIupper_right * rhs.getAngular();
+			vtop += tmpVec;
 			btVector3 vbot = invI_lower_left * rhs.getLinear();
-			tmp = invI_lower_right * rhs.getAngular();
-			vbot += tmp;
+			tmpVec = invI_lower_right * rhs.getAngular();
+			vbot += tmpVec;
 			result.setVector(vtop, vbot);
 		}
 	}
@@ -1459,6 +1465,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	const btSpatialForceVector *h = (btSpatialForceVector *)(m_dofCount > 0 ? &m_vectorBuf[0] : 0);
 	btSpatialMotionVector *spatAcc = (btSpatialMotionVector *)v_ptr;
 	v_ptr += num_links * 2 + 2;
+	(void)v_ptr;
 
 	// Y_i (scratch), invD_i (cached)
 	const btScalar *invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : 0;
@@ -1492,6 +1499,8 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 		zeroAccSpatFrc[i + 1].setZero();
 	}
 
+	if(num_links)
+		btAssert(invD);
 	// 'Downward' loop.
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
@@ -1552,6 +1561,8 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	}
 
 	// now do the loop over the m_links
+	if(num_links)
+		btAssert(h && invD && Y);
 	for (int i = 0; i < num_links; ++i)
 	{
 		if(isLinkAndAllAncestorsKinematic(i))
@@ -1950,7 +1961,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 {
 	// temporary space
 	int num_links = getNumLinks();
-	int m_dofCount = getNumDofs();
+	int dofCount = getNumDofs();
 	scratch_v.resize(3 * num_links + 3);  //(num_links + base) offsets + (num_links + base) normals_lin + (num_links + base) normals_ang
 	scratch_m.resize(num_links + 1);
 
@@ -1963,14 +1974,16 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	v_ptr += num_links + 1;
 	btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
 
-	//scratch_r.resize(m_dofCount);
-	//btScalar *results = m_dofCount > 0 ? &scratch_r[0] : 0;
+	//scratch_r.resize(dofCount);
+	//btScalar *results = dofCount > 0 ? &scratch_r[0] : 0;
 
-    scratch_r1.resize(m_dofCount+num_links);
-    btScalar * results = m_dofCount > 0 ? &scratch_r1[0] : 0;
-    btScalar* links = num_links? &scratch_r1[m_dofCount] : 0;
+    scratch_r1.resize(dofCount+num_links);
+    btScalar * results = dofCount > 0 ? &scratch_r1[0] : 0;
+    btScalar* links = num_links? &scratch_r1[dofCount] : 0;
     int numLinksChildToRoot=0;
     int l = link;
+	if(l != -1)
+		btAssert(links);
     while (l != -1)
     {
         links[numLinksChildToRoot++]=l;
@@ -2002,7 +2015,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	n_local_ang[0] = rot_from_world[0] * normal_ang_world;
 
 	// Set remaining jac values to zero for now.
-	for (int i = 6; i < 6 + m_dofCount; ++i)
+	for (int i = 6; i < 6 + dofCount; ++i)
 	{
 		jac[i] = 0;
 	}
@@ -2010,6 +2023,8 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	// Qdot coefficients, if necessary.
 	if (num_links > 0 && link > -1)
 	{
+		btAssert(results);
+
         // TODO: (Also, we are making 3 separate calls to this function, for the normal & the 2 friction directions,
 		// which is resulting in repeated work being done...)
 
@@ -2313,7 +2328,7 @@ const char *btMultiBody::serialize(void *dataBuffer, class btSerializer *seriali
 	mbd->m_numLinks = this->getNumLinks();
 	if (mbd->m_numLinks)
 	{
-		int sz = sizeof(btMultiBodyLinkData);
+		size_t sz = sizeof(btMultiBodyLinkData);
 		int numElem = mbd->m_numLinks;
 		btChunk *chunk = serializer->allocate(sz, numElem);
 		btMultiBodyLinkData *memPtr = (btMultiBodyLinkData *)chunk->m_oldPtr;

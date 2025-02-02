@@ -34,7 +34,7 @@ static btScalar gBoxRestitution = 0;  // set box restitution to 0
 static btScalar gSphereFriction = 1;  // set sphere friction to 1
 
 static btScalar gSphereRollingFriction = 1;     // set sphere rolling friction to 1
-static btScalar gSphereSpinningFriction = 0.3;  // set sphere spinning friction to 0.3
+static btScalar gSphereSpinningFriction = btScalar(0.3);  // set sphere spinning friction to 0.3
 
 static btScalar gSphereRestitution = 0;  // set sphere restitution to 0
 
@@ -60,7 +60,7 @@ struct InclinedPlaneExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -293,7 +293,7 @@ void InclinedPlaneExample::renderScene()
 	CommonRigidBodyBase::renderScene();
 }
 
-bool InclinedPlaneExample::keyboardCallback(int key, int state)
+bool InclinedPlaneExample::keyboardCallback(int key, int /*state*/)
 {
 	//	b3Printf("Key pressed: %d in state %d \n",key,state);
 
@@ -346,7 +346,7 @@ void onSphereRestitutionChanged(float restitution, void*)
 	}
 }
 
-void onRampInclinationChanged(float inclination, void*)
+void onRampInclinationChanged(float /*inclination*/, void*)
 {
 	if (ramp)
 	{

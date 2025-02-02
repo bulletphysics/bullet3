@@ -49,20 +49,21 @@ static std::vector<btScalar> qd;
 static std::vector<std::string> qd_name;
 static std::vector<std::string> q_name;
 
+// clang-format off
 static btVector4 sJointCurveColors[8] =
-	{
-		btVector4(1, 0.3, 0.3, 1),
-		btVector4(0.3, 1, 0.3, 1),
-		btVector4(0.3, 0.3, 1, 1),
-		btVector4(0.3, 1, 1, 1),
-		btVector4(1, 0.3, 1, 1),
-		btVector4(1, 1, 0.3, 1),
-		btVector4(1, 0.7, 0.7, 1),
-		btVector4(0.7, 1, 1, 1),
-
+{
+		btVector4(btScalar(1)  , btScalar(0.3), btScalar(0.3), btScalar(1)),
+		btVector4(btScalar(0.3), btScalar(1)  , btScalar(0.3), btScalar(1)),
+		btVector4(btScalar(0.3), btScalar(0.3), btScalar(1)  , btScalar(1)),
+		btVector4(btScalar(0.3), btScalar(1)  , btScalar(1)  , btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(0.3), btScalar(1)  , btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(1)  , btScalar(0.3), btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(0.7), btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(0.7), btScalar(1)  , btScalar(1)  , btScalar(1)),
 };
+// clang-format on
 
-void toggleUseInverseModel(int buttonId, bool buttonState, void* userPointer)
+void toggleUseInverseModel(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
 {
 	useInverseModel = !useInverseModel;
 	// todo(thomas) is there a way to get a toggle button with changing text?
@@ -213,24 +214,24 @@ void InverseDynamicsExample::initPhysics()
 			m_inverseModel = btInverseDynamics::CreateMultiBodyTree(id_creator);
 		}
 		// add joint target controls
-		qd.resize(m_multiBody->getNumDofs());
+		qd.resize((size_t)m_multiBody->getNumDofs());
 
-		qd_name.resize(m_multiBody->getNumDofs());
-		q_name.resize(m_multiBody->getNumDofs());
+		qd_name.resize((size_t)m_multiBody->getNumDofs());
+		q_name.resize((size_t)m_multiBody->getNumDofs());
 
 		if (m_timeSeriesCanvas && m_guiHelper->getParameterInterface())
 		{
-			for (std::size_t dof = 0; dof < qd.size(); dof++)
+			for (unsigned int dof = 0; dof < qd.size(); dof++)
 			{
 				qd[dof] = 0;
 				char tmp[25];
-				sprintf(tmp, "q_desired[%lu]", dof);
+				sprintf(tmp, "q_desired[%u]", dof);
 				qd_name[dof] = tmp;
 				SliderParams slider(qd_name[dof].c_str(), &qd[dof]);
-				slider.m_minVal = -3.14;
-				slider.m_maxVal = 3.14;
+				slider.m_minVal = -3.14f;
+				slider.m_maxVal = 3.14f;
 
-				sprintf(tmp, "q[%lu]", dof);
+				sprintf(tmp, "q[%lu]", (unsigned long)dof);
 				q_name[dof] = tmp;
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 				btVector4 color = sJointCurveColors[dof & 7];
@@ -242,7 +243,7 @@ void InverseDynamicsExample::initPhysics()
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void InverseDynamicsExample::stepSimulation(float deltaTime)
+void InverseDynamicsExample::stepSimulation(float /*deltaTime*/)
 {
 	if (m_multiBody)
 	{
@@ -267,7 +268,7 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
 
 			// pd_control is either desired joint torque for pd control,
 			// or the feedback contribution to nu
-			pd_control(dof) = kd * (qd_dot - qdot(dof)) + kp * (qd[dof] - q(dof));
+			pd_control(dof) = kd * (qd_dot - qdot(dof)) + kp * (qd[(size_t)dof] - q(dof));
 			// nu is the desired joint acceleration for computed torque control
 			nu(dof) = qd_ddot + pd_control(dof);
 		}
@@ -333,10 +334,10 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
 	{
 		// todo(thomas) check that this is correct:
 		// want to advance by 10ms, with 1ms timesteps
-		m_dynamicsWorld->stepSimulation(1e-3, 0);  //,1e-3);
+		m_dynamicsWorld->stepSimulation(btScalar(1e-3), 0);  //,1e-3);
 		btAlignedObjectArray<btQuaternion> scratch_q;
 		btAlignedObjectArray<btVector3> scratch_m;
-		m_multiBody->forwardKinematics(scratch_q, scratch_m);
+		if(m_multiBody) m_multiBody->forwardKinematics(scratch_q, scratch_m);
 #if 0
 		for (int i = 0; i < m_multiBody->getNumLinks(); i++)
 		{

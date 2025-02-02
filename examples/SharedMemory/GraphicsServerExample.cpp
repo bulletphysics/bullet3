@@ -46,7 +46,7 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
 
 
 	//create packetData with [int packetSizeInBytes, status, streamBytes)
-	packetData.resize(4 + sizeof(GraphicsSharedMemoryStatus) + serverStatus.m_numDataStreamBytes);
+	packetData.resize((int)(4 + sizeof(GraphicsSharedMemoryStatus) + serverStatus.m_numDataStreamBytes));
 	int sz = packetData.size();
 	int curPos = 0;
 
@@ -56,9 +56,9 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
 		printf("serverStatus packed size = %d\n", sz);
 	}
 
-	MySerializeInt(sz, &packetData[curPos]);
+	MySerializeInt((unsigned int)sz, &packetData[curPos]);
 	curPos += 4;
-	for (int i = 0; i < sizeof(GraphicsSharedMemoryStatus); i++)
+	for (int i = 0; i < (int)sizeof(GraphicsSharedMemoryStatus); i++)
 	{
 		packetData[i + curPos] = statBytes[i];
 	}
@@ -67,10 +67,10 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
    	 printf("serverStatus.m_numDataStreamBytes=%d\n", serverStatus.m_numDataStreamBytes);
 	for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
 	{
-		packetData[i + curPos] = buffer[i];
+		packetData[i + curPos] = (unsigned char)buffer[i];
 	}
 
-	pClient->Send(&packetData[0], packetData.size());
+	pClient->Send(&packetData[0], (size_t)packetData.size());
 	if (gVerboseNetworkMessagesServer)
 		printf("pClient->Send serverStatus: %d\n", packetData.size());
 }
@@ -143,7 +143,7 @@ enum TCPCommunicationEnums
 	eTCPHasTerminated
 };
 
-void TCPThreadFunc(void* userPtr, void* lsMemory)
+void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("TCPThreadFunc thread started\n");
 
@@ -161,17 +161,17 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 		args->m_cs->setSharedParam(0, eTCPIsInitialized);
 		args->m_cs->unlock();
 
-		double deltaTimeInSeconds = 0;
-		int numCmdSinceSleep1ms = 0;
-		unsigned long long int prevTime = clock.getTimeMicroseconds();
+		// double deltaTimeInSeconds = 0;
+		// int numCmdSinceSleep1ms = 0;
+		// unsigned long long int prevTime = clock.getTimeMicroseconds();
 
 #ifdef BT_ENABLE_CLSOCKET
-		b3Clock clock;
-		double timeOutInSeconds = 10;
+		b3Clock clock1;
+		// double timeOutInSeconds = 10;
 
 		
 		bool isPhysicsClientConnected = true;
-		bool exitRequested = false;
+		// bool exitRequested = false;
 
 		
 		if (!isPhysicsClientConnected)
@@ -190,7 +190,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 		//--------------------------------------------------------------------------
 		socket.Initialize();
 
-		socket.Listen("localhost", args->m_port);
+		socket.Listen("localhost", (uint16)args->m_port);
 
 		socket.SetBlocking();
 
@@ -310,7 +310,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 								args->m_cmdPtr = 0;
 								
 
-								int type = *(int*)&bytesReceived[0];
+								// int type = *(int*)&bytesReceived[0];
 
 								
 								if (numBytesRec == sizeof(GraphicsSharedMemoryCommand))
@@ -330,13 +330,13 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 									{
 									case GFX_CMD_0:
 									{
-										int axis = args->m_cmdPtr->m_upAxisYCommand.m_enableUpAxisY ? 1 : 2;
+										// int axis = args->m_cmdPtr->m_upAxisYCommand.m_enableUpAxisY ? 1 : 2;
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
 											clock.usleep(0);
 										}
-										bool done = false;
+										// bool done = false;
 										//guiHelper.setUpAxis(axis);
 
 										
@@ -355,7 +355,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										//guiHelper.setVisualizerFlag(
 										//	args->m_cmdPtr->m_visualizerFlagCommand.m_visualizerFlag,
@@ -385,23 +385,23 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 											if (pClient->Receive(args->m_cmdPtr->m_uploadDataCommand.m_numBytes))
 											{
 												//heuristic to detect disconnected clients
-												CSimpleSocket::CSocketError err = pClient->GetSocketError();
-												if (err != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
+												CSimpleSocket::CSocketError error = pClient->GetSocketError();
+												if (error != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
 												{
 													curNumErr++;
-													//printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
+													//printf("TCP Connection error = %d, curNumErr = %d\n", (int)error, curNumErr);
 												}
-												char* msg2 = (char*)pClient->GetData();
-												int numBytesRec2 = pClient->GetBytesReceived();
+												char* msg3 = (char*)pClient->GetData();
+												int numBytesRec3 = pClient->GetBytesReceived();
 												if (gVerboseNetworkMessagesServer)
-													printf("received %d bytes (total=%d)\n", numBytesRec2, received);
+													printf("received %d bytes (total=%d)\n", numBytesRec3, received);
 												
-												for (int i = 0; i < numBytesRec2; i++)
+												for (int i = 0; i < numBytesRec3; i++)
 												{
-													args->m_dataSlots[slot][i+ offset] = msg2[i];
+													args->m_dataSlots[slot][i+ offset] = (unsigned char)msg3[i];
 												}
-												offset += numBytesRec2;
-												received += numBytesRec2;
+												offset += numBytesRec3;
+												received += numBytesRec3;
 											}
 										}
 										if (gVerboseNetworkMessagesServer)
@@ -416,7 +416,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										//const unsigned char* texels = (const unsigned char*)&args->m_dataSlots[0][0];
 										//args->m_serverStatus.m_registerTextureStatus.m_textureId = guiHelper.registerTexture(texels, args->m_cmdPtr->m_registerTextureCommand.m_width,
@@ -431,7 +431,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REGISTER_GRAPHICS_SHAPE\n");
@@ -442,7 +442,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 
 										if (gVerboseNetworkMessagesServer)
@@ -454,7 +454,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_SYNCHRONIZE_TRANSFORMS\n");
@@ -465,7 +465,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REMOVE_ALL_GRAPHICS_INSTANCES\n");
@@ -476,7 +476,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REMOVE_SINGLE_GRAPHICS_INSTANCE\n");
@@ -487,7 +487,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_CHANGE_RGBA_COLOR\n");
@@ -498,7 +498,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_CHANGE_SCALING\n");
@@ -510,7 +510,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
-											clock.usleep(0);
+											clock1.usleep(0);
 										}
 										//bool RemoteGUIHelper::getCameraInfo(int* width, int* height, 
 										//	float viewMatrix[16], float projectionMatrix[16], 
@@ -547,8 +547,8 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 									}
 
 
-									double startTimeSeconds = clock.getTimeInSeconds();
-									double curTimeSeconds = clock.getTimeInSeconds();
+									// double startTimeSeconds = clock1.getTimeInSeconds();
+									// double curTimeSeconds = clock1.getTimeInSeconds();
 
 									if (gVerboseNetworkMessagesServer)
 									{
@@ -724,7 +724,7 @@ public:
 	{
 	}
 	
-	void submitServerStatus(GraphicsSharedMemoryStatus& status, int blockIndex)
+	void submitServerStatus(GraphicsSharedMemoryStatus& /*status*/, int /*blockIndex*/)
 	{
 	}
 
@@ -893,7 +893,7 @@ public:
 
 	void processClientCommands()
 	{
-		int timeStamp = 0;
+		// int timeStamp = 0;
 		bool hasStatus = false;
 		if (m_args.isCommandOutstanding())
 		{
@@ -907,7 +907,7 @@ public:
 		}
 	}
 
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		B3_PROFILE("stepSimulation");
 		processClientCommands();
@@ -934,20 +934,20 @@ public:
 
 	
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 		
 	}
 
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

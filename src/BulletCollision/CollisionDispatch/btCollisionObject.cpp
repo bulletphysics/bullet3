@@ -32,21 +32,21 @@ btCollisionObject::btCollisionObject()
 	  m_companionId(-1),
 	  m_worldArrayIndex(-1),
 	  m_activationState1(1),
-	  m_deactivationTime(btScalar(0.)),
-	  m_friction(btScalar(0.5)),
-	  m_restitution(btScalar(0.)),
-	  m_rollingFriction(0.0f),
+	  m_deactivationTime(0.f),
+	  m_friction(0.5f),
+	  m_restitution(0.f),
+	  m_rollingFriction(0.f),
 	  m_spinningFriction(0.f),
-	  m_contactDamping(.1),
+	  m_contactDamping(.1f),
 	  m_contactStiffness(BT_LARGE_FLOAT),
 	  m_internalType(CO_COLLISION_OBJECT),
 	  m_userObjectPointer(0),
 	  m_userIndex2(-1),
 	  m_userIndex(-1),
 	  m_userIndex3(-1),
-	  m_hitFraction(btScalar(1.)),
-	  m_ccdSweptSphereRadius(btScalar(0.)),
-	  m_ccdMotionThreshold(btScalar(0.)),
+	  m_hitFraction(1.f),
+	  m_ccdSweptSphereRadius(0.f),
+	  m_ccdMotionThreshold(0.f),
 	  m_checkCollideWith(false),
 	  m_updateRevision(0)
 {
@@ -132,7 +132,7 @@ const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* seriali
 void btCollisionObject::serializeSingleObject(class btSerializer* serializer) const
 {
 	int len = calculateSerializeBufferSize();
-	btChunk* chunk = serializer->allocate(len, 1);
+	btChunk* chunk = serializer->allocate((size_t)len, 1);
 	const char* structType = serialize(chunk->m_oldPtr, serializer);
 	serializer->finalizeChunk(chunk, structType, BT_COLLISIONOBJECT_CODE, (void*)this);
 }

@@ -114,7 +114,7 @@ btBroadphaseProxy
 	}
 
 	//used for memory pools
-	btBroadphaseProxy() : m_clientObject(0)
+	btBroadphaseProxy() : m_clientObject(NULL), m_collisionFilterGroup(0), m_collisionFilterMask(0), m_uniqueId(0)
 	{
 	}
 
@@ -122,6 +122,7 @@ btBroadphaseProxy
 		: m_clientObject(userPtr),
 		  m_collisionFilterGroup(collisionFilterGroup),
 		  m_collisionFilterMask(collisionFilterMask),
+		  m_uniqueId(0),
 		  m_aabbMin(aabbMin),
 		  m_aabbMax(aabbMax)
 	{
@@ -178,10 +179,10 @@ ATTRIBUTE_ALIGNED16(struct)
 btBroadphasePair
 {
 	btBroadphasePair()
-		: m_pProxy0(0),
-		  m_pProxy1(0),
-		  m_algorithm(0),
-		  m_internalInfo1(0)
+		: m_pProxy0(NULL),
+		  m_pProxy1(NULL),
+		  m_algorithm(NULL),
+		  m_internalInfo1(NULL)
 	{
 	}
 
@@ -201,8 +202,8 @@ btBroadphasePair
 			m_pProxy1 = &proxy0;
 		}
 
-		m_algorithm = 0;
-		m_internalInfo1 = 0;
+		m_algorithm = NULL;
+		m_internalInfo1 = NULL;
 	}
 
 	btBroadphaseProxy* m_pProxy0;

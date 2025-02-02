@@ -33,7 +33,7 @@ struct btSdfDataStream
 		if (m_currentOffset + bytes <= m_size)
 		{
 			char* dest = (char*)&val;
-			memcpy(dest, &m_data[m_currentOffset], bytes);
+			memcpy(dest, &m_data[m_currentOffset], (size_t)bytes);
 			m_currentOffset += bytes;
 			return true;
 		}
@@ -44,12 +44,11 @@ struct btSdfDataStream
 
 bool btMiniSDF::load(const char* data, int size)
 {
-	int fileSize = -1;
-
 	btSdfDataStream ds(data, size);
 	{
 		double buf[6];
-		ds.read(buf);
+		if(ds.read(buf))
+		{
 		m_domain.m_min[0] = buf[0];
 		m_domain.m_min[1] = buf[1];
 		m_domain.m_min[2] = buf[2];
@@ -58,93 +57,112 @@ bool btMiniSDF::load(const char* data, int size)
 		m_domain.m_max[1] = buf[4];
 		m_domain.m_max[2] = buf[5];
 		m_domain.m_max[3] = 0;
+		}
 	}
 	{
 		unsigned int buf2[3];
-		ds.read(buf2);
+		if(ds.read(buf2))
+		{
 		m_resolution[0] = buf2[0];
 		m_resolution[1] = buf2[1];
 		m_resolution[2] = buf2[2];
+		}
 	}
 	{
 		double buf[3];
-		ds.read(buf);
+		if(ds.read(buf))
+		{
 		m_cell_size[0] = buf[0];
 		m_cell_size[1] = buf[1];
 		m_cell_size[2] = buf[2];
+		}
 	}
 	{
 		double buf[3];
-		ds.read(buf);
+		if(ds.read(buf))
+		{
 		m_inv_cell_size[0] = buf[0];
 		m_inv_cell_size[1] = buf[1];
 		m_inv_cell_size[2] = buf[2];
+		}
 	}
 	{
 		unsigned long long int cells;
-		ds.read(cells);
-		m_n_cells = cells;
+		if(ds.read(cells))
+			m_n_cells = cells;
 	}
 	{
 		unsigned long long int fields;
-		ds.read(fields);
-		m_n_fields = fields;
+		if(ds.read(fields))
+			m_n_fields = fields;
 	}
 
 	unsigned long long int nodes0;
 	std::size_t n_nodes0;
-	ds.read(nodes0);
+	if(ds.read(nodes0))
+	{
 	n_nodes0 = nodes0;
 	if (n_nodes0 > 1024 * 1024 * 1024)
 	{
 		return m_isValid;
 	}
-	m_nodes.resize(n_nodes0);
+	m_nodes.resize((int)n_nodes0);
 	for (unsigned int i = 0; i < n_nodes0; i++)
 	{
 		unsigned long long int n_nodes1;
-		ds.read(n_nodes1);
-		btAlignedObjectArray<double>& nodes = m_nodes[i];
-		nodes.resize(n_nodes1);
+		if(ds.read(n_nodes1))
+		{
+		btAlignedObjectArray<double>& nodes = m_nodes[(int)i];
+		nodes.resize((int)n_nodes1);
 		for (int j = 0; j < nodes.size(); j++)
 		{
 			double& node = nodes[j];
 			ds.read(node);
 		}
+		}
+	}
 	}
 
 	unsigned long long int n_cells0;
-	ds.read(n_cells0);
-	m_cells.resize(n_cells0);
-	for (int i = 0; i < n_cells0; i++)
+	if(ds.read(n_cells0))
+	{
+	m_cells.resize((int)n_cells0);
+	for (unsigned long long i = 0; i < n_cells0; i++)
 	{
 		unsigned long long int n_cells1;
-		btAlignedObjectArray<btCell32>& cells = m_cells[i];
-		ds.read(n_cells1);
-		cells.resize(n_cells1);
-		for (int j = 0; j < n_cells1; j++)
+		btAlignedObjectArray<btCell32>& cells = m_cells[(int)i];
+		if(ds.read(n_cells1))
 		{
-			btCell32& cell = cells[j];
+		cells.resize((int)n_cells1);
+		for (unsigned long long j = 0; j < n_cells1; j++)
+		{
+			btCell32& cell = cells[(int)j];
 			ds.read(cell);
 		}
+		}
+	}
 	}
 
 	{
 		unsigned long long int n_cell_maps0;
-		ds.read(n_cell_maps0);
+		if(ds.read(n_cell_maps0))
+		{
 
-		m_cell_map.resize(n_cell_maps0);
-		for (int i = 0; i < n_cell_maps0; i++)
+		m_cell_map.resize((int)n_cell_maps0);
+		for (unsigned long long i = 0; i < n_cell_maps0; i++)
 		{
 			unsigned long long int n_cell_maps1;
-			btAlignedObjectArray<unsigned int>& cell_maps = m_cell_map[i];
-			ds.read(n_cell_maps1);
-			cell_maps.resize(n_cell_maps1);
-			for (int j = 0; j < n_cell_maps1; j++)
+			btAlignedObjectArray<unsigned int>& cell_maps = m_cell_map[(int)i];
+			if(ds.read(n_cell_maps1))
 			{
-				unsigned int& cell_map = cell_maps[j];
+			cell_maps.resize((int)n_cell_maps1);
+			for (unsigned long long j = 0; j < n_cell_maps1; j++)
+			{
+				unsigned int& cell_map = cell_maps[(int)j];
 				ds.read(cell_map);
 			}
+			}
+		}
 		}
 	}
 
@@ -461,21 +479,21 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 	mui.ijk[0] = mi[0];
 	mui.ijk[1] = mi[1];
 	mui.ijk[2] = mi[2];
-	int i = multiToSingleIndex(mui);
-	unsigned int i_ = m_cell_map[field_id][i];
+	int i = (int)multiToSingleIndex(mui);
+	unsigned int i_ = m_cell_map[(int)field_id][i];
 	if (i_ == UINT_MAX)
 		return false;
 
-	btAlignedBox3d sd = subdomain(i);
-	i = i_;
-	btVector3 d = sd.m_max - sd.m_min;  //.diagonal().eval();
+	btAlignedBox3d sd = subdomain((unsigned int)i);
+	i = (int)i_;
+	//btVector3 d = sd.m_max - sd.m_min;  //.diagonal().eval();
 
 	btVector3 denom = (sd.max() - sd.min());
 	btVector3 c0 = btVector3(2.0, 2.0, 2.0) / denom;
 	btVector3 c1 = (sd.max() + sd.min()) / denom;
 	btVector3 xi = (c0 * x - c1);
 
-	btCell32 const& cell = m_cells[field_id][i];
+	btCell32 const& cell = m_cells[(int)field_id][i];
 	if (!gradient)
 	{
 		//auto phi = m_coefficients[field_id][i].dot(shape_function_(xi, 0));
@@ -484,13 +502,13 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 		for (unsigned int j = 0u; j < 32u; ++j)
 		{
 			unsigned int v = cell.m_cells[j];
-			double c = m_nodes[field_id][v];
+			double c = m_nodes[(int)field_id][(int)v];
 			if (c == DBL_MAX)
 			{
 				return false;
 				;
 			}
-			phi += c * N[j];
+			phi += c * N[(int)j];
 		}
 
 		dist = phi;
@@ -505,16 +523,16 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 	for (unsigned int j = 0u; j < 32u; ++j)
 	{
 		unsigned int v = cell.m_cells[j];
-		double c = m_nodes[field_id][v];
+		double c = m_nodes[(int)field_id][(int)v];
 		if (c == DBL_MAX)
 		{
 			gradient->setZero();
 			return false;
 		}
-		phi += c * N[j];
-		(*gradient)[0] += c * dN(j, 0);
-		(*gradient)[1] += c * dN(j, 1);
-		(*gradient)[2] += c * dN(j, 2);
+		phi += c * N[(int)j];
+		(*gradient)[0] += c * dN((int)j, 0);
+		(*gradient)[1] += c * dN((int)j, 1);
+		(*gradient)[2] += c * dN((int)j, 2);
 	}
 	(*gradient) *= c0;
 	dist = phi;

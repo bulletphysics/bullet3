@@ -18,7 +18,7 @@ subject to the following restrictions:
 
 enum
 {
-	B3_THREAD_SCHEDULE_TASK = 1,
+	B3_THREAD_SCHEDULE_TASK = 1
 };
 
 #include "Bullet3Common/b3Scalar.h"  //for B3_ATTRIBUTE_ALIGNED16
@@ -78,7 +78,7 @@ public:
 
 	virtual void deleteCriticalSection(b3CriticalSection* criticalSection) = 0;
 
-	virtual void* getThreadLocalMemory(int taskId) { return 0; }
+	virtual void* getThreadLocalMemory(int /*taskId*/) { return 0; }
 };
 
 #endif  //B3_THREAD_SUPPORT_INTERFACE_H

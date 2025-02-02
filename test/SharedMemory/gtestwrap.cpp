@@ -2,7 +2,7 @@
 #include "test.c"
 #include "Bullet3Common/b3Logging.h"
 
-void myprintf(const char* bla)
+void myprintf(const char* /*bla*/)
 {
 }
 

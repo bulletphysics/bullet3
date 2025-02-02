@@ -163,4 +163,4 @@ void Button::OnMouseDoubleClickLeft(int x, int y)
 {
 	OnMouseClickLeft(x, y, true);
 	onDoubleClick.Call(this);
-};
+}

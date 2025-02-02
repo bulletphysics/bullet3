@@ -113,7 +113,7 @@ void btClock::reset()
 {
 #ifdef BT_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
-	m_data->mStartTick = GetTickCount64();
+	m_data->mStartTick = (LONGLONG)GetTickCount64();
 #else
 #ifdef __CELLOS_LV2__
 
@@ -703,7 +703,7 @@ void btLeaveProfileZoneDefault()
 }
 
 #else
-void btEnterProfileZoneDefault(const char* name)
+void btEnterProfileZoneDefault(const char* /*name*/)
 {
 }
 void btLeaveProfileZoneDefault()
@@ -740,14 +740,14 @@ void btLeaveProfileZoneDefault()
 
 unsigned int btQuickprofGetCurrentThreadIndex2()
 {
-	const unsigned int kNullIndex = ~0U;
-
 #if BT_THREADSAFE
 	return btGetCurrentThreadIndex();
 #else
 #if defined(BT_HAVE_TLS)
+	const unsigned int kNullIndex = ~0U;
 	static __thread unsigned int sThreadIndex = kNullIndex;
 #elif defined(_WIN32)
+	const unsigned int kNullIndex = ~0U;
 	__declspec(thread) static unsigned int sThreadIndex = kNullIndex;
 #else
 	unsigned int sThreadIndex = 0;
@@ -758,7 +758,7 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 
 	if (sThreadIndex == kNullIndex)
 	{
-		sThreadIndex = gThreadCounter++;
+		sThreadIndex = (unsigned int)gThreadCounter++;
 	}
 	return sThreadIndex;
 #endif  //BT_THREADSAFE

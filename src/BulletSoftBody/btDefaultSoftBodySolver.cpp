@@ -34,11 +34,11 @@ btDefaultSoftBodySolver::~btDefaultSoftBodySolver()
 }
 
 // In this case the data is already in the soft bodies so there is no need for us to do anything
-void btDefaultSoftBodySolver::copyBackToSoftBodies(bool bMove)
+void btDefaultSoftBodySolver::copyBackToSoftBodies(bool /*bMove*/)
 {
 }
 
-void btDefaultSoftBodySolver::optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate)
+void btDefaultSoftBodySolver::optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool /*forceUpdate*/)
 {
 	m_softBodySet.copyFromArray(softBodies);
 }
@@ -60,7 +60,7 @@ bool btDefaultSoftBodySolver::checkInitialized()
 	return true;
 }
 
-void btDefaultSoftBodySolver::solveConstraints(btScalar solverdt)
+void btDefaultSoftBodySolver::solveConstraints(btScalar /*solverdt*/)
 {
 	// Solve constraints for non-solver softbodies
 	for (int i = 0; i < m_softBodySet.size(); ++i)

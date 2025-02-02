@@ -17,7 +17,7 @@ SimpleCameraInternalData
 		  m_yaw(20),
 		  m_pitch(0),
 		  m_aspect(1),
-		  m_frustumZNear(0.01),
+		  m_frustumZNear(0.01f),
 		  m_frustumZFar(1000),
 		  m_enableVR(false)
 	{

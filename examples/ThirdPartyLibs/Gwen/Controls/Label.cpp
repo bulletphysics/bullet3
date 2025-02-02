@@ -29,9 +29,9 @@ void Label::Layout(Skin::Base* /*skin*/)
 	int y = m_rTextPadding.top + m_Padding.top;
 
 	if (iAlign & Pos::Right) x = Width() - m_Text->Width() - m_rTextPadding.right - m_Padding.right;
-	if (iAlign & Pos::CenterH) x = (m_rTextPadding.left + m_Padding.left) + ((Width() - m_Text->Width()) * 0.5f) - m_rTextPadding.right - m_Padding.right;
+	if (iAlign & Pos::CenterH) x = (float)(m_rTextPadding.left + m_Padding.left) + ((float)(Width() - m_Text->Width()) * 0.5f) - (float)m_rTextPadding.right - (float)m_Padding.right;
 
-	if (iAlign & Pos::CenterV) y = (m_rTextPadding.top + m_Padding.top) + ((Height() - m_Text->Height()) * 0.5f) - m_rTextPadding.bottom - m_Padding.bottom;
+	if (iAlign & Pos::CenterV) y = (float)(m_rTextPadding.top + m_Padding.top) + ((float)(Height() - m_Text->Height()) * 0.5f) - (float)m_rTextPadding.bottom - (float)m_Padding.bottom;
 	if (iAlign & Pos::Bottom) y = Height() - m_Text->Height() - m_rTextPadding.bottom - m_Padding.bottom;
 
 	m_Text->SetPos(x, y);

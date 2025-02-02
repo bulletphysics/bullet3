@@ -27,7 +27,7 @@ enum RTB3ShapeTypes
 	RTB3_SHAPE_PLANE,
 	RTB3_SHAPE_CAPSULE,
 	MAX_NUM_SINGLE_SHAPE_TYPES,
-	RTB3_SHAPE_COMPOUND_INTERNAL,
+	RTB3_SHAPE_COMPOUND_INTERNAL
 
 };
 
@@ -196,10 +196,10 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createCompoundShape(plCollis
 	return 0;
 }
 
-void RealTimeBullet3CollisionSdk::addChildShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle compoundShape, plCollisionShapeHandle childShape, plVector3 childPos, plQuaternion childOrn)
+void RealTimeBullet3CollisionSdk::addChildShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle /*compoundShape*/, plCollisionShapeHandle /*childShape*/, plVector3 /*childPos*/, plQuaternion /*childOrn*/)
 {
 }
-void RealTimeBullet3CollisionSdk::deleteShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape)
+void RealTimeBullet3CollisionSdk::deleteShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle /*shape*/)
 {
 	///todo
 	//deleting shapes would involve a garbage collection phase, and mess up all user indices
@@ -207,12 +207,12 @@ void RealTimeBullet3CollisionSdk::deleteShape(plCollisionWorldHandle worldHandle
 	//for now, we don't delete and eventually run out-of-shapes
 }
 
-void RealTimeBullet3CollisionSdk::addCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)
+void RealTimeBullet3CollisionSdk::addCollisionObject(plCollisionWorldHandle /*world*/, plCollisionObjectHandle /*object*/)
 {
 	///createCollisionObject already adds it to the world
 }
 
-void RealTimeBullet3CollisionSdk::removeCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)
+void RealTimeBullet3CollisionSdk::removeCollisionObject(plCollisionWorldHandle /*world*/, plCollisionObjectHandle /*object*/)
 {
 	///todo, see deleteShape
 }
@@ -274,13 +274,13 @@ plCollisionObjectHandle RealTimeBullet3CollisionSdk::createCollisionObject(plCol
 	return 0;
 }
 
-void RealTimeBullet3CollisionSdk::deleteCollisionObject(plCollisionObjectHandle body)
+void RealTimeBullet3CollisionSdk::deleteCollisionObject(plCollisionObjectHandle /*body*/)
 {
 	///todo, see deleteShape
 }
 
-void RealTimeBullet3CollisionSdk::setCollisionObjectTransform(plCollisionWorldHandle world, plCollisionObjectHandle body,
-															  plVector3 position, plQuaternion orientation)
+void RealTimeBullet3CollisionSdk::setCollisionObjectTransform(plCollisionWorldHandle /*world*/, plCollisionObjectHandle /*body*/,
+															  plVector3 /*position*/, plQuaternion /*orientation*/)
 {
 }
 
@@ -300,6 +300,8 @@ void detectCollisionDummy(RTB3CollisionWorld* world, int colA, int shapeIndexA, 
 	(void)world;
 	(void)colA, (void)colB;
 	(void)contactCache;
+	(void)shapeIndexA;
+	(void)shapeIndexB;
 }
 
 void plVecCopy(float* dst, const b3Vector3& src)
@@ -380,7 +382,7 @@ B3_FORCE_INLINE void detectCollisionSphereSphere(RTB3CollisionWorld* world, int 
 	ComputeClosestPointsSphereSphere(radiusA, spherePosAWorld, radiusB, spherePosBWorld, contactCache);
 }
 
-void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
+void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIndexA, int /*colB*/, int shapeIndexB,
 								plContactCache* contactCache)
 {
 	const b3Transform& trA = world->m_collidableTransforms[colA];
@@ -444,10 +446,8 @@ int RealTimeBullet3CollisionSdk::collide(plCollisionWorldHandle worldHandle, plC
 				//					   [world->m_childShapes[colB.m_shapeIndex+j].m_shapeType](world,colAIndex,colA.m_shapeIndex+i,colBIndex,colB.m_shapeIndex+j,&contactCache);
 			}
 		}
-		return contactCache.numAddedPoints;
 	}
-
-	return 0;
+	return contactCache.numAddedPoints;
 }
 
 void RealTimeBullet3CollisionSdk::collideWorld(plCollisionWorldHandle worldHandle,

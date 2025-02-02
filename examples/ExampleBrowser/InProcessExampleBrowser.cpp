@@ -153,7 +153,7 @@ void ExampleEntriesPhysicsServer::initExampleEntries()
 	}
 }
 
-void ExampleEntriesPhysicsServer::registerExampleEntry(int menuLevel, const char* name, const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
+void ExampleEntriesPhysicsServer::registerExampleEntry(int /*menuLevel*/, const char* /*name*/, const char* /*description*/, CommonExampleInterface::CreateFunc* /*createFunc*/, int /*option*/)
 {
 }
 
@@ -246,11 +246,11 @@ void ExampleBrowserThreadFunc(void* userPtr, void* lsMemory)
 			clock.usleep(0);
 
 			//B3_PROFILE("ExampleBrowserThreadFunc");
-			float deltaTimeInSeconds = clock.getTimeMicroseconds() / 1000000.f;
+			float deltaTimeInSeconds = (float)clock.getTimeMicroseconds() / 1000000.f;
 			{
 				if (deltaTimeInSeconds > 0.1)
 				{
-					deltaTimeInSeconds = 0.1;
+					deltaTimeInSeconds = btScalar(0.1);
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs / 1e6))
 				{
@@ -403,6 +403,7 @@ btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowser
 	data->m_exampleBrowser->setSharedMemoryInterface(data->m_sharedMem);
 	bool init;
 	init = data->m_exampleBrowser->init(argc, argv);
+	(void)init;
 	data->m_clock.reset();
 	return data;
 }
@@ -414,7 +415,7 @@ bool btIsExampleBrowserMainThreadTerminated(btInProcessExampleBrowserMainThreadI
 
 void btUpdateInProcessExampleBrowserMainThread(btInProcessExampleBrowserMainThreadInternalData* data)
 {
-	float deltaTimeInSeconds = data->m_clock.getTimeMicroseconds() / 1000000.f;
+	float deltaTimeInSeconds = (float)data->m_clock.getTimeMicroseconds() / 1000000.f;
 	data->m_clock.reset();
 	data->m_exampleBrowser->updateGraphics();
 	data->m_exampleBrowser->update(deltaTimeInSeconds);

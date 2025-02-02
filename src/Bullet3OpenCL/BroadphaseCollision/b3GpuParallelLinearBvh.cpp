@@ -15,6 +15,7 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
 
 #include "b3GpuParallelLinearBvh.h"
+#include "kernels/parallelLinearBvhKernels.h"
 
 b3GpuParallelLinearBvh::b3GpuParallelLinearBvh(cl_context context, cl_device_id device, cl_command_queue queue) : m_queue(queue),
 																												  m_radixSorter(context, device, queue),
@@ -110,8 +111,8 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 {
 	B3_PROFILE("b3ParallelLinearBvh::build()");
 
-	int numLargeAabbs = largeAabbIndices.size();
-	int numSmallAabbs = smallAabbIndices.size();
+	int numLargeAabbs = (int)largeAabbIndices.size();
+	int numSmallAabbs = (int)smallAabbIndices.size();
 
 	//Since all AABBs(both large and small) are input as a contiguous array,
 	//with 2 additional arrays used to indicate the indices of large and small AABBs,
@@ -119,8 +120,8 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 	{
 		B3_PROFILE("Separate large and small AABBs");
 
-		m_largeAabbs.resize(numLargeAabbs);
-		m_leafNodeAabbs.resize(numSmallAabbs);
+		m_largeAabbs.resize((size_t)numLargeAabbs);
+		m_leafNodeAabbs.resize((size_t)numSmallAabbs);
 
 		//Write large AABBs into m_largeAabbs
 		{
@@ -186,18 +187,18 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 
 	//
 	{
-		m_internalNodeAabbs.resize(numInternalNodes);
-		m_internalNodeLeafIndexRanges.resize(numInternalNodes);
-		m_internalNodeChildNodes.resize(numInternalNodes);
-		m_internalNodeParentNodes.resize(numInternalNodes);
+		m_internalNodeAabbs.resize((size_t)numInternalNodes);
+		m_internalNodeLeafIndexRanges.resize((size_t)numInternalNodes);
+		m_internalNodeChildNodes.resize((size_t)numInternalNodes);
+		m_internalNodeParentNodes.resize((size_t)numInternalNodes);
 
-		m_commonPrefixes.resize(numInternalNodes);
-		m_commonPrefixLengths.resize(numInternalNodes);
-		m_distanceFromRoot.resize(numInternalNodes);
+		m_commonPrefixes.resize((size_t)numInternalNodes);
+		m_commonPrefixLengths.resize((size_t)numInternalNodes);
+		m_distanceFromRoot.resize((size_t)numInternalNodes);
 
-		m_leafNodeParentNodes.resize(numLeaves);
-		m_mortonCodesAndAabbIndicies.resize(numLeaves);
-		m_mergedAabb.resize(numLeaves);
+		m_leafNodeParentNodes.resize((size_t)numLeaves);
+		m_mortonCodesAndAabbIndicies.resize((size_t)numLeaves);
+		m_mergedAabb.resize((size_t)numLeaves);
 	}
 
 	//Find the merged AABB of all small AABBs; this is used to define the size of
@@ -285,7 +286,7 @@ void b3GpuParallelLinearBvh::build(const b3OpenCLArray<b3SapAabb>& worldSpaceAab
 
 void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<b3Int4>& out_overlappingPairs)
 {
-	int maxPairs = out_overlappingPairs.size();
+	int maxPairs = (int)out_overlappingPairs.size();
 	b3OpenCLArray<int>& numPairsGpu = m_temp;
 
 	int reset = 0;
@@ -296,7 +297,7 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<b3Int4>& ou
 	{
 		B3_PROFILE("PLBVH small-small AABB test");
 
-		int numQueryAabbs = m_leafNodeAabbs.size();
+		int numQueryAabbs = (int)m_leafNodeAabbs.size();
 
 		b3BufferInfoCL bufferInfo[] =
 			{
@@ -320,12 +321,12 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<b3Int4>& ou
 		clFinish(m_queue);
 	}
 
-	int numLargeAabbRigids = m_largeAabbs.size();
+	int numLargeAabbRigids = (int)m_largeAabbs.size();
 	if (numLargeAabbRigids > 0 && m_leafNodeAabbs.size() > 0)
 	{
 		B3_PROFILE("PLBVH large-small AABB test");
 
-		int numQueryAabbs = m_leafNodeAabbs.size();
+		int numQueryAabbs = (int)m_leafNodeAabbs.size();
 
 		b3BufferInfoCL bufferInfo[] =
 			{
@@ -355,7 +356,7 @@ void b3GpuParallelLinearBvh::calculateOverlappingPairs(b3OpenCLArray<b3Int4>& ou
 		numPairsGpu.copyFromHostPointer(&maxPairs, 1);
 	}
 
-	out_overlappingPairs.resize(numPairs);
+	out_overlappingPairs.resize((size_t)numPairs);
 }
 
 void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayInfo>& rays,
@@ -363,8 +364,8 @@ void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayIn
 {
 	B3_PROFILE("PLBVH testRaysAgainstBvhAabbs()");
 
-	int numRays = rays.size();
-	int maxRayRigidPairs = out_rayRigidPairs.size();
+	int numRays = (int)rays.size();
+	int maxRayRigidPairs = (int)out_rayRigidPairs.size();
 
 	int reset = 0;
 	out_numRayRigidPairs.copyFromHostPointer(&reset, 1);
@@ -398,7 +399,7 @@ void b3GpuParallelLinearBvh::testRaysAgainstBvhAabbs(const b3OpenCLArray<b3RayIn
 		clFinish(m_queue);
 	}
 
-	int numLargeAabbRigids = m_largeAabbs.size();
+	int numLargeAabbRigids = (int)m_largeAabbs.size();
 	if (numLargeAabbRigids > 0)
 	{
 		B3_PROFILE("PLBVH ray test large AABB");
@@ -433,7 +434,7 @@ void b3GpuParallelLinearBvh::constructBinaryRadixTree()
 {
 	B3_PROFILE("b3GpuParallelLinearBvh::constructBinaryRadixTree()");
 
-	int numLeaves = m_leafNodeAabbs.size();
+	int numLeaves = (int)m_leafNodeAabbs.size();
 	int numInternalNodes = numLeaves - 1;
 
 	//Each internal node is placed in between 2 leaf nodes.

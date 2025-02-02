@@ -43,10 +43,10 @@ b3PosixThreadSupport::~b3PosixThreadSupport()
 #define NAMED_SEMAPHORES
 #endif
 
-static sem_t* createSem(const char* baseName)
+static sem_t* createSem(const char* /*baseName*/)
 {
-	static int semCount = 0;
 #ifdef NAMED_SEMAPHORES
+	static int semCount = 0;
 	/// Named semaphore begin
 	char name[32];
 	snprintf(name, 32, "/%8.s-%4.d-%4.4d", baseName, getpid(), semCount++);
@@ -143,7 +143,7 @@ void b3PosixThreadSupport::runTask(int uiCommand, void* uiArgument0, int taskId)
 }
 
 ///non-blocking test if a task is completed. First implement all versions, and then enable this API
-bool b3PosixThreadSupport::isTaskCompleted(int* puiArgument0, int* puiArgument1, int timeOutInMilliseconds)
+bool b3PosixThreadSupport::isTaskCompleted(int* puiArgument0, int* puiArgument1, int /*timeOutInMilliseconds*/)
 {
 	b3Assert(m_activeThreadStatus.size());
 
@@ -154,6 +154,7 @@ bool b3PosixThreadSupport::isTaskCompleted(int* puiArgument0, int* puiArgument1,
 		// get at least one thread which has finished
 		int last = -1;
 		int status = -1;
+		(void)status;
 		for (int t = 0; t < int(m_activeThreadStatus.size()); ++t)
 		{
 			status = m_activeThreadStatus[t].m_status;
@@ -209,7 +210,7 @@ void b3PosixThreadSupport::waitForResponse(int* puiArgument0, int* puiArgument1)
 	spuStatus.m_status = 0;
 
 	// need to find an active spu
-	b3Assert(last >= 0);
+	b3Assert(last != size_t(-1));
 
 	*puiArgument0 = spuStatus.m_taskId;
 	*puiArgument1 = spuStatus.m_status;

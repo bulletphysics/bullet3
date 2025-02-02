@@ -143,19 +143,19 @@ struct GWEN_EXPORT Color
 	Color operator-(Color c)
 	{
 		return Color(
-			this->r - c.r,
-			this->g - c.g,
-			this->b - c.b,
-			this->a - c.a);
+			(unsigned char)(this->r - c.r),
+			(unsigned char)(this->g - c.g),
+			(unsigned char)(this->b - c.b),
+			(unsigned char)(this->a - c.a));
 	}
 
 	Color operator+(Color c)
 	{
 		return Color(
-			this->r + c.r,
-			this->g + c.g,
-			this->b + c.b,
-			this->a + c.a);
+			(unsigned char)(this->r + c.r),
+			(unsigned char)(this->g + c.g),
+			(unsigned char)(this->b + c.b),
+			(unsigned char)(this->a + c.a));
 	}
 
 	bool operator==(const Color& c) const

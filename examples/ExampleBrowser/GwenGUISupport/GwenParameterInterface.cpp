@@ -21,7 +21,7 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 	{
 	}
 
-	void onButtonPress(Gwen::Controls::Base* pControl)
+	void onButtonPress(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_callback)
 		{
@@ -88,7 +88,8 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		float val = float(v);  //todo: specialize on template type
 		if (m_showValue)
 		{
-			char txt[1024];
+			char txt[1033];
+			txt[1032] = '\0';
 			safe_printf(txt, sizeof(txt), "%s : %.3f", m_variableName, val);
 			m_label->SetText(txt);
 		}
@@ -133,7 +134,7 @@ void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
 		float mappedValue = m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin() +
 							(m_paramInternalData->m_sliders[sliderIndex]->GetRangeMax() -
 							 m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin()) *
-								sliderCapped / 128.f;
+								(float)sliderCapped / 128.f;
 		printf("mappedValue = %f\n", mappedValue);
 		m_paramInternalData->m_sliders[sliderIndex]->SetValue(mappedValue);
 	}

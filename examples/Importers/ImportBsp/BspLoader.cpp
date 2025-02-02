@@ -70,47 +70,47 @@ bool BspLoader::loadBSPFile(void *memoryBuffer)
 		// swap the header
 		swapBlock((int *)header, sizeof(*header));
 
-		int length = (header->lumps[BSPLUMP_SHADERS].filelen) / sizeof(BSPShader);
+		int length = (int)((header->lumps[BSPLUMP_SHADERS].filelen) / sizeof(BSPShader));
 		m_dshaders.resize(length + extrasize);
 		m_numShaders = copyLump(header, BSPLUMP_SHADERS, &m_dshaders[0], sizeof(BSPShader));
 
-		length = (header->lumps[LUMP_MODELS].filelen) / sizeof(BSPModel);
+		length = (int)((header->lumps[LUMP_MODELS].filelen) / sizeof(BSPModel));
 		m_dmodels.resize(length + extrasize);
 		m_nummodels = copyLump(header, LUMP_MODELS, &m_dmodels[0], sizeof(BSPModel));
 
-		length = (header->lumps[BSPLUMP_PLANES].filelen) / sizeof(BSPPlane);
+		length = (int)((header->lumps[BSPLUMP_PLANES].filelen) / sizeof(BSPPlane));
 		m_dplanes.resize(length + extrasize);
 		m_numplanes = copyLump(header, BSPLUMP_PLANES, &m_dplanes[0], sizeof(BSPPlane));
 
-		length = (header->lumps[BSPLUMP_LEAFS].filelen) / sizeof(BSPLeaf);
+		length = (int)((header->lumps[BSPLUMP_LEAFS].filelen) / sizeof(BSPLeaf));
 		m_dleafs.resize(length + extrasize);
 		m_numleafs = copyLump(header, BSPLUMP_LEAFS, &m_dleafs[0], sizeof(BSPLeaf));
 
-		length = (header->lumps[BSPLUMP_NODES].filelen) / sizeof(BSPNode);
+		length = (int)((header->lumps[BSPLUMP_NODES].filelen) / sizeof(BSPNode));
 		m_dnodes.resize(length + extrasize);
 		m_numnodes = copyLump(header, BSPLUMP_NODES, &m_dnodes[0], sizeof(BSPNode));
 
-		length = (header->lumps[BSPLUMP_LEAFSURFACES].filelen) / sizeof(m_dleafsurfaces[0]);
+		length = (int)((header->lumps[BSPLUMP_LEAFSURFACES].filelen) / sizeof(m_dleafsurfaces[0]));
 		m_dleafsurfaces.resize(length + extrasize);
 		m_numleafsurfaces = copyLump(header, BSPLUMP_LEAFSURFACES, &m_dleafsurfaces[0], sizeof(m_dleafsurfaces[0]));
 
-		length = (header->lumps[BSPLUMP_LEAFBRUSHES].filelen) / sizeof(m_dleafbrushes[0]);
+		length = (int)((header->lumps[BSPLUMP_LEAFBRUSHES].filelen) / sizeof(m_dleafbrushes[0]));
 		m_dleafbrushes.resize(length + extrasize);
 		m_numleafbrushes = copyLump(header, BSPLUMP_LEAFBRUSHES, &m_dleafbrushes[0], sizeof(m_dleafbrushes[0]));
 
-		length = (header->lumps[LUMP_BRUSHES].filelen) / sizeof(BSPBrush);
+		length = (int)((header->lumps[LUMP_BRUSHES].filelen) / sizeof(BSPBrush));
 		m_dbrushes.resize(length + extrasize);
 		m_numbrushes = copyLump(header, LUMP_BRUSHES, &m_dbrushes[0], sizeof(BSPBrush));
 
-		length = (header->lumps[LUMP_BRUSHSIDES].filelen) / sizeof(BSPBrushSide);
+		length = (int)((header->lumps[LUMP_BRUSHSIDES].filelen) / sizeof(BSPBrushSide));
 		m_dbrushsides.resize(length + extrasize);
 		m_numbrushsides = copyLump(header, LUMP_BRUSHSIDES, &m_dbrushsides[0], sizeof(BSPBrushSide));
 
-		length = (header->lumps[LUMP_SURFACES].filelen) / sizeof(BSPSurface);
+		length = (int)((header->lumps[LUMP_SURFACES].filelen) / sizeof(BSPSurface));
 		m_drawSurfaces.resize(length + extrasize);
 		m_numDrawSurfaces = copyLump(header, LUMP_SURFACES, &m_drawSurfaces[0], sizeof(BSPSurface));
 
-		length = (header->lumps[LUMP_DRAWINDEXES].filelen) / sizeof(m_drawIndexes[0]);
+		length = (int)((header->lumps[LUMP_DRAWINDEXES].filelen) / sizeof(m_drawIndexes[0]));
 		m_drawIndexes.resize(length + extrasize);
 		m_numDrawIndexes = copyLump(header, LUMP_DRAWINDEXES, &m_drawIndexes[0], sizeof(m_drawIndexes[0]));
 
@@ -166,8 +166,8 @@ bool BspLoader::getVectorForKey(const BSPEntity *ent, const char *key, BSPVector
 	k = getValueForKey(ent, key);
 	if (strcmp(k, ""))
 	{
-		sscanf(k, "%f %f %f", &vec[0], &vec[1], &vec[2]);
-		return true;
+		int len = sscanf(k, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+		return len == 3;
 	}
 	return false;
 }
@@ -344,7 +344,7 @@ char *BspLoader::copystring(const char *s)
 {
 	char *b;
 	b = (char *)malloc(strlen(s) + 1);
-	strcpy(b, s);
+	if(b) strcpy(b, s);
 	return b;
 }
 
@@ -369,24 +369,27 @@ BSPKeyValuePair *BspLoader::parseEpair(void)
 	BSPKeyValuePair *e;
 
 	e = (struct BSPPair *)malloc(sizeof(BSPKeyValuePair));
-	memset(e, 0, sizeof(BSPKeyValuePair));
+	if(e) memset(e, 0, sizeof(BSPKeyValuePair));
 
 	if (strlen(token) >= BSPMAX_KEY - 1)
 	{
 		//printf ("ParseEpar: token too long");
 	}
-	e->key = copystring(token);
+	if(e) e->key = copystring(token);
 	getToken(false);
 	if (strlen(token) >= BSPMAX_VALUE - 1)
 	{
 		//printf ("ParseEpar: token too long");
 	}
-	e->value = copystring(token);
+	if(e) e->value = copystring(token);
 
 	// strip trailing spaces that sometimes get accidentally
 	// added in the editor
-	stripTrailing(e->key);
-	stripTrailing(e->value);
+	if(e)
+	{
+		stripTrailing(e->key);
+		stripTrailing(e->value);
+	}
 
 	return e;
 }
@@ -477,8 +480,8 @@ short BspLoader::isLittleShort(short l)
 	{
 		unsigned char b1, b2;
 
-		b1 = l & 255;
-		b2 = (l >> 8) & 255;
+		b1 = (unsigned char)(l & 255);
+		b2 = (unsigned char)((l >> 8) & 255);
 
 		return (b1 << 8) + b2;
 	}
@@ -495,8 +498,8 @@ short BspLoader::isBigShort(short l)
 
 	unsigned char b1, b2;
 
-	b1 = l & 255;
-	b2 = (l >> 8) & 255;
+	b1 = (unsigned char)(l & 255);
+	b2 = (unsigned char)((l >> 8) & 255);
 
 	return (b1 << 8) + b2;
 }
@@ -507,10 +510,10 @@ int BspLoader::isLittleLong(int l)
 	{
 		unsigned char b1, b2, b3, b4;
 
-		b1 = l & 255;
-		b2 = (l >> 8) & 255;
-		b3 = (l >> 16) & 255;
-		b4 = (l >> 24) & 255;
+		b1 = (unsigned char)(l & 255);
+		b2 = (unsigned char)((l >> 8) & 255);
+		b3 = (unsigned char)((l >> 16) & 255);
+		b4 = (unsigned char)((l >> 24) & 255);
 
 		return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 	}
@@ -528,10 +531,10 @@ int BspLoader::isBigLong(int l)
 
 	unsigned char b1, b2, b3, b4;
 
-	b1 = l & 255;
-	b2 = (l >> 8) & 255;
-	b3 = (l >> 16) & 255;
-	b4 = (l >> 24) & 255;
+	b1 = (unsigned char)(l & 255);
+	b2 = (unsigned char)((l >> 8) & 255);
+	b3 = (unsigned char)((l >> 16) & 255);
+	b4 = (unsigned char)((l >> 24) & 255);
 
 	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 }
@@ -610,7 +613,7 @@ int BspLoader::copyLump(BSPHeader *header, int lump, void *dest, int size)
 	//	printf ("loadBSPFile: odd lump size");
 	//}
 
-	memcpy(dest, (unsigned char *)header + ofs, length);
+	memcpy(dest, (unsigned char *)header + ofs, (size_t)length);
 
 	return length / size;
 }
@@ -624,7 +627,7 @@ void BspLoader::swapBSPFile(void)
 	int i;
 
 	// models
-	swapBlock((int *)&m_dmodels[0], m_nummodels * sizeof(m_dmodels[0]));
+	swapBlock((int *)&m_dmodels[0], (int)(m_nummodels * sizeof(m_dmodels[0])));
 
 	// shaders (don't swap the name)
 	for (i = 0; i < m_numShaders; i++)
@@ -634,38 +637,38 @@ void BspLoader::swapBSPFile(void)
 	}
 
 	// planes
-	swapBlock((int *)&m_dplanes[0], m_numplanes * sizeof(m_dplanes[0]));
+	swapBlock((int *)&m_dplanes[0], (int)(m_numplanes * sizeof(m_dplanes[0])));
 
 	// nodes
-	swapBlock((int *)&m_dnodes[0], m_numnodes * sizeof(m_dnodes[0]));
+	swapBlock((int *)&m_dnodes[0], (int)(m_numnodes * sizeof(m_dnodes[0])));
 
 	// leafs
-	swapBlock((int *)&m_dleafs[0], m_numleafs * sizeof(m_dleafs[0]));
+	swapBlock((int *)&m_dleafs[0], (int)(m_numleafs * sizeof(m_dleafs[0])));
 
 	// leaffaces
-	swapBlock((int *)&m_dleafsurfaces[0], m_numleafsurfaces * sizeof(m_dleafsurfaces[0]));
+	swapBlock((int *)&m_dleafsurfaces[0], (int)(m_numleafsurfaces * sizeof(m_dleafsurfaces[0])));
 
 	// leafbrushes
-	swapBlock((int *)&m_dleafbrushes[0], m_numleafbrushes * sizeof(m_dleafbrushes[0]));
+	swapBlock((int *)&m_dleafbrushes[0], (int)(m_numleafbrushes * sizeof(m_dleafbrushes[0])));
 
 	// brushes
-	swapBlock((int *)&m_dbrushes[0], m_numbrushes * sizeof(m_dbrushes[0]));
+	swapBlock((int *)&m_dbrushes[0], (int)(m_numbrushes * sizeof(m_dbrushes[0])));
 
 	// brushsides
-	swapBlock((int *)&m_dbrushsides[0], m_numbrushsides * sizeof(m_dbrushsides[0]));
+	swapBlock((int *)&m_dbrushsides[0], (int)(m_numbrushsides * sizeof(m_dbrushsides[0])));
 
 	// vis
 	((int *)&m_visBytes)[0] = isLittleLong(((int *)&m_visBytes)[0]);
 	((int *)&m_visBytes)[1] = isLittleLong(((int *)&m_visBytes)[1]);
 
 	// drawindexes
-	swapBlock((int *)&m_drawIndexes[0], m_numDrawIndexes * sizeof(m_drawIndexes[0]));
+	swapBlock((int *)&m_drawIndexes[0], (int)(m_numDrawIndexes * sizeof(m_drawIndexes[0])));
 
 	// drawsurfs
-	swapBlock((int *)&m_drawSurfaces[0], m_numDrawSurfaces * sizeof(m_drawSurfaces[0]));
+	swapBlock((int *)&m_drawSurfaces[0], (int)(m_numDrawSurfaces * sizeof(m_drawSurfaces[0])));
 }
 
-bool BspLoader::findVectorByName(float *outvec, const char *name)
+bool BspLoader::findVectorByName(float *outvec, const char * /*name*/)
 {
 	const char *cl;
 	BSPVector3 origin;

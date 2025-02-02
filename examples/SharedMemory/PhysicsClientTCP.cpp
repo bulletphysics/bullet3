@@ -1,7 +1,5 @@
 #include "PhysicsClientTCP.h"
 
-#include "ActiveSocket.h"
-
 #include <stdio.h>
 #include <string.h>
 #include "../Utils/b3Clock.h"
@@ -11,10 +9,11 @@
 #include <string>
 #include "Bullet3Common/b3Logging.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
+#include "ActiveSocket.h"
 
 unsigned int b3DeserializeInt2(const unsigned char* input)
 {
-	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
+	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;
 }
 bool gVerboseNetworkMessagesClient2 = false;
@@ -59,7 +58,7 @@ struct TcpNetworkedInternalData
 
 		m_tcpSocket.Initialize();
 
-		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
+		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), (uint16)m_port);
 		if (m_isConnected)
 		{
 			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
@@ -99,7 +98,7 @@ struct TcpNetworkedInternalData
 
 		if (m_tempBuffer.size() >= 4)
 		{
-			packetSizeInBytes = b3DeserializeInt2(&m_tempBuffer[0]);
+			packetSizeInBytes = (int)b3DeserializeInt2(&m_tempBuffer[0]);
 		}
 
 		if (m_tempBuffer.size() == packetSizeInBytes)
@@ -127,7 +126,7 @@ struct TcpNetworkedInternalData
 				m_stream.resize(numStreamBytes);
 				for (int i = 0; i < numStreamBytes; i++)
 				{
-					m_stream[i] = data[i + streamOffsetInBytes];
+					m_stream[i] = (char)data[i + streamOffsetInBytes];
 				}
 			}
 			m_tempBuffer.clear();
@@ -152,7 +151,7 @@ TcpNetworkedPhysicsProcessor::~TcpNetworkedPhysicsProcessor()
 	delete m_data;
 }
 
-bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& /*serverStatusOut*/, char* /*bufferServerToClient*/, int /*bufferSizeInBytes*/)
 {
 	if (gVerboseNetworkMessagesClient2)
 	{
@@ -160,7 +159,7 @@ bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 	}
 
 	{
-		int sz = 0;
+		size_t sz = 0;
 		unsigned char* data = 0;
 		m_data->m_tempBuffer.clear();
 
@@ -219,15 +218,15 @@ bool TcpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	return hasStatus;
 }
 
-void TcpNetworkedPhysicsProcessor::renderScene(int renderFlags)
+void TcpNetworkedPhysicsProcessor::renderScene(int /*renderFlags*/)
 {
 }
 
-void TcpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
+void TcpNetworkedPhysicsProcessor::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-void TcpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* guiHelper)
+void TcpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* /*guiHelper*/)
 {
 }
 

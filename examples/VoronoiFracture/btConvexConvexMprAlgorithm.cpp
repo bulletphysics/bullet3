@@ -88,7 +88,7 @@ btVector3 btBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, 
 	return shape->localGetSupportingVertexWithoutMargin(dir);
 }
 
-btVector3 btBulletShapeCenterFunc(const void* shapeAptr)
+btVector3 btBulletShapeCenterFunc(const void* /*shapeAptr*/)
 {
 	return btVector3(0, 0, 0);
 }
@@ -261,6 +261,8 @@ void btConvexConvexMprAlgorithm ::processCollision(const btCollisionObjectWrappe
 
 btScalar btConvexConvexMprAlgorithm::calculateTimeOfImpact(btCollisionObject* col0, btCollisionObject* col1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
 {
+	(void)col0;
+	(void)col1;
 	(void)resultOut;
 	(void)dispatchInfo;
 	btAssert(0);

@@ -38,8 +38,8 @@ static int maxShapeCapacityInBytes = 128 * 1024 * 1024;
 #include <cstdlib>
 
 #include <openvr.h>
-#include "strtools.h"
 #include "compat.h"
+#include "strtools.h"
 #include "lodepng.h"
 #include "Matrices.h"
 #include "pathtools.h"
@@ -49,13 +49,13 @@ CommonExampleInterface *sExample;
 int sPrevPacketNum = 0;
 OpenGLGuiHelper *sGuiPtr = 0;
 
-static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = {0};
+static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = {};
 
 #if defined(POSIX)
 #include "unistd.h"
 #endif
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 #ifdef __linux__
 #define APIENTRY
@@ -258,8 +258,11 @@ private:  // OpenGL bookkeeping
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
 CMainApplication::CMainApplication(int argc, char *argv[])
-	: m_app(NULL), m_hasContext(false), m_nWindowWidth(1280), m_nWindowHeight(720), m_unSceneProgramID(0), m_unLensProgramID(0), m_unControllerTransformProgramID(0), m_unRenderModelProgramID(0), m_pHMD(NULL), m_pRenderModels(NULL), m_bDebugOpenGL(false), m_bVerbose(false), m_bPerf(false), m_bVblank(false), m_bGlFinishHack(true), m_glControllerVertBuffer(0), m_unControllerVAO(0), m_unLensVAO(0), m_unSceneVAO(0), m_nSceneMatrixLocation(-1), m_nControllerMatrixLocation(-1), m_nRenderModelMatrixLocation(-1), m_iTrackedControllerCount(0), m_iTrackedControllerCount_Last(-1), m_iValidPoseCount(0), m_iValidPoseCount_Last(-1), m_iSceneVolumeInit(20), m_strPoseClasses(""), m_bShowCubes(false)
+	: m_bDebugOpenGL(false), m_bVerbose(false), m_bPerf(false), m_bVblank(false), m_bGlFinishHack(true), m_pHMD(NULL), m_pRenderModels(NULL), m_app(NULL), m_nWindowWidth(1280), m_nWindowHeight(720), m_hasContext(false), 
+	m_iTrackedControllerCount(0), m_iTrackedControllerCount_Last(-1), m_iValidPoseCount(0), m_iValidPoseCount_Last(-1), m_bShowCubes(false),m_strPoseClasses(""), m_iSceneVolumeInit(20), m_unSceneVAO(0), m_unLensVAO(0), m_glControllerVertBuffer(0), m_unControllerVAO(0), m_unSceneProgramID(0), m_unLensProgramID(0), m_unControllerTransformProgramID(0), m_unRenderModelProgramID(0), m_nSceneMatrixLocation(-1), m_nControllerMatrixLocation(-1), m_nRenderModelMatrixLocation(-1)
 {
+	(void)m_bPerf;
+
 	for (int i = 1; i < argc; i++)
 	{
 		if (!stricmp(argv[i], "-gldebug"))
@@ -290,7 +293,7 @@ CMainApplication::CMainApplication(int argc, char *argv[])
 	}
 	// other initialization tasks are done in BInit
 	memset(m_rDevClassChar, 0, sizeof(m_rDevClassChar));
-};
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Destructor
@@ -313,6 +316,7 @@ std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t
 
 	char *pchBuffer = new char[unRequiredBufferLen];
 	unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, pchBuffer, unRequiredBufferLen, peError);
+	(void)unRequiredBufferLen;
 	std::string sResult = pchBuffer;
 	delete[] pchBuffer;
 	return sResult;
@@ -434,7 +438,7 @@ bool CMainApplication::BInit()
 
 	*/
 
-	m_app = new SimpleOpenGL3App("SimpleOpenGL3App", m_nWindowWidth, m_nWindowHeight, true, maxNumObjectCapacity, maxShapeCapacityInBytes);
+	m_app = new SimpleOpenGL3App("SimpleOpenGL3App", (int)m_nWindowWidth, (int)m_nWindowHeight, true, maxNumObjectCapacity, maxShapeCapacityInBytes);
 
 	sGuiPtr = new OpenGLGuiHelper(m_app, false);
 	sGuiPtr->setVisualizerFlagCallback(VRPhysicsServerVisualizerFlagCallback);
@@ -559,7 +563,7 @@ bool CMainApplication::BInitGL()
 	{
 		//const GLvoid *userParam=0;
 		//glDebugMessageCallback(DebugCallback,  userParam);
-		//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE );
+		//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE );
 		//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	}
 
@@ -582,7 +586,7 @@ bool CMainApplication::BInitGL()
 //-----------------------------------------------------------------------------
 bool CMainApplication::BInitCompositor()
 {
-	vr::EVRInitError peError = vr::VRInitError_None;
+	// vr::EVRInitError peError = vr::VRInitError_None;
 
 	if (!vr::VRCompositor())
 	{
@@ -614,8 +618,8 @@ void CMainApplication::Shutdown()
 	{
 		if (m_glSceneVertBuffer)
 		{
-			//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
-			//glDebugMessageCallback(nullptr, nullptr);
+			//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_FALSE );
+			//glDebugMessageCallback(NULL, NULL);
 			glDeleteBuffers(1, &m_glSceneVertBuffer);
 			glDeleteBuffers(1, &m_glIDVertBuffer);
 			glDeleteBuffers(1, &m_glIDIndexBuffer);
@@ -713,7 +717,7 @@ bool CMainApplication::HandleInput()
 		if (m_pHMD->GetControllerState(unDevice, &state, sizeof(vr::VRControllerState_t)))
 		{
 			b3Transform tr;
-			getControllerTransform(unDevice, tr);
+			getControllerTransform((int)unDevice, tr);
 			float pos[3] = {tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2]};
 			b3Quaternion born = tr.getRotation();
 			float orn[4] = {born[0], born[1], born[2], born[3]};
@@ -722,7 +726,7 @@ bool CMainApplication::HandleInput()
 			//if (sPrevStates[unDevice].unPacketNum != state.unPacketNum)
 			if (m_pHMD->GetTrackedDeviceClass(unDevice) == vr::TrackedDeviceClass_HMD)
 			{
-				Matrix4 rotYtoZ = rotYtoZ.identity();
+				Matrix4 rotYtoZ = Matrix4();
 				//some Bullet apps (especially robotics related) require Z as up-axis)
 				if (m_app->getUpAxis() == 2)
 				{
@@ -748,12 +752,12 @@ bool CMainApplication::HandleInput()
 				orn[1] = orn2[1];
 				orn[2] = orn2[2];
 				orn[3] = orn2[3];
-				sExample->vrHMDMoveCallback(unDevice, pos, orn);
+				sExample->vrHMDMoveCallback((int)unDevice, pos, orn);
 			}
 
 			if (m_pHMD->GetTrackedDeviceClass(unDevice) == vr::TrackedDeviceClass_GenericTracker)
 			{
-				sExample->vrGenericTrackerMoveCallback(unDevice, pos, orn);
+				sExample->vrGenericTrackerMoveCallback((int)unDevice, pos, orn);
 			}
 
 			if (m_pHMD->GetTrackedDeviceClass(unDevice) == vr::TrackedDeviceClass_Controller)
@@ -779,12 +783,12 @@ bool CMainApplication::HandleInput()
 						if ((sPrevStates[unDevice].ulButtonPressed & trigger) == 0)
 						{
 							//							printf("Device PRESSED: %d, button %d\n", unDevice, button);
-							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
+							sExample->vrControllerButtonCallback((int)unDevice, button, 1, pos, orn);
 						}
 						else
 						{
 							//							printf("Device MOVED: %d\n", unDevice);
-							sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x, allAxis);
+							sExample->vrControllerMoveCallback((int)unDevice, pos, orn, state.rAxis[1].x, allAxis);
 						}
 					}
 					else
@@ -801,11 +805,11 @@ bool CMainApplication::HandleInput()
 									gDebugDrawFlags = 0;
 								}
 
-								sExample->vrControllerButtonCallback(unDevice, button, 0, pos, orn);
+								sExample->vrControllerButtonCallback((int)unDevice, button, 0, pos, orn);
 							}
 							else
 							{
-								sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x, allAxis);
+								sExample->vrControllerMoveCallback((int)unDevice, pos, orn, state.rAxis[1].x, allAxis);
 							}
 						}
 					}
@@ -904,7 +908,7 @@ void CMainApplication::RenderFrame()
 				glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-				glBlitFramebuffer(0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight,
+				glBlitFramebuffer(0, 0, (GLint)m_nRenderWidth, (GLint)m_nRenderHeight, 0, 0, (GLint)m_nRenderWidth, (GLint)m_nRenderHeight,
 								  GL_COLOR_BUFFER_BIT,
 								  GL_LINEAR);
 
@@ -1197,7 +1201,7 @@ bool CMainApplication::SetupTexturemaps()
 	glGenTextures(1, &m_iTexture);
 	glBindTexture(GL_TEXTURE_2D, m_iTexture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nImageWidth, nImageHeight,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)nImageWidth, (GLsizei)nImageHeight,
 				 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageRGBA[0]);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -1255,7 +1259,7 @@ void CMainApplication::SetupScene()
 
 	glGenBuffers(1, &m_glSceneVertBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_glSceneVertBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertdataarray.size(), &vertdataarray[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(sizeof(float) * vertdataarray.size()), &vertdataarray[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_glSceneVertBuffer);
 
@@ -1436,8 +1440,8 @@ void CMainApplication::DrawControllers()
 		glGenBuffers(1, &m_glControllerVertBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, m_glControllerVertBuffer);
 
-		GLuint stride = 2 * 3 * sizeof(float);
-		GLuint offset = 0;
+		GLsizei stride = 2 * 3 * sizeof(float);
+		GLuint  offset = 0;
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (const void *)offset);
@@ -1455,7 +1459,7 @@ void CMainApplication::DrawControllers()
 	if (vertdataarray.size() > 0)
 	{
 		//$ TODO: Use glBufferSubData for this...
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertdataarray.size(), &vertdataarray[0], GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(sizeof(float) * vertdataarray.size()), &vertdataarray[0], GL_STREAM_DRAW);
 	}
 }
 
@@ -1495,7 +1499,7 @@ bool CMainApplication::CreateFrameBuffer(int nWidth, int nHeight, FramebufferDes
 	glBindTexture(GL_TEXTURE_2D, framebufferDesc.m_nResolveTextureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferDesc.m_nResolveTextureId, 0);
 
 	// check FBO status
@@ -1520,8 +1524,8 @@ bool CMainApplication::SetupStereoRenderTargets()
 
 	m_pHMD->GetRecommendedRenderTargetSize(&m_nRenderWidth, &m_nRenderHeight);
 
-	CreateFrameBuffer(m_nRenderWidth, m_nRenderHeight, leftEyeDesc);
-	CreateFrameBuffer(m_nRenderWidth, m_nRenderHeight, rightEyeDesc);
+	CreateFrameBuffer((int)m_nRenderWidth, (int)m_nRenderHeight, leftEyeDesc);
+	CreateFrameBuffer((int)m_nRenderWidth, (int)m_nRenderHeight, rightEyeDesc);
 
 	return true;
 }
@@ -1551,9 +1555,9 @@ void CMainApplication::SetupDistortion()
 	{
 		for (int x = 0; x < m_iLensGridSegmentCountH; x++)
 		{
-			u = x * w;
-			v = 1 - y * h;
-			vert.position = Vector2(Xoffset + u, -1 + 2 * y * h);
+			u = (float)x * w;
+			v = 1 - (float)y * h;
+			vert.position = Vector2(Xoffset + u, -1 + 2 * (float)y * h);
 
 			vr::DistortionCoordinates_t dc0;
 			bool result = m_pHMD->ComputeDistortion(vr::Eye_Left, u, v, &dc0);
@@ -1572,9 +1576,9 @@ void CMainApplication::SetupDistortion()
 	{
 		for (int x = 0; x < m_iLensGridSegmentCountH; x++)
 		{
-			u = x * w;
-			v = 1 - y * h;
-			vert.position = Vector2(Xoffset + u, -1 + 2 * y * h);
+			u = (float)x * w;
+			v = 1 - (float)y * h;
+			vert.position = Vector2(Xoffset + u, -1 + 2 * (float)y * h);
 
 			vr::DistortionCoordinates_t dc0;
 			bool result = m_pHMD->ComputeDistortion(vr::Eye_Right, u, v, &dc0);
@@ -1595,10 +1599,10 @@ void CMainApplication::SetupDistortion()
 	{
 		for (GLushort x = 0; x < m_iLensGridSegmentCountH - 1; x++)
 		{
-			a = m_iLensGridSegmentCountH * y + x + offset;
-			b = m_iLensGridSegmentCountH * y + x + 1 + offset;
-			c = (y + 1) * m_iLensGridSegmentCountH + x + 1 + offset;
-			d = (y + 1) * m_iLensGridSegmentCountH + x + offset;
+			a = (GLushort)(m_iLensGridSegmentCountH * y + x + offset);
+			b = (GLushort)(m_iLensGridSegmentCountH * y + x + 1 + offset);
+			c = (GLushort)((y + 1) * m_iLensGridSegmentCountH + x + 1 + offset);
+			d = (GLushort)((y + 1) * m_iLensGridSegmentCountH + x + offset);
 			vIndices.push_back(a);
 			vIndices.push_back(b);
 			vIndices.push_back(c);
@@ -1609,15 +1613,15 @@ void CMainApplication::SetupDistortion()
 		}
 	}
 
-	offset = (m_iLensGridSegmentCountH) * (m_iLensGridSegmentCountV);
+	offset = (GLushort)((m_iLensGridSegmentCountH) * (m_iLensGridSegmentCountV));
 	for (GLushort y = 0; y < m_iLensGridSegmentCountV - 1; y++)
 	{
 		for (GLushort x = 0; x < m_iLensGridSegmentCountH - 1; x++)
 		{
-			a = m_iLensGridSegmentCountH * y + x + offset;
-			b = m_iLensGridSegmentCountH * y + x + 1 + offset;
-			c = (y + 1) * m_iLensGridSegmentCountH + x + 1 + offset;
-			d = (y + 1) * m_iLensGridSegmentCountH + x + offset;
+			a = (GLushort)(m_iLensGridSegmentCountH * y + x + offset);
+			b = (GLushort)(m_iLensGridSegmentCountH * y + x + 1 + offset);
+			c = (GLushort)((y + 1) * m_iLensGridSegmentCountH + x + 1 + offset);
+			d = (GLushort)((y + 1) * m_iLensGridSegmentCountH + x + offset);
 			vIndices.push_back(a);
 			vIndices.push_back(b);
 			vIndices.push_back(c);
@@ -1634,11 +1638,11 @@ void CMainApplication::SetupDistortion()
 
 	glGenBuffers(1, &m_glIDVertBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_glIDVertBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vVerts.size() * sizeof(VertexDataLens), &vVerts[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(vVerts.size() * sizeof(VertexDataLens)), &vVerts[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &m_glIDIndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIDIndexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vIndices.size() * sizeof(GLushort), &vIndices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(vIndices.size() * sizeof(GLushort)), &vIndices[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, position));
@@ -1680,7 +1684,7 @@ void CMainApplication::RenderStereoTargets()
 
 	m_app->m_instancingRenderer->init();
 
-	Matrix4 rotYtoZ = rotYtoZ.identity();
+	Matrix4 rotYtoZ = Matrix4();
 
 	//some Bullet apps (especially robotics related) require Z as up-axis)
 	if (m_app->getUpAxis() == 2)
@@ -1726,7 +1730,7 @@ void CMainApplication::RenderStereoTargets()
 	glBindFramebuffer(GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId);
 
 	m_app->m_window->startRendering();
-	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight);
+	glViewport(0, 0, (GLsizei)m_nRenderWidth, (GLsizei)m_nRenderHeight);
 
 	RenderScene(vr::Eye_Left);
 
@@ -1753,7 +1757,7 @@ void CMainApplication::RenderStereoTargets()
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, leftEyeDesc.m_nResolveFramebufferId);
 
-	glBlitFramebuffer(0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight,
+	glBlitFramebuffer(0, 0, (GLint)m_nRenderWidth, (GLint)m_nRenderHeight, 0, 0, (GLint)m_nRenderWidth, (GLint)m_nRenderHeight,
 					  GL_COLOR_BUFFER_BIT,
 					  GL_LINEAR);
 
@@ -1774,7 +1778,7 @@ void CMainApplication::RenderStereoTargets()
 	glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
 
 	m_app->m_window->startRendering();
-	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight);
+	glViewport(0, 0, (GLsizei)m_nRenderWidth, (GLsizei)m_nRenderHeight);
 
 	RenderScene(vr::Eye_Right);
 
@@ -1800,7 +1804,7 @@ void CMainApplication::RenderStereoTargets()
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rightEyeDesc.m_nResolveFramebufferId);
 
-	glBlitFramebuffer(0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight,
+	glBlitFramebuffer(0, 0, (GLint)m_nRenderWidth, (GLint)m_nRenderHeight, 0, 0, (GLint)m_nRenderWidth, (GLint)m_nRenderHeight,
 					  GL_COLOR_BUFFER_BIT,
 					  GL_LINEAR);
 
@@ -1824,7 +1828,7 @@ void CMainApplication::RenderScene(vr::Hmd_Eye nEye)
 		glUniformMatrix4fv(m_nSceneMatrixLocation, 1, GL_FALSE, GetCurrentViewProjectionMatrix(nEye).get());
 		glBindVertexArray(m_unSceneVAO);
 		glBindTexture(GL_TEXTURE_2D, m_iTexture);
-		glDrawArrays(GL_TRIANGLES, 0, m_uiVertcount);
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)m_uiVertcount);
 		glBindVertexArray(0);
 	}
 
@@ -1838,7 +1842,7 @@ void CMainApplication::RenderScene(vr::Hmd_Eye nEye)
 			glUseProgram(m_unControllerTransformProgramID);
 			glUniformMatrix4fv(m_nControllerMatrixLocation, 1, GL_FALSE, GetCurrentViewProjectionMatrix(nEye).get());
 			glBindVertexArray(m_unControllerVAO);
-			glDrawArrays(GL_LINES, 0, m_uiControllerVertcount);
+			glDrawArrays(GL_LINES, 0, (GLsizei)m_uiControllerVertcount);
 			glBindVertexArray(0);
 		}
 
@@ -1873,7 +1877,7 @@ void CMainApplication::RenderScene(vr::Hmd_Eye nEye)
 void CMainApplication::RenderDistortion()
 {
 	glDisable(GL_DEPTH_TEST);
-	glViewport(0, 0, m_nWindowWidth, m_nWindowHeight);
+	glViewport(0, 0, (GLsizei)m_nWindowWidth, (GLsizei)m_nWindowHeight);
 
 	glBindVertexArray(m_unLensVAO);
 	glUseProgram(m_unLensProgramID);
@@ -1884,7 +1888,7 @@ void CMainApplication::RenderDistortion()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glDrawElements(GL_TRIANGLES, m_uiIndexSize / 2, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, (GLsizei)m_uiIndexSize / 2, GL_UNSIGNED_SHORT, 0);
 
 	//render right lens (second half of index array )
 	glBindTexture(GL_TEXTURE_2D, rightEyeDesc.m_nResolveTextureId);
@@ -1892,7 +1896,7 @@ void CMainApplication::RenderDistortion()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glDrawElements(GL_TRIANGLES, m_uiIndexSize / 2, GL_UNSIGNED_SHORT, (const void *)(m_uiIndexSize));
+	glDrawElements(GL_TRIANGLES, (GLsizei)m_uiIndexSize / 2, GL_UNSIGNED_SHORT, (const void *)(m_uiIndexSize));
 
 	glBindVertexArray(0);
 	glUseProgram(0);
@@ -1968,7 +1972,7 @@ void CMainApplication::UpdateHMDMatrixPose()
 	{
 		B3_PROFILE("for loop");
 
-		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+		for (unsigned int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 		{
 			if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 			{
@@ -2165,7 +2169,7 @@ bool CGLRenderModel::BInit(const vr::RenderModel_t &vrModel, const vr::RenderMod
 	// Populate a vertex buffer
 	glGenBuffers(1, &m_glVertBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_glVertBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vr::RenderModel_Vertex_t) * vrModel.unVertexCount, vrModel.rVertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(sizeof(vr::RenderModel_Vertex_t) * vrModel.unVertexCount), vrModel.rVertexData, GL_STATIC_DRAW);
 
 	// Identify the components in the vertex buffer
 	glEnableVertexAttribArray(0);
@@ -2178,7 +2182,7 @@ bool CGLRenderModel::BInit(const vr::RenderModel_t &vrModel, const vr::RenderMod
 	// Create and populate the index buffer
 	glGenBuffers(1, &m_glIndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIndexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * vrModel.unTriangleCount * 3, vrModel.rIndexData, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(sizeof(uint16_t) * vrModel.unTriangleCount * 3), vrModel.rIndexData, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 
@@ -2201,7 +2205,7 @@ bool CGLRenderModel::BInit(const vr::RenderModel_t &vrModel, const vr::RenderMod
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, fLargest);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	m_unVertexCount = vrModel.unTriangleCount * 3;
+	m_unVertexCount = (GLsizei)(vrModel.unTriangleCount * 3);
 
 	return true;
 }

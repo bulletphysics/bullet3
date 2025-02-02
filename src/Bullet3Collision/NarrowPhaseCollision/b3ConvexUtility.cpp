@@ -23,7 +23,7 @@ b3ConvexUtility::~b3ConvexUtility()
 {
 }
 
-bool b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices, int numPoints, bool mergeCoplanarTriangles)
+bool b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices, int numPoints, bool /*mergeCoplanarTriangles*/)
 {
 	b3ConvexHullComputer conv;
 	conv.compute(&orgVertices[0].getX(), sizeof(b3Vector3), numPoints, 0.f, 0.f);
@@ -149,10 +149,10 @@ bool b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 
 					bool found = false;
 
-					for (int i = 0; i < orgpoints.size(); i++)
+					for (int j = 0; j < orgpoints.size(); j++)
 					{
 						//if ((orgpoints[i].m_orgIndex == orgIndex) || ((rotatedPt-orgpoints[i]).length2()<0.0001))
-						if (orgpoints[i].m_orgIndex == orgIndex)
+						if (orgpoints[j].m_orgIndex == orgIndex)
 						{
 							found = true;
 							break;
@@ -336,7 +336,7 @@ void b3ConvexUtility::initialize()
 		for (int j = 0; j < NbTris; j++)
 		{
 			int k = (j + 1) % numVertices;
-			b3InternalVertexPair vp(m_faces[i].m_indices[j], m_faces[i].m_indices[k]);
+			b3InternalVertexPair vp((short)m_faces[i].m_indices[j], (short)m_faces[i].m_indices[k]);
 			b3InternalEdge* edptr = edges.find(vp);
 			b3Vector3 edge = m_vertices[vp.m_v1] - m_vertices[vp.m_v0];
 			edge.normalize();
@@ -370,12 +370,12 @@ void b3ConvexUtility::initialize()
 				//TBD: figure out why I added this assert
 				//				b3Assert(edptr->m_face0>=0);
 				//			b3Assert(edptr->m_face1<0);
-				edptr->m_face1 = i;
+				edptr->m_face1 = (short)i;
 			}
 			else
 			{
 				b3InternalEdge ed;
-				ed.m_face0 = i;
+				ed.m_face0 = (short)i;
 				edges.insert(vp, ed);
 			}
 		}

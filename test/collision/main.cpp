@@ -35,21 +35,21 @@ subject to the following restrictions:
 
 namespace {
 
-btVector3 MyBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
-{
-	btConvexShape* shape = (btConvexShape*)shapeAptr;
-	if (includeMargin)
-	{
-		return shape->localGetSupportingVertex(dir);
-	}
+// btVector3 MyBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
+// {
+// 	btConvexShape* shape = (btConvexShape*)shapeAptr;
+// 	if (includeMargin)
+// 	{
+// 		return shape->localGetSupportingVertex(dir);
+// 	}
 
-	return shape->localGetSupportingVertexWithoutMargin(dir);
-}
+// 	return shape->localGetSupportingVertexWithoutMargin(dir);
+// }
 
-btVector3 MyBulletShapeCenterFunc(const void* shapeAptr)
-{
-	return btVector3(0, 0, 0);
-}
+// btVector3 MyBulletShapeCenterFunc(const void* /*shapeAptr*/)
+// {
+// 	return btVector3(0, 0, 0);
+// }
 
 enum SphereSphereTestMethod
 {
@@ -236,22 +236,22 @@ void testSphereSphereDistance(SphereSphereTestMethod method, btScalar abs_error)
 
 TEST(BulletCollisionTest, GjkMPRSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_GJKMPR, 0.0001);
+	testSphereSphereDistance(SSTM_GJKMPR, btScalar(0.0001));
 }
 
 TEST(BulletCollisionTest, GjkEpaSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_GJKEPA, 0.00001);
+	testSphereSphereDistance(SSTM_GJKEPA, btScalar(0.00001));
 }
 
 TEST(BulletCollisionTest, GjkEpaSphereSphereRadiusNotFullMarginDistance)
 {
-	testSphereSphereDistance(SSTM_GJKEPA_RADIUS_NOT_FULL_MARGIN, 0.1);
+	testSphereSphereDistance(SSTM_GJKEPA_RADIUS_NOT_FULL_MARGIN, btScalar(0.1));
 }
 
 TEST(BulletCollisionTest, AnalyticSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_ANALYTIC, 0.00001);
+	testSphereSphereDistance(SSTM_ANALYTIC, btScalar(0.00001));
 }
 
 class TriangleCollector : public btTriangleCallback
@@ -262,7 +262,7 @@ public:
 	explicit TriangleCollector(std::vector<btVector3>* triangles) : triangles(triangles) {}
 	virtual ~TriangleCollector() {}
 
-	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)
+	virtual void processTriangle(btVector3* triangle, int /*partId*/, int /*triangleIndex*/)
 	{
 		triangles->push_back(*triangle);
 	}

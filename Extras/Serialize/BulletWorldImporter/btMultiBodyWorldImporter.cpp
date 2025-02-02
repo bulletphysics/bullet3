@@ -64,7 +64,7 @@ void syncContactManifolds(T** contactManifolds, int numContactManifolds, btMulti
 		{
 			dispatcher->dispatchAllCollisionPairs(pairCache, dispatchInfo, dispatcher);
 		}
-		int numExistingManifolds = m_data->m_mbDynamicsWorld->getDispatcher()->getNumManifolds();
+		// int numExistingManifolds = m_data->m_mbDynamicsWorld->getDispatcher()->getNumManifolds();
 		btManifoldArray manifoldArray;
 		for (int i = 0; i < pairCache->getNumOverlappingPairs(); i++)
 		{
@@ -104,10 +104,10 @@ void syncContactManifolds(T** contactManifolds, int numContactManifolds, btMulti
 }
 
 template <class T>
-void syncMultiBody(T* mbd, btMultiBody* mb, btMultiBodyWorldImporterInternalData* m_data, btAlignedObjectArray<btQuaternion>& scratchQ, btAlignedObjectArray<btVector3>& scratchM)
+void syncMultiBody(T* mbd, btMultiBody* mb, btMultiBodyWorldImporterInternalData* /*m_data*/, btAlignedObjectArray<btQuaternion>& scratchQ, btAlignedObjectArray<btVector3>& scratchM)
 {
-	bool isFixedBase = mbd->m_baseMass == 0;
-	bool canSleep = false;
+	// bool isFixedBase = mbd->m_baseMass == 0;
+	// bool canSleep = false;
 	btVector3 baseInertia;
 	baseInertia.deSerialize(mbd->m_baseInertia);
 
@@ -304,11 +304,11 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 				btRigidBodyDoubleData* rbd = (btRigidBodyDoubleData*)bulletFile2->m_rigidBodies[i];
 				int foundRb = -1;
 				int uid = rbd->m_collisionObjectData.m_uniqueId;
-				for (int i = 0; i < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); i++)
+				for (int j = 0; j < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); j++)
 				{
-					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId)
+					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[j]->getBroadphaseHandle()->m_uniqueId)
 					{
-						foundRb = i;
+						foundRb = j;
 						break;
 					}
 				}
@@ -389,11 +389,11 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 				btRigidBodyFloatData* rbd = (btRigidBodyFloatData*)bulletFile2->m_rigidBodies[i];
 				int foundRb = -1;
 				int uid = rbd->m_collisionObjectData.m_uniqueId;
-				for (int i = 0; i < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); i++)
+				for (int j = 0; j < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); j++)
 				{
-					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId)
+					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[j]->getBroadphaseHandle()->m_uniqueId)
 					{
-						foundRb = i;
+						foundRb = j;
 						break;
 					}
 				}
@@ -477,8 +477,8 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 			{
 				btMultiBody* mb = *ptr;
 				mb->finalizeMultiDof();
-				btVector3 linvel = mb->getBaseVel();
-				btVector3 angvel = mb->getBaseOmega();
+				// btVector3 linvel = mb->getBaseVel();
+				// btVector3 angvel = mb->getBaseOmega();
 				mb->forwardKinematics(scratchQ, scratchM);
 			}
 		}

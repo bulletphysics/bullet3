@@ -84,7 +84,7 @@ protected:
 	{
 		//PCK: added this line
 		m_ownsMemory = true;
-		m_data = 0;
+		m_data = NULL;
 		m_size = 0;
 		m_capacity = 0;
 	}
@@ -101,7 +101,7 @@ protected:
 	{
 		if (size)
 			return m_allocator.allocate(size);
-		return 0;
+		return NULL;
 	}
 
 	SIMD_FORCE_INLINE void deallocate()
@@ -113,7 +113,7 @@ protected:
 			{
 				m_allocator.deallocate(m_data);
 			}
-			m_data = 0;
+			m_data = NULL;
 		}
 	}
 
@@ -222,6 +222,8 @@ public:
 			{
 				new (&m_data[i]) T(fillData);
 			}
+#else
+			(void)fillData;
 #endif  //BT_USE_PLACEMENT_NEW
 		}
 
@@ -249,6 +251,8 @@ public:
 		m_size++;
 #ifdef BT_USE_PLACEMENT_NEW
 		new (&m_data[sz]) T(fillValue);  //use the in-place new (not really allocating heap memory)
+#else
+		(void)fillValue;
 #endif
 
 		return m_data[sz];

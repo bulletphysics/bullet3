@@ -11,11 +11,11 @@ b3UnsignedInt4
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	union {
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			unsigned int x, y, z, w;
 		};
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			unsigned int s[4];
 		};
@@ -28,11 +28,11 @@ b3Int4
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	union {
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			int x, y, z, w;
 		};
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			int s[4];
 		};

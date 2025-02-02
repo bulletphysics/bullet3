@@ -102,6 +102,7 @@ void AllConstraintDemo::initPhysics()
 	groundTransform.setOrigin(btVector3(0, -56, 0));
 	btRigidBody* groundBody;
 	groundBody = createRigidBody(0, groundTransform, groundShape);
+	(void)groundBody;
 
 	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS));
 	m_collisionShapes.push_back(shape);
@@ -123,16 +124,16 @@ void AllConstraintDemo::initPhysics()
 	btRigidBody* bodyB = 0;
 
 	{
-		btCollisionShape* cylA = new btCylinderShape(btVector3(0.2, 0.25, 0.2));
-		btCollisionShape* cylB = new btCylinderShape(btVector3(L_1, 0.025, L_1));
+		btCollisionShape* cylA = new btCylinderShape(btVector3(btScalar(0.2), btScalar(0.25), btScalar(0.2)));
+		btCollisionShape* cylB = new btCylinderShape(btVector3(btScalar(L_1), btScalar(0.025), btScalar(L_1)));
 		btCompoundShape* cyl0 = new btCompoundShape();
 		cyl0->addChildShape(btTransform::getIdentity(), cylA);
 		cyl0->addChildShape(btTransform::getIdentity(), cylB);
 
-		btScalar mass = 6.28;
+		btScalar massL = btScalar(6.28);
 		btVector3 localInertia;
-		cyl0->calculateLocalInertia(mass, localInertia);
-		btRigidBody::btRigidBodyConstructionInfo ci(mass, 0, cyl0, localInertia);
+		cyl0->calculateLocalInertia(massL, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo ci(massL, 0, cyl0, localInertia);
 		ci.m_startWorldTransform.setOrigin(btVector3(-8, 1, -8));
 
 		btRigidBody* body = new btRigidBody(ci);  //1,0,cyl0,localInertia);
@@ -143,16 +144,16 @@ void AllConstraintDemo::initPhysics()
 	}
 
 	{
-		btCollisionShape* cylA = new btCylinderShape(btVector3(0.2, 0.26, 0.2));
-		btCollisionShape* cylB = new btCylinderShape(btVector3(L_2, 0.025, L_2));
+		btCollisionShape* cylA = new btCylinderShape(btVector3(btScalar(0.2), btScalar(0.26), btScalar(0.2)));
+		btCollisionShape* cylB = new btCylinderShape(btVector3(btScalar(L_2), btScalar(0.025), btScalar(L_2)));
 		btCompoundShape* cyl0 = new btCompoundShape();
 		cyl0->addChildShape(btTransform::getIdentity(), cylA);
 		cyl0->addChildShape(btTransform::getIdentity(), cylB);
 
-		btScalar mass = 6.28;
+		btScalar massL = btScalar(6.28);
 		btVector3 localInertia;
-		cyl0->calculateLocalInertia(mass, localInertia);
-		btRigidBody::btRigidBodyConstructionInfo ci(mass, 0, cyl0, localInertia);
+		cyl0->calculateLocalInertia(massL, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo ci(massL, 0, cyl0, localInertia);
 		ci.m_startWorldTransform.setOrigin(btVector3(-10, 2, -8));
 
 		btQuaternion orn(btVector3(0, 0, 1), -THETA);
@@ -194,7 +195,7 @@ void AllConstraintDemo::initPhysics()
 		btVector3 pivotInA(CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS, 0);
 		btTypedConstraint* p2p = new btPoint2PointConstraint(*body0, pivotInA);
 		m_dynamicsWorld->addConstraint(p2p);
-		p2p->setBreakingImpulseThreshold(10.2);
+		p2p->setBreakingImpulseThreshold(btScalar(10.2));
 		p2p->setDbgDrawSize(btScalar(5.f));
 	}
 #endif
@@ -243,23 +244,23 @@ void AllConstraintDemo::initPhysics()
 
 #if ENABLE_ALL_DEMOS
 	{
-		btTransform trans;
-		trans.setIdentity();
+		btTransform transform;
+		transform.setIdentity();
 		btVector3 worldPos(-20, 0, 30);
-		trans.setOrigin(worldPos);
+		transform.setOrigin(worldPos);
 
 		btTransform frameInA, frameInB;
 		frameInA = btTransform::getIdentity();
 		frameInB = btTransform::getIdentity();
 
-		btRigidBody* pRbA1 = createRigidBody(mass, trans, shape);
+		btRigidBody* pRbA1 = createRigidBody(mass, transform, shape);
 		//	btRigidBody* pRbA1 = createRigidBody(0.f, trans, shape);
 		pRbA1->setActivationState(DISABLE_DEACTIVATION);
 
 		// add dynamic rigid body B1
 		worldPos.setValue(-30, 0, 30);
-		trans.setOrigin(worldPos);
-		btRigidBody* pRbB1 = createRigidBody(mass, trans, shape);
+		transform.setOrigin(worldPos);
+		btRigidBody* pRbB1 = createRigidBody(mass, transform, shape);
 		//	btRigidBody* pRbB1 = createRigidBody(0.f, trans, shape);
 		pRbB1->setActivationState(DISABLE_DEACTIVATION);
 
@@ -590,11 +591,11 @@ void AllConstraintDemo::initPhysics()
 		btRigidBody* pBodyB = createRigidBody(10.0, tr, shape);
 		pBodyB->setActivationState(DISABLE_DEACTIVATION);
 		// add some data to build constraint frames
-		btVector3 axisA(0.f, 1.f, 0.f);
-		btVector3 axisB(0.f, 1.f, 0.f);
+		btVector3 axisAL(0.f, 1.f, 0.f);
+		btVector3 axisBL(0.f, 1.f, 0.f);
 		btVector3 pivotA(-5.f, 0.f, 0.f);
 		btVector3 pivotB(5.f, 0.f, 0.f);
-		spHingeDynAB = new btHingeConstraint(*pBodyA, *pBodyB, pivotA, pivotB, axisA, axisB);
+		spHingeDynAB = new btHingeConstraint(*pBodyA, *pBodyB, pivotA, pivotB, axisAL, axisBL);
 		spHingeDynAB->setLimit(-SIMD_HALF_PI * 0.5f, SIMD_HALF_PI * 0.5f);
 		// add constraint to world
 		m_dynamicsWorld->addConstraint(spHingeDynAB, true);
@@ -791,7 +792,7 @@ void AllConstraintDemo::displayCallback(void) {
 }
 #endif
 
-bool AllConstraintDemo::keyboardCallback(int key, int state)
+bool AllConstraintDemo::keyboardCallback(int key, int /*state*/)
 {
 	bool handled = false;
 

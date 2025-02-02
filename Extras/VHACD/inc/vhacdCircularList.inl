@@ -14,12 +14,12 @@ namespace VHACD
         {
             CircularListElement<T> * next = element->GetNext();
             CircularListElement<T> * prev = element->GetPrev();
-            delete element;
-            m_size--;
             if (element == m_head)
             {
                 m_head = next;
             }
+            delete element;
+            m_size--;
             next->GetPrev() = prev;
             prev->GetNext() = next;
             return true;

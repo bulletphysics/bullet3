@@ -63,12 +63,12 @@ void btTriangleMesh::addIndex(int index)
 {
 	if (m_use32bitIndices)
 	{
-		m_32bitIndices.push_back(index);
+		m_32bitIndices.push_back((unsigned int)index);
 		m_indexedMeshes[0].m_triangleIndexBase = (unsigned char*)&m_32bitIndices[0];
 	}
 	else
 	{
-		m_16bitIndices.push_back(index);
+		m_16bitIndices.push_back((unsigned short)index);
 		m_indexedMeshes[0].m_triangleIndexBase = (unsigned char*)&m_16bitIndices[0];
 	}
 }

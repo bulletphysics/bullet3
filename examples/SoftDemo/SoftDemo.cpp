@@ -256,8 +256,8 @@ void SoftDemo::createStack(btCollisionShape* boxShape, float halfCubeSize, int s
 		{
 			btVector3 pos;
 			pos.setValue(
-				-rowSize * halfCubeSize + halfCubeSize + j * 2.0f * halfCubeSize,
-				halfCubeSize + i * halfCubeSize * 2.0f,
+				(float)-rowSize * halfCubeSize + halfCubeSize + (float)j * 2.0f * halfCubeSize,
+				halfCubeSize + (float)i * halfCubeSize * 2.0f,
 				zPos);
 
 			trans.setOrigin(pos);
@@ -265,6 +265,7 @@ void SoftDemo::createStack(btCollisionShape* boxShape, float halfCubeSize, int s
 
 			btRigidBody* body = 0;
 			body = createRigidBody(mass, trans, boxShape);
+			(void)body;
 		}
 	}
 }
@@ -349,7 +350,7 @@ struct TetraCube
 
 static inline btScalar UnitRand()
 {
-	return (rand() / (btScalar)RAND_MAX);
+	return ((btScalar)rand() / (btScalar)RAND_MAX);
 }
 
 static inline btScalar SignedUnitRand()
@@ -424,14 +425,14 @@ static btRigidBody* Ctor_BigPlate(SoftDemo* pdemo, btScalar mass = 15, btScalar 
 //
 // Linear stair
 //
-static void Ctor_LinearStair(SoftDemo* pdemo, const btVector3& org, const btVector3& sizes, btScalar angle, int count)
+static void Ctor_LinearStair(SoftDemo* pdemo, const btVector3& org, const btVector3& sizes, btScalar /*angle*/, int count)
 {
 	btBoxShape* shape = new btBoxShape(sizes);
 	for (int i = 0; i < count; ++i)
 	{
 		btTransform startTransform;
 		startTransform.setIdentity();
-		startTransform.setOrigin(org + btVector3(sizes.x() * i * 2, sizes.y() * i * 2, 0));
+		startTransform.setOrigin(org + btVector3(sizes.x() * (btScalar)(i * 2), sizes.y() * (btScalar)(i * 2), 0));
 		btRigidBody* body = pdemo->createRigidBody(0, startTransform, shape);
 		body->setFriction(1);
 	}
@@ -461,7 +462,7 @@ static btSoftBody* Ctor_SoftBox(SoftDemo* pdemo, const btVector3& p, const btVec
 //
 // SoftBoulder
 //
-static btSoftBody* Ctor_SoftBoulder(SoftDemo* pdemo, const btVector3& p, const btVector3& s, int np, int id)
+/*static btSoftBody* Ctor_SoftBoulder(SoftDemo* pdemo, const btVector3& p, const btVector3& s, int np, int id)
 {
 	btAlignedObjectArray<btVector3> pts;
 	if (id) srand(id);
@@ -474,7 +475,7 @@ static btSoftBody* Ctor_SoftBoulder(SoftDemo* pdemo, const btVector3& p, const b
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 
 	return (psb);
-}
+}*/
 
 //#define TRACEDEMO { pdemo->demoname=__FUNCTION__+5;printf("Launching demo: " __FUNCTION__ "\r\n"); }
 
@@ -492,7 +493,7 @@ static void Init_Ropes(SoftDemo* pdemo)
 														16,
 														1 + 2);
 		psb->m_cfg.piterations = 4;
-		psb->m_materials[0]->m_kLST = 0.1 + (i / (btScalar)(n - 1)) * 0.9;
+		psb->m_materials[0]->m_kLST = 0.1 + ((btScalar)i / (btScalar)(n - 1)) * 0.9;
 		psb->setTotalMass(20);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	}
@@ -598,7 +599,7 @@ static void Init_CapsuleCollision(SoftDemo* pdemo)
 													 btVector3(-s, h, +s),
 													 btVector3(+s, h, +s), r, r, fixed, true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	psb->setTotalMass(0.1);
+	psb->setTotalMass(btScalar(0.1));
 
 	psb->m_cfg.piterations = 10;
 	psb->m_cfg.citerations = 10;
@@ -638,7 +639,7 @@ static void Init_Collide(SoftDemo* pdemo)
 	};
 	for (int i = 0; i < 3; ++i)
 	{
-		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (1 - (i & 1)), SIMD_PI / 2 * (i & 1), 0));
+		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (btScalar)(1 - (i & 1)), SIMD_PI / 2 * (btScalar)(i & 1), 0));
 	}
 	pdemo->m_cutting = true;
 }
@@ -675,7 +676,7 @@ static void Init_Collide2(SoftDemo* pdemo)
 	};
 	for (int i = 0; i < 3; ++i)
 	{
-		Functor::Create(pdemo, btVector3(0, -1 + 5 * i, 0), btVector3(0, SIMD_PI / 2 * (i & 1), 0));
+		Functor::Create(pdemo, btVector3(0, -1 + 5 * (btScalar)i, 0), btVector3(0, SIMD_PI / 2 * (btScalar)(i & 1), 0));
 	}
 	pdemo->m_cutting = true;
 }
@@ -693,7 +694,7 @@ static void Init_Collide3(SoftDemo* pdemo)
 														 btVector3(-s, 0, +s),
 														 btVector3(+s, 0, +s),
 														 15, 15, 1 + 2 + 4 + 8, true);
-		psb->m_materials[0]->m_kLST = 0.4;
+		psb->m_materials[0]->m_kLST = btScalar(0.4);
 		psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
 		psb->setTotalMass(150);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
@@ -708,7 +709,7 @@ static void Init_Collide3(SoftDemo* pdemo)
 														 btVector3(+s, 0, +s) + o,
 														 7, 7, 0, true);
 		btSoftBody::Material* pm = psb->appendMaterial();
-		pm->m_kLST = 0.1;
+		pm->m_kLST = btScalar(0.1);
 		pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
 		psb->generateBendingConstraints(2, pm);
 		psb->m_materials[0]->m_kLST = 0.5;
@@ -740,19 +741,19 @@ static void Init_Aero(SoftDemo* pdemo)
 		btSoftBody::Material* pm = psb->appendMaterial();
 		pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
 		psb->generateBendingConstraints(2, pm);
-		psb->m_cfg.kLF = 0.004;
-		psb->m_cfg.kDG = 0.0003;
+		psb->m_cfg.kLF = btScalar(0.004);
+		psb->m_cfg.kDG = btScalar(0.0003);
 		psb->m_cfg.aeromodel = btSoftBody::eAeroModel::V_TwoSided;
 		btTransform trs;
 		btQuaternion rot;
-		btVector3 ra = Vector3Rand() * 0.1;
+		btVector3 ra = Vector3Rand() * btScalar(0.1);
 		btVector3 rp = Vector3Rand() * 15 + btVector3(0, 20, 80);
 		rot.setEuler(SIMD_PI / 8 + ra.x(), -SIMD_PI / 7 + ra.y(), ra.z());
 		trs.setIdentity();
 		trs.setOrigin(rp);
 		trs.setRotation(rot);
 		psb->transform(trs);
-		psb->setTotalMass(0.1);
+		psb->setTotalMass(btScalar(0.1));
 		psb->addForce(btVector3(0, 2, 0), 0);
 		pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	}
@@ -781,12 +782,12 @@ static void Init_Aero2(SoftDemo* pdemo)
 
 		psb->getCollisionShape()->setMargin(0.5);
 		btSoftBody::Material* pm = psb->appendMaterial();
-		pm->m_kLST = 0.0004;
+		pm->m_kLST = btScalar(0.0004);
 		pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
 		psb->generateBendingConstraints(2, pm);
 
-		psb->m_cfg.kLF = 0.05;
-		psb->m_cfg.kDG = 0.01;
+		psb->m_cfg.kLF = btScalar(0.05);
+		psb->m_cfg.kDG = btScalar(0.01);
 
 		//psb->m_cfg.kLF			=	0.004;
 		//psb->m_cfg.kDG			=	0.0003;
@@ -825,9 +826,9 @@ static void Init_Friction(SoftDemo* pdemo)
 	const btScalar ts = bs + bs / 4;
 	for (int i = 0, ni = 20; i < ni; ++i)
 	{
-		const btVector3 p(-ni * ts / 2 + i * ts, -10 + bs, 40);
+		const btVector3 p((btScalar)-ni * ts / 2 + (btScalar)i * ts, -10 + bs, 40);
 		btSoftBody* psb = Ctor_SoftBox(pdemo, p, btVector3(bs, bs, bs));
-		psb->m_cfg.kDF = 0.1 * ((i + 1) / (btScalar)ni);
+		psb->m_cfg.kDF = 0.1 * ((btScalar)(i + 1) / (btScalar)ni);
 		psb->addVelocity(btVector3(0, 0, -10));
 	}
 }
@@ -841,9 +842,9 @@ static void Init_Pressure(SoftDemo* pdemo)
 	btSoftBody* psb = btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo, btVector3(35, 25, 0),
 														 btVector3(1, 1, 1) * 3,
 														 512);
-	psb->m_materials[0]->m_kLST = 0.1;
+	psb->m_materials[0]->m_kLST = btScalar(0.1);
 	psb->m_cfg.kDF = 1;
-	psb->m_cfg.kDP = 0.001;  // fun factor...
+	psb->m_cfg.kDP = btScalar(0.001);  // fun factor...
 	psb->m_cfg.kPR = 2500;
 	psb->setTotalMass(30, true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
@@ -862,7 +863,7 @@ static void Init_Volume(SoftDemo* pdemo)
 	btSoftBody* psb = btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo, btVector3(35, 25, 0),
 														 btVector3(1, 1, 1) * 3,
 														 512);
-	psb->m_materials[0]->m_kLST = 0.45;
+	psb->m_materials[0]->m_kLST = btScalar(0.45);
 	psb->m_cfg.kVC = 20;
 	psb->setTotalMass(50, true);
 	psb->setPose(true, false);
@@ -888,21 +889,21 @@ static void Init_Sticks(SoftDemo* pdemo)
 	{
 		for (int x = 0; x < n; ++x)
 		{
-			const btVector3 org(-sz + sz * 2 * x * in,
+			const btVector3 org(-sz + sz * 2 * (btScalar)x * in,
 								-10,
-								-sz + sz * 2 * y * in);
+								-sz + sz * 2 * (btScalar)y * in);
 			btSoftBody* psb = btSoftBodyHelpers::CreateRope(pdemo->m_softBodyWorldInfo, org,
-															org + btVector3(hg * 0.001, hg, 0),
+															org + btVector3(hg * btScalar(0.001), hg, 0),
 															sg,
 															1);
-			psb->m_cfg.kDP = 0.005;
-			psb->m_cfg.kCHR = 0.1;
+			psb->m_cfg.kDP = btScalar(0.005);
+			psb->m_cfg.kCHR = btScalar(0.1);
 			for (int i = 0; i < 3; ++i)
 			{
 				psb->generateBendingConstraints(2 + i);
 			}
 			psb->setMass(1, 0);
-			psb->setTotalMass(0.01);
+			psb->setTotalMass(btScalar(0.01));
 			pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 		}
 	}
@@ -912,7 +913,7 @@ static void Init_Sticks(SoftDemo* pdemo)
 //
 // Bending
 //
-static void Init_Bending(SoftDemo* pdemo)
+/*static void Init_Bending(SoftDemo* pdemo)
 {
 	//TRACEDEMO
 	const btScalar s = 4;
@@ -929,7 +930,7 @@ static void Init_Bending(SoftDemo* pdemo)
 	psb->appendLink(0, 2);
 
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-}
+}*/
 
 //
 // 100kg cloth locked at corners, 10 falling 10kg rb's.
@@ -948,7 +949,7 @@ static void Init_Cloth(SoftDemo* pdemo)
 
 	psb->getCollisionShape()->setMargin(0.5);
 	btSoftBody::Material* pm = psb->appendMaterial();
-	pm->m_kLST = 0.4;
+	pm->m_kLST = btScalar(0.4);
 	pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
 	psb->generateBendingConstraints(2, pm);
 	psb->setTotalMass(150);
@@ -990,7 +991,7 @@ static void Init_BunnyMatch(SoftDemo* pdemo)
 														   &gIndicesBunny[0][0],
 														   BUNNY_NUM_TRIANGLES);
 	psb->m_cfg.kDF = 0.5;
-	psb->m_cfg.kMT = 0.05;
+	psb->m_cfg.kMT = btScalar(0.05);
 	psb->m_cfg.piterations = 5;
 	psb->randomizeConstraints();
 	psb->scale(btVector3(6, 6, 6));
@@ -1029,8 +1030,8 @@ static void Init_TorusMatch(SoftDemo* pdemo)
 	btSoftBody* psb = btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo, gVertices,
 														   &gIndices[0][0],
 														   NUM_TRIANGLES);
-	psb->m_materials[0]->m_kLST = 0.1;
-	psb->m_cfg.kMT = 0.05;
+	psb->m_materials[0]->m_kLST = btScalar(0.1);
+	psb->m_cfg.kMT = btScalar(0.05);
 	psb->randomizeConstraints();
 	btMatrix3x3 m;
 	m.setEulerZYX(SIMD_PI / 2, 0, 0);
@@ -1064,7 +1065,7 @@ static void Init_Cutting1(SoftDemo* pdemo)
 //
 
 //
-static void Ctor_Gear(SoftDemo* pdemo, const btVector3& pos, btScalar speed)
+/*static void Ctor_Gear(SoftDemo* pdemo, const btVector3& pos, btScalar speed)
 {
 	btTransform startTransform;
 	startTransform.setIdentity();
@@ -1083,7 +1084,7 @@ static void Ctor_Gear(SoftDemo* pdemo, const btVector3& pos, btScalar speed)
 	btHingeConstraint* hinge = new btHingeConstraint(*body, btTransform::getIdentity());
 	if (speed != 0) hinge->enableAngularMotor(true, speed, 3);
 	world->addConstraint(hinge);
-}
+}*/
 
 //
 static btSoftBody* Ctor_ClusterBunny(SoftDemo* pdemo, const btVector3& x, const btVector3& a)
@@ -1189,7 +1190,7 @@ static void Init_ClusterCollide1(SoftDemo* pdemo)
 													 1 + 2 + 4 + 8,
 													 true);
 	btSoftBody::Material* pm = psb->appendMaterial();
-	pm->m_kLST = 0.4;
+	pm->m_kLST = btScalar(0.4);
 	pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
 	psb->m_cfg.kDF = 1;
 	psb->m_cfg.kSRHR_CL = 1;
@@ -1199,7 +1200,7 @@ static void Init_ClusterCollide1(SoftDemo* pdemo)
 							btSoftBody::fCollision::CL_RS;
 	psb->generateBendingConstraints(2, pm);
 
-	psb->getCollisionShape()->setMargin(0.05);
+	psb->getCollisionShape()->setMargin(btScalar(0.05));
 	psb->setTotalMass(50);
 
 	///pass zero in generateClusters to create  cluster for each tetrahedron or triangle
@@ -1245,7 +1246,7 @@ static void Init_ClusterCollide2(SoftDemo* pdemo)
 	};
 	for (int i = 0; i < 3; ++i)
 	{
-		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (1 - (i & 1)), SIMD_PI / 2 * (i & 1), 0));
+		Functor::Create(pdemo, btVector3(3 * i, 2, 0), btVector3(SIMD_PI / 2 * (btScalar)(1 - (i & 1)), SIMD_PI / 2 * (btScalar)(i & 1), 0));
 	}
 }
 
@@ -1283,8 +1284,8 @@ static void Init_ClusterCombine(SoftDemo* pdemo)
 		psbs[j]->m_cfg.kDF = 1;
 		psbs[j]->m_cfg.kDP = 0;
 		psbs[j]->m_cfg.piterations = 1;
-		psbs[j]->m_clusters[0]->m_matching = 0.05;
-		psbs[j]->m_clusters[0]->m_ndamping = 0.05;
+		psbs[j]->m_clusters[0]->m_matching = btScalar(0.05);
+		psbs[j]->m_clusters[0]->m_ndamping = btScalar(0.05);
 	}
 	btSoftBody::AJoint::Specs aj;
 	aj.axis = btVector3(0, 0, 1);
@@ -1367,11 +1368,11 @@ static void Init_ClusterCar(SoftDemo* pdemo)
 	pfl->m_clusters[0]->m_matching =
 		pfr->m_clusters[0]->m_matching =
 			prl->m_clusters[0]->m_matching =
-				prr->m_clusters[0]->m_matching = 0.05;
+				prr->m_clusters[0]->m_matching = btScalar(0.05);
 	pfl->m_clusters[0]->m_ndamping =
 		pfr->m_clusters[0]->m_ndamping =
 			prl->m_clusters[0]->m_ndamping =
-				prr->m_clusters[0]->m_ndamping = 0.05;
+				prr->m_clusters[0]->m_ndamping = btScalar(0.05);
 
 	Ctor_LinearStair(pdemo, btVector3(0, -8, 0), btVector3(3, 2, 40), 0, 20);
 	Ctor_RbUpStack(pdemo, 50);
@@ -1386,7 +1387,7 @@ static void Init_ClusterRobot(SoftDemo* pdemo)
 		static btSoftBody* CreateBall(SoftDemo* pdemo, const btVector3& pos)
 		{
 			btSoftBody* psb = btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo, pos, btVector3(1, 1, 1) * 3, 512);
-			psb->m_materials[0]->m_kLST = 0.45;
+			psb->m_materials[0]->m_kLST = btScalar(0.45);
 			psb->m_cfg.kVC = 20;
 			psb->setTotalMass(50, true);
 			psb->setPose(true, false);
@@ -1414,6 +1415,7 @@ static void Init_ClusterRobot(SoftDemo* pdemo)
 	btBoxShape* pbox = new btBoxShape(btVector3(20, 1, 40));
 	btRigidBody* pgrn;
 	pgrn = pdemo->createRigidBody(0, btTransform(btQuaternion(0, -SIMD_HALF_PI / 2, 0), btVector3(0, 0, 0)), pbox);
+	(void)pgrn;
 
 	pdemo->m_autocam = true;
 }
@@ -1496,11 +1498,11 @@ static void Init_TetraCube(SoftDemo* pdemo)
 	psb->generateClusters(16);
 	//psb->getCollisionShape()->setMargin(0.5);
 
-	psb->getCollisionShape()->setMargin(0.01);
+	psb->getCollisionShape()->setMargin(btScalar(0.01));
 	psb->m_cfg.collisions = btSoftBody::fCollision::CL_SS + btSoftBody::fCollision::CL_RS
 		//+ btSoftBody::fCollision::CL_SELF
 		;
-	psb->m_materials[0]->m_kLST = 0.8;
+	psb->m_materials[0]->m_kLST = btScalar(0.8);
 	pdemo->m_cutting = false;
 }
 
@@ -2057,10 +2059,10 @@ void SoftDemo::initPhysics()
 		{
 			for (j = 0; j < NUM_VERTS_Y; j++)
 			{
-				gGroundVertices[i + j * NUM_VERTS_X].setValue((i - NUM_VERTS_X * 0.5f) * TRIANGLE_SIZE,
+				gGroundVertices[i + j * NUM_VERTS_X].setValue(((float)i - (float)NUM_VERTS_X * 0.5f) * TRIANGLE_SIZE,
 															  //0.f,
 															  waveheight * sinf((float)i) * cosf((float)j + offset),
-															  (j - NUM_VERTS_Y * 0.5f) * TRIANGLE_SIZE);
+															  ((float)j - (float)NUM_VERTS_Y * 0.5f) * TRIANGLE_SIZE);
 			}
 		}
 
@@ -2070,16 +2072,16 @@ void SoftDemo::initPhysics()
 		int index = 0;
 		for (i = 0; i < NUM_VERTS_X - 1; i++)
 		{
-			for (int j = 0; j < NUM_VERTS_Y - 1; j++)
+			for (int k = 0; k < NUM_VERTS_Y - 1; k++)
 			{
-				gGroundIndices[index++] = j * NUM_VERTS_X + i;
-				gGroundIndices[index++] = (j + 1) * NUM_VERTS_X + i + 1;
-				gGroundIndices[index++] = j * NUM_VERTS_X + i + 1;
+				gGroundIndices[index++] = k * NUM_VERTS_X + i;
+				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i + 1;
+				gGroundIndices[index++] = k * NUM_VERTS_X + i + 1;
 				;
 
-				gGroundIndices[index++] = j * NUM_VERTS_X + i;
-				gGroundIndices[index++] = (j + 1) * NUM_VERTS_X + i;
-				gGroundIndices[index++] = (j + 1) * NUM_VERTS_X + i + 1;
+				gGroundIndices[index++] = k * NUM_VERTS_X + i;
+				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i;
+				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i + 1;
 			}
 		}
 

@@ -37,8 +37,9 @@ struct b3FileUtils
 		for (int i = 0; !f && i < numPrefixes; i++)
 		{
 #ifdef _MSC_VER
-			sprintf_s(relativeFileName, maxRelativeFileNameMaxLen, "%s%s", prefix[i], orgFileName);
+			sprintf_s(relativeFileName, (size_t)maxRelativeFileNameMaxLen, "%s%s", prefix[(size_t)i], orgFileName);
 #else
+			(void)maxRelativeFileNameMaxLen;
 			sprintf(relativeFileName, "%s%s", prefix[i], orgFileName);
 #endif
 			f = fopen(relativeFileName, "rb");
@@ -59,13 +60,15 @@ struct b3FileUtils
 	static const char* strip2(const char* name, const char* pattern)
 	{
 		size_t const patlen = strlen(pattern);
-		size_t patcnt = 0;
-		const char* oriptr;
-		const char* patloc;
+		size_t patcnt = 0; (void)patcnt;
+		const char* oriptr = name;
+		const char* patloc = strstr(oriptr, pattern);
 		// find how many times the pattern occurs in the original string
-		for (oriptr = name; (patloc = strstr(oriptr, pattern)); oriptr = patloc + patlen)
+		while (patloc)
 		{
 			patcnt++;
+			oriptr = patloc + patlen;
+			patloc = strstr(oriptr, pattern);
 		}
 		return oriptr;
 	}
@@ -108,7 +111,7 @@ struct b3FileUtils
 
 	static void toLower(char* str)
 	{
-		int len = strlen(str);
+		int len = (int)strlen(str);
 		for (int i = 0; i < len; i++)
 		{
 			str[i] = toLowerChar(str[i]);

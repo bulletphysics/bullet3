@@ -105,7 +105,7 @@ public:
 		float dist = 18;
 		float pitch = -30;
 		float yaw = 129;
-		float targetPos[3] = {-1.5, 4.7, -2};
+		float targetPos[3] = {-1.5f, 4.7f, -2};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -172,8 +172,8 @@ void VoronoiFractureDemo::attachFixedConstraints()
 
 							dof6->setBreakingImpulseThreshold(BREAKING_THRESHOLD * totalMass);
 
-							for (int i = 0; i < 6; i++)
-								dof6->setLimit(i, 0, 0);
+							for (int j = 0; j < 6; j++)
+								dof6->setLimit(j, 0, 0);
 							m_dynamicsWorld->addConstraint(dof6, true);
 						}
 						else
@@ -330,7 +330,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 			getVerticesInsidePlanes(planes, vertices, planeIndices);
 			if (vertices.size() == 0)
 				break;
-			numplaneIndices = planeIndices.size();
+			numplaneIndices = (int)planeIndices.size();
 			if (numplaneIndices != planes.size())
 			{
 				planeIndicesIter = planeIndices.begin();
@@ -355,7 +355,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 			continue;
 
 		// Clean-up voronoi convex shard vertices and generate edges & faces
-		convexHC->compute(&vertices[0].getX(), sizeof(btVector3), vertices.size(), CONVEX_MARGIN, 0.0);
+		convexHC->compute(&vertices[0].getX(), sizeof(btVector3), vertices.size(), btScalar(CONVEX_MARGIN), 0.0);
 
 		// At this point we have a complete 3D voronoi shard mesh contained in convexHC
 
@@ -399,7 +399,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 
 		// Create Bullet Physics rigid body shards
 		btCollisionShape* shardShape = new btConvexHullShape(&(convexHC->vertices[0].getX()), convexHC->vertices.size());
-		shardShape->setMargin(CONVEX_MARGIN);  // for this demo; note convexHC has optional margin parameter for this
+		shardShape->setMargin(btScalar(CONVEX_MARGIN));  // for this demo; note convexHC has optional margin parameter for this
 		m_collisionShapes.push_back(shardShape);
 		btTransform shardTransform;
 		shardTransform.setIdentity();
@@ -485,7 +485,7 @@ void VoronoiFractureDemo::voronoiConvexHullShatter(const btAlignedObjectArray<bt
 			getVerticesInsidePlanes(planes, vertices, planeIndices);
 			if (vertices.size() == 0)
 				break;
-			numplaneIndices = planeIndices.size();
+			numplaneIndices = (int)planeIndices.size();
 			if (numplaneIndices != planes.size())
 			{
 				planeIndicesIter = planeIndices.begin();
@@ -553,7 +553,7 @@ void VoronoiFractureDemo::voronoiConvexHullShatter(const btAlignedObjectArray<bt
 
 		// Create Bullet Physics rigid body shards
 		btCollisionShape* shardShape = new btConvexHullShape(&(convexHC->vertices[0].getX()), convexHC->vertices.size());
-		shardShape->setMargin(CONVEX_MARGIN);  // for this demo; note convexHC has optional margin parameter for this
+		shardShape->setMargin(btScalar(CONVEX_MARGIN));  // for this demo; note convexHC has optional margin parameter for this
 		m_collisionShapes.push_back(shardShape);
 		btTransform shardTransform;
 		shardTransform.setIdentity();
@@ -637,7 +637,7 @@ void VoronoiFractureDemo::initPhysics()
 
 	srand(13);
 	useGenericConstraint = !useGenericConstraint;
-	printf("useGenericConstraint = %d\n", useGenericConstraint);
+	printf("useGenericConstraint = %u\n", useGenericConstraint);
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -705,7 +705,7 @@ void VoronoiFractureDemo::initPhysics()
 	}
 
 	{
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(8.), btScalar(1.)));
+		btCollisionShape* groundColShape = new btBoxShape(btVector3(btScalar(10.), btScalar(8.), btScalar(1.)));
 		btScalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
@@ -713,11 +713,11 @@ void VoronoiFractureDemo::initPhysics()
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			groundShape->calculateLocalInertia(mass, localInertia);
+			groundColShape->calculateLocalInertia(mass, localInertia);
 		groundTransform.setOrigin(btVector3(0, 0, 0));
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundColShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		//add the body to the dynamics world
@@ -727,14 +727,14 @@ void VoronoiFractureDemo::initPhysics()
 	// ==> Voronoi Shatter Basic Demo: Random Cuboid
 
 	// Random size cuboid (defined by bounding box max and min)
-	btVector3 bbmax(btScalar(rand() / btScalar(RAND_MAX)) * 12. + 0.5, btScalar(rand() / btScalar(RAND_MAX)) * 1. + 0.5, btScalar(rand() / btScalar(RAND_MAX)) * 1. + 0.5);
+	btVector3 bbmax(((btScalar)rand() / btScalar(RAND_MAX)) * 12. + 0.5, ((btScalar)rand() / btScalar(RAND_MAX)) * 1. + 0.5, ((btScalar)rand() / btScalar(RAND_MAX)) * 1. + 0.5);
 	btVector3 bbmin = -bbmax;
 	// Place it 10 units above ground
 	btVector3 bbt(0, 15, 0);
 	// Use an arbitrary material density for shards (should be consitent/relative with/to rest of RBs in world)
 	btScalar matDensity = 1;
 	// Using random rotation
-	btQuaternion bbq(btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1., btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1., btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1., btScalar(rand() / btScalar(RAND_MAX)) * 2. - 1.);
+	btQuaternion bbq(((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1.);
 	bbq.normalize();
 	// Generate random points for voronoi cells
 	btAlignedObjectArray<btVector3> points;
@@ -743,24 +743,24 @@ void VoronoiFractureDemo::initPhysics()
 	for (int i = 0; i < VORONOIPOINTS; i++)
 	{
 		// Place points within box area (points are in world coordinates)
-		point = quatRotate(bbq, btVector3(btScalar(rand() / btScalar(RAND_MAX)) * diff.x() - diff.x() / 2., btScalar(rand() / btScalar(RAND_MAX)) * diff.y() - diff.y() / 2., btScalar(rand() / btScalar(RAND_MAX)) * diff.z() - diff.z() / 2.)) + bbt;
+		point = quatRotate(bbq, btVector3(((btScalar)rand() / btScalar(RAND_MAX)) * diff.x() - diff.x() / 2., ((btScalar)rand() / btScalar(RAND_MAX)) * diff.y() - diff.y() / 2., ((btScalar)rand() / btScalar(RAND_MAX)) * diff.z() - diff.z() / 2.)) + bbt;
 		points.push_back(point);
 	}
 	m_perfmTimer.reset();
 	voronoiBBShatter(points, bbmin, bbmax, bbq, bbt, matDensity);
-	printf("Total Time: %f seconds\n", m_perfmTimer.getTimeMilliseconds() / 1000.);
+	printf("Total Time: %f seconds\n", (double)m_perfmTimer.getTimeMilliseconds() / 1000.);
 
 	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		obj->getCollisionShape()->setMargin(CONVEX_MARGIN + 0.01);
+		obj->getCollisionShape()->setMargin(btScalar(CONVEX_MARGIN + 0.01));
 	}
 	m_dynamicsWorld->performDiscreteCollisionDetection();
 
 	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		obj->getCollisionShape()->setMargin(CONVEX_MARGIN);
+		obj->getCollisionShape()->setMargin(btScalar(CONVEX_MARGIN));
 	}
 
 	attachFixedConstraints();

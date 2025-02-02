@@ -40,10 +40,10 @@ struct b3HashString
 
 		/* Fowler / Noll / Vo (FNV) Hash */
 		unsigned int hash = InitialFNV;
-		int len = m_string.length();
+		int len = (int)m_string.length();
 		for (int i = 0; i < len; i++)
 		{
-			hash = hash ^ (m_string[i]); /* xor  the low 8 bits */
+			hash = hash ^ (m_string[(size_t)i]); /* xor  the low 8 bits */
 			hash = hash * FNVMultiple;   /* multiply by the magic number */
 		}
 		m_hash = hash;
@@ -106,7 +106,7 @@ public:
 		key ^= (key >> 6);
 		key += ~(key << 11);
 		key ^= (key >> 16);
-		return key;
+		return (unsigned int)key;
 	}
 };
 
@@ -147,7 +147,7 @@ public:
 		key ^= (key >> 6);
 		key += ~(key << 11);
 		key ^= (key >> 16);
-		return key;
+		return (unsigned int)key;
 	}
 };
 
@@ -260,7 +260,7 @@ protected:
 				//const Value& value = m_valueArray[i];
 				//const Key& key = m_keyArray[i];
 
-				int hashValue = m_keyArray[i].getHash() & (m_valueArray.capacity() - 1);  // New hash value with new mask
+				int hashValue = (int)(m_keyArray[i].getHash() & (m_valueArray.capacity() - 1));  // New hash value with new mask
 				m_next[i] = m_hashTable[hashValue];
 				m_hashTable[hashValue] = i;
 			}
@@ -270,7 +270,7 @@ protected:
 public:
 	void insert(const Key& key, const Value& value)
 	{
-		int hash = key.getHash() & (m_valueArray.capacity() - 1);
+		int hash = (int)(key.getHash() & (m_valueArray.capacity() - 1));
 
 		//replace value if the key is already there
 		int index = findIndex(key);
@@ -290,7 +290,7 @@ public:
 		{
 			growTables(key);
 			//hash with new capacity
-			hash = key.getHash() & (m_valueArray.capacity() - 1);
+			hash = (int)(key.getHash() & (m_valueArray.capacity() - 1));
 		}
 		m_next[count] = m_hashTable[hash];
 		m_hashTable[hash] = count;
@@ -298,7 +298,7 @@ public:
 
 	void remove(const Key& key)
 	{
-		int hash = key.getHash() & (m_valueArray.capacity() - 1);
+		int hash = (int)(key.getHash() & (m_valueArray.capacity() - 1));
 
 		int pairIndex = findIndex(key);
 
@@ -343,7 +343,7 @@ public:
 		}
 
 		// Remove the last pair from the hash table.
-		int lastHash = m_keyArray[lastPairIndex].getHash() & (m_valueArray.capacity() - 1);
+		int lastHash = (int)(m_keyArray[lastPairIndex].getHash() & (m_valueArray.capacity() - 1));
 
 		index = m_hashTable[lastHash];
 		b3Assert(index != B3_HASH_NULL);
@@ -435,14 +435,14 @@ public:
 
 	int findIndex(const Key& key) const
 	{
-		unsigned int hash = key.getHash() & (m_valueArray.capacity() - 1);
+		unsigned int hash = (unsigned int)(key.getHash() & (m_valueArray.capacity() - 1));
 
 		if (hash >= (unsigned int)m_hashTable.size())
 		{
 			return B3_HASH_NULL;
 		}
 
-		int index = m_hashTable[hash];
+		int index = m_hashTable[(int)hash];
 		while ((index != B3_HASH_NULL) && key.equals(m_keyArray[index]) == false)
 		{
 			index = m_next[index];

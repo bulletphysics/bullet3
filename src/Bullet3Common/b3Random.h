@@ -34,13 +34,13 @@ B3_FORCE_INLINE unsigned int b3rand() { return genrand_int32(); }
 #define B3_RAND_MAX RAND_MAX
 
 B3_FORCE_INLINE void b3Srand(unsigned int seed) { srand(seed); }
-B3_FORCE_INLINE unsigned int b3rand() { return rand(); }
+B3_FORCE_INLINE unsigned int b3rand() { return (unsigned int)rand(); }
 
 #endif
 
 inline b3Scalar b3RandRange(b3Scalar minRange, b3Scalar maxRange)
 {
-	return (b3rand() / (b3Scalar(B3_RAND_MAX) + b3Scalar(1.0))) * (maxRange - minRange) + minRange;
+	return ((b3Scalar)b3rand() / (b3Scalar(B3_RAND_MAX) + b3Scalar(1.0))) * (maxRange - minRange) + minRange;
 }
 
 #endif  //B3_GEN_RANDOM_H

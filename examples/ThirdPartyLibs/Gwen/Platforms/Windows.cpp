@@ -12,7 +12,9 @@
 #include <windows.h>
 
 #include <mmsystem.h>
+#if _MSC_VER
 #pragma comment(lib, "winmm.lib")
+#endif
 
 using namespace Gwen;
 using namespace Gwen::Platform;
@@ -53,7 +55,7 @@ Gwen::UnicodeString Gwen::Platform::GetClipboardText()
 	}
 
 	wchar_t* buffer = (wchar_t*)GlobalLock(hData);
-	UnicodeString str = buffer;
+	UnicodeString str = buffer ? buffer : UnicodeString();
 	GlobalUnlock(hData);
 	CloseClipboard();
 	return str;
@@ -70,10 +72,14 @@ bool Gwen::Platform::SetClipboardText(const Gwen::UnicodeString& str)
 	HGLOBAL clipbuffer = GlobalAlloc(GMEM_DDESHARE, iDataSize);
 
 	// Copy the string into the buffer
-	wchar_t* buffer = (wchar_t*)GlobalLock(clipbuffer);
-	//wcscpy_s( buffer, iDataSize, str.c_str() );
-	memcpy(buffer, str.c_str(), iDataSize);
-	GlobalUnlock(clipbuffer);
+	wchar_t* buffer = clipbuffer ? (wchar_t*)GlobalLock(clipbuffer) : NULL;
+	if(buffer)
+	{
+		//wcscpy_s( buffer, iDataSize, str.c_str() );
+		memcpy(buffer, str.c_str(), iDataSize);
+	}
+	if(clipbuffer)
+		GlobalUnlock(clipbuffer);
 
 	// Place it on the clipboard
 	SetClipboardData(CF_UNICODETEXT, clipbuffer);

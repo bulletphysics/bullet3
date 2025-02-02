@@ -91,7 +91,7 @@ public:
 	// update the constraints
 	virtual btScalar update() = 0;
 
-	virtual void reinitialize(bool nodeUpdated)
+	virtual void reinitialize(bool /*nodeUpdated*/)
 	{
 	}
 

@@ -156,7 +156,7 @@ protected:
 		btTypedConstraint** constraints,
 		int numConstraints,
 		const btContactSolverInfo& infoGlobal,
-		btIDebugDraw* debugDrawer) ;
+		btIDebugDraw* debugDrawer) BT_OVERRIDE;
 
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR()
@@ -181,7 +181,7 @@ public:
 	void setNumFallbacks(int num);
 
 	/// Returns the constraint solver type.
-	virtual btConstraintSolverType getSolverType() const;
+	virtual btConstraintSolverType getSolverType() const BT_OVERRIDE;
 };
 
 #endif  // BT_MULTIBODY_MLCP_CONSTRAINT_SOLVER_H

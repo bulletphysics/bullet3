@@ -136,7 +136,7 @@ btKinematicCharacterController::btKinematicCharacterController(btPairCachingGhos
 	m_ghostObject = ghostObject;
 	m_up.setValue(0.0f, 0.0f, 1.0f);
 	m_jumpAxis.setValue(0.0f, 0.0f, 1.0f);
-	m_addedMargin = 0.02;
+	m_addedMargin = btScalar(0.02);
 	m_walkDirection.setValue(0.0, 0.0, 0.0);
 	m_AngVel.setValue(0.0, 0.0, 0.0);
 	m_useGhostObjectSweepTest = true;
@@ -146,7 +146,7 @@ btKinematicCharacterController::btKinematicCharacterController(btPairCachingGhos
 	m_velocityTimeInterval = 0.0;
 	m_verticalVelocity = 0.0;
 	m_verticalOffset = 0.0;
-	m_gravity = 9.8 * 3.0;  // 3G acceleration.
+	m_gravity = btScalar(9.8 * 3.0);  // 3G acceleration.
 	m_fallSpeed = 55.0;     // Terminal velocity of a sky diver in m/s.
 	m_jumpSpeed = 10.0;     // ?
 	m_SetjumpSpeed = m_jumpSpeed;
@@ -154,11 +154,14 @@ btKinematicCharacterController::btKinematicCharacterController(btPairCachingGhos
 	m_wasJumping = false;
 	m_interpolateUp = true;
 	m_currentStepOffset = 0.0;
-	m_maxPenetrationDepth = 0.2;
+	m_maxPenetrationDepth = btScalar(0.2);
 	full_drop = false;
 	bounce_fix = false;
 	m_linearDamping = btScalar(0.0);
 	m_angularDamping = btScalar(0.0);
+	m_halfHeight = 0.0;
+	m_maxJumpHeight = 0.0;
+	m_touchingContact = false;
 
 	setUp(up);
 	setStepHeight(stepHeight);
@@ -396,6 +399,7 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 	btScalar fraction = 1.0;
 	btScalar distance2 = (m_currentPosition - m_targetPosition).length2();
 	//	printf("distance2=%f\n",distance2);
+	(void)distance2;
 
 	int maxIter = 10;
 
@@ -654,7 +658,7 @@ void btKinematicCharacterController::setLinearVelocity(const btVector3& velocity
 			//there is a component in walkdirection for vertical velocity
 			btVector3 upComponent = m_up * (btSin(SIMD_HALF_PI - btAcos(c)) * m_walkDirection.length());
 			m_walkDirection -= upComponent;
-			m_verticalVelocity = (c < 0.0f ? -1 : 1) * upComponent.length();
+			m_verticalVelocity = (btScalar)(c < 0.0f ? -1 : 1) * upComponent.length();
 
 			if (c > 0.0f)
 			{
@@ -697,7 +701,7 @@ void btKinematicCharacterController::warp(const btVector3& origin)
 	m_ghostObject->setWorldTransform(xform);
 }
 
-void btKinematicCharacterController::preStep(btCollisionWorld* collisionWorld)
+void btKinematicCharacterController::preStep(btCollisionWorld* /*collisionWorld*/)
 {
 	m_currentPosition = m_ghostObject->getWorldTransform().getOrigin();
 	m_targetPosition = m_currentPosition;
@@ -941,7 +945,7 @@ btVector3* btKinematicCharacterController::getUpAxisDirections()
 	return sUpAxisDirection;
 }
 
-void btKinematicCharacterController::debugDraw(btIDebugDraw* debugDrawer)
+void btKinematicCharacterController::debugDraw(btIDebugDraw* /*debugDrawer*/)
 {
 }
 

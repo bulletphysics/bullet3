@@ -107,7 +107,7 @@ std::string Path_StripFilename(const std::string &sPath, char slash)
 	if (n == std::string::npos)
 		return sPath;
 	else
-		return std::string(sPath.begin(), sPath.begin() + n);
+		return std::string(sPath.begin(), sPath.begin() + (std::ptrdiff_t)n);
 }
 
 /** returns just the filename from the provided full or relative path. */
@@ -120,7 +120,7 @@ std::string Path_StripDirectory(const std::string &sPath, char slash)
 	if (n == std::string::npos)
 		return sPath;
 	else
-		return std::string(sPath.begin() + n + 1, sPath.end());
+		return std::string(sPath.begin() + (std::ptrdiff_t)n + 1, sPath.end());
 }
 
 /** returns just the filename with no extension of the provided filename. 
@@ -302,7 +302,7 @@ std::string Path_RemoveTrailingSlash(const std::string &sRawPath, char slash)
 
 	if (nLastFound >= 0)
 	{
-		sPath.erase(nLastFound, std::string::npos);
+		sPath.erase((size_t)nLastFound, std::string::npos);
 	}
 
 	return sPath;
@@ -389,7 +389,7 @@ std::string Path_GetThisModulePath()
 #ifdef WIN32
 	HMODULE hmodule = NULL;
 
-	::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCTSTR>(Path_GetThisModulePath), &hmodule);
+	::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCTSTR>((void*)Path_GetThisModulePath), &hmodule);
 
 	wchar_t *pwchPath = new wchar_t[MAX_UNICODE_PATH];
 	char *pchPath = new char[MAX_UNICODE_PATH_IN_UTF8];
@@ -451,10 +451,11 @@ bool Path_IsAppBundle(const std::string &sPath)
 {
 #if defined(OSX)
 	NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithUTF8String:sPath.c_str()]];
-	bool bisAppBundle = (nullptr != bundle);
+	bool bisAppBundle = (NULL != bundle);
 	[bundle release];
 	return bisAppBundle;
 #else
+	(void)sPath;
 	return false;
 #endif
 }
@@ -560,8 +561,8 @@ unsigned char *Path_ReadBinaryFile(const std::string &strFilename, int *pSize)
 		int size = ftell(f);
 		fseek(f, 0, SEEK_SET);
 
-		buf = new unsigned char[size];
-		if (buf && fread(buf, size, 1, f) == 1)
+		buf = new unsigned char[(size_t)size];
+		if (buf && fread(buf, (size_t)size, 1, f) == 1)
 		{
 			if (pSize)
 				*pSize = size;
@@ -639,7 +640,7 @@ bool Path_WriteBinaryFile(const std::string &strFilename, unsigned char *pData, 
 		fclose(f);
 	}
 
-	return written = nSize ? true : false;
+	return (written = nSize ? true : false);
 }
 
 std::string Path_ReadTextFile(const std::string &strFilename)
@@ -703,7 +704,7 @@ bool Path_WriteStringToTextFileAtomic(const std::string &strFilename, const char
 #if defined(_WIN32)
 	std::wstring wsFilename = UTF8to16(strFilename.c_str());
 	std::wstring wsTmpFilename = UTF8to16(strTmpFilename.c_str());
-	if (!::ReplaceFileW(wsFilename.c_str(), wsTmpFilename.c_str(), nullptr, 0, 0, 0))
+	if (!::ReplaceFileW(wsFilename.c_str(), wsTmpFilename.c_str(), NULL, 0, 0, 0))
 	{
 		// if we couldn't ReplaceFile, try a non-atomic write as a fallback
 		if (!Path_WriteStringToTextFile(strFilename, pchData))

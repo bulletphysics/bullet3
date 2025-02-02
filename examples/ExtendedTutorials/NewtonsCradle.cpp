@@ -64,7 +64,7 @@ struct NewtonsCradleExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1],
 								 targetPos[2]);
 	}
@@ -123,7 +123,7 @@ void NewtonsCradleExample::initPhysics()
 
 	{  // create a slider to change the force to displace the lowest pendulum
 		SliderParams slider("Displacement force", &gDisplacementForce);
-		slider.m_minVal = 0.1;
+		slider.m_minVal = 0.1f;
 		slider.m_maxVal = 200;
 		slider.m_clampToNotches = false;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
@@ -159,7 +159,7 @@ void NewtonsCradleExample::initPhysics()
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
 		m_collisionShapes.push_back(pendulumShape);
 
-		for (int i = 0; i < std::floor(gPendulaQty); i++)
+		for (int i = 0; (btScalar)i < std::floor(gPendulaQty); i++)
 		{
 			// create pendulum
 			createPendulum(pendulumShape, position, gInitialPendulumLength, pendulumMass);
@@ -296,7 +296,7 @@ void NewtonsCradleExample::renderScene()
 	CommonRigidBodyBase::renderScene();
 }
 
-bool NewtonsCradleExample::keyboardCallback(int key, int state)
+bool NewtonsCradleExample::keyboardCallback(int key, int /*state*/)
 {
 	//b3Printf("Key pressed: %d in state %d \n",key,state);
 
@@ -344,10 +344,10 @@ void NewtonsCradleExample::applyPendulumForce(btScalar pendulumForce)
 	if (pendulumForce != 0)
 	{
 		b3Printf("Apply %f to pendulum", pendulumForce);
-		for (int i = 0; i < gDisplacedPendula; i++)
+		for (int i = 0; (btScalar)i < gDisplacedPendula; i++)
 		{
 			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
-				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
+				pendula[(size_t)i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
 		}
 	}
 }

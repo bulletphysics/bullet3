@@ -150,18 +150,18 @@ void GL_ShapeDrawer::drawSphere(btScalar radius, int lats, int longs)
 	int i, j;
 	for (i = 0; i <= lats; i++)
 	{
-		btScalar lat0 = SIMD_PI * (-btScalar(0.5) + (btScalar)(i - 1) / lats);
+		btScalar lat0 = SIMD_PI * (-btScalar(0.5) + (btScalar)(i - 1) / (btScalar)lats);
 		btScalar z0 = radius * std::sin(lat0);
 		btScalar zr0 = radius * std::cos(lat0);
 
-		btScalar lat1 = SIMD_PI * (-btScalar(0.5) + (btScalar)i / lats);
+		btScalar lat1 = SIMD_PI * (-btScalar(0.5) + (btScalar)i / (btScalar)lats);
 		btScalar z1 = radius * std::sin(lat1);
 		btScalar zr1 = radius * std::cos(lat1);
 
 		glBegin(GL_QUAD_STRIP);
 		for (j = 0; j <= longs; j++)
 		{
-			btScalar lng = 2 * SIMD_PI * (btScalar)(j - 1) / longs;
+			btScalar lng = 2 * SIMD_PI * (btScalar)(j - 1) / (btScalar)longs;
 			btScalar x = std::cos(lng);
 			btScalar y = std::sin(lng);
 			glNormal3f(x * zr1, y * zr1, z1);
@@ -198,15 +198,15 @@ GL_ShapeDrawer::ShapeCache* GL_ShapeDrawer::cache(btConvexShape* shape)
 			{
 				const unsigned int a = ti[j];
 				const unsigned int b = ti[k];
-				ShapeCache::Edge*& e = edges[btMin(a, b) * nv + btMax(a, b)];
+				ShapeCache::Edge*& e = edges[(int)(btMin(a, b) * nv + btMax(a, b))];
 				if (!e)
 				{
 					sc->m_edges.push_back(ShapeCache::Edge());
 					e = &sc->m_edges[sc->m_edges.size() - 1];
 					e->n[0] = nrm;
 					e->n[1] = -nrm;
-					e->v[0] = a;
-					e->v[1] = b;
+					e->v[0] = (int)a;
+					e->v[1] = (int)b;
 				}
 				else
 				{
@@ -335,7 +335,7 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 				{
 					const int s = x >> 4;
 					const GLubyte b = 180;
-					GLubyte c = b + ((s + (t & 1)) & 1) * (255 - b);
+					GLubyte c = (GLubyte)(b + ((s + (t & 1)) & 1) * (255 - b));
 					pi[0] = pi[1] = pi[2] = pi[3] = c;
 					pi += 3;
 				}
@@ -585,9 +585,9 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 											 i2 < hull->numIndices() &&
 											 i3 < hull->numIndices());
 
-									int index1 = idx[i1];
-									int index2 = idx[i2];
-									int index3 = idx[i3];
+									int index1 = (int)idx[i1];
+									int index2 = (int)idx[i2];
+									int index3 = (int)idx[i3];
 									btAssert(index1 < hull->numVertices() &&
 											 index2 < hull->numVertices() &&
 											 index3 < hull->numVertices());
@@ -749,7 +749,6 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 	btMatrix3x3 rot;
 	rot.setIdentity();
 	const int numObjects = dynamicsWorld->getNumCollisionObjects();
-	btVector3 wireColor(1, 0, 0);
 	//glDisable(GL_CULL_FACE);
 
 	for (int i = 0; i < numObjects; i++)
@@ -767,7 +766,7 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 			colObj->getWorldTransform().getOpenGLMatrix(m);
 			rot = colObj->getWorldTransform().getBasis();
 		}
-		btVector3 wireColor(1.f, 1.0f, 0.5f);  //wants deactivation
+		btVector3 wireColor = btVector3(1.f, 1.0f, 0.5f);  //wants deactivation
 		if (i & 1) wireColor = btVector3(0.f, 0.0f, 1.f);
 		///color differently for active, sleeping, wantsdeactivation states
 		if (colObj->getActivationState() == 1)  //active
@@ -831,7 +830,7 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 
 //this GL_ShapeDrawer will be removed, in the meanwhile directly access this global 'useShadoMaps'
 extern bool useShadowMap;
-void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, bool useShadows1, int cameraUpAxis)
+void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, bool /*useShadows1*/, int cameraUpAxis)
 {
 	bool useShadows = useShadowMap;
 	GLfloat light_ambient[] = {btScalar(0.2), btScalar(0.2), btScalar(0.2), btScalar(1.0)};

@@ -54,7 +54,7 @@ btConstraintSolverPoolMt::ThreadSolver* btConstraintSolverPoolMt::getAndLockThre
 {
 	int i = 0;
 #if BT_THREADSAFE
-	i = btGetCurrentThreadIndex() % m_solvers.size();
+	i = (int)btGetCurrentThreadIndex() % m_solvers.size();
 #endif  // #if BT_THREADSAFE
 	while (true)
 	{

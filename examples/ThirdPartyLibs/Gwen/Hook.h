@@ -20,6 +20,7 @@ namespace Hook
 class GWEN_EXPORT BaseHook
 {
 public:
+	virtual ~BaseHook() {}
 	virtual bool OnControlClicked(Gwen::Controls::Base*, int /*iMouseX*/, int /*iMouseY*/) { return false; };
 };
 

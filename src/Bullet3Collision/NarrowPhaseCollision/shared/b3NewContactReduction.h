@@ -152,10 +152,13 @@ __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 					{
 						case 4:
 							c->m_worldPosB[3] = pointsIn[contactIdx.w];
+						// fallthrough
 						case 3:
 							c->m_worldPosB[2] = pointsIn[contactIdx.z];
+						// fallthrough
 						case 2:
 							c->m_worldPosB[1] = pointsIn[contactIdx.y];
+						// fallthrough
 						case 1:
 							c->m_worldPosB[0] = pointsIn[contactIdx.x];
 						default:

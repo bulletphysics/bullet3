@@ -162,9 +162,9 @@ struct b3GraphicsInstance
 	int m_flags;  //transparency etc
 
 	b3GraphicsInstance()
-		: m_cube_vao(-1),
-		  m_index_vbo(-1),
-		  m_textureIndex(-1),
+		: m_cube_vao((GLuint)-1),
+		  m_index_vbo((GLuint)-1),
+		  m_textureIndex((GLuint)-1),
 		  m_numIndices(-1),
 		  m_numVertices(-1),
 		  m_numGraphicsInstances(0),
@@ -260,7 +260,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		
 		m_lightPos = b3MakeVector3(-50, 30, 40);
 		m_lightSpecularIntensity.setValue(1, 1, 1);
-		m_shadowmapIntensity = 0.3;
+		m_shadowmapIntensity = 0.3f;
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i = 0; i < 16; i++)
@@ -283,8 +283,8 @@ struct GLInstanceRendererInternalData* GLInstancingRenderer::getInternalData()
 
 static GLuint triangleShaderProgram;
 static GLint triangle_mvp_location = -1;
-static GLint triangle_vpos_location = -1;
-static GLint triangle_vUV_location = -1;
+// static GLint triangle_vpos_location = -1;
+// static GLint triangle_vUV_location = -1;
 static GLint triangle_vcol_location = -1;
 static GLuint triangleVertexBufferObject = 0;
 static GLuint triangleVertexArrayObject = 0;
@@ -527,7 +527,7 @@ void GLInstancingRenderer::writeSingleInstanceFlagsToCPU(int flags, int srcIndex
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int srcIndex = pg->m_internalInstanceIndex;
+	// int srcIndex = pg->m_internalInstanceIndex;
 
 	int shapeIndex = pg->m_shapeIndex;
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
@@ -609,7 +609,7 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* s
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int graphicsIndex = pg->m_internalInstanceIndex;
+	// int graphicsIndex = pg->m_internalInstanceIndex;
 
 	int totalNumInstances = 0;
 
@@ -635,7 +635,7 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* sp
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int srcIndex = pg->m_internalInstanceIndex;
+	// int srcIndex = pg->m_internalInstanceIndex;
 
 	int totalNumInstances = 0;
 
@@ -690,7 +690,7 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 		totalNumInstances += gfxObj->m_numGraphicsInstances;
 	}
 
-	int POSITION_BUFFER_SIZE = (totalNumInstances * sizeof(float) * 4);
+	int POSITION_BUFFER_SIZE = (int)(totalNumInstances * sizeof(float) * 4);
 
 	char* base = orgBase;
 
@@ -747,9 +747,9 @@ void GLInstancingRenderer::writeTransforms()
 	}
 #endif  //B3_DEBUG
 
-	int POSITION_BUFFER_SIZE = (m_data->m_totalNumInstances * sizeof(float) * 4);
-	int ORIENTATION_BUFFER_SIZE = (m_data->m_totalNumInstances * sizeof(float) * 4);
-	int COLOR_BUFFER_SIZE = (m_data->m_totalNumInstances * sizeof(float) * 4);
+	int POSITION_BUFFER_SIZE = (int)(m_data->m_totalNumInstances * sizeof(float) * 4);
+	int ORIENTATION_BUFFER_SIZE = (int)(m_data->m_totalNumInstances * sizeof(float) * 4);
+	int COLOR_BUFFER_SIZE = (int)(m_data->m_totalNumInstances * sizeof(float) * 4);
 	//	int SCALE_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
 
 #if 1
@@ -757,22 +757,22 @@ void GLInstancingRenderer::writeTransforms()
 		//	printf("m_data->m_totalNumInstances = %d\n", m_data->m_totalNumInstances);
 		{
 			//B3_PROFILE("glBufferSubData pos");
-			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes, m_data->m_totalNumInstances * sizeof(float) * 4,
+			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes, (GLsizeiptr)(m_data->m_totalNumInstances * sizeof(float) * 4),
 							&m_data->m_instance_positions_ptr[0]);
 		}
 		{
 			//			B3_PROFILE("glBufferSubData orn");
-			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE, m_data->m_totalNumInstances * sizeof(float) * 4,
+			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE, (GLsizeiptr)(m_data->m_totalNumInstances * sizeof(float) * 4),
 							&m_data->m_instance_quaternion_ptr[0]);
 		}
 		{
 			//			B3_PROFILE("glBufferSubData color");
-			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE, m_data->m_totalNumInstances * sizeof(float) * 4,
+			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE, (GLsizeiptr)(m_data->m_totalNumInstances * sizeof(float) * 4),
 							&m_data->m_instance_colors_ptr[0]);
 		}
 		{
 			//			B3_PROFILE("glBufferSubData scale");
-			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE + COLOR_BUFFER_SIZE, m_data->m_totalNumInstances * sizeof(float) * 4,
+			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE + COLOR_BUFFER_SIZE, (GLsizeiptr)(m_data->m_totalNumInstances * sizeof(float) * 4),
 							&m_data->m_instance_scale_ptr[0]);
 		}
 	}
@@ -1070,11 +1070,11 @@ void GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 		b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 		if (textureId >= 0 && textureId < m_data->m_textureHandles.size())
 		{
-			gfxObj->m_textureIndex = textureId;
+			gfxObj->m_textureIndex = (GLuint)textureId;
 			gfxObj->m_flags |= B3_INSTANCE_TEXTURE;
 		} else
 		{
-			gfxObj->m_textureIndex = -1;
+			gfxObj->m_textureIndex = (GLuint)-1;
 			gfxObj->m_flags &= ~B3_INSTANCE_TEXTURE;
 		}
 	}
@@ -1165,7 +1165,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 
 	if (textureId >= 0)
 	{
-		gfxObj->m_textureIndex = textureId;
+		gfxObj->m_textureIndex = (GLuint)textureId;
 		gfxObj->m_flags |= B3_INSTANCE_TEXTURE;
 	}
 
@@ -1215,7 +1215,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	glGenBuffers(1, &gfxObj->m_index_vbo);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gfxObj->m_index_vbo);
-	int indexBufferSizeInBytes = gfxObj->m_numIndices * sizeof(int);
+	int indexBufferSizeInBytes = (int)(gfxObj->m_numIndices * sizeof(int));
 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSizeInBytes, NULL, GL_STATIC_DRAW);
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexBufferSizeInBytes, indices);
@@ -1233,10 +1233,10 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 
 void GLInstancingRenderer::InitShaders()
 {
-	int POSITION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
-	int ORIENTATION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
-	int COLOR_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
-	int SCALE_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
+	int POSITION_BUFFER_SIZE = (int)(m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
+	int ORIENTATION_BUFFER_SIZE = (int)(m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
+	int COLOR_BUFFER_SIZE = (int)(m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
+	int SCALE_BUFFER_SIZE = (int)(m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
 
 	{
 		triangleShaderProgram = gltLoadShaderPair(triangleVertexShaderText, triangleFragmentShader);
@@ -1623,10 +1623,17 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 {
 	b3Assert(glGetError() == GL_NO_ERROR);
 	glPixelStorei(GL_PACK_ALIGNMENT, 4);
+	if(!textureWidth || !textureHeight) return;
 
 	glReadBuffer(GL_NONE);
-	float* orgPixels = (float*)malloc(textureWidth * textureHeight * numComponents * 4);
-	char* pixels = (char*)malloc(textureWidth * textureHeight * numComponents * 4);
+	float* orgPixels = (float*)malloc((size_t)(textureWidth * textureHeight * numComponents * 4));
+	if(!orgPixels) return;
+	char* pixels = (char*)malloc((size_t)(textureWidth * textureHeight * numComponents * 4));
+	if(!pixels) 
+	{
+		free(orgPixels);
+		return;
+	}
 	glReadPixels(0, 0, textureWidth, textureHeight, GL_DEPTH_COMPONENT, GL_FLOAT, orgPixels);
 	b3Assert(glGetError() == GL_NO_ERROR);
 	for (int j = 0; j < textureHeight; j++)
@@ -1657,7 +1664,7 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 	if (0)
 	{
 		//swap the pixels
-		unsigned char tmp;
+		char tmp;
 
 		for (int j = 0; j < textureHeight / 2; j++)
 		{
@@ -1676,6 +1683,7 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 
 	stbi_write_png(fileName, textureWidth, textureHeight, numComponents, pixels, textureWidth * numComponents);
 
+	free(orgPixels);
 	free(pixels);
 }
 
@@ -1854,9 +1862,9 @@ static void b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center, const 
 }
 
 
-void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex, int vertexLayout)
+void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex, int /*vertexLayout*/)
 {
-	int sz = sizeof(GfxVertexFormat0);
+	// int sz = sizeof(GfxVertexFormat0);
 
 	glActiveTexture(GL_TEXTURE0);
 	activateTexture(textureIndex);
@@ -1892,8 +1900,8 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject);
 	checkError("glBindBuffer");
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GfxVertexFormat0) * numvertices, 0, GL_DYNAMIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GfxVertexFormat0) * numvertices, vertices);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)sizeof(GfxVertexFormat0) * numvertices, 0, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)sizeof(GfxVertexFormat0) * numvertices, vertices);
 
 	PointerCaster posCast;
 	posCast.m_baseIndex = 0;
@@ -1910,10 +1918,10 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	checkError("glVertexAttribDivisor");
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexVbo);
-	int indexBufferSizeInBytes = numIndices * sizeof(int);
+	// int indexBufferSizeInBytes = numIndices * sizeof(int);
 
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(int), NULL, GL_DYNAMIC_DRAW);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, numIndices * sizeof(int), indices);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(numIndices * sizeof(int)), NULL, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (GLsizeiptr)(numIndices * sizeof(int)), indices);
 
 	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 
@@ -1965,13 +1973,13 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float* color
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, pointsVertexBufferObject);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, curPointsInBatch * pointStrideInBytes, positions + offsetNumPoints * 3);
-			glEnableVertexAttribArray(points_position);
-			glVertexAttribPointer(points_position, 3, GL_FLOAT, GL_FALSE, pointStrideInBytes, 0);
+			glEnableVertexAttribArray((GLuint)points_position);
+			glVertexAttribPointer((GLuint)points_position, 3, GL_FLOAT, GL_FALSE, pointStrideInBytes, 0);
 
 			glBindBuffer(GL_ARRAY_BUFFER, pointsVertexArrayObject);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, curPointsInBatch * 4 * sizeof(float), colors + offsetNumPoints * 4);
-			glEnableVertexAttribArray(points_colourIn);
-			glVertexAttribPointer(points_colourIn, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)(curPointsInBatch * 4 * sizeof(float)), colors + offsetNumPoints * 4);
+			glEnableVertexAttribArray((GLuint)points_colourIn);
+			glVertexAttribPointer((GLuint)points_colourIn, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
 			glDrawArrays(GL_POINTS, 0, curPointsInBatch);
 			remainingPoints -= curPointsInBatch;
@@ -2029,7 +2037,7 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 		b3Assert(glGetError() == GL_NO_ERROR);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, linesIndexVbo);
-		int indexBufferSizeInBytes = numIndices * sizeof(int);
+		int indexBufferSizeInBytes = (int)(numIndices * sizeof(int));
 
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBufferSizeInBytes, NULL, GL_DYNAMIC_DRAW);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexBufferSizeInBytes, indices);
@@ -2217,8 +2225,8 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 #ifdef OLD_SHADOWMAP_INIT
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-#else   //OLD_SHADOWMAP_INIT                                                              \
-		//Reduce size of shadowMap if glTexImage2D call fails as may happen in some cases \
+#else   //OLD_SHADOWMAP_INIT                                                              
+		//Reduce size of shadowMap if glTexImage2D call fails as may happen in some cases
 		//https://github.com/bulletphysics/bullet3/issues/40
 
 			int size;
@@ -2433,10 +2441,10 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 				GLuint curBindTexture = 0;
 				if (gfxObj->m_flags & B3_INSTANCE_TEXTURE)
 				{
-					curBindTexture = m_data->m_textureHandles[gfxObj->m_textureIndex].m_glTexture;
+					curBindTexture = m_data->m_textureHandles[(int)gfxObj->m_textureIndex].m_glTexture;
 					glBindTexture(GL_TEXTURE_2D, curBindTexture);
 
-					if (m_data->m_textureHandles[gfxObj->m_textureIndex].m_enableFiltering)
+					if (m_data->m_textureHandles[(int)gfxObj->m_textureIndex].m_enableFiltering)
 					{
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 						if (renderMode == B3_CREATE_SHADOWMAP_RENDERMODE)
@@ -2471,9 +2479,9 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 				b3Assert(glGetError() == GL_NO_ERROR);
 				//	int myOffset = gfxObj->m_instanceOffset*4*sizeof(float);
 
-				int POSITION_BUFFER_SIZE = (totalNumInstances * sizeof(float) * 4);
-				int ORIENTATION_BUFFER_SIZE = (totalNumInstances * sizeof(float) * 4);
-				int COLOR_BUFFER_SIZE = (totalNumInstances * sizeof(float) * 4);
+				int POSITION_BUFFER_SIZE = (int)(totalNumInstances * sizeof(float) * 4);
+				int ORIENTATION_BUFFER_SIZE = (int)(totalNumInstances * sizeof(float) * 4);
+				int COLOR_BUFFER_SIZE = (int)(totalNumInstances * sizeof(float) * 4);
 				//		int SCALE_BUFFER_SIZE = (totalNumInstances*sizeof(float)*3);
 
 				glBindVertexArray(gfxObj->m_cube_vao);
@@ -2490,10 +2498,10 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 				glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE));
 
 				PointerCaster uv;
-				uv.m_baseIndex = 7 * sizeof(float) + vertex.m_baseIndex;
+				uv.m_baseIndex = (int)(7 * sizeof(float) + vertex.m_baseIndex);
 
 				PointerCaster normal;
-				normal.m_baseIndex = 4 * sizeof(float) + vertex.m_baseIndex;
+				normal.m_baseIndex = (int)(4 * sizeof(float) + vertex.m_baseIndex);
 
 				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), uv.m_pointer);
 				glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), normal.m_pointer);

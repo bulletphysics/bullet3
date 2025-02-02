@@ -29,39 +29,39 @@ UnicodeString Gwen::Utility::Format(const wchar_t* fmt, ...)
 void Gwen::Utility::Strings::Split(const Gwen::String& str, const Gwen::String& seperator, Strings::List& outbits, bool bLeave)
 {
 	int iOffset = 0;
-	int iLength = str.length();
-	int iSepLen = seperator.length();
+	int iLength = (int)str.length();
+	int iSepLen = (int)seperator.length();
 
 	size_t i = str.find(seperator, 0);
 	while (i != std::string::npos)
 	{
-		outbits.push_back(str.substr(iOffset, i - iOffset));
-		iOffset = i + iSepLen;
+		outbits.push_back(str.substr((size_t)iOffset, (size_t)(i - iOffset)));
+		iOffset = (int)(i + iSepLen);
 
-		i = str.find(seperator, iOffset);
+		i = str.find(seperator, (size_t)iOffset);
 		if (bLeave) iOffset -= iSepLen;
 	}
 
-	outbits.push_back(str.substr(iOffset, iLength - iOffset));
+	outbits.push_back(str.substr((size_t)iOffset, (size_t)(iLength - iOffset)));
 }
 
 void Gwen::Utility::Strings::Split(const Gwen::UnicodeString& str, const Gwen::UnicodeString& seperator, Strings::UnicodeList& outbits, bool bLeave)
 {
 	int iOffset = 0;
-	int iLength = str.length();
-	int iSepLen = seperator.length();
+	int iLength = (int)str.length();
+	int iSepLen = (int)seperator.length();
 
 	size_t i = str.find(seperator, 0);
 	while (i != std::wstring::npos)
 	{
-		outbits.push_back(str.substr(iOffset, i - iOffset));
-		iOffset = i + iSepLen;
+		outbits.push_back(str.substr((size_t)iOffset, (size_t)(i - iOffset)));
+		iOffset = (int)(i + iSepLen);
 
-		i = str.find(seperator, iOffset);
+		i = str.find(seperator, (size_t)iOffset);
 		if (bLeave) iOffset -= iSepLen;
 	}
 
-	outbits.push_back(str.substr(iOffset, iLength - iOffset));
+	outbits.push_back(str.substr((size_t)iOffset, (size_t)(iLength - iOffset)));
 }
 
 int Gwen::Utility::Strings::To::Int(const Gwen::String& str)

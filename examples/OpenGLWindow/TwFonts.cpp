@@ -90,7 +90,7 @@ CTexFont *TwGenerateFont(const unsigned char *_Bitmap, int _BmWidth, int _BmHeig
 			++hh;
 
 	// find width and position of each character
-	int w = 0;
+	int w = 0; (void)w;
 	int x0[224], y0[224], x1[224], y1[224];
 	int ch = 32;
 	int start;
@@ -143,8 +143,8 @@ CTexFont *TwGenerateFont(const unsigned char *_Bitmap, int _BmWidth, int _BmHeig
 	TexFont->m_CharHeight = h;
 	TexFont->m_TexWidth = NextPow2(lmax);
 	TexFont->m_TexHeight = NextPow2(14 * (h + MARGIN_Y));
-	TexFont->m_TexBytes = new unsigned char[TexFont->m_TexWidth * TexFont->m_TexHeight];
-	memset(TexFont->m_TexBytes, 0, TexFont->m_TexWidth * TexFont->m_TexHeight);
+	TexFont->m_TexBytes = new unsigned char[(size_t)(TexFont->m_TexWidth * TexFont->m_TexHeight)];
+	memset(TexFont->m_TexBytes, 0, (size_t)(TexFont->m_TexWidth * TexFont->m_TexHeight));
 	int xx;
 	float du = 0.f;  //0.4f;
 	float dv = 0.f;  //0.4f;

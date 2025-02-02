@@ -390,7 +390,7 @@ const btVector3 btReducedDeformableBody::internalComputeNodeDeltaVelocity(const 
   return deltaV;
 }
 
-void btReducedDeformableBody::proceedToTransform(btScalar dt, bool end_of_time_step)
+void btReducedDeformableBody::proceedToTransform(btScalar dt, bool /*end_of_time_step*/)
 {
   btTransformUtil::integrateTransform(m_rigidTransformWorld, m_linearVelocity, m_angularVelocity, dt, m_interpolationWorldTransform);
   updateInertiaTensor();
@@ -491,7 +491,7 @@ void btReducedDeformableBody::scale(const btVector3& scl)
   internalInitialization();
 }
 
-void btReducedDeformableBody::setTotalMass(btScalar mass, bool fromfaces)
+void btReducedDeformableBody::setTotalMass(btScalar mass, bool /*fromfaces*/)
 {
   // Changing the total mass after transform is applied is not allowed
   btAssert(!m_transform_lock);
@@ -587,7 +587,7 @@ void btReducedDeformableBody::updateInertiaTensor()
 	m_invInertiaTensorWorld = m_rigidTransformWorld.getBasis() * m_invInertiaTensorWorldInitial * m_rigidTransformWorld.getBasis().transpose();
 }
 
-void btReducedDeformableBody::applyDamping(btScalar timeStep)
+void btReducedDeformableBody::applyDamping(btScalar /*timeStep*/)
 {
   m_linearVelocity *= btScalar(1) - m_linearDamping;
   m_angularDamping *= btScalar(1) - m_angularDamping;

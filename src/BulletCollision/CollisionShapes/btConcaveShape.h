@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "btCollisionShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"  // for the types
 #include "btTriangleCallback.h"
+#include "LinearMath/btOverride.h"
 
 /// PHY_ScalarType enumerates possible scalar types.
 /// See the btStridingMeshInterface or btHeightfieldTerrainShape for its use
@@ -45,15 +46,15 @@ public:
 
 	btConcaveShape();
 
-	virtual ~btConcaveShape();
+	virtual ~btConcaveShape() BT_OVERRIDE;
 
 	virtual void processAllTriangles(btTriangleCallback * callback, const btVector3& aabbMin, const btVector3& aabbMax) const = 0;
 
-	virtual btScalar getMargin() const
+	virtual btScalar getMargin() const BT_OVERRIDE
 	{
 		return m_collisionMargin;
 	}
-	virtual void setMargin(btScalar collisionMargin)
+	virtual void setMargin(btScalar collisionMargin) BT_OVERRIDE
 	{
 		m_collisionMargin = collisionMargin;
 	}

@@ -214,16 +214,16 @@ void btAxisSweep3<BP_FP_INT_TYPE>::debugPrintAxis(int axis, bool checkCardinalit
 #endif  //DEBUG_BROADPHASE
 
 template <typename BP_FP_INT_TYPE>
-btBroadphaseProxy* btAxisSweep3Internal<BP_FP_INT_TYPE>::createProxy(const btVector3& aabbMin, const btVector3& aabbMax, int shapeType, void* userPtr, int collisionFilterGroup, int collisionFilterMask, btDispatcher* dispatcher)
+btBroadphaseProxy* btAxisSweep3Internal<BP_FP_INT_TYPE>::createProxy(const btVector3& aabbMin, const btVector3& aabbMax, int shapeType, void* userPtr, int collisionFilterGroupL, int collisionFilterMaskL, btDispatcher* dispatcher)
 {
 	(void)shapeType;
-	BP_FP_INT_TYPE handleId = addHandle(aabbMin, aabbMax, userPtr, collisionFilterGroup, collisionFilterMask, dispatcher);
+	BP_FP_INT_TYPE handleId = addHandle(aabbMin, aabbMax, userPtr, collisionFilterGroupL, collisionFilterMaskL, dispatcher);
 
 	Handle* handle = getHandle(handleId);
 
 	if (m_raycastAccelerator)
 	{
-		btBroadphaseProxy* rayProxy = m_raycastAccelerator->createProxy(aabbMin, aabbMax, shapeType, userPtr, collisionFilterGroup, collisionFilterMask, dispatcher);
+		btBroadphaseProxy* rayProxy = m_raycastAccelerator->createProxy(aabbMin, aabbMax, shapeType, userPtr, collisionFilterGroupL, collisionFilterMaskL, dispatcher);
 		handle->m_dbvtProxy = rayProxy;
 	}
 	return handle;
@@ -381,10 +381,10 @@ btAxisSweep3Internal<BP_FP_INT_TYPE>::btAxisSweep3Internal(const btVector3& worl
 
 	{
 		// allocate edge buffers
-		for (int i = 0; i < 3; i++)
+		for (size_t i = 0; i < 3; i++)
 		{
 			m_pEdgesRawPtr[i] = btAlignedAlloc(sizeof(Edge) * maxHandles * 2, 16);
-			m_pEdges[i] = new (m_pEdgesRawPtr[i]) Edge[maxHandles * 2];
+			m_pEdges[i] = new (m_pEdgesRawPtr[i]) Edge[(size_t)maxHandles * 2];
 		}
 	}
 	//removed overlap management
@@ -447,9 +447,9 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::quantize(BP_FP_INT_TYPE* out, const b
 	out[2] = (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v.getZ() & m_bpHandleMask) | isMax);
 #else
 	btVector3 v = (point - m_worldAabbMin) * m_quantize;
-	out[0] = (v[0] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[0] >= m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[0] & m_bpHandleMask) | isMax);
-	out[1] = (v[1] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[1] >= m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[1] & m_bpHandleMask) | isMax);
-	out[2] = (v[2] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[2] >= m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[2] & m_bpHandleMask) | isMax);
+	out[0] = (v[0] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[0] >= (btScalar)m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[0] & m_bpHandleMask) | isMax);
+	out[1] = (v[1] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[1] >= (btScalar)m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[1] & m_bpHandleMask) | isMax);
+	out[2] = (v[2] <= 0) ? (BP_FP_INT_TYPE)isMax : (v[2] >= (btScalar)m_handleSentinel) ? (BP_FP_INT_TYPE)((m_handleSentinel & m_bpHandleMask) | isMax) : (BP_FP_INT_TYPE)(((BP_FP_INT_TYPE)v[2] & m_bpHandleMask) | isMax);
 #endif  //OLD_CLAMPING_METHOD
 }
 
@@ -477,7 +477,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::freeHandle(BP_FP_INT_TYPE handle)
 }
 
 template <typename BP_FP_INT_TYPE>
-BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btVector3& aabbMin, const btVector3& aabbMax, void* pOwner, int collisionFilterGroup, int collisionFilterMask, btDispatcher* dispatcher)
+BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btVector3& aabbMin, const btVector3& aabbMax, void* pOwner, int collisionFilterGroupL, int collisionFilterMaskL, btDispatcher* dispatcher)
 {
 	// quantize the bounds
 	BP_FP_INT_TYPE min[3], max[3];
@@ -492,8 +492,8 @@ BP_FP_INT_TYPE btAxisSweep3Internal<BP_FP_INT_TYPE>::addHandle(const btVector3& 
 	pHandle->m_uniqueId = static_cast<int>(handle);
 	//pHandle->m_pOverlaps = 0;
 	pHandle->m_clientObject = pOwner;
-	pHandle->m_collisionFilterGroup = collisionFilterGroup;
-	pHandle->m_collisionFilterMask = collisionFilterMask;
+	pHandle->m_collisionFilterGroup = collisionFilterGroupL;
+	pHandle->m_collisionFilterMask = collisionFilterMaskL;
 
 	// compute current limit of edge arrays
 	BP_FP_INT_TYPE limit = static_cast<BP_FP_INT_TYPE>(m_numHandles * 2);
