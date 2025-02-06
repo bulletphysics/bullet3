@@ -20,6 +20,14 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"  // for the types
 #include "LinearMath/btVector3.h"
 
+#if defined(BT_USE_DOUBLE_PRECISION)
+#define btCylinderShapeData btCylinderShapeDoubleData
+#define btCylinderShapeDataName "btCylinderShapeDoubleData"
+#else
+#define btCylinderShapeData btCylinderShapeFloatData
+#define btCylinderShapeDataName "btCylinderShapeFloatData"
+#endif
+
 /// The btCylinderShape class implements a cylinder shape primitive, centered around the origin. Its central axis aligned with the Y axis. btCylinderShapeX is aligned with the X axis and btCylinderShapeZ around the Z axis.
 ATTRIBUTE_ALIGNED16(class)
 btCylinderShape : public btConvexInternalShape
@@ -171,9 +179,17 @@ public:
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btCylinderShapeData
+struct	btCylinderShapeDoubleData
 {
-	btConvexInternalShapeData m_convexInternalShapeData;
+	btConvexInternalShapeDoubleData	m_convexInternalShapeData;
+
+	int	m_upAxis;
+
+	char	m_padding[4];
+};
+struct	btCylinderShapeFloatData
+{
+	btConvexInternalShapeFloatData	m_convexInternalShapeData;
 
 	int m_upAxis;
 
@@ -200,7 +216,7 @@ SIMD_FORCE_INLINE const char* btCylinderShape::serialize(void* dataBuffer, btSer
 	shapeData->m_padding[2] = 0;
 	shapeData->m_padding[3] = 0;
 
-	return "btCylinderShapeData";
+	return btCylinderShapeDataName;
 }
 
 #endif  //BT_CYLINDER_MINKOWSKI_H

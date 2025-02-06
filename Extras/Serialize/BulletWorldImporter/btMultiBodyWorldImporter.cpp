@@ -320,6 +320,8 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 						btTransform tr;
 						tr.deSerializeDouble(rbd->m_collisionObjectData.m_worldTransform);
 						rb->setWorldTransform(tr);
+						btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
+						rb->setMotionState(myMotionState);
 						btVector3 linVel, angVel;
 						linVel.deSerializeDouble(rbd->m_linearVelocity);
 						angVel.deSerializeDouble(rbd->m_angularVelocity);
@@ -405,6 +407,8 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 						btTransform tr;
 						tr.deSerializeFloat(rbd->m_collisionObjectData.m_worldTransform);
 						rb->setWorldTransform(tr);
+						btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
+						rb->setMotionState(myMotionState);
 						btVector3 linVel, angVel;
 						linVel.deSerializeFloat(rbd->m_linearVelocity);
 						angVel.deSerializeFloat(rbd->m_angularVelocity);

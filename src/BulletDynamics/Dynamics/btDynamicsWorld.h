@@ -162,6 +162,7 @@ struct btDynamicsWorldDoubleData
 {
 	btContactSolverInfoDoubleData m_solverInfo;
 	btVector3DoubleData m_gravity;
+	double m_localTime;
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
@@ -169,6 +170,7 @@ struct btDynamicsWorldFloatData
 {
 	btContactSolverInfoFloatData m_solverInfo;
 	btVector3FloatData m_gravity;
+	float m_localTime;
 };
 
 #endif  //BT_DYNAMICS_WORLD_H
