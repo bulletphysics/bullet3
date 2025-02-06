@@ -26,7 +26,10 @@ subject to the following restrictions:
 
 class btRigidBody;
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btHingeConstraintData btHingeConstraintLongDoubleData2
+#define btHingeConstraintDataName "btHingeConstraintLongDoubleData2"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btHingeConstraintData btHingeConstraintDoubleData2  //rename to 2 for backwards compatibility, so we can still load the 'btHingeConstraintDoubleData' version
 #define btHingeConstraintDataName "btHingeConstraintDoubleData2"
 #else
@@ -433,6 +436,25 @@ struct btHingeConstraintDoubleData2
 	char m_padding1[4];
 };
 
+struct btHingeConstraintLongDoubleData2
+{
+	btTypedConstraintLongDoubleData m_typeConstraintData;
+	btTransformLongDoubleData m_rbAFrame;  // constraint axii. Assumes z is hinge axis.
+	btTransformLongDoubleData m_rbBFrame;
+	int m_useReferenceFrameA;
+	int m_angularOnly;
+	int m_enableAngularMotor;
+	long double m_motorTargetVelocity;
+	long double m_maxMotorImpulse;
+
+	long double m_lowerLimit;
+	long double m_upperLimit;
+	long double m_limitSoftness;
+	long double m_biasFactor;
+	long double m_relaxationFactor;
+	char m_padding1[4];
+};
+
 SIMD_FORCE_INLINE int btHingeConstraint::calculateSerializeBufferSize() const
 {
 	return sizeof(btHingeConstraintData);
@@ -467,7 +489,12 @@ SIMD_FORCE_INLINE const char* btHingeConstraint::serialize(void* dataBuffer, btS
 #endif
 
 	// Fill padding with zeros to appease msan.
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	hingeData->m_padding1[0] = 0;
+	hingeData->m_padding1[1] = 0;
+	hingeData->m_padding1[2] = 0;
+	hingeData->m_padding1[3] = 0;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	hingeData->m_padding1[0] = 0;
 	hingeData->m_padding1[1] = 0;
 	hingeData->m_padding1[2] = 0;

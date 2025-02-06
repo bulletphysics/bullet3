@@ -17,7 +17,9 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btSerializer.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btCollisionObjectData btCollisionObjectLongDoubleData
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btCollisionObjectData btCollisionObjectDoubleData
 #else
 #define btCollisionObjectData btCollisionObjectFloatData

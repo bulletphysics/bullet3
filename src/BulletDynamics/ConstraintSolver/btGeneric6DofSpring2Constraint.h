@@ -46,7 +46,10 @@ http://gimpact.sf.net
 
 class btRigidBody;
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btGeneric6DofSpring2ConstraintData2 btGeneric6DofSpring2ConstraintLongDoubleData2
+#define btGeneric6DofSpring2ConstraintDataName "btGeneric6DofSpring2ConstraintLongDoubleData2"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btGeneric6DofSpring2ConstraintData2 btGeneric6DofSpring2ConstraintDoubleData2
 #define btGeneric6DofSpring2ConstraintDataName "btGeneric6DofSpring2ConstraintDoubleData2"
 #else
@@ -571,6 +574,54 @@ struct btGeneric6DofSpring2ConstraintDoubleData2
 	btVector3DoubleData m_angularSpringStiffness;
 	btVector3DoubleData m_angularSpringDamping;
 	btVector3DoubleData m_angularEquilibriumPoint;
+	char m_angularEnableMotor[4];
+	char m_angularServoMotor[4];
+	char m_angularEnableSpring[4];
+	char m_angularSpringStiffnessLimited[4];
+	char m_angularSpringDampingLimited[4];
+
+	int m_rotateOrder;
+};
+
+struct btGeneric6DofSpring2ConstraintLongDoubleData2
+{
+	btTypedConstraintLongDoubleData m_typeConstraintData;
+	btTransformLongDoubleData m_rbAFrame;
+	btTransformLongDoubleData m_rbBFrame;
+
+	btVector3LongDoubleData m_linearUpperLimit;
+	btVector3LongDoubleData m_linearLowerLimit;
+	btVector3LongDoubleData m_linearBounce;
+	btVector3LongDoubleData m_linearStopERP;
+	btVector3LongDoubleData m_linearStopCFM;
+	btVector3LongDoubleData m_linearMotorERP;
+	btVector3LongDoubleData m_linearMotorCFM;
+	btVector3LongDoubleData m_linearTargetVelocity;
+	btVector3LongDoubleData m_linearMaxMotorForce;
+	btVector3LongDoubleData m_linearServoTarget;
+	btVector3LongDoubleData m_linearSpringStiffness;
+	btVector3LongDoubleData m_linearSpringDamping;
+	btVector3LongDoubleData m_linearEquilibriumPoint;
+	char m_linearEnableMotor[4];
+	char m_linearServoMotor[4];
+	char m_linearEnableSpring[4];
+	char m_linearSpringStiffnessLimited[4];
+	char m_linearSpringDampingLimited[4];
+	char m_padding1[4];
+
+	btVector3LongDoubleData m_angularUpperLimit;
+	btVector3LongDoubleData m_angularLowerLimit;
+	btVector3LongDoubleData m_angularBounce;
+	btVector3LongDoubleData m_angularStopERP;
+	btVector3LongDoubleData m_angularStopCFM;
+	btVector3LongDoubleData m_angularMotorERP;
+	btVector3LongDoubleData m_angularMotorCFM;
+	btVector3LongDoubleData m_angularTargetVelocity;
+	btVector3LongDoubleData m_angularMaxMotorForce;
+	btVector3LongDoubleData m_angularServoTarget;
+	btVector3LongDoubleData m_angularSpringStiffness;
+	btVector3LongDoubleData m_angularSpringDamping;
+	btVector3LongDoubleData m_angularEquilibriumPoint;
 	char m_angularEnableMotor[4];
 	char m_angularServoMotor[4];
 	char m_angularEnableSpring[4];

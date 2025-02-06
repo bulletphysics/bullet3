@@ -346,7 +346,16 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 					int i;
 					for (i = 0; i < numPoints; i++)
 					{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+						if (convexData->m_unscaledPointsLongDoublePtr)
+							tmpPoints[i].deSerialize(convexData->m_unscaledPointsLongDoublePtr[i]);
+						if (convexData->m_unscaledPointsDoublePtr)
+							tmpPoints[i].deSerializeDouble(convexData->m_unscaledPointsDoublePtr[i]);
+						if (convexData->m_unscaledPointsFloatPtr)
+							tmpPoints[i].deSerializeFloat(convexData->m_unscaledPointsFloatPtr[i]);
+#elif defined(BT_USE_DOUBLE_PRECISION)
+						if (convexData->m_unscaledPointsLongDoublePtr)
+							tmpPoints[i].deSerializeLongDouble(convexData->m_unscaledPointsLongDoublePtr[i]);
 						if (convexData->m_unscaledPointsDoublePtr)
 							tmpPoints[i].deSerialize(convexData->m_unscaledPointsDoublePtr[i]);
 						if (convexData->m_unscaledPointsFloatPtr)
@@ -356,6 +365,8 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 							tmpPoints[i].deSerialize(convexData->m_unscaledPointsFloatPtr[i]);
 						if (convexData->m_unscaledPointsDoublePtr)
 							tmpPoints[i].deSerializeDouble(convexData->m_unscaledPointsDoublePtr[i]);
+						if (convexData->m_unscaledPointsLongDoublePtr)
+							tmpPoints[i].deSerializeLongDouble(convexData->m_unscaledPointsLongDoublePtr[i]);
 #endif  //BT_USE_DOUBLE_PRECISION
 					}
 					btConvexHullShape* hullShape = createConvexHullShape();
@@ -2062,6 +2073,56 @@ void btWorldImporter::convertRigidBodyDouble(btRigidBodyDoubleData* colObjData)
 		btVector3 linearFactor, angularFactor;
 		linearFactor.deSerializeDouble(colObjData->m_linearFactor);
 		angularFactor.deSerializeDouble(colObjData->m_angularFactor);
+		body->setLinearFactor(linearFactor);
+		body->setAngularFactor(angularFactor);
+
+#ifdef USE_INTERNAL_EDGE_UTILITY
+		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+		{
+			btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*)shape;
+			if (trimesh->getTriangleInfoMap())
+			{
+				body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+			}
+		}
+#endif  //USE_INTERNAL_EDGE_UTILITY
+		m_bodyMap.insert(colObjData, body);
+	}
+	else
+	{
+		printf("error: no shape found\n");
+	}
+}
+
+void btWorldImporter::convertRigidBodyLongDouble(btRigidBodyLongDoubleData* colObjData)
+{
+	btScalar mass = btScalar(colObjData->m_inverseMass ? 1.f / colObjData->m_inverseMass : 0.f);
+	btVector3 localInertia;
+	localInertia.setZero();
+	btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
+	if (shapePtr && *shapePtr)
+	{
+		btTransform startTransform;
+		colObjData->m_collisionObjectData.m_worldTransform.m_origin.m_floats[3] = 0.f;
+		startTransform.deSerializeLongDouble(colObjData->m_collisionObjectData.m_worldTransform);
+
+		//	startTransform.setBasis(btMatrix3x3::getIdentity());
+		btCollisionShape* shape = (btCollisionShape*)*shapePtr;
+		if (shape->isNonMoving())
+		{
+			mass = 0.f;
+		}
+		if (mass)
+		{
+			shape->calculateLocalInertia(mass, localInertia);
+		}
+		bool isDynamic = mass != 0.f;
+		btRigidBody* body = createRigidBody(isDynamic, mass, startTransform, shape, colObjData->m_collisionObjectData.m_name);
+		body->setFriction(btScalar(colObjData->m_collisionObjectData.m_friction));
+		body->setRestitution(btScalar(colObjData->m_collisionObjectData.m_restitution));
+		btVector3 linearFactor, angularFactor;
+		linearFactor.deSerializeLongDouble(colObjData->m_linearFactor);
+		angularFactor.deSerializeLongDouble(colObjData->m_angularFactor);
 		body->setLinearFactor(linearFactor);
 		body->setAngularFactor(angularFactor);
 

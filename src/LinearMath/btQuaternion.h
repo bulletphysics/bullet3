@@ -18,7 +18,10 @@ subject to the following restrictions:
 #include "btVector3.h"
 #include "btQuadWord.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btQuaternionData btQuaternionLongDoubleData
+#define btQuaternionDataName "btQuaternionLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btQuaternionData btQuaternionDoubleData
 #define btQuaternionDataName "btQuaternionDoubleData"
 #else
@@ -971,6 +974,11 @@ struct btQuaternionFloatData
 struct btQuaternionDoubleData
 {
 	double m_floats[4];
+};
+
+struct btQuaternionLongDoubleData
+{
+	long double m_floats[4];
 };
 
 SIMD_FORCE_INLINE void btQuaternion::serializeFloat(struct btQuaternionFloatData& dataOut) const
