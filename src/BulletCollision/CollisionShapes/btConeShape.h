@@ -56,15 +56,13 @@ public:
 		btTransform identity;
 		identity.setIdentity();
 		btVector3 aabbMin, aabbMax;
-		getAabb(identity, aabbMin, aabbMax);
 
+		getAabb(identity, aabbMin, aabbMax);  // This already contains the margin
 		btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);
 
-		btScalar margin = getMargin();
-
-		btScalar lx = btScalar(2.) * (halfExtents.x() + margin);
-		btScalar ly = btScalar(2.) * (halfExtents.y() + margin);
-		btScalar lz = btScalar(2.) * (halfExtents.z() + margin);
+		btScalar lx = btScalar(2.) * (halfExtents.x());
+		btScalar ly = btScalar(2.) * (halfExtents.y());
+		btScalar lz = btScalar(2.) * (halfExtents.z());
 		const btScalar x2 = lx * lx;
 		const btScalar y2 = ly * ly;
 		const btScalar z2 = lz * lz;
