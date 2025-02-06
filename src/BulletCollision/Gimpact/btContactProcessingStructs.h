@@ -24,9 +24,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "btTriangleShapeEx.h"
+#include "LinearMath/btVector3.h"
 
 /**
 Configuration var for applying interpolation of  contact normals
@@ -37,6 +35,12 @@ Configuration var for applying interpolation of  contact normals
 
 ///The GIM_CONTACT is an internal GIMPACT structure, similar to btManifoldPoint.
 ///@todo: remove and replace GIM_CONTACT by btManifoldPoint.
+
+/// Structure for collision results
+///Functions for managing and sorting contacts resulting from a collision query.
+///Contact lists must be create by calling \ref GIM_CREATE_CONTACT_LIST
+///After querys, contact lists must be destroy by calling \ref GIM_DYNARRAY_DESTROY
+///Contacts can be merge for avoid duplicate results by calling \ref gim_merge_contacts
 class GIM_CONTACT
 {
 public:
