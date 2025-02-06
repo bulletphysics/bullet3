@@ -11,6 +11,7 @@ SET(BulletDynamics_SRCS
 	ConstraintSolver/btGeneric6DofConstraint.cpp
 	ConstraintSolver/btGeneric6DofSpringConstraint.cpp
 	ConstraintSolver/btGeneric6DofSpring2Constraint.cpp
+	ConstraintSolver/btGeneric6DofSpringConstraintQuaternion.cpp
 	ConstraintSolver/btHinge2Constraint.cpp
 	ConstraintSolver/btHingeConstraint.cpp
 	ConstraintSolver/btPoint2PointConstraint.cpp
