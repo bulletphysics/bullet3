@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<robot name="dock">
+    <link name="dock_link">
+      <inertial>
+        <origin xyz="0.0 0.0 0.05" rpy="0 0 0" />
+        <mass value="2.0" />
+        <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+	        <mesh>
+		        <scale>1 1 1</scale>
+		        <uri>meshes/dock.stl</uri>
+	        </mesh>
+        </geometry>
+        <material name="LightGrey" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+	        <mesh>
+		        <scale>1 1 1</scale>
+		        <uri>meshes/dock_collision.stl</uri>
+	        </mesh>
+        </geometry>
+        <material name="LightGrey" />
+      </collision>
+    </link>
+
+    <link name="dock_footprint">
+      <collision>
+        <origin xyz="0 0 0.05" rpy="0 0 0" />
+        <geometry>
+          <box size="0.001 0.001 0.001" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="dock_footprint_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <child link="dock_link" />
+      <parent link="dock_footprint"/>
+    </joint>
+
+    <sensor type="sonar" name="dock_ir_emitter_01">
+      <visualize>true</visualize>
+      <inertial>
+	<origin xyz="0.17131 0.0 0.280" rpy="0.0 0.0 0.0" />
+        <mass value="0.28922000000"/>
+        <inertia ixx="0.00002628919" ixy="0.00000024298" ixz="-0.00000368129"
+                 iyy="0.00003374542" iyz="-0.00000001330"
+                 izz="0.00005832599"/>
+      </inertial>
+      <sonar>
+        <min>0.0</min>
+        <max>0.75</max>
+        <radius>0.5</radius>
+      </sonar>
+    </sensor>
+
+    <sensor type="sonar" name="dock_ir_emitter_02">
+      <visualize>true</visualize>
+      <inertial>
+        <origin xyz="0.16919 0.14919 0.280" rpy="0.0 0.0 0.349" />
+        <mass value="0.28922000000"/>
+        <inertia ixx="0.00002628919" ixy="0.00000024298" ixz="-0.00000368129"
+                 iyy="0.00003374542" iyz="-0.00000001330"
+                 izz="0.00005832599"/>
+      </inertial>
+      <sonar>
+        <min>0.0</min>
+        <max>0.75</max>
+        <radius>0.5</radius>
+      </sonar>
+    </sensor>
+
+    <sensor type="sonar" name="dock_ir_emitter_03">
+      <visualize>true</visualize>
+      <inertial>
+        <origin xyz="0.16919 -0.14919 0.280" rpy="0.0 0.0 -0.349" />
+        <mass value="0.28922000000"/>
+        <inertia ixx="0.00002628919" ixy="0.00000024298" ixz="-0.00000368129"
+                 iyy="0.00003374542" iyz="-0.00000001330"
+                 izz="0.00005832599"/>
+      </inertial>
+      <sonar>
+        <min>0.0</min>
+        <max>0.75</max>
+        <radius>0.5</radius>
+      </sonar>
+    </sensor>
+
+	<sensor type="rfidtag" name="dock_rfid_tag">
+		<inertial>
+			<origin xyz="0.16919 0.14919 0.280" rpy="0.0 0.0 0.349" />
+		</inertial>
+		<rfidtag/>
+	</sensor>
+
+	<sensor type="rfid" name="dock_rfid">
+		<inertial>
+			<origin xyz="0.16919 0.14919 0.280" rpy="0.0 0.0 0.349" />
+		</inertial>
+		<rfid/>
+	</sensor>
+</robot>
