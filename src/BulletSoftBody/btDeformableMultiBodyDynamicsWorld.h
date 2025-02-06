@@ -299,6 +299,7 @@ public:
 						}
 
 						btCollisionWorld::LocalRayResult rayResult(collisionObject,
+																   collisionShape,
 																   &shapeInfo,
 																   normal,
 																   softResult.fraction);
