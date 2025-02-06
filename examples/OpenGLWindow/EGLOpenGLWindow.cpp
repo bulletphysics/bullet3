@@ -93,11 +93,14 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 								   8,
 								   EGL_DEPTH_SIZE,
 								   8,
+                                   EGL_SAMPLES,
+                                   4,
 								   EGL_SURFACE_TYPE,
 								   EGL_PBUFFER_BIT,
 								   EGL_RENDERABLE_TYPE,
 								   EGL_OPENGL_BIT,
-								   EGL_NONE};
+								   EGL_NONE,
+                                   };
 
 	EGLint egl_pbuffer_attribs[] = {
 		EGL_WIDTH,
@@ -319,6 +322,7 @@ void EGLOpenGLWindow::startRendering()
 	// printf("EGL window start rendering.\n");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 }
 
 void EGLOpenGLWindow::endRendering()

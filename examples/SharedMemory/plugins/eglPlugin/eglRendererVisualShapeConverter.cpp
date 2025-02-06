@@ -92,8 +92,8 @@ struct EGLRendererObjectArray
 //#define START_WIDTH 2560
 //#define START_HEIGHT 2048
 
-#define START_WIDTH 1024
-#define START_HEIGHT 768
+#define START_WIDTH (1024*4)
+#define START_HEIGHT (1024*4)
 
 struct btHashVisual
 {
@@ -1617,12 +1617,12 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 					BT_PROFILE("resize and flip");
 					for (int j = 0; j < *heightPtr; j++)
 					{
+						int yIndex = int(float(*heightPtr - 1 - j) * (float(sourceHeight) / float(*heightPtr)));
+						btClamp(yIndex, 0, sourceHeight);
 						for (int i = 0; i < *widthPtr; i++)
 						{
 							int xIndex = int(float(i) * (float(sourceWidth) / float(*widthPtr)));
-							int yIndex = int(float(*heightPtr - 1 - j) * (float(sourceHeight) / float(*heightPtr)));
 							btClamp(xIndex, 0, sourceWidth);
-							btClamp(yIndex, 0, sourceHeight);
 							int bytesPerPixel = 4;  //RGBA
 
 							int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
@@ -1686,12 +1686,12 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 					BT_PROFILE("resize and flip");
 					for (int j = 0; j < destinationHeight; j++)
 					{
+						int yIndex = int(float(destinationHeight - 1 - j) * (float(sourceHeight) / float(destinationHeight)));
+						btClamp(yIndex, 0, sourceHeight);
 						for (int i = 0; i < destinationWidth; i++)
 						{
 							int xIndex = int(float(i) * (float(sourceWidth) / float(destinationWidth)));
-							int yIndex = int(float(destinationHeight - 1 - j) * (float(sourceHeight) / float(destinationHeight)));
 							btClamp(xIndex, 0, sourceWidth);
-							btClamp(yIndex, 0, sourceHeight);
 							int bytesPerPixel = 4;  //RGBA
 							int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
 							int sourceDepthIndex = xIndex + yIndex * sourceWidth;
