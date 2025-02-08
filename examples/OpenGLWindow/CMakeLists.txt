@@ -54,14 +54,14 @@ ENDIF(BUILD_EGL)
 SET(OpenGLWindow_SRCS ${OpenGLWindow_SRCS}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/stb_image/stb_image_write.cpp)
 
 
-ADD_LIBRARY(OpenGLWindow ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
+add_library(OpenGLWindow ${BULLET_BUILD_TYPE} ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
 if (UNIX AND NOT APPLE)
   target_link_libraries(OpenGLWindow ${DL})
 elseif (APPLE)
   target_link_libraries(OpenGLWindow ${COCOA_LIBRARY})
 endif ()
 
-if (BUILD_SHARED_LIBS)
+if (BULLET_BUILD_SHARED_LIBS)
   target_link_libraries(OpenGLWindow Bullet3Common)
   if (WIN32 OR APPLE)
    target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
