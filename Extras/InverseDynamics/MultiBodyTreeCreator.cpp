@@ -14,7 +14,7 @@ MultiBodyTree* CreateMultiBodyTree(const MultiBodyTreeCreator& creator)
 	vec3 body_r_body_com;
 	mat33 body_I_body;
 	int user_int;
-	void* user_ptr;
+	void* user_ptr = nullptr;
 
 	MultiBodyTree* tree = new MultiBodyTree();
 	if (0x0 == tree)
