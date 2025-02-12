@@ -378,6 +378,15 @@ enum DynamicsActivationState
 	eActivationStateDisableWakeup = 32,
 };
 
+enum DynamicsActivationStateInternal
+{
+	eActiveTag = 1,
+	eIslandSleeping = 2,
+	eWantsDeactivation = 3,
+	eDisableDeactivation = 4,
+	eDisableSimulation = 5,
+};
+
 enum b3BodyType
 {
 	BT_RIGID_BODY = 1,
