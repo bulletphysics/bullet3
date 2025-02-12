@@ -285,11 +285,9 @@ public:
 
 	SIMD_FORCE_INLINE btVector3& safeNormalize()
 	{
-		btScalar l2 = length2();
-		//triNormal.normalize();
-		if (l2 >= SIMD_EPSILON * SIMD_EPSILON)
+		if (!fuzzyZero())
 		{
-			(*this) /= btSqrt(l2);
+			return normalize();
 		}
 		else
 		{
