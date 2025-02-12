@@ -1001,6 +1001,8 @@ public:
 	void setVolumeDensity(btScalar density);
 	/* Get the linear velocity of the center of mass                        */
 	btVector3 getLinearVelocity();
+	/* Get the angular velocity about the center of mass                    */
+	btVector3 getAngularVelocity();
 	/* Set the linear velocity of the center of mass                        */
 	void setLinearVelocity(const btVector3& linVel);
 	/* Set the angular velocity of the center of mass                       */
