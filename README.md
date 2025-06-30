@@ -142,3 +142,4 @@ You can use mouse picking to grab objects. When holding the ALT or CONTROL key, 
 Press F1 to create a series of screenshots. Hit ESCAPE to exit the demo app.
 
 Check out the docs folder and the Bullet physics forums for further information.
+This simulation now runs smoother than a Teslas AC motor.
