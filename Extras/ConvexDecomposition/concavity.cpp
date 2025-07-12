@@ -670,7 +670,6 @@ float computeConcavity(unsigned int vcount,
 			}
 		}
 
-#if 0
 	  if ( ftris.size()  && 0 )
 	  {
 
@@ -747,7 +746,6 @@ float computeConcavity(unsigned int vcount,
 	  {
 	  	computeSplitPlane( vcount, vertices, tcount, indices, callback, plane );
 	  }
-#endif
 
 		cret = totalVolume;
 
