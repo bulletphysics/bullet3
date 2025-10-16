@@ -1,0 +1,32 @@
+pkgname=giflib
+pkgver=5.2.2
+pkgrel=8
+pkgdesc="giflib is a library for reading and writing gif images. It is API and ABI compatible with libungif which was in wide use while the LZW compression algorithm was patented"
+arch=('mips')
+url="https://giflib.sourceforge.net/"
+license=('MIT')
+groups=('pspdev-default')
+depends=()
+makedepends=()
+optdepends=()
+source=("git+https://git.code.sf.net/p/giflib/code#commit=8bed392c280ad2c237e8bf1beca6f8f68f893e87")
+sha256sums=('SKIP')
+
+build() {
+    cd code
+    psp-gcc -std=gnu99 -G0 -g -Os -Wall -Wno-format-truncate -iquote include -c dgif_lib.c egif_lib.c gifalloc.c gif_err.c gif_font.c gif_hash.c openbsd-reallocarray.c
+    psp-ar rcs libgif.a dgif_lib.o egif_lib.o gifalloc.o gif_err.o gif_font.o gif_hash.o openbsd-reallocarray.o
+    psp-gcc -std=gnu99 -G0 -g -Os -Wall -Wno-format-truncate -iquote include -c qprintf.c quantize.c getarg.c
+    psp-ar rcs libutil.a qprintf.o quantize.o getarg.o
+}
+
+package() {
+    cd code
+    install -d -m 755 -p "$pkgdir/psp/lib"
+    install -m 644 libgif.a "$pkgdir/psp/lib/libgif.a"
+    install -m 644 libutil.a "$pkgdir/psp/lib/libutil.a"
+    install -d -m 755 -p "$pkgdir/psp/include"
+    install -m 644 gif_lib.h "$pkgdir/psp/include/"
+    install -d -m 755 -p "$pkgdir/psp/share/licenses/$pkgname"
+    install -m 644 COPYING "$pkgdir/psp/share/licenses/$pkgname"
+}

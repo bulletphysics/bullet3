@@ -1,0 +1,32 @@
+pkgname=bullet3
+pkgver=3.2.5
+pkgrel=8
+pkgdesc="Bullet Physics SDK: real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc."
+arch=('mips')
+url="https://github.com/bulletphysics/bullet3"
+license=('GPLv2')
+groups=('pspdev-default')
+depends=()
+makedepends=()
+optdepends=()
+source=("git+https://github.com/bulletphysics/bullet3.git" "psp.patch")
+sha256sums=("SKIP" "SKIP")
+
+prepare() {
+    cd $pkgname
+    git submodule update --init --recursive
+    patch -Np1 -i ../psp.patch
+}
+
+build() {
+    cd $pkgname 
+    psp-cmake . -DBUILD_EXTRAS=OFF -DBUILD_CPU_DEMOS=OFF -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_BULLET2_DEMOS=OFF -DBUILD_UNIT_TESTS=OFF -DBUILD_CLSOCKET=OFF -DBUILD_BULLET3_OPENCL=OFF -DCMAKE_BUILD_TYPE=Release . "${XTRA_OPTS[@]}" || { exit 1; }
+    make --quiet $MAKEFLAGS || { exit 1; }
+}
+
+package() {
+    cd $pkgname
+    make --quiet DESTDIR="${pkgdir}" ${MAKEFLAGS} install
+    install -d -m 755 -p "$pkgdir/psp/share/licenses/$pkgname"
+    install -m 644 LICENSE.txt "$pkgdir/psp/share/licenses/$pkgname"
+}

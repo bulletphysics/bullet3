@@ -1,0 +1,31 @@
+pkgname=oslib
+pkgver=1.4.0
+pkgrel=8
+pkgdesc="OldSchool Library (OSLib) is a lightweight and versatile C++ library designed to provide functionality and tools commonly used in classic game development and retro programming project"
+arch=('mips')
+url="https://github.com/dogo/oslib"
+license=('GPLv2')
+groups=('pspdev-default')
+depends=('libpspmath' 'zlib' 'libpng' 'jpeg' 'giflib')
+makedepends=()
+optdepends=()
+source=("git+https://github.com/dogo/oslib.git")
+sha256sums=('SKIP')
+
+prepare() {
+    cd $pkgname
+    git submodule update --init --recursive
+}
+
+build() {
+    cd $pkgname 
+    psp-cmake -DCMAKE_BUILD_TYPE=Release . "${XTRA_OPTS[@]}" || { exit 1; }
+    make --quiet $MAKEFLAGS || { exit 1; }
+}
+
+package() {
+    cd $pkgname
+    make --quiet DESTDIR="${pkgdir}" ${MAKEFLAGS} install
+    install -d -m 755 -p "$pkgdir/psp/share/licenses/$pkgname"
+    install -m 644 COPYING "$pkgdir/psp/share/licenses/$pkgname"
+}

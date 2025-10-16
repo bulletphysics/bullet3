@@ -1,0 +1,25 @@
+diff '--color=auto' -burN bullet3/CMakeLists.txt bullet3/CMakeLists.txt
+--- bullet3/CMakeLists.txt	2025-10-16 21:48:43.168120095 -0000
++++ bullet3/CMakeLists.txt	2025-10-16 21:45:56.291214460 -0000
+@@ -328,6 +328,7 @@
+ ENDIF()
+ 
+ OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
++OPTION(BUILD_BULLET3_OPENCL "Set when you want to build Bullet 3 with OpenCL" ON)
+ 
+ # Optional Python configuration
+ # Will not probe environment for Python configuration (which can abort the
+diff '--color=auto' -burN bullet3/src/CMakeLists.txt bullet3/src/CMakeLists.txt
+--- bullet3/src/CMakeLists.txt	2025-10-16 21:48:45.235922287 -0000
++++ bullet3/src/CMakeLists.txt	2025-10-16 21:45:19.796291576 -0000
+@@ -1,6 +1,9 @@
+ 
+ IF(BUILD_BULLET3)
+-	SUBDIRS(  Bullet3OpenCL Bullet3Serialize/Bullet2FileLoader Bullet3Dynamics Bullet3Collision Bullet3Geometry )
++IF(BUILD_BULLET3_OPENCL)
++	add_subdirectory( Bullet3OpenCL )
++ENDIF(BUILD_BULLET3_OPENCL)
++	SUBDIRS( Bullet3Serialize/Bullet2FileLoader Bullet3Dynamics Bullet3Collision Bullet3Geometry )
+ ENDIF(BUILD_BULLET3)
+ 
+ 
