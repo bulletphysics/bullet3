@@ -1,6 +1,6 @@
 pkgname=giflib
 pkgver=5.2.2
-pkgrel=8
+pkgrel=1
 pkgdesc="giflib is a library for reading and writing gif images. It is API and ABI compatible with libungif which was in wide use while the LZW compression algorithm was patented"
 arch=('mips')
 url="https://giflib.sourceforge.net/"
