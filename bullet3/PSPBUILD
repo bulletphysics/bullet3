@@ -26,7 +26,7 @@ build() {
 
 package() {
     cd $pkgname
-    make --quiet DESTDIR="${pkgdir}" ${MAKEFLAGS} install
+    make --quiet ${MAKEFLAGS} install
     install -d -m 755 -p "$pkgdir/psp/share/licenses/$pkgname"
     install -m 644 LICENSE.txt "$pkgdir/psp/share/licenses/$pkgname"
 }
