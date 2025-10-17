@@ -9,7 +9,7 @@ groups=('pspdev-default')
 depends=('libpspmath' 'zlib' 'libpng' 'jpeg' 'giflib')
 makedepends=()
 optdepends=()
-source=("git+https://github.com/dogo/oslib.git")
+source=("git+https://github.com/dogo/oslib.git#commit=b29f43a14881be52c6847b1c8f91088cee5087fb")
 sha256sums=('SKIP')
 
 prepare() {
