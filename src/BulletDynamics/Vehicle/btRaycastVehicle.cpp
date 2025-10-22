@@ -690,6 +690,9 @@ void* btDefaultVehicleRaycaster::castRay(const btVector3& from, const btVector3&
 
 	btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
 
+	rayCallback.m_collisionFilterMask = m_collisionFilterMask;
+	rayCallback.m_collisionFilterGroup = m_collisionFilterGroup;
+
 	m_dynamicsWorld->rayTest(from, to, rayCallback);
 
 	if (rayCallback.hasHit())
