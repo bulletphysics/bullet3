@@ -2,10 +2,10 @@ IF NOT EXIST bin mkdir bin
 IF NOT EXIST bin\openvr_api.dll  copy examples\ThirdPartyLibs\openvr\bin\win32\openvr_api.dll bin
 IF NOT EXIST bin\openvr64pi.dll  copy examples\ThirdPartyLibs\openvr\bin\win64\openvr_api.dll bin\openvr64pi.dll
 
-#aargh, see https://github.com/ValveSoftware/openvr/issues/412
+rem aargh, see https://github.com/ValveSoftware/openvr/issues/412
 
 
-#find a python version (hopefully just 1) and use this
+rem find a python version (hopefully just 1) and use this
 dir c:\python* /b /ad > tmp1234.txt
 
 set /p myvar1= < tmp1234.txt
