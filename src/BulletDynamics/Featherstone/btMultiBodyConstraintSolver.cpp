@@ -1386,7 +1386,27 @@ void btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 					{
 						applyAnisotropicFriction(colObj0, cp.m_lateralFrictionDir2, btCollisionObject::CF_ANISOTROPIC_FRICTION);
 						applyAnisotropicFriction(colObj1, cp.m_lateralFrictionDir2, btCollisionObject::CF_ANISOTROPIC_FRICTION);
-					  addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir2, cp.m_appliedImpulseLateral2, manifold, frictionIndex, cp, colObj0, colObj1, relaxation, infoGlobal);
+                        btMultiBodySolverConstraint& frictionConstraintB = addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir2, cp.m_appliedImpulseLateral2, manifold, frictionIndex, cp, colObj0, colObj1, relaxation, infoGlobal);
+                        // frictionConstraintB is at index [m_multiBodyFrictionContactConstraints.size() - 1]
+                        btMultiBodySolverConstraint& frictionConstraint = m_multiBodyFrictionContactConstraints[m_multiBodyFrictionContactConstraints.size() - 2];
+
+                        btScalar m1 = frictionConstraint.m_jacDiagABInv;
+                        btScalar m2 = frictionConstraintB.m_jacDiagABInv;
+                        btScalar v1 = frictionConstraint.m_rhs / m1;
+                        btScalar v2 = frictionConstraintB.m_rhs / m2;
+
+                        btScalar vSq = v1 * v1 + v2 * v2;
+
+                        if (vSq > SIMD_EPSILON)
+                        {
+                            // Compute effective mass so that kinetic energy is the
+                            // same as the sum of the original two constraints
+                            btScalar m = (m1 * v1 * v1 + m2 * v2 * v2) / vSq;
+                            frictionConstraint.m_rhs = v1 * m;
+                            frictionConstraintB.m_rhs = v2 * m;
+                            frictionConstraint.m_jacDiagABInv = m;
+                            frictionConstraintB.m_jacDiagABInv = m;
+                        }
 					}
 
 					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
