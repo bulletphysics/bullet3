@@ -23,6 +23,32 @@ ENDIF (NOT CMAKE_BUILD_TYPE)
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 #MESSAGE("CMAKE_CXX_FLAGS_DEBUG="+${CMAKE_CXX_FLAGS_DEBUG})
 
+#===============================================================================
+# Automatic code formatting setup
+#===============================================================================
+DEFINE_PROPERTY(GLOBAL PROPERTY CODE_FORMATTING_SOURCES
+  BRIEF_DOCS "Source files that are automatically formatted by clang-format."
+  FULL_DOCS "Source files that are automatically formatted by clang-format."
+)
+FUNCTION(format_add_sources)
+  FOREACH(source ${ARGN})
+    IF(IS_ABSOLUTE "${source}")
+      SET(source_abs "${source}")
+    ELSE()
+      GET_FILENAME_COMPONENT(source_abs
+        "${CMAKE_CURRENT_LIST_DIR}/${source}" ABSOLUTE)
+    ENDIF()
+    IF(EXISTS "${source_abs}")
+      SET_PROPERTY(GLOBAL APPEND PROPERTY CODE_FORMATTING_SOURCES "${source_abs}")
+    ELSE()
+      MESSAGE(FATAL_ERROR
+        "Source file '${source}' does not exist at absolute path"
+        " '${source_abs}'. This should never happen. Did you recently delete"
+        " this file or modify 'CMAKE_CURRENT_LIST_DIR'")
+    ENDIF()
+  ENDFOREACH()
+ENDFUNCTION()
+
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 SET(CLAMP_VELOCITIES "0" CACHE STRING "Clamp rigid bodies' velocity to this value, if larger than zero. Useful to prevent floating point errors or in general runaway velocities in complex scenarios")
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
@@ -420,7 +446,7 @@ ELSE(BUILD_BULLET3)
 ENDIF(BUILD_BULLET3)
 IF(BUILD_OPENGL3_DEMOS)
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos3 AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos3)
-		SUBDIRS(Demos3)
+		ADD_SUBDIRECTORY(Demos3)
 	ENDIF()
 ELSE()
 	ADD_DEFINITIONS(-DNO_OPENGL3)
@@ -430,7 +456,7 @@ OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
 IF(BUILD_BULLET2_DEMOS)
 
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
-		SUBDIRS(examples)
+		ADD_SUBDIRECTORY(examples)
 	ENDIF()
 
 ENDIF(BUILD_BULLET2_DEMOS)
@@ -439,12 +465,12 @@ ENDIF(BUILD_BULLET2_DEMOS)
 
 OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
 IF(BUILD_EXTRAS)
-  SUBDIRS(Extras)
+  ADD_SUBDIRECTORY(Extras)
 ENDIF(BUILD_EXTRAS)
 
 
 
-SUBDIRS(src)
+ADD_SUBDIRECTORY(src)
 
 IF("${CMAKE_GENERATOR}" MATCHES "Unix Makefiles")
 	OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
@@ -486,7 +512,7 @@ OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
 
 IF (BUILD_UNIT_TESTS)
 	ENABLE_TESTING()
-	SUBDIRS(test)
+	ADD_SUBDIRECTORY(test)
 ENDIF()
 
 set (BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
@@ -510,3 +536,49 @@ IF (INSTALL_CMAKE_FILES)
 		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
 	)
 ENDIF (INSTALL_CMAKE_FILES)
+
+#===============================================================================
+# Automatic code formatting using clang-format.
+#===============================================================================
+FIND_PROGRAM(
+  CLANG_FORMAT_EXECUTABLE
+  NAMES clang-format-3.8
+)
+# We only support one specific ClangFormat version because different versions
+# result in different code formatting with the same configuration. ClangFormat
+# 3.8 is chosen since it's the latest version supported by Ubuntu Trusty.
+IF (CLANG_FORMAT_EXECUTABLE)
+  GET_PROPERTY(formatting_files GLOBAL PROPERTY CODE_FORMATTING_SOURCES)
+  LIST(LENGTH formatting_files formatting_files_length)
+
+  IF (formatting_files)
+    ADD_CUSTOM_TARGET(format
+        COMMAND ${CMAKE_COMMAND} -E echo "Formatting code style of "
+            "${formatting_files_length} files... "
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -style=file -i ${formatting_files}
+        COMMAND ${CMAKE_COMMAND} -E echo "Done."
+        DEPENDS ${CLANG_FORMAT_EXECUTABLE}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    ADD_CUSTOM_TARGET(check-format
+        COMMAND ${CMAKE_COMMAND} -E echo "Checking code style of"
+            "${formatting_files_length} files... "
+        COMMAND ${CMAKE_SOURCE_DIR}/tools/check_format.sh
+            ${CLANG_FORMAT_EXECUTABLE} ${formatting_files}
+        COMMAND ${CMAKE_COMMAND} -E echo "Done."
+        DEPENDS ${CLANG_FORMAT_EXECUTABLE}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  ELSE()
+    ADD_CUSTOM_TARGET(format
+        COMMAND ${CMAKE_COMMAND} -E echo "No file to format code style."
+    )
+    ADD_CUSTOM_TARGET(check-format
+        COMMAND ${CMAKE_COMMAND} -E echo "No file to check code style."
+    )
+  ENDIF()
+ELSE()
+  MESSAGE(STATUS "Looking for clang-format - NOT found, please install "
+      "clang-format to enable automatic code formatting"
+  )
+ENDIF()
