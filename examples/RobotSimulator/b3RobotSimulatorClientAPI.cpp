@@ -102,6 +102,16 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 			sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(m_data->m_guiHelper);
 			break;
 		}
+        case eCONNECT_SHARED_MEMORY_SERVER:
+		{
+            if (portOrKey >= 0)
+			{
+				key = portOrKey;
+			}
+			sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect3(0, key);
+			break;
+		}
+
 
 		case eCONNECT_GUI:
 		{
