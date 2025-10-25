@@ -199,7 +199,7 @@ struct UpdaterUnconstrainedMotion : public btIParallelForBody
 		for (int i = iBegin; i < iEnd; ++i)
 		{
 			btRigidBody* body = rigidBodies[i];
-			if (!body->isStaticOrKinematicObject())
+			if (!body->isStaticOrKinematicObject() && body->isActive())
 			{
 				//don't integrate/update velocities here, it happens in the constraint solver
 				body->applyDamping(timeStep);
