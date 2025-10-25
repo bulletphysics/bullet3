@@ -414,6 +414,8 @@ SET(BulletExampleBrowser_SRCS
   ../Constraints/ConstraintDemo.h
   ../Constraints/Dof6Spring2Setup.cpp
   ../Constraints/Dof6Spring2Setup.h
+  ../Constraints/DOF6SpringQuatSetup.cpp
+  ../Constraints/DOF6SpringQuatSetup.h
   ../Constraints/ConstraintPhysicsSetup.cpp
   ../Constraints/ConstraintPhysicsSetup.h
 
