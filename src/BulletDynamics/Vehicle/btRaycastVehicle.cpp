@@ -176,7 +176,7 @@ btScalar btRaycastVehicle::rayCast(btWheelInfo& wheel)
 
 	btAssert(m_vehicleRaycaster);
 
-	void* object = m_vehicleRaycaster->castRay(source, target, rayResults);
+	const void* object = m_vehicleRaycaster->castRay(source, target, rayResults);
 
 	wheel.m_raycastInfo.m_groundObject = 0;
 
@@ -684,7 +684,7 @@ void btRaycastVehicle::debugDraw(btIDebugDraw* debugDrawer)
 	}
 }
 
-void* btDefaultVehicleRaycaster::castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result)
+const void* btDefaultVehicleRaycaster::castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result)
 {
 	//	RayResultCallback& resultCallback;
 
