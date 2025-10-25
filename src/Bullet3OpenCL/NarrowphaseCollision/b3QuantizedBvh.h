@@ -167,7 +167,7 @@ public:
 	b3Vector3 m_bvhQuantization;
 
 protected:
-	int m_bulletVersion;  //for serialization versioning. It could also be used to detect endianess.
+	int m_bulletVersion;  //for serialization versioning. It could also be used to detect endianness.
 
 	int m_curNodeIndex;
 	//quantization data

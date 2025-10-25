@@ -293,7 +293,7 @@ static ExampleEntry gDefaultExamples[] =
 		//#endif
 
 		ExampleEntry(0, "Importers"),
-		ExampleEntry(1, "Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianess, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
+		ExampleEntry(1, "Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianness, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
 		ExampleEntry(1, "Wavefront Obj", "Import a Wavefront .obj file", ImportObjCreateFunc, 0),
 		ExampleEntry(1, "Obj2RigidBody (Show Obj)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body. We can use the original .obj mesh data to visualize the rigid body. In 'debug' wireframe mode (press 'w' to toggle) we still see the convex hull data.", ET_RigidBodyFromObjCreateFunc),
 		ExampleEntry(1, "Obj2RigidBody (Show Hull)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body", ET_RigidBodyFromObjCreateFunc, ObjUseConvexHullForRendering),
