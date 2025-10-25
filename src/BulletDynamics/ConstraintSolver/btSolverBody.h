@@ -45,7 +45,8 @@ struct btSimdScalar
 		: m_vec128(v128)
 	{
 	}
-	union {
+	union
+	{
 		__m128 m_vec128;
 		float m_floats[4];
 		int m_ints[4];

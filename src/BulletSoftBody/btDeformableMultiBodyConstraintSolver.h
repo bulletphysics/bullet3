@@ -40,11 +40,13 @@ protected:
 	// write the velocity of the the solver body to the underlying rigid body
 	void solverBodyWriteBack(const btContactSolverInfo& infoGlobal);
 
+	void synchronizeSolverBodyWithRigidBody(btSolverBody * solverBody, btRigidBody * rigidBody);
+
 	// write the velocity of the underlying rigid body to the the the solver body
 	void writeToSolverBody(btCollisionObject * *bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 
 	// let each deformable body knows which solver body is in constact
-	void pairDeformableAndSolverBody(btCollisionObject** bodies, int numBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal);
+	void pairDeformableAndSolverBody(btCollisionObject * *bodies, int numBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal);
 
 	virtual void solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject * *bodies, int numBodies, btCollisionObject** deformableBodies, int numDeformableBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
 
