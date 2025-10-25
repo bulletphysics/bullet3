@@ -23,7 +23,7 @@ class Minitaur(quadruped_base.QuadrupedBase):
     except ValueError:
       use_constrained_base = False
     if use_constrained_base:
-      logging.warn(
+      logging.warning(
           "use_constrained_base is currently not compatible with Minitaur's "
           "leg constraints."
       )
