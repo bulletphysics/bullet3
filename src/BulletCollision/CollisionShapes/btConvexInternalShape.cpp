@@ -117,8 +117,8 @@ void btConvexInternalAabbCachingShape::recalcLocalAabb()
 
 	for (int i = 0; i < 3; ++i)
 	{
-		m_localAabbMax[i] = _supporting[i][i] + m_collisionMargin;
-		m_localAabbMin[i] = _supporting[i + 3][i] - m_collisionMargin;
+		m_localAabbMax[i] = _supporting[i][i];
+		m_localAabbMin[i] = _supporting[i + 3][i];
 	}
 
 #else
@@ -128,10 +128,10 @@ void btConvexInternalAabbCachingShape::recalcLocalAabb()
 		btVector3 vec(btScalar(0.), btScalar(0.), btScalar(0.));
 		vec[i] = btScalar(1.);
 		btVector3 tmp = localGetSupportingVertex(vec);
-		m_localAabbMax[i] = tmp[i] + m_collisionMargin;
+		m_localAabbMax[i] = tmp[i];
 		vec[i] = btScalar(-1.);
 		tmp = localGetSupportingVertex(vec);
-		m_localAabbMin[i] = tmp[i] - m_collisionMargin;
+		m_localAabbMin[i] = tmp[i];
 	}
 #endif
 }
