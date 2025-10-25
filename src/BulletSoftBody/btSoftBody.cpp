@@ -2119,7 +2119,7 @@ void btSoftBody::predictMotion(btScalar dt)
 	m_sst.radmrg = getCollisionShape()->getMargin();
 	m_sst.updmrg = m_sst.radmrg * (btScalar)0.25;
 	/* Forces                */
-	addVelocity(m_worldInfo->m_gravity * m_sst.sdt);
+	addVelocity(m_worldInfo->m_gravity * m_gravityFactor * m_sst.sdt);
 	applyForces();
 	/* Integrate            */
 	for (i = 0, ni = m_nodes.size(); i < ni; ++i)
