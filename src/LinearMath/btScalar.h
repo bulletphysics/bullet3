@@ -3,8 +3,8 @@ Copyright (c) 2003-2009 Erwin Coumans  http://bullet.googlecode.com
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -69,7 +69,9 @@ inline int btIsDoublePrecision()
 // clang and most formatting tools don't support indentation of preprocessor guards, so turn it off
 // clang-format off
 #if defined(DEBUG) || defined (_DEBUG)
-	#define BT_DEBUG
+	#ifndef BT_DEBUG
+		#define BT_DEBUG
+	#endif
 #endif
 
 #ifdef _WIN32
@@ -126,8 +128,8 @@ inline int btIsDoublePrecision()
 			#define BT_ALLOW_SSE4
 #endif //(_MSC_FULL_VER >= 160040219)
 
-			//BT_USE_SSE_IN_API is disabled under Windows by default, because 
-			//it makes it harder to integrate Bullet into your application under Windows 
+			//BT_USE_SSE_IN_API is disabled under Windows by default, because
+			//it makes it harder to integrate Bullet into your application under Windows
 			//(structured embedding Bullet structs/classes need to be 16-byte aligned)
 			//with relatively little performance gain
 			//If you are not embedded Bullet data in your classes, or make sure that you align those classes on 16-byte boundaries
@@ -159,7 +161,7 @@ inline int btIsDoublePrecision()
 		#define btUnlikely(_c) _c
 
 #else//_WIN32
-	
+
 	#if defined	(__CELLOS_LV2__)
 		#define SIMD_FORCE_INLINE inline __attribute__((always_inline))
 		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
@@ -176,7 +178,7 @@ inline int btIsDoublePrecision()
 			#else
 				#define btAssert assert
 			#endif
-	
+
 		#else//BT_DEBUG
 				#define btAssert(x)
 		#endif//BT_DEBUG
@@ -208,7 +210,7 @@ inline int btIsDoublePrecision()
 
 			#define btLikely(_c)   __builtin_expect((_c), 1)
 			#define btUnlikely(_c) __builtin_expect((_c), 0)
-		
+
 
 		#else//USE_LIBSPE2
 	//non-windows systems
@@ -236,7 +238,7 @@ inline int btIsDoublePrecision()
 					#ifdef __clang__
 						#define BT_USE_NEON 1
 						#define BT_USE_SIMD_VECTOR3
-		
+
 						#if defined BT_USE_NEON && defined (__clang__)
 							#include <arm_neon.h>
 						#endif//BT_USE_NEON
@@ -252,20 +254,20 @@ inline int btIsDoublePrecision()
 				#include <assert.h>
 				#endif
 
-				#if defined(DEBUG) || defined (_DEBUG)
-				 #if defined (__i386__) || defined (__x86_64__)
-				#include <stdio.h>
-				 #define btAssert(x)\
-				{\
-				if(!(x))\
-				{\
-					printf("Assert %s in line %d, file %s\n",#x, __LINE__, __FILE__);\
-					asm volatile ("int3");\
-				}\
-				}
-				#else//defined (__i386__) || defined (__x86_64__)
-					#define btAssert assert
-				#endif//defined (__i386__) || defined (__x86_64__)
+				#ifdef BT_DEBUG
+					#if defined (__i386__) || defined (__x86_64__)
+						#include <stdio.h>
+						#define btAssert(x)\
+						{\
+						if(!(x))\
+						{\
+							printf("Assert %s in line %d, file %s\n",#x, __LINE__, __FILE__);\
+							asm volatile ("int3");\
+						}\
+						}
+					#else//defined (__i386__) || defined (__x86_64__)
+						#define btAssert assert
+					#endif//defined (__i386__) || defined (__x86_64__)
 				#else//defined(DEBUG) || defined (_DEBUG)
 					#define btAssert(x)
 				#endif//defined(DEBUG) || defined (_DEBUG)
@@ -289,7 +291,7 @@ inline int btIsDoublePrecision()
 				#include <assert.h>
 				#endif
 
-				#if defined(DEBUG) || defined (_DEBUG)
+				#ifdef BT_DEBUG
 					#define btAssert assert
 				#else
 					#define btAssert(x)
@@ -299,7 +301,7 @@ inline int btIsDoublePrecision()
 				#define btFullAssert(x)
 				#define btLikely(_c)  _c
 				#define btUnlikely(_c) _c
-			#endif //__APPLE__ 
+			#endif //__APPLE__
 		#endif // LIBSPE2
 	#endif	//__CELLOS_LV2__
 #endif//_WIN32
