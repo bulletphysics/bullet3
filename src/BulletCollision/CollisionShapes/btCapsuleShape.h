@@ -19,6 +19,13 @@ subject to the following restrictions:
 #include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"  // for the types
 
+#if defined(BT_USE_DOUBLE_PRECISION)
+#define btCapsuleShapeData btCapsuleShapeDoubleData
+#define btCapsuleShapeDataName "btCapsuleShapeDoubleData"
+#else
+#define btCapsuleShapeData btCapsuleShapeFloatData
+#define btCapsuleShapeDataName "btCapsuleShapeFloatData"
+#endif
 ///The btCapsuleShape represents a capsule around the Y axis, there is also the btCapsuleShapeX aligned around the X axis and btCapsuleShapeZ around the Z axis.
 ///The total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps.
 ///The btCapsuleShape is a convex hull of two spheres. The btMultiSphereShape is a more general collision shape that takes the convex hull of multiple sphere, so it can also represent a capsule when just using two spheres.
@@ -106,7 +113,8 @@ public:
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
 
-	SIMD_FORCE_INLINE void deSerializeFloat(struct btCapsuleShapeData * dataBuffer);
+	SIMD_FORCE_INLINE void deSerialize(struct btCapsuleShapeDoubleData* dataBuffer);
+	SIMD_FORCE_INLINE void deSerialize(struct btCapsuleShapeFloatData* dataBuffer);
 };
 
 ///btCapsuleShapeX represents a capsule around the Z axis
@@ -138,9 +146,18 @@ public:
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct btCapsuleShapeData
+struct btCapsuleShapeDoubleData
 {
-	btConvexInternalShapeData m_convexInternalShapeData;
+	btConvexInternalShapeDoubleData m_convexInternalShapeData;
+
+	int m_upAxis;
+
+	char m_padding[4];
+};
+
+struct btCapsuleShapeFloatData
+{
+	btConvexInternalShapeFloatData m_convexInternalShapeData;
 
 	int m_upAxis;
 
@@ -167,14 +184,23 @@ SIMD_FORCE_INLINE const char* btCapsuleShape::serialize(void* dataBuffer, btSeri
 	shapeData->m_padding[2] = 0;
 	shapeData->m_padding[3] = 0;
 
-	return "btCapsuleShapeData";
+	return btCapsuleShapeDataName;
 }
 
-SIMD_FORCE_INLINE void btCapsuleShape::deSerializeFloat(btCapsuleShapeData* dataBuffer)
+SIMD_FORCE_INLINE void btCapsuleShape::deSerialize(btCapsuleShapeDoubleData* dataBuffer)
 {
-	m_implicitShapeDimensions.deSerializeFloat(dataBuffer->m_convexInternalShapeData.m_implicitShapeDimensions);
+	m_implicitShapeDimensions.deSerialize(dataBuffer->m_convexInternalShapeData.m_implicitShapeDimensions);
 	m_collisionMargin = dataBuffer->m_convexInternalShapeData.m_collisionMargin;
-	m_localScaling.deSerializeFloat(dataBuffer->m_convexInternalShapeData.m_localScaling);
+	m_localScaling.deSerialize(dataBuffer->m_convexInternalShapeData.m_localScaling);
+	//it is best to already pre-allocate the matching btCapsuleShape*(X/Z) version to match m_upAxis
+	m_upAxis = dataBuffer->m_upAxis;
+}
+
+SIMD_FORCE_INLINE void btCapsuleShape::deSerialize(btCapsuleShapeFloatData* dataBuffer)
+{
+	m_implicitShapeDimensions.deSerialize(dataBuffer->m_convexInternalShapeData.m_implicitShapeDimensions);
+	m_collisionMargin = dataBuffer->m_convexInternalShapeData.m_collisionMargin;
+	m_localScaling.deSerialize(dataBuffer->m_convexInternalShapeData.m_localScaling);
 	//it is best to already pre-allocate the matching btCapsuleShape*(X/Z) version to match m_upAxis
 	m_upAxis = dataBuffer->m_upAxis;
 }

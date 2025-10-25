@@ -97,6 +97,11 @@ protected:
 	void serializeDynamicsWorldInfo(btSerializer * serializer);
     
 public:
+	virtual void setLocalTime(btScalar localTime)
+	{
+		m_localTime = localTime;
+	}
+
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	///this btDiscreteDynamicsWorld constructor gets created objects from the user, and will not delete those
