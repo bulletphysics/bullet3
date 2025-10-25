@@ -84,7 +84,16 @@ public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 #if defined(__SPU__) && defined(__CELLOS_LV2__)
-	btScalar m_floats[4];
+	union {
+		btScalar m_floats[4];
+		struct
+		{
+			btScalar X;
+			btScalar Y;
+			btScalar Z;
+			btScalar W;
+		};
+	};
 
 public:
 	SIMD_FORCE_INLINE const vec_float4& get128() const
@@ -98,6 +107,13 @@ public:
 	union {
 		btSimdFloat4 mVec128;
 		btScalar m_floats[4];
+		struct
+		{
+			btScalar X;
+			btScalar Y;
+			btScalar Z;
+			btScalar W;
+		};
 	};
 	SIMD_FORCE_INLINE btSimdFloat4 get128() const
 	{
@@ -108,7 +124,16 @@ public:
 		mVec128 = v128;
 	}
 #else
-	btScalar m_floats[4];
+	union {
+		btScalar m_floats[4];
+		struct
+		{
+			btScalar X;
+			btScalar Y;
+			btScalar Z;
+			btScalar W;
+		};
+	};
 #endif
 #endif  //__CELLOS_LV2__ __SPU__
 
