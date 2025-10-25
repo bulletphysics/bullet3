@@ -100,7 +100,7 @@
     <axis xyz="0 1 0"/>
     <parent link="handlebarLink"/>
     <child link="frontWheelLink"/>
-    <origin rpy="0 0 0" xyz="0.07, 0, -0.69"/>
+    <origin rpy="0 0 0" xyz="0.07 0 -0.69"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -133,7 +133,7 @@
     <axis xyz="0 1 0"/>
     <parent link="frameLink"/>
     <child link="backWheelLink"/>
-    <origin rpy="0 0 0" xyz="-0.69, 0, -0.42"/>
+    <origin rpy="0 0 0" xyz="-0.69 0 -0.42"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
