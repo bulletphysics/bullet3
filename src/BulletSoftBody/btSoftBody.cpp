@@ -4339,6 +4339,8 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 
 	btCollisionObject::serialize(&sbd->m_collisionObjectData, serializer);
 
+	sbd->m_collisionObjectData.m_uniqueId = m_broadphaseHandle->m_uniqueId;
+
 	btHashMap<btHashPtr, int> m_nodeIndexMap;
 
 	sbd->m_numMaterials = m_materials.size();

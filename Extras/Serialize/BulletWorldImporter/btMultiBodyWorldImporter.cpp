@@ -7,6 +7,8 @@
 #include "BulletDynamics/Featherstone/btMultiBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletSoftBody/btSoftBody.h"
+#include "BulletSoftBody/btSoftBodyData.h"
 
 struct btMultiBodyWorldImporterInternalData
 {
@@ -364,6 +366,7 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 			{
 				syncContactManifolds((btPersistentManifoldDoubleData**)&bulletFile2->m_contactManifolds[0], bulletFile2->m_contactManifolds.size(), m_data);
 			}
+
 		}
 		else
 		{
@@ -449,6 +452,57 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 				syncContactManifolds((btPersistentManifoldFloatData**)&bulletFile2->m_contactManifolds[0], bulletFile2->m_contactManifolds.size(), m_data);
 			}
 		}
+
+		// Deserialize and update the softbody. Note: This is outside of the check for float/double precision 
+		// since currently the softbody implementation is only configured for float serialization
+		for (int i = bulletFile2->m_softBodies.size() - 1; i >= 0; i--)
+		{
+			btSoftBodyData* sbd = (btSoftBodyData*)bulletFile2->m_softBodies[i];
+			int foundSb = -1;
+			int uid = sbd->m_collisionObjectData.m_uniqueId;
+			for (int i = 0; i < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); i++)
+			{
+				if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId)
+				{
+					foundSb = i;
+					break;
+				}
+			}
+			if (foundSb >= 0)
+			{
+				btSoftBody* sb = btSoftBody::upcast(m_data->m_mbDynamicsWorld->getCollisionObjectArray()[foundSb]);
+				if (sb)
+				{
+					// Deserialize data for each node and update the softbody's nodes with the saved info
+					for (int i = 0; i < sbd->m_numNodes; i++){
+						btVector3 pos, prev_pos, vel, force, normal; 
+						pos.deSerializeFloat(sbd->m_nodes[i].m_position);
+						prev_pos.deSerializeFloat(sbd->m_nodes[i].m_previousPosition);
+						vel.deSerializeFloat(sbd->m_nodes[i].m_velocity);
+						force.deSerializeFloat(sbd->m_nodes[i].m_accumulatedForce);
+						normal.deSerializeFloat(sbd->m_nodes[i].m_normal);
+						// TODO: see if the other serialized attributes for the nodes need to be reset. i.e.
+						// m_pad, m_material, m_inverseMass, m_area, m_attach
+						sb->m_nodes[i].m_x = pos; 
+						sb->m_nodes[i].m_q = prev_pos;
+						sb->m_nodes[i].m_v = vel; 
+						sb->m_nodes[i].m_f = force;
+						sb->m_nodes[i].m_n = normal; 
+					}		
+				}
+				else
+				{
+					printf("btMultiBodyWorldImporter::convertAllObjects error: cannot find btSoftBody with bodyUniqueId %d\n", uid);
+					result = false;
+				}
+			}
+			else
+			{
+				printf("Error in btMultiBodyWorldImporter::convertAllObjects: didn't find bodyUniqueId: %d\n", uid);
+				result = false;
+			}
+		}
+
 	}
 	else
 	{
