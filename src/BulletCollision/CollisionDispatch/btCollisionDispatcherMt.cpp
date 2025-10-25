@@ -154,6 +154,7 @@ void btCollisionDispatcherMt::dispatchAllCollisionPairs(btOverlappingPairCache* 
 
 		for (int j = 0; j < batchManifoldsPtr.size(); ++j)
 		{
+			batchManifoldsPtr[j]->m_index1a = m_manifoldsPtr.size();
 			m_manifoldsPtr.push_back(batchManifoldsPtr[j]);
 		}
 
