@@ -80,7 +80,6 @@ bool btPrimitiveTriangle::overlap_test_conservative(const btPrimitiveTriangle& o
 	dis2 = bt_distance_point_plane(other.m_plane, m_vertices[2]) - total_margin;
 
 	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
-
 	return true;
 }
 
@@ -137,6 +136,11 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 		return false;  //Reject
 	}
 
+	if (!bt_plane_cuts_polygone(m_plane, margin, clipped_count, clipped_points))
+	{
+		return false; //Reject
+	}
+
 	//find most deep interval face1
 	contacts1.merge_points(contacts1.m_separating_normal, margin, clipped_points, clipped_count);
 	if (contacts1.m_point_count == 0) return false;  // too far
@@ -152,6 +156,11 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 	if (clipped_count == 0)
 	{
 		return false;  //Reject
+	}
+
+	if (!bt_plane_cuts_polygone(m_plane, margin, clipped_count, clipped_points))
+	{
+		return false; //Reject
 	}
 
 	//find most deep interval face1
