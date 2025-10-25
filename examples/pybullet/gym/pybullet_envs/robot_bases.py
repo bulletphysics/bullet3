@@ -123,7 +123,7 @@ class MJCFBasedRobot(XmlBasedRobot):
 
     self._p = bullet_client
     #print("Created bullet_client with id=", self._p._client)
-    if (self.doneLoading == 0):
+    if not self.doneLoading:
       self.ordered_joints = []
       self.doneLoading = 1
       if self.self_collision:
@@ -170,28 +170,31 @@ class URDFBasedRobot(XmlBasedRobot):
     self.basePosition = basePosition
     self.baseOrientation = baseOrientation
     self.fixed_base = fixed_base
+    self.doneLoading = 0
 
   def reset(self, bullet_client):
     self._p = bullet_client
-    self.ordered_joints = []
 
     print(os.path.join(os.path.dirname(__file__), "data", self.model_urdf))
 
-    if self.self_collision:
-      self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-          self._p,
-          self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
-                           basePosition=self.basePosition,
-                           baseOrientation=self.baseOrientation,
-                           useFixedBase=self.fixed_base,
-                           flags=pybullet.URDF_USE_SELF_COLLISION | pybullet.URDF_GOOGLEY_UNDEFINED_COLORS))
-    else:
-      self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-          self._p,
-          self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
-                           basePosition=self.basePosition,
-                           baseOrientation=self.baseOrientation,
-                           useFixedBase=self.fixed_base, flags = pybullet.URDF_GOOGLEY_UNDEFINED_COLORS))
+    if not self.doneLoading:
+      self.ordered_joints = []
+      self.doneLoading = 1
+      if self.self_collision:
+        self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
+            self._p,
+            self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
+                            basePosition=self.basePosition,
+                            baseOrientation=self.baseOrientation,
+                            useFixedBase=self.fixed_base,
+                            flags=pybullet.URDF_USE_SELF_COLLISION | pybullet.URDF_GOOGLEY_UNDEFINED_COLORS))
+      else:
+        self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
+            self._p,
+            self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
+                            basePosition=self.basePosition,
+                            baseOrientation=self.baseOrientation,
+                            useFixedBase=self.fixed_base, flags = pybullet.URDF_GOOGLEY_UNDEFINED_COLORS))
 
     self.robot_specific_reset(self._p)
 
@@ -223,15 +226,17 @@ class SDFBasedRobot(XmlBasedRobot):
 
     self.model_sdf = model_sdf
     self.fixed_base = fixed_base
+    self.doneLoading = 0
 
   def reset(self, bullet_client):
     self._p = bullet_client
 
-    self.ordered_joints = []
-
-    self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-        self._p,  # TODO: Not sure if this works, try it with kuka
-        self._p.loadSDF(os.path.join("models_robot", self.model_sdf)))
+    if not self.doneLoading:
+      self.ordered_joints = []
+      self.doneLoading = 1
+      self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
+            self._p,  # TODO: Not sure if this works, try it with kuka
+            self._p.loadSDF(os.path.join("models_robot", self.model_sdf)))
 
     self.robot_specific_reset(self._p)
 
