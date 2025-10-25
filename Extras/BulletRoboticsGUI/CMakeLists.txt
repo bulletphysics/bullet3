@@ -91,6 +91,8 @@ SET(BulletRoboticsGUI_INCLUDES
   ../../examples/MultiThreading/b3PosixThreadSupport.h
   ../../examples/MultiThreading/b3Win32ThreadSupport.h
   ../../examples/MultiThreading/b3ThreadSupportInterface.h
+
+  ../../examples/RobotSimulator/b3RobotSimulatorClientAPI.h
 )
 
 SET(BulletRoboticsGUI_SRCS ${BulletRoboticsGUI_INCLUDES}
@@ -107,6 +109,7 @@ SET(BulletRoboticsGUI_SRCS ${BulletRoboticsGUI_INCLUDES}
 	../../examples/SharedMemory/PhysicsServerExample.cpp
 	../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp
 	../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp		
+	../../examples/RobotSimulator/b3RobotSimulatorClientAPI.cpp
 )
 
 IF(BUILD_CLSOCKET)
