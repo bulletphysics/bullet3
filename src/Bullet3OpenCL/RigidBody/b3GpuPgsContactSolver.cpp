@@ -242,16 +242,9 @@ b3GpuPgsContactSolver::~b3GpuPgsContactSolver()
 	delete m_data;
 }
 
-struct b3ConstraintCfg
+struct b3ConstraintCfg : public b3SolverBase::ConstraintCfg
 {
-	b3ConstraintCfg(float dt = 0.f) : m_positionDrift(0.005f), m_positionConstraintCoeff(0.2f), m_dt(dt), m_staticIdx(0) {}
-
-	float m_positionDrift;
-	float m_positionConstraintCoeff;
-	float m_dt;
-	bool m_enableParallelSolve;
-	float m_batchCellSize;
-	int m_staticIdx;
+	b3ConstraintCfg(float dt = 0.f) : b3SolverBase::ConstraintCfg(dt) {m_staticIdx = 0;}
 };
 
 void b3GpuPgsContactSolver::solveContactConstraintBatchSizes(const b3OpenCLArray<b3RigidBodyData>* bodyBuf, const b3OpenCLArray<b3InertiaData>* shapeBuf,
@@ -1040,7 +1033,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 													  shapeBuf, m_data->m_solverGPU->m_contactBuffer2,
 													  contactConstraintOut,
 													  additionalData, nContacts,
-													  (b3SolverBase::ConstraintCfg&)csCfg);
+													  csCfg);
 			clFinish(m_data->m_queue);
 		}
 

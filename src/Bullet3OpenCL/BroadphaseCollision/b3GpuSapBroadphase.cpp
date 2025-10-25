@@ -1,6 +1,7 @@
 
 bool searchIncremental3dSapOnGpu = true;
 #include <limits.h>
+#include <string.h>
 #include "b3GpuSapBroadphase.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3LauncherCL.h"
@@ -183,7 +184,8 @@ static bool TestAabbAgainstAabb2(const b3Vector3& aabbMin1, const b3Vector3& aab
 //http://stereopsis.com/radix.html
 static unsigned int FloatFlip(float fl)
 {
-	unsigned int f = *(unsigned int*)&fl;
+	unsigned int f;
+	memcpy(&f, &fl, sizeof(f));
 	unsigned int mask = -(int)(f >> 31) | 0x80000000;
 	return f ^ mask;
 };

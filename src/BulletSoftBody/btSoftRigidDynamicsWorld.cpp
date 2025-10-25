@@ -172,6 +172,7 @@ void btSoftRigidDynamicsWorld::debugDrawWorld()
 	}
 }
 
+namespace {
 struct btSoftSingleRayCallback : public btBroadphaseRayCallback
 {
 	btVector3 m_rayFromWorld;
@@ -245,6 +246,7 @@ struct btSoftSingleRayCallback : public btBroadphaseRayCallback
 		return true;
 	}
 };
+}
 
 void btSoftRigidDynamicsWorld::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {

@@ -202,7 +202,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 
 #define USE_BTFILL
 #ifdef USE_BTFILL
-		m_fill->execute((b3OpenCLArray<b3Int2>&)*m_workBuffer4, (b3Int2&)fillValue, workingSize - originalSize, originalSize);
+		m_fill->execute((b3OpenCLArray<b3Int2>&)*m_workBuffer4, b3MakeInt2(fillValue.m_key, fillValue.m_value), workingSize - originalSize, originalSize);
 #else
 		//fill the remaining bits (very slow way, todo: fill on GPU/OpenCL side)
 
