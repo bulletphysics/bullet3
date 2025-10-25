@@ -1617,7 +1617,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 
 			if (b3GetDynamicsInfo(status_handle, &info))
 			{
-				int numFields = 12;
+				int numFields = 13;
 				PyObject* pyDynamicsInfo = PyTuple_New(numFields);
 				PyTuple_SetItem(pyDynamicsInfo, 0, PyFloat_FromDouble(info.m_mass));
 				PyTuple_SetItem(pyDynamicsInfo, 1, PyFloat_FromDouble(info.m_lateralFrictionCoeff));
@@ -1651,6 +1651,8 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 				PyTuple_SetItem(pyDynamicsInfo, 9, PyFloat_FromDouble(info.m_contactStiffness));
 				PyTuple_SetItem(pyDynamicsInfo, 10, PyInt_FromLong(info.m_bodyType));
 				PyTuple_SetItem(pyDynamicsInfo, 11, PyFloat_FromDouble(info.m_collisionMargin));
+				PyTuple_SetItem(pyDynamicsInfo, 12, PyInt_FromLong(info.m_activationState));
+
 				return pyDynamicsInfo;
 			}
 		}
@@ -13400,6 +13402,12 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_SLEEP", eActivationStateSleep);
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_ENABLE_WAKEUP", eActivationStateEnableWakeup);
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_DISABLE_WAKEUP", eActivationStateDisableWakeup);
+
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_INTERNAL_IS_ACTIVE", eActiveTag);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_INTERNAL_ISLAND_SLEEPING", eIslandSleeping);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_INTERNAL_WANTS_DEACTIVATION", eWantsDeactivation);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_INTERNAL_DISABLE_DEACTIVATION", eDisableDeactivation);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_INTERNAL_DISABLE_SIMULATION", eDisableSimulation);
 
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);
