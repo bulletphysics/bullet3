@@ -2002,14 +2002,6 @@ bool UrdfParser::mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* 
 				link->m_visualArray.push_back(viz);
 			}
 
-			if (!link->m_inertia.m_hasLinkLocalFrame)
-			{
-				link->m_inertia.m_linkLocalFrame.setIdentity();
-			}
-			if (!childLink->m_inertia.m_hasLinkLocalFrame)
-			{
-				childLink->m_inertia.m_linkLocalFrame.setIdentity();
-			}
 			//for a 'forceFixedBase' don't merge
 			bool isStaticBase = false;
 			if (forceFixedBase && link->m_parentJoint == 0)
@@ -2034,7 +2026,6 @@ bool UrdfParser::mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* 
 				btVector3 inertiaOut;
 				btTransform principal;
 				CalculatePrincipalAxisTransform(masses, transforms, inertiasIn, principal, inertiaOut);
-				link->m_inertia.m_hasLinkLocalFrame = true;
 				link->m_inertia.m_linkLocalFrame.setIdentity();
 				//link->m_inertia.m_linkLocalFrame = principal;
 				link->m_inertia.m_linkLocalFrame.setOrigin(principal.getOrigin());
