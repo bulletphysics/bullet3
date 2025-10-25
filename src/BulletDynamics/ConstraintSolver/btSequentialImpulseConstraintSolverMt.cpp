@@ -334,17 +334,25 @@ int btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
 		// to record the solverBodyId
 		int uniqueId = body.getWorldArrayIndex();
 		const int INVALID_SOLVER_BODY_ID = -1;
+		m_kinematicBodyUniqueIdToSolverBodyTableMutex.lock();
 		if (m_kinematicBodyUniqueIdToSolverBodyTable.size() <= uniqueId)
 		{
-			m_kinematicBodyUniqueIdToSolverBodyTableMutex.lock();
 			// now that we have the lock, check again
 			if (m_kinematicBodyUniqueIdToSolverBodyTable.size() <= uniqueId)
 			{
 				m_kinematicBodyUniqueIdToSolverBodyTable.resize(uniqueId + 1, INVALID_SOLVER_BODY_ID);
 			}
-			m_kinematicBodyUniqueIdToSolverBodyTableMutex.unlock();
 		}
+		// when another thread resizes the table, it will perform the following two steps:
+		// ANOTHER-1. allocate the new meomry block
+		// ANOTHER-2. copy the existing data from the old memory block to the new meomry block
+		//
+		// there can be such timeline:
+		// ANOTHER-1. another thread has allocated the new meomry block
+		// CURRENT. current thread is reading the **uninitialized** data from the new memory block
+		// ANOTHER-2. another thread will copy the existing data from the old memory block to the new meomry block, but this will not affect the uninitialized data read by the current thread
 		solverBodyId = m_kinematicBodyUniqueIdToSolverBodyTable[uniqueId];
+		m_kinematicBodyUniqueIdToSolverBodyTableMutex.unlock();
 		// if no table entry yet,
 		if (INVALID_SOLVER_BODY_ID == solverBodyId)
 		{
