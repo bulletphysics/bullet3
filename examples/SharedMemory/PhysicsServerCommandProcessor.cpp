@@ -8215,6 +8215,16 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 		stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
 		stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
 
+		//base linear velocity (in world space, cartesian)
+		stateDetails->m_actualStateQdot[0] = sb->getLinearVelocity()[0];
+		stateDetails->m_actualStateQdot[1] = sb->getLinearVelocity()[1];
+		stateDetails->m_actualStateQdot[2] = sb->getLinearVelocity()[2];
+
+		//base angular velocity (in world space, cartesian)
+		stateDetails->m_actualStateQdot[3] = sb->getAngularVelocity()[0];
+		stateDetails->m_actualStateQdot[4] = sb->getAngularVelocity()[1];
+		stateDetails->m_actualStateQdot[5] = sb->getAngularVelocity()[2];
+
 		int totalDegreeOfFreedomQ = 7;  //pos + quaternion
 		int totalDegreeOfFreedomU = 6;  //3 linear and 3 angular DOF
 
