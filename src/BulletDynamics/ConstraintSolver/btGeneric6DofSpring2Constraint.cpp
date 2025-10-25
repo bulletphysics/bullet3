@@ -403,9 +403,9 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			btAssert(false);
 	}
 
-	m_calculatedAxis[0].normalize();
-	m_calculatedAxis[1].normalize();
-	m_calculatedAxis[2].normalize();
+	m_calculatedAxis[0].safeNormalize();
+	m_calculatedAxis[1].safeNormalize();
+	m_calculatedAxis[2].safeNormalize();
 }
 
 void btGeneric6DofSpring2Constraint::calculateTransforms()
