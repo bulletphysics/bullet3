@@ -104,6 +104,20 @@ public:
 				if (link.m_parent == other->m_link)
 					return false;
 			}
+			else if (link.m_flags & BT_MULTIBODYLINKFLAGS_DISABLE_CUSTOM_NUMBER_PARENT_COLLISION)
+			{
+				int parent_of_this = m_link;
+				for (int i = 0; i < link.m_customNrDisabledParentCol; ++i)
+				{
+					if (parent_of_this == -1)
+						break;
+					parent_of_this = m_multiBody->getLink(parent_of_this).m_parent;
+					if (parent_of_this == other->m_link)
+					{
+						return false;
+					}
+				}
+			}
 		}
 
 		if (other->m_link >= 0)
@@ -125,6 +139,20 @@ public:
 			{
 				if (otherLink.m_parent == this->m_link)
 					return false;
+			}
+			else if (otherLink.m_flags & BT_MULTIBODYLINKFLAGS_DISABLE_CUSTOM_NUMBER_PARENT_COLLISION)
+			{
+				int parent_of_other = other->m_link;
+				for (int i = 0; i < otherLink.m_customNrDisabledParentCol; ++i)
+				{
+					if (parent_of_other == -1)
+						break;
+					parent_of_other = m_multiBody->getLink(parent_of_other).m_parent;
+					if (parent_of_other == this->m_link)
+					{
+						return false;
+					}
+				}
 			}
 		}
 		return true;
