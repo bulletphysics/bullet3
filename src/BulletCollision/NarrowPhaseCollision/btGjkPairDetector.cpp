@@ -28,7 +28,10 @@ subject to the following restrictions:
 #endif
 
 //must be above the machine epsilon
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define REL_ERROR2 btScalar(1.0e-12)
+btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define REL_ERROR2 btScalar(1.0e-12)
 btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
 #else

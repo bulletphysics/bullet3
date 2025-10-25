@@ -28,7 +28,10 @@ class btTypedConstraint;
 extern btScalar gDeactivationTime;
 extern bool gDisableDeactivation;
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btRigidBodyData btRigidBodyLongDoubleData
+#define btRigidBodyDataName "btRigidBodyLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btRigidBodyData btRigidBodyDoubleData
 #define btRigidBodyDataName "btRigidBodyDoubleData"
 #else
@@ -680,6 +683,32 @@ struct btRigidBodyDoubleData
 	double m_additionalAngularDampingFactor;
 	double m_linearSleepingThreshold;
 	double m_angularSleepingThreshold;
+	int m_additionalDamping;
+	char m_padding[4];
+};
+
+struct btRigidBodyLongDoubleData
+{
+	btCollisionObjectLongDoubleData m_collisionObjectData;
+	btMatrix3x3LongDoubleData m_invInertiaTensorWorld;
+	btVector3LongDoubleData m_linearVelocity;
+	btVector3LongDoubleData m_angularVelocity;
+	btVector3LongDoubleData m_angularFactor;
+	btVector3LongDoubleData m_linearFactor;
+	btVector3LongDoubleData m_gravity;
+	btVector3LongDoubleData m_gravity_acceleration;
+	btVector3LongDoubleData m_invInertiaLocal;
+	btVector3LongDoubleData m_totalForce;
+	btVector3LongDoubleData m_totalTorque;
+	long double m_inverseMass;
+	long double m_linearDamping;
+	long double m_angularDamping;
+	long double m_additionalDampingFactor;
+	long double m_additionalLinearDampingThresholdSqr;
+	long double m_additionalAngularDampingThresholdSqr;
+	long double m_additionalAngularDampingFactor;
+	long double m_linearSleepingThreshold;
+	long double m_angularSleepingThreshold;
 	int m_additionalDamping;
 	char m_padding[4];
 };

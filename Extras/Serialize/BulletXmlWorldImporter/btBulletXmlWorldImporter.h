@@ -27,7 +27,12 @@ class XMLNode;
 
 struct btConvexInternalShapeData;
 struct btCollisionShapeData;
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+struct btRigidBodyLongDoubleData;
+struct btTypedConstraintLongDoubleData;
+#define btRigidBodyData btRigidBodyLongDoubleData
+#define btTypedConstraintData2 btTypedConstraintLongDoubleData
+#elif defined(BT_USE_DOUBLE_PRECISION)
 struct btRigidBodyDoubleData;
 struct btTypedConstraintDoubleData;
 #define btRigidBodyData btRigidBodyDoubleData

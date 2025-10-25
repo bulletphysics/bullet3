@@ -114,6 +114,33 @@ struct btContactSolverInfo : public btContactSolverInfoData
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct btContactSolverInfoLongDoubleData
+{
+	long double m_tau;
+	long double m_damping;
+	long double m_friction;
+	long double m_timeStep;
+	long double m_restitution;
+	long double m_maxErrorReduction;
+	long double m_sor;
+	long double m_erp;
+	long double m_erp2;
+	long double m_globalCfm;
+	long double m_splitImpulsePenetrationThreshold;
+	long double m_splitImpulseTurnErp;
+	long double m_linearSlop;
+	long double m_warmstartingFactor;
+	long double m_articulatedWarmstartingFactor;
+	long double m_maxGyroscopicForce;
+	long double m_singleAxisRollingFrictionThreshold;
+
+	int m_numIterations;
+	int m_solverMode;
+	int m_restingContactRestitutionThreshold;
+	int m_minimumSolverBatchSize;
+	int m_splitImpulse;
+	char m_padding[4];
+};
 struct btContactSolverInfoDoubleData
 {
 	double m_tau;

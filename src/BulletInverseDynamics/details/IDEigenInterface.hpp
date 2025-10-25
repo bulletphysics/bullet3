@@ -5,7 +5,13 @@ namespace btInverseDynamics
 {
 #define BT_ID_HAVE_MAT3X
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+typedef Eigen::Matrix<long double, Eigen::Dynamic, 1, Eigen::DontAlign> vecx;
+typedef Eigen::Matrix<long double, 3, 1, Eigen::DontAlign> vec3;
+typedef Eigen::Matrix<long double, 3, 3, Eigen::DontAlign> mat33;
+typedef Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic, Eigen::DontAlign> matxx;
+typedef Eigen::Matrix<long double, 3, Eigen::Dynamic, Eigen::DontAlign> mat3x;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1, Eigen::DontAlign> vecx;
 typedef Eigen::Matrix<double, 3, 1, Eigen::DontAlign> vec3;
 typedef Eigen::Matrix<double, 3, 3, Eigen::DontAlign> mat33;

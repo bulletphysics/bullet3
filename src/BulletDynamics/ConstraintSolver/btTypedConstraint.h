@@ -20,7 +20,10 @@ subject to the following restrictions:
 #include "btSolverConstraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btTypedConstraintData2 btTypedConstraintLongDoubleData
+#define btTypedConstraintDataName "btTypedConstraintLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btTypedConstraintData2 btTypedConstraintDoubleData
 #define btTypedConstraintDataName "btTypedConstraintDoubleData"
 #else
@@ -425,6 +428,29 @@ struct	btTypedConstraintDoubleData
 	int	m_overrideNumSolverIterations;
 
 	double	m_breakingImpulseThreshold;
+	int		m_isEnabled;
+	char	padding[4];
+	
+};
+
+struct	btTypedConstraintLongDoubleData
+{
+	btRigidBodyLongDoubleData		*m_rbA;
+	btRigidBodyLongDoubleData		*m_rbB;
+	char	*m_name;
+
+	int	m_objectType;
+	int	m_userConstraintType;
+	int	m_userConstraintId;
+	int	m_needsFeedback;
+
+	long double	m_appliedImpulse;
+	long double	m_dbgDrawSize;
+
+	int	m_disableCollisionsBetweenLinkedBodies;
+	int	m_overrideNumSolverIterations;
+
+	long double	m_breakingImpulseThreshold;
 	int		m_isEnabled;
 	char	padding[4];
 	

@@ -158,6 +158,12 @@ public:
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
+struct btDynamicsWorldLongDoubleData
+{
+	btContactSolverInfoLongDoubleData m_solverInfo;
+	btVector3LongDoubleData m_gravity;
+};
+
 struct btDynamicsWorldDoubleData
 {
 	btContactSolverInfoDoubleData m_solverInfo;

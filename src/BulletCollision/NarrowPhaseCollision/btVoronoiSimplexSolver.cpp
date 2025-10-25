@@ -416,7 +416,12 @@ int btVoronoiSimplexSolver::pointOutsideOfPlane(const btVector3& p, const btVect
 	btScalar signd = (d - a).dot(normal);  // [AD AB AC]
 
 #ifdef CATCH_DEGENERATE_TETRAHEDRON
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	if (signd * signd < (btScalar(1e-8) * btScalar(1e-8)))
+	{
+		return -1;
+	}
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	if (signd * signd < (btScalar(1e-8) * btScalar(1e-8)))
 	{
 		return -1;

@@ -125,6 +125,7 @@ struct	btTriangleMeshShapeData
 
 	btQuantizedBvhFloatData		*m_quantizedFloatBvh;
 	btQuantizedBvhDoubleData	*m_quantizedDoubleBvh;
+	btQuantizedBvhLongDoubleData	*m_quantizedLongDoubleBvh;
 
 	btTriangleInfoMapData	*m_triangleInfoMap;
 	

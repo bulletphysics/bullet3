@@ -31,7 +31,11 @@ class btSerializer;
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedAllocator.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btQuantizedBvhData btQuantizedBvhLongDoubleData
+#define btOptimizedBvhNodeData btOptimizedBvhNodeLongDoubleData
+#define btQuantizedBvhDataName "btQuantizedBvhLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btQuantizedBvhData btQuantizedBvhDoubleData
 #define btOptimizedBvhNodeData btOptimizedBvhNodeDoubleData
 #define btQuantizedBvhDataName "btQuantizedBvhDoubleData"
@@ -494,6 +498,16 @@ struct btOptimizedBvhNodeDoubleData
 	char m_pad[4];
 };
 
+struct btOptimizedBvhNodeLongDoubleData
+{
+	btVector3LongDoubleData m_aabbMinOrg;
+	btVector3LongDoubleData m_aabbMaxOrg;
+	int m_escapeIndex;
+	int m_subPart;
+	int m_triangleIndex;
+	char m_pad[4];
+};
+
 
 struct btQuantizedBvhNodeData
 {
@@ -529,6 +543,23 @@ struct	btQuantizedBvhDoubleData
 	int							m_numContiguousLeafNodes;
 	int							m_numQuantizedContiguousNodes;
 	btOptimizedBvhNodeDoubleData	*m_contiguousNodesPtr;
+	btQuantizedBvhNodeData			*m_quantizedContiguousNodesPtr;
+
+	int							m_traversalMode;
+	int							m_numSubtreeHeaders;
+	btBvhSubtreeInfoData		*m_subTreeInfoPtr;
+};
+
+struct	btQuantizedBvhLongDoubleData
+{
+	btVector3LongDoubleData			m_bvhAabbMin;
+	btVector3LongDoubleData			m_bvhAabbMax;
+	btVector3LongDoubleData			m_bvhQuantization;
+	int							m_curNodeIndex;
+	int							m_useQuantization;
+	int							m_numContiguousLeafNodes;
+	int							m_numQuantizedContiguousNodes;
+	btOptimizedBvhNodeLongDoubleData	*m_contiguousNodesPtr;
 	btQuantizedBvhNodeData			*m_quantizedContiguousNodesPtr;
 
 	int							m_traversalMode;

@@ -23,6 +23,7 @@ class btCollisionObject;
 #include "LinearMath/btAlignedAllocator.h"
 
 struct btCollisionResult;
+struct btCollisionObjectLongDoubleData;
 struct btCollisionObjectDoubleData;
 struct btCollisionObjectFloatData;
 
@@ -268,6 +269,52 @@ public:
 
 // clang-format off
 
+struct btPersistentManifoldLongDoubleData
+{
+	btVector3LongDoubleData m_pointCacheLocalPointA[4];
+	btVector3LongDoubleData m_pointCacheLocalPointB[4];
+	btVector3LongDoubleData m_pointCachePositionWorldOnA[4];
+	btVector3LongDoubleData m_pointCachePositionWorldOnB[4];
+	btVector3LongDoubleData m_pointCacheNormalWorldOnB[4];
+	btVector3LongDoubleData	m_pointCacheLateralFrictionDir1[4];
+	btVector3LongDoubleData	m_pointCacheLateralFrictionDir2[4];
+	long double m_pointCacheDistance[4];
+	long double m_pointCacheAppliedImpulse[4];
+	long double m_pointCachePrevRHS[4];
+	 long double m_pointCacheCombinedFriction[4];
+	long double m_pointCacheCombinedRollingFriction[4];
+	long double m_pointCacheCombinedSpinningFriction[4];
+	long double m_pointCacheCombinedRestitution[4];
+	int	m_pointCachePartId0[4];
+	int	m_pointCachePartId1[4];
+	int	m_pointCacheIndex0[4];
+	int	m_pointCacheIndex1[4];
+	int m_pointCacheContactPointFlags[4];
+	long double m_pointCacheAppliedImpulseLateral1[4];
+	long double m_pointCacheAppliedImpulseLateral2[4];
+	long double m_pointCacheContactMotion1[4];
+	long double m_pointCacheContactMotion2[4];
+	long double m_pointCacheContactCFM[4];
+	long double m_pointCacheCombinedContactStiffness1[4];
+	long double m_pointCacheContactERP[4];
+	long double m_pointCacheCombinedContactDamping1[4];
+	long double m_pointCacheFrictionCFM[4];
+	int m_pointCacheLifeTime[4];
+
+	int m_numCachedPoints;
+	int m_companionIdA;
+	int m_companionIdB;
+	int m_index1a;
+
+	int m_objectType;
+	long double	m_contactBreakingThreshold;
+	long double	m_contactProcessingThreshold;
+	int m_padding;
+
+	btCollisionObjectLongDoubleData *m_body0;
+	btCollisionObjectLongDoubleData *m_body1;
+};
+
 struct btPersistentManifoldDoubleData
 {
 	btVector3DoubleData m_pointCacheLocalPointA[4];
@@ -363,7 +410,10 @@ struct btPersistentManifoldFloatData
 
 // clang-format on
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btPersistentManifoldData btPersistentManifoldLongDoubleData
+#define btPersistentManifoldDataName "btPersistentManifoldLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btPersistentManifoldData btPersistentManifoldDoubleData
 #define btPersistentManifoldDataName "btPersistentManifoldDoubleData"
 #else

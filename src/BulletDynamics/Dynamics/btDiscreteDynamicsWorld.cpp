@@ -1404,7 +1404,11 @@ void btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 
 void btDiscreteDynamicsWorld::serializeDynamicsWorldInfo(btSerializer* serializer)
 {
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	int len = sizeof(btDynamicsWorldLongDoubleData);
+	btChunk* chunk = serializer->allocate(len, 1);
+	btDynamicsWorldLongDoubleData* worldInfo = (btDynamicsWorldLongDoubleData*)chunk->m_oldPtr;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	int len = sizeof(btDynamicsWorldDoubleData);
 	btChunk* chunk = serializer->allocate(len, 1);
 	btDynamicsWorldDoubleData* worldInfo = (btDynamicsWorldDoubleData*)chunk->m_oldPtr;
@@ -1445,7 +1449,9 @@ void btDiscreteDynamicsWorld::serializeDynamicsWorldInfo(btSerializer* serialize
 	worldInfo->m_solverInfo.m_splitImpulse = getSolverInfo().m_splitImpulse;
 
 	
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+	const char* structType = "btDynamicsWorldLongDoubleData";
+#elif defined(BT_USE_DOUBLE_PRECISION)
 	const char* structType = "btDynamicsWorldDoubleData";
 #else   //BT_USE_DOUBLE_PRECISION
 	const char* structType = "btDynamicsWorldFloatData";

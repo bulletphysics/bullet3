@@ -22,7 +22,10 @@ subject to the following restrictions:
 
 class btRigidBody;
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btPoint2PointConstraintData2 btPoint2PointConstraintLongDoubleData2
+#define btPoint2PointConstraintDataName "btPoint2PointConstraintLongDoubleData2"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btPoint2PointConstraintData2 btPoint2PointConstraintDoubleData2
 #define btPoint2PointConstraintDataName "btPoint2PointConstraintDoubleData2"
 #else
@@ -139,6 +142,13 @@ struct btPoint2PointConstraintDoubleData2
 	btTypedConstraintDoubleData m_typeConstraintData;
 	btVector3DoubleData m_pivotInA;
 	btVector3DoubleData m_pivotInB;
+};
+
+struct btPoint2PointConstraintLongDoubleData2
+{
+	btTypedConstraintLongDoubleData m_typeConstraintData;
+	btVector3LongDoubleData m_pivotInA;
+	btVector3LongDoubleData m_pivotInB;
 };
 
 #ifdef BT_BACKWARDS_COMPATIBLE_SERIALIZATION
