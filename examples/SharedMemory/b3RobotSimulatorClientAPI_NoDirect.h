@@ -399,7 +399,7 @@ struct b3RobotSimulatorAddUserDebugLineArgs
 	double m_lifeTime;
 	int m_parentObjectUniqueId;
 	int m_parentLinkIndex;
-
+	int m_replaceItemUniqueId;
 	b3RobotSimulatorAddUserDebugLineArgs()
 		: m_lineWidth(1),
 		  m_lifeTime(0),
@@ -426,6 +426,7 @@ struct b3RobotSimulatorAddUserDebugTextArgs
 	int m_parentObjectUniqueId;
 	int m_parentLinkIndex;
 	int m_flags;
+	int m_replaceItemUniqueId;
 
 	b3RobotSimulatorAddUserDebugTextArgs()
 		: m_size(1),
