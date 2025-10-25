@@ -16,6 +16,7 @@ SET(Bullet3Geometry_HDRS
 )
 
 ADD_LIBRARY(Bullet3Geometry ${Bullet3Geometry_SRCS} ${Bullet3Geometry_HDRS})
+target_include_directories(Bullet3Geometry PUBLIC ${BULLET_PHYSICS_SOURCE_DIR}/src)
 if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Geometry Bullet3Common)
 endif()
