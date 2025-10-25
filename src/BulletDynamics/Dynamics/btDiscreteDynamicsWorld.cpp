@@ -481,12 +481,12 @@ void btDiscreteDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 
 	///CallbackTriggers();
 
+	///update vehicle simulation
+	updateActions(timeStep);
+
 	///integrate transforms
 
 	integrateTransforms(timeStep);
-
-	///update vehicle simulation
-	updateActions(timeStep);
 
 	updateActivationState(timeStep);
 
