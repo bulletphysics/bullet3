@@ -569,6 +569,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 
 			//  printf("pixel = %d\n", rgbaPixelsReceived[0]);
 
+#if 0
 			for (int i = 0; i < serverCmd.m_sendPixelDataArguments.m_numPixelsCopied; i++)
 			{
 				m_data->m_cachedCameraDepthBuffer[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = depthBuffer[i];
@@ -581,7 +582,11 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 			{
 				m_data->m_cachedCameraPixelsRGBA[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex * numBytesPerPixel] = rgbaPixelsReceived[i];
 			}
-
+#else
+ 			memcpy(&m_data->m_cachedCameraDepthBuffer[serverCmd.m_sendPixelDataArguments.m_startingPixelIndex],depthBuffer,serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*sizeof(float));
+			memcpy(&m_data->m_cachedSegmentationMask[serverCmd.m_sendPixelDataArguments.m_startingPixelIndex],segmentationMaskBuffer,serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*sizeof(int));
+			memcpy(&m_data->m_cachedCameraPixelsRGBA[serverCmd.m_sendPixelDataArguments.m_startingPixelIndex * numBytesPerPixel],rgbaPixelsReceived,serverCmd.m_sendPixelDataArguments.m_numPixelsCopied * numBytesPerPixel);
+#endif
 			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied)
 			{
 				m_data->m_hasStatus = false;

@@ -10226,8 +10226,10 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
 
+		Py_BEGIN_ALLOW_THREADS
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
+		Py_END_ALLOW_THREADS
 		if (statusType == CMD_CAMERA_IMAGE_COMPLETED)
 		{
 			PyObject* pyResultList;  // store 4 elements in this result: width,
