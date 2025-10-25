@@ -150,7 +150,7 @@ void btTriangleMesh::preallocateVertices(int numverts)
 	}
 	else
 	{
-		m_3componentVertices.reserve(numverts);
+		m_3componentVertices.reserve(3 * numverts);
 	}
 }
 
