@@ -385,8 +385,6 @@ void btRaycastVehicle::updateSuspension(btScalar deltaTime)
 {
 	(void)deltaTime;
 
-	btScalar chassisMass = btScalar(1.) / m_chassisBody->getInvMass();
-
 	for (int w_it = 0; w_it < getNumWheels(); w_it++)
 	{
 		btWheelInfo& wheel_info = m_wheelInfo[w_it];
@@ -400,7 +398,7 @@ void btRaycastVehicle::updateSuspension(btScalar deltaTime)
 				btScalar current_length = wheel_info.m_raycastInfo.m_suspensionLength;
 
 				btScalar length_diff = (susp_length - current_length);
-
+				// assume stiffness is in N/m
 				force = wheel_info.m_suspensionStiffness * length_diff * wheel_info.m_clippedInvContactDotSuspension;
 			}
 
@@ -417,12 +415,13 @@ void btRaycastVehicle::updateSuspension(btScalar deltaTime)
 					{
 						susp_damping = wheel_info.m_wheelsDampingRelaxation;
 					}
+					// assume damping is in N/(m/s)
 					force -= susp_damping * projected_rel_vel;
 				}
 			}
 
 			// RESULT
-			wheel_info.m_wheelsSuspensionForce = force * chassisMass;
+			wheel_info.m_wheelsSuspensionForce = force;
 			if (wheel_info.m_wheelsSuspensionForce < btScalar(0.))
 			{
 				wheel_info.m_wheelsSuspensionForce = btScalar(0.);
