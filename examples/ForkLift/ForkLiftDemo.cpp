@@ -179,7 +179,7 @@ int forwardIndex = 2;
 btVector3 wheelDirectionCS0(0, -1, 0);
 btVector3 wheelAxleCS(-1, 0, 0);
 
-bool useMCLPSolver = true;
+bool useMLCPSolver = true;
 
 #include <stdio.h>  //printf debugging
 
@@ -322,7 +322,7 @@ void ForkLiftDemo::initPhysics()
 	btVector3 worldMin(-1000, -1000, -1000);
 	btVector3 worldMax(1000, 1000, 1000);
 	m_overlappingPairCache = new btAxisSweep3(worldMin, worldMax);
-	if (useMCLPSolver)
+	if (useMLCPSolver)
 	{
 		btDantzigSolver* mlcp = new btDantzigSolver();
 		//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
@@ -334,7 +334,7 @@ void ForkLiftDemo::initPhysics()
 		m_constraintSolver = new btSequentialImpulseConstraintSolver();
 	}
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_overlappingPairCache, m_constraintSolver, m_collisionConfiguration);
-	if (useMCLPSolver)
+	if (useMLCPSolver)
 	{
 		m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 1;  //for direct solver it is better to have a small A matrix
 	}
@@ -867,11 +867,11 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 				{
 					handled = true;
 					//switch solver (needs demo restart)
-					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+					useMLCPSolver = !useMLCPSolver;
+					printf("switching to useMLCPSolver = %d\n", useMLCPSolver);
 
 					delete m_constraintSolver;
-					if (useMCLPSolver)
+					if (useMLCPSolver)
 					{
 						btDantzigSolver* mlcp = new btDantzigSolver();
 						//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
@@ -1036,11 +1036,11 @@ void ForkLiftDemo::specialKeyboard(int key, int x, int y)
 			case GLUT_KEY_F6:
 				{
 					//switch solver (needs demo restart)
-					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+					useMLCPSolver = !useMLCPSolver;
+					printf("switching to useMLCPSolver = %d\n", useMLCPSolver);
 
 					delete m_constraintSolver;
-					if (useMCLPSolver)
+					if (useMLCPSolver)
 					{
 						btDantzigSolver* mlcp = new btDantzigSolver();
 						//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
