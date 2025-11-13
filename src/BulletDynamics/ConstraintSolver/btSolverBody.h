@@ -51,12 +51,7 @@ struct btSimdScalar
 		int m_ints[4];
 		btScalar m_unusedPadding;
 	};
-	SIMD_FORCE_INLINE __m128 get128()
-	{
-		return m_vec128;
-	}
-
-	SIMD_FORCE_INLINE const __m128 get128() const
+	SIMD_FORCE_INLINE __m128 get128() const
 	{
 		return m_vec128;
 	}
