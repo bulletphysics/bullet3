@@ -328,6 +328,7 @@ IF (APPLE)
 ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
+OPTION(BUILD_BULLET3_OPENCL "Set when you want to build Bullet 3 with OpenCL" ON)
 
 # Optional Python configuration
 # Will not probe environment for Python configuration (which can abort the
