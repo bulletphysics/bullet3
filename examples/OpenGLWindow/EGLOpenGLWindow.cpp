@@ -295,6 +295,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	glViewport(0,0,m_data->m_windowWidth, m_data->m_windowHeight);
 	//int i = pthread_getconcurrency();
 	//printf("pthread_getconcurrency()=%d\n", i);
+	m_OpenGLInitialized = true;
 }
 
 void EGLOpenGLWindow::closeWindow()

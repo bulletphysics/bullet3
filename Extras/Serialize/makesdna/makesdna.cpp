@@ -1005,13 +1005,13 @@ void dna_write(FILE *file, void *pntr, int size)
 
 void printStructLenghts(void)
 {
-	int a, unknown = nr_structs, lastunknown, structtype;
+	int a, unknown = nr_structs, /*lastunknown,*/ structtype;
 	short *structpoin;
 	printf("\n\n*** All detected structs:\n");
 
 	while (unknown)
 	{
-		lastunknown = unknown;
+		/* lastunknown = unknown; */
 		unknown = 0;
 
 		/* check all structs... */

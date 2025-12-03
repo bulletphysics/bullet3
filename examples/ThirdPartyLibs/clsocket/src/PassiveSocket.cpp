@@ -137,6 +137,7 @@ bool CPassiveSocket::Listen(const char *pAddr, uint16 nPort, int32 nConnectionBa
 	in_addr_t inAddr;
 
 	nReuse = IPTOS_LOWDELAY;
+	(void)nReuse;
 #endif
 
 	//--------------------------------------------------------------------------
