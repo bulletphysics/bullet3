@@ -259,6 +259,7 @@ int main(int argc, char **argv)
 		swap = (f.getFlags() & FD_ENDIAN_SWAP)!=0;
 	}
 #else
+	(void)argc; (void)argv;
 	isBulletFile = true;
 	bool swap = false;
 	char *memBuf = sBulletDNAstr;
