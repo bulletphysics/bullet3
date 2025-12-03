@@ -70,24 +70,21 @@ IF (WIN32)
         )
         ADD_DEFINITIONS(-DGLEW_STATIC)
 	LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
-ELSE(WIN32)
-        IF(APPLE)
-                find_library(COCOA NAMES Cocoa)
-                MESSAGE(${COCOA})
-                link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+ELSEIF(APPLE)
+        find_library(COCOA NAMES Cocoa REQUIRED)
+        MESSAGE(${COCOA})
+        link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+ELSE()
+        INCLUDE_DIRECTORIES(
+                ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
+        )
+        ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
+        ADD_DEFINITIONS("-DGLEW_STATIC")
+        ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 
-        ELSE(APPLE)
-                INCLUDE_DIRECTORIES(
-                        ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
-                )
-                ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
-                ADD_DEFINITIONS("-DGLEW_STATIC")
-                ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
-
-                FIND_PACKAGE(Threads)
-                LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} ${DL} )
-        ENDIF(APPLE)
-ENDIF(WIN32)
+        FIND_PACKAGE(Threads)
+        LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} ${DL} )
+ENDIF()
 
 
 ADD_EXECUTABLE(AppBasicExampleGui
