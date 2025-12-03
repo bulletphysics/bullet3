@@ -45,6 +45,12 @@ inline int stricmp(const char *pStr1, const char *pStr2)
 #ifndef _stricmp
 #define _stricmp stricmp
 #endif
+#ifdef strncasecmp
+#undef strncasecmp
+#endif
+#ifdef strnicmp
+#undef strnicmp
+#endif
 inline int strnicmp(const char *pStr1, const char *pStr2, size_t unBufferLen)
 {
 	return strncasecmp(pStr1, pStr2, unBufferLen);
