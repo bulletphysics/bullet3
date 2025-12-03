@@ -176,7 +176,7 @@ long b3_maxdot_large(const float *vv, const float *vec, unsigned long count, flo
 	}
 
 	// account for work we've already done
-	count -= segment;
+	count -= (unsigned long)segment;
 
 	// Deal with the last < STACK_ARRAY_COUNT vectors
 	max = dotMax;
@@ -570,7 +570,7 @@ long b3_mindot_large(const float *vv, const float *vec, unsigned long count, flo
 	}
 
 	// account for work we've already done
-	count -= segment;
+	count -= (unsigned long)segment;
 
 	// Deal with the last < STACK_ARRAY_COUNT vectors
 	min = dotmin;

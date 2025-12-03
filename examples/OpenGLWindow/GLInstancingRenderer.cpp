@@ -28,7 +28,7 @@ struct caster2
 	}
 	float getFloat()
 	{
-		float v = ((float)i) + .25;
+		float v = ((float)i) + .25f;
 		return v;
 	}
 
@@ -626,9 +626,9 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* s
 	}
 	if (gfxObjIndex > 0)
 	{
-		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[0] = specular[0];
-		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[1] = specular[1];
-		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[2] = specular[2];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[0] = (b3Scalar)specular[0];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[1] = (b3Scalar)specular[1];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[2] = (b3Scalar)specular[2];
 	}
 }
 void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex2)
@@ -664,9 +664,9 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, in
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
-	m_data->m_instance_scale_ptr[srcIndex * 4 + 0] = scale[0];
-	m_data->m_instance_scale_ptr[srcIndex * 4 + 1] = scale[1];
-	m_data->m_instance_scale_ptr[srcIndex * 4 + 2] = scale[2];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 0] = (GLfloat)scale[0];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 1] = (GLfloat)scale[1];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 2] = (GLfloat)scale[2];
 	caster2 c;
 	c.setInt(srcIndex2);
 	m_data->m_instance_scale_ptr[srcIndex * 4 + 3] = c.getFloat();
@@ -1549,7 +1549,7 @@ void GLInstancingRenderer::setLightPosition(const float lightPos[3])
 
 void GLInstancingRenderer::setShadowMapIntensity(double shadowMapIntensity)
 {
-	m_data->m_shadowmapIntensity = shadowMapIntensity;
+	m_data->m_shadowmapIntensity = (float)shadowMapIntensity;
 }
 
 
@@ -1568,14 +1568,14 @@ void GLInstancingRenderer::setShadowMapWorldSize(float worldSize)
 
 void GLInstancingRenderer::setLightPosition(const double lightPos[3])
 {
-	m_data->m_lightPos[0] = lightPos[0];
-	m_data->m_lightPos[1] = lightPos[1];
-	m_data->m_lightPos[2] = lightPos[2];
+	m_data->m_lightPos[0] = (b3Scalar)lightPos[0];
+	m_data->m_lightPos[1] = (b3Scalar)lightPos[1];
+	m_data->m_lightPos[2] = (b3Scalar)lightPos[2];
 }
 
 void GLInstancingRenderer::setBackgroundColor(const double rgbBackground[3])
 {
-	glClearColor(rgbBackground[0], rgbBackground[1], rgbBackground[2], 1.f);
+	glClearColor((GLfloat)rgbBackground[0], (GLfloat)rgbBackground[1], (GLfloat)rgbBackground[2], 1.f);
 }
 
 void GLInstancingRenderer::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])

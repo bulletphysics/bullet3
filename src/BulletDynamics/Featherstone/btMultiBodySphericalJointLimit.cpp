@@ -219,12 +219,12 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 				{
 					btVector3 constraintNormalAng = frameAworld.getColumn(row % 3);
 					double kp = m_use_multi_dof_params ? m_kp[row % 3] : m_kp[0];
-					posError = kp*angleDiff[row % 3];
-					double max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
+					posError = kp*(double)angleDiff[row % 3];
+					btScalar max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
 					//should multiply by time step
 					//max_applied_impulse *= infoGlobal.m_timeStep
 
-					double min_applied_impulse = -max_applied_impulse;
+					btScalar min_applied_impulse = -max_applied_impulse;
 					
 
 					if (posError>0)

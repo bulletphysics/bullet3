@@ -297,8 +297,8 @@ public:
 			
 			// btVector3 extents = m_aabbMax - m_aabbMin;
 			
-			v.uv[0] = (1.-((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0])))*m_textureScaling;
-			v.uv[1] = (1.-(v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]))*m_textureScaling;
+			v.uv[0] = (btScalar(1.)-((btScalar)v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0]))*m_textureScaling;
+			v.uv[1] = (btScalar(1.)-((btScalar)v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]))*m_textureScaling;
 
 			m_pIndicesOut->push_back(m_pVerticesOut->size());
 			m_pVerticesOut->push_back(v);
@@ -593,8 +593,8 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 			MyHashShape shape;
 			shape.m_sphere0Pos = sphere0Pos;
 			shape.m_sphere1Pos = sphere1Pos;
-			shape.m_radius0 = 2. * ms->getSphereRadius(0);
-			shape.m_radius1 = 2. * ms->getSphereRadius(1);
+			shape.m_radius0 = btScalar(2.) * ms->getSphereRadius(0);
+			shape.m_radius1 = btScalar(2.) * ms->getSphereRadius(1);
 			shape.m_deformFunc = 1;  //vert.dot(fromTo)
 			int graphicsShapeIndex = -1;
 			int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
@@ -618,13 +618,13 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 
 					if (vert.dot(fromTo) > 0)
 					{
-						btScalar radiusScale = 2. * ms->getSphereRadius(1);
+						btScalar radiusScale = btScalar(2.) * ms->getSphereRadius(1);
 						trVer = radiusScale * vert;
 						trVer += sphere1Pos;
 					}
 					else
 					{
-						btScalar radiusScale = 2. * ms->getSphereRadius(0);
+						btScalar radiusScale = btScalar(2.) * ms->getSphereRadius(0);
 						trVer = radiusScale * vert;
 						trVer += sphere0Pos;
 					}
@@ -656,7 +656,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	{
 		btSphereShape* sphereShape = (btSphereShape*)collisionShape;
 		btScalar radius = sphereShape->getRadius();
-		btScalar sphereSize = 2. * radius;
+		btScalar sphereSize = btScalar(2.) * radius;
 		btVector3 radiusScale(sphereSize, sphereSize, sphereSize);
 		btAlignedObjectArray<float> transformedVertices;
 
@@ -710,7 +710,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 			{
 				btSphereShape* sphereShape = (btSphereShape*)compound->getChildShape(0);
 				btScalar radius = sphereShape->getRadius();
-				btScalar sphereSize = 2. * radius;
+				btScalar sphereSize = btScalar(2.) * radius;
 				btVector3 radiusScale(sphereSize, sphereSize, sphereSize);
 
 				MyHashShape shape;
@@ -764,7 +764,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 				btScalar halfHeight = sphereShape->getHalfHeight();
 
 				btScalar radius = sphereShape->getRadius();
-				btScalar sphereSize = 2. * radius;
+				btScalar sphereSize = btScalar(2.) * radius;
 
 				btVector3 radiusScale = btVector3(sphereSize, sphereSize, sphereSize);
 
@@ -832,8 +832,8 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 					btVector3 sphere0Pos = ms->getSpherePosition(0);
 					btVector3 sphere1Pos = ms->getSpherePosition(1);
 					btVector3 fromTo = sphere1Pos - sphere0Pos;
-					btScalar radiusScale1 = 2.0 * ms->getSphereRadius(1);
-					btScalar radiusScale0 = 2.0 * ms->getSphereRadius(0);
+					btScalar radiusScale1 = btScalar(2.0) * ms->getSphereRadius(1);
+					btScalar radiusScale0 = btScalar(2.0) * ms->getSphereRadius(0);
 
 					MyHashShape shape;
 					shape.m_radius0 = radiusScale0;
@@ -901,7 +901,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		btScalar halfHeight = sphereShape->getHalfHeight();
 
 		btScalar radius = sphereShape->getRadius();
-		btScalar sphereSize = 2. * radius;
+		btScalar sphereSize = btScalar(2.) * radius;
 		btVector3 radiusScale(sphereSize, sphereSize, sphereSize);
 
 		MyHashShape shape;

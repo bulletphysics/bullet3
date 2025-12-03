@@ -64,7 +64,7 @@ struct btShapeGradients
 	{
 		for (int i = 0; i < row; i++)
 		{
-			m_vec[i] /= denom;
+			m_vec[i] /= (btScalar)denom;
 		}
 	}
 
@@ -72,7 +72,7 @@ struct btShapeGradients
 	{
 		for (int i = 32 - row; i < 32; i++)
 		{
-			m_vec[i] *= val;
+			m_vec[i] *= (btScalar)val;
 		}
 	}
 

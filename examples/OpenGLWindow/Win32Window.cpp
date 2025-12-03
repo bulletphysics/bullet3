@@ -377,7 +377,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseXpos = xPos;
 				sData->m_mouseYpos = yPos;
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(1, 0, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(1, 0, (float)xPos, (float)yPos);
 			}
 			break;
 		}
@@ -391,7 +391,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseXpos = xPos;
 				sData->m_mouseYpos = yPos;
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(1, 1, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(1, 1, (float)xPos, (float)yPos);
 			}
 			break;
 		}
@@ -407,7 +407,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseYpos = yPos;
 
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(0, 0, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(0, 0, (float)xPos, (float)yPos);
 			}
 			//	gDemoApplication->mouseFunc(0,1,xPos,yPos);
 			break;
@@ -423,7 +423,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseYpos = yPos;
 
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(0, 1, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(0, 1, (float)xPos, (float)yPos);
 			}
 			break;
 		}
@@ -459,7 +459,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			sData->m_mouseYpos = yPos;
 
 			if (sData && sData->m_mouseMoveCallback)
-				(*sData->m_mouseMoveCallback)(xPos, yPos);
+				(*sData->m_mouseMoveCallback)((float)xPos, (float)yPos);
 
 			break;
 		}
@@ -470,7 +470,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			sData->m_mouseRButton = 1;
 
 			if (sData && sData->m_mouseButtonCallback)
-				(*sData->m_mouseButtonCallback)(2, 0, sData->m_mouseXpos, sData->m_mouseYpos);
+				(*sData->m_mouseButtonCallback)(2, 0, (float)sData->m_mouseXpos, (float)sData->m_mouseYpos);
 
 			//gDemoApplication->mouseFunc(2,1,xPos,yPos);
 			break;
@@ -481,7 +481,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// int yPos = HIWORD(lParam);
 			sData->m_mouseRButton = 0;
 			if (sData && sData->m_mouseButtonCallback)
-				(*sData->m_mouseButtonCallback)(2, 1, sData->m_mouseXpos, sData->m_mouseYpos);
+				(*sData->m_mouseButtonCallback)(2, 1, (float)sData->m_mouseXpos, (float)sData->m_mouseYpos);
 
 			break;
 		}
@@ -513,7 +513,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (sData->m_resizeCallback)
 					{
 						glViewport(0, 0, sData->m_openglViewportWidth, sData->m_openglViewportHeight);
-						(*sData->m_resizeCallback)(sData->m_openglViewportWidth, sData->m_openglViewportHeight);
+						(*sData->m_resizeCallback)((float)sData->m_openglViewportWidth, (float)sData->m_openglViewportHeight);
 					}
 					//if (sOpenGLInitialized)
 					//{
@@ -847,7 +847,7 @@ void Win32Window::setResizeCallback(b3ResizeCallback resizeCallback)
 {
 	m_data->m_resizeCallback = resizeCallback;
 	if (m_data->m_resizeCallback)
-		(*m_data->m_resizeCallback)(m_data->m_openglViewportWidth, m_data->m_openglViewportHeight);
+		(*m_data->m_resizeCallback)((float)m_data->m_openglViewportWidth, (float)m_data->m_openglViewportHeight);
 }
 
 void Win32Window::setKeyboardCallback(b3KeyboardCallback keyboardCallback)

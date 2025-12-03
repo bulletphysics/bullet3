@@ -202,7 +202,7 @@ btHeightfieldTerrainShape::getRawHeightFieldValue(int x, int y) const
 
 		case PHY_DOUBLE:
 		{
-			val = m_heightfieldDataDouble[(y * m_heightStickWidth) + x];
+			val = (btScalar)m_heightfieldDataDouble[(y * m_heightStickWidth) + x];
 			break;
 		}
 
@@ -558,11 +558,11 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 	{
 		if (xiStep == 1)
 		{
-			paramCrossX = (ceil(beginPos[indices[0]]) - beginPos[indices[0]]) * paramDeltaX;
+			paramCrossX = (btScalar)(ceil(beginPos[indices[0]]) - beginPos[indices[0]]) * paramDeltaX;
 		}
 		else
 		{
-			paramCrossX = (beginPos[indices[0]] - floor(beginPos[indices[0]])) * paramDeltaX;
+			paramCrossX = (btScalar)(beginPos[indices[0]] - floor(beginPos[indices[0]])) * paramDeltaX;
 		}
 	}
 	else
@@ -575,11 +575,11 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 	{
 		if (ziStep == 1)
 		{
-			paramCrossZ = (ceil(beginPos[indices[2]]) - beginPos[indices[2]]) * paramDeltaZ;
+			paramCrossZ = (btScalar)(ceil(beginPos[indices[2]]) - beginPos[indices[2]]) * paramDeltaZ;
 		}
 		else
 		{
-			paramCrossZ = (beginPos[indices[2]] - floor(beginPos[indices[2]])) * paramDeltaZ;
+			paramCrossZ = (btScalar)(beginPos[indices[2]] - floor(beginPos[indices[2]])) * paramDeltaZ;
 		}
 	}
 	else
@@ -840,7 +840,7 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 		processVBounds.processTriangles = processTriangles;
 		processVBounds.chunkSize = m_vboundsChunkSize;
 		// The ray is long, run raycast on a higher-level grid
-		gridRaycast(processVBounds, beginPos / m_vboundsChunkSize, endPos / m_vboundsChunkSize, indices);
+		gridRaycast(processVBounds, beginPos / (btScalar)m_vboundsChunkSize, endPos / (btScalar)m_vboundsChunkSize, indices);
 	}
 }
 

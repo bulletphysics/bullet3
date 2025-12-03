@@ -167,7 +167,7 @@ static void debugDrawAllBatches(const btBatchedConstraints* bc,
 			float b = float(iPhase) / float(numPhases - 1);
 			btVector3 color0 = btVector3(1, 0, b);
 			btVector3 color1 = btVector3(0, 1, b);
-			btVector3 offset = offsetBase + offsetStep * (float(iPhase) - float(numPhases - 1) * 0.5);
+			btVector3 offset = offsetBase + offsetStep * (btScalar(iPhase) - btScalar(numPhases - 1) * btScalar(0.5));
 			debugDrawPhase(bc, constraints, bodies, iPhase, color0, color1, offset);
 		}
 	}

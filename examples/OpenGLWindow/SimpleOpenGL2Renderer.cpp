@@ -470,21 +470,21 @@ int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const double
 
 	SimpleGL2Instance& instance = *m_data->m_graphicsInstancesPool.getHandle(newHandle);
 	instance.m_shapeIndex = shapeIndex;
-	instance.m_position[0] = position[0];
-	instance.m_position[1] = position[1];
-	instance.m_position[2] = position[2];
-	instance.orn[0] = quaternion[0];
-	instance.orn[1] = quaternion[1];
-	instance.orn[2] = quaternion[2];
-	instance.orn[3] = quaternion[3];
-	instance.m_rgbColor[0] = color[0];
-	instance.m_rgbColor[1] = color[1];
-	instance.m_rgbColor[2] = color[2];
-	instance.m_rgbColor[3] = color[3];
+	instance.m_position[0] = (b3Scalar)position[0];
+	instance.m_position[1] = (b3Scalar)position[1];
+	instance.m_position[2] = (b3Scalar)position[2];
+	instance.orn[0] = (b3Scalar)quaternion[0];
+	instance.orn[1] = (b3Scalar)quaternion[1];
+	instance.orn[2] = (b3Scalar)quaternion[2];
+	instance.orn[3] = (b3Scalar)quaternion[3];
+	instance.m_rgbColor[0] = (b3Scalar)color[0];
+	instance.m_rgbColor[1] = (b3Scalar)color[1];
+	instance.m_rgbColor[2] = (b3Scalar)color[2];
+	instance.m_rgbColor[3] = (b3Scalar)color[3];
 
-	instance.m_scaling[0] = scaling[0];
-	instance.m_scaling[1] = scaling[1];
-	instance.m_scaling[2] = scaling[2];
+	instance.m_scaling[0] = (b3Scalar)scaling[0];
+	instance.m_scaling[1] = (b3Scalar)scaling[1];
+	instance.m_scaling[2] = (b3Scalar)scaling[2];
 	return newHandle;
 }
 
@@ -593,14 +593,14 @@ void SimpleOpenGL2Renderer::writeSingleInstanceTransformToCPU(const double* posi
 {
 	SimpleGL2Instance& graphicsInstance = *m_data->m_graphicsInstancesPool.getHandle(srcIndex);
 
-	graphicsInstance.m_position[0] = position[0];
-	graphicsInstance.m_position[1] = position[1];
-	graphicsInstance.m_position[2] = position[2];
+	graphicsInstance.m_position[0] = (b3Scalar)position[0];
+	graphicsInstance.m_position[1] = (b3Scalar)position[1];
+	graphicsInstance.m_position[2] = (b3Scalar)position[2];
 
-	graphicsInstance.orn[0] = orientation[0];
-	graphicsInstance.orn[1] = orientation[1];
-	graphicsInstance.orn[2] = orientation[2];
-	graphicsInstance.orn[3] = orientation[3];
+	graphicsInstance.orn[0] = (b3Scalar)orientation[0];
+	graphicsInstance.orn[1] = (b3Scalar)orientation[1];
+	graphicsInstance.orn[2] = (b3Scalar)orientation[2];
+	graphicsInstance.orn[3] = (b3Scalar)orientation[3];
 }
 void SimpleOpenGL2Renderer::writeTransforms()
 {

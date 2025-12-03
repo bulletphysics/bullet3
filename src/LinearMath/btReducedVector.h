@@ -296,7 +296,7 @@ SIMD_FORCE_INLINE btReducedVector operator*(btScalar s, const btReducedVector& v
 
 SIMD_FORCE_INLINE btReducedVector operator/(const btReducedVector& v, btScalar s)
 {
-	return v * (1.0/s);
+	return v * (btScalar(1.0)/s);
 }
 
 SIMD_FORCE_INLINE btReducedVector& operator/=(btReducedVector& v, btScalar s)

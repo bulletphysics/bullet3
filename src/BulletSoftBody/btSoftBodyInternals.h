@@ -81,7 +81,7 @@ static SIMD_FORCE_INLINE bool proximityTest(const btVector3& x1, const btVector3
 	btScalar w1 = (b1 * a22 - b2 * a12) / det;
 	btScalar w2 = (b2 * a11 - b1 * a12) / det;
 	btScalar w3 = 1 - w1 - w2;
-	btScalar delta = mrg / std::sqrt(0.5 * std::abs(x13.cross(x23).safeNorm()));
+	btScalar delta = mrg / (btScalar)std::sqrt(0.5 * std::abs(x13.cross(x23).safeNorm()));
 	bary = btVector3(w1, w2, w3);
 	for (int i = 0; i < 3; ++i)
 	{
@@ -227,17 +227,17 @@ static SIMD_FORCE_INLINE void getBernsteinCoeff(const btSoftBody::Face* face, co
 	btVector3 n_hat = n0 + n1 - face->m_vn;
 	btVector3 p0ma0 = node->m_x - face->m_n[0]->m_x;
 	btVector3 p1ma1 = node->m_q - face->m_n[0]->m_q;
-	k0 = (p0ma0).dot(n0) * 3.0;
+	k0 = (p0ma0).dot(n0) * btScalar(3.0);
 	k1 = (p0ma0).dot(n_hat) + (p1ma1).dot(n0);
 	k2 = (p1ma1).dot(n_hat) + (p0ma0).dot(n1);
-	k3 = (p1ma1).dot(n1) * 3.0;
+	k3 = (p1ma1).dot(n1) * btScalar(3.0);
 }
 
 static SIMD_FORCE_INLINE void polyDecomposition(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& j0, const btScalar& j1, const btScalar& j2, btScalar& u0, btScalar& u1, btScalar& v0, btScalar& v1)
 {
-	btScalar denom = 4.0 * (j1 - j2) * (j1 - j0) + (j2 - j0) * (j2 - j0);
-	u0 = (2.0 * (j1 - j2) * (3.0 * k1 - 2.0 * k0 - k3) - (j0 - j2) * (3.0 * k2 - 2.0 * k3 - k0)) / denom;
-	u1 = (2.0 * (j1 - j0) * (3.0 * k2 - 2.0 * k3 - k0) - (j2 - j0) * (3.0 * k1 - 2.0 * k0 - k3)) / denom;
+	btScalar denom = btScalar(4.0) * (j1 - j2) * (j1 - j0) + (j2 - j0) * (j2 - j0);
+	u0 = (btScalar(2.0) * (j1 - j2) * (btScalar(3.0) * k1 - btScalar(2.0) * k0 - k3) - (j0 - j2) * (btScalar(3.0) * k2 - btScalar(2.0) * k3 - k0)) / denom;
+	u1 = (btScalar(2.0) * (j1 - j0) * (btScalar(3.0) * k2 - btScalar(2.0) * k3 - k0) - (j2 - j0) * (btScalar(3.0) * k1 - btScalar(2.0) * k0 - k3)) / denom;
 	v0 = k0 - u0 * j0;
 	v1 = k3 - u1 * j2;
 }
@@ -245,13 +245,13 @@ static SIMD_FORCE_INLINE void polyDecomposition(const btScalar& k0, const btScal
 static SIMD_FORCE_INLINE bool rootFindingLemma(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3)
 {
 	btScalar u0, u1, v0, v1;
-	btScalar j0 = 3.0 * (k1 - k0);
-	btScalar j1 = 3.0 * (k2 - k1);
-	btScalar j2 = 3.0 * (k3 - k2);
+	btScalar j0 = btScalar(3.0) * (k1 - k0);
+	btScalar j1 = btScalar(3.0) * (k2 - k1);
+	btScalar j2 = btScalar(3.0) * (k3 - k2);
 	polyDecomposition(k0, k1, k2, k3, j0, j1, j2, u0, u1, v0, v1);
 	if (sameSign(v0, v1))
 	{
-		btScalar Ypa = j0 * (1.0 - v0) * (1.0 - v0) + 2.0 * j1 * v0 * (1.0 - v0) + j2 * v0 * v0;  // Y'(v0)
+		btScalar Ypa = j0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(2.0) * j1 * v0 * (btScalar(1.0) - v0) + j2 * v0 * v0;  // Y'(v0)
 		if (sameSign(Ypa, j0))
 		{
 			return (diffSign(k0, v1));
@@ -281,22 +281,22 @@ static SIMD_FORCE_INLINE void getJs(const btScalar& k0, const btScalar& k1, cons
 	btVector3 m1 = (b1 - p1).cross(c1 - p1);
 	btVector3 m_hat = m0 + m1 - dt * dt * (vb - vp).cross(vc - vp);
 	btScalar l0 = m0.dot(n0);
-	btScalar l1 = 0.25 * (m0.dot(n_hat) + m_hat.dot(n0));
+	btScalar l1 = btScalar(0.25) * (m0.dot(n_hat) + m_hat.dot(n0));
 	btScalar l2 = btScalar(1) / btScalar(6) * (m0.dot(n1) + m_hat.dot(n_hat) + m1.dot(n0));
-	btScalar l3 = 0.25 * (m_hat.dot(n1) + m1.dot(n_hat));
+	btScalar l3 = btScalar(0.25) * (m_hat.dot(n1) + m1.dot(n_hat));
 	btScalar l4 = m1.dot(n1);
 
-	btScalar k1p = 0.25 * k0 + 0.75 * k1;
-	btScalar k2p = 0.5 * k1 + 0.5 * k2;
-	btScalar k3p = 0.75 * k2 + 0.25 * k3;
+	btScalar k1p = btScalar(0.25) * k0 + btScalar(0.75) * k1;
+	btScalar k2p = btScalar(0.5) * k1 + btScalar(0.5) * k2;
+	btScalar k3p = btScalar(0.75) * k2 + btScalar(0.25) * k3;
 
-	btScalar s0 = (l1 * k0 - l0 * k1p) * 4.0;
-	btScalar s1 = (l2 * k0 - l0 * k2p) * 2.0;
+	btScalar s0 = (l1 * k0 - l0 * k1p) * btScalar(4.0);
+	btScalar s1 = (l2 * k0 - l0 * k2p) * btScalar(2.0);
 	btScalar s2 = (l3 * k0 - l0 * k3p) * btScalar(4) / btScalar(3);
 	btScalar s3 = l4 * k0 - l0 * k3;
 
-	j0 = (s1 * k0 - s0 * k1) * 3.0;
-	j1 = (s2 * k0 - s0 * k2) * 1.5;
+	j0 = (s1 * k0 - s0 * k1) * btScalar(3.0);
+	j1 = (s2 * k0 - s0 * k2) * btScalar(1.5);
 	j2 = (s3 * k0 - s0 * k3);
 }
 

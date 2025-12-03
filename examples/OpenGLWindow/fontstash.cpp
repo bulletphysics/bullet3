@@ -510,7 +510,7 @@ static int get_quad3D(struct sth_stash* stash, struct sth_font* fnt, struct sth_
 	float scale = textScale / fontSize;  //0.1;//1.0f;
 
 	if (fnt->type == BMFONT)
-		scale = isize / (glyph->size);
+		scale = (float)isize / (glyph->size);
 
 	rx = (*x + scale * float(glyph->xoff));
 	ry = (scale * float(glyph->yoff));

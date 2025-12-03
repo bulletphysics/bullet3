@@ -1986,7 +1986,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 		btAssert(links);
     while (l != -1)
     {
-        links[numLinksChildToRoot++]=l;
+        links[numLinksChildToRoot++]=(btScalar)l;
         l = m_links[l].m_parent;
     }
     
@@ -2031,7 +2031,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 		// calculate required normals & positions in the local frames.
         for (int a = 0; a < numLinksChildToRoot; a++)
         {
-            int i = links[numLinksChildToRoot-1-a];
+            int i = (int)links[numLinksChildToRoot-1-a];
         	// transform to local frame
 			const int parent = m_links[i].m_parent;
 			const btMatrix3x3 mtx(m_links[i].m_cachedRotParentToThis);

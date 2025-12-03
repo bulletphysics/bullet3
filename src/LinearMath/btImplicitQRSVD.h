@@ -490,7 +490,7 @@ inline void singularValueDecomposition(
         sigma(1,1) = z;
     }
     else {
-        btScalar tau = 0.5 * (x - z);
+        btScalar tau = btScalar(0.5) * (x - z);
         btScalar val = tau * tau + y * y;
         if (val > SIMD_EPSILON)
         {

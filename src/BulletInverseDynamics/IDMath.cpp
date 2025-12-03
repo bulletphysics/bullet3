@@ -259,7 +259,7 @@ void bodyTParentFromAxisAngle(const vec3 &axis, const idScalar &angle, mat33 *T)
 {
 	const idScalar c = BT_ID_COS(angle);
 	const idScalar s = -BT_ID_SIN(angle);
-	const idScalar one_m_c = 1.0 - c;
+	const idScalar one_m_c = btScalar(1.0) - c;
 
 	const idScalar &x = axis(0);
 	const idScalar &y = axis(1);
@@ -452,7 +452,7 @@ bool isValidTransformMatrix(const mat33 &m)
 	for (int i = 0; i < 3; i++)
 	{
 		const idScalar length_minus_1 =
-			BT_ID_FABS(m(0, i) * m(0, i) + m(1, i) * m(1, i) + m(2, i) * m(2, i) - 1.0);
+			BT_ID_FABS(m(0, i) * m(0, i) + m(1, i) * m(1, i) + m(2, i) * m(2, i) - btScalar(1.0));
 		if (length_minus_1 > kAxisLengthEpsilon)
 		{
 			bt_id_error_message(
@@ -495,7 +495,7 @@ bool isValidTransformMatrix(const mat33 &m)
 
 bool isUnitVector(const vec3 &vector)
 {
-	return BT_ID_FABS(vector(0) * vector(0) + vector(1) * vector(1) + vector(2) * vector(2) - 1.0) <
+	return BT_ID_FABS(vector(0) * vector(0) + vector(1) * vector(1) + vector(2) * vector(2) - btScalar(1.0)) <
 		   kIsZero;
 }
 

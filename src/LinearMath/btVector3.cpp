@@ -181,7 +181,7 @@ long _maxdot_large(const float *vv, const float *vec, unsigned long count, float
 	}
 
 	// account for work we've already done
-	count -= segment;
+	count -= (unsigned long)segment;
 
 	// Deal with the last < STACK_ARRAY_COUNT vectors
 	max = dotMax;
@@ -574,7 +574,7 @@ long _mindot_large(const float *vv, const float *vec, unsigned long count, float
 	}
 
 	// account for work we've already done
-	count -= segment;
+	count -= (unsigned long)segment;
 
 	// Deal with the last < STACK_ARRAY_COUNT vectors
 	min = dotmin;

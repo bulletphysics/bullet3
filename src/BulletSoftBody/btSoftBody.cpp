@@ -1035,7 +1035,7 @@ btVector3 btSoftBody::getLinearVelocity()
 	btVector3 total_momentum = btVector3(0, 0, 0);
 	for (int i = 0; i < m_nodes.size(); ++i)
 	{
-		btScalar mass = m_nodes[i].m_im == 0 ? 0 : 1.0 / m_nodes[i].m_im;
+		btScalar mass = m_nodes[i].m_im == 0 ? 0 : btScalar(1.0) / m_nodes[i].m_im;
 		total_momentum += mass * m_nodes[i].m_v;
 	}
 	btScalar total_mass = getTotalMass();
@@ -2616,7 +2616,7 @@ static inline void calculateNormalCone(btDbvntNode* root)
 			a1 = root->childs[1]->angle;
 		}
 		root->normal = (n0 + n1).safeNormalize();
-		root->angle = btMax(a0, a1) + btAngle(n0, n1) * 0.5;
+		root->angle = btMax(a0, a1) + btAngle(n0, n1) * btScalar(0.5);
 	}
 }
 
@@ -2876,7 +2876,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	btVector3 guess(0, 0, 0);
 	const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
 	btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
-	dst = results.distance - 2.0 * csh->getMargin() - margin;  // margin padding so that the distance = the actual distance between face and rigid - margin of rigid - margin of deformable
+	dst = results.distance - btScalar(2.0) * csh->getMargin() - margin;  // margin padding so that the distance = the actual distance between face and rigid - margin of rigid - margin of deformable
 	if (dst >= 0)
 		return false;
 
@@ -3921,7 +3921,7 @@ void btSoftBody::PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar /*ti*/
 				{
 					if (multibodyLinkCol)
 					{
-						double multiplier = 0.5;
+						btScalar multiplier = btScalar(0.5);
 						multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV, -impulse.length() * multiplier);
 					}
 				}

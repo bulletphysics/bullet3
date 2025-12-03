@@ -98,7 +98,7 @@ struct b3FileUtils
 				path[len] = 0;
 			}
 		}
-		return len;
+		return (int)len;
 	}
 
 	static char toLowerChar(const char t)

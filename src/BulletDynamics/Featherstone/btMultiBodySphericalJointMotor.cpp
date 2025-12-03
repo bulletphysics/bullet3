@@ -157,8 +157,8 @@ btQuaternion relRot = currentQuat.inverse() * desiredQuat;
 				{
 					btVector3 constraintNormalAng = frameAworld.getColumn(row % 3);
 					double kp = m_use_multi_dof_params ? m_kp[row % 3] : m_kp[0];
-					posError = kp*angleDiff[row % 3];
-					double max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
+					posError = (btScalar)(kp*(double)angleDiff[row % 3]);
+					btScalar max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
 					fillMultiBodyConstraint(constraintRow, data, 0, 0, constraintNormalAng,
 						btVector3(0,0,0), dummy, dummy,
 						posError,
