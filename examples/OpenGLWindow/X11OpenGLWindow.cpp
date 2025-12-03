@@ -226,129 +226,129 @@ struct InternalData2
 
 		bool missingFunc = false;
 
-		missingFunc = ((m_x11_XFree = (PFNXFREE)dlsym(m_x11_library, "XFree")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XFree = dlsym(m_x11_library, "XFree")) == NULL) | missingFunc;
 		assert(!missingFunc);
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XFree in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XSetErrorHandler = (PFNXSETERRORHANDLER)dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XSetErrorHandler = dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XSetErrorHandler = (PFNXSETERRORHANDLER)dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XSetErrorHandler = dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XSync = (PFNXSYNC)dlsym(m_x11_library, "XSync")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XSync = dlsym(m_x11_library, "XSync")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XSync in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XOpenDisplay = (PFNXOPENDISPLAY)dlsym(m_x11_library, "XOpenDisplay")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XOpenDisplay = dlsym(m_x11_library, "XOpenDisplay")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XOpenDisplay in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XCreateColormap = (PFNXCREATECOLORMAP)dlsym(m_x11_library, "XCreateColormap")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XCreateColormap = dlsym(m_x11_library, "XCreateColormap")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XCreateColormap in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XCreateWindow = (PFNXCREATEWINDOW)dlsym(m_x11_library, "XCreateWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XCreateWindow = dlsym(m_x11_library, "XCreateWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XCreateWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XMapWindow = (PFNXMAPWINDOW)dlsym(m_x11_library, "XMapWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XMapWindow = dlsym(m_x11_library, "XMapWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XMapWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XStoreName = (PFNXSTORENAME)dlsym(m_x11_library, "XStoreName")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XStoreName = dlsym(m_x11_library, "XStoreName")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XStoreName in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XCloseDisplay = (PFNXCLOSEDISPLAY)dlsym(m_x11_library, "XCloseDisplay")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XCloseDisplay = dlsym(m_x11_library, "XCloseDisplay")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XCloseDisplay in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XDestroyWindow = (PFNXDESTROYWINDOW)dlsym(m_x11_library, "XDestroyWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XDestroyWindow = dlsym(m_x11_library, "XDestroyWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XDestroyWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XRaiseWindow = (PFNXRAISEWINDOW)dlsym(m_x11_library, "XRaiseWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XRaiseWindow = dlsym(m_x11_library, "XRaiseWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XRaiseWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
 
-		missingFunc = ((m_x11_XGetKeyboardMapping = (PFNXGETKEYBOARDMAPPING)dlsym(m_x11_library, "XGetKeyboardMapping")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XGetKeyboardMapping = dlsym(m_x11_library, "XGetKeyboardMapping")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XGetKeyboardMapping in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XKeycodeToKeysym = (PFNXKEYCODETOKEYSYM)dlsym(m_x11_library, "XKeycodeToKeysym")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XKeycodeToKeysym = dlsym(m_x11_library, "XKeycodeToKeysym")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XKeycodeToKeysym in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XConvertCase = (PFNXCONVERTCASE)dlsym(m_x11_library, "XConvertCase")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XConvertCase = dlsym(m_x11_library, "XConvertCase")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XConvertCase in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XPending = (PFNXPENDING)dlsym(m_x11_library, "XPending")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XPending = dlsym(m_x11_library, "XPending")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XPending in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XNextEvent = (PFNXNEXTEVENT)dlsym(m_x11_library, "XNextEvent")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XNextEvent = dlsym(m_x11_library, "XNextEvent")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XNextEvent in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XEventsQueued = (PFNXEVENTSQUEUED)dlsym(m_x11_library, "XEventsQueued")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XEventsQueued = dlsym(m_x11_library, "XEventsQueued")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XEventsQueued in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XPeekEvent = (PFNXPEEKEVENT)dlsym(m_x11_library, "XPeekEvent")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XPeekEvent = dlsym(m_x11_library, "XPeekEvent")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XPeekEvent in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XLookupKeysym = (PFNXLOOKUPKEYSYM)dlsym(m_x11_library, "XLookupKeysym")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XLookupKeysym = dlsym(m_x11_library, "XLookupKeysym")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XLookupKeysym in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XGetWindowAttributes = (PFNXGETWINDOWATTRIBUTES)dlsym(m_x11_library, "XGetWindowAttributes")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XGetWindowAttributes = dlsym(m_x11_library, "XGetWindowAttributes")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XGetWindowAttributes in %s, exiting!\n", X11_LIBRARY);
@@ -442,7 +442,7 @@ void X11OpenGLWindow::enableOpenGL()
 		// calling glXGetProcAddressARB, unless we dynamically load OpenGL/GLX/X11
 
 		glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
-		glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
+		*(__GLXextFuncPtr*)&glXCreateContextAttribsARB = 
 			glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
 
 		GLXContext ctx = 0;
