@@ -89,8 +89,8 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		if (m_showValue)
 		{
 			char txt[1033];
-			txt[1032] = '\0';
 			safe_printf(txt, sizeof(txt), "%s : %.3f", m_variableName, val);
+			txt[1032] = '\0';
 			m_label->SetText(txt);
 		}
 	}
