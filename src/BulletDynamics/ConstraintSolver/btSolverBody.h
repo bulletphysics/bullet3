@@ -56,7 +56,7 @@ struct btSimdScalar
 		return m_vec128;
 	}
 
-	SIMD_FORCE_INLINE const __m128 get128() const
+	SIMD_FORCE_INLINE __m128 get128() const
 	{
 		return m_vec128;
 	}
