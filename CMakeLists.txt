@@ -323,6 +323,8 @@ ELSE()
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual") # exampleBrowser OpenGLGuiHelper and btDeformable*
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-pointer-subtraction") # btSoftBody
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof") # hellovr
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c99-extensions") # btAssign128
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-statement-expression-from-macro-expansion") # ARM build
 	ENDIF()
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-parameter")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-variable")
@@ -333,7 +335,11 @@ ELSE()
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-value")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
-
+	IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+		#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+		SET(CMAKE_OBJC_FLAGS "${CMAKE_OBJC_FLAGS} -Wno-deprecated-declarations")
+		ADD_DEFINITIONS(-DGL_SILENCE_DEPRECATION)
+	ENDIF()
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xanalyzer -fanalyzer") # static analyzer
 ENDIF()
 
