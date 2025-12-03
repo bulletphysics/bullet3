@@ -159,7 +159,7 @@ typedef intptr_t btintptr_t;
 
 /* Included the path relative from /source/blender/ here, so we can move     */
 /* headers around with more freedom.                                         */
-char *includefiles[] = {
+const char *includefiles[] = {
 
 	// if you add files here, please add them at the end
 	// of makesdna.c (this file) as well
@@ -240,7 +240,7 @@ int additional_slen_offset;
 /**
  * Add type <str> to struct indexed by <len>, if it was not yet found.
  */
-int add_type(char *str, int len);
+int add_type(const char *str, int len);
 
 /**
  * Add variable <str> to 
@@ -267,7 +267,7 @@ int convert_include(char *filename);
 /**
  * Determine how many bytes are needed for an array.
  */
-int arraysize(char *astr, int len);
+int arraysize(const char *astr, int len);
 
 /**
  * Determine how many bytes are needed for each struct.
@@ -290,7 +290,7 @@ void printStructLenghts(void);
 
 /* ************************* MAKEN DNA ********************** */
 
-int add_type(char *str, int len)
+int add_type(const char *str, int len)
 {
 	int nr;
 	char *cp;
@@ -780,7 +780,7 @@ int convert_include(char *filename)
 	return 0;
 }
 
-int arraysize(char *astr, int len)
+int arraysize(const char *astr, int len)
 {
 	int a, mul = 1;
 	char str[100], *cp = 0;
