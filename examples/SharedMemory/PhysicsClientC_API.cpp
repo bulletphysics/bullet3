@@ -1885,6 +1885,7 @@ B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3PhysicsClientHandle phy
 
 			int totalUploadSizeInBytes = (int)(numVertices * sizeof(double) *3  + numIndices * sizeof(int));
 			char* data = new char[(size_t)totalUploadSizeInBytes];
+			b3Assert(data);
 			double* vertexUpload = (double*)data;
 			int* indexUpload = (int*)(data + numVertices*sizeof(double)*3);
 
@@ -1947,6 +1948,7 @@ B3_SHARED_API int b3CreateVisualShapeAddMesh2(b3PhysicsClientHandle physClient, 
 
 			int totalUploadSizeInBytes = (int)(numVertices * sizeof(double) * 3 + numIndices * sizeof(int) + numNormals*sizeof(double)*3+numUVs*sizeof(double)*2);
 			char* data = new char[(size_t)totalUploadSizeInBytes];
+			b3Assert(data);
 			double* vertexUpload = (double*)data;
 			int* indexUpload = (int*)(data + numVertices * sizeof(double) * 3);
 			double* normalUpload = (double*)(data + numVertices * sizeof(double) * 3 + numIndices * sizeof(int));
@@ -4249,6 +4251,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugDrawAddPoints3D(b3Physi
 
 	int totalUploadSizeInBytes = (int)(pointNum * sizeof(double) * 3 * 2);
 	char* data = new char[(size_t)totalUploadSizeInBytes];
+	b3Assert(data);
 	double* pointPositionsUpload = (double*) data;
 	double* pointColorsUpload = (double*)(data + pointNum * sizeof(double) * 3);
 	for (int i = 0; i < pointNum; i++)

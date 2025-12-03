@@ -242,6 +242,7 @@ struct GJK
 			}
 			/* Append new vertice in -'v' direction	*/
 			appendvertice(cs, -m_ray);
+			btAssert(cs.rank > 0 && cs.rank < 4);
 			const btVector3& w = cs.c[cs.rank - 1]->w;
 			bool found = false;
 			for (U i = 0; i < 4; ++i)

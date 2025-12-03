@@ -5618,6 +5618,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 	if (bodyHandle)
 	{
 		int totalBytesPerVertex = sizeof(btVector3);
+		b3Assert(bufferServerToClient);
 		btVector3* verticesOut = (btVector3*)bufferServerToClient;
 		const btCollisionShape* colShape = 0;
 
