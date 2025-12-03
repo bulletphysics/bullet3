@@ -749,7 +749,7 @@ private:
 			}
 			freeObjects = o->next;
 			return new (o) T();
-		};
+		}
 
 		void freeObject(T* object)
 		{

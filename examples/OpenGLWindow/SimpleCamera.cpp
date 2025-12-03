@@ -233,7 +233,7 @@ void SimpleCamera::update()
 			//b3Assert(0);
 			return;
 		}
-	};
+	}
 
 	b3Vector3 eyePos = b3MakeVector3(0, 0, 0);
 	eyePos[forwardAxis] = -m_data->m_cameraDistance;

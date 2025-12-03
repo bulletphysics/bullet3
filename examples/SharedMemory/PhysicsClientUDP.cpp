@@ -347,7 +347,7 @@ void UDPThreadFunc(void* userPtr, void* /*lsMemory*/)
 					default:
 					{
 					}
-				};
+				}
 
 				if (args->m_isConnected)
 				{
@@ -583,7 +583,7 @@ void UdpNetworkedPhysicsProcessor::disconnect()
 			{
 				b3Clock::usleep(1000);
 			}
-		};
+		}
 
 		printf("stopping threads\n");
 

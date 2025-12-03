@@ -17,7 +17,7 @@ protected:
 	void resetData();
 	void removeCachedBody(int bodyUniqueId);
 	void clearCachedBodies();
-	virtual void renderSceneInternal(){};
+	virtual void renderSceneInternal(){}
 
 public:
 	PhysicsClientSharedMemory();

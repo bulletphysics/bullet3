@@ -543,7 +543,7 @@ public:
 			else
 				roll += SIMD_PI;
 		}
-	};
+	}
 
 	/**@brief Get the matrix represented as euler angles around ZYX
 	* @param yaw Yaw around Z axis

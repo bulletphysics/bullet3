@@ -113,7 +113,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	{
 		fprintf(stderr, "failed to EGL with glad.\n");
 		exit(EXIT_FAILURE);
-	};
+	}
 
 	// Query EGL Devices
 	const int max_devices = 32;

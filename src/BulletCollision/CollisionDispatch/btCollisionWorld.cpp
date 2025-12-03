@@ -1528,7 +1528,7 @@ void btCollisionWorld::debugDrawWorld()
 							{
 								color = btVector3(btScalar(.3), btScalar(0.3), btScalar(0.3));
 							}
-						};
+						}
 
 						colObj->getCustomDebugColor(color);
 

@@ -558,7 +558,7 @@ bool GwenUserInterface::keyboardCallback(int bulletKey, int state)
 			default:
 			{
 			}
-		};
+		}
 
 		if (gwenKey >= 0)
 		{

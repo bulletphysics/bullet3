@@ -174,7 +174,7 @@ btQuaternion relRot = currentQuat.inverse() * desiredQuat;
 				{
 					btAssert(0);
 				}
-			};
+			}
 		}
 	}
 }

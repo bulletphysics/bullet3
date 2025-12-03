@@ -39,7 +39,7 @@ public:
 class PrimitiveSet
 {
 public:
-	virtual ~PrimitiveSet(){};
+	virtual ~PrimitiveSet(){}
 	virtual PrimitiveSet* Create() const = 0;
 	virtual size_t GetNPrimitives() const = 0;
 	virtual size_t GetNPrimitivesOnSurf() const = 0;
@@ -62,8 +62,8 @@ public:
 	virtual void AlignToPrincipalAxes() = 0;
 	virtual void RevertAlignToPrincipalAxes() = 0;
 	virtual void Convert(Mesh& mesh, const VOXEL_VALUE value) const = 0;
-	const Mesh& GetConvexHull() const { return m_convexHull; };
-	Mesh& GetConvexHull() { return m_convexHull; };
+	const Mesh& GetConvexHull() const { return m_convexHull; }
+	Mesh& GetConvexHull() { return m_convexHull; }
 
 private:
 	Mesh m_convexHull;
@@ -125,8 +125,8 @@ public:
 	{
 		return new VoxelSet();
 	}
-	void AlignToPrincipalAxes(){};
-	void RevertAlignToPrincipalAxes(){};
+	void AlignToPrincipalAxes(){}
+	void RevertAlignToPrincipalAxes(){}
 	Voxel* GetVoxels() { return m_voxels.Data(); }
 	const Voxel* GetVoxels() const { return m_voxels.Data(); }
 

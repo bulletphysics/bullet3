@@ -308,7 +308,7 @@ void TreeNode::iterate(int action, int* curIndex, int* targetIndex)
 			default:
 			{
 			}
-		};
+		}
 	}
 
 	if (curIndex)

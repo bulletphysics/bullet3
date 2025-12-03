@@ -2386,7 +2386,7 @@ namespace vr
 struct NotificationBitmap_t
 {
 	NotificationBitmap_t()
-		: m_pImageData(NULL), m_nWidth(0), m_nHeight(0), m_nBytesPerPixel(0){};
+		: m_pImageData(NULL), m_nWidth(0), m_nHeight(0), m_nBytesPerPixel(0){}
 
 	void *m_pImageData;
 	int32_t m_nWidth;

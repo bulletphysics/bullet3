@@ -111,7 +111,7 @@ int b3RotationalLimitMotor::testLimitValue(b3Scalar test_value)
 		else if (m_currentLimitError < -B3_PI)
 			m_currentLimitError += B3_2_PI;
 		return 2;
-	};
+	}
 
 	m_currentLimit = 0;  //Free from violation
 	return 0;
@@ -143,7 +143,7 @@ int b3TranslationalLimitMotor::testLimitValue(int limitIndex, b3Scalar test_valu
 		m_currentLimit[limitIndex] = 1;  //High limit violation
 		m_currentLimitError[limitIndex] = test_value - hiLimit;
 		return 1;
-	};
+	}
 
 	m_currentLimit[limitIndex] = 0;  //Free from violation
 	m_currentLimitError[limitIndex] = b3Scalar(0.f);

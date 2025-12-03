@@ -220,7 +220,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 				{
 					printf("error: wrong up axis for btCapsuleShape\n");
 				}
-			};
+			}
 			if (shape)
 			{
 				btCapsuleShape* cap = (btCapsuleShape*)shape;
@@ -282,7 +282,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 						{
 							printf("unknown Cylinder up axis\n");
 						}
-					};
+					}
 
 					break;
 				}
@@ -311,7 +311,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 						{
 							printf("unknown Cone up axis\n");
 						}
-					};
+					}
 
 					break;
 				}
@@ -717,7 +717,7 @@ void btWorldImporter::convertConstraintBackwardsCompatible281(btTypedConstraintD
 		{
 			printf("unknown constraint type\n");
 		}
-	};
+	}
 
 	if (constraint)
 	{
@@ -1057,7 +1057,7 @@ void btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 		{
 			printf("unknown constraint type\n");
 		}
-	};
+	}
 
 	if (constraint)
 	{
@@ -1401,7 +1401,7 @@ void btWorldImporter::convertConstraintDouble(btTypedConstraintDoubleData* const
 		{
 			printf("unknown constraint type\n");
 		}
-	};
+	}
 
 	if (constraint)
 	{

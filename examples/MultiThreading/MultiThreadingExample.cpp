@@ -56,7 +56,7 @@ b3ThreadSupportInterface* createThreadSupport(int numThreads)
 
 struct SampleJobInterface
 {
-	virtual ~SampleJobInterface() {};
+	virtual ~SampleJobInterface() {}
 	virtual void executeJob(int threadIndex) = 0;
 };
 
@@ -244,7 +244,7 @@ public:
 				{
 					//				printf("polling..");
 				}
-			};
+			}
 		}
 
 		delete m_threadSupport;

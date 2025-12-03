@@ -290,12 +290,12 @@ public:
 	inline RotationMapR2& operator*=(const RotationMapR2&);  // Matrix product
 
 	inline RotationMapR2 Transpose() const;
-	inline RotationMapR2 Inverse() const { return Transpose(); };  // Returns the transpose
+	inline RotationMapR2 Inverse() const { return Transpose(); }  // Returns the transpose
 	inline RotationMapR2& Invert()
 	{
 		MakeTranspose();
 		return *this;
-	};                                              // Transposes it.
+	}                                              // Transposes it.
 	inline VectorR2 Invert(const VectorR2&) const;  // Returns solution
 };
 

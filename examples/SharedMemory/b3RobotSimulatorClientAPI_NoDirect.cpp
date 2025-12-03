@@ -1818,7 +1818,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::setJointMotorControlArray(int bodyUniqu
 			default:
 			{
 			}
-		};
+		}
 	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	(void)statusHandle;

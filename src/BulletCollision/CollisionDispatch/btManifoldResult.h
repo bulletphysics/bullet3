@@ -73,7 +73,7 @@ public:
 
 	btManifoldResult(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap);
 
-	virtual ~btManifoldResult() BT_OVERRIDE {};
+	virtual ~btManifoldResult() BT_OVERRIDE {}
 
 	void setPersistentManifold(btPersistentManifold* manifoldPtr)
 	{

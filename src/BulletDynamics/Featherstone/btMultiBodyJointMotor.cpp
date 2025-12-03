@@ -177,7 +177,7 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 				{
 					btAssert(0);
 				}
-			};
+			}
 		}
 	}
 }

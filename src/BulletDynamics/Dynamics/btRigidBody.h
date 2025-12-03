@@ -280,17 +280,17 @@ public:
 	const btVector3& getTotalForce() const
 	{
 		return m_totalForce;
-	};
+	}
 
 	const btVector3& getTotalTorque() const
 	{
 		return m_totalTorque;
-	};
+	}
 
 	const btVector3& getInvInertiaDiagLocal() const
 	{
 		return m_invInertiaLocal;
-	};
+	}
 
 	void setInvInertiaDiagLocal(const btVector3& diagInvInertia)
 	{

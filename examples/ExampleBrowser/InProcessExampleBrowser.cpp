@@ -376,7 +376,7 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
 			//                              printf("polling..");
 			b3Clock::usleep(0);
 		}
-	};
+	}
 
 	printf("btShutDownExampleBrowser stopping threads\n");
 	data->m_threadSupport->deleteCriticalSection(data->m_args.m_cs);

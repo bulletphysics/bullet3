@@ -118,7 +118,7 @@ protected:
 		btSimpleBroadphaseProxy* proxy1 = static_cast<btSimpleBroadphaseProxy*>(pair.m_pProxy1);
 
 		return ((m_targetProxy == proxy0 || m_targetProxy == proxy1));
-	};
+	}
 };
 
 void btSimpleBroadphase::destroyProxy(btBroadphaseProxy* proxyOrg, btDispatcher* dispatcher)

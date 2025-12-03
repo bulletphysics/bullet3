@@ -62,14 +62,14 @@ public:
 		jointMaxForce = 0;
 		jointMaxVelocity = 0;
 		return getJointInfo(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction);
-	};
+	}
 
 	virtual bool getJointInfo3(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity, btScalar& twistLimit) const
 	{
 		//backwards compatibility for custom file importers
 		twistLimit = 0;
 		return getJointInfo2(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction, jointMaxForce, jointMaxVelocity);
-	};
+	}
 
 	virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const = 0;
 	virtual void setRootTransformInWorld(const btTransform& /*rootTransformInWorld*/) {}
@@ -93,7 +93,7 @@ public:
 		return 0;
 	}
 
-	virtual const struct UrdfModel* getUrdfModel() const { return 0; };
+	virtual const struct UrdfModel* getUrdfModel() const { return 0; }
 
 	virtual int getNumAllocatedCollisionShapes() const { return 0; }
 	virtual class btCollisionShape* getAllocatedCollisionShape(int /*index*/) { return 0; }

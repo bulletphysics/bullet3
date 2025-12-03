@@ -363,7 +363,7 @@ public:
 				m_timeSeriesCanvas0 = new TimeSeriesCanvas(m_app->m_2dCanvasInterface, 512, 256, "Unknown");
 				m_timeSeriesCanvas0->setupTimeSeries(1, 60, 0);
 			}
-		};
+		}
 
 		if (m_tutorialIndex == TUT_VELOCITY)
 		{
@@ -531,7 +531,7 @@ public:
 			default:
 			{
 			}
-		};
+		}
 
 		if (m_timeSeriesCanvas0)
 			m_timeSeriesCanvas0->nextTick();
@@ -680,7 +680,7 @@ void Tutorial::tutorial1Update(float /*deltaTime*/)
 			{
 				m_bodies[i]->m_angularVelocity = b3MakeVector3(0, 0, 0);
 			}
-		};
+		}
 	}
 
 	m_counter++;
@@ -751,7 +751,7 @@ void Tutorial::tutorialCollisionUpdate(float /*deltaTime*/, LWContactPoint& cont
 		default:
 		{
 		}
-	};
+	}
 	m_counter++;
 	if (m_counter > 120)
 	{

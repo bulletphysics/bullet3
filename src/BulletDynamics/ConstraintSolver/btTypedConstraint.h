@@ -106,7 +106,7 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	virtual ~btTypedConstraint(){};
+	virtual ~btTypedConstraint(){}
 	btTypedConstraint(btTypedConstraintType type, btRigidBody & rbA);
 	btTypedConstraint(btTypedConstraintType type, btRigidBody & rbA, btRigidBody & rbB);
 
@@ -160,7 +160,7 @@ public:
 	}
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void buildJacobian(){};
+	virtual void buildJacobian(){}
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual void setupSolverConstraint(btConstraintArray & ca, int solverBodyA, int solverBodyB, btScalar timeStep)
@@ -209,7 +209,7 @@ public:
 	}
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void solveConstraintObsolete(btSolverBody& /*bodyA*/, btSolverBody& /*bodyB*/, btScalar /*timeStep*/){};
+	virtual void solveConstraintObsolete(btSolverBody& /*bodyA*/, btSolverBody& /*bodyB*/, btScalar /*timeStep*/){}
 
 	const btRigidBody& getRigidBodyA() const
 	{
@@ -237,7 +237,7 @@ public:
 	void setUserConstraintType(int userConstraintType)
 	{
 		m_userConstraintType = userConstraintType;
-	};
+	}
 
 	void setUserConstraintId(int uid)
 	{

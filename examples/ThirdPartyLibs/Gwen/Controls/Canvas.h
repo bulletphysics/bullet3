@@ -27,7 +27,7 @@ public:
 	// For additional initialization
 	// (which is sometimes not appropriate in the constructor)
 	//
-	virtual void Initialize(){};
+	virtual void Initialize(){}
 
 	//
 	// You should call this to render your canvas.

@@ -506,7 +506,6 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 			if (c == DBL_MAX)
 			{
 				return false;
-				;
 			}
 			phi += c * N[(int)j];
 		}

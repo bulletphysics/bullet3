@@ -115,7 +115,7 @@ public:
 
 	void prepareAndSubmitCommand(int commandId);
 
-	virtual void exitPhysics(){};
+	virtual void exitPhysics(){}
 	virtual void renderScene()
 	{
 		if (m_options == eCLIENTEXAMPLE_SERVER)
@@ -192,7 +192,7 @@ public:
 			m_physicsServer.physicsDebugDraw(debugFlags);
 		}
 	}
-	virtual bool mouseMoveCallback(float /*x*/, float /*y*/) { return false; };
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/) { return false; }
 	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/) { return false; }
 	virtual bool keyboardCallback(int /*key*/, int /*state*/) { return false; }
 
@@ -320,7 +320,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			}
 
 			break;
-		};
+		}
 
 		case CMD_INIT_POSE:
 		{
@@ -351,7 +351,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
 					default:
 						orn.setValue(0, 0, 0, 1);
-				};
+				}
 
 				b3CreatePoseCommandSetBaseOrientation(commandHandle, orn[0], orn[1], orn[2], orn[3]);
 				b3CreatePoseCommandSetBasePosition(commandHandle, pos[0], pos[1], pos[2]);
@@ -515,7 +515,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			b3Error("Unknown buttonId");
 			btAssert(0);
 		}
-	};
+	}
 }
 
 struct Bullet2CommandProcessorCreation3 : public CommandProcessorCreationInterface

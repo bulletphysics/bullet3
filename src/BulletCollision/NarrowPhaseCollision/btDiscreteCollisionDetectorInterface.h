@@ -49,7 +49,7 @@ struct btDiscreteCollisionDetectorInterface
 		btScalar m_maximumDistanceSquared;
 	};
 
-	virtual ~btDiscreteCollisionDetectorInterface(){};
+	virtual ~btDiscreteCollisionDetectorInterface(){}
 
 	//
 	// give either closest points (distance > 0) or penetration (distance)
@@ -70,7 +70,7 @@ protected:
 	}
 
 public:
-	virtual ~btStorageResult() BT_OVERRIDE {};
+	virtual ~btStorageResult() BT_OVERRIDE {}
 
 	virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth) BT_OVERRIDE
 	{

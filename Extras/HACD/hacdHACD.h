@@ -37,7 +37,7 @@ class reservable_priority_queue : public std::priority_queue<_Ty, _Container, _P
 	typedef typename std::priority_queue<_Ty, _Container, _Pr>::size_type size_type;
 
 public:
-	reservable_priority_queue(size_type capacity = 0) { reserve(capacity); };
+	reservable_priority_queue(size_type capacity = 0) { reserve(capacity); }
 	void reserve(size_type capacity) { this->c.reserve(capacity); }
 	size_type capacity() const { return this->c.capacity(); }
 };

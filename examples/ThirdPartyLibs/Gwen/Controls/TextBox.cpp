@@ -374,8 +374,7 @@ void TextBox::MakeCaratVisible()
 
 	// The ideal position is for the carat to be right in the middle
 	int idealx = (int)((float)-iCaratPos + (float)Width() * 0.5f);
-	;
-
+	
 	// Don't show too much whitespace to the right
 	if (idealx + m_Text->Width() < Width() - m_rTextPadding.right)
 		idealx = -m_Text->Width() + (Width() - m_rTextPadding.right);

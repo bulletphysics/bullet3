@@ -2775,7 +2775,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 							{
 								//	b3Assert(0);
 							}
-						};
+						}
 						if (gfxObj->m_flags & B3_INSTANCE_DOUBLE_SIDED)
 						{
 							glEnable(GL_CULL_FACE);

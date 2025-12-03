@@ -515,7 +515,7 @@ public:
 			else
 				roll += B3_PI;
 		}
-	};
+	}
 
 	/**@brief Get the matrix represented as euler angles around ZYX
 	* @param yaw Yaw around X axis

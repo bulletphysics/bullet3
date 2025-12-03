@@ -431,7 +431,7 @@ unsigned int stbi__crc32(unsigned char *buffer, int len)
 }
 
 #define stbi__wpng4(o, a, b, c, d) ((o)[0] = (unsigned char)(a), (o)[1] = (unsigned char)(b), (o)[2] = (unsigned char)(c), (o)[3] = (unsigned char)(d), (o) += 4)
-#define stbi__wp32(data, v) stbi__wpng4(data, (v) >> 24, (v) >> 16, (v) >> 8, (v));
+#define stbi__wp32(data, v) stbi__wpng4(data, (v) >> 24, (v) >> 16, (v) >> 8, (v))
 #define stbi__wptag(data, s) stbi__wpng4(data, s[0], s[1], s[2], s[3])
 
 static void stbi__wpcrc(unsigned char **data, int len)

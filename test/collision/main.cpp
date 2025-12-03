@@ -97,8 +97,7 @@ inline int btComputeGjkEpaSphereSphereCollision(const btSphereSphereCollisionDes
 	ConvexWrap a, b;
 	a.m_worldTrans = input.m_sphereTransformA;
 	b.m_worldTrans = input.m_sphereTransformB;
-	;
-
+	
 	btMultiSphereShape multiSphereA(&org, &radA, 1);
 	btMultiSphereShape multiSphereB(&org, &radB, 1);
 
@@ -116,7 +115,7 @@ inline int btComputeGjkEpaSphereSphereCollision(const btSphereSphereCollisionDes
 			a.m_convex = &singleSphereA;
 			b.m_convex = &singleSphereB;
 		}
-	};
+	}
 
 	btVoronoiSimplexSolver simplexSolver;
 	simplexSolver.reset();

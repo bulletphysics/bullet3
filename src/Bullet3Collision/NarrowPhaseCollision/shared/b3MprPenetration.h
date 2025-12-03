@@ -880,7 +880,7 @@ inline int b3MprPenetration(int pairIndex, int bodyIndexA, int bodyIndexB,
 			return -1;
 			//}
 		}
-	};
+	}
 
 	return 0;
 }

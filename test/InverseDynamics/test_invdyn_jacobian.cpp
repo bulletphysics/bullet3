@@ -28,7 +28,7 @@ class ptr
 	ptr(const ptr&);
 
 public:
-	ptr(T* p) : m_p(p){};
+	ptr(T* p) : m_p(p){}
 	~ptr() { delete m_p; }
 	T& operator*() { return *m_p; }
 	T* operator->() { return m_p; }

@@ -191,7 +191,7 @@ void InverseDynamicsExample::initPhysics()
 			b3Error("Unknown option in InverseDynamicsExample::initPhysics");
 			b3Assert(0);
 		}
-	};
+	}
 
 	if (m_multiBody)
 	{

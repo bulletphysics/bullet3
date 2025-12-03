@@ -127,7 +127,7 @@ static void intersect(const float *p1, const float *p2, float *split, const floa
 class CTri
 {
 public:
-	CTri(void){};
+	CTri(void){}
 
 	CTri(const float *p1, const float *p2, const float *p3, unsigned int i1, unsigned int i2, unsigned int i3)
 	{

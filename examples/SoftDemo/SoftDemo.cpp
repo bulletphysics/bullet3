@@ -2077,7 +2077,6 @@ void SoftDemo::initPhysics()
 				gGroundIndices[index++] = k * NUM_VERTS_X + i;
 				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i + 1;
 				gGroundIndices[index++] = k * NUM_VERTS_X + i + 1;
-				;
 
 				gGroundIndices[index++] = k * NUM_VERTS_X + i;
 				gGroundIndices[index++] = (k + 1) * NUM_VERTS_X + i;

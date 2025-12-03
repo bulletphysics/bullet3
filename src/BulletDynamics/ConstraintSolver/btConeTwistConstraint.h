@@ -189,7 +189,7 @@ public:
 			default:
 			{
 			}
-		};
+		}
 	}
 
 	btScalar getLimit(int limitIndex) const
@@ -216,7 +216,7 @@ public:
 				btAssert(0 && "Invalid limitIndex specified for btConeTwistConstraint");
 				return 0.0;
 			}
-		};
+		}
 	}
 
 	// setLimit(), a few notes:
@@ -241,8 +241,8 @@ public:
 		m_relaxationFactor = _relaxationFactor;
 	}
 
-	const btTransform& getAFrame() const { return m_rbAFrame; };
-	const btTransform& getBFrame() const { return m_rbBFrame; };
+	const btTransform& getAFrame() const { return m_rbAFrame; }
+	const btTransform& getBFrame() const { return m_rbBFrame; }
 
 	inline int getSolveTwistLimit()
 	{

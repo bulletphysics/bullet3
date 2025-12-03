@@ -132,7 +132,7 @@ public:
 	virtual bool connect()
 	{
 		return true;
-	};
+	}
 
 	virtual void disconnect() {}
 
@@ -146,7 +146,7 @@ public:
 	virtual bool receiveStatus(struct SharedMemoryStatus& /*serverStatusOut*/, char* /*bufferServerToClient*/, int /*bufferSizeInBytes*/)
 	{
 		return false;
-	};
+	}
 
 	virtual void renderScene(int renderFlags);
 	virtual void physicsDebugDraw(int debugDrawFlags);

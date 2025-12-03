@@ -398,7 +398,7 @@ void MotionThreadFunc(void* userPtr, void* /*lsMemory*/)
 							{
 								args->m_physicsServerPtr->movePickedBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
 								break;
-							};
+							}
 							case MyMouseButtonDown:
 							{
 								args->m_physicsServerPtr->pickBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
@@ -1631,7 +1631,7 @@ public:
 		m_args[0].m_csGUI->unlock();
 
 		return false;
-	};
+	}
 
 	virtual bool mouseButtonCallback(int button, int state, float x, float y)
 	{
@@ -2063,7 +2063,7 @@ void PhysicsServerExample::exitPhysics()
 		//we need to call 'stepSimulation' to make sure that
 		//other threads get out of blocking state (workerThreadWait)
 		stepSimulation(0);
-	};
+	}
 
 	printf("stopping threads\n");
 

@@ -140,7 +140,7 @@ void b3PosixThreadSupport::runTask(int uiCommand, void* uiArgument0, int taskId)
 			///not implemented
 			b3Assert(0);
 		}
-	};
+	}
 }
 
 ///non-blocking test if a task is completed. First implement all versions, and then enable this API

@@ -145,7 +145,7 @@ void btHeightfieldTerrainShape::initialize(
 			m_localAabbMin.setValue(0, m_minHeight, 0);
 			m_localAabbMax.setValue(m_width, m_maxHeight, m_length);
 			break;
-		};
+		}
 		case 2:
 		{
 			m_localAabbMin.setValue(0, 0, m_minHeight);
@@ -256,7 +256,7 @@ void btHeightfieldTerrainShape::getVertex(int x, int y, btVector3& vertex) const
 				height - m_localOrigin.getY(),
 				(-m_length / btScalar(2.0)) + (btScalar)y);
 			break;
-		};
+		}
 		case 2:
 		{
 			vertex.setValue(
@@ -391,7 +391,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 			if (quantizedAabbMax[2] < endJ)
 				endJ = quantizedAabbMax[2];
 			break;
-		};
+		}
 		case 2:
 		{
 			if (quantizedAabbMin[0] > startX)

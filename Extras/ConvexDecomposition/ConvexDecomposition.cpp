@@ -62,7 +62,7 @@ namespace ConvexDecomposition
 class FaceTri
 {
 public:
-	FaceTri(void){};
+	FaceTri(void){}
 	FaceTri(const float *vertices, unsigned int i1, unsigned int i2, unsigned int i3)
 	{
 		mP1.Set(&vertices[i1 * 3]);

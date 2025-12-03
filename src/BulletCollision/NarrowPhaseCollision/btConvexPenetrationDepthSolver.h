@@ -25,7 +25,7 @@ class btTransform;
 class btConvexPenetrationDepthSolver
 {
 public:
-	virtual ~btConvexPenetrationDepthSolver(){};
+	virtual ~btConvexPenetrationDepthSolver(){}
 	virtual bool calcPenDepth(btSimplexSolverInterface& simplexSolver,
 							  const btConvexShape* convexA, const btConvexShape* convexB,
 							  const btTransform& transA, const btTransform& transB,

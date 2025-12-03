@@ -202,7 +202,7 @@ public:
 		m_isConnected = false;
 	}
 
-	virtual void exitPhysics(){};
+	virtual void exitPhysics(){}
 	
 	virtual void physicsDebugDraw(int /*debugFlags*/)
 	{

@@ -49,7 +49,7 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 {
 	b3HashMap<b3CustomCollisionFilter, b3CustomCollisionFilter> m_customCollisionFilters;
 
-	virtual ~DefaultPluginCollisionInterface() BT_OVERRIDE {};
+	virtual ~DefaultPluginCollisionInterface() BT_OVERRIDE {}
 
 	virtual void setBroadphaseCollisionFilter(
 		int objectUniqueIdA, int objectUniqueIdB,

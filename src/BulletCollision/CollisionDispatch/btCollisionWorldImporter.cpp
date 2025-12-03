@@ -320,7 +320,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 				{
 					printf("error: wrong up axis for btCapsuleShape\n");
 				}
-			};
+			}
 			if (shape)
 			{
 				btCapsuleShape* cap = (btCapsuleShape*)shape;
@@ -382,7 +382,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 						{
 							printf("unknown Cylinder up axis\n");
 						}
-					};
+					}
 
 					break;
 				}
@@ -411,7 +411,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 						{
 							printf("unknown Cone up axis\n");
 						}
-					};
+					}
 
 					break;
 				}

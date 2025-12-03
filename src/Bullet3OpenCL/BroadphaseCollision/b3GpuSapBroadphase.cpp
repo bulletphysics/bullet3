@@ -139,7 +139,7 @@ b3GpuSapBroadphase::b3GpuSapBroadphase(cl_context ctx, cl_device_id device, cl_c
 			m_sapKernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device, sapSrc, "computePairsKernelLocalSharedMemory", &errNum, sapProg);
 			b3Error("Unknown 3D GPU SAP provided, fallback to computePairsKernelLocalSharedMemory");
 		}
-	};
+	}
 
 	m_sap2Kernel = b3OpenCLUtils::compileCLKernelFromString(m_context, m_device, sapSrc, "computePairsKernelTwoArrays", &errNum, sapProg);
 	b3Assert(errNum == CL_SUCCESS);

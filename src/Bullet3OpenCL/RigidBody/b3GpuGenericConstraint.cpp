@@ -27,12 +27,12 @@ void b3GpuGenericConstraint::getInfo1(unsigned int* info, const b3RigidBodyData*
 		{
 			*info = 3;
 			break;
-		};
+		}
 		default:
 		{
 			b3Assert(0);
 		}
-	};
+	}
 }
 
 void getInfo2Point2Point(b3GpuGenericConstraint* constraint, b3GpuConstraintInfo2* info, const b3RigidBodyData* bodies)
@@ -125,10 +125,10 @@ void b3GpuGenericConstraint::getInfo2(b3GpuConstraintInfo2* info, const b3RigidB
 		{
 			getInfo2Point2Point(this, info, bodies);
 			break;
-		};
+		}
 		default:
 		{
 			b3Assert(0);
 		}
-	};
+	}
 }

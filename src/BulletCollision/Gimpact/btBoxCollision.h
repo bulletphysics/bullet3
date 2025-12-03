@@ -448,7 +448,6 @@ public:
 	{
 		btVector3 extents, center;
 		this->get_center_extend(center, extents);
-		;
 
 		btScalar Dx = vorigin[0] - center[0];
 		if (BT_GREATER(Dx, extents[0]) && Dx * vdir[0] >= 0.0f) return false;

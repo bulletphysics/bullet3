@@ -83,7 +83,6 @@ SIMD_FORCE_INLINE GUINT PLANE_CLIP_POLYGON_GENERIC(
 
 	//clip first point
 	GREAL firstdist = distance_func(plane, polygon_points[0]);
-	;
 	if (!(firstdist > G_EPSILON))
 	{
 		VEC_COPY(clipped[clipped_count], polygon_points[0]);
@@ -133,7 +132,6 @@ SIMD_FORCE_INLINE GUINT PLANE_CLIP_TRIANGLE_GENERIC(
 
 	//clip first point
 	GREAL firstdist = distance_func(plane, point0);
-	;
 	if (!(firstdist > G_EPSILON))
 	{
 		VEC_COPY(clipped[clipped_count], point0);

@@ -71,7 +71,7 @@ public:
 		DBG_MAX_DEBUG_DRAW_MODE
 	};
 
-	virtual ~btIDebugDraw(){};
+	virtual ~btIDebugDraw(){}
 
 	virtual DefaultColors getDefaultColors() const
 	{

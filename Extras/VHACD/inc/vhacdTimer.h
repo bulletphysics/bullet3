@@ -40,8 +40,8 @@ public:
 		m_start.QuadPart = 0;
 		m_stop.QuadPart = 0;
 		QueryPerformanceFrequency(&m_freq);
-	};
-	~Timer(void){};
+	}
+	~Timer(void){}
 	void Tic()
 	{
 		QueryPerformanceCounter(&m_start);
@@ -71,11 +71,11 @@ public:
 	{
 		memset(this, 0, sizeof(Timer));
 		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &m_cclock);
-	};
+	}
 	~Timer(void)
 	{
 		mach_port_deallocate(mach_task_self(), m_cclock);
-	};
+	}
 	void Tic()
 	{
 		clock_get_time(m_cclock, &m_start);
@@ -101,8 +101,8 @@ public:
 	Timer(void)
 	{
 		memset(this, 0, sizeof(Timer));
-	};
-	~Timer(void){};
+	}
+	~Timer(void){}
 	void Tic()
 	{
 		clock_gettime(CLOCK_REALTIME, &m_start);

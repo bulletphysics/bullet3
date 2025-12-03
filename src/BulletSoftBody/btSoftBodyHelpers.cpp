@@ -221,7 +221,7 @@ void btSoftBodyHelpers::Draw(btSoftBody* psb,
 						edge = edge->getNextEdgeOfFace();
 						v0 = v1;
 						v1 = v2;
-					};
+					}
 				}
 #else
 

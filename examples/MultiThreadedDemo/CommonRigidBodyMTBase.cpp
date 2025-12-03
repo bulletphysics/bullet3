@@ -776,7 +776,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
 			{
 				sBatchingMethodComboBoxItems[btBatchedConstraints::BATCHING_METHOD_SPATIAL_GRID_2D] = "Batching: 2D Grid";
 				sBatchingMethodComboBoxItems[btBatchedConstraints::BATCHING_METHOD_SPATIAL_GRID_3D] = "Batching: 3D Grid";
-			};
+			}
 			ComboBoxParams comboParams;
 			comboParams.m_userPointer = sBatchingMethodComboBoxItems;
 			comboParams.m_numItems = btBatchedConstraints::BATCHING_METHOD_COUNT;

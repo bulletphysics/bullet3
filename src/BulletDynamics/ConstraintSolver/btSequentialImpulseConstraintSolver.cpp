@@ -916,7 +916,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 		if (restitution <= btScalar(0.))
 		{
 			restitution = 0.f;
-		};
+		}
 	}
 
 	///warm starting (or zero if disabled)

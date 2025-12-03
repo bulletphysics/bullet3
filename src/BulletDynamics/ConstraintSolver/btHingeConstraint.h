@@ -270,11 +270,11 @@ public:
 
 	void testLimit(const btTransform& transA, const btTransform& transB);
 
-	const btTransform& getAFrame() const { return m_rbAFrame; };
-	const btTransform& getBFrame() const { return m_rbBFrame; };
+	const btTransform& getAFrame() const { return m_rbAFrame; }
+	const btTransform& getBFrame() const { return m_rbBFrame; }
 
-	btTransform& getAFrame() { return m_rbAFrame; };
-	btTransform& getBFrame() { return m_rbBFrame; };
+	btTransform& getAFrame() { return m_rbAFrame; }
+	btTransform& getBFrame() { return m_rbBFrame; }
 
 	inline int getSolveLimit()
 	{

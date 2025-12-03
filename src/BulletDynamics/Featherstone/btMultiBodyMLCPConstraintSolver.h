@@ -159,7 +159,7 @@ protected:
 		btIDebugDraw* debugDrawer) BT_OVERRIDE;
 
 public:
-	BT_DECLARE_ALIGNED_ALLOCATOR()
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	/// Constructor
 	///

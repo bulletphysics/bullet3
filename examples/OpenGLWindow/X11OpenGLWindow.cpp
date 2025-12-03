@@ -683,7 +683,6 @@ void X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		m_data->m_swa.background_pixmap = None;
 		m_data->m_swa.border_pixel = 0;
 		m_data->m_swa.event_mask = ExposureMask | KeyReleaseMask | KeyPressMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
-		;
 		m_data->m_root = RootWindow(m_data->m_dpy, m_data->m_vi->screen);
 
 		m_data->m_win = MyXCreateWindow(m_data->m_dpy, m_data->m_root,
@@ -841,22 +840,22 @@ bool X11OpenGLWindow::isModifierKeyPressed(int key)
 		{
 			isPressed = ((m_data->m_modifierFlags & MY_X11_ALT_KEY) != 0);
 			break;
-		};
+		}
 		case B3G_SHIFT:
 		{
 			isPressed = ((m_data->m_modifierFlags & MY_X11_SHIFT_KEY) != 0);
 			break;
-		};
+		}
 		case B3G_CONTROL:
 		{
 			isPressed = ((m_data->m_modifierFlags & MY_X11_CONTROL_KEY) != 0);
 			break;
-		};
+		}
 
 		default:
 		{
 		}
-	};
+	}
 	return isPressed;
 }
 
@@ -889,7 +888,7 @@ void X11OpenGLWindow::pumpMessage()
 					default:
 					{
 					}
-				};
+				}
 				if (m_data->m_keyboardCallback)
 				{
 					int state = 1;
@@ -918,7 +917,7 @@ void X11OpenGLWindow::pumpMessage()
 					default:
 					{
 					}
-				};
+				}
 
 				if (m_data->m_keyboardCallback)
 				{
@@ -1050,7 +1049,7 @@ void X11OpenGLWindow::pumpMessage()
 			{
 				//XRRUpdateConfiguration( &event );
 			}
-		};
+		}
 	}
 }
 

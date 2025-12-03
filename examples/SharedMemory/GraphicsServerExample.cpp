@@ -708,7 +708,7 @@ public:
 			{
 				b3Clock::usleep(0);
 			}
-		};
+		}
 
 		m_threadSupport->deleteCriticalSection(m_args.m_cs);
 

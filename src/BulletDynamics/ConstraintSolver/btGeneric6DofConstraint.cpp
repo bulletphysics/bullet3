@@ -123,7 +123,7 @@ int btRotationalLimitMotor::testLimitValue(btScalar test_value)
 		else if (m_currentLimitError < -SIMD_PI)
 			m_currentLimitError += SIMD_2_PI;
 		return 2;
-	};
+	}
 
 	m_currentLimit = 0;  //Free from violation
 	return 0;
@@ -225,7 +225,7 @@ int btTranslationalLimitMotor::testLimitValue(int limitIndex, btScalar test_valu
 		m_currentLimit[limitIndex] = 1;  //High limit violation
 		m_currentLimitError[limitIndex] = test_value - hiLimit;
 		return 1;
-	};
+	}
 
 	m_currentLimit[limitIndex] = 0;  //Free from violation
 	m_currentLimitError[limitIndex] = btScalar(0.f);

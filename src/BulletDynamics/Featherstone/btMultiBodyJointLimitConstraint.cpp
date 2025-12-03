@@ -157,7 +157,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 				{
 					btAssert(0);
 				}
-			};
+			}
 		}
 
 		{

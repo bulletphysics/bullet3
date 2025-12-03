@@ -120,7 +120,7 @@ class int3
 {
 public:
 	int x, y, z;
-	int3(){};
+	int3(){}
 	int3(int _x, int _y, int _z)
 	{
 		x = _x;
@@ -141,7 +141,7 @@ public:
 	{
 		x = 0;
 		y = 0;
-	};
+	}
 	float2(float _x, float _y)
 	{
 		x = _x;
@@ -172,13 +172,13 @@ public:
 		x = 0;
 		y = 0;
 		z = 0;
-	};
+	}
 	float3(float _x, float _y, float _z)
 	{
 		x = _x;
 		y = _y;
 		z = _z;
-	};
+	}
 	//operator float *() { return &x;};
 	float &operator[](int i)
 	{
@@ -278,7 +278,7 @@ public:
 		y = 0;
 		z = 0;
 		w = 0;
-	};
+	}
 	float4(float _x, float _y, float _z, float _w)
 	{
 		x = _x;
@@ -2566,7 +2566,7 @@ class int4
 {
 public:
 	int x, y, z, w;
-	int4(){};
+	int4(){}
 	int4(int _x, int _y, int _z, int _w)
 	{
 		x = _x;

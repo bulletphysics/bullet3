@@ -156,7 +156,7 @@ public:
 			delete[] m_pBuffer;
 			m_pBuffer = NULL;
 		}
-	};
+	}
 
 	/// Initialize instance of CSocket.  This method MUST be called before an
 	/// object can be used. Errors : CSocket::SocketProtocolError,
@@ -185,7 +185,7 @@ public:
 	virtual bool Select(void)
 	{
 		return Select(0, 0);
-	};
+	}
 
 	/// Examine the socket descriptor sets currently owned by the instance of
 	/// the socket class (the readfds, writefds, and errorfds parameters) to
@@ -202,7 +202,7 @@ public:
 	virtual bool IsSocketValid(void)
 	{
 		return (m_socket != (SOCKET)SocketError);
-	};
+	}
 
 	/// Provides a standard error code for cross platform development by
 	/// mapping the operating system error to an error defined by the CSocket
@@ -215,7 +215,7 @@ public:
 	inline const char *DescribeError()
 	{
 		return DescribeError(m_socketErrno);
-	};
+	}
 
 	/// Attempts to receive a block of data on an established connection.
 	/// @param nMaxBytes maximum number of bytes to receive.
@@ -264,7 +264,7 @@ public:
 	bool IsNonblocking(void)
 	{
 		return (m_bIsBlocking == false);
-	};
+	}
 
 	/// Set the socket to blocking.
 	/// @return true if successful set to blocking, else return false;

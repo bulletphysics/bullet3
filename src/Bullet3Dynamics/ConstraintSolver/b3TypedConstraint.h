@@ -97,7 +97,7 @@ protected:
 public:
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
-	virtual ~b3TypedConstraint(){};
+	virtual ~b3TypedConstraint(){}
 	b3TypedConstraint(b3TypedConstraintType type, int bodyA, int bodyB);
 
 	struct b3ConstraintInfo1
@@ -199,7 +199,7 @@ public:
 	}
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void solveConstraintObsolete(b3SolverBody& /*bodyA*/, b3SolverBody& /*bodyB*/, b3Scalar /*timeStep*/){};
+	virtual void solveConstraintObsolete(b3SolverBody& /*bodyA*/, b3SolverBody& /*bodyB*/, b3Scalar /*timeStep*/){}
 
 	int getRigidBodyA() const
 	{
@@ -227,7 +227,7 @@ public:
 	void setUserConstraintType(int userConstraintType)
 	{
 		m_userConstraintType = userConstraintType;
-	};
+	}
 
 	void setUserConstraintId(int uid)
 	{

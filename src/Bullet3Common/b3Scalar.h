@@ -364,7 +364,8 @@ typedef float32x4_t b3SimdFloat4;
 	B3_FORCE_INLINE void *operator new[](size_t sizeInBytes) { return b3AlignedAlloc(sizeInBytes, 16); } \
 	B3_FORCE_INLINE void operator delete[](void *ptr) { b3AlignedFree(ptr); }                            \
 	B3_FORCE_INLINE void *operator new[](size_t, void *ptr) { return ptr; }                              \
-	B3_FORCE_INLINE void operator delete[](void *, void *) {}
+	B3_FORCE_INLINE void operator delete[](void *, void *) {} \
+	typedef void* uselessTypeDefTrailingSemicolon
 
 #if defined(B3_USE_DOUBLE_PRECISION) || defined(B3_FORCE_DOUBLE_FUNCTIONS)
 

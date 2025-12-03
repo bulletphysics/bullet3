@@ -325,7 +325,7 @@ void PhysicsClientSharedMemory::setSharedMemoryInterface(class SharedMemoryInter
 		}
 		m_data->m_ownsSharedMemory = false;
 		m_data->m_sharedMemory = sharedMem;
-	};
+	}
 }
 
 void PhysicsClientSharedMemory::disconnectSharedMemory()
@@ -1323,11 +1323,11 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			case CMD_STATE_LOGGING_START_COMPLETED:
 			{
 				break;
-			};
+			}
 			case CMD_STATE_LOGGING_COMPLETED:
 			{
 				break;
-			};
+			}
 
 			case CMD_STATE_LOGGING_FAILED:
 			{
@@ -1569,7 +1569,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				b3Error("Unknown server status %d\n", serverCmd.m_type);
 				btAssert(0);
 			}
-		};
+		}
 
 		m_data->m_testBlock1->m_numProcessedServerCommands++;
 		// we don't have more than 1 command outstanding (in total, either server or client)

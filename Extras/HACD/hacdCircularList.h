@@ -65,7 +65,7 @@ public:
 	{
 		while (Delete())
 			;
-	};
+	}
 	const CircularList& operator=(const CircularList& rhs);
 	//!	Constructor
 	CircularList()
@@ -75,7 +75,7 @@ public:
 	}
 	CircularList(const CircularList& rhs);
 	//! Destructor
-	virtual ~CircularList(void) { Clear(); };
+	virtual ~CircularList(void) { Clear(); }
 
 private:
 	CircularListElement<T>* m_head;  //!< a pointer to the head of the circular list

@@ -97,7 +97,7 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createPrismaticJoint(i
 			dof6->setLinearLowerLimit(btVector3(0, 0, jointLowerLimit));
 			dof6->setLinearUpperLimit(btVector3(0, 0, jointUpperLimit));
 		}
-	};
+	}
 
 	dof6->setAngularLowerLimit(btVector3(0, 0, 0));
 	dof6->setAngularUpperLimit(btVector3(0, 0, 0));
@@ -146,7 +146,7 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
 			dof6->setAngularLowerLimit(btVector3(0, 0, jointLowerLimit));
 			dof6->setAngularUpperLimit(btVector3(0, 0, jointUpperLimit));
 		}
-	};
+	}
 
 	GenericConstraintUserInfo* userInfo = new GenericConstraintUserInfo;
 	userInfo->m_jointAxisInJointSpace = jointAxisInJointSpace;

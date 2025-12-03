@@ -75,7 +75,7 @@ public:
 		mMaxVertices = 4096;  // maximum number of points to be considered for a convex hull.
 		mMaxFaces = 4096;
 		mSkinWidth = 0.01f;  // default is one centimeter
-	};
+	}
 
 	HullDesc(HullFlag flag,
 			 unsigned int vcount,

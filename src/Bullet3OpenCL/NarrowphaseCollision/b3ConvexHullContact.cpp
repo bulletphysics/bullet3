@@ -3779,7 +3779,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 														  &concaveHasSeparatingNormalsCPU.at(0),
 														  vertexFaceCapacity,
 														  numConcavePairs, i);
-					};
+					}
 
 					m_concaveSepNormals.copyFromHost(concaveSepNormalsHost);
 					m_concaveHasSeparatingNormals.copyFromHost(concaveHasSeparatingNormalsCPU);

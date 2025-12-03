@@ -175,7 +175,7 @@ void btMultiBodyGearConstraint::createConstraintRows(btMultiBodyConstraintArray&
 				{
 					btAssert(0);
 				}
-			};
+			}
 		}
 	}
 }

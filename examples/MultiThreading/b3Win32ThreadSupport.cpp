@@ -108,7 +108,7 @@ void b3Win32ThreadSupport::runTask(int uiCommand, void* uiArgument0, int taskId)
 			///not implemented
 			b3Assert(0);
 		}
-	};
+	}
 }
 
 ///check for messages from SPUs

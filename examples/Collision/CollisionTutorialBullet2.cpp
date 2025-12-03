@@ -188,7 +188,7 @@ public:
 				m_timeSeriesCanvas0 = new TimeSeriesCanvas(m_app->m_2dCanvasInterface, 512, 256, "Unknown");
 				m_timeSeriesCanvas0->setupTimeSeries(1, 60, 0);
 			}
-		};
+		}
 
 		{
 			int boxId = m_app->registerCubeShape(btScalar(100), btScalar(0.01), btScalar(100));

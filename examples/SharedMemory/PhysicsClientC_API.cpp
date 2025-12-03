@@ -2809,7 +2809,7 @@ B3_SHARED_API int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 			{
 				b3Assert(0);
 			}
-		};
+		}
 	}
 	return bodyId;
 }
@@ -4719,7 +4719,7 @@ B3_SHARED_API void b3ComputeViewMatrixFromYawPitchRoll(const float cameraTargetP
 			break;
 		default:
 			return;
-	};
+	}
 
 	eyePos[forwardAxis] = -distance;
 

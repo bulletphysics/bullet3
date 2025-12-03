@@ -440,7 +440,6 @@ void GL_ShapeDrawer::drawOpenGL(btScalar* m, const btCollisionShape* shape, cons
 					for (int i = 0; i < si; i += 3)
 					{
 						const btVector3& v1 = vertices[indices[i]];
-						;
 						const btVector3& v2 = vertices[indices[i + 1]];
 						const btVector3& v3 = vertices[indices[i + 2]];
 						btVector3 normal = (v3 - v1).cross(v2 - v1);

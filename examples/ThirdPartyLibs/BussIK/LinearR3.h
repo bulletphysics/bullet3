@@ -523,7 +523,7 @@ public:
 
 	RotationMapR3& operator*=(const RotationMapR3&);  // Matrix product
 
-	RotationMapR3 Transpose() const { return Inverse(); };  // Returns the transpose
+	RotationMapR3 Transpose() const { return Inverse(); }   // Returns the transpose
 	RotationMapR3 Inverse() const;                          // Returns inverse
 	RotationMapR3& Invert();                                // Converts into inverse.
 	VectorR3 Solve(const VectorR3&) const;                  // Returns solution	// Was named Invert

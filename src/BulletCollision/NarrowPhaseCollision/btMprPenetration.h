@@ -858,7 +858,7 @@ inline int btMprPenetration(const btConvexTemplate &a, const btConvexTemplate &b
 			result = -1;
 			//}
 		}
-	};
+	}
 
 	return result;
 }

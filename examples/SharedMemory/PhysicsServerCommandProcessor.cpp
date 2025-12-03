@@ -487,14 +487,14 @@ struct CommandLogger
 					fwrite((const char*)&command.m_updateFlags, sizeof(int), 1, m_file);
 					fwrite((const char*)&command.m_initPoseArgs, sizeof(InitPoseArgs), 1, m_file);
 					break;
-				};
+				}
 				case CMD_REQUEST_ACTUAL_STATE:
 				{
 					fwrite((const char*)&command.m_updateFlags, sizeof(int), 1, m_file);
 					fwrite((const char*)&command.m_requestActualStateInformationCommandArgument,
 						   sizeof(RequestActualStateArgs), 1, m_file);
 					break;
-				};
+				}
 				case CMD_SEND_DESIRED_STATE:
 				{
 					fwrite((const char*)&command.m_updateFlags, sizeof(int), 1, m_file);
@@ -518,12 +518,12 @@ struct CommandLogger
 				case CMD_REQUEST_INTERNAL_DATA:
 				{
 					break;
-				};
+				}
 				default:
 				{
 					fwrite((const char*)&command, sizeof(SharedMemoryCommand), 1, m_file);
 				}
-			};
+			}
 		}
 	}
 
@@ -672,7 +672,7 @@ struct CommandLogPlayback
 #endif
 						result = true;
 						break;
-					};
+					}
 					case CMD_REQUEST_ACTUAL_STATE:
 					{
 #ifdef BACKWARD_COMPAT
@@ -683,7 +683,7 @@ struct CommandLogPlayback
 #endif
 						result = true;
 						break;
-					};
+					}
 					case CMD_SEND_DESIRED_STATE:
 					{
 #ifdef BACKWARD_COMPAT
@@ -732,7 +732,7 @@ struct CommandLogPlayback
 						s = fread(cmd, sizeof(SharedMemoryCommand), 1, m_file); (void)s;
 						result = (s == 1);
 					}
-				};
+				}
 			}
 		}
 		return result;
@@ -1098,7 +1098,7 @@ struct b3VRControllerEvents
 				}
 			}
 		}
-	};
+	}
 };
 
 struct VRControllerStateLogger : public InternalStateLogger
@@ -2400,7 +2400,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	virtual bool getJointInfo(int /*urdfLinkIndex*/, btTransform& /*parent2joint*/, btTransform& /*linkTransformInWorld*/, btVector3& /*jointAxisInJointSpace*/, int& /*jointType*/, btScalar& /*jointLowerLimit*/, btScalar& /*jointUpperLimit*/, btScalar& /*jointDamping*/, btScalar& /*jointFriction*/) const
 	{
 		return false;
-	};
+	}
 
 	virtual bool getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const
 	{
@@ -2441,7 +2441,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 			default:
 			{
 			}
-		};
+		}
 
 		if (isValid)
 		{
@@ -2471,7 +2471,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 				m_createBodyArgs.m_linkJointAxis[3 * urdfLinkIndex + 2]);
 		}
 		return isValid;
-	};
+	}
 
 	virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const
 	{
@@ -4578,7 +4578,7 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 								hasKnownJointType = false;
 								b3Warning("unknown constraint type in SAVE_WORLD");
 							}
-						};
+						}
 						if (hasKnownJointType)
 						{
 							{
@@ -5923,7 +5923,7 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 			default:
 			{
 			}
-		};
+		}
 		visualShape.m_name = "in_memory";
 		visualShape.m_materialName = "";
 		visualShape.m_sourceFileLocation = "in_memory_unknown_line";
@@ -5931,9 +5931,7 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 		visualShape.m_geometry.m_hasLocalMaterial = false;
 
 		bool hasRGBA = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags & GEOM_VISUAL_HAS_RGBA_COLOR) != 0;
-		;
 		bool hasSpecular = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags & GEOM_VISUAL_HAS_SPECULAR_COLOR) != 0;
-		;
 		visualShape.m_geometry.m_hasLocalMaterial = hasRGBA | hasSpecular;
 		if (visualShape.m_geometry.m_hasLocalMaterial)
 		{
@@ -7842,7 +7840,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 												default:
 												{
 												}
-											};
+											}
 										}
 										else
 										{
@@ -7884,7 +7882,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 												default:
 												{
 												}
-											};
+											}
 										}
 									}
 								}  //fi
@@ -10386,7 +10384,7 @@ bool PhysicsServerCommandProcessor::processCreateSensorCommand(const struct Shar
 					fb->m_reactionForces.setZero();
 					mb->getLink(jointIndex).m_jointFeedback = fb;
 					m_data->m_multiBodyJointFeedbacks.push_back(fb);
-				};
+				}
 			}
 			else
 			{
@@ -10399,7 +10397,7 @@ bool PhysicsServerCommandProcessor::processCreateSensorCommand(const struct Shar
 				else
 				{
 					b3Warning("CMD_CREATE_SENSOR: cannot perform sensor removal request, no sensor on joint [%d]", jointIndex);
-				};
+				}
 			}
 		}
 	}
@@ -11622,7 +11620,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 				default:
 				{
 				}
-			};
+			}
 
 			if (newSolver)
 			{
@@ -13102,7 +13100,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 				serverCmd.m_type = CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED;
 			}
 		}
-	};
+	}
 	if (clientCmd.m_updateFlags & USER_CONSTRAINT_REQUEST_INFO)
 	{
 		int userConstraintUidChange = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;
@@ -13419,7 +13417,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 						{
 							b3Warning("unknown constraint type");
 						}
-					};
+					}
 				}
 			}
 		}
@@ -13759,7 +13757,6 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 						else
 						{
 							ikMethod = IK2_VEL_DLS;
-							;
 						}
 					}
 
@@ -14108,7 +14105,6 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand2(co
 						else
 						{
 							ikMethod = IK2_VEL_DLS;
-							;
 						}
 					}
 
@@ -14372,7 +14368,7 @@ int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape
 		{
 			b3Warning("Unexpected collision shape type in PhysicsServerCommandProcessor::extractCollisionShapes");
 		}
-	};
+	}
 
 	return numConverted;
 }
@@ -15146,23 +15142,23 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		{
 			hasStatus = processRequestVREventsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		};
+		}
 		case CMD_REQUEST_MOUSE_EVENTS_DATA:
 		{
 			hasStatus = processRequestMouseEventsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		};
+		}
 		case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
 		{
 			hasStatus = processRequestKeyboardEventsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		};
+		}
 
 		case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
 		{
 			hasStatus = processRequestRaycastIntersectionsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		};
+		}
 		case CMD_REQUEST_DEBUG_LINES:
 		{
 			hasStatus = processRequestDebugLinesCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
@@ -15281,12 +15277,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		{
 			hasStatus = processRequestInternalDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		};
+		}
 		case CMD_CHANGE_DYNAMICS_INFO:
 		{
 			hasStatus = processChangeDynamicsInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		};
+		}
 		case CMD_GET_DYNAMICS_INFO:
 		{
 			hasStatus = processGetDynamicsInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
@@ -15303,7 +15299,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		{
 			hasStatus = processSendPhysicsParametersCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		};
+		}
 		case CMD_INIT_POSE:
 		{
 			hasStatus = processInitPoseCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
@@ -15502,7 +15498,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			serverCmd.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
 			hasStatus = true;
 		}
-	};
+	}
 
 	return hasStatus;
 }

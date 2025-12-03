@@ -238,7 +238,6 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 			if (psb->isActive())
 			{
 				penetration_count += psb->m_faceNodeContactsCCD.size();
-				;
 			}
 		}
 		if (penetration_count == 0)

@@ -378,7 +378,7 @@ void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
 	if (graphicsUid >= 0)
 	{
 		m_data->m_glApp->m_renderer->removeGraphicsInstance(graphicsUid);
-	};
+	}
 }
 
 int OpenGLGuiHelper::getShapeIndexFromInstance(int instanceUid)
@@ -391,7 +391,7 @@ void OpenGLGuiHelper::replaceTexture(int shapeIndex, int textureUid)
 	if (shapeIndex >= 0)
 	{
 		m_data->m_glApp->m_renderer->replaceTexture(shapeIndex, textureUid);
-	};
+	}
 }
 void OpenGLGuiHelper::changeInstanceFlags(int instanceUid, int flags)
 {
@@ -406,7 +406,7 @@ void OpenGLGuiHelper::changeScaling(int instanceUid, const double scaling[3])
 	if (instanceUid >= 0)
 	{
 		m_data->m_glApp->m_renderer->writeSingleInstanceScaleToCPU(scaling, instanceUid);
-	};
+	}
 }
 
 void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
@@ -414,14 +414,14 @@ void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4]
 	if (instanceUid >= 0)
 	{
 		m_data->m_glApp->m_renderer->writeSingleInstanceColorToCPU(rgbaColor, instanceUid);
-	};
+	}
 }
 void OpenGLGuiHelper::changeSpecularColor(int instanceUid, const double specularColor[3])
 {
 	if (instanceUid >= 0)
 	{
 		m_data->m_glApp->m_renderer->writeSingleInstanceSpecularColorToCPU(specularColor, instanceUid);
-	};
+	}
 }
 int OpenGLGuiHelper::createCheckeredTexture(int red, int green, int blue)
 {

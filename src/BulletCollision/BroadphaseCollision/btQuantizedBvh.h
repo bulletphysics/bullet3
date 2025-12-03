@@ -149,7 +149,7 @@ public:
 class btNodeOverlapCallback
 {
 public:
-	virtual ~btNodeOverlapCallback(){};
+	virtual ~btNodeOverlapCallback(){}
 
 	virtual void processNode(int subPart, int triangleIndex) = 0;
 };

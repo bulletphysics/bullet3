@@ -2849,7 +2849,7 @@ const char* GetAnsiColorCode(GTestColor color)
 			return "3";
 		default:
 			return NULL;
-	};
+	}
 }
 
 #endif  // GTEST_OS_WINDOWS && !GTEST_OS_WINDOWS_MOBILE

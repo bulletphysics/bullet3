@@ -200,7 +200,7 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual(const btVe
 				default:
 					btAssert(0);
 					break;
-			};
+			}
 
 			btScalar radius = halfExtents[XX];
 			btScalar halfHeight = halfExtents[cylinderUpAxis];

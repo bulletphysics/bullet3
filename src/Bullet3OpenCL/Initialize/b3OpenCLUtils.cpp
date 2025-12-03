@@ -291,7 +291,7 @@ cl_context b3OpenCLUtils_createContextFromPlatform(cl_platform_id platform, cl_d
 	if (pErrNum != NULL)
 	{
 		*pErrNum = ciErrNum;
-	};
+	}
 
 	return retContext;
 }

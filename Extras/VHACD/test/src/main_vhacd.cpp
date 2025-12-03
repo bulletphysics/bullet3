@@ -52,21 +52,21 @@ class MyCallback : public IVHACD::IUserCallback
 {
 public:
 	MyCallback(void) {}
-	~MyCallback(){};
+	~MyCallback(){}
 	void Update(const double overallProgress, const double stageProgress, const double operationProgress,
 				const char* const stage, const char* const operation)
 	{
 		cout << setfill(' ') << setw(3) << (int)(overallProgress + 0.5) << "% "
 			 << "[ " << stage << " " << setfill(' ') << setw(3) << (int)(stageProgress + 0.5) << "% ] "
 			 << operation << " " << setfill(' ') << setw(3) << (int)(operationProgress + 0.5) << "%" << endl;
-	};
+	}
 };
 class MyLogger : public IVHACD::IUserLogger
 {
 public:
 	MyLogger(void) {}
 	MyLogger(const string& fileName) { OpenFile(fileName); }
-	~MyLogger(){};
+	~MyLogger(){}
 	void Log(const char* const msg)
 	{
 		if (m_file.is_open())
@@ -105,7 +105,7 @@ struct Material
 		m_emissiveColor[2] = 0.0f;
 		m_shininess = 0.4f;
 		m_transparency = 0.5f;
-	};
+	}
 };
 struct Parameters
 {

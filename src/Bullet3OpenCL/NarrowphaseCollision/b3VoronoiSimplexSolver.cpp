@@ -100,7 +100,7 @@ bool b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 				m_cachedBC.setBarycentricCoordinates(b3Scalar(1.), b3Scalar(0.), b3Scalar(0.), b3Scalar(0.));
 				m_cachedValidClosest = m_cachedBC.isValid();
 				break;
-			};
+			}
 			case 2:
 			{
 				//closest point origin from line segment
@@ -226,7 +226,7 @@ bool b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 			{
 				m_cachedValidClosest = false;
 			}
-		};
+		}
 	}
 
 	return m_cachedValidClosest;

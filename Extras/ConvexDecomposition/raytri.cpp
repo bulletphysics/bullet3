@@ -45,7 +45,7 @@
 #define vector(a, b, c)       \
 	(a)[0] = (b)[0] - (c)[0]; \
 	(a)[1] = (b)[1] - (c)[1]; \
-	(a)[2] = (b)[2] - (c)[2];
+	(a)[2] = (b)[2] - (c)[2]
 
 #define innerProduct(v, q) \
 	((v)[0] * (q)[0] +     \
@@ -55,7 +55,7 @@
 #define crossProduct(a, b, c)                   \
 	(a)[0] = (b)[1] * (c)[2] - (c)[1] * (b)[2]; \
 	(a)[1] = (b)[2] * (c)[0] - (c)[2] * (b)[0]; \
-	(a)[2] = (b)[0] * (c)[1] - (c)[0] * (b)[1];
+	(a)[2] = (b)[0] * (c)[1] - (c)[0] * (b)[1]
 
 bool rayIntersectsTriangle(const float *p, const float *d, const float *v0, const float *v1, const float *v2, float &t)
 {

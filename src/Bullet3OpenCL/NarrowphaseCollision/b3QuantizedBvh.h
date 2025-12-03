@@ -135,7 +135,7 @@ public:
 class b3NodeOverlapCallback
 {
 public:
-	virtual ~b3NodeOverlapCallback(){};
+	virtual ~b3NodeOverlapCallback(){}
 
 	virtual void processNode(int subPart, int triangleIndex) = 0;
 };

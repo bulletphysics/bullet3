@@ -227,7 +227,7 @@ void SimpleOpenGL2App::drawGrid(DrawGridData data)
 			break;
 		default:
 			b3Assert(0);
-	};
+	}
 	//b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
 
 	b3AlignedObjectArray<unsigned int> indices;
@@ -534,7 +534,7 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 			graphicsShapeIndex = m_renderer->registerShape(&detailed_sphere_vertices[0], numVertices, detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
-	};
+	}
 	return graphicsShapeIndex;
 }
 

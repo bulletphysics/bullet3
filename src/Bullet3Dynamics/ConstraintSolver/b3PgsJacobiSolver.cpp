@@ -738,7 +738,7 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 		if (restitution <= b3Scalar(0.))
 		{
 			restitution = 0.f;
-		};
+		}
 	}
 
 	///warm starting (or zero if disabled)

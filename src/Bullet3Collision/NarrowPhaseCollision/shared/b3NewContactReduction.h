@@ -164,7 +164,7 @@ __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 						default:
 						{
 						}
-					};
+					}
 
 					GET_NPOINTS(*c) = (b3Scalar)nReducedContacts;
 				}

@@ -169,14 +169,14 @@ public:
 		glScissor(m_retinaScale * (float)rect.x * Scale(), m_retinaScale * (float)rect.y * Scale(), m_retinaScale * (float)rect.w * Scale(), m_retinaScale * (float)rect.h * Scale());
 		glEnable(GL_SCISSOR_TEST);
 		//glDisable( GL_SCISSOR_TEST );
-	};
+	}
 
 	virtual void EndClip()
 	{
 		if (m_useTrueTypeFont)
 			sth_flush_draw(m_font);
 		glDisable(GL_SCISSOR_TEST);
-	};
+	}
 
 	virtual void SetDrawColor(Gwen::Color color)
 	{

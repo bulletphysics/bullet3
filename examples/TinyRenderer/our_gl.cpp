@@ -67,7 +67,7 @@ Vec3d barycentric(Vec2f A1, Vec2f B1, Vec2f C1, Vec2f P1)
 	Vec2d A(A1.x, A1.y);
 	Vec2d B(B1.x, B1.y);
 	Vec2d C(C1.x, C1.y);
-	Vec2d P(P1.x, P1.y);;
+	Vec2d P(P1.x, P1.y);
 
 	Vec3d s[2];
 	for (size_t i = 2; i--;)

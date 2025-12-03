@@ -564,13 +564,13 @@ public:
 	/**@brief Return the z value */
 	SIMD_FORCE_INLINE const btScalar& getZ() const { return m_floats[2]; }
 	/**@brief Set the x value */
-	SIMD_FORCE_INLINE void setX(btScalar _x) { m_floats[0] = _x; };
+	SIMD_FORCE_INLINE void setX(btScalar _x) { m_floats[0] = _x; }
 	/**@brief Set the y value */
-	SIMD_FORCE_INLINE void setY(btScalar _y) { m_floats[1] = _y; };
+	SIMD_FORCE_INLINE void setY(btScalar _y) { m_floats[1] = _y; }
 	/**@brief Set the z value */
-	SIMD_FORCE_INLINE void setZ(btScalar _z) { m_floats[2] = _z; };
+	SIMD_FORCE_INLINE void setZ(btScalar _z) { m_floats[2] = _z; }
 	/**@brief Set the w value */
-	SIMD_FORCE_INLINE void setW(btScalar _w) { m_floats[3] = _w; };
+	SIMD_FORCE_INLINE void setW(btScalar _w) { m_floats[3] = _w; }
 	/**@brief Return the x value */
 	SIMD_FORCE_INLINE const btScalar& x() const { return m_floats[0]; }
 	/**@brief Return the y value */

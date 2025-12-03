@@ -26,8 +26,8 @@ class btCollisionWorld;
 class btCharacterControllerInterface : public btActionInterface
 {
 public:
-	btCharacterControllerInterface(){};
-	virtual ~btCharacterControllerInterface(){};
+	btCharacterControllerInterface(){}
+	virtual ~btCharacterControllerInterface(){}
 
 	virtual void setWalkDirection(const btVector3& walkDirection) = 0;
 	virtual void setVelocityForTimeInterval(const btVector3& velocity, btScalar timeInterval) = 0;

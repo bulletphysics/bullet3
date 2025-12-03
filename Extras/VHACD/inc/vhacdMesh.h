@@ -60,7 +60,7 @@ struct Material
 		m_emissiveColor.Z() = 0.0;
 		m_shininess = 0.4;
 		m_transparency = 0.0;
-	};
+	}
 };
 #endif  // VHACD_DEBUG_MESH
 
@@ -68,20 +68,20 @@ struct Material
 class Mesh
 {
 public:
-	void AddPoint(const Vec3<double>& pt) { m_points.PushBack(pt); };
-	void SetPoint(size_t index, const Vec3<double>& pt) { m_points[index] = pt; };
-	const Vec3<double>& GetPoint(size_t index) const { return m_points[index]; };
-	Vec3<double>& GetPoint(size_t index) { return m_points[index]; };
-	size_t GetNPoints() const { return m_points.Size(); };
+	void AddPoint(const Vec3<double>& pt) { m_points.PushBack(pt); }
+	void SetPoint(size_t index, const Vec3<double>& pt) { m_points[index] = pt; }
+	const Vec3<double>& GetPoint(size_t index) const { return m_points[index]; }
+	Vec3<double>& GetPoint(size_t index) { return m_points[index]; }
+	size_t GetNPoints() const { return m_points.Size(); }
 	double* GetPoints() { return (double*)m_points.Data(); }                       // ugly
 	const double* GetPoints() const { return (double*)m_points.Data(); }     // ugly
 	const Vec3<double>* GetPointsBuffer() const { return m_points.Data(); }  //
 	Vec3<double>* GetPointsBuffer() { return m_points.Data(); }              //
-	void AddTriangle(const Vec3<int>& tri) { m_triangles.PushBack(tri); };
-	void SetTriangle(size_t index, const Vec3<int>& tri) { m_triangles[index] = tri; };
-	const Vec3<int>& GetTriangle(size_t index) const { return m_triangles[index]; };
-	Vec3<int>& GetTriangle(size_t index) { return m_triangles[index]; };
-	size_t GetNTriangles() const { return m_triangles.Size(); };
+	void AddTriangle(const Vec3<int>& tri) { m_triangles.PushBack(tri); }
+	void SetTriangle(size_t index, const Vec3<int>& tri) { m_triangles[index] = tri; }
+	const Vec3<int>& GetTriangle(size_t index) const { return m_triangles[index]; }
+	Vec3<int>& GetTriangle(size_t index) { return m_triangles[index]; }
+	size_t GetNTriangles() const { return m_triangles.Size(); }
 	int* GetTriangles() { return (int*)m_triangles.Data(); }                    // ugly
 	const int* GetTriangles() const { return (int*)m_triangles.Data(); }  // ugly
 	const Vec3<int>* GetTrianglesBuffer() const { return m_triangles.Data(); }

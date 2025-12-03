@@ -53,6 +53,6 @@ public:
 
 	virtual void writeDNA(FILE* fp);
 };
-};  // namespace bParse
+}  // namespace bParse
 
 #endif  //B_BLENDER_FILE_H

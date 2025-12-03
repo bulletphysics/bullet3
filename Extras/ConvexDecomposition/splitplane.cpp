@@ -92,7 +92,7 @@ static void computePlane(const float *A, const float *B, const float *C, float *
 class Rect3d
 {
 public:
-	Rect3d(void){};
+	Rect3d(void){}
 
 	Rect3d(const float *bmin, const float *bmax)
 	{

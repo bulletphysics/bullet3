@@ -883,7 +883,6 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::sortMaxDown(int axis, BP_FP_INT_TYPE 
 
 			// update edge reference in other handle
 			pHandlePrev->m_minEdges[axis]++;
-			;
 		}
 		else
 			pHandlePrev->m_maxEdges[axis]++;

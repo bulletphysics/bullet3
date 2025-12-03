@@ -189,7 +189,7 @@ public:
 	void setUserConstraintType(int userConstraintType)
 	{
 		m_userConstraintType = userConstraintType;
-	};
+	}
 
 	void setUserConstraintId(int uid)
 	{

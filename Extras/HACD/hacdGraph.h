@@ -39,7 +39,7 @@ public:
 	}
 	bool DeleteEdge(long name);
 	GraphVertex();
-	~GraphVertex() { delete m_convexHull; };
+	~GraphVertex() { delete m_convexHull; }
 
 private:
 	long m_name;
@@ -66,7 +66,7 @@ class GraphEdge
 {
 public:
 	GraphEdge();
-	~GraphEdge() { delete m_convexHull; };
+	~GraphEdge() { delete m_convexHull; }
 
 private:
 	long m_name;

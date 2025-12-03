@@ -226,5 +226,5 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 				}
 			}
 		}
-	};
+	}
 }

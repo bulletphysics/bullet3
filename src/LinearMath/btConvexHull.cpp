@@ -26,7 +26,7 @@ class int3
 {
 public:
 	int x, y, z;
-	int3(){};
+	int3(){}
 	int3(int _x, int _y, int _z)
 	{
 		x = _x;

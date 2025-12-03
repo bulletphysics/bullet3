@@ -251,7 +251,7 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 				{
 					btAssert(0);
 				}
-			};
+			}
 		}
 	}
 }

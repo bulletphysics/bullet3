@@ -430,7 +430,8 @@ inline int btIsDoublePrecision()
 	SIMD_FORCE_INLINE void *operator new[](size_t sizeInBytes) { return btAlignedAlloc(sizeInBytes, 16); } \
 	SIMD_FORCE_INLINE void operator delete[](void *ptr) { btAlignedFree(ptr); }                            \
 	SIMD_FORCE_INLINE void *operator new[](size_t, void *ptr) { return ptr; }                              \
-	SIMD_FORCE_INLINE void operator delete[](void *, void *) {}
+	SIMD_FORCE_INLINE void operator delete[](void *, void *) {} \
+	typedef void* uselessTypeDefTrailingSemicolon
 
 #if defined(BT_USE_DOUBLE_PRECISION) || defined(BT_FORCE_DOUBLE_FUNCTIONS)
 

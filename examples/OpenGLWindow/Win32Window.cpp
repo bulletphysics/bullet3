@@ -50,7 +50,7 @@ void Win32Window::pumpMessage()
 		}
 
 		//			gDemoApplication->displayCallback();
-	};
+	}
 }
 
 int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
@@ -76,12 +76,12 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 		{
 			keycode = B3G_RETURN;
 			break;
-		};
+		}
 		case VK_ESCAPE:
 		{
 			keycode = B3G_ESCAPE;
 			break;
-		};
+		}
 		case VK_F1:
 		{
 			keycode = B3G_F1;
@@ -211,7 +211,7 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 		{
 			//keycode = MapVirtualKey( virtualKeyCode, MAPVK_VK_TO_CHAR ) & 0x0000FFFF;
 		}
-	};
+	}
 
 	return keycode;
 }
@@ -243,22 +243,22 @@ bool Win32Window::isModifierKeyPressed(int key)
 		{
 			isPressed = ((sData->m_internalKeyModifierFlags & INTERNAL_ALT_MODIFIER) != 0);
 			break;
-		};
+		}
 		case B3G_SHIFT:
 		{
 			isPressed = ((sData->m_internalKeyModifierFlags & INTERNAL_SHIFT_MODIFIER) != 0);
 			break;
-		};
+		}
 		case B3G_CONTROL:
 		{
 			isPressed = ((sData->m_internalKeyModifierFlags & INTERNAL_CONTROL_MODIFIER) != 0);
 			break;
-		};
+		}
 
 		default:
 		{
 		}
-	};
+	}
 	return isPressed;  //m_internalKeyModifierFlags
 }
 
@@ -300,17 +300,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					sData->m_internalKeyModifierFlags &= ~INTERNAL_ALT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_SHIFT:
 				{
 					sData->m_internalKeyModifierFlags &= ~INTERNAL_SHIFT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_CONTROL:
 				{
 					sData->m_internalKeyModifierFlags &= ~INTERNAL_CONTROL_MODIFIER;
 					break;
-				};
+				}
 			}
 
 			if (keycode >= 0 && sData && sData->m_keyboardCallback)
@@ -346,17 +346,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					sData->m_internalKeyModifierFlags |= INTERNAL_ALT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_SHIFT:
 				{
 					sData->m_internalKeyModifierFlags |= INTERNAL_SHIFT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_CONTROL:
 				{
 					sData->m_internalKeyModifierFlags |= INTERNAL_CONTROL_MODIFIER;
 					break;
-				};
+				}
 			}
 			if (keycode >= 0 && sData && sData->m_keyboardCallback && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
@@ -523,7 +523,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		default:
 		{
 		}
-	};
+	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }

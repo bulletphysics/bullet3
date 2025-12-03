@@ -24,7 +24,7 @@ struct btSimpleBroadphaseProxy : public btBroadphaseProxy
 
 	//	int			m_handleId;
 
-	btSimpleBroadphaseProxy(){};
+	btSimpleBroadphaseProxy(){}
 
 	btSimpleBroadphaseProxy(const btVector3& minpt, const btVector3& maxpt, int shapeType, void* userPtr, int collisionFilterGroup, int collisionFilterMask)
 		: btBroadphaseProxy(minpt, maxpt, userPtr, collisionFilterGroup, collisionFilterMask)

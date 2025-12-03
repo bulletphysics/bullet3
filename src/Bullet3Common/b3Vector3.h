@@ -522,13 +522,13 @@ public:
 	B3_FORCE_INLINE const b3Scalar& getW() const { return m_floats[3]; }
 
 	/**@brief Set the x value */
-	B3_FORCE_INLINE void setX(b3Scalar _x) { m_floats[0] = _x; };
+	B3_FORCE_INLINE void setX(b3Scalar _x) { m_floats[0] = _x; }
 	/**@brief Set the y value */
-	B3_FORCE_INLINE void setY(b3Scalar _y) { m_floats[1] = _y; };
+	B3_FORCE_INLINE void setY(b3Scalar _y) { m_floats[1] = _y; }
 	/**@brief Set the z value */
-	B3_FORCE_INLINE void setZ(b3Scalar _z) { m_floats[2] = _z; };
+	B3_FORCE_INLINE void setZ(b3Scalar _z) { m_floats[2] = _z; }
 	/**@brief Set the w value */
-	B3_FORCE_INLINE void setW(b3Scalar _w) { m_floats[3] = _w; };
+	B3_FORCE_INLINE void setW(b3Scalar _w) { m_floats[3] = _w; }
 
 	//B3_FORCE_INLINE b3Scalar&       operator[](int i)       { return (&m_floats[0])[i];	}
 	//B3_FORCE_INLINE const b3Scalar& operator[](int i) const { return (&m_floats[0])[i]; }

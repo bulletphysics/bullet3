@@ -1320,7 +1320,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			//b3Warning("Unknown server status type");
 		}
 
-	};
+	}
 }
 
 

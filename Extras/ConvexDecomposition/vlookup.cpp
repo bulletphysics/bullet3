@@ -115,13 +115,13 @@ namespace Vlookup
 class VertexPosition
 {
 public:
-	VertexPosition(void){};
+	VertexPosition(void){}
 	VertexPosition(const float *p)
 	{
 		mPos[0] = p[0];
 		mPos[1] = p[1];
 		mPos[2] = p[2];
-	};
+	}
 
 	void Set(int index, const float *pos)
 	{
@@ -130,11 +130,11 @@ public:
 		mPos[0] = p[0];
 		mPos[1] = p[1];
 		mPos[2] = p[2];
-	};
+	}
 
-	float GetX(void) const { return mPos[0]; };
-	float GetY(void) const { return mPos[1]; };
-	float GetZ(void) const { return mPos[2]; };
+	float GetX(void) const { return mPos[0]; }
+	float GetY(void) const { return mPos[1]; }
+	float GetZ(void) const { return mPos[2]; }
 
 	float mPos[3];
 };
@@ -155,7 +155,7 @@ struct Tracker
 	{
 		mFind = match;
 		mList = list;
-	};
+	}
 };
 
 struct VertexID
@@ -204,7 +204,7 @@ public:
 		mVtxs.push_back(vtx);
 		mVertSet.insert(VertexID(idx, &mTracker));
 		return idx;
-	};
+	}
 
 	const float *GetPos(int idx) const
 	{
@@ -214,21 +214,21 @@ public:
 	const Type &Get(int idx) const
 	{
 		return mVtxs[idx];
-	};
+	}
 
 	unsigned int GetSize(void) const
 	{
 		return mVtxs.size();
-	};
+	}
 
 	void Clear(int reservesize)  // clear the vertice pool.
 	{
 		mVertSet.clear();
 		mVtxs.clear();
 		mVtxs.reserve(reservesize);
-	};
+	}
 
-	const VertexVector &GetVertexList(void) const { return mVtxs; };
+	const VertexVector &GetVertexList(void) const { return mVtxs; }
 
 	void Set(const Type &vtx)
 	{
@@ -238,12 +238,12 @@ public:
 	unsigned int GetVertexCount(void) const
 	{
 		return mVtxs.size();
-	};
+	}
 
 	Type *getBuffer(void)
 	{
 		return &mVtxs[0];
-	};
+	}
 
 private:
 	VertexSet mVertSet;  // ordered list.

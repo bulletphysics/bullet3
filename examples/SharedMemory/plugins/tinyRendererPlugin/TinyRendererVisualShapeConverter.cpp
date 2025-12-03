@@ -1236,7 +1236,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 		default:
 		{
 		}
-		};
+		}
 	}
 
 	lightDirWorld.normalize();

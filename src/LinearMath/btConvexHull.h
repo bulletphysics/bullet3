@@ -64,7 +64,7 @@ public:
 		mNormalEpsilon = btScalar(0.001);
 		mMaxVertices = 4096;  // maximum number of points to be considered for a convex hull.
 		mMaxFaces = 4096;
-	};
+	}
 
 	HullDesc(HullFlag flag,
 			 unsigned int vcount,
@@ -147,7 +147,7 @@ class int4
 {
 public:
 	int x, y, z, w;
-	int4(){};
+	int4(){}
 	int4(int _x, int _y, int _z, int _w)
 	{
 		x = _x;

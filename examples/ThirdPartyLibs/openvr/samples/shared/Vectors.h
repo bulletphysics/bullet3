@@ -25,8 +25,8 @@ struct Vector2
 	float y;
 
 	// ctors
-	Vector2() : x(0), y(0){};
-	Vector2(float x, float y) : x(x), y(y){};
+	Vector2() : x(0), y(0){}
+	Vector2(float x, float y) : x(x), y(y){}
 
 	// utils functions
 	void set(float x, float y);
@@ -68,8 +68,8 @@ struct Vector3
 	float z;
 
 	// ctors
-	Vector3() : x(0), y(0), z(0){};
-	Vector3(float x, float y, float z) : x(x), y(y), z(z){};
+	Vector3() : x(0), y(0), z(0){}
+	Vector3(float x, float y, float z) : x(x), y(y), z(z){}
 
 	// utils functions
 	void set(float x, float y, float z);
@@ -113,8 +113,8 @@ struct Vector4
 	float w;
 
 	// ctors
-	Vector4() : x(0), y(0), z(0), w(0){};
-	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w){};
+	Vector4() : x(0), y(0), z(0), w(0){}
+	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w){}
 
 	// utils functions
 	void set(float x, float y, float z, float w);

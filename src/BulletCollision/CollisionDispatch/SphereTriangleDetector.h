@@ -28,7 +28,7 @@ struct SphereTriangleDetector : public btDiscreteCollisionDetectorInterface
 
 	SphereTriangleDetector(btSphereShape* sphere, btTriangleShape* triangle, btScalar contactBreakingThreshold);
 
-	virtual ~SphereTriangleDetector(){};
+	virtual ~SphereTriangleDetector(){}
 
 	bool collide(const btVector3& sphereCenter, btVector3& point, btVector3& resultNormal, btScalar& depth, btScalar& timeOfImpact, btScalar contactBreakingThreshold);
 

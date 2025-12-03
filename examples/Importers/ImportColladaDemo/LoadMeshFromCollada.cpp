@@ -561,7 +561,7 @@ void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, fl
 				//we don't support X or other up axis
 				btAssert(0);
 			}
-		};
+		}
 	}
 }
 

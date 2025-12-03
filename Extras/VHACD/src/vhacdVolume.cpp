@@ -51,7 +51,7 @@ namespace VHACD
 	if (x2 < min)                        \
 		min = x2;                        \
 	if (x2 > max)                        \
-		max = x2;
+		max = x2
 
 #define AXISTEST_X01(a, b, fa, fb)                   \
 	p0 = a * v0[Y] - b * v0[Z];                      \
@@ -68,7 +68,7 @@ namespace VHACD
 	}                                                \
 	rad = fa * boxhalfsize[Y] + fb * boxhalfsize[Z]; \
 	if (min > rad || max < -rad)                     \
-		return 0;
+		return 0
 
 #define AXISTEST_X2(a, b, fa, fb)                    \
 	p0 = a * v0[Y] - b * v0[Z];                      \
@@ -85,7 +85,7 @@ namespace VHACD
 	}                                                \
 	rad = fa * boxhalfsize[Y] + fb * boxhalfsize[Z]; \
 	if (min > rad || max < -rad)                     \
-		return 0;
+		return 0
 
 #define AXISTEST_Y02(a, b, fa, fb)                   \
 	p0 = -a * v0[X] + b * v0[Z];                     \
@@ -102,7 +102,7 @@ namespace VHACD
 	}                                                \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Z]; \
 	if (min > rad || max < -rad)                     \
-		return 0;
+		return 0
 
 #define AXISTEST_Y1(a, b, fa, fb)                    \
 	p0 = -a * v0[X] + b * v0[Z];                     \
@@ -119,7 +119,7 @@ namespace VHACD
 	}                                                \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Z]; \
 	if (min > rad || max < -rad)                     \
-		return 0;
+		return 0
 
 #define AXISTEST_Z12(a, b, fa, fb)                   \
 	p1 = a * v1[X] - b * v1[Y];                      \
@@ -136,7 +136,7 @@ namespace VHACD
 	}                                                \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y]; \
 	if (min > rad || max < -rad)                     \
-		return 0;
+		return 0
 
 #define AXISTEST_Z0(a, b, fa, fb)                    \
 	p0 = a * v0[X] - b * v0[Y];                      \
@@ -153,7 +153,7 @@ namespace VHACD
 	}                                                \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y]; \
 	if (min > rad || max < -rad)                     \
-		return 0;
+		return 0
 
 int PlaneBoxOverlap(const Vec3<double>& normal,
 					const Vec3<double>& vert,

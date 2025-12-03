@@ -327,7 +327,6 @@ int add_type(const char *str, int len)
 	{
 		printf("too many types\n");
 		return nr_types - 1;
-		;
 	}
 	nr_types++;
 
@@ -398,7 +397,7 @@ int add_name(char *str)
 		else if (str[j] == ')')
 		{
 			if (debugSDNA > 3) printf("offsetting for brace\n");
-			; /* don't get extra offset */
+			/* don't get extra offset */
 		}
 		else
 		{

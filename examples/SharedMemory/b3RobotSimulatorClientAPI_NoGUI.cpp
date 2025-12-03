@@ -94,7 +94,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 		{
 			b3Warning("connectPhysicsServer unexpected argument");
 		}
-	};
+	}
 
 	if (sm)
 	{

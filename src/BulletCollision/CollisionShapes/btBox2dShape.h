@@ -105,7 +105,7 @@ public:
 		m_implicitShapeDimensions = (boxHalfExtents * m_localScaling) - margin;
 
 		setSafeMargin(minDimension);
-	};
+	}
 
 	virtual void setMargin(btScalar collisionMargin)
 	{

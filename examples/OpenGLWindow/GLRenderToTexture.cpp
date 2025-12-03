@@ -54,7 +54,7 @@ void GLRenderToTexture::init(int /*width*/, int /*height*/, GLuint textureId, in
 		{
 			b3Assert(0);
 		}
-	};
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -92,7 +92,7 @@ bool GLRenderToTexture::enable()
 		{
 			b3Assert(0);
 		}
-	};
+	}
 
 	// Always check that our framebuffer is ok
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)

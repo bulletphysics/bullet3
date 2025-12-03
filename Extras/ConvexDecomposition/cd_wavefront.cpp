@@ -87,7 +87,7 @@ typedef std::vector<float> FloatVector;
 class InPlaceParserInterface
 {
 public:
-	virtual ~InPlaceParserInterface(){};
+	virtual ~InPlaceParserInterface(){}
 
 	virtual int ParseLine(int lineno, int argc, const char **argv) = 0;  // return TRUE to continue parsing, return FALSE to abort parsing process
 };
@@ -148,7 +148,7 @@ public:
 		mData = data;
 		mLen = len;
 		mMyAlloc = false;
-	};
+	}
 
 	int Parse(InPlaceParserInterface *callback);  // returns true if entire file was parsed, false if it aborted for some reason
 
@@ -766,8 +766,8 @@ public:
 		mIndices.push_back(getIndex(v3->mPos));
 	}
 
-	const FloatVector &GetVertices(void) const { return mVertices; };
-	const IntVector &GetIndices(void) const { return mIndices; };
+	const FloatVector &GetVertices(void) const { return mVertices; }
+	const IntVector &GetIndices(void) const { return mIndices; }
 
 private:
 	FloatVector mVertices;

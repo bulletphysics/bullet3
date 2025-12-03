@@ -312,12 +312,12 @@ public:
 	inline RotationMapR4& operator*=(const RotationMapR4&);  // Matrix product
 
 	inline RotationMapR4 Transpose() const;
-	inline RotationMapR4 Inverse() const { return Transpose(); };  // Returns the transpose
+	inline RotationMapR4 Inverse() const { return Transpose(); }  // Returns the transpose
 	inline RotationMapR4& Invert()
 	{
 		MakeTranspose();
 		return *this;
-	};                                              // Transposes it.
+	}                                              // Transposes it.
 	inline VectorR4 Invert(const VectorR4&) const;  // Returns solution
 };
 

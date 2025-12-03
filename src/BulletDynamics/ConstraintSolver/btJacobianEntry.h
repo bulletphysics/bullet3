@@ -30,7 +30,7 @@ ATTRIBUTE_ALIGNED16(class)
 btJacobianEntry
 {
 public:
-	btJacobianEntry(){};
+	btJacobianEntry(){}
 	//constraint between two different rigidbodies
 	btJacobianEntry(
 		const btMatrix3x3& world2A,
