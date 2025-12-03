@@ -43,7 +43,7 @@ b3PosixThreadSupport::~b3PosixThreadSupport()
 #define NAMED_SEMAPHORES
 #endif
 
-static sem_t* createSem(const char* /*baseName*/)
+static sem_t* createSem(const char* baseName)
 {
 #ifdef NAMED_SEMAPHORES
 	static int semCount = 0;
@@ -63,6 +63,7 @@ static sem_t* createSem(const char* /*baseName*/)
 	}
 	/// Named semaphore end
 #else
+	(void)baseName;
 	sem_t* tempSem = new sem_t;
 	checkPThreadFunction(sem_init(tempSem, 0, 0));
 #endif
