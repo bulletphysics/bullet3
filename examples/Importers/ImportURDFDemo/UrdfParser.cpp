@@ -42,7 +42,7 @@ static bool parseVector4(btVector4& vec4, const std::string& vector_str)
 	{
 		return false;
 	}
-	vec4.setValue(rgba[0], rgba[1], rgba[2], rgba[3]);
+	vec4.setValue((btScalar)rgba[0], (btScalar)rgba[1], (btScalar)rgba[2], (btScalar)rgba[3]);
 	return true;
 }
 
@@ -68,11 +68,11 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 	}
 	if (lastThree)
 	{
-		vec3.setValue(rgba[rgba.size() - 3], rgba[rgba.size() - 2], rgba[rgba.size() - 1]);
+		vec3.setValue((btScalar)rgba[rgba.size() - 3], (btScalar)rgba[rgba.size() - 2], (btScalar)rgba[rgba.size() - 1]);
 	}
 	else
 	{
-		vec3.setValue(rgba[0], rgba[1], rgba[2]);
+		vec3.setValue((btScalar)rgba[0], (btScalar)rgba[1], (btScalar)rgba[2]);
 	}
 	return true;
 }
@@ -191,10 +191,10 @@ bool UrdfParser::parseTransform(btTransform& tr, XMLElement* xml, ErrorLogger* l
 			psi = yaw / 2.0;
 
 			btQuaternion orn(
-				sin(phi) * cos(the) * cos(psi) - cos(phi) * sin(the) * sin(psi),
-				cos(phi) * sin(the) * cos(psi) + sin(phi) * cos(the) * sin(psi),
-				cos(phi) * cos(the) * sin(psi) - sin(phi) * sin(the) * cos(psi),
-				cos(phi) * cos(the) * cos(psi) + sin(phi) * sin(the) * sin(psi));
+				btScalar(sin(phi) * cos(the) * cos(psi) - cos(phi) * sin(the) * sin(psi)),
+				btScalar(cos(phi) * sin(the) * cos(psi) + sin(phi) * cos(the) * sin(psi)),
+				btScalar(cos(phi) * cos(the) * sin(psi) - sin(phi) * sin(the) * cos(psi)),
+				btScalar(cos(phi) * cos(the) * cos(psi) + sin(phi) * sin(the) * sin(psi)));
 
 			orn.normalize();
 			tr.setRotation(orn);
@@ -218,10 +218,10 @@ bool UrdfParser::parseTransform(btTransform& tr, XMLElement* xml, ErrorLogger* l
 				psi = yaw / 2.0;
 
 				btQuaternion orn(
-					sin(phi) * cos(the) * cos(psi) - cos(phi) * sin(the) * sin(psi),
-					cos(phi) * sin(the) * cos(psi) + sin(phi) * cos(the) * sin(psi),
-					cos(phi) * cos(the) * sin(psi) - sin(phi) * sin(the) * cos(psi),
-					cos(phi) * cos(the) * cos(psi) + sin(phi) * sin(the) * sin(psi));
+					btScalar(sin(phi) * cos(the) * cos(psi) - cos(phi) * sin(the) * sin(psi)),
+					btScalar(cos(phi) * sin(the) * cos(psi) + sin(phi) * cos(the) * sin(psi)),
+					btScalar(cos(phi) * cos(the) * sin(psi) - sin(phi) * sin(the) * cos(psi)),
+					btScalar(cos(phi) * cos(the) * cos(psi) + sin(phi) * sin(the) * sin(psi)));
 
 				orn.normalize();
 				tr.setRotation(orn);
@@ -519,7 +519,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, XMLElement* g, ErrorLogger* l
 					double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
 					if (scaleFactor)
 					{
-						geom.m_meshScale.setValue(scaleFactor, scaleFactor, scaleFactor);
+						geom.m_meshScale.setValue((btScalar)scaleFactor, (btScalar)scaleFactor, (btScalar)scaleFactor);
 					}
 				}
 			}
@@ -869,7 +869,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 			{
 				if (m_parseSDF)
 				{
-					link.m_contactInfo.m_inertiaScaling = urdfLexicalCast<double>(damping_xml->GetText());
+					link.m_contactInfo.m_inertiaScaling = (btScalar)urdfLexicalCast<double>(damping_xml->GetText());
 					link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_INERTIA_SCALING;
 				}
 				else
@@ -880,7 +880,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 						return false;
 					}
 
-					link.m_contactInfo.m_inertiaScaling = urdfLexicalCast<double>(damping_xml->Attribute("value"));
+					link.m_contactInfo.m_inertiaScaling = (btScalar)urdfLexicalCast<double>(damping_xml->Attribute("value"));
 					link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_INERTIA_SCALING;
 				}
 			}
@@ -890,7 +890,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_lateralFriction = urdfLexicalCast<double>(friction_xml->GetText());
+						link.m_contactInfo.m_lateralFriction = (btScalar)urdfLexicalCast<double>(friction_xml->GetText());
 					}
 					else
 					{
@@ -900,7 +900,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 							return false;
 						}
 
-						link.m_contactInfo.m_lateralFriction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
+						link.m_contactInfo.m_lateralFriction = (btScalar)urdfLexicalCast<double>(friction_xml->Attribute("value"));
 					}
 				}
 			}
@@ -911,7 +911,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_rollingFriction = urdfLexicalCast<double>(rolling_xml->GetText());
+						link.m_contactInfo.m_rollingFriction = (btScalar)urdfLexicalCast<double>(rolling_xml->GetText());
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_ROLLING_FRICTION;
 					}
 					else
@@ -922,7 +922,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 							return false;
 						}
 
-						link.m_contactInfo.m_rollingFriction = urdfLexicalCast<double>(rolling_xml->Attribute("value"));
+						link.m_contactInfo.m_rollingFriction = (btScalar)urdfLexicalCast<double>(rolling_xml->Attribute("value"));
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_ROLLING_FRICTION;
 					}
 				}
@@ -934,7 +934,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_restitution = urdfLexicalCast<double>(restitution_xml->GetText());
+						link.m_contactInfo.m_restitution = (btScalar)urdfLexicalCast<double>(restitution_xml->GetText());
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_RESTITUTION;
 					}
 					else
@@ -945,7 +945,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 							return false;
 						}
 
-						link.m_contactInfo.m_restitution = urdfLexicalCast<double>(restitution_xml->Attribute("value"));
+						link.m_contactInfo.m_restitution = (btScalar)urdfLexicalCast<double>(restitution_xml->Attribute("value"));
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_RESTITUTION;
 					}
 				}
@@ -957,7 +957,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_spinningFriction = urdfLexicalCast<double>(spinning_xml->GetText());
+						link.m_contactInfo.m_spinningFriction = (btScalar)urdfLexicalCast<double>(spinning_xml->GetText());
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_SPINNING_FRICTION;
 					}
 					else
@@ -968,7 +968,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 							return false;
 						}
 
-						link.m_contactInfo.m_spinningFriction = urdfLexicalCast<double>(spinning_xml->Attribute("value"));
+						link.m_contactInfo.m_spinningFriction = (btScalar)urdfLexicalCast<double>(spinning_xml->Attribute("value"));
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_SPINNING_FRICTION;
 					}
 				}
@@ -986,7 +986,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_contactStiffness = urdfLexicalCast<double>(stiffness_xml->GetText());
+						link.m_contactInfo.m_contactStiffness = (btScalar)urdfLexicalCast<double>(stiffness_xml->GetText());
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 					else
@@ -997,7 +997,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 							return false;
 						}
 
-						link.m_contactInfo.m_contactStiffness = urdfLexicalCast<double>(stiffness_xml->Attribute("value"));
+						link.m_contactInfo.m_contactStiffness = (btScalar)urdfLexicalCast<double>(stiffness_xml->Attribute("value"));
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 				}
@@ -1008,7 +1008,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 				{
 					if (m_parseSDF)
 					{
-						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml_node->GetText());
+						link.m_contactInfo.m_contactDamping = (btScalar)urdfLexicalCast<double>(damping_xml_node->GetText());
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 					else
@@ -1019,7 +1019,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 							return false;
 						}
 
-						link.m_contactInfo.m_contactDamping = urdfLexicalCast<double>(damping_xml_node->Attribute("value"));
+						link.m_contactInfo.m_contactDamping = (btScalar)urdfLexicalCast<double>(damping_xml_node->Attribute("value"));
 						link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_STIFFNESS_DAMPING;
 					}
 				}
@@ -1302,7 +1302,7 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 				logger->reportError("numModes_xml element must have value attribute");
 				return false;
 			}
-			reduced_deformable.m_numModes = urdfLexicalCast<double>(numModes_xml->Attribute("value"));
+			reduced_deformable.m_numModes = (int)urdfLexicalCast<double>(numModes_xml->Attribute("value"));
 		}
 	}
 
@@ -2023,13 +2023,13 @@ bool UrdfParser::mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* 
 				btScalar masses[2] = { (btScalar)link->m_inertia.m_mass, (btScalar)childLink->m_inertia.m_mass };
 				btTransform transforms[2] = { link->m_inertia.m_linkLocalFrame, childJoint->m_parentLinkToJointTransform * childLink->m_inertia.m_linkLocalFrame };
 				btMatrix3x3 inertiaLink(
-					link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
-					link->m_inertia.m_ixy, link->m_inertia.m_iyy, link->m_inertia.m_iyz,
-					link->m_inertia.m_ixz, link->m_inertia.m_iyz, link->m_inertia.m_izz);
+					(btScalar)link->m_inertia.m_ixx, (btScalar)link->m_inertia.m_ixy, (btScalar)link->m_inertia.m_ixz,
+					(btScalar)link->m_inertia.m_ixy, (btScalar)link->m_inertia.m_iyy, (btScalar)link->m_inertia.m_iyz,
+					(btScalar)link->m_inertia.m_ixz, (btScalar)link->m_inertia.m_iyz, (btScalar)link->m_inertia.m_izz);
 				btMatrix3x3 inertiaChild(
-					childLink->m_inertia.m_ixx, childLink->m_inertia.m_ixy, childLink->m_inertia.m_ixz,
-					childLink->m_inertia.m_ixy, childLink->m_inertia.m_iyy, childLink->m_inertia.m_iyz,
-					childLink->m_inertia.m_ixz, childLink->m_inertia.m_iyz, childLink->m_inertia.m_izz);
+					(btScalar)childLink->m_inertia.m_ixx, (btScalar)childLink->m_inertia.m_ixy, (btScalar)childLink->m_inertia.m_ixz,
+					(btScalar)childLink->m_inertia.m_ixy, (btScalar)childLink->m_inertia.m_iyy, (btScalar)childLink->m_inertia.m_iyz,
+					(btScalar)childLink->m_inertia.m_ixz, (btScalar)childLink->m_inertia.m_iyz, (btScalar)childLink->m_inertia.m_izz);
 				btMatrix3x3 inertiasIn[2] = { inertiaLink, inertiaChild };
 				btVector3 inertiaOut;
 				btTransform principal;

@@ -169,7 +169,7 @@ void MultiPendulumExample::initPhysics()
 
 void MultiPendulumExample::stepSimulation(float deltaTime)
 {
-	applyMForceWithForceScalar(gForceScalar);  // apply force defined by apply force slider
+	applyMForceWithForceScalar((float)gForceScalar);  // apply force defined by apply force slider
 
 	if (m_dynamicsWorld)
 	{
@@ -201,7 +201,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 
 	startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
-	btRigidBody* topSphere = createRigidBody(mass, startTransform, colShape);
+	btRigidBody* topSphere = createRigidBody((float)mass, startTransform, colShape);
 
 	// disable the deactivation when object does not move anymore
 	topSphere->setActivationState(DISABLE_DEACTIVATION);
@@ -229,7 +229,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
-		btRigidBody* jointSphere = createRigidBody(mass, startTransform,
+		btRigidBody* jointSphere = createRigidBody((float)mass, startTransform,
 												   colShape);
 		jointSphere->setFriction(0);  // we do not need friction here
 
@@ -268,7 +268,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
-		btRigidBody* childSphere = createRigidBody(mass, startTransform,
+		btRigidBody* childSphere = createRigidBody((float)mass, startTransform,
 												   colShape);
 		childSphere->setFriction(0);  // we do not need friction here
 		pendula.push_back(childSphere);

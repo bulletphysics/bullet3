@@ -202,7 +202,7 @@ public:
 
 		double dt = double(dtMicro) / 1000000.;
 
-		m_physicsServerExample->stepSimulation(dt);
+		m_physicsServerExample->stepSimulation((float)dt);
 		{
 			b3Clock::usleep(0);
 		}

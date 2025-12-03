@@ -89,7 +89,7 @@ bool btSdfCollisionShape::queryPoint(const btVector3& ptInSDF, btScalar& distOut
 	if (hasResult)
 	{
 		normal.setValue(grad[0], grad[1], grad[2]);
-		distOut = dist;
+		distOut = (btScalar)dist;
 	}
 	return hasResult;
 }

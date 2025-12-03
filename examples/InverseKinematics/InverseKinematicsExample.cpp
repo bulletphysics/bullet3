@@ -210,15 +210,15 @@ public:
 
 	void getLocalTransform(const Node* node, b3Transform& act)
 	{
-		b3Vector3 axis = b3MakeVector3(node->v.x, node->v.y, node->v.z);
+		b3Vector3 axis = b3MakeVector3((b3Scalar)node->v.x, (b3Scalar)node->v.y, (b3Scalar)node->v.z);
 		b3Quaternion rot(0, 0, 0, 1);
 		if (axis.length())
 		{
-			rot = b3Quaternion(axis, node->theta);
+			rot = b3Quaternion(axis, (b3Scalar)node->theta);
 		}
 		act.setIdentity();
 		act.setRotation(rot);
-		act.setOrigin(b3MakeVector3(node->r.x, node->r.y, node->r.z));
+		act.setOrigin(b3MakeVector3((b3Scalar)node->r.x, (b3Scalar)node->r.y, (b3Scalar)node->r.z));
 	}
 	void MyDrawTree(Node* node, const b3Transform& tr, const b3Transform& parentTr)
 	{
@@ -229,13 +229,13 @@ public:
 			b3Vector3 pos = b3MakeVector3(tr.getOrigin().x, tr.getOrigin().y, tr.getOrigin().z);
 			b3Vector3 color1 = b3MakeVector3(0, 1, 0);
 			int pointSize = 10;
-			m_app->m_renderer->drawPoint(pos, color1, pointSize);
+			m_app->m_renderer->drawPoint(pos, color1, (b3Scalar)pointSize);
 
-			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(0), b3MakeVector3(1, 0, 0), lineWidth);
-			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(1), b3MakeVector3(0, 1, 0), lineWidth);
-			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(2), b3MakeVector3(0, 0, 1), lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(0), b3MakeVector3(1, 0, 0), (b3Scalar)lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(1), b3MakeVector3(0, 1, 0), (b3Scalar)lineWidth);
+			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.05) * tr.getBasis().getColumn(2), b3MakeVector3(0, 0, 1), (b3Scalar)lineWidth);
 
-			b3Vector3 axisLocal = b3MakeVector3(node->v.x, node->v.y, node->v.z);
+			b3Vector3 axisLocal = b3MakeVector3((b3Scalar)node->v.x, (b3Scalar)node->v.y, (b3Scalar)node->v.z);
 			b3Vector3 axisWorld = tr.getBasis() * axisLocal;
 
 			m_app->m_renderer->drawLine(pos, pos + b3Scalar(0.1) * axisWorld, b3MakeVector3(b3Scalar(0.2), b3Scalar(0.2), b3Scalar(0.7)), 5);
@@ -247,7 +247,7 @@ public:
 				// b3Transform trr = tr * act;
 				b3Transform ptrr = parentTr * act;
 				b3Vector3 lineColor = b3MakeVector3(0, 1, 0);
-				m_app->m_renderer->drawLine(tr.getOrigin(), ptrr.getOrigin(), lineColor, lineWidth);
+				m_app->m_renderer->drawLine(tr.getOrigin(), ptrr.getOrigin(), lineColor, (b3Scalar)lineWidth);
 				MyDrawTree(node->right, ptrr, parentTr);  // Draw right siblings recursively
 			}
 
@@ -258,7 +258,7 @@ public:
 				getLocalTransform(node->left, act);
 				b3Vector3 lineColor = b3MakeVector3(1, 0, 0);
 				b3Transform trl = tr * act;
-				m_app->m_renderer->drawLine(tr.getOrigin(), trl.getOrigin(), lineColor, lineWidth);
+				m_app->m_renderer->drawLine(tr.getOrigin(), trl.getOrigin(), lineColor, (b3Scalar)lineWidth);
 				MyDrawTree(node->left, trl, tr);  // Draw m_ikTree of children recursively
 			}
 			
@@ -276,7 +276,7 @@ public:
 
 		for (int i = 0; i < m_targetInstances.size(); i++)
 		{
-			b3Vector3 pos = b3MakeVector3(targetaa[i].x, targetaa[i].y, targetaa[i].z);
+			b3Vector3 pos = b3MakeVector3((b3Scalar)targetaa[i].x, (b3Scalar)targetaa[i].y, (b3Scalar)targetaa[i].z);
 			b3Quaternion orn(0, 0, 0, 1);
 
 			m_app->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, m_targetInstances[i]);

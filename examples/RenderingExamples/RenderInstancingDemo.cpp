@@ -50,7 +50,7 @@ public:
 			{
 				for (int j = -numCubesY / 2; j < numCubesY / 2; j++)
 				{
-					b3Vector3 pos = b3MakeVector3(i, j, j);
+					b3Vector3 pos = b3MakeVector3(b3Scalar(i), b3Scalar(j), b3Scalar(j));
 					pos[app->getUpAxis()] = 1;
 					b3Quaternion orn(0, 0, 0, 1);
 					b3Vector4 color = b3MakeVector4(b3Scalar(0.3), b3Scalar(0.3), b3Scalar(0.3), 1);
@@ -86,7 +86,7 @@ public:
 		{
 			for (int j = -numCubesY / 2; j < numCubesY / 2; j++)
 			{
-				b3Vector3 pos = b3MakeVector3(i, j, j);
+				b3Vector3 pos = b3MakeVector3(b3Scalar(i), b3Scalar(j), b3Scalar(j));
 				pos[m_app->getUpAxis()] = 1 + 1 * b3Sin(m_x + (float)(i - j));
 				float orn[4] = {0, 0, 0, 1};
 				m_app->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, m_movingInstances[index++]);

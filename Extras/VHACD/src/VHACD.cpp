@@ -1434,11 +1434,11 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 		costMatrix.Resize(((nConvexHulls * nConvexHulls) - nConvexHulls) >> 1);
 		for (size_t p1 = 1; p1 < nConvexHulls; ++p1)
 		{
-			const float volume1 = m_convexHulls[p1]->ComputeVolume();
+			const double volume1 = m_convexHulls[p1]->ComputeVolume();
 			for (size_t p2 = 0; p2 < p1; ++p2)
 			{
 				ComputeConvexHull(m_convexHulls[p1], m_convexHulls[p2], pts, &combinedCH);
-				costMatrix[idx++] = ComputeConcavity(volume1 + m_convexHulls[p2]->ComputeVolume(), combinedCH.ComputeVolume(), m_volumeCH0);
+				costMatrix[idx++] = (float)ComputeConcavity(volume1 + m_convexHulls[p2]->ComputeVolume(), combinedCH.ComputeVolume(), m_volumeCH0);
 			}
 		}
 
@@ -1459,7 +1459,7 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 			{
 				break;
 			}
-			double nr = 1 + (8 * addr);
+			double nr = (double)(1 + (8 * addr));
 			const size_t addrI = (size_t)((static_cast<int>(sqrt(nr)) - 1) >> 1);
 			const size_t p1 = addrI + 1;
 			const size_t p2 = addr - ((addrI * (addrI + 1)) >> 1);
@@ -1488,18 +1488,18 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 
 			// Calculate costs versus the new hull
 			size_t rowIdx = ((p2 - 1) * p2) >> 1;
-			const float volume1 = m_convexHulls[p2]->ComputeVolume();
+			const double volume1 = m_convexHulls[p2]->ComputeVolume();
 			for (size_t i = 0; (i < p2) && (!m_cancel); ++i)
 			{
 				ComputeConvexHull(m_convexHulls[p2], m_convexHulls[i], pts, &combinedCH);
-				costMatrix[rowIdx++] = ComputeConcavity(volume1 + m_convexHulls[i]->ComputeVolume(), combinedCH.ComputeVolume(), m_volumeCH0);
+				costMatrix[rowIdx++] = (float)ComputeConcavity(volume1 + m_convexHulls[i]->ComputeVolume(), combinedCH.ComputeVolume(), m_volumeCH0);
 			}
 
 			rowIdx += p2;
 			for (size_t i = p2 + 1; (i < costSize) && (!m_cancel); ++i)
 			{
 				ComputeConvexHull(m_convexHulls[p2], m_convexHulls[i], pts, &combinedCH);
-				costMatrix[rowIdx] = ComputeConcavity(volume1 + m_convexHulls[i]->ComputeVolume(), combinedCH.ComputeVolume(), m_volumeCH0);
+				costMatrix[rowIdx] = (float)ComputeConcavity(volume1 + m_convexHulls[i]->ComputeVolume(), combinedCH.ComputeVolume(), m_volumeCH0);
 				rowIdx += i;
 			}
 

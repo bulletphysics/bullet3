@@ -129,15 +129,15 @@ void KinematicRigidBodyExample::initPhysics()
 		verts.resize(numVertices);
 		for (int i = 0; i < numVertices; i++)
 		{
-			verts[i].x = halfExtentsX * cube_vertices_textured[i * 9];
-			verts[i].y = halfExtentsY * cube_vertices_textured[i * 9 + 1];
-			verts[i].z = halfExtentsZ * cube_vertices_textured[i * 9 + 2];
+			verts[i].x = (float)halfExtentsX * cube_vertices_textured[i * 9];
+			verts[i].y = (float)halfExtentsY * cube_vertices_textured[i * 9 + 1];
+			verts[i].z = (float)halfExtentsZ * cube_vertices_textured[i * 9 + 2];
 			verts[i].w = cube_vertices_textured[i * 9 + 3];
 			verts[i].nx = cube_vertices_textured[i * 9 + 4];
 			verts[i].ny = cube_vertices_textured[i * 9 + 5];
 			verts[i].nz = cube_vertices_textured[i * 9 + 6];
-			verts[i].u = cube_vertices_textured[i * 9 + 7] * textureScaling;
-			verts[i].v = cube_vertices_textured[i * 9 + 8] * textureScaling;
+			verts[i].u = cube_vertices_textured[i * 9 + 7] * (float)textureScaling;
+			verts[i].v = cube_vertices_textured[i * 9 + 8] * (float)textureScaling;
 		}
 
 		int red = 173;
@@ -212,7 +212,7 @@ void KinematicRigidBodyExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape);
+					createRigidBody((float)mass, startTransform, colShape);
 				}
 			}
 		}

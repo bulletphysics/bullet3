@@ -203,8 +203,8 @@ struct RemoteGUIHelperTCPInternalData
 		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), (uint16)m_port);
 		if (m_isConnected)
 		{
-			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
-			m_tcpSocket.SetReceiveTimeout(m_timeOutInSeconds, 0);
+			m_tcpSocket.SetSendTimeout((int32)m_timeOutInSeconds, 0);
+			m_tcpSocket.SetReceiveTimeout((int32)m_timeOutInSeconds, 0);
 			
 		}
 		int key = GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER;
@@ -351,8 +351,8 @@ void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* r
 				p.m_graphicsInstanceId = index;
 				for (int q = 0; q < 4; q++)
 				{
-					p.m_pos[q] = pos[q];
-					p.m_orn[q] = orn[q];
+					p.m_pos[q] = (float)pos[q];
+					p.m_orn[q] = (float)orn[q];
 				}
 				updatedPositions.push_back(p);
 			}

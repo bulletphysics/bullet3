@@ -313,13 +313,13 @@ void TinyRendererSetup::renderScene()
 	m_internalData->updateTransforms();
 
 	btVector4 from(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1], m_internalData->m_lightPos[2], 1);
-	btVector4 toX(m_internalData->m_lightPos[0] + 0.1, m_internalData->m_lightPos[1], m_internalData->m_lightPos[2], 1);
-	btVector4 toY(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1] + 0.1, m_internalData->m_lightPos[2], 1);
-	btVector4 toZ(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1], m_internalData->m_lightPos[2] + 0.1, 1);
+	btVector4 toX(m_internalData->m_lightPos[0] + btScalar(0.1), m_internalData->m_lightPos[1], m_internalData->m_lightPos[2], 1);
+	btVector4 toY(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1] + btScalar(0.1), m_internalData->m_lightPos[2], 1);
+	btVector4 toZ(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1], m_internalData->m_lightPos[2] + btScalar(0.1), 1);
 	btVector4 colorX(1, 0, 0, 1);
 	btVector4 colorY(0, 1, 0, 1);
 	btVector4 colorZ(0, 0, 1, 1);
-	int width = 2;
+	btScalar width = 2;
 	m_guiHelper->getRenderInterface()->drawLine(from, toX, colorX, width);
 	m_guiHelper->getRenderInterface()->drawLine(from, toY, colorY, width);
 	m_guiHelper->getRenderInterface()->drawLine(from, toZ, colorZ, width);
@@ -421,7 +421,7 @@ void TinyRendererSetup::renderScene()
 		render->activateTexture(m_internalData->m_textureHandle);
 		render->updateTexture(m_internalData->m_textureHandle, m_internalData->m_rgbColorBuffer.buffer());
 		float color[4] = {1, 1, 1, 1};
-		m_app->drawTexturedRect(0, 0, m_app->m_window->getWidth(), m_app->m_window->getHeight(), color, 0, 0, 1, 1, true);
+		m_app->drawTexturedRect(0, 0, (float)m_app->m_window->getWidth(), (float)m_app->m_window->getHeight(), color, 0, 0, 1, 1, true);
 	}
 }
 

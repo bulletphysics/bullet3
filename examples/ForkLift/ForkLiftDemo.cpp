@@ -499,26 +499,26 @@ void ForkLiftDemo::initPhysics()
 		//choose coordinate system
 		m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
 
-		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3 * wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
+		btVector3 connectionPointCS0(btScalar(CUBE_HALF_EXTENTS - (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(2 * CUBE_HALF_EXTENTS - wheelRadius));
 
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(btScalar(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(2 * CUBE_HALF_EXTENTS - wheelRadius));
 
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(btScalar(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(-2 * CUBE_HALF_EXTENTS + wheelRadius));
 		isFrontWheel = false;
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3 * wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(btScalar(CUBE_HALF_EXTENTS - (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(-2 * CUBE_HALF_EXTENTS + wheelRadius));
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
 
 		for (int i = 0; i < m_vehicle->getNumWheels(); i++)
 		{
 			btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
-			wheel.m_suspensionStiffness = suspensionStiffness;
-			wheel.m_wheelsDampingRelaxation = suspensionDamping;
-			wheel.m_wheelsDampingCompression = suspensionCompression;
-			wheel.m_frictionSlip = wheelFriction;
-			wheel.m_rollInfluence = rollInfluence;
+			wheel.m_suspensionStiffness = (btScalar)suspensionStiffness;
+			wheel.m_wheelsDampingRelaxation = (btScalar)suspensionDamping;
+			wheel.m_wheelsDampingCompression = (btScalar)suspensionCompression;
+			wheel.m_frictionSlip = (btScalar)wheelFriction;
+			wheel.m_rollInfluence = (btScalar)rollInfluence;
 		}
 	}
 

@@ -166,18 +166,18 @@ TGAColor Model::diffuse(Vec2f uvf)
 		//		bool repeat = true;
 		//		if (repeat)
 		{
-			uvf[0] = std::modf(uvf[0], &val);
+			uvf[0] = (float)std::modf(uvf[0], &val);
 			if (uvf[0] < 0) 
 			{
 				uvf[0] = uvf[0] + 1;
 			}
-			uvf[1] = std::modf(uvf[1], &val);
+			uvf[1] = (float)std::modf(uvf[1], &val);
 			if (uvf[1] < 0) 
 			{
 				uvf[1] = uvf[1] + 1;
 			}
 		}
-        	Vec2i uv(uvf[0] * (float)diffusemap_.get_width(), uvf[1] * (float)diffusemap_.get_height());
+        	Vec2i uv(int(uvf[0] * (float)diffusemap_.get_width()), int(uvf[1] * (float)diffusemap_.get_height()));
 		return diffusemap_.get(uv[0], uv[1]);
 	}
 	return TGAColor(255, 255, 255, 255);
@@ -186,7 +186,7 @@ TGAColor Model::diffuse(Vec2f uvf)
 
 Vec3f Model::normal(Vec2f uvf)
 {
-	Vec2i uv(uvf[0] * (float)normalmap_.get_width(), uvf[1] * (float)normalmap_.get_height());
+	Vec2i uv((int)(uvf[0] * (float)normalmap_.get_width()), (int)(uvf[1] * (float)normalmap_.get_height()));
 	TGAColor c = normalmap_.get(uv[0], uv[1]);
 	Vec3f res;
 	for (size_t i = 0; i < 3; i++)
@@ -203,10 +203,10 @@ float Model::specular(Vec2f uvf)
 {
 	if (specularmap_.get_width() && specularmap_.get_height())
 	{
-		Vec2i uv(uvf[0] * (float)specularmap_.get_width(), uvf[1] * (float)specularmap_.get_height());
+		Vec2i uv(int(uvf[0] * (float)specularmap_.get_width()), int(uvf[1] * (float)specularmap_.get_height()));
 		return specularmap_.get(uv[0], uv[1])[0] / 1.f;
 	}
-	return 2.0;
+	return 2.0f;
 }
 
 Vec3f Model::normal(int iface, int nthvert)

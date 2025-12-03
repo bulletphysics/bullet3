@@ -226,7 +226,7 @@ public:
 		{
 			for (int j = 0; j < JOINT_COUNT; j++)
 			{
-				m_sensoryMotorWeights[i + j * BODYPART_COUNT] = ((double)rand() / (RAND_MAX)) * 2.0f - 1.0f;
+				m_sensoryMotorWeights[i + j * BODYPART_COUNT] = (btScalar)(((double)rand() / (RAND_MAX)) * 2.0f - 1.0f);
 			}
 		}
 	}
@@ -283,7 +283,7 @@ public:
 		// legs
 		for (i = 0; i < NUM_LEGS; i++)
 		{
-			float footAngle = 2 * SIMD_PI * (btScalar)i / (btScalar)NUM_LEGS;  // legs are uniformly distributed around the root body
+			float footAngle = float(2 * SIMD_PI * (btScalar)i / (btScalar)NUM_LEGS);  // legs are uniformly distributed around the root body
 			float footYUnitPosition = std::sin(footAngle); // y position of the leg on the unit circle
 			float footXUnitPosition = std::cos(footAngle); // x position of the leg on the unit circle
 
@@ -712,12 +712,12 @@ void NN3DWalkersExample::initPhysics()
 			float maxDimension = 0.2f;
 
 			// randomize the dimensions
-			gRootBodyRadius = ((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f;
-			gRootBodyHeight = ((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f;
-			gLegRadius = ((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f;
-			gLegLength = ((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f;
-			gForeLegLength = ((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f;
-			gForeLegRadius = ((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f;
+			gRootBodyRadius = btScalar(((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f);
+			gRootBodyHeight = btScalar(((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f);
+			gLegRadius = btScalar(((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f);
+			gLegLength = btScalar(((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f);
+			gForeLegLength = btScalar(((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f);
+			gForeLegRadius = btScalar(((double)rand() / (RAND_MAX)) * (maxDimension - 0.01f) + 0.01f);
 		}
 
 		// Spawn one walker
@@ -842,7 +842,7 @@ void NN3DWalkersExample::rateEvaluations()
 
 	for (int i = 0; i < NUM_WALKERS; i++)
 	{
-		m_timeSeriesCanvas->insertDataAtCurrentTime(btSqrt(m_walkersInPopulation[i]->getDistanceFitness()), 0, true);
+		m_timeSeriesCanvas->insertDataAtCurrentTime((float)btSqrt(m_walkersInPopulation[i]->getDistanceFitness()), 0, true);
 	}
 	m_timeSeriesCanvas->nextTick();
 
@@ -866,12 +866,12 @@ void NN3DWalkersExample::reap()
 
 NNWalker* NN3DWalkersExample::getRandomElite()
 {
-	return m_walkersInPopulation[((NUM_WALKERS - 1) * SOW_ELITE_QTY) * (float)(rand() / RAND_MAX)];
+	return m_walkersInPopulation[int(((NUM_WALKERS - 1) * SOW_ELITE_QTY) * (float)(rand() / RAND_MAX))];
 }
 
 NNWalker* NN3DWalkersExample::getRandomNonElite()
 {
-	return m_walkersInPopulation[(NUM_WALKERS - 1) * SOW_ELITE_QTY + (NUM_WALKERS - 1) * (1.0f - SOW_ELITE_QTY) * (float)(rand() / RAND_MAX)];
+	return m_walkersInPopulation[int((NUM_WALKERS - 1) * SOW_ELITE_QTY + (NUM_WALKERS - 1) * (1.0f - SOW_ELITE_QTY) * (float)(rand() / RAND_MAX))];
 }
 
 NNWalker* NN3DWalkersExample::getNextReaped()
@@ -904,7 +904,7 @@ void NN3DWalkersExample::sow()
 		crossover(mother, father, offspring);
 	}
 
-	for (int i = (float)NUM_WALKERS * SOW_ELITE_QTY; (float)i < (float)NUM_WALKERS * (SOW_ELITE_QTY + SOW_MUTATION_QTY); i++)
+	for (int i = int((float)NUM_WALKERS * SOW_ELITE_QTY); (float)i < (float)NUM_WALKERS * (SOW_ELITE_QTY + SOW_MUTATION_QTY); i++)
 	{  // create mutants
 		mutate(m_walkersInPopulation[i], btScalar(MUTATION_RATE / (NUM_WALKERS * SOW_MUTATION_QTY) * ((float)i - NUM_WALKERS * SOW_ELITE_QTY)));
 	}
@@ -923,7 +923,7 @@ void NN3DWalkersExample::crossover(NNWalker* mother, NNWalker* father, NNWalker*
 {
 	for (int i = 0; i < BODYPART_COUNT * JOINT_COUNT; i++)
 	{
-		btScalar random = ((double)rand() / (RAND_MAX));
+		btScalar random = btScalar((double)rand() / (RAND_MAX));
 
 		if (random >= 0.5f)
 		{
@@ -940,11 +940,11 @@ void NN3DWalkersExample::mutate(NNWalker* mutant, btScalar mutationRate)
 {
 	for (int i = 0; i < BODYPART_COUNT * JOINT_COUNT; i++)
 	{
-		btScalar random = ((double)rand() / (RAND_MAX));
+		btScalar random = btScalar((double)rand() / (RAND_MAX));
 
 		if (random >= mutationRate)
 		{
-			mutant->getSensoryMotorWeights()[i] = ((double)rand() / (RAND_MAX)) * 2.0f - 1.0f;
+			mutant->getSensoryMotorWeights()[i] = btScalar(((double)rand() / (RAND_MAX)) * 2.0f - 1.0f);
 		}
 	}
 }
@@ -1007,7 +1007,7 @@ void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick)
 
 					if (RANDOM_MOVEMENT)
 					{
-						targetAngle = ((double)rand() / (RAND_MAX));
+						targetAngle = btScalar((double)rand() / (RAND_MAX));
 					}
 					else
 					{  // neural network movement
@@ -1093,7 +1093,7 @@ void NN3DWalkersExample::drawMarkings()
 				btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
 				char performance[20];
 				sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
-				m_guiHelper->drawText3D(performance, walkerPosition.x(), walkerPosition.y() + 1, walkerPosition.z(), 1);
+				m_guiHelper->drawText3D(performance, (float)walkerPosition.x(), (float)walkerPosition.y() + 1, (float)walkerPosition.z(), 1);
 			}
 		}
 
@@ -1101,7 +1101,7 @@ void NN3DWalkersExample::drawMarkings()
 		{  // draw distance circles
 			if (m_dynamicsWorld->getDebugDrawer())
 			{
-				m_dynamicsWorld->getDebugDrawer()->drawArc(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), btScalar(i), btScalar(i), btScalar(0), btScalar(SIMD_2_PI), btVector3(10 * i, 0, 0), false);
+				m_dynamicsWorld->getDebugDrawer()->drawArc(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(1, 0, 0), btScalar(i), btScalar(i), btScalar(0), btScalar(SIMD_2_PI), btVector3(btScalar(10 * i), 0, 0), false);
 			}
 		}
 	}

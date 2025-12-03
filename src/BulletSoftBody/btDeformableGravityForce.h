@@ -67,7 +67,7 @@ public:
 			{
 				btSoftBody::Node& n = psb->m_nodes[j];
 				int id = n.index;
-				btScalar mass = (n.m_im == 0) ? 0 : 1. / n.m_im;
+				btScalar mass = (n.m_im == 0) ? 0 : btScalar(1.) / n.m_im;
 				btVector3 scaled_force = scale * m_gravity * mass * m_softBodies[i]->m_gravityFactor;
 				force[id] += scaled_force;
 			}

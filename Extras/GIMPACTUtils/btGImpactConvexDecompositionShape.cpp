@@ -130,9 +130,9 @@ public:
 		{
 			btVector3 vec;
 			trimeshInterface->get_vertex((unsigned int)vi, vec);
-			vertices.push_back(vec[0]);
-			vertices.push_back(vec[1]);
-			vertices.push_back(vec[2]);
+			vertices.push_back((float)vec[0]);
+			vertices.push_back((float)vec[1]);
+			vertices.push_back((float)vec[2]);
 		}
 
 		//collect indices

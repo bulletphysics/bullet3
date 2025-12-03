@@ -221,7 +221,7 @@ public:
 		if (sim_time + reset_frame * 0.05 >= 5) exit(0);
 		float internalTimeStep = 1.f / 240.f;
 		//        float internalTimeStep = 0.1f;
-		m_dynamicsWorld->stepSimulation(deltaTime, deltaTime / internalTimeStep, internalTimeStep);
+		m_dynamicsWorld->stepSimulation(deltaTime, int(deltaTime / internalTimeStep), internalTimeStep);
 	}
 
 	void addCloth(const btVector3& origin);

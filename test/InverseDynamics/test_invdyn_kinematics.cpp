@@ -16,7 +16,7 @@
 using namespace btInverseDynamics;
 
 const int kLevel = 5;
-const int kNumBodies = BT_ID_POW(2, kLevel);
+const int kNumBodies = (int)BT_ID_POW(2, (btScalar)kLevel);
 
 // template function for calculating the norm
 template <typename T>
@@ -49,9 +49,9 @@ vec3 toDiffType(mat33& fd, mat33& val)
 	mat33 omega_tilde = fd * val.transpose();
 	// extract vector from spin tensor
 	vec3 omega;
-	omega(0) = 0.5 * (omega_tilde(2, 1) - omega_tilde(1, 2));
-	omega(1) = 0.5 * (omega_tilde(0, 2) - omega_tilde(2, 0));
-	omega(2) = 0.5 * (omega_tilde(1, 0) - omega_tilde(0, 1));
+	omega(0) = idScalar(0.5) * (omega_tilde(2, 1) - omega_tilde(1, 2));
+	omega(1) = idScalar(0.5) * (omega_tilde(0, 2) - omega_tilde(2, 0));
+	omega(2) = idScalar(0.5) * (omega_tilde(1, 0) - omega_tilde(0, 1));
 	return omega;
 }
 
@@ -81,7 +81,7 @@ public:
 		if (m_num_updates > 2)
 		{
 			// 2nd order finite difference approximation for d(value)/dt
-			ValueType diff_value_fd = (val - m_older_val) / (2.0 * m_dt);
+			ValueType diff_value_fd = (val - m_older_val) / (idScalar(2.0) * m_dt);
 			// convert to analytical diff type. This is for angular velocities
 			m_diff_fd = toDiffType<ValueType, DiffType>(diff_value_fd, m_old_val);
 			// now, calculate the error
@@ -240,10 +240,10 @@ int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar 
 	{
 		for (int body = 0; body < tree->numBodies(); body++)
 		{
-			q(body) = kAmplitude * sin(t * 2.0 * BT_ID_PI * kFrequency);
-			dot_q(body) = kAmplitude * 2.0 * BT_ID_PI * kFrequency * cos(t * 2.0 * BT_ID_PI * kFrequency);
+			q(body) = kAmplitude * (idScalar)sin(t * 2.0 * BT_ID_PI * kFrequency);
+			dot_q(body) = kAmplitude * idScalar(2.0) * BT_ID_PI * kFrequency * (idScalar)cos(t * 2.0 * BT_ID_PI * kFrequency);
 			ddot_q(body) =
-				-kAmplitude * pow(2.0 * BT_ID_PI * kFrequency, 2) * sin(t * 2.0 * BT_ID_PI * kFrequency);
+				-kAmplitude * (idScalar)pow(2.0 * BT_ID_PI * kFrequency, 2) * (idScalar)sin(t * 2.0 * BT_ID_PI * kFrequency);
 		}
 
 		if (-1 == tree->calculateInverseDynamics(q, dot_q, ddot_q, &joint_forces))

@@ -206,8 +206,8 @@ const char *includefiles[] = {
 
 void *malloc_and_setzero(int numbytes)
 {
-	char *buf = (char *)malloc(numbytes);
-	memset(buf, 0, numbytes);
+	char *buf = (char *)malloc((size_t)numbytes);
+	memset(buf, 0, (size_t)numbytes);
 	return buf;
 }
 
@@ -304,8 +304,8 @@ int add_type(const char *str, int len)
 		{
 			if (len)
 			{
-				typelens[nr] = len;
-				alphalens[nr] = len;
+				typelens[nr] = (short)len;
+				alphalens[nr] = (short)len;
 			}
 			return nr;
 		}
@@ -320,8 +320,8 @@ int add_type(const char *str, int len)
 	}
 	strcpy(cp, str);
 	types[nr_types] = cp;
-	typelens[nr_types] = len;
-	alphalens[nr_types] = len;
+	typelens[nr_types] = (short)len;
+	alphalens[nr_types] = (short)len;
 
 	if (nr_types >= maxnr)
 	{
@@ -493,7 +493,7 @@ short *add_struct(int namecode)
 	}
 
 	sp = structs[nr_structs];
-	sp[0] = namecode;
+	sp[0] = (short)namecode;
 
 	if (nr_structs >= maxnr)
 	{
@@ -511,7 +511,7 @@ int preprocess_include(char *maindata, int len)
 	char *cp, *temp, *md;
 
 	temp = (char *)malloc_and_setzero(len);
-	memcpy(temp, maindata, len);
+	memcpy(temp, maindata, (size_t)len);
 
 	// remove all c++ comments
 	/* replace all enters/tabs/etc with spaces */
@@ -598,7 +598,7 @@ static void *read_file_data(char *filename, int *len_r)
 		return NULL;
 	}
 
-	if (fread(data, *len_r, 1, fp) != 1)
+	if (fread(data, (size_t)*len_r, 1, fp) != 1)
 	{
 		*len_r = -1;
 		free(data);
@@ -736,8 +736,8 @@ int convert_include(char *filename)
 
 											name = add_name(md1);
 											slen += additional_slen_offset;
-											sp[0] = type;
-											sp[1] = name;
+											sp[0] = (short)type;
+											sp[1] = (short)name;
 
 											if ((debugSDNA > 1) && (names[name] != 0)) printf("%s |", names[name]);
 
@@ -751,8 +751,8 @@ int convert_include(char *filename)
 										name = add_name(md1);
 										slen += additional_slen_offset;
 
-										sp[0] = type;
-										sp[1] = name;
+										sp[0] = (short)type;
+										sp[1] = (short)name;
 										if ((debugSDNA > 1) && (names[name] != 0)) printf("%s ||", names[name]);
 
 										structpoin[1]++;
@@ -785,7 +785,7 @@ int arraysize(const char *astr, int len)
 	int a, mul = 1;
 	char str[100], *cp = 0;
 
-	memcpy(str, astr, len + 1);
+	memcpy(str, astr, (size_t)len + 1);
 
 	for (a = 0; a < len; a++)
 	{
@@ -916,8 +916,8 @@ static int calculate_structlens(int firststruct)
 				}
 				else
 				{
-					typelens[structtype] = len;
-					alphalens[structtype] = alphalen;
+					typelens[structtype] = (short)len;
+					alphalens[structtype] = (short)alphalen;
 					// two ways to detect if a struct contains a pointer:
 					// has_pointer is set or alphalen != len
 					if (has_pointer || alphalen != len)
@@ -1047,11 +1047,11 @@ int make_structDNA(char *baseDirectory, FILE *file)
 	structdata = (short *)malloc_and_setzero(maxdata);
 
 	/* a maximum of 5000 variables, must be sufficient? */
-	names = (char **)malloc_and_setzero(sizeof(char *) * maxnr);
-	types = (char **)malloc_and_setzero(sizeof(char *) * maxnr);
-	typelens = (short *)malloc_and_setzero(sizeof(short) * maxnr);
-	alphalens = (short *)malloc_and_setzero(sizeof(short) * maxnr);
-	structs = (short **)malloc_and_setzero(sizeof(short) * maxnr);
+	names = (char **)malloc_and_setzero(int(sizeof(char *) * maxnr));
+	types = (char **)malloc_and_setzero(int(sizeof(char *) * maxnr));
+	typelens = (short *)malloc_and_setzero(int(sizeof(short) * maxnr));
+	alphalens = (short *)malloc_and_setzero(int(sizeof(short) * maxnr));
+	structs = (short **)malloc_and_setzero(int(sizeof(short) * maxnr));
 
 	/* insertion of all known types */
 	/* watch it: uint is not allowed! use in structs an unsigned int */
@@ -1146,7 +1146,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calculate size of datablock with strings */
 		cp = names[nr_names - 1];
 		cp += strlen(names[nr_names - 1]) + 1; /* +1: null-terminator */
-		len = (btintptr_t)(cp - (char *)names[0]);
+		len = (int)(cp - (char *)names[0]);
 		len = (len + 3) & ~3;
 		dna_write(file, names[0], len);
 
@@ -1159,7 +1159,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calculate datablock size */
 		cp = types[nr_types - 1];
 		cp += strlen(types[nr_types - 1]) + 1; /* +1: null-terminator */
-		len = (btintptr_t)(cp - (char *)types[0]);
+		len = (int)(cp - (char *)types[0]);
 		len = (len + 3) & ~3;
 
 		dna_write(file, types[0], len);
@@ -1181,7 +1181,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calc datablock size */
 		sp = structs[nr_structs - 1];
 		sp += 2 + 2 * (sp[1]);
-		len = (btintptr_t)((char *)sp - (char *)structs[0]);
+		len = (int)((char *)sp - (char *)structs[0]);
 		len = (len + 3) & ~3;
 
 		dna_write(file, structs[0], len);

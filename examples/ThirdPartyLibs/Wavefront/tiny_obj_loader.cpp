@@ -570,7 +570,7 @@ std::string LoadMtl(
 		}
 		if (_space)
 		{
-			int len = _space - token;
+			int len = int(_space - token);
 			std::string key(token, (size_t)len);
 			std::string value = _space + 1;
 			material.unknown_parameter.insert(std::pair<std::string, std::string>(key, value));

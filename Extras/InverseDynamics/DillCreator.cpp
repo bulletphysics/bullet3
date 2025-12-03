@@ -95,7 +95,7 @@ int DillCreator::recurseDill(const int level, const int parent, const idScalar /
 	/// these parameters are from the paper ...
 	/// TODO: add proper citation
 	m_parent[body] = parent;
-	m_mass[body] = 0.1 * BT_ID_POW(size, 3);
+	m_mass[body] = idScalar(0.1) * BT_ID_POW(size, 3);
 	m_body_r_body_com[body](0) = idScalar(0.05) * size;
 	m_body_r_body_com[body](1) = 0;
 	m_body_r_body_com[body](2) = 0;
@@ -125,7 +125,7 @@ int DillCreator::recurseDill(const int level, const int parent, const idScalar /
 		{
 			d_DH = 0.0;
 		}
-		const idScalar a_DH = i * idScalar(0.1);
+		const idScalar a_DH = idScalar(i) * idScalar(0.1);
 		const idScalar alpha_DH = (btScalar)i * BT_ID_PI / idScalar(3.0);
 		m_current_body++;
 		recurseDill(i - 1, body, d_DH, a_DH, alpha_DH);

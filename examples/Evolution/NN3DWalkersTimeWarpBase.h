@@ -70,9 +70,9 @@ static bool gIsHeadless = false;  // demo runs with graphics by default
 
 static bool gChangeErpCfm = false;  // flag to make recalculation of ERP/CFM
 
-static int gMinSpeed = SimulationSpeeds::PAUSE;  // the minimum simulation speed
+static int gMinSpeed = (int)SimulationSpeeds::PAUSE;  // the minimum simulation speed
 
-static int gMaxSpeed = SimulationSpeeds::MAX_SPEED;  // the maximum simulation speed
+static int gMaxSpeed = (int)SimulationSpeeds::MAX_SPEED;  // the maximum simulation speed
 
 static bool gMaximumSpeed = false;  // the demo does not try to achieve maximum stepping speed by default
 
@@ -127,7 +127,7 @@ static double fixedPhysicsStepSizeSec = 1.0f / gPhysicsStepsPerSecond;       // 
 static double fixedPhysicsStepSizeMilli = 1000.0f / gPhysicsStepsPerSecond;  // step size in milliseconds
 
 static btScalar gApplicationFrequency = 60.0f;                  // number of internal application ticks per second
-static int gApplicationTick = 1000.0f / gApplicationFrequency;  //ms
+static int gApplicationTick = int(1000.0f / gApplicationFrequency);  //ms
 
 static btScalar gFramesPerSecond = 30.0f;  // number of frames per second
 
@@ -187,7 +187,7 @@ inline void clampToCustomSpeedNotches(float speed, void*)
 			minSpeed = speeds[i];
 		}
 	}
-	gSimulationSpeed = minSpeed;
+	gSimulationSpeed = (btScalar)minSpeed;
 }
 
 inline void switchInterpolated(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
@@ -209,7 +209,7 @@ inline void switchMaximumSpeed(int /*buttonId*/, bool /*buttonState*/, void* /*u
 
 inline void setApplicationTick(float frequency, void*)
 {  // set internal application tick
-	gApplicationTick = 1000.0f / frequency;
+	gApplicationTick = int(1000.0f / frequency);
 }
 
 /**
@@ -223,7 +223,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 																 mSolverIterationsUpdated(false)
 	{
 		// main frame timer initialization
-		mApplicationStart = mLoopTimer.getTimeMilliseconds(); /**!< Initialize when the application started running */
+		mApplicationStart = (unsigned long)mLoopTimer.getTimeMilliseconds(); /**!< Initialize when the application started running */
 		mInputClock = mApplicationStart;                      /**!< Initialize the last time the input was updated */
 		mPreviousModelIteration = mApplicationStart;
 		mThisModelIteration = mApplicationStart;
@@ -247,13 +247,13 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		mModelAccumulator = 0;
 		mFrameTime = 0;
 
-		fpsTimeStamp = mLoopTimer.getTimeMilliseconds();  // to time the fps
-		fpsStep = 1000.0f / gFramesPerSecond;
+		fpsTimeStamp = (unsigned long)mLoopTimer.getTimeMilliseconds();  // to time the fps
+		fpsStep = double(btScalar(1000.0) / gFramesPerSecond);
 
 		// performance measurements for this demo
 		performanceTimestamp = 0;
 		performedTime = 0;                                    // time the physics steps consumed
-		speedUpPrintTimeStamp = mLoopTimer.getTimeSeconds();  // timer to print the speed up periodically
+		speedUpPrintTimeStamp = (unsigned long)mLoopTimer.getTimeSeconds();  // timer to print the speed up periodically
 		mLoopTimer.reset();
 	}
 
@@ -280,8 +280,8 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			// Force increase the simulation speed to run the simulation with the same accuracy but a higher speed
 			SliderParams slider("Simulation speed",
 								&gSimulationSpeed);
-			slider.m_minVal = gMinSpeed;
-			slider.m_maxVal = gMaxSpeed;
+			slider.m_minVal = (float)gMinSpeed;
+			slider.m_maxVal = (float)gMaxSpeed;
 			slider.m_callback = clampToCustomSpeedNotches;
 			slider.m_clampToNotches = false;
 			if (m_guiHelper->getParameterInterface())
@@ -343,8 +343,8 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			// for the physics update
 			SliderParams slider("Application Ticks",
 								&gApplicationFrequency);
-			slider.m_minVal = gMinSpeed;
-			slider.m_maxVal = gMaxSpeed;
+			slider.m_minVal = (float)gMinSpeed;
+			slider.m_maxVal = (float)gMaxSpeed;
 			slider.m_callback = setApplicationTick;
 			slider.m_clampToNotches = false;
 			if (m_guiHelper->getParameterInterface())
@@ -546,7 +546,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 																  //				m_dynamicsWorld->getSolverInfo().m_splitImpulseTurnErp);
 		}
 
-		m_dynamicsWorld->getSolverInfo().m_numIterations = gSolverIterations;  // set the number of solver iterations for iteration based solvers
+		m_dynamicsWorld->getSolverInfo().m_numIterations = (int)gSolverIterations;  // set the number of solver iterations for iteration based solvers
 
 		m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));  // set gravity to -9.81
 	}
@@ -554,10 +554,10 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 	btScalar calculatePerformedSpeedup()
 	{  // calculate performed speedup
 		// we calculate the performed speed up
-		btScalar speedUp = ((double)performedTime * 1000.0) / ((double)(mLoopTimer.getTimeMilliseconds() - performanceTimestamp));
+		btScalar speedUp = btScalar((performedTime * 1000.0) / (double)(mLoopTimer.getTimeMilliseconds() - performanceTimestamp));
 		//		b3Printf("Avg Effective speedup: %f",speedUp);
 		performedTime = 0;
-		performanceTimestamp = mLoopTimer.getTimeMilliseconds();
+		performanceTimestamp = (unsigned long)mLoopTimer.getTimeMilliseconds();
 		return speedUp;
 	}
 
@@ -572,13 +572,13 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			//			// settings
 			if (mPhysicsStepsPerSecondUpdated)
 			{
-				changePhysicsStepsPerSecond(gPhysicsStepsPerSecond);
+				changePhysicsStepsPerSecond((float)gPhysicsStepsPerSecond);
 				mPhysicsStepsPerSecondUpdated = false;
 			}
 
 			if (mFramesPerSecondUpdated)
 			{
-				changeFPS(gFramesPerSecond);
+				changeFPS((float)gFramesPerSecond);
 				mFramesPerSecondUpdated = false;
 			}
 
@@ -590,7 +590,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 			if (mSolverIterationsUpdated)
 			{
-				changeSolverIterations(gSolverIterations);
+				changeSolverIterations((int)gSolverIterations);
 				mSolverIterationsUpdated = false;
 			}
 
@@ -610,12 +610,12 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 				//double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
 				//				b3Printf("Avg Effective speedup: %f",speedUp);
 				performedTime = 0;
-				performanceTimestamp = mLoopTimer.getTimeMilliseconds();
-				speedUpPrintTimeStamp = mLoopTimer.getTimeSeconds();
+				performanceTimestamp = (unsigned long)mLoopTimer.getTimeMilliseconds();
+				speedUpPrintTimeStamp = (unsigned long)mLoopTimer.getTimeSeconds();
 			}
 
 			// update timers
-			mThisModelIteration = mLoopTimer.getTimeMilliseconds();
+			mThisModelIteration = (unsigned long)mLoopTimer.getTimeMilliseconds();
 			mFrameTime = mThisModelIteration - mPreviousModelIteration; /**!< Calculate the frame time (in Milliseconds) */
 			mPreviousModelIteration = mThisModelIteration;
 
@@ -623,7 +623,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 			mApplicationRuntime = mThisModelIteration - mApplicationStart; /**!< Update main frame timer (in Milliseconds) */
 
-			mModelStart = mLoopTimer.getTimeMilliseconds();   /**!< Begin with the model update (in Milliseconds)*/
+			mModelStart = (unsigned long)mLoopTimer.getTimeMilliseconds();   /**!< Begin with the model update (in Milliseconds)*/
 			mLastGraphicsTick = (long)(mModelStart - mGraphicsStart); /**!< Update graphics timer (in Milliseconds) */
 
 			if (gMaximumSpeed /** If maximum speed is enabled*/)
@@ -635,7 +635,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 				performSpeedStep();
 			}
 
-			mInputStart = mLoopTimer.getTimeMilliseconds(); /**!< Start the input update */
+			mInputStart = (unsigned long)mLoopTimer.getTimeMilliseconds(); /**!< Start the input update */
 			mLastModelTick = (long)(mInputStart - mModelStart);     /**!< Calculate the time the model update took */
 
 			//#############
@@ -649,7 +649,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 				//	         mInputHandler.update(mInputClock); /**!< update elements that work on the current input state */
 			}
 
-			mGraphicsStart = mLoopTimer.getTimeMilliseconds(); /**!< Start the graphics update */
+			mGraphicsStart = (unsigned long)mLoopTimer.getTimeMilliseconds(); /**!< Start the graphics update */
 			mLastInputTick = (long)(mGraphicsStart - mInputStart);     /**!< Calculate the time the input injection took */
 
 			//#############
@@ -664,7 +664,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		} while ((double)(mLoopTimer.getTimeMilliseconds() - fpsTimeStamp) < fpsStep);  // escape the loop if it is time to render
 		// Unfortunately, the input is not included in the loop, therefore the input update frequency is equal to the fps
 
-		fpsTimeStamp = mLoopTimer.getTimeMilliseconds();
+		fpsTimeStamp = (unsigned long)mLoopTimer.getTimeMilliseconds();
 	}
 
 	virtual bool keyboardCallback(int key, int state)
@@ -673,61 +673,61 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		{
 			case '1':
 			{
-				gSimulationSpeed = SimulationSpeeds::QUARTER_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::QUARTER_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '2':
 			{
-				gSimulationSpeed = SimulationSpeeds::HALF_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::HALF_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '3':
 			{
-				gSimulationSpeed = SimulationSpeeds::NORMAL_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::NORMAL_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '4':
 			{
-				gSimulationSpeed = SimulationSpeeds::DOUBLE_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::DOUBLE_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '5':
 			{
-				gSimulationSpeed = SimulationSpeeds::QUADRUPLE_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::QUADRUPLE_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '6':
 			{
-				gSimulationSpeed = SimulationSpeeds::DECUPLE_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::DECUPLE_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '7':
 			{
-				gSimulationSpeed = SimulationSpeeds::CENTUPLE_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::CENTUPLE_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '8':
 			{
-				gSimulationSpeed = SimulationSpeeds::QUINCENTUPLE_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::QUINCENTUPLE_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '9':
 			{
-				gSimulationSpeed = SimulationSpeeds::MILLITUPLE_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::MILLITUPLE_SPEED;
 				gMaximumSpeed = false;
 				return true;
 			}
 			case '0':
 			{
-				gSimulationSpeed = SimulationSpeeds::MAX_SPEED;
+				gSimulationSpeed = (btScalar)SimulationSpeeds::MAX_SPEED;
 				gMaximumSpeed = true;
 				return true;
 			}
@@ -751,13 +751,13 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		if (m_dynamicsWorld)
 		{
 			m_dynamicsWorld->getSolverInfo().m_erp = b3ERPCFMHelper::getERP(  // set the error reduction parameter
-				fixedPhysicsStepSizeSec,                                      // step size per second
+				(btScalar)fixedPhysicsStepSizeSec,                                      // step size per second
 				gERPSpringK,                                                  // k of a spring in the equation F = k * x (x:position)
 				gERPDamperC);                                                 // k of a damper in the equation F = k * v (v:velocity)
 
 			m_dynamicsWorld->getSolverInfo().m_globalCfm = b3ERPCFMHelper::getCFM(  // set the constraint force mixing according to the time step
 				gCFMSingularityAvoidance,                                           // singularity avoidance (if you experience unsolvable constraints, increase this value
-				fixedPhysicsStepSizeSec,                                            // steps size per second
+				(btScalar)fixedPhysicsStepSizeSec,                                            // steps size per second
 				gCFMSpringK,                                                        // k of a spring in the equation F = k * x (x:position)
 				gCFMDamperC);                                                       // k of a damper in the equation F = k * v (v:velocity)
 
@@ -781,7 +781,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 	void performTrueSteps(btScalar timeStep)
 	{                                                                     // physics stepping without interpolated substeps
-		int subSteps = floor((timeStep / fixedPhysicsStepSizeSec) + 0.5); /**!< Calculate the number of full normal time steps we can take */
+		int subSteps = (int)floor((timeStep / fixedPhysicsStepSizeSec) + 0.5); /**!< Calculate the number of full normal time steps we can take */
 
 		for (int i = 0; i < subSteps; i++)
 		{ /**!< Perform the number of substeps to reach the timestep*/
@@ -791,17 +791,17 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 				int subStepsL = 1;
 
 				m_dynamicsWorld->stepSimulation(btScalar(timeStep),
-												btScalar(subStepsL), btScalar(fixedPhysicsStepSizeSec));
+												subStepsL, btScalar(fixedPhysicsStepSizeSec));
 			}
 		}
 	}
 
 	void performInterpolatedSteps(btScalar timeStep)
 	{                                                                         // physics stepping with interpolated substeps
-		int subSteps = 1 + floor((timeStep / fixedPhysicsStepSizeSec) + 0.5); /**!< Calculate the number of full normal time steps we can take, plus 1 for safety of not losing time */
+		int subSteps = 1 + (int)floor((timeStep / fixedPhysicsStepSizeSec) + 0.5); /**!< Calculate the number of full normal time steps we can take, plus 1 for safety of not losing time */
 		if (timeStep && m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(btScalar(timeStep), btScalar(subSteps),
+			m_dynamicsWorld->stepSimulation(btScalar(timeStep), subSteps,
 											btScalar(fixedPhysicsStepSizeSec)); /**!< Perform the number of substeps to reach the timestep*/
 		}
 	}
@@ -826,7 +826,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		if (mPhysicsTick > 0)
 		{  // with positive physics tick we perform as many update steps until the time for it is used up
 
-			mPhysicsStepStart = mLoopTimer.getTimeMilliseconds(); /**!< The physics updates start (in Milliseconds)*/
+			mPhysicsStepStart = (unsigned long)mLoopTimer.getTimeMilliseconds(); /**!< The physics updates start (in Milliseconds)*/
 			mPhysicsStepEnd = mPhysicsStepStart;
 
 			while (mPhysicsTick > (long)(mPhysicsStepEnd - mPhysicsStepStart))
@@ -836,14 +836,14 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 				if (gInterpolate)
 				{
-					performInterpolatedSteps(timeStep);
+					performInterpolatedSteps((btScalar)timeStep);
 				}
 				else
 				{
-					performTrueSteps(timeStep);
+					performTrueSteps((btScalar)timeStep);
 				}
 				performedTime += timeStep;
-				mPhysicsStepEnd = mLoopTimer.getTimeMilliseconds(); /**!< Update the last physics step end to stop updating in time (in Milliseconds) */
+				mPhysicsStepEnd = (unsigned long)mLoopTimer.getTimeMilliseconds(); /**!< Update the last physics step end to stop updating in time (in Milliseconds) */
 			}
 		}
 	}
@@ -858,7 +858,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		mModelAccumulator += mFrameTime; /**!< Accumulate the time the physics simulation has to perform in order to stay in real-time (in Milliseconds) */
 		//	b3Printf("Model time accumulator: %u", mModelAccumulator);
 
-		int steps = floor(mModelAccumulator / fixedPhysicsStepSizeMilli); /**!< Calculate the number of time steps we can take */
+		int steps = (int)floor(mModelAccumulator / fixedPhysicsStepSizeMilli); /**!< Calculate the number of time steps we can take */
 		//	b3Printf("Next steps: %i", steps);
 
 		if (steps > 0)
@@ -868,14 +868,14 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 			if (gInterpolate)
 			{
-				performInterpolatedSteps(timeStep);  // perform interpolated steps
+				performInterpolatedSteps((btScalar)timeStep);  // perform interpolated steps
 			}
 			else
 			{
-				performTrueSteps(timeStep);  // perform full steps
+				performTrueSteps((btScalar)timeStep);  // perform full steps
 			}
 			performedTime += timeStep;                              // sum up the performed time for measuring the speed up
-			mModelAccumulator -= steps * fixedPhysicsStepSizeMilli; /**!< Remove the time performed by the physics simulation from the accumulator, the remaining time carries over to the next cycle  (in Milliseconds) */
+			mModelAccumulator -= long(steps * fixedPhysicsStepSizeMilli); /**!< Remove the time performed by the physics simulation from the accumulator, the remaining time carries over to the next cycle  (in Milliseconds) */
 		}
 	}
 

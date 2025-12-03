@@ -178,7 +178,7 @@ void InclinedPlaneExample::initPhysics()
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0, -50, 0));
 
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -199,7 +199,7 @@ void InclinedPlaneExample::initPhysics()
 		incline.setRotation(btVector3(0, 0, 1), gTilt);
 		startTransform.setRotation(incline);
 
-		btScalar mass(0.);
+		float mass(0.);
 		ramp = createRigidBody(mass, startTransform, inclinedPlaneShape);
 		ramp->setFriction(gRampFriction);
 		ramp->setRestitution(gRampRestitution);
@@ -213,7 +213,7 @@ void InclinedPlaneExample::initPhysics()
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar boxMass(1.f);
+		float boxMass(1.f);
 
 		startTransform.setOrigin(
 			btVector3(btScalar(0), btScalar(20), btScalar(2)));
@@ -232,7 +232,7 @@ void InclinedPlaneExample::initPhysics()
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar sphereMass(1.f);
+		float sphereMass(1.f);
 
 		startTransform.setOrigin(
 			btVector3(btScalar(0), btScalar(20), btScalar(4)));

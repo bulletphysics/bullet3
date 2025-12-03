@@ -59,7 +59,7 @@ void ChainExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -91,7 +91,7 @@ void ChainExample::initPhysics()
 				btScalar(0),
 				btScalar(5 + i * 2),
 				btScalar(0)));
-			boxes.push_back(createRigidBody((i == lastBoxIndex) ? 0 : mass, startTransform, colShape));
+			boxes.push_back(createRigidBody((i == lastBoxIndex) ? 0 : (float)mass, startTransform, colShape));
 		}
 
 		//add N-1 spring constraints

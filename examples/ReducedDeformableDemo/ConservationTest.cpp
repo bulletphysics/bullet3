@@ -50,7 +50,7 @@ class ConservationTest : public CommonDeformableBodyBase
       srand(1);
       for (int r = 0; r < rsb->m_nReduced; r++)
       {
-        rsb->m_reducedDofs[r] = (btScalar(rand()) / btScalar(RAND_MAX) - 0.5);
+        rsb->m_reducedDofs[r] = (btScalar(rand()) / btScalar(RAND_MAX) - btScalar(0.5));
         rsb->m_reducedDofsBuffer[r] = rsb->m_reducedDofs[r];
       }
 

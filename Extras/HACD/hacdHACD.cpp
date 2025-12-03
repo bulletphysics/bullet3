@@ -193,7 +193,7 @@ void HACD::InitializeDualGraph()
 	memset((void*)m_normals, 0, sizeof(Vec3<Real>) * m_nPoints);
 	for (unsigned long f = 0; f < m_nTriangles; f++)
 	{
-		if (m_callBack) (*m_callBack)("+ InitializeDualGraph\n", f, m_nTriangles, 0);
+		if (m_callBack) (*m_callBack)("+ InitializeDualGraph\n", f, (double)m_nTriangles, 0);
 
 		if (gCancelRequest)
 			return;

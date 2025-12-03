@@ -20,7 +20,7 @@ int randomInt(int low, int high) { return rand() % (high + 1 - low) + low; }
 
 float randomFloat(float low, float high)
 {
-	return low + static_cast<float>(rand()) / RAND_MAX * (high - low);
+	return low + static_cast<float>(rand()) / (float)RAND_MAX * (high - low);
 }
 
 float randomMass() { return randomFloat(mass_min, mass_max); }

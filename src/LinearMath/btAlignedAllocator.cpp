@@ -67,7 +67,7 @@ static inline void *btAlignedAllocDefault(size_t size, int alignment)
 {
 	void *ret;
 	char *real;
-	real = (char *)sAllocFunc(size + sizeof(void *) + (alignment - 1));
+	real = (char *)sAllocFunc(size + sizeof(void *) + ((unsigned)alignment - 1u));
 	if (real)
 	{
 		ret = btAlignPointer(real + sizeof(void *), (size_t)alignment);

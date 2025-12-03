@@ -138,7 +138,7 @@ int main(int /*argc*/, char* /*argv*/[])
 			sim->getBasePositionAndOrientation(minitaurUid, basePos, baseOrn);
 			sim->resetDebugVisualizerCamera(distance, -20, yaw, basePos);
 		}
-		b3Clock::usleep(1000. * 1000. * fixedTimeStep);
+		b3Clock::usleep(int(1000. * 1000. * fixedTimeStep));
 	}
 
 	printf("sim->disconnect\n");

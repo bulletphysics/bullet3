@@ -140,12 +140,12 @@ inline int btMprEq(float _a, float _b)
 	float ab;
 	float a, b;
 
-	ab = BT_MPR_FABS(_a - _b);
+	ab = (float)BT_MPR_FABS(_a - _b);
 	if (BT_MPR_FABS(ab) < FLT_EPSILON)
 		return 1;
 
-	a = BT_MPR_FABS(_a);
-	b = BT_MPR_FABS(_b);
+	a = (float)BT_MPR_FABS(_a);
+	b = (float)BT_MPR_FABS(_b);
 	if (b > a)
 	{
 		return ab < FLT_EPSILON * b;
@@ -158,7 +158,7 @@ inline int btMprEq(float _a, float _b)
 
 inline int btMprVec3Eq(const btVector3 *a, const btVector3 *b)
 {
-	return btMprEq((*a).x(), (*b).x()) && btMprEq((*a).y(), (*b).y()) && btMprEq((*a).z(), (*b).z());
+	return btMprEq((float)(*a).x(), (float)(*b).x()) && btMprEq((float)(*a).y(), (float)(*b).y()) && btMprEq((float)(*a).z(), (float)(*b).z());
 }
 
 template <typename btConvexTemplate>
@@ -193,7 +193,7 @@ inline float btMprVec3Dot(const btVector3 *a, const btVector3 *b)
 {
 	float dot;
 
-	dot = btDot(*a, *b);
+	dot = (float)btDot(*a, *b);
 	return dot;
 }
 
@@ -670,14 +670,14 @@ inline float btMprVec3PointTriDist2(const btVector3 *P,
 	r = btMprVec3Dot(&d1, &d2);
 
 	btScalar div = (w * v - r * r);
-	if (btMprIsZero(div))
+	if (btMprIsZero((float)div))
 	{
 		s = -1;
 		t = 0;
 	}
 	else
 	{
-		s = (q * r - w * p) / div;
+		s = float(btScalar((q * r - w * p) / div));
 		t = (-s * r - q) / w;
 	}
 
@@ -755,7 +755,7 @@ static void btFindPenetr(const btConvexTemplate &a, const btConvexTemplate &b,
 			*depth = btMprVec3PointTriDist2(origin, &btMprSimplexPoint(portal, 1)->v, &btMprSimplexPoint(portal, 2)->v, &btMprSimplexPoint(portal, 3)->v, pdir);
 			*depth = BT_MPR_SQRT(*depth);
 
-			if (btMprIsZero((*pdir).x()) && btMprIsZero((*pdir).y()) && btMprIsZero((*pdir).z()))
+			if (btMprIsZero((float)(*pdir).x()) && btMprIsZero((float)(*pdir).y()) && btMprIsZero((float)(*pdir).z()))
 			{
 				*pdir = dir;
 			}

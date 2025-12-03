@@ -174,7 +174,7 @@ void NewtonsCradleExample::initPhysics()
 
 void NewtonsCradleExample::stepSimulation(float deltaTime)
 {
-	applyForceWithForceScalar(gForceScalar);  // apply force defined by apply force slider
+	applyForceWithForceScalar((float)gForceScalar);  // apply force defined by apply force slider
 
 	if (m_dynamicsWorld)
 	{
@@ -196,7 +196,7 @@ void NewtonsCradleExample::createPendulum(btSphereShape* colShape, const btVecto
 	// position the top sphere above ground with a moving x position
 	startTransform.setOrigin(position);
 	startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
-	btRigidBody* topSphere = createRigidBody(mass, startTransform, colShape);
+	btRigidBody* topSphere = createRigidBody((float)mass, startTransform, colShape);
 
 	// position the bottom sphere below the top sphere
 	startTransform.setOrigin(
@@ -204,7 +204,7 @@ void NewtonsCradleExample::createPendulum(btSphereShape* colShape, const btVecto
 				  position.z()));
 
 	startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
-	btRigidBody* bottomSphere = createRigidBody(mass, startTransform, colShape);
+	btRigidBody* bottomSphere = createRigidBody((float)mass, startTransform, colShape);
 	bottomSphere->setFriction(0);  // we do not need friction here
 	pendula.push_back(bottomSphere);
 

@@ -1252,7 +1252,7 @@ void CMainApplication::SetupScene()
 		}
 		mat = mat * Matrix4().translate(0, -((float)m_iSceneVolumeHeight) * m_fScaleSpacing, m_fScaleSpacing);
 	}
-	m_uiVertcount = vertdataarray.size() / 5;
+	m_uiVertcount = (unsigned int)(vertdataarray.size() / 5);
 
 	glGenVertexArrays(1, &m_unSceneVAO);
 	glBindVertexArray(m_unSceneVAO);
@@ -1631,7 +1631,7 @@ void CMainApplication::SetupDistortion()
 			vIndices.push_back(d);
 		}
 	}
-	m_uiIndexSize = vIndices.size();
+	m_uiIndexSize = (unsigned int)vIndices.size();
 
 	glGenVertexArrays(1, &m_unLensVAO);
 	glBindVertexArray(m_unLensVAO);

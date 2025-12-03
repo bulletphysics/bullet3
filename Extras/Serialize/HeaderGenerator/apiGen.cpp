@@ -342,7 +342,7 @@ int _getArraySize(char *str)
 	char stri[100], *cp = 0;
 	int len = (int)strlen(str);
 
-	memcpy(stri, str, len + 1);
+	memcpy(stri, str, (size_t)len + 1);
 	for (a = 0; a < len; a++)
 	{
 		if (str[a] == '[')

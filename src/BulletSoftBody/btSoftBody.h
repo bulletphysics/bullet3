@@ -1231,7 +1231,7 @@ public:
 			btSoftBody::Node* n = (btSoftBody::Node*)(node->data);
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)
 			vol;
-			btScalar pad = margin ? m_sst.radmrg : (btScalar)SAFE_EPSILON;  // use user defined margin or margin for floating point precision
+			btScalar pad = margin ? m_sst.radmrg : btScalar(SAFE_EPSILON);  // use user defined margin or margin for floating point precision
 			if (use_velocity)
 			{
 				btVector3 points[2] = {n->m_x, n->m_x + m_sst.sdt * n->m_v};
@@ -1268,7 +1268,7 @@ public:
 		if (node->isleaf())
 		{
 			btSoftBody::Face* f = (btSoftBody::Face*)(node->data);
-			btScalar pad = margin ? m_sst.radmrg : (btScalar)SAFE_EPSILON;  // use user defined margin or margin for floating point precision
+			btScalar pad = margin ? m_sst.radmrg : btScalar(SAFE_EPSILON);  // use user defined margin or margin for floating point precision
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)
 			vol;
 			if (use_velocity)

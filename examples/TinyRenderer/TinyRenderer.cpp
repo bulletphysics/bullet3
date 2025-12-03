@@ -161,7 +161,7 @@ struct Shader : public IShader
 		float shadow = 1.0;
 		if (m_shadowBuffer && idx >=0 && idx <m_shadowBuffer->size())
 		{
-			shadow = 0.8 + 0.2 * (m_shadowBuffer->at(idx) < -depth + 0.05);  // magic coeff to avoid z-fighting
+			shadow = 0.8f + 0.2f * (m_shadowBuffer->at(idx) < -depth + 0.05f);  // magic coeff to avoid z-fighting
 		}
 		Vec3f bn = (varying_nrm * bar).normalize();
 		Vec2f uv = varying_uv * bar;
@@ -172,10 +172,10 @@ struct Shader : public IShader
         float diffuse = b3Max(0.f, bn * m_light_dir_local);
 
         color = m_model->diffuse(uv);
-		color[0] *= m_colorRGBA[0];
-		color[1] *= m_colorRGBA[1];
-		color[2] *= m_colorRGBA[2];
-		color[3] *= m_colorRGBA[3];
+		color[0] *= (unsigned char)m_colorRGBA[0];
+		color[1] *= (unsigned char)m_colorRGBA[1];
+		color[2] *= (unsigned char)m_colorRGBA[2];
+		color[3] *= (unsigned char)m_colorRGBA[3];
 
 		for (int i = 0; i < 3; ++i)
 		{
@@ -374,12 +374,12 @@ void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertic
 
 		for (int i = 0; i < numVertices; i++)
 		{
-			m_model->addVertex(vertices[i].x(),
-							   vertices[i].y(),
-							   vertices[i].z(),
-							   normals[i].x(),
-							   normals[i].y(),
-							   normals[i].z(),
+			m_model->addVertex((float)vertices[i].x(),
+							   (float)vertices[i].y(),
+							   (float)vertices[i].z(),
+							   (float)normals[i].x(),
+							   (float)normals[i].y(),
+							   (float)normals[i].z(),
 							   0.5, 0.5);
 		}
 		for (int i = 0; i < numIndices; i += 3)
@@ -455,7 +455,7 @@ static void clipEdge(const mat<4, 3, float>& triangleIn, int vertexIndexA, int v
 	{
 		float d0 = v0New[2] + v0New[3];
 		float d1 = v1New[2] + v1New[3];
-		float factor = 1.0 / (d1 - d0);
+		float factor = 1.0f / (d1 - d0);
 		Vec4f newVertex = (v0New * d1 - v1New * d0) * factor;
 		if (v0Inside)
 		{
@@ -527,8 +527,8 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	int width = renderData.m_rgbColorBuffer.get_width();
 	int height = renderData.m_rgbColorBuffer.get_height();
 
-	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0], renderData.m_lightDirWorld[1], renderData.m_lightDirWorld[2]);
-	Vec3f light_color = Vec3f(renderData.m_lightColor[0], renderData.m_lightColor[1], renderData.m_lightColor[2]);
+	Vec3f light_dir_local = Vec3f((float)renderData.m_lightDirWorld[0], (float)renderData.m_lightDirWorld[1], (float)renderData.m_lightDirWorld[2]);
+	Vec3f light_color = Vec3f((float)renderData.m_lightColor[0], (float)renderData.m_lightColor[1], (float)renderData.m_lightColor[2]);
 	float light_distance = renderData.m_lightDistance;
 	Model* model = renderData.m_model;
 	if (0 == model)
@@ -550,7 +550,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 		Matrix lightViewMatrix = lookat(light_dir_local * light_distance, Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 1.0));
 		Matrix lightModelViewMatrix = lightViewMatrix * renderData.m_modelMatrix;
 		Matrix modelViewMatrix = renderData.m_viewMatrix * renderData.m_modelMatrix;
-		Vec3f localScaling(renderData.m_localScaling[0], renderData.m_localScaling[1], renderData.m_localScaling[2]);
+		Vec3f localScaling((float)renderData.m_localScaling[0], (float)renderData.m_localScaling[1], (float)renderData.m_localScaling[2]);
 		Matrix viewMatrixInv = renderData.m_viewMatrix.invert();
 		btVector3 P(viewMatrixInv[0][3], viewMatrixInv[1][3], viewMatrixInv[2][3]);
 
@@ -605,7 +605,7 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
 	int width = renderData.m_rgbColorBuffer.get_width();
 	int height = renderData.m_rgbColorBuffer.get_height();
 
-	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0], renderData.m_lightDirWorld[1], renderData.m_lightDirWorld[2]);
+	Vec3f light_dir_local = Vec3f((float)renderData.m_lightDirWorld[0], (float)renderData.m_lightDirWorld[1], (float)renderData.m_lightDirWorld[2]);
 	float light_distance = renderData.m_lightDistance;
 	Model* model = renderData.m_model;
 	if (0 == model)
@@ -623,7 +623,7 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
 		Matrix lightViewMatrix = lookat(light_dir_local * light_distance, Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 1.0));
 		Matrix lightModelViewMatrix = lightViewMatrix * renderData.m_modelMatrix;
 		Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
-		Vec3f localScaling(renderData.m_localScaling[0], renderData.m_localScaling[1], renderData.m_localScaling[2]);
+		Vec3f localScaling((float)renderData.m_localScaling[0], (float)renderData.m_localScaling[1], (float)renderData.m_localScaling[2]);
 
 		DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix, renderData.m_modelMatrix, localScaling, light_distance);
 		for (int i = 0; i < model->nfaces(); i++)

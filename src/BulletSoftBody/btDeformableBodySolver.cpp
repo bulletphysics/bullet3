@@ -70,7 +70,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 				{
 					if (psb->m_nodes[j].m_im > 0)
 					{
-						m_residual[counter] = (-1. / psb->m_nodes[j].m_im) * m_dv[counter];
+						m_residual[counter] = (btScalar(-1.) / psb->m_nodes[j].m_im) * m_dv[counter];
 					}
 					++counter;
 				}
@@ -130,7 +130,7 @@ btScalar btDeformableBodySolver::kineticEnergy()
 			btSoftBody::Node& node = psb->m_nodes[j];
 			if (node.m_im > 0)
 			{
-				ke += m_dv[node.index].length2() * 0.5 / node.m_im;
+				ke += m_dv[node.index].length2() * btScalar(0.5) / node.m_im;
 			}
 		}
 	}
@@ -168,7 +168,7 @@ btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack&
 	m_cg.solve(*m_objective, ddv, residual, false);
 	btScalar inner_product = m_cg.dot(residual, m_ddv);
 	btScalar res_norm = m_objective->computeNorm(residual);
-	btScalar tol = 1e-5 * res_norm * m_objective->computeNorm(m_ddv);
+	btScalar tol = btScalar(1e-5) * res_norm * m_objective->computeNorm(m_ddv);
 	if (inner_product < -tol)
 	{
 		if (verbose)

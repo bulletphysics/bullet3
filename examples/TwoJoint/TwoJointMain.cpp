@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 	}
 
 	// loop
-	unsigned long dtus1 = (unsigned long)1000000.0 * FIXED_TIMESTEP;
+	unsigned long dtus1 = (unsigned long)(b3Scalar(1000000.0) * FIXED_TIMESTEP);
 	double simTimeS = 0;
 	double q[2], v[2];
 	while (b3CanSubmitCommand(kPhysClient))
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
 
 		// debugging output
 		printf("%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", simTimeS, q[0], q[1], v[0], v[1]);
-		b3Clock::usleep(1000. * 1000. * FIXED_TIMESTEP);
+		b3Clock::usleep(int(b3Scalar(1000. * 1000.) * FIXED_TIMESTEP));
 	}
 	b3DisconnectSharedMemory(kPhysClient);
 	return 0;

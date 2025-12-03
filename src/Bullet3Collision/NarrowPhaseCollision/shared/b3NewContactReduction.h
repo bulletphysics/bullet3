@@ -135,8 +135,8 @@ __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 				{
 					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 					c->m_worldNormalOnB = -normal;
-					c->m_restituitionCoeffCmp = (0.f * 0xffff);
-					c->m_frictionCoeffCmp = (0.7f * 0xffff);
+					c->m_restituitionCoeffCmp = (unsigned short)(0.f * 0xffff);
+					c->m_frictionCoeffCmp = (unsigned short)(0.7f * 0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;
@@ -166,7 +166,7 @@ __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 						}
 					};
 
-					GET_NPOINTS(*c) = nReducedContacts;
+					GET_NPOINTS(*c) = (b3Scalar)nReducedContacts;
 				}
 
 				//#endif

@@ -140,7 +140,6 @@ public:
 	SIMD_FORCE_INLINE void get_plane(btVector4 &plane) const
 	{
 		TRIANGLE_PLANE(m_vertices[0], m_vertices[1], m_vertices[2], plane);
-		;
 	}
 
 	SIMD_FORCE_INLINE void apply_transform(const btTransform &trans)

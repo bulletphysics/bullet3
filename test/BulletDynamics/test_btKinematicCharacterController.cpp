@@ -14,9 +14,9 @@ GTEST_TEST(BulletDynamics, KinematicCharacterController)
 	btKinematicCharacterController* tested = new btKinematicCharacterController(ghostObject, convexShape, 1);
 	EXPECT_TRUE(tested != NULL);
 
-	EXPECT_FLOAT_EQ(btScalar(-9.8 * 3.0), tested->getGravity().x());
-	EXPECT_FLOAT_EQ(0, tested->getGravity().y());
-	EXPECT_FLOAT_EQ(0, tested->getGravity().z());
+	EXPECT_FLOAT_EQ((float)btScalar(-9.8 * 3.0), (float)tested->getGravity().x());
+	EXPECT_FLOAT_EQ(0, (float)tested->getGravity().y());
+	EXPECT_FLOAT_EQ(0, (float)tested->getGravity().z());
 }
 
 int main(int argc, char** argv)

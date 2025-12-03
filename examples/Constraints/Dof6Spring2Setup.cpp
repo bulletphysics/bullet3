@@ -359,7 +359,7 @@ void Dof6Spring2Setup::initPhysics()
 			shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
 			shape->calculateLocalInertia(mass, localInertia);
 			bodyTransform.setIdentity();
-			bodyTransform.setOrigin(btVector3(-i, 0, 3));
+			bodyTransform.setOrigin(btVector3((btScalar)-i, 0, 3));
 			motionState = new btDefaultMotionState(bodyTransform);
 			btRigidBody* body = new btRigidBody(mass, motionState, shape, localInertia);
 			body->setActivationState(DISABLE_DEACTIVATION);
@@ -400,7 +400,7 @@ void Dof6Spring2Setup::initPhysics()
 			else
 			{
 				localA.setIdentity();
-				localA.getOrigin() = btVector3(bodycount, 0, 3);
+				localA.getOrigin() = btVector3((btScalar)bodycount, 0, 3);
 				localB.setIdentity();
 				localB.setOrigin(btVector3(0, 0, 0));
 				m_data->m_ChainLeftBody = body;
@@ -420,7 +420,7 @@ void Dof6Spring2Setup::initPhysics()
 		}
 		m_data->m_ChainRightBody = prevBody;
 		localA.setIdentity();
-		localA.getOrigin() = btVector3(-bodycount, 0, 3);
+		localA.getOrigin() = btVector3((btScalar)-bodycount, 0, 3);
 		localB.setIdentity();
 		localB.setOrigin(btVector3(0, 0, 0));
 		m_data->m_ChainRightConstraint = new CONSTRAINT_TYPE(*staticBody, *m_data->m_ChainRightBody, localA, localB EXTRAPARAMS);

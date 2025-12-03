@@ -71,7 +71,7 @@ static bool parseVector4(btVector4& vec4, const std::string& vector_str)
 	{
 		if (!pieces[i].empty())
 		{
-			rgba.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+			rgba.push_back((float)urdfLexicalCast<double>(pieces[i].c_str()));
 		}
 	}
 	if (rgba.size() != 4)
@@ -94,7 +94,7 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, MJCFErr
 	{
 		if (!pieces[i].empty())
 		{
-			rgba.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+			rgba.push_back((float)urdfLexicalCast<double>(pieces[i].c_str()));
 		}
 	}
 	if (rgba.size() < 3)
@@ -127,7 +127,7 @@ static bool parseVector6(btVector3& v0, btVector3& v1, const std::string& vector
 	{
 		if (!pieces[i].empty())
 		{
-			values.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+			values.push_back((float)urdfLexicalCast<double>(pieces[i].c_str()));
 		}
 	}
 	if (values.size() < 6)
@@ -388,7 +388,7 @@ struct BulletMJCFImporterInternalData
 					{
 						if (!pieces[i].empty())
 						{
-							frictions.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+							frictions.push_back((float)urdfLexicalCast<double>(pieces[i].c_str()));
 						}
 					}
 					if (frictions.size() > 0)
@@ -563,7 +563,7 @@ struct BulletMJCFImporterInternalData
 			{
 				if (!pieces[i].empty())
 				{
-					limits.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+					limits.push_back((float)urdfLexicalCast<double>(pieces[i].c_str()));
 				}
 			}
 			if (limits.size() == 2)
@@ -691,7 +691,7 @@ struct BulletMJCFImporterInternalData
 			{
 				if (!pieces[i].empty())
 				{
-					frictions.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+					frictions.push_back((float)urdfLexicalCast<double>(pieces[i].c_str()));
 				}
 			}
 			if (frictions.size() > 0)
@@ -708,18 +708,18 @@ struct BulletMJCFImporterInternalData
 			}
 		}
 
-		linkPtr->m_contactInfo.m_lateralFriction = lateralFriction;
-		linkPtr->m_contactInfo.m_spinningFriction = spinningFriction;
-		linkPtr->m_contactInfo.m_rollingFriction = rollingFriction;
+		linkPtr->m_contactInfo.m_lateralFriction = (btScalar)lateralFriction;
+		linkPtr->m_contactInfo.m_spinningFriction = (btScalar)spinningFriction;
+		linkPtr->m_contactInfo.m_rollingFriction = (btScalar)rollingFriction;
 
 		if (conDim > 3)
 		{
-			linkPtr->m_contactInfo.m_spinningFriction = defaults.m_defaultSpinningFriction;
+			linkPtr->m_contactInfo.m_spinningFriction = (btScalar)defaults.m_defaultSpinningFriction;
 			linkPtr->m_contactInfo.m_flags |= URDF_CONTACT_HAS_SPINNING_FRICTION;
 		}
 		if (conDim > 4)
 		{
-			linkPtr->m_contactInfo.m_rollingFriction = defaults.m_defaultRollingFriction;
+			linkPtr->m_contactInfo.m_rollingFriction = (btScalar)defaults.m_defaultRollingFriction;
 			linkPtr->m_contactInfo.m_flags |= URDF_CONTACT_HAS_ROLLING_FRICTION;
 		}
 
@@ -848,7 +848,7 @@ struct BulletMJCFImporterInternalData
 				{
 					if (!pieces[i].empty())
 					{
-						sizes.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+						sizes.push_back((float)urdfLexicalCast<double>(pieces[i].c_str()));
 					}
 				}
 
@@ -1056,7 +1056,7 @@ struct BulletMJCFImporterInternalData
 					}
 					else
 					{
-						h = col->m_geometry.m_capsuleHeight;
+						h = (btScalar)col->m_geometry.m_capsuleHeight;
 					}
 					totalVolume += SIMD_PI * r * r * h;
 					break;
@@ -1180,7 +1180,7 @@ struct BulletMJCFImporterInternalData
 				const char* m = xml->Attribute("mass");
 				if (m)
 				{
-					mass = urdfLexicalCast<double>(m);
+					mass = (btScalar)urdfLexicalCast<double>(m);
 				}
 				const char* i = xml->Attribute("diaginertia");
 				if (i)
@@ -1301,7 +1301,7 @@ struct BulletMJCFImporterInternalData
 		{
 			double density = 1000;
 			double volume = computeVolume(linkPtr, logger);
-			mass = density * volume;
+			mass = btScalar(density * volume);
 		}
 		linkPtr->m_inertia.m_linkLocalFrame = localInertialFrame;  // = jointTrans.inverse();
 		linkPtr->m_inertia.m_mass = mass;
@@ -1661,10 +1661,10 @@ void BulletMJCFImporter::getMassAndInertia(int urdfLinkIndex, btScalar& mass, bt
 	const UrdfLink* link = m_data->getLink(m_data->m_activeModel, urdfLinkIndex);
 	if (link)
 	{
-		mass = link->m_inertia.m_mass;
-		localInertiaDiagonal.setValue(link->m_inertia.m_ixx,
-									  link->m_inertia.m_iyy,
-									  link->m_inertia.m_izz);
+		mass = (btScalar)link->m_inertia.m_mass;
+		localInertiaDiagonal.setValue((btScalar)link->m_inertia.m_ixx,
+									  (btScalar)link->m_inertia.m_iyy,
+									  (btScalar)link->m_inertia.m_izz);
 		inertialFrame.setIdentity();
 		inertialFrame = link->m_inertia.m_linkLocalFrame;
 	}
@@ -1710,12 +1710,12 @@ bool BulletMJCFImporter::getJointInfo2(int urdfLinkIndex, btTransform& parent2jo
 			parent2joint = pj->m_parentLinkToJointTransform;
 			jointType = pj->m_type;
 			jointAxisInJointSpace = pj->m_localJointAxis;
-			jointLowerLimit = pj->m_lowerLimit;
-			jointUpperLimit = pj->m_upperLimit;
-			jointDamping = pj->m_jointDamping;
-			jointFriction = pj->m_jointFriction;
-			jointMaxForce = pj->m_effortLimit;
-			jointMaxVelocity = pj->m_velocityLimit;
+			jointLowerLimit = (btScalar)pj->m_lowerLimit;
+			jointUpperLimit = (btScalar)pj->m_upperLimit;
+			jointDamping = (btScalar)pj->m_jointDamping;
+			jointFriction = (btScalar)pj->m_jointFriction;
+			jointMaxForce = (btScalar)pj->m_effortLimit;
+			jointMaxVelocity = (btScalar)pj->m_velocityLimit;
 
 			return true;
 		}
@@ -1763,7 +1763,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		{
 #if 1
 
-			btScalar height = visual->m_geometry.m_capsuleHeight;
+			btScalar height = (btScalar)visual->m_geometry.m_capsuleHeight;
 
 			btTransform capsuleTrans;
 			capsuleTrans.setIdentity();
@@ -1793,7 +1793,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				capsuleTrans.setRotation(localOrn);
 			}
 
-			btScalar diam = 2. * visual->m_geometry.m_capsuleRadius;
+			btScalar diam = btScalar(2. * visual->m_geometry.m_capsuleRadius);
 			b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
 			int numVertices = (int)(sizeof(mjcf_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices);
@@ -1804,7 +1804,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 							  mjcf_sphere_vertices[i * 9 + 1],
 							  mjcf_sphere_vertices[i * 9 + 2]);
 
-				btScalar halfHeight = 0.5 * height;
+				btScalar halfHeight = btScalar(0.5) * height;
 				btVector3 trVer = (diam * vert);
 				int up = 2;  //default to z axis up for capsule
 				if (trVer[up] > 0)
@@ -1814,9 +1814,9 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 				trVer = capsuleTrans * trVer;
 
-				transformedVertices[i].xyzw[0] = trVer[0];
-				transformedVertices[i].xyzw[1] = trVer[1];
-				transformedVertices[i].xyzw[2] = trVer[2];
+				transformedVertices[i].xyzw[0] = (float)trVer[0];
+				transformedVertices[i].xyzw[1] = (float)trVer[1];
+				transformedVertices[i].xyzw[2] = (float)trVer[2];
 				transformedVertices[i].xyzw[3] = 0;
 				transformedVertices[i].normal[0] = mjcf_sphere_vertices[i * 9 + 4];
 				transformedVertices[i].normal[1] = mjcf_sphere_vertices[i * 9 + 5];
@@ -1824,10 +1824,10 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				//transformedVertices[i].uv[0] = mjcf_sphere_vertices[i * 9 + 7];
 				//transformedVertices[i].uv[1] = mjcf_sphere_vertices[i * 9 + 8];
 
-				btScalar u = btAtan2(transformedVertices[i].normal[0], transformedVertices[i].normal[2]) / (2 * SIMD_PI) + 0.5;
-				btScalar v = transformedVertices[i].normal[1] * 0.5 + 0.5;
-				transformedVertices[i].uv[0] = u;
-				transformedVertices[i].uv[1] = v;
+				btScalar u = btAtan2((btScalar)transformedVertices[i].normal[0], (btScalar)transformedVertices[i].normal[2]) / (2 * SIMD_PI) + btScalar(0.5);
+				btScalar v = transformedVertices[i].normal[1] * btScalar(0.5) + btScalar(0.5);
+				transformedVertices[i].uv[0] = (float)u;
+				transformedVertices[i].uv[1] = (float)v;
 			}
 
 			glmesh = new GLInstanceGraphicsShape;
@@ -1880,12 +1880,12 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			int numSteps = 32;
 			for (int i = 0; i < numSteps; i++)
 			{
-				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
-				btScalar cylLength = visual->m_geometry.m_capsuleHeight;
+				btScalar cylRadius = (btScalar)visual->m_geometry.m_capsuleRadius;
+				btScalar cylLength = (btScalar)visual->m_geometry.m_capsuleHeight;
 
-				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (float(i) / float(numSteps))), cylRadius * btCos(SIMD_2_PI * (float(i) / float(numSteps))), cylLength / 2.);
+				btVector3 vert(cylRadius * btSin(SIMD_2_PI * (btScalar(i) / btScalar(numSteps))), cylRadius * btCos(SIMD_2_PI * (btScalar(i) / btScalar(numSteps))), cylLength / btScalar(2.));
 				vertices.push_back(vert);
-				vert[2] = -cylLength / 2.;
+				vert[2] = -cylLength / btScalar(2.);
 				vertices.push_back(vert);
 			}
 
@@ -1899,7 +1899,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		case URDF_GEOM_BOX:
 		{
 			btVector3 extents = 0.5*visual->m_geometry.m_boxSize;
-			btBoxShape* boxShape = new btBoxShape(extents * 0.5f);
+			btBoxShape* boxShape = new btBoxShape(extents * btScalar(0.5));
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
 			convexColShape = boxShape;
 			convexColShape->setMargin(m_data->m_globalDefaults.m_defaultCollisionMargin);
@@ -1909,7 +1909,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		case URDF_GEOM_SPHERE:
 		{
 #if 1
-			btScalar sphereSize = 2. * visual->m_geometry.m_sphereRadius;
+			btScalar sphereSize = btScalar(2. * visual->m_geometry.m_sphereRadius);
 			b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
 			int numVertices = (int)(sizeof(mjcf_sphere_vertices) / strideInBytes);
 			transformedVertices.resize(numVertices);
@@ -1927,9 +1927,9 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 							  mjcf_sphere_vertices[i * 9 + 2]);
 
 				btVector3 trVer = sphereSize * vert;
-				transformedVertices[i].xyzw[0] = trVer[0];
-				transformedVertices[i].xyzw[1] = trVer[1];
-				transformedVertices[i].xyzw[2] = trVer[2];
+				transformedVertices[i].xyzw[0] = (float)trVer[0];
+				transformedVertices[i].xyzw[1] = (float)trVer[1];
+				transformedVertices[i].xyzw[2] = (float)trVer[2];
 				transformedVertices[i].xyzw[3] = 0;
 				transformedVertices[i].normal[0] = mjcf_sphere_vertices[i * 9 + 4];
 				transformedVertices[i].normal[1] = mjcf_sphere_vertices[i * 9 + 5];
@@ -1937,10 +1937,10 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				//transformedVertices[i].uv[0] = mjcf_sphere_vertices[i * 9 + 7];
 				//transformedVertices[i].uv[1] = mjcf_sphere_vertices[i * 9 + 8];
 
-				btScalar u = btAtan2(transformedVertices[i].normal[0], transformedVertices[i].normal[2]) / (2 * SIMD_PI) + 0.5;
-				btScalar v = transformedVertices[i].normal[1] * 0.5 + 0.5;
-				transformedVertices[i].uv[0] = u;
-				transformedVertices[i].uv[1] = v;
+				btScalar u = btAtan2((btScalar)transformedVertices[i].normal[0], (btScalar)transformedVertices[i].normal[2]) / (2 * SIMD_PI) + btScalar(0.5);
+				btScalar v = transformedVertices[i].normal[1] * btScalar(0.5) + btScalar(0.5);
+				transformedVertices[i].uv[0] = (float)u;
+				transformedVertices[i].uv[1] = (float)v;
 			}
 			int numIndices = sizeof(mjcf_sphere_indiced) / sizeof(int);
 			for (int i = 0; i < numIndices; i++)
@@ -2089,9 +2089,9 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			//apply the geometry scaling
 			for (int i = 0; i < glmesh->m_vertices->size(); i++)
 			{
-				glmesh->m_vertices->at(i).xyzw[0] *= visual->m_geometry.m_meshScale[0];
-				glmesh->m_vertices->at(i).xyzw[1] *= visual->m_geometry.m_meshScale[1];
-				glmesh->m_vertices->at(i).xyzw[2] *= visual->m_geometry.m_meshScale[2];
+				glmesh->m_vertices->at(i).xyzw[0] *= (float)visual->m_geometry.m_meshScale[0];
+				glmesh->m_vertices->at(i).xyzw[1] *= (float)visual->m_geometry.m_meshScale[1];
+				glmesh->m_vertices->at(i).xyzw[2] *= (float)visual->m_geometry.m_meshScale[2];
 			}
 			break;
 		}
@@ -2127,18 +2127,18 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			{
 				GLInstanceVertex vtx;
 				btVector3 pos = hull->getVertexPointer()[i];
-				vtx.xyzw[0] = pos.x();
-				vtx.xyzw[1] = pos.y();
-				vtx.xyzw[2] = pos.z();
+				vtx.xyzw[0] = (float)pos.x();
+				vtx.xyzw[1] = (float)pos.y();
+				vtx.xyzw[2] = (float)pos.z();
 				vtx.xyzw[3] = 1.f;
 				btVector3 normal = pos.normalized();
-				vtx.normal[0] = normal.x();
-				vtx.normal[1] = normal.y();
-				vtx.normal[2] = normal.z();
-				btScalar u = btAtan2(normal[0], normal[2]) / (2 * SIMD_PI) + 0.5;
-				btScalar v = normal[1] * 0.5 + 0.5;
-				vtx.uv[0] = u;
-				vtx.uv[1] = v;
+				vtx.normal[0] = (float)normal.x();
+				vtx.normal[1] = (float)normal.y();
+				vtx.normal[2] = (float)normal.z();
+				btScalar u = btAtan2(normal[0], normal[2]) / (2 * SIMD_PI) + btScalar(0.5);
+				btScalar v = normal[1] * btScalar(0.5) + btScalar(0.5);
+				vtx.uv[0] = (float)u;
+				vtx.uv[1] = (float)v;
 				glmesh->m_vertices->push_back(vtx);
 			}
 
@@ -2171,14 +2171,14 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			GLInstanceVertex& v = glmesh->m_vertices->at(i);
 			btVector3 vert(v.xyzw[0], v.xyzw[1], v.xyzw[2]);
 			btVector3 vt = visualTransform * vert;
-			v.xyzw[0] = vt[0];
-			v.xyzw[1] = vt[1];
-			v.xyzw[2] = vt[2];
+			v.xyzw[0] = (float)vt[0];
+			v.xyzw[1] = (float)vt[1];
+			v.xyzw[2] = (float)vt[2];
 			btVector3 triNormal(v.normal[0], v.normal[1], v.normal[2]);
 			triNormal = visualTransform.getBasis() * triNormal;
-			v.normal[0] = triNormal[0];
-			v.normal[1] = triNormal[1];
-			v.normal[2] = triNormal[2];
+			v.normal[0] = (float)triNormal[0];
+			v.normal[1] = (float)triNormal[1];
+			v.normal[2] = (float)triNormal[2];
 			verticesOut.push_back(v);
 		}
 	}
@@ -2339,12 +2339,12 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 				}
 				case URDF_GEOM_SPHERE:
 				{
-					childShape = new btSphereShape(col->m_geometry.m_sphereRadius);
+					childShape = new btSphereShape((btScalar)col->m_geometry.m_sphereRadius);
 					break;
 				}
 				case URDF_GEOM_BOX:
 				{
-					childShape = new btBoxShape(0.5*col->m_geometry.m_boxSize);
+					childShape = new btBoxShape(btScalar(0.5)*col->m_geometry.m_boxSize);
 					break;
 				}
 				case URDF_GEOM_CYLINDER:
@@ -2371,7 +2371,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							btVector3 zAxis(0, 0, 1);
 							localOrn = shortestArcQuat(zAxis, ax);
 						}
-						btCylinderShapeZ* cyl = new btCylinderShapeZ(btVector3(col->m_geometry.m_capsuleRadius, col->m_geometry.m_capsuleRadius, btScalar(0.5) * height));
+						btCylinderShapeZ* cyl = new btCylinderShapeZ(btVector3((btScalar)col->m_geometry.m_capsuleRadius, (btScalar)col->m_geometry.m_capsuleRadius, btScalar(0.5) * height));
 
 						btCompoundShape* compoundShape = new btCompoundShape();
 						btTransform localTransform(localOrn, localPosition);
@@ -2380,8 +2380,8 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 					}
 					else
 					{
-						btCylinderShapeZ* cap = new btCylinderShapeZ(btVector3(col->m_geometry.m_capsuleRadius,
-																			   col->m_geometry.m_capsuleRadius, btScalar(0.5) * col->m_geometry.m_capsuleHeight));
+						btCylinderShapeZ* cap = new btCylinderShapeZ(btVector3((btScalar)col->m_geometry.m_capsuleRadius,
+																			   (btScalar)col->m_geometry.m_capsuleRadius, btScalar(0.5) * (btScalar)col->m_geometry.m_capsuleHeight));
 						childShape = cap;
 					}
 					break;
@@ -2497,7 +2497,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 								btVector3 zAxis(0, 0, 1);
 								localOrn = shortestArcQuat(zAxis, ax);
 							}
-							btCapsuleShapeZ* capsule = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius, height);
+							btCapsuleShapeZ* capsule = new btCapsuleShapeZ((btScalar)col->m_geometry.m_capsuleRadius, height);
 
 							btCompoundShape* compoundShape = new btCompoundShape();
 							btTransform localTransform(localOrn, localPosition);
@@ -2517,8 +2517,8 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 					}
 					else
 					{
-						btCapsuleShapeZ* cap = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,
-																   col->m_geometry.m_capsuleHeight);
+						btCapsuleShapeZ* cap = new btCapsuleShapeZ((btScalar)col->m_geometry.m_capsuleRadius,
+																   (btScalar)col->m_geometry.m_capsuleHeight);
 						childShape = cap;
 					}
 					break;

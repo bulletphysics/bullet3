@@ -88,7 +88,7 @@ public:
       btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
 
       sim_time += deltaTime;
-      int n_mode = floor(visualize_mode);
+      int n_mode = (int)floor(visualize_mode);
       btScalar scale = sin(sqrt(rsb->m_eigenvalues[n_mode]) * sim_time / frequency_scale);
       getDeformedShape(rsb, n_mode, scale);
     //   btVector3 mass_weighted_column_sum = computeMassWeightedColumnSum(rsb, visualize_mode);
@@ -160,7 +160,7 @@ void ModeVisualizer::initPhysics()
     {
       SliderParams slider("Visualize Mode", &visualize_mode);
       slider.m_minVal = 0;
-      slider.m_maxVal = num_modes - 1;
+      slider.m_maxVal = float(num_modes - 1);
       if (m_guiHelper->getParameterInterface())
           m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }

@@ -114,7 +114,7 @@ public:
 
 								for (int i = 0; i < sNumSpheres; i++)
 								{
-									btVector3 childPos(i * 1.5, 0, 0);
+									btVector3 childPos(btScalar(i * 1.5), 0, 0);
 									btQuaternion childOrn(0, 0, 0, 1);
 
 									btVector3 scaling(radius, radius, radius);

@@ -58,7 +58,7 @@ public:
 		int mass = 1;
 		for (int i = 0; i < 8; i++)
 		{
-			args.m_startPosition.setValue(0, 0, i * .06);
+			args.m_startPosition.setValue(0, 0, btScalar(i * .06));
 			int boxIdx = m_robotSim.loadURDF("cube_small.urdf", args);
 			dynamicsArgs.m_mass = mass;
 			m_robotSim.changeDynamics(boxIdx, -1, dynamicsArgs);

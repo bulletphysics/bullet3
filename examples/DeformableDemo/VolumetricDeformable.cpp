@@ -126,7 +126,7 @@ public:
         {
             btTransform startTransform;
             startTransform.setIdentity();
-            startTransform.setOrigin(btVector3(i, 10 + 2 * i, i-1));
+            startTransform.setOrigin(btVector3((btScalar)i, btScalar(10 + 2 * i), btScalar(i-1)));
             createRigidBody(mass, startTransform, shape[i % nshapes]);
         }
     }

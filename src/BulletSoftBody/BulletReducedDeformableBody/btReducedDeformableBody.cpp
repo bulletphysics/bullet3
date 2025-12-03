@@ -65,14 +65,14 @@ void btReducedDeformableBody::setMassProps(const tDenseArray& mass_array)
 	for (int i = 0; i < m_nFull; ++i)
 	{
 		m_nodalMass[i] = m_rhoScale * mass_array[i];
-		m_nodes[i].m_im = mass_array[i] > 0 ? 1.0 / (m_rhoScale * mass_array[i]) : 0;
+		m_nodes[i].m_im = mass_array[i] > 0 ? btScalar(1.0) / (m_rhoScale * mass_array[i]) : 0;
 		total_mass += m_rhoScale * mass_array[i];
 
     CoM += m_nodalMass[i] * m_nodes[i].m_x;
 	}
   // total rigid body mass
   m_mass = total_mass;
-  m_inverseMass = total_mass > 0 ? 1.0 / total_mass : 0;
+  m_inverseMass = total_mass > 0 ? btScalar(1.0) / total_mass : 0;
   // original CoM
   m_initialCoM = CoM / total_mass;
 }
@@ -504,7 +504,7 @@ void btReducedDeformableBody::setTotalMass(btScalar mass, bool /*fromfaces*/)
     m_nodalMass[i] *= scale_ratio;
   }
   m_mass = mass;
-  m_inverseMass = mass > 0 ? 1.0 / mass : 0;
+  m_inverseMass = mass > 0 ? btScalar(1.0) / mass : 0;
 
   // update inertia tensors
   updateLocalInertiaTensorFromNodes();

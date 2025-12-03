@@ -95,7 +95,7 @@ public:
 		{
 			if (m_prevRollingFriction != gSliderRollingFriction)
 			{
-				m_prevRollingFriction = gSliderRollingFriction;
+				m_prevRollingFriction = (float)gSliderRollingFriction;
 				btCollisionObjectArray& objArray = m_dynamicsWorld->getCollisionObjectArray();
 				for (int i = 0; i < objArray.size(); ++i)
 				{
@@ -110,10 +110,10 @@ public:
 				m_groundMovePhase += cyclesPerSecond * deltaTime;
 				m_groundMovePhase -= std::floor(m_groundMovePhase);  // keep phase between 0 and 1
 				btTransform xf = m_groundStartXf;
-				float gndHOffset = btSin(m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude;
-				float gndHVel = btCos(m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude * cyclesPerSecond * SIMD_2_PI;  // d(gndHOffset)/dt
-				float gndVOffset = btSin(m_groundMovePhase * SIMD_2_PI) * gSliderGroundVerticalAmplitude;
-				float gndVVel = btCos(m_groundMovePhase * SIMD_2_PI) * gSliderGroundVerticalAmplitude * cyclesPerSecond * SIMD_2_PI;  // d(gndVOffset)/dt
+				float gndHOffset = float(btSin((btScalar)m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude);
+				float gndHVel = float(btCos((btScalar)m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude * (btScalar)cyclesPerSecond * SIMD_2_PI);  // d(gndHOffset)/dt
+				float gndVOffset = float(btSin((btScalar)m_groundMovePhase * SIMD_2_PI) * gSliderGroundVerticalAmplitude);
+				float gndVVel = float(btCos((btScalar)m_groundMovePhase * SIMD_2_PI) * gSliderGroundVerticalAmplitude * (btScalar)cyclesPerSecond * SIMD_2_PI);  // d(gndVOffset)/dt
 				btVector3 offset(0, 0, 0);
 				btVector3 vel(0, 0, 0);
 				int horizAxis = 2;
@@ -145,9 +145,9 @@ public:
 		m_guiHelper->resetCamera(m_cameraDist,
 								 m_cameraYaw,
 								 m_cameraPitch,
-								 m_cameraTargetPos.x(),
-								 m_cameraTargetPos.y(),
-								 m_cameraTargetPos.z());
+								 (float)m_cameraTargetPos.x(),
+								 (float)m_cameraTargetPos.y(),
+								 (float)m_cameraTargetPos.z());
 	}
 };
 
@@ -245,7 +245,7 @@ void MultiThreadedDemo::initPhysics()
 
 btRigidBody* MultiThreadedDemo::localCreateRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
 {
-	btRigidBody* body = createRigidBody(mass, startTransform, shape);
+	btRigidBody* body = createRigidBody((float)mass, startTransform, shape);
 	if (mass > 0.0f)
 	{
 		// prevent bodies from sleeping to make profiling/benchmarking easier
@@ -259,8 +259,8 @@ void MultiThreadedDemo::createStack(const btTransform& parentTrans, btCollisionS
 	btTransform trans;
 	trans.setIdentity();
 	trans.setRotation(parentTrans.getRotation());
-	float halfBoxHeight = halfBoxSize.y();
-	float halfBoxWidth = halfBoxSize.x();
+	float halfBoxHeight = (float)halfBoxSize.y();
+	float halfBoxWidth = (float)halfBoxSize.x();
 
 	btVector3 offset = btVector3(0, 0, -halfBoxSize.z() * (btScalar)(width - 1));
 	for (int iZ = 0; iZ < width; iZ++)
@@ -314,7 +314,7 @@ void MultiThreadedDemo::createSceneObjects()
 		int numStackCols = btMax(1, int(gSliderStackColumns));
 		int stackHeight = int(gSliderStackHeight);
 		int stackWidth = int(gSliderStackWidth);
-		float stackZSpacing = 2.0f + (btScalar)stackWidth * halfExtents.x() * 2.0f;
+		float stackZSpacing = 2.0f + (float)stackWidth * (float)halfExtents.x() * 2.0f;
 		float stackXSpacing = 20.0f;
 
 		btBoxShape* boxShape = new btBoxShape(halfExtents);

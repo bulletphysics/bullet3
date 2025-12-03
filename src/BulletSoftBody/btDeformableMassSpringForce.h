@@ -30,7 +30,7 @@ public:
 	btDeformableMassSpringForce() : m_momentum_conserving(false), m_elasticStiffness(1), m_dampingStiffness(btScalar(0.05))
 	{
 	}
-	btDeformableMassSpringForce(btScalar k, btScalar d, bool conserve_angular = true, double bending_k = -1) : m_momentum_conserving(conserve_angular), m_elasticStiffness(k), m_dampingStiffness(d), m_bendingStiffness(bending_k)
+	btDeformableMassSpringForce(btScalar k, btScalar d, bool conserve_angular = true, double bending_k = -1) : m_momentum_conserving(conserve_angular), m_elasticStiffness(k), m_dampingStiffness(d), m_bendingStiffness((btScalar)bending_k)
 	{
 		if (m_bendingStiffness < btScalar(0))
 		{

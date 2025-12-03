@@ -2013,8 +2013,8 @@ __kernel void clipCompoundsHullHullKernel(__global const b3Int4* gpuCompoundPair
 				{
 					__global struct b3Contact4Data* c = globalContactsOut + dstIdx;
 					c->m_worldNormalOnB = -normal;
-					c->m_restituitionCoeffCmp = (0.f * 0xffff);
-					c->m_frictionCoeffCmp = (0.7f * 0xffff);
+					c->m_restituitionCoeffCmp = (unsigned short)(0.f * 0xffff);
+					c->m_frictionCoeffCmp = (unsigned short)(0.7f * 0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = gpuCompoundPairs[pairIndex].x;
 					int bodyB = gpuCompoundPairs[pairIndex].y;

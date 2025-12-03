@@ -278,7 +278,7 @@ TEST(InvDynJacobians, JacDotJacU)
 	const int kNumLoops = 20;
 	for (int level = 0; level < kNumLevels; level++)
 	{
-		const int nbodies = BT_ID_POW(2, level);
+		const int nbodies = (int)BT_ID_POW(2, (btScalar)level);
 		CoilCreator coil(nbodies);
 		double error;
 		calculateDotJacUError(coil, kNumLoops, &error);
@@ -312,7 +312,7 @@ TEST(InvDynJacobians, Jacobians)
 	const int kNumLoops = 20;
 	for (int level = 0; level < kNumLevels; level++)
 	{
-		const int nbodies = BT_ID_POW(2, level);
+		const int nbodies = (int)BT_ID_POW(2, (btScalar)level);
 		CoilCreator coil(nbodies);
 		double error;
 		calculateJacobianError(coil, kNumLoops, &error);

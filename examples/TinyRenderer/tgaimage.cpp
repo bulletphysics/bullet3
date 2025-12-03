@@ -186,7 +186,7 @@ bool TGAImage::write_tga_file(const char *filename, bool rle) const
 	}
 	TGA_Header header;
 	memset((void *)&header, 0, sizeof(header));
-	header.bitsperpixel = bytespp << 3;
+	header.bitsperpixel = (char)(bytespp << 3);
 	header.width = (short)width;
 	header.height = (short)height;
 	header.datatypecode = (bytespp == GRAYSCALE ? (rle ? 11 : 3) : (rle ? 10 : 2));
@@ -315,7 +315,7 @@ TGAColor TGAImage::get(int x, int y) const
 
 	if (!data || x < 0 || y < 0 || x >= width || y >= height)
 	{
-		return TGAColor(128.f, 128.f, 128.f, 255.f);
+		return TGAColor(128, 128, 128, 255);
 	}
 	return TGAColor(data + (unsigned char)((x + y * width) * bytespp), (unsigned char)bytespp);
 }

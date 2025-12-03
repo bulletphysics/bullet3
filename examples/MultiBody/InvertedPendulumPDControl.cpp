@@ -364,7 +364,7 @@ void InvertedPendulumPDControl::stepSimulation(float /*deltaTime*/)
 		btScalar qActual = m_multiBody->getJointPosMultiDof(joint)[dof1];
 		btScalar qdActual = m_multiBody->getJointVelMultiDof(joint)[dof1];
 		btScalar positionError = (qDesiredArray[joint] - qActual);
-		double desiredVelocity = 0;
+		btScalar desiredVelocity = 0;
 		btScalar velocityError = (desiredVelocity - qdActual);
 		btScalar force = kp * positionError + kd * velocityError;
 		btClamp(force, -maxForce, maxForce);

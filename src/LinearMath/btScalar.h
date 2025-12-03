@@ -552,11 +552,11 @@ inline int btIsDoublePrecision()
 
 SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x)
 {
-	btScalar coeff_1 = SIMD_PI / 4.0f;
-	btScalar coeff_2 = 3.0f * coeff_1;
+	btScalar coeff_1 = SIMD_PI / btScalar(4.0);
+	btScalar coeff_2 = btScalar(3.0) * coeff_1;
 	btScalar abs_y = btFabs(y);
 	btScalar angle;
-	if (x >= 0.0f)
+	if (x >= btScalar(0.0))
 	{
 		btScalar r = (x - abs_y) / (x + abs_y);
 		angle = coeff_1 - coeff_1 * r;
@@ -566,7 +566,7 @@ SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x)
 		btScalar r = (x + abs_y) / (abs_y - x);
 		angle = coeff_2 - coeff_1 * r;
 	}
-	return (y < 0.0f) ? -angle : angle;
+	return (y < btScalar(0.0)) ? -angle : angle;
 }
 
 SIMD_FORCE_INLINE bool btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
@@ -628,7 +628,7 @@ SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, 
 {
 	unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
 	unsigned testEqz = ~testNz;
-	return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
+	return static_cast<int>(((unsigned)valueIfConditionNonZero & testNz) | ((unsigned)valueIfConditionZero & testEqz));
 }
 SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {

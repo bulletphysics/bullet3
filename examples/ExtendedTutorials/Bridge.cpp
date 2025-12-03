@@ -59,7 +59,7 @@ void BridgeExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -99,12 +99,12 @@ void BridgeExample::initPhysics()
 		for (int i = 0; i < TOTAL_PLANKS; ++i)
 		{
 			float t = float(i) / (float)lastBoxIndex;
-			t = -(t * 2 - 1.0f) * halfBridgeWidth;
+			t = -(t * 2 - 1.0f) * (float)halfBridgeWidth;
 			startTransform.setOrigin(btVector3(
 				btScalar(t),
 				bridgeHeight,
 				btScalar(0)));
-			boxes.push_back(createRigidBody((i == 0 || i == lastBoxIndex) ? 0 : mass, startTransform, colShape));
+			boxes.push_back(createRigidBody((i == 0 || i == lastBoxIndex) ? 0 : (float)mass, startTransform, colShape));
 		}
 
 		//add N-1 spring constraints

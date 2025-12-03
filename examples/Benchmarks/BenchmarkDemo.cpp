@@ -307,8 +307,8 @@ public:
 				btVector3FloatData s, h;
 				for (int w = 0; w < 4; w++)
 				{
-					s.m_floats[w] = source[i][w];
-					h.m_floats[w] = hit[i][w];
+					s.m_floats[w] = (float)source[i][w];
+					h.m_floats[w] = (float)hit[i][w];
 				}
 
 				points.push_back(s);
@@ -570,7 +570,7 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition, int stackSize
 			{
 				pos[0] = offsetX + (float)i * (diffX * 2.0f + space);
 				trans.setOrigin(offsetPosition + pos);
-				this->createRigidBody(mass, trans, blockShape);
+				this->createRigidBody((float)mass, trans, blockShape);
 			}
 		}
 		offsetX += diffX;
@@ -583,10 +583,10 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition, int stackSize
 const btVector3 rotate(const btQuaternion& quat, const btVector3& vec)
 {
 	float tmpX, tmpY, tmpZ, tmpW;
-	tmpX = (((quat.getW() * vec.getX()) + (quat.getY() * vec.getZ())) - (quat.getZ() * vec.getY()));
-	tmpY = (((quat.getW() * vec.getY()) + (quat.getZ() * vec.getX())) - (quat.getX() * vec.getZ()));
-	tmpZ = (((quat.getW() * vec.getZ()) + (quat.getX() * vec.getY())) - (quat.getY() * vec.getX()));
-	tmpW = (((quat.getX() * vec.getX()) + (quat.getY() * vec.getY())) + (quat.getZ() * vec.getZ()));
+	tmpX = float(((quat.getW() * vec.getX()) + (quat.getY() * vec.getZ())) - (quat.getZ() * vec.getY()));
+	tmpY = float(((quat.getW() * vec.getY()) + (quat.getZ() * vec.getX())) - (quat.getX() * vec.getZ()));
+	tmpZ = float(((quat.getW() * vec.getZ()) + (quat.getX() * vec.getY())) - (quat.getY() * vec.getX()));
+	tmpW = float(((quat.getX() * vec.getX()) + (quat.getY() * vec.getY())) + (quat.getZ() * vec.getZ()));
 	return btVector3(
 		((((tmpW * quat.getX()) + (tmpX * quat.getW())) - (tmpY * quat.getZ())) + (tmpZ * quat.getY())),
 		((((tmpW * quat.getY()) + (tmpY * quat.getW())) - (tmpZ * quat.getX())) + (tmpX * quat.getZ())),
@@ -604,11 +604,11 @@ void BenchmarkDemo::createTowerCircle(const btVector3& offsetPosition, int stack
 	btVector3 localInertia(0, 0, 0);
 	blockShape->calculateLocalInertia(mass, localInertia);
 
-	float radius = 1.3f * (float)rotSize * boxSize[0] / SIMD_PI;
+	float radius = float(btScalar(1.3) * (btScalar)rotSize * boxSize[0] / SIMD_PI);
 
 	// create active boxes
 	btQuaternion rotY(0, 1, 0, 0);
-	float posY = boxSize[1];
+	float posY = (float)boxSize[1];
 
 	for (int i = 0; i < stackSize; i++)
 	{
@@ -621,7 +621,7 @@ void BenchmarkDemo::createTowerCircle(const btVector3& offsetPosition, int stack
 			rotY *= btQuaternion(btVector3(0, 1, 0), SIMD_PI / ((btScalar)rotSize * btScalar(0.5)));
 		}
 
-		posY += boxSize[1] * 2.0f;
+		posY += (float)boxSize[1] * 2.0f;
 		rotY *= btQuaternion(btVector3(0, 1, 0), SIMD_PI / (float)rotSize);
 	}
 }
@@ -1136,7 +1136,7 @@ void BenchmarkDemo::createTest5()
 		int size = 10;
 		int height = 10;
 
-		const float cubeSize = boxSize[0];
+		const float cubeSize = (float)boxSize[0];
 		float spacing = 2.0f;
 		btVector3 pos(0.0f, 20.0f, 0.0f);
 		float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
@@ -1227,7 +1227,7 @@ void BenchmarkDemo::createTest6()
 		int size = 10;
 		int height = 10;
 
-		const float cubeSize = boxSize[0];
+		const float cubeSize = (float)boxSize[0];
 		float spacing = 2.0f;
 		btVector3 pos(0.0f, 20.0f, 0.0f);
 		float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;

@@ -461,14 +461,14 @@ bool b3RobotSimulatorClientAPI_NoDirect::getBasePositionAndOrientation(int bodyU
 		0 /*root_local_inertial_frame*/, &actualStateQ,
 		0 /* actual_state_q_dot */, 0 /* joint_reaction_forces */);
 
-	basePosition[0] = actualStateQ[0];
-	basePosition[1] = actualStateQ[1];
-	basePosition[2] = actualStateQ[2];
+	basePosition[0] = (btScalar)actualStateQ[0];
+	basePosition[1] = (btScalar)actualStateQ[1];
+	basePosition[2] = (btScalar)actualStateQ[2];
 
-	baseOrientation[0] = actualStateQ[3];
-	baseOrientation[1] = actualStateQ[4];
-	baseOrientation[2] = actualStateQ[5];
-	baseOrientation[3] = actualStateQ[6];
+	baseOrientation[0] = (btScalar)actualStateQ[3];
+	baseOrientation[1] = (btScalar)actualStateQ[4];
+	baseOrientation[2] = (btScalar)actualStateQ[5];
+	baseOrientation[3] = (btScalar)actualStateQ[6];
 	return true;
 }
 
@@ -519,13 +519,13 @@ bool b3RobotSimulatorClientAPI_NoDirect::getBaseVelocity(int bodyUniqueId, btVec
 						   0 /*root_local_inertial_frame*/, 0,
 						   &actualStateQdot, 0 /* joint_reaction_forces */);
 
-	baseLinearVelocity[0] = actualStateQdot[0];
-	baseLinearVelocity[1] = actualStateQdot[1];
-	baseLinearVelocity[2] = actualStateQdot[2];
+	baseLinearVelocity[0] = (btScalar)actualStateQdot[0];
+	baseLinearVelocity[1] = (btScalar)actualStateQdot[1];
+	baseLinearVelocity[2] = (btScalar)actualStateQdot[2];
 
-	baseAngularVelocity[0] = actualStateQdot[3];
-	baseAngularVelocity[1] = actualStateQdot[4];
-	baseAngularVelocity[2] = actualStateQdot[5];
+	baseAngularVelocity[0] = (btScalar)actualStateQdot[3];
+	baseAngularVelocity[1] = (btScalar)actualStateQdot[4];
+	baseAngularVelocity[2] = (btScalar)actualStateQdot[5];
 	return true;
 }
 
@@ -1203,7 +1203,7 @@ void b3RobotSimulatorClientAPI_NoDirect::resetDebugVisualizerCamera(double camer
 		{
 			btVector3FloatData camTargetPos;
 			targetPos.serializeFloat(camTargetPos);
-			b3ConfigureOpenGLVisualizerSetViewMatrix(commandHandle, cameraDistance, cameraPitch, cameraYaw, camTargetPos.m_floats);
+			b3ConfigureOpenGLVisualizerSetViewMatrix(commandHandle, (float)cameraDistance, (float)cameraPitch, (float)cameraYaw, camTargetPos.m_floats);
 		}
 		b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 	}

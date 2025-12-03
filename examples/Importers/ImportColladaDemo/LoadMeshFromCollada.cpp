@@ -45,7 +45,7 @@ struct TokenFloatArray
 	}
 	inline void add(const char* token)
 	{
-		float v = atof(token);
+		float v = (float)atof(token);
 		m_values.push_back(v);
 	}
 };
@@ -58,7 +58,7 @@ struct TokenIntArray
 	}
 	inline void add(const char* token)
 	{
-		float v = atoi(token);
+		int v = atoi(token);
 		m_values.push_back(v);
 	}
 };
@@ -314,13 +314,13 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 				for (int v = 0; v < vertexPositions.size(); v++)
 				{
 					GLInstanceVertex vtx;
-					vtx.xyzw[0] = vertexPositions[v].x();
-					vtx.xyzw[1] = vertexPositions[v].y();
-					vtx.xyzw[2] = vertexPositions[v].z();
+					vtx.xyzw[0] = (float)vertexPositions[v].x();
+					vtx.xyzw[1] = (float)vertexPositions[v].y();
+					vtx.xyzw[2] = (float)vertexPositions[v].z();
 					vtx.xyzw[3] = 1.f;
-					vtx.normal[0] = vertexNormals[v].x();
-					vtx.normal[1] = vertexNormals[v].y();
-					vtx.normal[2] = vertexNormals[v].z();
+					vtx.normal[0] = (float)vertexNormals[v].x();
+					vtx.normal[1] = (float)vertexNormals[v].y();
+					vtx.normal[2] = (float)vertexNormals[v].z();
 					vtx.uv[0] = 0.5f;
 					vtx.uv[1] = 0.5f;
 					visualShape.m_vertices->push_back(vtx);
@@ -508,7 +508,7 @@ void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, fl
 	{
 		const char* meterText = unitMeter->Attribute("meter");
 		//printf("meterText=%s\n", meterText);
-		unitMeterScaling = atof(meterText);
+		unitMeterScaling = (float)atof(meterText);
 	}
 
 	XMLElement* upAxisElem = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("up_axis");

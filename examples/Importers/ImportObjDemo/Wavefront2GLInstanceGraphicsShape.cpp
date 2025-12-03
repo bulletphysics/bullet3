@@ -156,15 +156,15 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const bt_tinyobj
 						{
 							normal.setValue(0, 0, 0);
 						}
-						vtx0.normal[0] = normal[0];
-						vtx0.normal[1] = normal[1];
-						vtx0.normal[2] = normal[2];
-						vtx1.normal[0] = normal[0];
-						vtx1.normal[1] = normal[1];
-						vtx1.normal[2] = normal[2];
-						vtx2.normal[0] = normal[0];
-						vtx2.normal[1] = normal[1];
-						vtx2.normal[2] = normal[2];
+						vtx0.normal[0] = (float)normal[0];
+						vtx0.normal[1] = (float)normal[1];
+						vtx0.normal[2] = (float)normal[2];
+						vtx1.normal[0] = (float)normal[0];
+						vtx1.normal[1] = (float)normal[1];
+						vtx1.normal[2] = (float)normal[2];
+						vtx2.normal[0] = (float)normal[0];
+						vtx2.normal[1] = (float)normal[1];
+						vtx2.normal[2] = (float)normal[2];
 					}
 					else
 					{

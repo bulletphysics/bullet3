@@ -84,7 +84,7 @@ public:
         groundTransform.setIdentity();
         // groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
         groundTransform.setOrigin(btVector3(0, 0, 0));
-        btScalar mass(1e6);
+        float mass(1e6);
         btRigidBody* ground = createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
         // ground->setFriction(1);
         (void)ground;

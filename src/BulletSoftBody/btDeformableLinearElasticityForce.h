@@ -42,14 +42,14 @@ public:
 		// conversion from Lame Parameters to Young's modulus and Poisson ratio
 		// https://en.wikipedia.org/wiki/Lam%C3%A9_parameters
 		m_E = m_mu * (3 * m_lambda + 2 * m_mu) / (m_lambda + m_mu);
-		m_nu = m_lambda * 0.5 / (m_mu + m_lambda);
+		m_nu = m_lambda * btScalar(0.5) / (m_mu + m_lambda);
 	}
 
 	void updateLameParameters()
 	{
 		// conversion from Young's modulus and Poisson ratio to Lame Parameters
 		// https://en.wikipedia.org/wiki/Lam%C3%A9_parameters
-		m_mu = m_E * 0.5 / (1 + m_nu);
+		m_mu = m_E * btScalar(0.5) / (1 + m_nu);
 		m_lambda = m_E * m_nu / ((1 + m_nu) * (1 - 2 * m_nu));
 	}
 
@@ -450,7 +450,7 @@ public:
 				{
 					btMatrix3x3 I;
 					I.setIdentity();
-					node.m_effectiveMass += I * (scale * (1.0 / node.m_im) * m_damping_alpha);
+					node.m_effectiveMass += I * (scale * (btScalar(1.0) / node.m_im) * m_damping_alpha);
 				}
 			}
 		}

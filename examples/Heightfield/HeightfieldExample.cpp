@@ -255,44 +255,44 @@ setRadial
 	btAssert(bytesPerElement > 0);
 
 	// min/max
-	btScalar period = 0.5 / s_gridSpacing;
+	btScalar period = btScalar(0.5) / s_gridSpacing;
 	btScalar floor = 0.0;
-	btScalar min_r = 3.0 * btSqrt(s_gridSpacing);
-	btScalar magnitude = 5.0 * btSqrt(s_gridSpacing);
+	btScalar min_r = btScalar(3.0) * btSqrt(s_gridSpacing);
+	btScalar magnitude = btScalar(5.0) * btSqrt(s_gridSpacing);
 
 	// pick a base_phase such that phase = 0 results in max height
 	//   (this way, if you create a heightfield with phase = 0,
 	//    you can rely on the min/max heights that result)
-	btScalar base_phase = (0.5 * SIMD_PI) - (period * min_r);
+	btScalar base_phase = (btScalar(0.5) * SIMD_PI) - (period * min_r);
 	phase += base_phase;
 
 	// center of grid
-	btScalar cx = 0.5 * s_gridSize * s_gridSpacing;
+	btScalar cx = btScalar(0.5) * (btScalar)s_gridSize * s_gridSpacing;
 	btScalar cy = cx;		// assume square grid
 	byte_t * p = grid;
 	for (int i = 0; i < s_gridSize; ++i) {
-		float x = (btScalar)i * s_gridSpacing;
+		float x = float((btScalar)i * s_gridSpacing);
 		for (int j = 0; j < s_gridSize; ++j) {
-			float y = (btScalar)j * s_gridSpacing;
+			float y = float((btScalar)j * s_gridSpacing);
 
-			float dx = x - cx;
-			float dy = y - cy;
+			float dx = x - (float)cx;
+			float dy = y - (float)cy;
 
-			float r = sqrt((dx * dx) + (dy * dy));
+			float r = (float)sqrt((dx * dx) + (dy * dy));
 
-			float z = period;
+			float z = (float)period;
 			(void)z;
 			if (r < min_r) {
-				r = min_r;
+				r = (float)min_r;
 			}
-			z = (1.0 / r) * sin(period * r + phase);
+			z = (1.0f / r) * (float)sin(period * r + phase);
 			if (z > period) {
-				z = period;
+				z = (float)period;
 			}
 			else if (z < -period) {
-				z = -period;
+				z = (float)-period;
 			}
-			z = floor + magnitude * z;
+			z = (float)floor + (float)magnitude * z;
 
 			convertFromFloat(p, z, type);
 			p += bytesPerElement;
@@ -308,7 +308,7 @@ randomHeight
 	int step
 )
 {
-	return (0.33 * s_gridSpacing * s_gridSize * step * (rand() - (0.5 * RAND_MAX))) / (1.0 * RAND_MAX * s_gridSize);
+	return float((0.33 * s_gridSpacing * s_gridSize * step * (rand() - (0.5 * RAND_MAX))) / (1.0 * RAND_MAX * s_gridSize));
 }
 
 
@@ -392,19 +392,19 @@ setFractal
 	btScalar c11 = convertToFloat(grid + (step * s_gridSize + step) * bytesPerElement, type);
 
 	// set top middle
-	updateHeight(grid + newStep * bytesPerElement, 0.5 * (c00 + c01) + randomHeight(step), type);
+	updateHeight(grid + newStep * bytesPerElement, btScalar(0.5) * (c00 + c01) + (btScalar)randomHeight(step), type);
 
 	// set left middle
-	updateHeight(grid + (newStep * s_gridSize) * bytesPerElement, 0.5 * (c00 + c10) + randomHeight(step), type);
+	updateHeight(grid + (newStep * s_gridSize) * bytesPerElement, btScalar(0.5) * (c00 + c10) + (btScalar)randomHeight(step), type);
 
 	// set right middle
-	updateHeight(grid + (newStep * s_gridSize + step) * bytesPerElement, 0.5 * (c01 + c11) + randomHeight(step), type);
+	updateHeight(grid + (newStep * s_gridSize + step) * bytesPerElement, btScalar(0.5) * (c01 + c11) + (btScalar)randomHeight(step), type);
 
 	// set bottom middle
-	updateHeight(grid + (step * s_gridSize + newStep) * bytesPerElement, 0.5 * (c10 + c11) + randomHeight(step), type);
+	updateHeight(grid + (step * s_gridSize + newStep) * bytesPerElement, btScalar(0.5) * (c10 + c11) + (btScalar)randomHeight(step), type);
 
 	// set middle
-	updateHeight(grid + (newStep * s_gridSize + newStep) * bytesPerElement, 0.25 * (c00 + c01 + c10 + c11) + randomHeight(step), type);
+	updateHeight(grid + (newStep * s_gridSize + newStep) * bytesPerElement, btScalar(0.25) * (c00 + c01 + c10 + c11) + (btScalar)randomHeight(step), type);
 
 	//	std::cerr << "Computing grid with step = " << step << ": after\n";
 	//	dumpGrid(grid, bytesPerElement, type, step + 1);
@@ -496,7 +496,7 @@ getRawHeightfieldData
 						// float x = i * s_gridSpacing;
 						// float y = j * s_gridSpacing;
 						float heightScaling = (14. / 256.);
-						float z = double(image[(width - 1 - i) * 3 + width*j * 3]) * heightScaling;
+						float z = float(image[(width - 1 - i) * 3 + width*j * 3]) * heightScaling;
                         convertFromFloat(p, z, type);
 						// update min/max
 						if (!i && !j) {
@@ -592,7 +592,7 @@ getRawHeightfieldData
                     for (int j = 0; j < width; ++j)
                     {
                         // float y = j * s_gridSpacing;
-                        float z = allValues[i+width*j];
+                        float z = (float)allValues[i+width*j];
                         convertFromFloat(p, z, type);
 						// update min/max
 						if (!i && !j) {
@@ -833,8 +833,8 @@ public:
 			normal.safeNormalize();
 			for (int l = 0; l < 3; l++)
 			{
-				v.xyzw[l] = tris[k][l];
-				v.normal[l] = normal[l];
+				v.xyzw[l] = (float)tris[k][l];
+				v.normal[l] = (float)normal[l];
 			}
 			m_pIndicesOut->push_back(m_pVerticesOut->size());
 			m_pVerticesOut->push_back(v);
@@ -1053,8 +1053,8 @@ public:
 				btVector3FloatData s, h;
 				for (int w = 0; w < 4; w++)
 				{
-					s.m_floats[w] = source[i][w];
-					h.m_floats[w] = hit[i][w];
+					s.m_floats[w] = (float)source[i][w];
+					h.m_floats[w] = (float)hit[i][w];
 				}
 
 				points.push_back(s);
@@ -1093,7 +1093,7 @@ void HeightfieldExample::stepSimulation(float deltaTime)
 		btAlignedObjectArray<int> indices;
 		// int strideInBytes = 9 * sizeof(float);
 
-		m_phase += s_deltaPhase * deltaTime;
+		m_phase += (float)s_deltaPhase * deltaTime;
 		if (m_phase > 2.0 * SIMD_PI) {
 			m_phase -= 2.0 * SIMD_PI;
 		}

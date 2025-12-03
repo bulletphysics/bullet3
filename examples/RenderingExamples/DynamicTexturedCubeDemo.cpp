@@ -81,7 +81,7 @@ public:
 		static b3Transform tr = b3Transform::getIdentity();
 		static b3Scalar t = 0.f;
 		t += deltaTime;
-		tr.setOrigin(b3MakeVector3(0., 0., 2.) + b3MakeVector3(0., 0., 0.02 * b3Sin(t)));
+		tr.setOrigin(b3MakeVector3(0., 0., 2.) + b3MakeVector3(0., 0., b3Scalar(0.02) * b3Sin(t)));
 
 		m_tinyVrGUI->tick(deltaTime, tr);
 

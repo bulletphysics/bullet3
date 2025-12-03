@@ -459,7 +459,7 @@ void btFractureDynamicsWorld::fractureCallback()
 
 		static float maxImpact = 0;
 		if (totalImpact > maxImpact)
-			maxImpact = totalImpact;
+			maxImpact = (float)totalImpact;
 
 		//some threshold otherwise resting contact would break objects after a while
 		if (totalImpact < 40.f)

@@ -99,7 +99,7 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 
 	Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 	Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-	Vec2f clamp(image.get_width() - 1, image.get_height() - 1);
+	Vec2f clamp(float(image.get_width() - 1), float(image.get_height() - 1));
 
 	for (size_t i = 0; i < 3; i++)
 	{
@@ -121,9 +121,9 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 		orgPts2[i] = proj<2>(orgScreenSpacePts[i] / orgScreenSpacePts[i][3]);
 	}
 
-	for (P.x = bboxmin.x; P.x <= (int)bboxmax.x; P.x++)
+	for (P.x = (int)bboxmin.x; P.x <= (int)bboxmax.x; P.x++)
 	{
-		for (P.y = bboxmin.y; P.y <= (int)bboxmax.y; P.y++)
+		for (P.y = (int)bboxmin.y; P.y <= (int)bboxmax.y; P.y++)
 		{
 			double frag_depth = 0;
 			{
@@ -144,12 +144,12 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 			Vec3d orgClipd(orgClipc[2].x, orgClipc[2].y, orgClipc[2].z);
 			// double frag_depth2 = -1. * (orgClipd * bc_clip2);
 
-			Vec3f bc_clip2f(bc_clip2.x, bc_clip2.y, bc_clip2.z);
+			Vec3f bc_clip2f((float)bc_clip2.x, (float)bc_clip2.y, (float)bc_clip2.z);
 			bool discard = shader.fragment(bc_clip2f, color);
 			
 			if (!discard)
 			{
-				zbuffer[P.x + P.y * image.get_width()] = frag_depth;
+				zbuffer[P.x + P.y * image.get_width()] = (float)frag_depth;
 				if (segmentationMaskBuffer)
 				{
 					segmentationMaskBuffer[P.x + P.y * image.get_width()] = objectAndLinkIndex;
@@ -174,7 +174,7 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 
 	Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 	Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-	Vec2f clamp(image.get_width() - 1, image.get_height() - 1);
+	Vec2f clamp(float(image.get_width() - 1), float(image.get_height() - 1));
 
 	for (size_t i = 0; i < 3; i++)
 	{
@@ -187,9 +187,9 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 
 	Vec2i P;
 	TGAColor color;
-	for (P.x = bboxmin.x; P.x <= (int)bboxmax.x; P.x++)
+	for (P.x = (int)bboxmin.x; P.x <= (int)bboxmax.x; P.x++)
 	{
-		for (P.y = bboxmin.y; P.y <= (int)bboxmax.y; P.y++)
+		for (P.y = (int)bboxmin.y; P.y <= (int)bboxmax.y; P.y++)
 		{
 			Vec3d bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
 			Vec3d bc_clip = Vec3d(bc_screen.x / pts[0][3], bc_screen.y / pts[1][3], bc_screen.z / pts[2][3]);
@@ -199,7 +199,7 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 			if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0 ||
 				zbuffer[P.x + P.y * image.get_width()] > frag_depth)
 				continue;
-			Vec3f bc_clipf(bc_clip.x, bc_clip.y, bc_clip.z);
+			Vec3f bc_clipf((float)bc_clip.x, (float)bc_clip.y, (float)bc_clip.z);
 			bool discard = shader.fragment(bc_clipf, color);
 			if (frag_depth < -shader.m_farPlane)
 				discard = true;
@@ -208,7 +208,7 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 
 			if (!discard)
 			{
-				zbuffer[P.x + P.y * image.get_width()] = frag_depth;
+				zbuffer[P.x + P.y * image.get_width()] = (float)frag_depth;
 				if (segmentationMaskBuffer)
 				{
 					segmentationMaskBuffer[P.x + P.y * image.get_width()] = objectAndLinkIndex;

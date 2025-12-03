@@ -130,7 +130,7 @@ void LargeDeformation::initPhysics()
 		for (int i = 0; i < psb->m_nodes.size(); ++i)
 		{
 			for (int j = 0; j < 3; ++j)
-				psb->m_nodes[i].m_x[j] = ((double) 2*rand() / (RAND_MAX))-1.0;
+				psb->m_nodes[i].m_x[j] = btScalar(((double) 2*rand() / (RAND_MAX))-1.0);
 			psb->m_nodes[i].m_x[1]+=8;
 		}
         

@@ -54,7 +54,7 @@ void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar
 		for (int j = 0; j < psb->m_nodes.size(); ++j)
 		{
 			if (psb->m_nodes[j].m_im > 0)
-				psb->m_nodes[j].m_effectiveMass = I * (1.0 / psb->m_nodes[j].m_im);
+				psb->m_nodes[j].m_effectiveMass = I * (btScalar(1.0) / psb->m_nodes[j].m_im);
 		}
 	}
 	m_projection.reinitialize(nodeUpdated);
@@ -205,7 +205,7 @@ btScalar btDeformableBackwardEulerObjective::totalEnergy(btScalar dt)
 	btScalar e = 0;
 	for (int i = 0; i < m_lf.size(); ++i)
 	{
-		e += m_lf[i]->totalEnergy(dt);
+		e += (btScalar)m_lf[i]->totalEnergy(dt);
 	}
 	return e;
 }

@@ -153,14 +153,14 @@ public:
 
 			if (points.size() && indices.size())
 			{
-				m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], color, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), lineWidth);
+				m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], color, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), (float)lineWidth);
 			}
 		}
 		else
 		{
 			for (int i = 0; i < numLines; i++)
 			{
-				m_guiHelper->getRenderInterface()->drawLine(debugLines.m_linesFrom, debugLines.m_linesTo, debugLines.m_linesColor, lineWidth);
+				m_guiHelper->getRenderInterface()->drawLine(debugLines.m_linesFrom, debugLines.m_linesTo, debugLines.m_linesColor, (float)lineWidth);
 			}
 		}
 	}
@@ -272,11 +272,11 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix, projectionMatrix);
 			b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth, camVisualizerHeight);
 			float lightPos[3];
-			lightPos[0] = m_lightPos[0];
-			lightPos[1] = m_lightPos[1];
-			lightPos[2] = m_lightPos[2];
+			lightPos[0] = (float)m_lightPos[0];
+			lightPos[1] = (float)m_lightPos[1];
+			lightPos[2] = (float)m_lightPos[2];
 			b3RequestCameraImageSetLightDirection(commandHandle, lightPos);
-			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, m_specularCoeff);
+			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, (float)m_specularCoeff);
 			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 			break;
 		}
@@ -882,7 +882,7 @@ void PhysicsClientExample::stepSimulation(float /*deltaTime*/)
 
 									if (maxDepthValue != minDepthValue)
 									{
-										rgb = (depthValue - minDepthValue) * (255. / (btFabs(maxDepthValue - minDepthValue)));
+										rgb = int((depthValue - minDepthValue) * (255. / (btFabs(maxDepthValue - minDepthValue))));
 										if (rgb < 0 || rgb > 255)
 										{
 											//printf("rgb=%d\n",rgb);
@@ -916,9 +916,9 @@ void PhysicsClientExample::stepSimulation(float /*deltaTime*/)
 
 									btVector4 rgb = palette[(obIndex + linkIndex) & 3];
 									m_canvas->setPixel(m_canvasSegMaskIndex, i, j,
-													   rgb.x(),
-													   rgb.y(),
-													   rgb.z(), 255);  //alpha set to 255
+													   (unsigned char)rgb.x(),
+													   (unsigned char)rgb.y(),
+													   (unsigned char)rgb.z(), 255);  //alpha set to 255
 								}
 								else
 								{

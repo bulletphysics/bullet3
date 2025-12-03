@@ -257,7 +257,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		float bottom = -1.f;
 		float nearPlane = 1.f;
 		float tanFov = (top - bottom) * 0.5f / nearPlane;
-		float fov = btScalar(2.0) * btAtan(tanFov);
+		float fov = float(btScalar(2.0) * btAtan(tanFov));
 
 		btVector3 camPos, camTarget;
 		renderer->getActiveCamera()->getCameraPosition(camPos);

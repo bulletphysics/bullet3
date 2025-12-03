@@ -221,7 +221,7 @@ void NewtonsRopeCradleExample::initPhysics()
 
 void NewtonsRopeCradleExample::connectWithRope(btRigidBody* body1, btRigidBody* body2)
 {
-	btSoftBody* softBodyRope0 = btSoftBodyHelpers::CreateRope(softBodyWorldInfo, body1->getWorldTransform().getOrigin(), body2->getWorldTransform().getOrigin(), gRopeResolution, 0);
+	btSoftBody* softBodyRope0 = btSoftBodyHelpers::CreateRope(softBodyWorldInfo, body1->getWorldTransform().getOrigin(), body2->getWorldTransform().getOrigin(), (int)gRopeResolution, 0);
 	softBodyRope0->setTotalMass(0.1f);
 
 	softBodyRope0->appendAnchor(0, body1);
@@ -238,7 +238,7 @@ void NewtonsRopeCradleExample::connectWithRope(btRigidBody* body1, btRigidBody* 
 
 void NewtonsRopeCradleExample::stepSimulation(float deltaTime)
 {
-	applyRForceWithForceScalar(gForceScalar);  // apply force defined by apply force slider
+	applyRForceWithForceScalar((float)gForceScalar);  // apply force defined by apply force slider
 
 	if (m_dynamicsWorld)
 	{
@@ -282,7 +282,7 @@ void NewtonsRopeCradleExample::createRopePendulum(btSphereShape* colShape,
 	startTransform.setRotation(pendulumOrientation);                     // pendulum rotation
 	startTransform.setOrigin(startTransform * bottomSphereRelPosition);  // rotate this position
 	startTransform.setOrigin(position + startTransform.getOrigin());     // add non-rotated position to the relative position
-	btRigidBody* bottomSphere = createRigidBody(mass, startTransform, colShape);
+	btRigidBody* bottomSphere = createRigidBody((float)mass, startTransform, colShape);
 	bottomSphere->setFriction(0);  // we do not need friction here
 	pendula.push_back(bottomSphere);
 

@@ -426,7 +426,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 			br = &texture->rows[texture->nrows];
 			br->x = BORDER_X_LEFT;
 			br->y = py + BORDER_Y_BOTTOM;
-			br->h = rh + ADDITIONAL_HEIGHT;
+			br->h = short(rh + ADDITIONAL_HEIGHT);
 			texture->nrows++;
 		}
 	}
@@ -454,7 +454,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 	glyph->next = 0;
 
 	// Advance row location.
-	br->x += gw + BORDER_X_RIGHT;
+	br->x += short(gw + BORDER_X_RIGHT);
 
 	// Insert char to hash lookup.
 	glyph->next = fnt->lut[h];

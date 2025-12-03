@@ -68,7 +68,7 @@ void BasicExample::initPhysics()
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -105,7 +105,7 @@ void BasicExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape);
+					createRigidBody((float)mass, startTransform, colShape);
 				}
 			}
 		}

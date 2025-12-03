@@ -121,9 +121,9 @@ public:
 		btClamp(dt, 0.0001f, 0.01f);
 
 		m_time += dt;
-		m_targetPos.setValue(0.4 - 0.4 * b3Cos(m_time), 0, 0.8 + 0.4 * b3Cos(m_time));
+		m_targetPos.setValue(b3Scalar(0.4) - b3Scalar(0.4) * b3Cos((b3Scalar)m_time), 0, b3Scalar(0.8) + b3Scalar(0.4) * b3Cos((b3Scalar)m_time));
 		m_targetOri.setValue(0, 1.0, 0, 0);
-		m_targetPos.setValue(b3Scalar(0.2 * b3Cos(m_time)), b3Scalar(0.2 * b3Sin(m_time)), b3Scalar(1.1));
+		m_targetPos.setValue(b3Scalar(0.2) * b3Cos((b3Scalar)m_time), b3Scalar(0.2) * b3Sin((b3Scalar)m_time), b3Scalar(1.1));
 
 		int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
 
@@ -149,8 +149,8 @@ public:
 			bool computeForwardKinematics = true;
 			m_robotSim.getLinkState(0, 6, computeVelocity, computeForwardKinematics, &linkState);
 
-			m_worldPos.setValue(linkState.m_worldLinkFramePosition[0], linkState.m_worldLinkFramePosition[1], linkState.m_worldLinkFramePosition[2]);
-			m_worldOri.setValue(linkState.m_worldLinkFrameOrientation[0], linkState.m_worldLinkFrameOrientation[1], linkState.m_worldLinkFrameOrientation[2], linkState.m_worldLinkFrameOrientation[3]);
+			m_worldPos.setValue((b3Scalar)linkState.m_worldLinkFramePosition[0], (b3Scalar)linkState.m_worldLinkFramePosition[1], (b3Scalar)linkState.m_worldLinkFramePosition[2]);
+			m_worldOri.setValue((b3Scalar)linkState.m_worldLinkFrameOrientation[0], (b3Scalar)linkState.m_worldLinkFrameOrientation[1], (b3Scalar)linkState.m_worldLinkFrameOrientation[2], (b3Scalar)linkState.m_worldLinkFrameOrientation[3]);
 
 			b3Vector3DoubleData targetPosDataOut;
 			m_targetPos.serializeDouble(targetPosDataOut);

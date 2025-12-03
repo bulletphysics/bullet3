@@ -577,8 +577,8 @@ void btSoftBodyHelpers::ReoptimizeLinkOrder(btSoftBody* psb /* This can be repla
 	{
 		// Note which prior link calculations we are dependent upon & build up dependence lists
 		lr = &(psb->m_links[i]);
-		ar = (lr->m_n[0] - node0) / (node1 - node0);
-		br = (lr->m_n[1] - node0) / (node1 - node0);
+		ar = int((lr->m_n[0] - node0) / (node1 - node0));
+		br = int((lr->m_n[1] - node0) / (node1 - node0));
 		if (nodeWrittenAt[ar] > REOP_NOT_DEPENDENT)
 		{
 			linkDepA[i] = nodeWrittenAt[ar];
@@ -1610,10 +1610,10 @@ void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector
 	btScalar d11 = btDot(v1, v1);
 	btScalar d20 = btDot(v2, v0);
 	btScalar d21 = btDot(v2, v1);
-	btScalar invDenom = 1.0 / (d00 * d11 - d01 * d01);
+	btScalar invDenom = btScalar(1.0) / (d00 * d11 - d01 * d01);
 	bary[1] = (d11 * d20 - d01 * d21) * invDenom;
 	bary[2] = (d00 * d21 - d01 * d20) * invDenom;
-	bary[0] = 1.0 - bary[1] - bary[2];
+	bary[0] = btScalar(1.0) - bary[1] - bary[2];
 	bary[3] = 0;
 }
 

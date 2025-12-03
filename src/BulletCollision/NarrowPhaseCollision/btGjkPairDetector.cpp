@@ -365,12 +365,12 @@ btScalar btVec3PointTriDist2(const btVector3 *P,
 	s = (q * r - w * p) / (w * v - r * r);
 	t = (-s * r - q) / w;
 
-	if ((btFuzzyZero(s) || s > btScalar(0)) && (ccdEq(s, btScalar(1)) || s < btScalar(1)) && (btFuzzyZero(t) || t > btScalar(0)) && (ccdEq(t, btScalar(1)) || t < btScalar(1)) && (ccdEq(t + s, btScalar(1)) || t + s < btScalar(1)))
+	if ((btFuzzyZero(btScalar(s)) || s > btScalar(0)) && (ccdEq(btScalar(s), btScalar(1)) || s < 1) && (btFuzzyZero(btScalar(t)) || t > btScalar(0)) && (ccdEq(btScalar(t), btScalar(1)) || t < 1) && (ccdEq(btScalar(t + s), btScalar(1)) || t + s < 1))
 	{
 		if (witness)
 		{
-			btVec3Scale(&d1, s);
-			btVec3Scale(&d2, t);
+			btVec3Scale(&d1, btScalar(s));
+			btVec3Scale(&d2, btScalar(t));
 			btVec3Copy(witness, x0);
 			ccdVec3Add(witness, &d1);
 			ccdVec3Add(witness, &d2);
@@ -408,7 +408,7 @@ btScalar btVec3PointTriDist2(const btVector3 *P,
 		}
 	}
 
-	return dist;
+	return (btScalar)dist;
 }
 
 static int btDoSimplex2(btSimplex *simplex, btVector3 *dir)

@@ -477,10 +477,10 @@ void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool
 		//info.m_linkName = strDup(con->m_typeConstraintData.m_name);
 	}
 
-	btVector3 linearLowerLimit(con->m_linearLowerLimit.m_floats[0], con->m_linearLowerLimit.m_floats[1], con->m_linearLowerLimit.m_floats[2]);
-	btVector3 linearUpperLimit(con->m_linearUpperLimit.m_floats[0], con->m_linearUpperLimit.m_floats[1], con->m_linearUpperLimit.m_floats[2]);
-	btVector3 angularLowerLimit(con->m_angularLowerLimit.m_floats[0], con->m_angularLowerLimit.m_floats[1], con->m_angularLowerLimit.m_floats[2]);
-	btVector3 angularUpperLimit(con->m_angularUpperLimit.m_floats[0], con->m_angularUpperLimit.m_floats[1], con->m_angularUpperLimit.m_floats[2]);
+	btVector3 linearLowerLimit((btScalar)con->m_linearLowerLimit.m_floats[0], (btScalar)con->m_linearLowerLimit.m_floats[1], (btScalar)con->m_linearLowerLimit.m_floats[2]);
+	btVector3 linearUpperLimit((btScalar)con->m_linearUpperLimit.m_floats[0], (btScalar)con->m_linearUpperLimit.m_floats[1], (btScalar)con->m_linearUpperLimit.m_floats[2]);
+	btVector3 angularLowerLimit((btScalar)con->m_angularLowerLimit.m_floats[0], (btScalar)con->m_angularLowerLimit.m_floats[1], (btScalar)con->m_angularLowerLimit.m_floats[2]);
+	btVector3 angularUpperLimit((btScalar)con->m_angularUpperLimit.m_floats[0], (btScalar)con->m_angularUpperLimit.m_floats[1], (btScalar)con->m_angularUpperLimit.m_floats[2]);
 
 	//very simple, rudimentary extraction of constaint type, from limits
 	info.m_jointType = eFixedType;

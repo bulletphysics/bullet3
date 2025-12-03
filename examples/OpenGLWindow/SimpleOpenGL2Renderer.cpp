@@ -623,9 +623,9 @@ int SimpleOpenGL2Renderer::getScreenHeight()
 
 void SimpleOpenGL2Renderer::drawLine(const double from[4], const double to[4], const double color[4], double lineWidth)
 {
-	glLineWidth(lineWidth);
+	glLineWidth((GLfloat)lineWidth);
 	glBegin(GL_LINES);
-	glColor3f(color[0], color[1], color[2]);
+	glColor3f((GLfloat)color[0], (GLfloat)color[1], (GLfloat)color[2]);
 	glVertex3d(from[0], from[1], from[2]);
 	glVertex3d(to[0], to[1], to[2]);
 	glEnd();

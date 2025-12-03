@@ -61,7 +61,7 @@ public:
 		mVcount = 0;
 		mVertices = 0;
 		mVertexStride = sizeof(btVector3);
-		mNormalEpsilon = 0.001f;
+		mNormalEpsilon = btScalar(0.001);
 		mMaxVertices = 4096;  // maximum number of points to be considered for a convex hull.
 		mMaxFaces = 4096;
 	};

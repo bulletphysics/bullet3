@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs / 1e6))
 				{
-					b3Clock::usleep(gMinUpdateTimeMicroSecs / 10.);
+					b3Clock::usleep(int(gMinUpdateTimeMicroSecs / 10.));
 				}
 				else
 				{

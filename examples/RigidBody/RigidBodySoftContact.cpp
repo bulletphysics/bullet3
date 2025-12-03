@@ -96,7 +96,7 @@ void RigidBodySoftContact::initPhysics()
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		btRigidBody* body = createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 
 		body->setContactStiffnessAndDamping(300, 10);
@@ -140,7 +140,7 @@ void RigidBodySoftContact::initPhysics()
 						btScalar(2.0 * j)));
 
 					btRigidBody* body;
-					body = createRigidBody(mass, startTransform, colShape);
+					body = createRigidBody((float)mass, startTransform, colShape);
 					//body->setAngularVelocity(btVector3(1,1,1));
 					(void)body;
 				}

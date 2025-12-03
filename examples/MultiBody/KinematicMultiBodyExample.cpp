@@ -41,7 +41,7 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	groundBody->setBaseOmega(angularVelocity);
 
 	static float time = 0.0;
-	time += deltaTime;
+	time += (float)deltaTime;
 	double old_joint_pos = groundBody->getJointPos(0);
 	double joint_pos = 0.5 * sin(time * 3.0 - 0.3);
 	double joint_vel = (joint_pos - old_joint_pos) / deltaTime;
@@ -182,7 +182,7 @@ void KinematicMultiBodyExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape);
+					createRigidBody((float)mass, startTransform, colShape);
 				}
 			}
 		}

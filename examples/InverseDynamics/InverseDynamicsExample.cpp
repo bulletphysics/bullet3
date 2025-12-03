@@ -235,7 +235,7 @@ void InverseDynamicsExample::initPhysics()
 				q_name[dof] = tmp;
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 				btVector4 color = sJointCurveColors[dof & 7];
-				m_timeSeriesCanvas->addDataSource(q_name[dof].c_str(), color[0] * 255, color[1] * 255, color[2] * 255);
+				m_timeSeriesCanvas->addDataSource(q_name[dof].c_str(), (unsigned char)(color[0] * 255), (unsigned char)(color[1] * 255), (unsigned char )(color[2] * 255));
 			}
 		}
 	}
@@ -264,7 +264,7 @@ void InverseDynamicsExample::stepSimulation(float /*deltaTime*/)
 			const btScalar qd_dot = 0;
 			const btScalar qd_ddot = 0;
 			if (m_timeSeriesCanvas)
-				m_timeSeriesCanvas->insertDataAtCurrentTime(q[dof], dof, true);
+				m_timeSeriesCanvas->insertDataAtCurrentTime((float)q[dof], dof, true);
 
 			// pd_control is either desired joint torque for pd control,
 			// or the feedback contribution to nu

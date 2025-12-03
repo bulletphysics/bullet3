@@ -67,7 +67,7 @@ void RigidBodyFromObjExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -119,7 +119,7 @@ void RigidBodyFromObjExample::initPhysics()
 	float pos[4] = {0, 3, 0, 0};
 	btVector3 position(pos[0], pos[1], pos[2]);
 	startTransform.setOrigin(position);
-	btRigidBody* body = createRigidBody(mass, startTransform, shape);
+	btRigidBody* body = createRigidBody((float)mass, startTransform, shape);
 
 	bool useConvexHullForRendering = ((m_options & ObjUseConvexHullForRendering) != 0);
 

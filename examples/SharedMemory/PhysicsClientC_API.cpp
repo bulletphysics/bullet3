@@ -1426,10 +1426,10 @@ B3_SHARED_API int b3GetLinkState(b3PhysicsClientHandle /*physClient*/, b3SharedM
 			state->m_worldOrientation[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkState[7 * linkIndex + 3 + i];
 			state->m_localInertialOrientation[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkLocalInertialFrames[7 * linkIndex + 3 + i];
 		}
-		com.setOrigin(b3MakeVector3(state->m_worldPosition[0], state->m_worldPosition[1], state->m_worldPosition[2]));
-		com.setRotation(b3Quaternion(state->m_worldOrientation[0], state->m_worldOrientation[1], state->m_worldOrientation[2], state->m_worldOrientation[3]));
-		inertial.setOrigin(b3MakeVector3(state->m_localInertialPosition[0], state->m_localInertialPosition[1], state->m_localInertialPosition[2]));
-		inertial.setRotation(b3Quaternion(state->m_localInertialOrientation[0], state->m_localInertialOrientation[1], state->m_localInertialOrientation[2], state->m_localInertialOrientation[3]));
+		com.setOrigin(b3MakeVector3((b3Scalar)state->m_worldPosition[0], (b3Scalar)state->m_worldPosition[1], (b3Scalar)state->m_worldPosition[2]));
+		com.setRotation(b3Quaternion((b3Scalar)state->m_worldOrientation[0], (b3Scalar)state->m_worldOrientation[1], (b3Scalar)state->m_worldOrientation[2], (b3Scalar)state->m_worldOrientation[3]));
+		inertial.setOrigin(b3MakeVector3((b3Scalar)state->m_localInertialPosition[0], (b3Scalar)state->m_localInertialPosition[1], (b3Scalar)state->m_localInertialPosition[2]));
+		inertial.setRotation(b3Quaternion((b3Scalar)state->m_localInertialOrientation[0], (b3Scalar)state->m_localInertialOrientation[1], (b3Scalar)state->m_localInertialOrientation[2], (b3Scalar)state->m_localInertialOrientation[3]));
 		wlf = com * inertial.inverse();
 		for (int i = 0; i < 3; ++i)
 		{
@@ -2251,8 +2251,8 @@ B3_SHARED_API int b3CreateMultiBodyLink(b3SharedMemoryCommandHandle commandHandl
 			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex * 4 + 2] = linkInertialFrameOrientation[2];
 			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex * 4 + 3] = linkInertialFrameOrientation[3];
 
-			command->m_createMultiBodyArgs.m_linkCollisionShapeUniqueIds[linkIndex] = linkCollisionShapeIndex;
-			command->m_createMultiBodyArgs.m_linkVisualShapeUniqueIds[linkIndex] = linkVisualShapeIndex;
+			command->m_createMultiBodyArgs.m_linkCollisionShapeUniqueIds[linkIndex] = (int)linkCollisionShapeIndex;
+			command->m_createMultiBodyArgs.m_linkVisualShapeUniqueIds[linkIndex] = (int)linkVisualShapeIndex;
 
 			command->m_createMultiBodyArgs.m_linkParentIndices[linkIndex] = linkParentIndex;
 			command->m_createMultiBodyArgs.m_linkJointTypes[linkIndex] = linkJointType;
@@ -4771,7 +4771,7 @@ B3_SHARED_API void b3ComputeProjectionMatrix(float left, float right, float bott
 
 B3_SHARED_API void b3ComputeProjectionMatrixFOV(float fov, float aspect, float nearVal, float farVal, float projectionMatrix[16])
 {
-	float yScale = 1.0 / tan((B3_PI / 180.0) * fov / 2);
+	float yScale = (float)(1.0 / tan(((double)B3_PI / 180.0) * (double)fov / 2));
 	float xScale = yScale / aspect;
 
 	projectionMatrix[0 * 4 + 0] = xScale;
@@ -6346,10 +6346,10 @@ B3_SHARED_API void b3MultiplyTransforms(const double posA[3], const double ornA[
 {
 	b3Transform trA;
 	b3Transform trB;
-	trA.setOrigin(b3MakeVector3(posA[0], posA[1], posA[2]));
-	trA.setRotation(b3Quaternion(ornA[0], ornA[1], ornA[2], ornA[3]));
-	trB.setOrigin(b3MakeVector3(posB[0], posB[1], posB[2]));
-	trB.setRotation(b3Quaternion(ornB[0], ornB[1], ornB[2], ornB[3]));
+	trA.setOrigin(b3MakeVector3((b3Scalar)posA[0], (b3Scalar)posA[1], (b3Scalar)posA[2]));
+	trA.setRotation(b3Quaternion((b3Scalar)ornA[0], (b3Scalar)ornA[1], (b3Scalar)ornA[2], (b3Scalar)ornA[3]));
+	trB.setOrigin(b3MakeVector3((b3Scalar)posB[0], (b3Scalar)posB[1], (b3Scalar)posB[2]));
+	trB.setRotation(b3Quaternion((b3Scalar)ornB[0], (b3Scalar)ornB[1], (b3Scalar)ornB[2], (b3Scalar)ornB[3]));
 	b3Transform res = trA * trB;
 	outPos[0] = res.getOrigin()[0];
 	outPos[1] = res.getOrigin()[1];
@@ -6364,8 +6364,8 @@ B3_SHARED_API void b3MultiplyTransforms(const double posA[3], const double ornA[
 B3_SHARED_API void b3InvertTransform(const double pos[3], const double orn[4], double outPos[3], double outOrn[4])
 {
 	b3Transform tr;
-	tr.setOrigin(b3MakeVector3(pos[0], pos[1], pos[2]));
-	tr.setRotation(b3Quaternion(orn[0], orn[1], orn[2], orn[3]));
+	tr.setOrigin(b3MakeVector3((b3Scalar)pos[0], (b3Scalar)pos[1], (b3Scalar)pos[2]));
+	tr.setRotation(b3Quaternion((b3Scalar)orn[0], (b3Scalar)orn[1], (b3Scalar)orn[2], (b3Scalar)orn[3]));
 	b3Transform trInv = tr.inverse();
 	outPos[0] = trInv.getOrigin()[0];
 	outPos[1] = trInv.getOrigin()[1];
@@ -6379,9 +6379,9 @@ B3_SHARED_API void b3InvertTransform(const double pos[3], const double orn[4], d
 
 B3_SHARED_API void b3QuaternionSlerp(const double startQuat[4], const double endQuat[4], double interpolationFraction, double outOrn[4])
 {
-	b3Quaternion start(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
-	b3Quaternion end(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
-	b3Quaternion result = start.slerp(end, interpolationFraction);
+	b3Quaternion start((b3Scalar)startQuat[0], (b3Scalar)startQuat[1], (b3Scalar)startQuat[2], (b3Scalar)startQuat[3]);
+	b3Quaternion end((b3Scalar)endQuat[0], (b3Scalar)endQuat[1], (b3Scalar)endQuat[2], (b3Scalar)endQuat[3]);
+	b3Quaternion result = start.slerp(end, (b3Scalar)interpolationFraction);
 	outOrn[0] = result[0];
 	outOrn[1] = result[1];
 	outOrn[2] = result[2];
@@ -6390,8 +6390,8 @@ B3_SHARED_API void b3QuaternionSlerp(const double startQuat[4], const double end
 
 B3_SHARED_API void b3RotateVector(const double quat[4], const double vec[3], double vecOut[3])
 {
-	b3Quaternion q(quat[0], quat[1], quat[2], quat[3]);
-	b3Vector3 v = b3MakeVector3(vec[0], vec[1], vec[2]);
+	b3Quaternion q((b3Scalar)quat[0], (b3Scalar)quat[1], (b3Scalar)quat[2], (b3Scalar)quat[3]);
+	b3Vector3 v = b3MakeVector3((b3Scalar)vec[0], (b3Scalar)vec[1], (b3Scalar)vec[2]);
 	b3Vector3 vout = b3QuatRotate(q, v);
 	vecOut[0] = vout[0];
 	vecOut[1] = vout[1];
@@ -6400,11 +6400,11 @@ B3_SHARED_API void b3RotateVector(const double quat[4], const double vec[3], dou
 
 B3_SHARED_API void b3CalculateVelocityQuaternion(const double startQuat[4], const double endQuat[4], double deltaTime, double angVelOut[3])
 {
-	b3Quaternion start(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
-	b3Quaternion end(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
+	b3Quaternion start((b3Scalar)startQuat[0], (b3Scalar)startQuat[1], (b3Scalar)startQuat[2], (b3Scalar)startQuat[3]);
+	b3Quaternion end((b3Scalar)endQuat[0], (b3Scalar)endQuat[1], (b3Scalar)endQuat[2], (b3Scalar)endQuat[3]);
 	b3Vector3 pos=b3MakeVector3(0, 0, 0);
 	b3Vector3 linVel, angVel;
-	b3TransformUtil::calculateVelocityQuaternion(pos, pos, start, end, deltaTime, linVel, angVel);
+	b3TransformUtil::calculateVelocityQuaternion(pos, pos, start, end, (b3Scalar)deltaTime, linVel, angVel);
 	angVelOut[0] = angVel[0];
 	angVelOut[1] = angVel[1];
 	angVelOut[2] = angVel[2];
@@ -6412,7 +6412,7 @@ B3_SHARED_API void b3CalculateVelocityQuaternion(const double startQuat[4], cons
 
 B3_SHARED_API void b3GetQuaternionFromAxisAngle(const double axis[3], double angle, double outQuat[4])
 {
-	b3Quaternion quat(b3MakeVector3(axis[0], axis[1], axis[2]), angle);
+	b3Quaternion quat(b3MakeVector3((b3Scalar)axis[0], (b3Scalar)axis[1], (b3Scalar)axis[2]), (b3Scalar)angle);
 	outQuat[0] = quat[0];
 	outQuat[1] = quat[1];
 	outQuat[2] = quat[2];
@@ -6420,7 +6420,7 @@ B3_SHARED_API void b3GetQuaternionFromAxisAngle(const double axis[3], double ang
 }
 B3_SHARED_API void b3GetAxisAngleFromQuaternion(const double quat[4], double axis[3], double* angle)
 {
-	b3Quaternion q(quat[0], quat[1], quat[2], quat[3]);
+	b3Quaternion q((b3Scalar)quat[0], (b3Scalar)quat[1], (b3Scalar)quat[2], (b3Scalar)quat[3]);
 	b3Vector3 ax = q.getAxis();
 	axis[0] = ax[0];
 	axis[1] = ax[1];
@@ -6430,8 +6430,8 @@ B3_SHARED_API void b3GetAxisAngleFromQuaternion(const double quat[4], double axi
 
 B3_SHARED_API void b3GetQuaternionDifference(const double startQuat[4], const double endQuat[4], double outOrn[4])
 {
-	b3Quaternion orn0(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
-	b3Quaternion orn1a(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
+	b3Quaternion orn0((b3Scalar)startQuat[0], (b3Scalar)startQuat[1], (b3Scalar)startQuat[2], (b3Scalar)startQuat[3]);
+	b3Quaternion orn1a((b3Scalar)endQuat[0], (b3Scalar)endQuat[1], (b3Scalar)endQuat[2], (b3Scalar)endQuat[3]);
 	b3Quaternion orn1 = orn0.nearest(orn1a);
 	b3Quaternion dorn = orn1 * orn0.inverse();
 	outOrn[0] = dorn[0];
@@ -6486,8 +6486,8 @@ static bool MyMatrixToEulerXYZ(const b3Matrix3x3& mat, b3Vector3& xyz)
 
 B3_SHARED_API void b3GetAxisDifferenceQuaternion(const double startQuat[4], const double endQuat[4], double axisOut[3])
 {
-	b3Quaternion currentQuat(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
-	b3Quaternion desiredQuat(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
+	b3Quaternion currentQuat((b3Scalar)startQuat[0], (b3Scalar)startQuat[1], (b3Scalar)startQuat[2], (b3Scalar)startQuat[3]);
+	b3Quaternion desiredQuat((b3Scalar)endQuat[0], (b3Scalar)endQuat[1], (b3Scalar)endQuat[2], (b3Scalar)endQuat[3]);
 
 	b3Quaternion relRot = currentQuat.inverse() * desiredQuat;
 	b3Vector3 angleDiff;

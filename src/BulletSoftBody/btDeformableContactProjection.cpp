@@ -571,7 +571,7 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 			if (node->m_im != 0)
 			{
 				int index = node->index;
-				f[index] += constraint.getDv(node) * (1. / node->m_im);
+				f[index] += constraint.getDv(node) * (btScalar(1.) / node->m_im);
 			}
 		}
 		for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
@@ -584,7 +584,7 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 				if (node->m_im != 0)
 				{
 					int index = node->index;
-					f[index] += constraint.getDv(node) * (1. / node->m_im);
+					f[index] += constraint.getDv(node) * (btScalar(1.) / node->m_im);
 				}
 			}
 		}
@@ -596,7 +596,7 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 			if (node->m_im != 0)
 			{
 				int index = node->index;
-				f[index] += constraint.getDv(node) * (1. / node->m_im);
+				f[index] += constraint.getDv(node) * (btScalar(1.) / node->m_im);
 			}
 			for (int l = 0; l < 3; ++l)
 			{
@@ -604,7 +604,7 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 				if (softNode->m_im != 0)
 				{
 					int index = softNode->index;
-					f[index] += constraint.getDv(softNode) * (1. / softNode->m_im);
+					f[index] += constraint.getDv(softNode) * (btScalar(1.) / softNode->m_im);
 				}
 			}
 		}

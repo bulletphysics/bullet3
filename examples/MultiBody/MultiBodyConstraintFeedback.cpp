@@ -145,7 +145,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 
 		for (int i = 0; i < numLinks; ++i)
 		{
-			float linkMass = i == 0 ? 0.0001 : 1.f;
+			float linkMass = i == 0 ? 0.0001f : 1.f;
 			//if (i==3 || i==2)
 			//	linkMass= 1000;
 			btVector3 linkInertiaDiag(0.f, 0.f, 0.f);
@@ -339,7 +339,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 			}
 		}
 		int link = 0;
-		int targetVelocity = 0.f;
+		btScalar targetVelocity = 0;
 		btScalar maxForce = 100000;
 		m_motor = new btMultiBodyJointMotor(pMultiBody, link, targetVelocity, maxForce);
 		m_dynamicsWorld->addMultiBodyConstraint(m_motor);
@@ -366,7 +366,7 @@ void MultiBodyConstraintFeedbackSetup::stepSimulation(float /*deltaTime*/)
 	{
 		if (m_motor)
 		{
-			float force = m_motor->getAppliedImpulse(0) / timeStep;
+			float force = float(m_motor->getAppliedImpulse(0) / timeStep);
 			b3Printf("motor applied force = %f\n", force);
 		}
 

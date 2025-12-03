@@ -365,7 +365,7 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 
 		if (bestloc)
 		{
-			int d = data + i - bestloc;  // distance back
+			int d = (int)(data + i - bestloc);  // distance back
 			assert(d <= 32767 && best <= 258);
 			for (j = 0; best > lengthc[j + 1] - 1; ++j)
 				;

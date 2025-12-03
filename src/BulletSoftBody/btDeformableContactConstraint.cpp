@@ -504,13 +504,13 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
 		v2 -= dv * contact->m_weights[2];
 	if (m_useStrainLimiting)
 	{
-		btScalar relaxation = 1. / btScalar(m_infoGlobal->m_numIterations);
+		btScalar relaxation = btScalar(1.) / btScalar(m_infoGlobal->m_numIterations);
 		btScalar m01 = (relaxation / (im0 + im1));
 		btScalar m02 = (relaxation / (im0 + im2));
 		btScalar m12 = (relaxation / (im1 + im2));
 #ifdef USE_STRAIN_RATE_LIMITING
 		// apply strain limiting to prevent the new velocity to change the current length of the edge by more than 1%.
-		btScalar p = 0.01;
+		btScalar p = btScalar(0.01);
 		btVector3& x0 = face->m_n[0]->m_x;
 		btVector3& x1 = face->m_n[1]->m_x;
 		btVector3& x2 = face->m_n[2]->m_x;

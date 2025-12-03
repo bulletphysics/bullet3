@@ -86,7 +86,7 @@ void MultiDofDemo::initPhysics()
 
 	if (g_firstInit)
 	{
-		m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraDistance(btScalar(10. * scaling));
+		m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraDistance(10.f * scaling);
 		m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraPitch(50);
 		g_firstInit = false;
 	}

@@ -59,7 +59,7 @@ void MultipleBoxesExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -89,7 +89,7 @@ void MultipleBoxesExample::initPhysics()
 				btScalar(0),
 				btScalar(20 + i * 2),
 				btScalar(0)));
-			createRigidBody(mass, startTransform, colShape);
+			createRigidBody((float)mass, startTransform, colShape);
 		}
 	}
 

@@ -124,12 +124,12 @@ public:
                     {
                         if (dofIndex == 6)
                         {
-                            motor->setVelocityTarget(-fingerTargetVelocities[1], 1);
+                            motor->setVelocityTarget((btScalar)-fingerTargetVelocities[1], 1);
                             motor->setMaxAppliedImpulse(10);
                         }
                         if (dofIndex == 7)
                         {
-                            motor->setVelocityTarget(fingerTargetVelocities[1], 1);
+                            motor->setVelocityTarget((btScalar)fingerTargetVelocities[1], 1);
                             motor->setMaxAppliedImpulse(10);
                         }
                         motor->setMaxAppliedImpulse(25);
@@ -261,7 +261,7 @@ void ReducedMotorGrasp::initPhysics()
             {
                 int dof = 0;
                 btScalar desiredVelocity = 0.f;
-                btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mbC, mbLinkIndex, dof, desiredVelocity, maxMotorImpulse);
+                btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mbC, mbLinkIndex, dof, desiredVelocity, (btScalar)maxMotorImpulse);
                 motor->setPositionTarget(0, 0);
                 motor->setVelocityTarget(0, 1);
                 mbC->getLink(mbLinkIndex).m_userPtr = motor;

@@ -337,8 +337,8 @@ void RemoteGUIHelper::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWo
 				p.m_graphicsInstanceId = index;
 				for (int q = 0; q < 4; q++)
 				{
-					p.m_pos[q] = pos[q];
-					p.m_orn[q] = orn[q];
+					p.m_pos[q] = (float)pos[q];
+					p.m_orn[q] = (float)orn[q];
 				}
 				updatedPositions.push_back(p);
 			}

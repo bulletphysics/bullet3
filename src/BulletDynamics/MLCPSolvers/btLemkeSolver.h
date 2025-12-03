@@ -223,7 +223,7 @@ public:
 					{
 						fail = true;
 						errorIndexMax = i;
-						errorValueMax = x[i];
+						errorValueMax = (float)x[i];
 					}
 					////printf("x[i] = %f,",x[i]);
 				}
@@ -232,7 +232,7 @@ public:
 					if (x[i] < errorValueMin)
 					{
 						errorIndexMin = i;
-						errorValueMin = x[i];
+						errorValueMin = (float)x[i];
 						fail = true;
 						//printf("x[i] = %f,",x[i]);
 					}
@@ -305,7 +305,7 @@ public:
 					{
 						fail = true;
 						errorIndexMax = i;
-						errorValueMax = x[i];
+						errorValueMax = (float)x[i];
 					}
 					////printf("x[i] = %f,",x[i]);
 				}
@@ -314,7 +314,7 @@ public:
 					if (x[i] < errorValueMin)
 					{
 						errorIndexMin = i;
-						errorValueMin = x[i];
+						errorValueMin = (float)x[i];
 						fail = true;
 						//printf("x[i] = %f,",x[i]);
 					}

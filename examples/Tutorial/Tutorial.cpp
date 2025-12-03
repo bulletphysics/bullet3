@@ -42,7 +42,7 @@ struct LWSphere
 
 	void computeLocalInertia(b3Scalar mass, b3Vector3& localInertia)
 	{
-		btScalar elem = b3Scalar(0.4) * mass * m_radius * m_radius;
+		b3Scalar elem = b3Scalar(b3Scalar(0.4) * mass * m_radius * m_radius);
 		localInertia.setValue(elem, elem, elem);
 	}
 };
@@ -94,11 +94,11 @@ void ComputeClosestPointsPlaneSphere(const LWPlane& planeWorld, const LWSphere& 
 {
 	b3Vector3 spherePosWorld = spherePose.m_position;
 	btScalar t = -(spherePosWorld.dot(-planeWorld.m_normal) + planeWorld.m_planeConstant);
-	b3Vector3 intersectionPoint = spherePosWorld + t * -planeWorld.m_normal;
-	b3Scalar distance = t - sphere.m_radius;
+	b3Vector3 intersectionPoint = spherePosWorld + (b3Scalar)t * -planeWorld.m_normal;
+	b3Scalar distance = b3Scalar(t - sphere.m_radius);
 	pointOut.m_distance = distance;
 	pointOut.m_ptOnBWorld = intersectionPoint;
-	pointOut.m_ptOnAWorld = spherePosWorld + sphere.m_radius * -planeWorld.m_normal;
+	pointOut.m_ptOnAWorld = spherePosWorld + (b3Scalar)sphere.m_radius * -planeWorld.m_normal;
 	pointOut.m_normalOnB = planeWorld.m_normal;
 }
 
@@ -110,10 +110,10 @@ void ComputeClosestPointsSphereSphere(const LWSphere& sphereA, const LWPose& sph
 	pointOut.m_normalOnB = b3MakeVector3(1, 0, 0);
 	if (len > B3_EPSILON)
 	{
-		pointOut.m_normalOnB = diff / len;
+		pointOut.m_normalOnB = diff / (b3Scalar)len;
 	}
-	pointOut.m_ptOnAWorld = sphereAPose.m_position - sphereA.m_radius * pointOut.m_normalOnB;
-	pointOut.m_ptOnBWorld = pointOut.m_ptOnAWorld - pointOut.m_normalOnB * pointOut.m_distance;
+	pointOut.m_ptOnAWorld = sphereAPose.m_position - (b3Scalar)sphereA.m_radius * pointOut.m_normalOnB;
+	pointOut.m_ptOnBWorld = pointOut.m_ptOnAWorld - pointOut.m_normalOnB * (b3Scalar)pointOut.m_distance;
 }
 
 enum LWRIGIDBODY_FLAGS
@@ -137,9 +137,9 @@ struct LWRigidBody
 	void computeInvInertiaTensorWorld()
 	{
 		b3Vector3 invInertiaLocal;
-		invInertiaLocal.setValue(m_localInertia.x != btScalar(0.0) ? btScalar(1.0) / m_localInertia.x : btScalar(0.0),
-								 m_localInertia.y != btScalar(0.0) ? btScalar(1.0) / m_localInertia.y : btScalar(0.0),
-								 m_localInertia.z != btScalar(0.0) ? btScalar(1.0) / m_localInertia.z : btScalar(0.0));
+		invInertiaLocal.setValue(m_localInertia.x != b3Scalar(0.0) ? b3Scalar(1.0) / m_localInertia.x : b3Scalar(0.0),
+								 m_localInertia.y != b3Scalar(0.0) ? b3Scalar(1.0) / m_localInertia.y : b3Scalar(0.0),
+								 m_localInertia.z != b3Scalar(0.0) ? b3Scalar(1.0) / m_localInertia.z : b3Scalar(0.0));
 		b3Matrix3x3 m(m_worldPose.m_orientation);
 		m_invInertiaTensorWorld = m.scaled(invInertiaLocal) * m.transpose();
 	}
@@ -169,7 +169,7 @@ struct LWRigidBody
 
 	void integrateAcceleration(double deltaTime)
 	{
-		m_linearVelocity += m_gravityAcceleration * deltaTime;
+		m_linearVelocity += m_gravityAcceleration * (b3Scalar)deltaTime;
 	}
 
 	void applyImpulse(const b3Vector3& impulse, const b3Vector3& rel_pos)
@@ -183,12 +183,12 @@ struct LWRigidBody
 	{
 		LWPose newPose;
 
-		newPose.m_position = m_worldPose.m_position + m_linearVelocity * deltaTime;
+		newPose.m_position = m_worldPose.m_position + m_linearVelocity * (b3Scalar)deltaTime;
 
 		if (m_flags & LWFLAG_USE_QUATERNION_DERIVATIVE)
 		{
 			newPose.m_orientation = m_worldPose.m_orientation;
-			newPose.m_orientation += (m_angularVelocity * newPose.m_orientation) * (deltaTime * btScalar(0.5));
+			newPose.m_orientation += (m_angularVelocity * newPose.m_orientation) * (b3Scalar(deltaTime * 0.5));
 			newPose.m_orientation.normalize();
 			m_worldPose = newPose;
 		}
@@ -207,20 +207,20 @@ struct LWRigidBody
 
 			if (fAngle * deltaTime > angularMotionThreshold)
 			{
-				fAngle = angularMotionThreshold / deltaTime;
+				fAngle = (b3Scalar)angularMotionThreshold / (b3Scalar)deltaTime;
 			}
 
 			if (fAngle < btScalar(0.001))
 			{
 				// use Taylor's expansions of sync function
-				axis = m_angularVelocity * (btScalar(0.5) * deltaTime - (deltaTime * deltaTime * deltaTime) * (btScalar(0.020833333333)) * fAngle * fAngle);
+				axis = m_angularVelocity * (b3Scalar(0.5 * deltaTime) - (b3Scalar(deltaTime * deltaTime * deltaTime)) * (b3Scalar(0.020833333333)) * fAngle * fAngle);
 			}
 			else
 			{
 				// sync(fAngle) = sin(c*fAngle)/t
-				axis = m_angularVelocity * (btSin(btScalar(0.5) * fAngle * deltaTime) / fAngle);
+				axis = m_angularVelocity * b3Scalar(btSin(btScalar(b3Scalar(0.5) * fAngle * (b3Scalar)deltaTime) / fAngle));
 			}
-			b3Quaternion dorn(axis.x, axis.y, axis.z, btCos(fAngle * deltaTime * b3Scalar(0.5)));
+			b3Quaternion dorn(axis.x, axis.y, axis.z, (b3Scalar)btCos(btScalar(fAngle * b3Scalar(deltaTime * 0.5))));
 			b3Quaternion orn0 = m_worldPose.m_orientation;
 
 			b3Quaternion predictedOrn = dorn * orn0;
@@ -255,13 +255,13 @@ b3Scalar resolveCollision(LWRigidBody& bodyA,
 		btScalar impulse = -(1.0f + gRestitution) * rel_vel /
 						   (bodyA.m_invMass + bodyB.m_invMass + contactPoint.m_normalOnB.dot(temp1.cross(rel_pos1) + temp2.cross(rel_pos2)));
 
-		b3Vector3 impulse_vector = contactPoint.m_normalOnB * impulse;
+		b3Vector3 impulse_vector = contactPoint.m_normalOnB * (b3Scalar)impulse;
 		b3Printf("impulse = %f\n", impulse);
 		appliedImpulse = impulse;
 		bodyA.applyImpulse(impulse_vector, rel_pos1);
 		bodyB.applyImpulse(-impulse_vector, rel_pos2);
 	}
-	return appliedImpulse;
+	return (b3Scalar)appliedImpulse;
 }
 
 class Tutorial : public CommonExampleInterface
@@ -381,7 +381,7 @@ public:
 		}
 		for (int i = 0; i < m_bodies.size(); i++)
 		{
-			m_bodies[i]->m_worldPose.m_position.setValue((i / 4) * 5, 3, (i & 3) * 5);
+			m_bodies[i]->m_worldPose.m_position.setValue(b3Scalar((i / 4) * 5), 3, b3Scalar((i & 3) * 5));
 		}
 		{
 			int textureIndex = -1;
@@ -434,11 +434,11 @@ public:
 
 		if (m_tutorialIndex == TUT_SOLVE_CONTACT_CONSTRAINT)
 		{
-			m_bodies[0]->m_invMass = gMassA ? 1. / gMassA : 0;
-			m_bodies[0]->m_collisionShape.m_sphere.computeLocalInertia(gMassA, m_bodies[0]->m_localInertia);
+			m_bodies[0]->m_invMass = gMassA ? b3Scalar(1.) / b3Scalar(gMassA) : 0;
+			m_bodies[0]->m_collisionShape.m_sphere.computeLocalInertia((b3Scalar)gMassA, m_bodies[0]->m_localInertia);
 
-			m_bodies[1]->m_invMass = gMassB ? 1. / gMassB : 0;
-			m_bodies[1]->m_collisionShape.m_sphere.computeLocalInertia(gMassB, m_bodies[1]->m_localInertia);
+			m_bodies[1]->m_invMass = gMassB ? b3Scalar(1.) / b3Scalar(gMassB) : 0;
+			m_bodies[1]->m_collisionShape.m_sphere.computeLocalInertia((b3Scalar)gMassB, m_bodies[1]->m_localInertia);
 
 			if (gMassA)
 				m_bodies[0]->m_linearVelocity.setValue(0, 0, 1);
@@ -498,7 +498,7 @@ public:
 				LWContactPoint contactPoint;
 				tutorialCollisionUpdate(deltaTime, contactPoint);
 				m_contactPoints.push_back(contactPoint);
-				m_timeSeriesCanvas1->insertDataAtCurrentTime(contactPoint.m_distance, 0, true);
+				m_timeSeriesCanvas1->insertDataAtCurrentTime((float)contactPoint.m_distance, 0, true);
 
 				break;
 			}
@@ -523,7 +523,7 @@ public:
 				{
 					m_timeSeriesCanvas1->insertDataAtCurrentTime(0., 1, true);
 				}
-				m_timeSeriesCanvas1->insertDataAtCurrentTime(contactPoint.m_distance, 0, true);
+				m_timeSeriesCanvas1->insertDataAtCurrentTime((float)contactPoint.m_distance, 0, true);
 
 				break;
 			}

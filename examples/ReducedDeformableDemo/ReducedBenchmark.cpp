@@ -275,7 +275,7 @@ void ReducedBenchmark::initPhysics()
         // groundTransform.setOrigin(btVector3(0, 0, 6));
         // groundTransform.setOrigin(btVector3(0, -50, 0));
         {
-            btScalar mass(0.);
+            float mass(0.);
             createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
         }
     }

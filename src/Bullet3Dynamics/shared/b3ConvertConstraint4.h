@@ -11,7 +11,7 @@ void b3PlaneSpace1(b3Float4ConstArg n, b3Float4* p, b3Float4* q)
 	{
 		// choose p in y-z plane
 		float a = n.y * n.y + n.z * n.z;
-		float k = 1.f / sqrt(a);
+		float k = 1.f / (float)sqrt(a);
 		p[0].x = 0;
 		p[0].y = -n.z * k;
 		p[0].z = n.y * k;
@@ -24,7 +24,7 @@ void b3PlaneSpace1(b3Float4ConstArg n, b3Float4* p, b3Float4* q)
 	{
 		// choose p in x-y plane
 		float a = n.x * n.x + n.y * n.y;
-		float k = 1.f / sqrt(a);
+		float k = 1.f / (float)sqrt(a);
 		p[0].x = -n.y * k;
 		p[0].y = n.x * k;
 		p[0].z = 0;

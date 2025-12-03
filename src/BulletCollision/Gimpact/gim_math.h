@@ -113,19 +113,19 @@ enum GIM_SCALAR_TYPES
 	{                                                  \
 		const bool isFloat = sizeof(va)==sizeof(float);  \
 		if(!isFloat)                                     \
-			isva = 1.0 / sqrt(va);                         \
+			isva = GREAL(1.0 / sqrt(va));                         \
 		else                                             \
 		{                                                \
-			if (va <= 0.0000001f)                          \
+			if (va <= GREAL(0.0000001))                          \
 			{                                              \
 				isva = G_REAL_INFINITY;                      \
 			}                                              \
 			else                                           \
 			{                                              \
-				GREAL _x = va * 0.5f;                        \
+				GREAL _x = va * GREAL(0.5);                        \
 				GUINT _y = 0x5f3759df - (GIM_IR(va) >> 1);   \
 				isva = GIM_FR(_y);                           \
-				isva = isva * (1.5f - (_x * isva * isva));   \
+				isva = isva * (GREAL(1.5) - (_x * isva * isva));   \
 			}                                              \
 		}\
 	}
@@ -133,7 +133,7 @@ enum GIM_SCALAR_TYPES
 #define GIM_SQRT(va, sva)      \
 	{                          \
 		GIM_INV_SQRT(va, sva); \
-		sva = 1.0f / sva;      \
+		sva = GREAL(1.0) / sva;      \
 	}
 
 //! Computes 1.0f / sqrtf(x). Comes from Quake3. See http://www.magic-software.com/3DGEDInvSqrt.html

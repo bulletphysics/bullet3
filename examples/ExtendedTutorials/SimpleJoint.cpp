@@ -58,7 +58,7 @@ void SimpleJointExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -86,7 +86,7 @@ void SimpleJointExample::initPhysics()
 			btScalar(0),
 			btScalar(10),
 			btScalar(0)));
-		btRigidBody* dynamicBox = createRigidBody(mass, startTransform, colShape);
+		btRigidBody* dynamicBox = createRigidBody((float)mass, startTransform, colShape);
 
 		//create a static rigid body
 		mass = 0;
@@ -95,7 +95,7 @@ void SimpleJointExample::initPhysics()
 			btScalar(20),
 			btScalar(0)));
 
-		btRigidBody* staticBox = createRigidBody(mass, startTransform, colShape);
+		btRigidBody* staticBox = createRigidBody((float)mass, startTransform, colShape);
 
 		//create a simple p2pjoint constraint
 		btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*dynamicBox, *staticBox, btVector3(0, 3, 0), btVector3(0, 0, 0));

@@ -127,6 +127,10 @@
 
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 
+#if defined(_MSC_VER)
+#pragma warning(disable: 4244)
+#endif
+
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;

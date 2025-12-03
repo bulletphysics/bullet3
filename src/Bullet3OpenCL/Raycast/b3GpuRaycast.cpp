@@ -110,7 +110,7 @@ bool sphere_intersect(const b3Vector3& spherePos, b3Scalar radius, const b3Vecto
 
 	if (D > 0.0)
 	{
-		float t = (-B - sqrt(D)) / A;
+		float t = (-B - (float)sqrt(D)) / A;
 
 		if ((t >= 0.0f) && (t < hitFraction))
 		{

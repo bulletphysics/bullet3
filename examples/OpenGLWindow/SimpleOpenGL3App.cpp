@@ -989,7 +989,7 @@ void SimpleOpenGL3App::setViewport(int width, int height)
 	}
 	else
 	{
-		glViewport(0, 0, m_window->getRetinaScale() * (float)m_instancingRenderer->getScreenWidth(), m_window->getRetinaScale() * (float)m_instancingRenderer->getScreenHeight());
+		glViewport(0, 0, GLsizei(m_window->getRetinaScale() * (float)m_instancingRenderer->getScreenWidth()), GLsizei(m_window->getRetinaScale() * (float)m_instancingRenderer->getScreenHeight()));
 	}
 }
 
@@ -1164,14 +1164,14 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
 		//glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_UNSIGNED_BYTE, 0);
 		//glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA32F, g_OpenGLWidth,g_OpenGLHeight, 0,GL_RGBA, GL_FLOAT, 0);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-					 (float)m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale(), (float)m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale(), 0, GL_RGBA, GL_FLOAT, 0);
+					 GLsizei((float)m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale()), GLsizei((float)m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale()), 0, GL_RGBA, GL_FLOAT, 0);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-		m_data->m_renderTexture->init((float)m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale(), (float)this->m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale(), renderTextureId, RENDERTEXTURE_COLOR);
+		m_data->m_renderTexture->init(GLsizei((float)m_instancingRenderer->getScreenWidth() * m_window->getRetinaScale()), GLsizei((float)this->m_instancingRenderer->getScreenHeight() * m_window->getRetinaScale()), renderTextureId, RENDERTEXTURE_COLOR);
 	}
 
 	m_data->m_renderTexture->enable();

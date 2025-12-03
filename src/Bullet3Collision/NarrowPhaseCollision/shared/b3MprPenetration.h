@@ -100,12 +100,12 @@ inline int b3MprEq(float _a, float _b)
 	float ab;
 	float a, b;
 
-	ab = B3_MPR_FABS(_a - _b);
+	ab = (float)B3_MPR_FABS(_a - _b);
 	if (B3_MPR_FABS(ab) < FLT_EPSILON)
 		return 1;
 
-	a = B3_MPR_FABS(_a);
-	b = B3_MPR_FABS(_b);
+	a = (float)B3_MPR_FABS(_a);
+	b = (float)B3_MPR_FABS(_b);
 	if (b > a)
 	{
 		return ab < FLT_EPSILON * b;

@@ -159,7 +159,7 @@ public:
 		// legs
 		for (i = 0; i < NUM_LEGS; i++)
 		{
-			float fAngle = 2 * M_PI * i / NUM_LEGS;
+			float fAngle = float(2 * M_PI * i / NUM_LEGS);
 			float fSin = std::sin(fAngle);
 			float fCos = std::cos(fAngle);
 
@@ -198,7 +198,7 @@ public:
 
 		for (i = 0; i < NUM_LEGS; i++)
 		{
-			float fAngle = 2 * M_PI * i / NUM_LEGS;
+			float fAngle = float(2 * M_PI * i / NUM_LEGS);
 			float fSin = std::sin(fAngle);
 			float fCos = std::cos(fAngle);
 
@@ -327,7 +327,7 @@ void PreStep()
 
 void MotorDemo::setMotorTargets(btScalar deltaTime)
 {
-	float ms = deltaTime * 1000000.;
+	float ms = float(deltaTime * 1000000.);
 	float minFPS = 1000000.f / 60.f;
 	if (ms > minFPS)
 		ms = minFPS;
@@ -345,7 +345,7 @@ void MotorDemo::setMotorTargets(btScalar deltaTime)
 			btScalar fCurAngle = hingeC->getHingeAngle();
 
 			btScalar fTargetPercent = (float)(int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
-			btScalar fTargetAngle = 0.5 * (1 + sin(2 * M_PI * fTargetPercent));
+			btScalar fTargetAngle = btScalar(0.5 * (1 + sin(2 * M_PI * fTargetPercent)));
 			btScalar fTargetLimitAngle = hingeC->getLowerLimit() + fTargetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
 			btScalar fAngleError = fTargetLimitAngle - fCurAngle;
 			btScalar fDesiredAngularVel = 1000000.f * fAngleError / ms;

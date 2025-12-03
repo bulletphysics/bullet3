@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 		if (dtSec > 0.1)
 			dtSec = btScalar(0.1);
 
-		example->stepSimulation(dtSec);
+		example->stepSimulation((float)dtSec);
 		clock.reset();
 
 		example->renderScene();

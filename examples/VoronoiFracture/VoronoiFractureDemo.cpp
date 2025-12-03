@@ -163,7 +163,7 @@ void VoronoiFractureDemo::attachFixedConstraints()
 
 						trA = body0->getWorldTransform().inverse() * globalFrame;
 						trB = body1->getWorldTransform().inverse() * globalFrame;
-						float totalMass = 1.f / body0->getInvMass() + 1.f / body1->getInvMass();
+						float totalMass = 1.f / (float)body0->getInvMass() + 1.f / (float)body1->getInvMass();
 
 						if (useGenericConstraint)
 						{
@@ -263,8 +263,8 @@ struct pointCmp
 {
 	bool operator()(const btVector3& p1, const btVector3& p2) const
 	{
-		float v1 = (p1 - curVoronoiPoint).length2();
-		float v2 = (p2 - curVoronoiPoint).length2();
+		float v1 = (float)(p1 - curVoronoiPoint).length2();
+		float v2 = (float)(p2 - curVoronoiPoint).length2();
 		bool result0 = v1 < v2;
 		//bool result1 = ((btScalar)(p1-curVoronoiPoint).length2()) < ((btScalar)(p2-curVoronoiPoint).length2());
 		//apparently result0 is not always result1, because extended precision used in registered is different from precision when values are stored in memory
@@ -727,14 +727,14 @@ void VoronoiFractureDemo::initPhysics()
 	// ==> Voronoi Shatter Basic Demo: Random Cuboid
 
 	// Random size cuboid (defined by bounding box max and min)
-	btVector3 bbmax(((btScalar)rand() / btScalar(RAND_MAX)) * 12. + 0.5, ((btScalar)rand() / btScalar(RAND_MAX)) * 1. + 0.5, ((btScalar)rand() / btScalar(RAND_MAX)) * 1. + 0.5);
+	btVector3 bbmax(((btScalar)rand() / btScalar(RAND_MAX)) * btScalar(12.) + btScalar(0.5), ((btScalar)rand() / btScalar(RAND_MAX)) * btScalar(1.) + btScalar(0.5), ((btScalar)rand() / btScalar(RAND_MAX)) * btScalar(1.) + btScalar(0.5));
 	btVector3 bbmin = -bbmax;
 	// Place it 10 units above ground
 	btVector3 bbt(0, 15, 0);
 	// Use an arbitrary material density for shards (should be consitent/relative with/to rest of RBs in world)
 	btScalar matDensity = 1;
 	// Using random rotation
-	btQuaternion bbq(((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1., ((btScalar)rand() / btScalar(RAND_MAX)) * 2. - 1.);
+	btQuaternion bbq(((btScalar)rand() / btScalar(RAND_MAX)) * btScalar(2.) - btScalar(1.), ((btScalar)rand() / btScalar(RAND_MAX)) * btScalar(2.) - btScalar(1.), ((btScalar)rand() / btScalar(RAND_MAX)) * btScalar(2.) - btScalar(1.), ((btScalar)rand() / btScalar(RAND_MAX)) * btScalar(2.) - btScalar(1.));
 	bbq.normalize();
 	// Generate random points for voronoi cells
 	btAlignedObjectArray<btVector3> points;
@@ -743,7 +743,7 @@ void VoronoiFractureDemo::initPhysics()
 	for (int i = 0; i < VORONOIPOINTS; i++)
 	{
 		// Place points within box area (points are in world coordinates)
-		point = quatRotate(bbq, btVector3(((btScalar)rand() / btScalar(RAND_MAX)) * diff.x() - diff.x() / 2., ((btScalar)rand() / btScalar(RAND_MAX)) * diff.y() - diff.y() / 2., ((btScalar)rand() / btScalar(RAND_MAX)) * diff.z() - diff.z() / 2.)) + bbt;
+		point = quatRotate(bbq, btVector3(((btScalar)rand() / btScalar(RAND_MAX)) * diff.x() - diff.x() / btScalar(2.), ((btScalar)rand() / btScalar(RAND_MAX)) * diff.y() - diff.y() / btScalar(2.), ((btScalar)rand() / btScalar(RAND_MAX)) * diff.z() - diff.z() / btScalar(2.))) + bbt;
 		points.push_back(point);
 	}
 	m_perfmTimer.reset();

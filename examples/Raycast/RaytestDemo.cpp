@@ -62,7 +62,7 @@ void RaytestDemo::castRays()
 	//add some simple animation
 	//if (!m_idle)
 	{
-		up += 0.01 * dir;
+		up += 0.01f * dir;
 
 		if (btFabs(up) > 2)
 		{
@@ -223,7 +223,7 @@ void RaytestDemo::initPhysics()
 			/// Create Dynamic Objects
 			btTransform startTransform;
 			startTransform.setIdentity();
-			startTransform.setOrigin(btVector3((i - 3) * 5, 1, 0));
+			startTransform.setOrigin(btVector3(btScalar((i - 3) * 5), 1, 0));
 
 			btScalar mass(1.f);
 

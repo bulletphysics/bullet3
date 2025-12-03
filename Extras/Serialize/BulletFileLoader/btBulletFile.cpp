@@ -51,12 +51,12 @@ btBulletFile::btBulletFile()
 
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 #ifdef _WIN64
-	m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64, 16);
-	memcpy(m_DnaCopy, sBulletDNAstr64, sBulletDNAlen64);
+	m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen64, 16);
+	memcpy(m_DnaCopy, sBulletDNAstr64, (size_t)sBulletDNAlen64);
 	mMemoryDNA->init(m_DnaCopy, sBulletDNAlen64);
 #else   //_WIN64
-	m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen, 16);
-	memcpy(m_DnaCopy, sBulletDNAstr, sBulletDNAlen);
+	m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen, 16);
+	memcpy(m_DnaCopy, sBulletDNAstr, (size_t)sBulletDNAlen);
 	mMemoryDNA->init(m_DnaCopy, sBulletDNAlen);
 #endif  //_WIN64
 #else   //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
@@ -264,7 +264,7 @@ void btBulletFile::writeDNA(FILE* fp)
 		dataChunk.len = sBulletDNAlen64;
 		dataChunk.oldPtr = sBulletDNAstr64;
 		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
-		fwrite(sBulletDNAstr64, sBulletDNAlen64, 1, fp);
+		fwrite(sBulletDNAstr64, (size_t)sBulletDNAlen64, 1, fp);
 #else
 		btAssert(0);
 #endif
@@ -275,7 +275,7 @@ void btBulletFile::writeDNA(FILE* fp)
 		dataChunk.len = sBulletDNAlen;
 		dataChunk.oldPtr = sBulletDNAstr;
 		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
-		fwrite(sBulletDNAstr, sBulletDNAlen, 1, fp);
+		fwrite(sBulletDNAstr, (size_t)sBulletDNAlen, 1, fp);
 #else   //_WIN64
 		btAssert(0);
 #endif  //_WIN64
@@ -307,8 +307,8 @@ void btBulletFile::parse(int verboseMode)
 
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen64, 16);
-		memcpy(m_DnaCopy, sBulletDNAstr64, sBulletDNAlen64);
+		m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen64, 16);
+		memcpy(m_DnaCopy, sBulletDNAstr64, (size_t)sBulletDNAlen64);
 		parseInternal(verboseMode, (char*)sBulletDNAstr64, sBulletDNAlen64);
 #else
 		btAssert(0);

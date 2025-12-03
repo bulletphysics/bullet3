@@ -500,12 +500,12 @@ void Dof6ConstraintTutorial::stepSimulation(float deltaTime)
 
 	//float time = m_data->m_timeSeriesCanvas->getCurrentTime();
 
-	float prevPos = m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
+	float prevPos = (float)m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
 	m_dynamicsWorld->stepSimulation(deltaTime);
-	float xPos = m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
+	float xPos = (float)m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
 
 	m_data->m_timeSeriesCanvas->insertDataAtCurrentTime(xPos, 0, true);
-	m_data->m_timeSeriesCanvas->insertDataAtCurrentTime(m_data->m_TranslateSpringBody->getLinearVelocity().x(), 1, true);
+	m_data->m_timeSeriesCanvas->insertDataAtCurrentTime((float)m_data->m_TranslateSpringBody->getLinearVelocity().x(), 1, true);
 
 	if (deltaTime > 0)
 	{

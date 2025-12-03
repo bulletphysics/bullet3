@@ -302,8 +302,8 @@ static SIMD_FORCE_INLINE void getJs(const btScalar& k0, const btScalar& k1, cons
 
 static SIMD_FORCE_INLINE bool signDetermination1Internal(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& u0, const btScalar& u1, const btScalar& v0, const btScalar& v1)
 {
-	btScalar Yu0 = k0 * (1.0 - u0) * (1.0 - u0) * (1.0 - u0) + 3.0 * k1 * u0 * (1.0 - u0) * (1.0 - u0) + 3.0 * k2 * u0 * u0 * (1.0 - u0) + k3 * u0 * u0 * u0;  // Y(u0)
-	btScalar Yv0 = k0 * (1.0 - v0) * (1.0 - v0) * (1.0 - v0) + 3.0 * k1 * v0 * (1.0 - v0) * (1.0 - v0) + 3.0 * k2 * v0 * v0 * (1.0 - v0) + k3 * v0 * v0 * v0;  // Y(v0)
+	btScalar Yu0 = k0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k1 * u0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k2 * u0 * u0 * (btScalar(1.0) - u0) + k3 * u0 * u0 * u0;  // Y(u0)
+	btScalar Yv0 = k0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k1 * v0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k2 * v0 * v0 * (btScalar(1.0) - v0) + k3 * v0 * v0 * v0;  // Y(v0)
 
 	btScalar sign_Ytp = (u0 > u1) ? Yu0 : -Yu0;
 	btScalar L = sameSign(sign_Ytp, k0) ? u1 : u0;
@@ -314,7 +314,7 @@ static SIMD_FORCE_INLINE bool signDetermination1Internal(const btScalar& k0, con
 
 static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& j0, const btScalar& j1, const btScalar& j2, const btScalar& u0, const btScalar& u1, const btScalar& v0, const btScalar& v1)
 {
-	btScalar Yu0 = k0 * (1.0 - u0) * (1.0 - u0) * (1.0 - u0) + 3.0 * k1 * u0 * (1.0 - u0) * (1.0 - u0) + 3.0 * k2 * u0 * u0 * (1.0 - u0) + k3 * u0 * u0 * u0;  // Y(u0)
+	btScalar Yu0 = k0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k1 * u0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k2 * u0 * u0 * (btScalar(1.0) - u0) + k3 * u0 * u0 * u0;  // Y(u0)
 	btScalar sign_Ytp = (u0 > u1) ? Yu0 : -Yu0, L1, L2;
 	if (diffSign(sign_Ytp, k0))
 	{
@@ -323,7 +323,7 @@ static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, con
 	}
 	else
 	{
-		btScalar Yp_u0 = j0 * (1.0 - u0) * (1.0 - u0) + 2.0 * j1 * (1.0 - u0) * u0 + j2 * u0 * u0;
+		btScalar Yp_u0 = j0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(2.0) * j1 * (btScalar(1.0) - u0) * u0 + j2 * u0 * u0;
 		if (sameSign(Yp_u0, j0))
 		{
 			L1 = u1;
@@ -335,7 +335,7 @@ static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, con
 			L2 = u0;
 		}
 	}
-	btScalar Yv0 = k0 * (1.0 - v0) * (1.0 - v0) * (1.0 - v0) + 3.0 * k1 * v0 * (1.0 - v0) * (1.0 - v0) + 3.0 * k2 * v0 * v0 * (1.0 - v0) + k3 * v0 * v0 * v0;  // Y(uv0)
+	btScalar Yv0 = k0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k1 * v0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k2 * v0 * v0 * (btScalar(1.0) - v0) + k3 * v0 * v0 * v0;  // Y(uv0)
 	sign_Ytp = (v0 > v1) ? Yv0 : -Yv0;
 	btScalar K1, K2;
 	if (diffSign(sign_Ytp, k0))
@@ -345,7 +345,7 @@ static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, con
 	}
 	else
 	{
-		btScalar Yp_v0 = j0 * (1.0 - v0) * (1.0 - v0) + 2.0 * j1 * (1.0 - v0) * v0 + j2 * v0 * v0;
+		btScalar Yp_v0 = j0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(2.0) * j1 * (btScalar(1.0) - v0) * v0 + j2 * v0 * v0;
 		if (sameSign(Yp_v0, j0))
 		{
 			K1 = v1;
@@ -365,7 +365,7 @@ static SIMD_FORCE_INLINE bool signDetermination1(const btScalar& k0, const btSca
 	btScalar j0, j1, j2, u0, u1, v0, v1;
 	// p1
 	getJs(k0, k1, k2, k3, face->m_n[0], face->m_n[1], face->m_n[2], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		getSigns(true, k0, k1, k2, k3, j0, j2, lt0, lt1);
@@ -380,7 +380,7 @@ static SIMD_FORCE_INLINE bool signDetermination1(const btScalar& k0, const btSca
 	}
 	// p2
 	getJs(k0, k1, k2, k3, face->m_n[1], face->m_n[2], face->m_n[0], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		getSigns(true, k0, k1, k2, k3, j0, j2, lt0, lt1);
@@ -395,7 +395,7 @@ static SIMD_FORCE_INLINE bool signDetermination1(const btScalar& k0, const btSca
 	}
 	// p3
 	getJs(k0, k1, k2, k3, face->m_n[2], face->m_n[0], face->m_n[1], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		getSigns(true, k0, k1, k2, k3, j0, j2, lt0, lt1);
@@ -416,7 +416,7 @@ static SIMD_FORCE_INLINE bool signDetermination2(const btScalar& k0, const btSca
 	btScalar j0, j1, j2, u0, u1, v0, v1;
 	// p1
 	getJs(k0, k1, k2, k3, face->m_n[0], face->m_n[1], face->m_n[2], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		bool bt0 = true, bt1 = true;
@@ -436,7 +436,7 @@ static SIMD_FORCE_INLINE bool signDetermination2(const btScalar& k0, const btSca
 	}
 	// p2
 	getJs(k0, k1, k2, k3, face->m_n[1], face->m_n[2], face->m_n[0], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		bool bt0 = true, bt1 = true;
@@ -456,7 +456,7 @@ static SIMD_FORCE_INLINE bool signDetermination2(const btScalar& k0, const btSca
 	}
 	// p3
 	getJs(k0, k1, k2, k3, face->m_n[2], face->m_n[0], face->m_n[1], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		bool bt0 = true, bt1 = true;
@@ -516,12 +516,12 @@ static SIMD_FORCE_INLINE bool bernsteinVFTest(const btScalar& k0, const btScalar
 
 static SIMD_FORCE_INLINE void deCasteljau(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& t0, btScalar& k10, btScalar& k20, btScalar& k30, btScalar& k21, btScalar& k12)
 {
-	k10 = k0 * (1.0 - t0) + k1 * t0;
-	btScalar k11 = k1 * (1.0 - t0) + k2 * t0;
-	k12 = k2 * (1.0 - t0) + k3 * t0;
-	k20 = k10 * (1.0 - t0) + k11 * t0;
-	k21 = k11 * (1.0 - t0) + k12 * t0;
-	k30 = k20 * (1.0 - t0) + k21 * t0;
+	k10 = k0 * (btScalar(1.0) - t0) + k1 * t0;
+	btScalar k11 = k1 * (btScalar(1.0) - t0) + k2 * t0;
+	k12 = k2 * (btScalar(1.0) - t0) + k3 * t0;
+	k20 = k10 * (btScalar(1.0) - t0) + k11 * t0;
+	k21 = k11 * (btScalar(1.0) - t0) + k12 * t0;
+	k30 = k20 * (btScalar(1.0) - t0) + k21 * t0;
 }
 static SIMD_FORCE_INLINE bool bernsteinVFTest(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, const btScalar& mrg)
 {
@@ -611,10 +611,10 @@ static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Fac
 			continue;
 		if (root > dt + SIMD_EPSILON)
 			return false;
-		btVector3 x1 = face->m_n[0]->m_x + root * face->m_n[0]->m_v;
-		btVector3 x2 = face->m_n[1]->m_x + root * face->m_n[1]->m_v;
-		btVector3 x3 = face->m_n[2]->m_x + root * face->m_n[2]->m_v;
-		btVector3 x4 = node->m_x + root * node->m_v;
+		btVector3 x1 = face->m_n[0]->m_x + (btScalar)root * face->m_n[0]->m_v;
+		btVector3 x2 = face->m_n[1]->m_x + (btScalar)root * face->m_n[1]->m_v;
+		btVector3 x3 = face->m_n[2]->m_x + (btScalar)root * face->m_n[2]->m_v;
+		btVector3 x4 = node->m_x + (btScalar)root * node->m_v;
 		btVector3 normal = (x2 - x1).cross(x3 - x1);
 		normal.safeNormalize();
 		if (proximityTest(x1, x2, x3, x4, normal, mrg, bary))
@@ -1115,19 +1115,19 @@ static inline bool rayIntersectsTriangle(const btVector3& origin, const btVector
 	btVector3 h = dir.cross(e2);
 	a = e1.dot(h);
 
-	if (a > -0.00001 && a < 0.00001)
+	if (a > btScalar(-0.00001) && a < btScalar(0.00001))
 		return (false);
 
 	f = btScalar(1) / a;
 	btVector3 s = origin - v0;
 	u = f * s.dot(h);
 
-	if (u < 0.0 || u > 1.0)
+	if (u < btScalar(0.0) || u > btScalar(1.0))
 		return (false);
 
 	btVector3 q = s.cross(e1);
 	v = f * dir.dot(q);
-	if (v < 0.0 || u + v > 1.0)
+	if (v < btScalar(0.0) || u + v > btScalar(1.0))
 		return (false);
 	// at this stage we can compute t to find out where
 	// the intersection point is on the line

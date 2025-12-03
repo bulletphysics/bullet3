@@ -111,7 +111,7 @@ void GyroscopicSetup::physicsDebugDraw(int debugFlags)
 			btTransform tr = body->getWorldTransform();
 			btVector3 pos = tr.getOrigin() + btVector3(0, 0, 2);
 			btScalar size = 1;
-			m_guiHelper->drawText3D(gyroNames[i], pos.x(), pos.y(), pos.z(), size);
+			m_guiHelper->drawText3D(gyroNames[i], (float)pos.x(), (float)pos.y(), (float)pos.z(), (float)size);
 		}
 	}
 }
