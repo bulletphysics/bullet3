@@ -404,7 +404,8 @@ std::string Path_GetThisModulePath()
 #elif defined(OSX) || defined(LINUX)
 	// get the addr of a function in vrclient.so and then ask the dlopen system about it
 	Dl_info info;
-	dladdr((void *)Path_GetThisModulePath, &info);
+	std::string (*fn)() = Path_GetThisModulePath;
+	dladdr(*(void **)&fn, &info);
 	return info.dli_fname;
 #endif
 }
