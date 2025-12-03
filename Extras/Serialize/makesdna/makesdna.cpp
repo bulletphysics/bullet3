@@ -351,7 +351,7 @@ int add_name(char *str)
 
 	additional_slen_offset = 0;
 
-	if ((str[0] == 0) /*  || (str[1]==0) */) return -1;
+	if (str[0] == 0 /*  || (str[1]==0) */) return -1;
 
 	if (str[0] == '(' && str[1] == '*')
 	{
