@@ -400,7 +400,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 		{
 			short py = BORDER_Y_TOP;
 			// Check that there is enough space.
-			if (texture->nrows)
+			if (texture->nrows > 0 && texture->nrows < 128)
 			{
 				py = texture->rows[texture->nrows - 1].y + texture->rows[texture->nrows - 1].h + 1;
 				if (py + rh > stash->th)
