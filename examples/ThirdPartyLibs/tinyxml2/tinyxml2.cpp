@@ -2436,7 +2436,7 @@ void XMLDocument::SetError(XMLError error, int lineNum, const char* format, ...)
 	size_t BUFFER_SIZE = 1000;
 	char* buffer = new char[BUFFER_SIZE];
 
-	TIXML_SNPRINTF(buffer, BUFFER_SIZE, "Error=%s ErrorID=%d (0x%x) Line number=%d", ErrorIDToName(error), int(error), int(error), lineNum);
+	TIXML_SNPRINTF(buffer, BUFFER_SIZE, "Error=%s ErrorID=%d (0x%x) Line number=%d", ErrorIDToName(error), int(error), unsigned(error), lineNum);
 
 	if (format)
 	{

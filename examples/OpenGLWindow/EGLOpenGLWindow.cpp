@@ -169,7 +169,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 			}
 			else
 			{
-				fprintf(stderr, "GetDisplay %d failed with error: %x\n", i, eglGetError());
+				fprintf(stderr, "GetDisplay %d failed with error: %x\n", i, (unsigned)eglGetError());
 			}
 		}
 	}
@@ -196,13 +196,13 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		}
 		else
 		{
-			fprintf(stderr, "GetDisplay %d failed with error: %x\n", m_data->m_renderDevice, eglGetError());
+			fprintf(stderr, "GetDisplay %d failed with error: %x\n", m_data->m_renderDevice, (unsigned)eglGetError());
 		}
 	}
 
 	if (!eglInitialize(m_data->egl_display, NULL, NULL))
 	{
-		fprintf(stderr, "eglInitialize() failed with error: %x\n", eglGetError());
+		fprintf(stderr, "eglInitialize() failed with error: %x\n", (unsigned)eglGetError());
 		exit(EXIT_FAILURE);
 	}
 
