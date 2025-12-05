@@ -437,7 +437,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (sData && sData->m_wheelCallback)
 				(*sData->m_wheelCallback)(-float(zDelta) * 0.05f, 0);
 			return 1;
-			break;
 		}
 		case 0x020A:  //WM_MOUSEWHEEL:
 		{
@@ -448,7 +447,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (sData && sData->m_wheelCallback)
 				(*sData->m_wheelCallback)(0, float(zDelta) * 0.05f);
 			return 1;
-			break;
 		}
 
 		case WM_MOUSEMOVE:
@@ -488,7 +486,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_QUIT:
 		{
 			return 0;
-			break;
 		}
 		case WM_SIZE:  // Size Action Has Taken Place
 
