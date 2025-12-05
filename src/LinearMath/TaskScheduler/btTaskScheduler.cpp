@@ -448,7 +448,7 @@ public:
 		m_workerDirective = NULL;
 	}
 
-	virtual ~btTaskSchedulerDefault()
+	virtual ~btTaskSchedulerDefault() BT_OVERRIDE
 	{
 		waitForWorkersToSleep();
 

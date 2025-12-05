@@ -167,7 +167,7 @@ public:
 	explicit btMultiBodyMLCPConstraintSolver(btMLCPSolverInterface* solver);
 
 	/// Destructor
-	virtual ~btMultiBodyMLCPConstraintSolver();
+	virtual ~btMultiBodyMLCPConstraintSolver() BT_OVERRIDE;
 
 	/// Sets MLCP solver. Assumed it's not null.
 	void setMLCPSolver(btMLCPSolverInterface* solver);

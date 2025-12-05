@@ -67,7 +67,7 @@ public:
 
 	MultiThreadedDemo(struct GUIHelperInterface* helper);
 
-	virtual ~MultiThreadedDemo() {}
+	virtual ~MultiThreadedDemo() BT_OVERRIDE {}
 
 	btQuaternion getGroundRotation() const
 	{

@@ -95,7 +95,7 @@ private:
 	btCriticalSection* m_cs;
 public:
 	btThreadSupportPosix(const ConstructionInfo& threadConstructionInfo);
-	virtual ~btThreadSupportPosix();
+	virtual ~btThreadSupportPosix() BT_OVERRIDE;
 
 	virtual int getNumWorkerThreads() const BT_OVERRIDE { return m_numThreads; }
 	// TODO: return the number of logical processors sharing the first L3 cache
