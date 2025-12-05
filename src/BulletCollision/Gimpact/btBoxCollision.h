@@ -32,7 +32,7 @@ subject to the following restrictions:
 		a = a + b;            \
 		b = a - b;            \
 		a = a - b;            \
-	}
+	}  do{} while(0)
 
 #define BT_MAX(a, b) (a < b ? b : a)
 #define BT_MIN(a, b) (a > b ? b : a)
@@ -128,17 +128,17 @@ enum eBT_PLANE_INTERSECTION_TYPE
 #define TEST_CROSS_EDGE_BOX_X_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 2, 1, 1, 2); \
-	}
+	}  do{} while(0)
 
 #define TEST_CROSS_EDGE_BOX_Y_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 0, 2, 2, 0); \
-	}
+	}  do{} while(0)
 
 #define TEST_CROSS_EDGE_BOX_Z_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 1, 0, 0, 1); \
-	}
+	}  do{} while(0)
 
 //! Returns the dot product between a vec3f and the col of a matrix
 SIMD_FORCE_INLINE btScalar bt_mat3_dot_col(

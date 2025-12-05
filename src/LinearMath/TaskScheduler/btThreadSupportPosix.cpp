@@ -114,7 +114,7 @@ public:
 	if (0 != returnValue)                                                                                 \
 	{                                                                                                     \
 		printf("PThread problem at line %i in file %s: %i %d\n", __LINE__, __FILE__, returnValue, errno); \
-	}
+	}  do{} while(0)
 
 // The number of threads should be equal to the number of available cores
 // Todo: each worker should be linked to a single core, using SetThreadIdealProcessor.

@@ -107,7 +107,7 @@ enum GIM_SCALAR_TYPES
 		a = a + b;             \
 		b = a - b;             \
 		a = a - b;             \
-	}
+	} do{} while(0)
 
 #define GIM_INV_SQRT(va, isva)                       \
 	{                                                  \
@@ -128,13 +128,13 @@ enum GIM_SCALAR_TYPES
 				isva = isva * (GREAL(1.5) - (_x * isva * isva));   \
 			}                                              \
 		}\
-	}
+	} do{} while(0)
 
 #define GIM_SQRT(va, sva)      \
 	{                          \
 		GIM_INV_SQRT(va, sva); \
 		sva = GREAL(1.0) / sva;      \
-	}
+	} do{} while(0)
 
 //! Computes 1.0f / sqrtf(x). Comes from Quake3. See http://www.magic-software.com/3DGEDInvSqrt.html
 inline GREAL gim_inv_sqrt(GREAL f)

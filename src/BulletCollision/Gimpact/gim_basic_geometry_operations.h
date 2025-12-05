@@ -52,7 +52,7 @@ email: projectileman@yahoo.com
 		VEC_DIFF(_dif2, v3, v1);       \
 		VEC_CROSS(n, _dif1, _dif2);    \
 		VEC_NORMALIZE(n);              \
-	}
+	} do{} while(0)
 
 #define TRIANGLE_NORMAL_FAST(v1, v2, v3, n) \
 	{                                       \
@@ -60,21 +60,21 @@ email: projectileman@yahoo.com
 		VEC_DIFF(_dif1, v2, v1);            \
 		VEC_DIFF(_dif2, v3, v1);            \
 		VEC_CROSS(n, _dif1, _dif2);         \
-	}
+	} do{} while(0)
 
 /// plane is a vec4f
 #define TRIANGLE_PLANE(v1, v2, v3, plane)   \
 	{                                       \
 		TRIANGLE_NORMAL(v1, v2, v3, plane); \
 		plane[3] = VEC_DOT(v1, plane);      \
-	}
+	} do{} while(0)
 
 /// plane is a vec4f
 #define TRIANGLE_PLANE_FAST(v1, v2, v3, plane)   \
 	{                                            \
 		TRIANGLE_NORMAL_FAST(v1, v2, v3, plane); \
 		plane[3] = VEC_DOT(v1, plane);           \
-	}
+	} do{} while(0)
 
 /// Calc a plane from an edge an a normal. plane is a vec4f
 #define EDGE_PLANE(e1, e2, n, plane)   \
@@ -84,7 +84,7 @@ email: projectileman@yahoo.com
 		VEC_CROSS(plane, _dif, n);     \
 		VEC_NORMALIZE(plane);          \
 		plane[3] = VEC_DOT(e1, plane); \
-	}
+	} do{} while(0)
 
 #define DISTANCE_PLANE_POINT(plane, point) (VEC_DOT(plane, point) - plane[3])
 
@@ -94,7 +94,7 @@ email: projectileman@yahoo.com
 		_dis = DISTANCE_PLANE_POINT(plane, point);   \
 		VEC_SCALE(projected, -_dis, plane);          \
 		VEC_SUM(projected, projected, point);        \
-	}
+	} do{} while(0)
 
 //! Verifies if a point is in the plane hull
 template <typename CLASS_POINT, typename CLASS_PLANE>

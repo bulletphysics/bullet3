@@ -192,7 +192,7 @@ int SolveP4Bi(btScalar* x, btScalar b, btScalar d)  // solve equation x^4 + b*x^
 		t = b;     \
 		b = a;     \
 		a = t;     \
-	}
+	} do{} while(0)
 static void dblSort3(btScalar& a, btScalar& b, btScalar& c)  // make: a <= b <= c
 {
 	btScalar t;

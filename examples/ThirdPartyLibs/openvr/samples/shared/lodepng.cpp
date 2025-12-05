@@ -100,7 +100,7 @@ Example: if(!uivector_resizev(&frequencies_ll, 286, 0)) ERROR_BREAK(83);
 	{                                \
 		errorvar = code;             \
 		break;                       \
-	}
+	} do{} while(0)
 
 /*version of CERROR_BREAK that assumes the common case where the error variable is named "error"*/
 #define ERROR_BREAK(code) CERROR_BREAK(error, code)
@@ -110,14 +110,14 @@ Example: if(!uivector_resizev(&frequencies_ll, 286, 0)) ERROR_BREAK(83);
 	{                                       \
 		errorvar = code;                    \
 		return code;                        \
-	}
+	} do{} while(0)
 
 /*Try the code, if it returns error, also return the error.*/
 #define CERROR_TRY_RETURN(call)  \
 	{                            \
 		unsigned error = call;   \
 		if (error) return error; \
-	}
+	} do{} while(0)
 
 /*
 About uivector, ucvector and string:
@@ -420,7 +420,7 @@ unsigned lodepng_save_file(const unsigned char* buffer, size_t buffersize, const
 		/*earlier bit of huffman code is in a lesser significant bit of an earlier byte*/      \
 		(bitstream->data[bitstream->size - 1]) |= (bit << ((*bitpointer) & 0x7));              \
 		(*bitpointer)++;                                                                       \
-	}
+	} do{} while(0)
 
 static void addBitsToStream(size_t* bitpointer, ucvector* bitstream, unsigned value, size_t nbits)
 {
@@ -3089,7 +3089,6 @@ static unsigned rgba8ToPixel(unsigned char* out, size_t i,
 	if (mode->colortype == LCT_GREY)
 	{
 		unsigned char grey = r; /*((unsigned short)r + g + b) / 3*/
-		;
 		if (mode->bitdepth == 8)
 			out[i] = grey;
 		else if (mode->bitdepth == 16)
@@ -3128,7 +3127,6 @@ static unsigned rgba8ToPixel(unsigned char* out, size_t i,
 	else if (mode->colortype == LCT_GREY_ALPHA)
 	{
 		unsigned char grey = r; /*((unsigned short)r + g + b) / 3*/
-		;
 		if (mode->bitdepth == 8)
 		{
 			out[i * 2 + 0] = grey;
@@ -3169,7 +3167,6 @@ static void rgba16ToPixel(unsigned char* out, size_t i,
 	if (mode->colortype == LCT_GREY)
 	{
 		unsigned short grey = r; /*((unsigned)r + g + b) / 3*/
-		;
 		out[i * 2 + 0] = (unsigned char)((grey >> 8) & 255);
 		out[i * 2 + 1] = (unsigned char)(grey & 255);
 	}
@@ -3185,7 +3182,6 @@ static void rgba16ToPixel(unsigned char* out, size_t i,
 	else if (mode->colortype == LCT_GREY_ALPHA)
 	{
 		unsigned short grey = r; /*((unsigned)r + g + b) / 3*/
-		;
 		out[i * 4 + 0] = (unsigned char)((grey >> 8) & 255);
 		out[i * 4 + 1] = (unsigned char)(grey & 255);
 		out[i * 4 + 2] = (unsigned char)((a >> 8) & 255);

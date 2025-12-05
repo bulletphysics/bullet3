@@ -111,24 +111,24 @@ email: projectileman@yahoo.com
 		const btScalar abs_dir1 = absolute_edge[i_dir_1];                                                           \
 		const btScalar rad = _extend[i_comp_0] * abs_dir0 + _extend[i_comp_1] * abs_dir1;                           \
 		if (pmin > rad || -rad > pmax) return false;                                                                \
-	}
+	} do{} while(0)
 
 #endif
 
 #define TEST_CROSS_EDGE_BOX_X_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 2, 1, 1, 2); \
-	}
+	} do{} while(0)
 
 #define TEST_CROSS_EDGE_BOX_Y_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 0, 2, 2, 0); \
-	}
+	} do{} while(0)
 
 #define TEST_CROSS_EDGE_BOX_Z_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 1, 0, 0, 1); \
-	}
+	} do{} while(0)
 
 //!  Class for transforming a model1 to the space of model0
 class GIM_BOX_BOX_TRANSFORM_CACHE
@@ -152,8 +152,8 @@ public:
 
 	GIM_BOX_BOX_TRANSFORM_CACHE(mat4f trans1_to_0)
 	{
-		COPY_MATRIX_3X3(m_R1to0, trans1_to_0)
-		MAT_GET_TRANSLATION(trans1_to_0, m_T1to0)
+		COPY_MATRIX_3X3(m_R1to0, trans1_to_0);
+		MAT_GET_TRANSLATION(trans1_to_0, m_T1to0);
 		calc_absolute_matrix();
 	}
 

@@ -63,14 +63,14 @@ static btScalar dDOT14(const btScalar* a, const btScalar* b) { return dDOTpq(a, 
 		(A)[0] op dDOT41((B), (C));     \
 		(A)[1] op dDOT41((B + 1), (C)); \
 		(A)[2] op dDOT41((B + 2), (C)); \
-	}
+	}  do{} while(0)
 
 #define dMULTIPLYOP0_331(A, op, B, C) \
 	{                                 \
 		(A)[0] op dDOT((B), (C));     \
 		(A)[1] op dDOT((B + 4), (C)); \
 		(A)[2] op dDOT((B + 8), (C)); \
-	}
+	}  do{} while(0)
 
 #define dMULTIPLY1_331(A, B, C) dMULTIPLYOP1_331(A, =, B, C)
 #define dMULTIPLY0_331(A, B, C) dMULTIPLYOP0_331(A, =, B, C)
@@ -334,7 +334,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 		normalR = norm;                \
 		invert_normal = ((expr1) < 0); \
 		code = (cc);                   \
-	}
+	} do{} while(0)
 
 	s = -dInfinity;
 	invert_normal = 0;
@@ -370,7 +370,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 			invert_normal = ((expr1) < 0);               \
 			code = (cc);                                 \
 		}                                                \
-	}
+	} do{} while(0)
 
 	btScalar fudge2(1.0e-5f);
 

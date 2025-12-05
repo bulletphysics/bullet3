@@ -795,14 +795,14 @@ static void getElement(int arrayLen, const char *cur, const char *old, char *old
 	{                                                   \
 		value = (*(cast *)ptr);                         \
 		ptr += size;                                    \
-	}
+	}  do{} while(0)
 
 #define b3SetEle(value, current, type, cast, size, ptr) \
 	if (strcmp(current, type) == 0)                     \
 	{                                                   \
 		(*(cast *)ptr) = (cast)value;                   \
 		ptr += size;                                    \
-	}
+	}  do{} while(0)
 	double value = 0.0;
 
 	for (int i = 0; i < arrayLen; i++)
