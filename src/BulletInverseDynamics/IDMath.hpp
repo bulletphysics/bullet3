@@ -59,7 +59,7 @@ idScalar determinant(const mat33& m);
 /// Test if a 3x3 matrix satisfies some properties of inertia matrices
 /// @param I a 3x3 matrix
 /// @param index body index (for error messages)
-/// @param has_fixed_joint: if true, positive semi-definite matrices are accepted
+/// @param has_fixed_joint if true, positive semi-definite matrices are accepted
 /// @return true if I satisfies inertia matrix properties, false otherwise.
 bool isValidInertiaMatrix(const mat33& I, int index, bool has_fixed_joint);
 
@@ -68,7 +68,7 @@ bool isValidInertiaMatrix(const mat33& I, int index, bool has_fixed_joint);
 /// @return true if m is a rotation matrix, false otherwise
 bool isValidTransformMatrix(const mat33& m);
 /// Transform matrix from parent to child frame,
-/// when the child frame is rotated about @param axis by @angle
+/// when the child frame is rotated about \p axis by \p angle
 /// (mathematically positive)
 /// @param axis the axis of rotation
 /// @param angle rotation angle
@@ -76,21 +76,21 @@ bool isValidTransformMatrix(const mat33& m);
 void bodyTParentFromAxisAngle(const vec3& axis, const idScalar& angle, mat33* T);
 
 /// Check if this is a unit vector
-/// @param vector
+/// @param vector the vector to check
 /// @return true if |vector|=1 within numeric limits
 bool isUnitVector(const vec3& vector);
 
-/// @input a vector in R^3
+/// @param v vector in R^3
 /// @returns corresponding spin tensor
 mat33 tildeOperator(const vec3& v);
 /// @param alpha angle in radians
-/// @returns transform matrix for ratation with @param alpha about x-axis
+/// @returns transform matrix for ratation with \p alpha about x-axis
 mat33 transformX(const idScalar& alpha);
 /// @param beta angle in radians
-/// @returns transform matrix for ratation with @param beta about y-axis
+/// @returns transform matrix for ratation with \p beta about y-axis
 mat33 transformY(const idScalar& beta);
 /// @param gamma angle in radians
-/// @returns transform matrix for ratation with @param gamma about z-axis
+/// @returns transform matrix for ratation with \p gamma about z-axis
 mat33 transformZ(const idScalar& gamma);
 ///calculate rpy angles (x-y-z Euler angles) from a given rotation matrix
 /// @param rot rotation matrix

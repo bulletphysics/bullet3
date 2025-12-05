@@ -393,7 +393,6 @@ public:
 	}
 
 	/*! \brief Finds the Ray intersection parameter.
-	\param aabb Aligned box
 	\param vorigin A vec3f with the origin of the ray
 	\param vdir A vec3f with the direction of the ray
 	*/

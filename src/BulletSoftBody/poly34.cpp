@@ -81,7 +81,7 @@ int SolveP3(btScalar* x, btScalar a, btScalar b, btScalar c)
 	btScalar q3 = q * q * q;
 	btScalar A, B;
 	if (r2 <= (q3 + eps))
-	{  //<<-- FIXED!
+	{  // <<-- FIXED!
 		btScalar t = btScalar(r / sqrt(q3));
 		if (t < -1)
 			t = -1;

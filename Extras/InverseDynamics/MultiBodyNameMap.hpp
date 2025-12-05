@@ -25,12 +25,12 @@ public:
 	int addJoint(const int index, const std::string& name);
 	/// get body name from index
 	/// @param index of the body
-	/// @param body_name name of the body
+	/// @param name name of the body
 	/// @return 0 on success, -1 on failure
 	int getBodyName(const int index, std::string* name) const;
 	/// get joint name from index
 	/// @param index of the joint
-	/// @param joint_name name of the joint
+	/// @param name name of the joint
 	/// @return 0 on success, -1 on failure
 	int getJointName(const int index, std::string* name) const;
 	/// get body index from name

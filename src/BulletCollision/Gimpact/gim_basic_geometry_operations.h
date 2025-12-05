@@ -370,7 +370,7 @@ SIMD_FORCE_INLINE void CLOSEST_POINT_ON_SEGMENT(
 \param point2 Point of line 2
 \param t1 Result Parameter for line 1
 \param t2 Result Parameter for line 2
-\param dointersect  0  if the lines won't intersect, else 1
+\return dointersect  0  if the lines won't intersect, else 1
 
 */
 template <typename T, typename CLASS_POINT>

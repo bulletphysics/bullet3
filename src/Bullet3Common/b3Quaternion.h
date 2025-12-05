@@ -71,8 +71,8 @@ public:
 		//b3Assert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
 	}
 	/**@brief Axis angle Constructor
-   * @param axis The axis which the rotation is around
-   * @param angle The magnitude of the rotation around the angle (Radians) */
+   * @param _axis The axis which the rotation is around
+   * @param _angle The magnitude of the rotation around the angle (Radians) */
 	b3Quaternion(const b3Vector3& _axis, const b3Scalar& _angle)
 	{
 		setRotation(_axis, _angle);
@@ -90,8 +90,8 @@ public:
 #endif
 	}
 	/**@brief Set the rotation using axis angle notation 
-   * @param axis The axis around which to rotate
-   * @param angle The magnitude of the rotation in Radians */
+   * @param axis1 The axis around which to rotate
+   * @param _angle The magnitude of the rotation in Radians */
 	void setRotation(const b3Vector3& axis1, const b3Scalar& _angle)
 	{
 		b3Vector3 axis = axis1;
@@ -132,9 +132,9 @@ public:
 	}
 
 	/**@brief Set the quaternion using euler angles 
-   * @param yaw Angle around Z
-   * @param pitch Angle around Y
-   * @param roll Angle around X */
+   * @param yawZ Angle around Z
+   * @param pitchY Angle around Y
+   * @param rollX Angle around X */
 	void setEulerZYX(const b3Scalar& yawZ, const b3Scalar& pitchY, const b3Scalar& rollX)
 	{
 		b3Scalar halfYaw = b3Scalar(yawZ) * b3Scalar(0.5);
@@ -154,9 +154,9 @@ public:
 	}
 
 	/**@brief Get the euler angles from this quaternion
-	   * @param yaw Angle around Z
-	   * @param pitch Angle around Y
-	   * @param roll Angle around X */
+	   * @param yawZ Angle around Z
+	   * @param pitchY Angle around Y
+	   * @param rollX Angle around X */
 	void getEulerZYX(b3Scalar& yawZ, b3Scalar& pitchY, b3Scalar& rollX) const
 	{
 		b3Scalar squ;

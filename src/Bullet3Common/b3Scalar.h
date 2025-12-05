@@ -541,7 +541,7 @@ B3_FORCE_INLINE int b3Select(unsigned condition, int valueIfConditionNonZero, in
 {
 	unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
 	unsigned testEqz = ~testNz;
-	return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
+	return static_cast<int>(((unsigned)valueIfConditionNonZero & testNz) | ((unsigned)valueIfConditionZero & testEqz));
 }
 B3_FORCE_INLINE float b3Select(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {

@@ -89,7 +89,7 @@ public:
 	int getUserInt(const int index, int *user_int) const;
 	/// get user pointer
 	/// @param index body index
-	/// @param user_int user pointer
+	/// @param user_ptr user pointer
 	/// @return 0 on success, -1 on failure
 	int getUserPtr(const int index, void **user_ptr) const;
 

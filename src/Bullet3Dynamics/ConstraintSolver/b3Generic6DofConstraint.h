@@ -232,7 +232,7 @@ This is accessible through b3Generic6DofConstraint.getLimitMotor method,
 This brings support for limit parameters and motors. </li>
 
 <li> Angulars limits have these possible ranges:
-<table border=1 >
+<table border="1" >
 <tr>
 	<td><b>AXIS</b></td>
 	<td><b>MIN ANGLE</b></td>

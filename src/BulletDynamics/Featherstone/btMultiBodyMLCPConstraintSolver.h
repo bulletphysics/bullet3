@@ -164,7 +164,6 @@ public:
 	/// Constructor
 	///
 	/// \param[in] solver MLCP solver. Assumed it's not null.
-	/// \param[in] maxLCPSize Maximum size of LCP to solve using MLCP solver. If the MLCP size exceeds this number, sequaltial impulse method will be used.
 	explicit btMultiBodyMLCPConstraintSolver(btMLCPSolverInterface* solver);
 
 	/// Destructor

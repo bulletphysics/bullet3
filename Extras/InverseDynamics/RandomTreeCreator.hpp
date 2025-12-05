@@ -14,7 +14,6 @@ class RandomTreeCreator : public MultiBodyTreeCreator
 public:
 	/// ctor
 	/// @param max_bodies maximum number of bodies
-	/// @param gravity gravitational acceleration
 	/// @param use_seed if true, seed random number generator
 	RandomTreeCreator(const int max_bodies, bool use_seed = false);
 	~RandomTreeCreator();

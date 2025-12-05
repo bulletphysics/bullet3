@@ -10,7 +10,7 @@ class btVector3;
 
 ///UrdfRenderingInterface is a simple rendering interface, mainly for URDF-based robots.
 ///There is an implementation in
-///bullet3\examples\SharedMemory\plugins\tinyRendererPlugin\TinyRendererVisualShapeConverter.cpp
+///bullet3/examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 struct UrdfRenderingInterface
 {
 	virtual ~UrdfRenderingInterface() {}

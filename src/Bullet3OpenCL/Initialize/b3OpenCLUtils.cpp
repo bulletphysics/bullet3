@@ -389,7 +389,7 @@ cl_context b3OpenCLUtils_createContextFromType(cl_device_type deviceType, cl_int
 //!
 //! @return the id or -1 when out of range
 //! @param cxMainContext         OpenCL context
-//! @param device_idx            index of the device of interest
+//! @param deviceIndex           index of the device of interest
 //////////////////////////////////////////////////////////////////////////////
 cl_device_id b3OpenCLUtils_getDevice(cl_context cxMainContext, int deviceIndex)
 {

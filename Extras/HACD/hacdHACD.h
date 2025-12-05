@@ -103,13 +103,13 @@ public:
 	//! @return true = faces points should be added
 	bool GetAddFacesPoints() const { return m_addFacesPoints; }
 	//! Specifies whether extra points should be added when computing the concavity
-	//! @param addExteraDistPoints true = extra points should be added
+	//! @param addExtraDistPoints true = extra points should be added
 	void SetAddExtraDistPoints(bool addExtraDistPoints) { m_addExtraDistPoints = addExtraDistPoints; }
 	//! Specifies wheter extra points should be added when computing the concavity
 	//! @return true = extra points should be added
 	bool GetAddExtraDistPoints() const { return m_addExtraDistPoints; }
 	//! Specifies whether extra points should be added when computing the concavity
-	//! @param addExteraDistPoints true = extra points should be added
+	//! @param addNeighboursDistPoints true = extra points should be added
 	void SetAddNeighboursDistPoints(bool addNeighboursDistPoints) { m_addNeighboursDistPoints = addNeighboursDistPoints; }
 	//! Specifies wheter extra points should be added when computing the concavity
 	//! @return true = extra points should be added
@@ -151,7 +151,7 @@ public:
 	//! @return maximum concavity
 	double GetConcavity() const { return m_concavity; }
 	//! Sets the maximum allowed distance to get CCs connected.
-	//! @param concavity maximum distance to get CCs connected
+	//! @param ccConnectDist maximum distance to get CCs connected
 	void SetConnectDist(double ccConnectDist) { m_ccConnectDist = ccConnectDist; }
 	//! Gives the maximum allowed distance to get CCs connected.
 	//! @return maximum distance to get CCs connected
@@ -226,7 +226,6 @@ private:
 	double Concavity(ICHull &ch, std::map<long, DPoint> &distPoints);
 	//! Computes the perimeter of a cluster.
 	//! @param triIndices the cluster's triangles
-	//! @param distPoints the cluster's points
 	//! @return cluster's perimeter
 	double ComputePerimeter(const std::vector<long> &triIndices) const;
 	//! Creates the Graph by associating to each mesh triangle a vertex in the graph and to each couple of adjacent triangles an edge in the graph.
@@ -237,7 +236,6 @@ private:
 	//! @param e edge's id
 	void ComputeEdgeCost(size_t e);
 	//! Initializes the priority queue
-	//! @param fast specifies whether fast mode is used
 	//! @return true if success
 	bool InitializePriorityQueue();
 	//! Cleans the intersection between convex-hulls
@@ -246,7 +244,6 @@ private:
 	//! @param fullCH specifies whether to generate convex-hulls with a full or limited (i.e. < m_nVerticesPerCH) number of vertices
 	void ComputeConvexHulls(bool fullCH);
 	//! Simplifies the graph
-	//! @param fast specifies whether fast mode is used
 	void Simplify();
 
 private:

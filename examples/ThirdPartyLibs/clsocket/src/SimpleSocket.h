@@ -142,7 +142,7 @@ public:
 		SocketConnectionReset,      ///< Connection was forcibly closed by the remote host.
 		SocketAddressInUse,         ///< Address already in use.
 		SocketInvalidPointer,       ///< Pointer type supplied as argument is invalid.
-		SocketEunknown              ///< Unknown error please report to mark@carrierlabs.com
+		SocketEunknown              ///< Unknown error please report to mark\@carrierlabs.com
 	} CSocketError;
 
 public:
@@ -219,7 +219,7 @@ public:
 
 	/// Attempts to receive a block of data on an established connection.
 	/// @param nMaxBytes maximum number of bytes to receive.
-	/// @param pBuffer, memory where to receive the data,
+	/// @param pBuffer memory where to receive the data,
 	///        NULL receives to internal buffer returned with GetData()
 	///        Non-NULL receives directly there, but GetData() will return WRONG ptr!
 	/// @return number of bytes actually received.
@@ -347,7 +347,6 @@ public:
 	/// were received.
 	/// @param nConnectTimeoutSec of timeout in seconds.
 	/// @param nConnectTimeoutUsec of timeout in microseconds.
-	/// @return true if socket connection timeout was successfully set.
 	void SetConnectTimeout(int32 nConnectTimeoutSec, int32 nConnectTimeoutUsec = 0)
 	{
 		m_stConnectTimeout.tv_sec = nConnectTimeoutSec;
@@ -571,14 +570,14 @@ private:
 
 	/// Attempts to send at most nNumItem blocks described by sendVector
 	/// to the socket descriptor associated with the socket object.
-	/// @param sendVector pointer to an array of iovec structures
+	/// @param pVector pointer to an array of iovec structures
 	/// @param nNumItems number of items in the vector to process
 	/// <br>\b Note: This implementation is for systems that don't natively
 	/// support this functionality.
 	/// @return number of bytes actually sent, return of zero means the
 	/// connection has been shutdown on the other side, and a return of -1
 	/// means that an error has occurred.
-	int32 Writev(const struct iovec *pVector, size_t nCount);
+	int32 Writev(const struct iovec *pVector, size_t nNumItems);
 
 	/// Flush the socket descriptor owned by the object.
 	/// @return true data was successfully sent, else return false;

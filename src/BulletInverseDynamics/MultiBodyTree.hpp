@@ -76,7 +76,7 @@ public:
 	///		the rotation and translation relative to the parent are taken as
 	///		pose of the root body relative to the world frame. Other parameters
 	///		are ignored
-	/// @param JointType type of joint connecting the body to the parent
+	/// @param joint_type type of joint connecting the body to the parent
 	/// @param mass the mass of the body
 	/// @param body_r_body_com the center of mass of the body relative to and
 	/// described in
@@ -218,19 +218,19 @@ public:
 	/// get linear velocity of a body's CoM, represented in world frame
 	/// (not required for inverse dynamics, provided for convenience)
 	/// @param body_index index for frame/body
-	/// @param world_vel_com pointer for return data
+	/// @param world_velocity pointer for return data
 	/// @return 0 on success, -1 on error
 	int getBodyLinearVelocityCoM(const int body_index, vec3* world_velocity) const;
-	/// get origin of a body-fixed frame, represented in world frame
+	/// get angular acceleration of a body-fixed frame, represented in world frame
 	/// @param body_index index for frame/body
-	/// @param world_origin pointer for return data
+	/// @param world_dot_omega pointer for return data
 	/// @return 0 on success, -1 on error
 	int getBodyAngularAcceleration(const int body_index, vec3* world_dot_omega) const;
-	/// get origin of a body-fixed frame, represented in world frame
+	/// get linear acceleration of a body-fixed frame, represented in world frame
 	/// NOTE: this will include the gravitational acceleration, so the actual acceleration is
 	/// obtainened by setting gravitational acceleration to zero, or subtracting it.
 	/// @param body_index index for frame/body
-	/// @param world_origin pointer for return data
+	/// @param world_acceleration pointer for return data
 	/// @return 0 on success, -1 on error
 	int getBodyLinearAcceleration(const int body_index, vec3* world_acceleration) const;
 
@@ -325,7 +325,7 @@ public:
 	/// get first moment of mass for a body
 	/// (mass * center of mass, in body fixed frame, relative to joint)
 	/// @param body_index index of the body
-	/// @param first_moment the vector
+	/// @param first_mass_moment the vector
 	/// @return 0 on success, -1 on failure
 	int getBodyFirstMassMoment(const int body_index, vec3* first_mass_moment) const;
 	/// get second moment of mass for a body

@@ -128,7 +128,7 @@ public:
 
 public:
 	/**@brief Add a vector to this one
- * @param The vector to add to this one */
+ * @param v The vector to add to this one */
 	B3_FORCE_INLINE b3Vector3& operator+=(const b3Vector3& v)
 	{
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
@@ -144,7 +144,7 @@ public:
 	}
 
 	/**@brief Subtract a vector from this one
-   * @param The vector to subtract */
+   * @param v The vector to subtract */
 	B3_FORCE_INLINE b3Vector3& operator-=(const b3Vector3& v)
 	{
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
@@ -1124,10 +1124,10 @@ public:
 		}
 */
 	/**@brief Set the values
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	B3_FORCE_INLINE void setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w)
 	{

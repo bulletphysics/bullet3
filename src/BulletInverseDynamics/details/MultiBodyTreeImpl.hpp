@@ -142,8 +142,8 @@ public:
 	};
 
 	/// constructor
-	/// @param num_bodies the number of bodies in the system
-	/// @param num_dofs number of degrees of freedom in the system
+	/// @param num_bodies_ the number of bodies in the system
+	/// @param num_dofs_ number of degrees of freedom in the system
 	MultiBodyImpl(int num_bodies_, int num_dofs_);
 
 	/// \copydoc MultiBodyTree::calculateInverseDynamics
