@@ -28,7 +28,9 @@ static size_t commandSizes[ENET_PROTOCOL_COMMAND_COUNT] =
 size_t
 enet_protocol_command_size(enet_uint8 commandNumber)
 {
-	return commandSizes[commandNumber & ENET_PROTOCOL_COMMAND_MASK];
+	if(commandNumber < ENET_PROTOCOL_COMMAND_COUNT)
+		return commandSizes[commandNumber & ENET_PROTOCOL_COMMAND_MASK];
+	return 0;
 }
 
 static int
@@ -1304,7 +1306,7 @@ enet_protocol_send_unreliable_outgoing_commands(ENetHost *host, ENetPeer *peer)
 		size_t commandSize;
 
 		outgoingCommand = (ENetOutgoingCommand *)currentCommand;
-		commandSize = commandSizes[outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK];
+		commandSize = outgoingCommand->command.header.command < ENET_PROTOCOL_COMMAND_COUNT ? commandSizes[outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK] : 0;
 
 		if (command >= &host->commands[sizeof(host->commands) / sizeof(ENetProtocol)] ||
 			buffer + 1 >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] ||
@@ -1499,7 +1501,7 @@ enet_protocol_send_reliable_outgoing_commands(ENetHost *host, ENetPeer *peer)
 
 		canPing = 0;
 
-		commandSize = commandSizes[outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK];
+		commandSize = outgoingCommand->command.header.command < ENET_PROTOCOL_COMMAND_COUNT ? commandSizes[outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK] : 0;
 		if (command >= &host->commands[sizeof(host->commands) / sizeof(ENetProtocol)] ||
 			buffer + 1 >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] ||
 			peer->mtu - host->packetSize < commandSize ||
