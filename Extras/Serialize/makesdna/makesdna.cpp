@@ -844,7 +844,8 @@ static int calculate_structlens(int firststruct)
 						if (cp[namelen - 1] == ']') mul = arraysize(cp, namelen);
 
 						/* 4-8 aligned/ */
-						if (sizeof(void *) == 4)
+						const bool is32bitSystem = sizeof(void *) == 4;
+						if (is32bitSystem)
 						{
 							if (len % 4)
 							{
@@ -879,7 +880,8 @@ static int calculate_structlens(int firststruct)
 						/* struct alignment */
 						if (type >= firststruct)
 						{
-							if (sizeof(void *) == 8 && (len % 8))
+							const bool is64bitSystem = sizeof(void *) == 8;
+							if (is64bitSystem && (len % 8))
 							{
 								printf("Align struct error: %s %s\n", types[structtype], cp);
 								dna_error = 1;
@@ -1314,7 +1316,8 @@ int main(int argc, char **argv)
 				strcpy(baseDirectory, BASE_HEADER);
 			}
 
-			if (sizeof(void *) == 8)
+			const bool is64bitSystem = sizeof(void *) == 8;
+			if (is64bitSystem)
 			{
 				fprintf(file, "char sBulletDNAstr64[]= {\n");
 			}
@@ -1333,7 +1336,7 @@ int main(int argc, char **argv)
 			else
 			{
 				fprintf(file, "};\n");
-				if (sizeof(void *) == 8)
+				if (is64bitSystem)
 				{
 					fprintf(file, "int sBulletDNAlen64= sizeof(sBulletDNAstr64);\n");
 				}
