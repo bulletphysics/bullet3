@@ -63,7 +63,7 @@ public:
 		m_implicitShapeDimensions = dimensions;
 	}
 
-	void setSafeMargin(btScalar minDimension, btScalar defaultMarginMultiplier = 0.1f)
+	void setSafeMargin(btScalar minDimension, btScalar defaultMarginMultiplier = btScalar(0.1))
 	{
 		btScalar safeMargin = defaultMarginMultiplier * minDimension;
 		if (safeMargin < getMargin())
@@ -71,7 +71,7 @@ public:
 			setMargin(safeMargin);
 		}
 	}
-	void setSafeMargin(const btVector3& halfExtents, btScalar defaultMarginMultiplier = 0.1f)
+	void setSafeMargin(const btVector3& halfExtents, btScalar defaultMarginMultiplier = btScalar(0.1))
 	{
 		//see http://code.google.com/p/bullet/issues/detail?id=349
 		//this margin check could could be added to other collision shapes too,

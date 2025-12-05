@@ -121,7 +121,7 @@ float unit(float vin[3], float vout[3])
 
 	dist = vin[0] * vin[0] + vin[1] * vin[1] + vin[2] * vin[2];
 
-	if (dist > 0.0)
+	if (dist > 0.0f)
 	{
 		dist = std::sqrt(dist);
 		f = 1.f / dist;

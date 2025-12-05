@@ -369,8 +369,8 @@ void ReducedMotorGrasp::initPhysics()
         SliderParams slider("Moving velocity", &sGripperVerticalVelocity);
         // slider.m_minVal = -.02;
         // slider.m_maxVal = .02;
-        slider.m_minVal = btScalar(-.2);
-        slider.m_maxVal = btScalar(.2);
+        slider.m_minVal = -.2f;
+        slider.m_maxVal = .2f;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     

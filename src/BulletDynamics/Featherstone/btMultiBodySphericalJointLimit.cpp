@@ -170,7 +170,7 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 		vTwistAxis.normalize();
 	
 	if (vTwistAxis.dot(vTwist)<0)
-		twistAngle*=-1.;
+		twistAngle*=btScalar(-1.);
 
 	angleDiff[2] = twistAngle;
 

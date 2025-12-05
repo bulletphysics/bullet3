@@ -429,10 +429,10 @@ inline VectorR4& VectorR4::Load(const double* v)
 
 inline VectorR4& VectorR4::Load(const float* v)
 {
-	x = *v;
-	y = *(v + 1);
-	z = *(v + 2);
-	w = *(v + 3);
+	x = (double)*v;
+	y = (double)*(v + 1);
+	z = (double)*(v + 2);
+	w = (double)*(v + 3);
 	return *this;
 }
 

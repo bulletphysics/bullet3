@@ -191,7 +191,7 @@ public:
 		}
 
 		{
-			int boxId = m_app->registerCubeShape(btScalar(100), btScalar(0.01), btScalar(100));
+			int boxId = m_app->registerCubeShape(100.0f, 0.01f, 100.0f);
 			b3Vector3 pos = b3MakeVector3(0, -3.5, 0);
 			b3Quaternion orn(0, 0, 0, 1);
 			b3Vector4 color = b3MakeVector4(1, 1, 1, 1);

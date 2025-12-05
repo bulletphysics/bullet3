@@ -658,9 +658,9 @@ inline VectorR3& VectorR3::Load(const double* v)
 
 inline VectorR3& VectorR3::Load(const float* v)
 {
-	x = *v;
-	y = *(v + 1);
-	z = *(v + 2);
+	x = (double)*v;
+	y = (double)*(v + 1);
+	z = (double)*(v + 2);
 	return *this;
 }
 

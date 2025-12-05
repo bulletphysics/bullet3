@@ -144,7 +144,7 @@ void ColorPicker::SlidersMoved(Gwen::Controls::Base* control)
 {
 	HorizontalSlider* slider = control->DynamicCastHorizontalSlider();
 	if (slider)
-		SetColorByName(GetColorFromName(slider->GetName()), slider->GetValue());
+		SetColorByName(GetColorFromName(slider->GetName()), (int)slider->GetValue());
 
 	UpdateControls();
 	//SetColor( Gwen::Color( redSlider->GetValue(), greenSlider->GetValue(), blueSlider->GetValue(), alphaSlider->GetValue() ) );
@@ -159,7 +159,7 @@ void ColorPicker::Layout(Skin::Base* skin)
 
 	GroupBox* groupBox = FindChildByName("ResultGroupBox", true)->DynamicCastGroupBox();
 	if (groupBox)
-		groupBox->SetPos(groupBox->X(), (float)Height() * 0.5f - (float)groupBox->Height() * 0.5f);
+		groupBox->SetPos(groupBox->X(), int((float)Height() * 0.5f - (float)groupBox->Height() * 0.5f));
 
 	UpdateControls();
 }

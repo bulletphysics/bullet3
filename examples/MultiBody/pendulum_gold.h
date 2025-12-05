@@ -54,7 +54,10 @@ if __name__ == '__main__':
 #pragma warning(push)
 #pragma warning(disable: 4305) // 'initializing': truncation from 'double' to 'btScalar'
 #endif
-
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#endif
 //sPendulumGold stores scalar values of a simulated pendulum in tuples 'timestamp' and 'theta joint angle'
 static btScalar sPendulumGold[] =
 	{
@@ -2059,6 +2062,9 @@ static btScalar sPendulumGold[] =
 		1.998000, 0.642825,
 		1.999000, 0.644389};
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif

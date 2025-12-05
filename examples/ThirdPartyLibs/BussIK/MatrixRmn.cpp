@@ -211,7 +211,7 @@ void MatrixRmn::Multiply(const VectorRn& v, VectorRn& result) const
 	{
 		const double* in = v.GetPtr();
 		const double* m = rowPtr++;
-		*out = 0.0f;
+		*out = 0.0;
 		for (long i = NumCols; i > 0; i--)
 		{
 			*out += (*(in++)) * (*m);
@@ -232,7 +232,7 @@ void MatrixRmn::MultiplyTranspose(const VectorRn& v, VectorRn& result) const
 	for (long i = NumCols; i > 0; i--)
 	{
 		const double* in = v.GetPtr();
-		*out = 0.0f;
+		*out = 0.0;
 		for (long j = NumRows; j > 0; j--)
 		{
 			*out += (*(in++)) * (*(colPtr++));

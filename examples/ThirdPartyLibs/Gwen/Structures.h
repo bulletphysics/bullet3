@@ -125,19 +125,19 @@ struct GWEN_EXPORT Color
 
 	void operator*=(float f)
 	{
-		this->r *= f;
-		this->g *= f;
-		this->b *= f;
-		this->a *= f;
+		this->r *= (unsigned char)f;
+		this->g *= (unsigned char)f;
+		this->b *= (unsigned char)f;
+		this->a *= (unsigned char)f;
 	}
 
 	Color operator*(float f)
 	{
 		return Color(
-			(float)this->r * f,
-			(float)this->g * f,
-			(float)this->b * f,
-			(float)this->a * f);
+			(unsigned char)((float)this->r * f),
+			(unsigned char)((float)this->g * f),
+			(unsigned char)((float)this->b * f),
+			(unsigned char)((float)this->a * f));
 	}
 
 	Color operator-(Color c)

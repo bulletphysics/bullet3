@@ -248,9 +248,9 @@ void ExampleBrowserThreadFunc(void* userPtr, void* lsMemory)
 			//B3_PROFILE("ExampleBrowserThreadFunc");
 			float deltaTimeInSeconds = (float)clock.getTimeMicroseconds() / 1000000.f;
 			{
-				if (deltaTimeInSeconds > 0.1)
+				if (deltaTimeInSeconds > 0.1f)
 				{
-					deltaTimeInSeconds = btScalar(0.1);
+					deltaTimeInSeconds = 0.1f;
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs / 1e6))
 				{

@@ -485,11 +485,11 @@ public:
 	/**@brief Return the axis of the rotation represented by this quaternion */
 	btVector3 getAxis() const
 	{
-		btScalar s_squared = 1.f - m_floats[3] * m_floats[3];
+		btScalar s_squared = btScalar(1.) - m_floats[3] * m_floats[3];
 
 		if (s_squared < btScalar(10.) * SIMD_EPSILON)  //Check for divide by zero
 			return btVector3(1.0, 0.0, 0.0);           // Arbitrary
-		btScalar s = 1.f / btSqrt(s_squared);
+		btScalar s = btScalar(1.) / btSqrt(s_squared);
 		return btVector3(m_floats[0] * s, m_floats[1] * s, m_floats[2] * s);
 	}
 
@@ -946,13 +946,13 @@ shortestArcQuat(const btVector3& v0, const btVector3& v1)  // Game Programming G
 	{
 		btVector3 n, unused;
 		btPlaneSpace1(v0, n, unused);
-		return btQuaternion(n.x(), n.y(), n.z(), 0.0f);  // just pick any vector that is orthogonal to v0
+		return btQuaternion(n.x(), n.y(), n.z(), btScalar(0.0));  // just pick any vector that is orthogonal to v0
 	}
 
-	btScalar s = btSqrt((1.0f + d) * 2.0f);
-	btScalar rs = 1.0f / s;
+	btScalar s = btSqrt((btScalar(1.0) + d) * btScalar(2.0));
+	btScalar rs = btScalar(1.0) / s;
 
-	return btQuaternion(c.getX() * rs, c.getY() * rs, c.getZ() * rs, s * 0.5f);
+	return btQuaternion(c.getX() * rs, c.getY() * rs, c.getZ() * rs, s * btScalar(0.5));
 }
 
 SIMD_FORCE_INLINE btQuaternion

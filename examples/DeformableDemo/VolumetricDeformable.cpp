@@ -252,8 +252,8 @@ void VolumetricDeformable::initPhysics()
 	}
 	{
 		SliderParams slider("Poisson Ratio", &nu);
-		slider.m_minVal = btScalar(0.05);
-		slider.m_maxVal = btScalar(0.49);
+		slider.m_minVal = 0.05f;
+		slider.m_maxVal = 0.49f;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
@@ -267,7 +267,7 @@ void VolumetricDeformable::initPhysics()
     {
         SliderParams slider("Stiffness Damping", &damping_beta);
         slider.m_minVal = 0;
-        slider.m_maxVal = btScalar(0.1);
+        slider.m_maxVal = 0.1f;
         if (m_guiHelper->getParameterInterface())
             m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }

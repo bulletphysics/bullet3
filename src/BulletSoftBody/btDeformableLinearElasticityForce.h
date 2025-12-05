@@ -32,7 +32,7 @@ public:
 		updateYoungsModulusAndPoissonRatio();
 	}
 
-	btDeformableLinearElasticityForce(btScalar mu, btScalar lambda, btScalar damping_alpha = 0.01, btScalar damping_beta = 0.01) : m_mu(mu), m_lambda(lambda), m_damping_alpha(damping_alpha), m_damping_beta(damping_beta)
+	btDeformableLinearElasticityForce(btScalar mu, btScalar lambda, btScalar damping_alpha = btScalar(0.01), btScalar damping_beta = btScalar(0.01)) : m_mu(mu), m_lambda(lambda), m_damping_alpha(damping_alpha), m_damping_beta(damping_beta)
 	{
 		updateYoungsModulusAndPoissonRatio();
 	}

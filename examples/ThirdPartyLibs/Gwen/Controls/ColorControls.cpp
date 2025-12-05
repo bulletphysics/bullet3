@@ -21,7 +21,7 @@ Color HSVToColor(float h, float s, float v)
 
 	float r, g, b;
 
-	if (!h && !s)
+	if (h == 0.0f && s == 0.0f)
 	{
 		r = g = b = v;
 		(void)r;
@@ -30,11 +30,11 @@ Color HSVToColor(float h, float s, float v)
 	}
 	double min, max, delta, hue;
 
-	max = v;
-	delta = (max * s) / 255.0;
+	max = (double)v;
+	delta = (max * (double)s) / 255.0;
 	min = max - delta;
 
-	hue = h;
+	hue = (double)h;
 	if (h > 300 || h <= 60)
 	{
 		r = (int)max;
@@ -84,7 +84,7 @@ Color HSVToColor(float h, float s, float v)
 		}
 	}
 
-	return Color(r, g, b, 255);
+	return Color((unsigned char)r, (unsigned char)g, (unsigned char)b, 255);
 }
 
 HSV RGBtoHSV(int r, int g, int b)
@@ -96,7 +96,7 @@ HSV RGBtoHSV(int r, int g, int b)
 
 	HSV hsv;
 	hsv.v = (int)max;
-	if (!delta)
+	if (delta == 0.0)
 	{
 		hsv.h = hsv.s = 0;
 	}
@@ -148,9 +148,9 @@ Gwen::Color LerpColor(Gwen::Color& toColor, Gwen::Color& fromColor, float amount
 {
 	Gwen::Color colorDelta = toColor - fromColor;
 
-	colorDelta.r *= amount;
-	colorDelta.g *= amount;
-	colorDelta.b *= amount;
+	colorDelta.r *= (unsigned char)amount;
+	colorDelta.g *= (unsigned char)amount;
+	colorDelta.b *= (unsigned char)amount;
 
 	Gwen::Color newColor = fromColor + colorDelta;
 	return newColor;
@@ -164,11 +164,11 @@ Gwen::Color ColorLerpBox::GetSelectedColor()
 void ColorLerpBox::SetColor(Gwen::Color color, bool onlyHue)
 {
 	HSV hsv = RGBtoHSV(color.r, color.g, color.b);
-	m_Hue = hsv.h;
+	m_Hue = (int)hsv.h;
 	if (!onlyHue)
 	{
-		cursorPos.x = hsv.s * (float)Width();
-		cursorPos.y = (1 - hsv.v) * (float)Height();
+		cursorPos.x = int(hsv.s * (float)Width());
+		cursorPos.y = int((1 - hsv.v) * (float)Height());
 	}
 
 	onSelectionChanged.Call(this);
@@ -309,7 +309,7 @@ void ColorSlider::SetColor(Gwen::Color color)
 {
 	HSV hsv = RGBtoHSV(color.r, color.g, color.b);
 
-	m_iSelectedDist = hsv.h / 360 * (float)Height();
+	m_iSelectedDist = int(hsv.h / 360 * (float)Height());
 
 	onSelectionChanged.Call(this);
 }

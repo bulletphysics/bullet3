@@ -1039,7 +1039,7 @@ btSoftBody* btSoftBodyHelpers::CreateEllipsoid(btSoftBodyWorldInfo& worldInfo, c
 			for (int i = 0; i < n; i++)
 			{
 				btScalar p = 0.5, t = 0;
-				for (int j = i; j; p *= 0.5, j >>= 1)
+				for (int j = i; j; p *= btScalar(0.5), j >>= 1)
 					if (j & 1) t += p;
 				btScalar w = 2 * t - 1;
 				btScalar a = (SIMD_PI + 2 * (btScalar)i * SIMD_PI) / (btScalar)n;

@@ -102,7 +102,7 @@ struct Shader : public IShader
 	mat<3, 3, float> varying_nrm;  // normal per vertex to be interpolated by FS
 	mat<4, 3, float> world_tri;    // model triangle coordinates in the world space used for backface culling, written by VS
 
-	Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient = 0.6, float diffuse_coefficient = 0.35, float specular_coefficient = 0.05)
+	Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient = 0.6f, float diffuse_coefficient = 0.35f, float specular_coefficient = 0.05f)
 		: m_model(model),
 		  m_light_dir_local(light_dir_local),
 		  m_light_color(light_color),

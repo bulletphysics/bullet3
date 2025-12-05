@@ -654,7 +654,7 @@ public:
 		btScalar det = btDot(col1, btCross(col2, col3));
 		if (btFabs(det) > SIMD_EPSILON)
 		{
-			det = 1.0f / det;
+			det = btScalar(1.0) / det;
 		}
 		btVector3 x;
 		x[0] = det * btDot(b, btCross(col2, col3));
@@ -685,7 +685,7 @@ public:
 	///symmetric matrix S:
 	///A = R*S.
 	///note that R can include both rotation and scaling.
-	SIMD_FORCE_INLINE void extractRotation(btQuaternion & q, btScalar tolerance = 1.0e-9, int maxIter = 100)
+	SIMD_FORCE_INLINE void extractRotation(btQuaternion & q, btScalar tolerance = btScalar(1.0e-9), int maxIter = 100)
 	{
 		int iter = 0;
 		btScalar w;

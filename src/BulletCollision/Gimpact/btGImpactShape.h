@@ -102,7 +102,7 @@ public:
 		m_shapeType = GIMPACT_SHAPE_PROXYTYPE;
 		m_localAABB.invalidate();
 		m_needs_update = true;
-		localScaling.setValue(1.f, 1.f, 1.f);
+		localScaling.setValue(btScalar(1.0), btScalar(1.0), btScalar(1.0));
 	}
 
 	//! performs refit operation
@@ -528,7 +528,7 @@ public:
 			m_meshInterface = NULL;
 			m_part = 0;
 			m_margin = 0.01f;
-			m_scale = btVector3(1.f, 1.f, 1.f);
+			m_scale = btVector3(btScalar(1.0), btScalar(1.0), btScalar(1.0));
 			m_lock_count = 0;
 			vertexbase = 0;
 			numverts = 0;

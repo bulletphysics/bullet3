@@ -57,7 +57,7 @@ const double OneTwelfth = 1.0 / 12.0;
 const double Root2 = sqrt(2.0);
 const double Root3 = sqrt(3.0);
 const double Root2Inv = 1.0 / Root2;  // sqrt(2)/2
-const double HalfRoot3 = sqrtf(3) / 2.0;
+const double HalfRoot3 = sqrt(3) / 2.0;
 
 const double LnTwo = log(2.0);
 const double LnTwoInv = 1.0 / log(2.0);

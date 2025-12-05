@@ -837,7 +837,7 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 
 	vcount = 0;
 
-	btScalar recip[3] = {0.f, 0.f, 0.f};
+	btScalar recip[3] = {btScalar(0.), btScalar(0.), btScalar(0.)};
 
 	if (scale)
 	{
@@ -846,8 +846,8 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 		scale[2] = 1;
 	}
 
-	btScalar bmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
-	btScalar bmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+	btScalar bmin[3] = {btScalar(FLT_MAX), btScalar(FLT_MAX), btScalar(FLT_MAX)};
+	btScalar bmax[3] = {btScalar(-FLT_MAX), btScalar(-FLT_MAX), btScalar(-FLT_MAX)};
 
 	const char *vtx = (const char *)svertices;
 
@@ -879,13 +879,13 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 
 	if (dx < EPSILON || dy < EPSILON || dz < EPSILON || svcount < 3)
 	{
-		btScalar len = FLT_MAX;
+		btScalar len = btScalar(FLT_MAX);
 
 		if (dx > EPSILON && dx < len) len = dx;
 		if (dy > EPSILON && dy < len) len = dy;
 		if (dz > EPSILON && dz < len) len = dz;
 
-		if (len == FLT_MAX)
+		if (len == btScalar(FLT_MAX))
 		{
 			dx = dy = dz = btScalar(0.01);  // one centimeter
 		}
@@ -1004,8 +1004,8 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 	// ok..now make sure we didn't prune so many vertices it is now invalid.
 	//	if ( 1 )
 	{
-		btScalar bbmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
-		btScalar bbmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+		btScalar bbmin[3] = {btScalar(FLT_MAX), btScalar(FLT_MAX), btScalar(FLT_MAX)};
+		btScalar bbmax[3] = {btScalar(-FLT_MAX), btScalar(-FLT_MAX), btScalar(-FLT_MAX)};
 
 		for (unsigned int i = 0; i < vcount; i++)
 		{
@@ -1027,13 +1027,13 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 			btScalar cy = dyL * btScalar(0.5) + bbmin[1];
 			btScalar cz = dzL * btScalar(0.5) + bbmin[2];
 
-			btScalar len = FLT_MAX;
+			btScalar len = btScalar(FLT_MAX);
 
 			if (dxL >= EPSILON && dxL < len) len = dxL;
 			if (dyL >= EPSILON && dyL < len) len = dyL;
 			if (dzL >= EPSILON && dzL < len) len = dzL;
 
-			if (len == FLT_MAX)
+			if (len == btScalar(FLT_MAX))
 			{
 				dxL = dyL = dzL = btScalar(0.01);  // one centimeter
 			}

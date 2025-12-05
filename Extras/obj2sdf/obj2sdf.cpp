@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
 			}
 			for (size_t v = 0; v < vertexCount / 3; v++)
 			{
-				fprintf(f, "v %f %f %f\n", shapeCon->positions[v * 3 + 0], shapeCon->positions[v * 3 + 1], shapeCon->positions[v * 3 + 2]);
+				fprintf(f, "v %f %f %f\n", (double)shapeCon->positions[v * 3 + 0], (double)shapeCon->positions[v * 3 + 1], (double)shapeCon->positions[v * 3 + 2]);
 			}
 
 			if (mat.name.length())
@@ -240,14 +240,14 @@ int main(int argc, char* argv[])
 
 			for (size_t vn = 0; vn < numNormals / 3; vn++)
 			{
-				fprintf(f, "vn %f %f %f\n", shapeCon->normals[vn * 3 + 0], shapeCon->normals[vn * 3 + 1], shapeCon->normals[vn * 3 + 2]);
+				fprintf(f, "vn %f %f %f\n", (double)shapeCon->normals[vn * 3 + 0], (double)shapeCon->normals[vn * 3 + 1], (double)shapeCon->normals[vn * 3 + 2]);
 			}
 
 			fprintf(f, "\n");
 			size_t numTexCoords = shapeCon->texcoords.size();
 			for (size_t vt = 0; vt < numTexCoords / 2; vt++)
 			{
-				fprintf(f, "vt %f %f\n", shapeCon->texcoords[vt * 2 + 0], shapeCon->texcoords[vt * 2 + 1]);
+				fprintf(f, "vt %f %f\n", (double)shapeCon->texcoords[vt * 2 + 0], (double)shapeCon->texcoords[vt * 2 + 1]);
 			}
 
 			fprintf(f, "s off\n");
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
 					"\t\t\t</model>\n",
 					objSdfPartFileName, m, m,
 					objSdfPartFileName, objSdfPartFileName,
-					kdRed, kdGreen, kdBlue, transparency);
+					(double)kdRed, (double)kdGreen, (double)kdBlue, (double)transparency);
 		}
 	}
 	else
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 			}
 			for (size_t v = 0; v < vertexCount / 3; v++)
 			{
-				fprintf(f, "v %f %f %f\n", attribute.vertices[v * 3 + 0], attribute.vertices[v * 3 + 1], attribute.vertices[v * 3 + 2]);
+				fprintf(f, "v %f %f %f\n", (double)attribute.vertices[v * 3 + 0], (double)attribute.vertices[v * 3 + 1], (double)attribute.vertices[v * 3 + 2]);
 			}
 
 			if (mat.name.length())
@@ -379,14 +379,14 @@ int main(int argc, char* argv[])
 
 			for (size_t vn = 0; vn < numNormals / 3; vn++)
 			{
-				fprintf(f, "vn %f %f %f\n", attribute.normals[vn * 3 + 0], attribute.normals[vn * 3 + 1], attribute.normals[vn * 3 + 2]);
+				fprintf(f, "vn %f %f %f\n", (double)attribute.normals[vn * 3 + 0], (double)attribute.normals[vn * 3 + 1], (double)attribute.normals[vn * 3 + 2]);
 			}
 
 			fprintf(f, "\n");
 			size_t numTexCoords = attribute.texcoords.size();
 			for (size_t vt = 0; vt < numTexCoords / 2; vt++)
 			{
-				fprintf(f, "vt %f %f\n", attribute.texcoords[vt * 2 + 0], attribute.texcoords[vt * 2 + 1]);
+				fprintf(f, "vt %f %f\n", (double)attribute.texcoords[vt * 2 + 0], (double)attribute.texcoords[vt * 2 + 1]);
 			}
 
 			fprintf(f, "s off\n");
@@ -452,7 +452,7 @@ int main(int argc, char* argv[])
 					"\t\t\t</model>\n",
 					objSdfPartFileName, s, s,
 					objSdfPartFileName, objSdfPartFileName,
-					kdRed, kdGreen, kdBlue, transparency);
+					(double)kdRed, (double)kdGreen, (double)kdBlue, (double)transparency);
 		}
 	}
 	fprintf(sdfFile, "\t</world>\n</sdf>\n");

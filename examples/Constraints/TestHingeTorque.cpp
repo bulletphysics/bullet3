@@ -208,7 +208,7 @@ void TestHingeTorque::initPhysics()
 		//	btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
 		btQuaternion groundOrn(btVector3(0, 1, 0), 0.25 * SIMD_PI);
 
-		groundOrigin[upAxis] -= .5;
+		groundOrigin[upAxis] -= btScalar(.5);
 		groundOrigin[2] -= btScalar(0.6);
 		start.setOrigin(groundOrigin);
 		//	start.setRotation(groundOrn);

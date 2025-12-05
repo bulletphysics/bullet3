@@ -80,7 +80,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 		start.setIdentity();
 		btVector3 groundOrigin(-0.4f, 3.f, 0.f);
 		//btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
-		groundOrigin[upAxis] -= .5;
+		groundOrigin[upAxis] -= btScalar(.5);
 		groundOrigin[2] -= btScalar(0.6);
 		start.setOrigin(groundOrigin);
 		btQuaternion groundOrn(btVector3(0, 1, 0), btScalar(0.25 * SIMD_PI));

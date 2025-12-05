@@ -1364,7 +1364,7 @@ public:
 			//             double the impulse if node or face is constrained.
 			if (face_penetration > 0 || node_penetration > 0)
 			{
-				I_tilde *= 2.0;
+				I_tilde *= btScalar(2.0);
 			}
 			if (face_penetration <= 0)
 			{
@@ -1388,7 +1388,7 @@ public:
 				I_tilde = btScalar(2.0 * I / (1.0 + (double)w.length2()));
 				//                 double the impulse if node or face is constrained.
 				if (face_penetration > 0 || node_penetration > 0)
-					I_tilde *= 2.0;
+					I_tilde *= btScalar(2.0);
 				if (face_penetration <= 0)
 				{
 					for (int j = 0; j < 3; ++j)

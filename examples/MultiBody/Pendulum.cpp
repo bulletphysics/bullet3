@@ -187,7 +187,7 @@ TEST(BulletDynamicsTest, pendulum)
 	int numGoldValues = sizeof(sPendulumGold) / sizeof(btScalar);
 	for (int i = 0; i < 2000; i++)
 	{
-		setup->stepSimulation(btScalar(0.001));
+		setup->stepSimulation(0.001f);
 		int index = i * 2 + 1;
 		ASSERT_LE(index, numGoldValues);
 		ASSERT_NEAR(setup->m_multiBody->getJointPos(0), sPendulumGold[index], 0.005);

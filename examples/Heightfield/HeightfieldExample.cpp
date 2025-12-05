@@ -1094,8 +1094,8 @@ void HeightfieldExample::stepSimulation(float deltaTime)
 		// int strideInBytes = 9 * sizeof(float);
 
 		m_phase += (float)s_deltaPhase * deltaTime;
-		if (m_phase > 2.0 * SIMD_PI) {
-			m_phase -= 2.0 * SIMD_PI;
+		if (m_phase > (btScalar)2.0 * SIMD_PI) {
+			m_phase -= (float)((btScalar)2.0 * SIMD_PI);
 		}
 		int bpe = getByteSize(m_type);
 		btAssert(bpe > 0 && "Bad bytes per element");

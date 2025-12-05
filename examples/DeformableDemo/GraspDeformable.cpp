@@ -375,8 +375,8 @@ void GraspDeformable::initPhysics()
     
     {
         SliderParams slider("Moving velocity", &sGripperVerticalVelocity);
-        slider.m_minVal = btScalar(-.02);
-        slider.m_maxVal = btScalar(.02);
+        slider.m_minVal = -.02f;
+        slider.m_maxVal = .02f;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     

@@ -1341,9 +1341,9 @@ void btMultiBody::solveImatrix(const btVector3 &rhs_top, const btVector3 &rhs_bo
 		btMatrix3x3 invI_upper_left = (tmp * Binv);
 		btMatrix3x3 invI_lower_right = (invI_upper_left).transpose();
 		tmp = m_cachedInertiaTopLeft * invI_upper_left;
-		tmp[0][0] -= 1.0;
-		tmp[1][1] -= 1.0;
-		tmp[2][2] -= 1.0;
+		tmp[0][0] -= btScalar(1.0);
+		tmp[1][1] -= btScalar(1.0);
+		tmp[2][2] -= btScalar(1.0);
 		btMatrix3x3 invI_lower_left = (Binv * tmp);
 
 		//multiply result = invI * rhs
@@ -1406,9 +1406,9 @@ void btMultiBody::solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionV
 		btMatrix3x3 invI_upper_left = (tmp * Binv);
 		btMatrix3x3 invI_lower_right = (invI_upper_left).transpose();
 		tmp = m_cachedInertiaTopLeft * invI_upper_left;
-		tmp[0][0] -= 1.0;
-		tmp[1][1] -= 1.0;
-		tmp[2][2] -= 1.0;
+		tmp[0][0] -= btScalar(1.0);
+		tmp[1][1] -= btScalar(1.0);
+		tmp[2][2] -= btScalar(1.0);
 		btMatrix3x3 invI_lower_left = (Binv * tmp);
 
 		//multiply result = invI * rhs

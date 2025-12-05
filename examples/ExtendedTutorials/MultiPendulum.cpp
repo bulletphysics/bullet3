@@ -124,7 +124,7 @@ void MultiPendulumExample::initPhysics()
 
 	{  // create a slider to change the force to displace the lowest pendulum
 		SliderParams slider("Displacement force", &gDisplacementForce);
-		slider.m_minVal = btScalar(0.1);
+		slider.m_minVal = 0.1f;
 		slider.m_maxVal = 200;
 		slider.m_clampToNotches = false;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(

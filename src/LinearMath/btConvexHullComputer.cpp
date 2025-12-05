@@ -1975,7 +1975,7 @@ void btConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 		for (int i = 0; i < count; i++)
 		{
 			const float* v = (const float*)ptr;
-			btVector3 p(v[0], v[1], v[2]);
+			btVector3 p((btScalar(v[0])), btScalar(v[1]), btScalar(v[2]));
 			ptr += stride;
 			min.setMin(p);
 			max.setMax(p);
@@ -2035,7 +2035,7 @@ void btConvexHullInternal::compute(const void* coords, bool doubleCoords, int st
 		for (int i = 0; i < count; i++)
 		{
 			const float* v = (const float*)ptr;
-			btVector3 p(v[0], v[1], v[2]);
+			btVector3 p((btScalar(v[0])), btScalar(v[1]), btScalar(v[2]));
 			ptr += stride;
 			p = (p - center) * s;
 			points[i].x = (int32_t)p[medAxis];

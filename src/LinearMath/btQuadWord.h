@@ -151,7 +151,7 @@ public:
 		m_floats[0] = _x;
 		m_floats[1] = _y;
 		m_floats[2] = _z;
-		m_floats[3] = 0.f;
+		m_floats[3] = btScalar(0.);
 	}
 
 	/*		void getValue(btScalar *m) const 
@@ -190,7 +190,7 @@ public:
 		m_floats[0] = _x;
 		m_floats[1] = _y;
 		m_floats[2] = _z;
-		m_floats[3] = 0.0f;
+		m_floats[3] = btScalar(0.0);
 	}
 
 	/**@brief Initializing constructor

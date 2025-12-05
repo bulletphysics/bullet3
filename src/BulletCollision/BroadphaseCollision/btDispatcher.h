@@ -46,7 +46,7 @@ struct btDispatcherInfo
 		  m_useEpa(true),
 		  m_allowedCcdPenetration(btScalar(0.04)),
 		  m_useConvexConservativeDistanceUtil(false),
-		  m_convexConservativeDistanceThreshold(0.0f),
+		  m_convexConservativeDistanceThreshold(btScalar(0.0)),
 		  m_deterministicOverlappingPairs(false)
 	{
 	}

@@ -832,12 +832,12 @@ extern bool useShadowMap;
 void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, bool /*useShadows1*/, int cameraUpAxis)
 {
 	bool useShadows = useShadowMap;
-	GLfloat light_ambient[] = {btScalar(0.2), btScalar(0.2), btScalar(0.2), btScalar(1.0)};
-	GLfloat light_diffuse[] = {btScalar(1.0), btScalar(1.0), btScalar(1.0), btScalar(1.0)};
-	GLfloat light_specular[] = {btScalar(1.0), btScalar(1.0), btScalar(1.0), btScalar(1.0)};
+	GLfloat light_ambient[] = {GLfloat(0.2), GLfloat(0.2), GLfloat(0.2), GLfloat(1.0)};
+	GLfloat light_diffuse[] = {GLfloat(1.0), GLfloat(1.0), GLfloat(1.0), GLfloat(1.0)};
+	GLfloat light_specular[] = {GLfloat(1.0), GLfloat(1.0), GLfloat(1.0), GLfloat(1.0)};
 	/*	light_position is NOT default value	*/
-	GLfloat light_position0[] = {btScalar(1.0), btScalar(10.0), btScalar(1.0), btScalar(0.0)};
-	GLfloat light_position1[] = {btScalar(-1.0), btScalar(-10.0), btScalar(-1.0), btScalar(0.0)};
+	GLfloat light_position0[] = {GLfloat(1.0), GLfloat(10.0), GLfloat(1.0), GLfloat(0.0)};
+	GLfloat light_position1[] = {GLfloat(-1.0), GLfloat(-10.0), GLfloat(-1.0), GLfloat(0.0)};
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
@@ -857,7 +857,7 @@ void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, boo
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glClearColor(btScalar(0.7), btScalar(0.7), btScalar(0.7), btScalar(0));
+	glClearColor(GLfloat(0.7), GLfloat(0.7), GLfloat(0.7), GLfloat(0));
 
 	if (useShadows)
 	{
