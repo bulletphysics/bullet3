@@ -353,7 +353,7 @@ void Volume::Voxelize(const T* const points, const unsigned int stridePoints, co
 	m_numVoxelsOutsideSurface = 0;
 
 	Vec3<double> p[3];
-	size_t i, j, k;
+	size_t i  = 0, j  = 0, k  = 0;
 	size_t i0 = 0, j0 = 0, k0 = 0;
 	size_t i1 = 0, j1 = 0, k1 = 0;
 	Vec3<double> boxcenter;
