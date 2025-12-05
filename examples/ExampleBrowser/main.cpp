@@ -41,8 +41,8 @@ static void cleanup(int signo)
 		b3Printf("no action");
 		exit(EXIT_FAILURE);
 	}
-	interrupted = true;
-	warnx("caught signal %d", signo);
+	// interrupted = true;
+	// warnx("caught signal %d", signo);
 }
 #endif  //_WIN32
 
