@@ -35,7 +35,7 @@ subject to the following restrictions:
 //#else
 #define btSoftBodyData btSoftBodyFloatData
 #define btSoftBodyDataName "btSoftBodyFloatData"
-static const btScalar OVERLAP_REDUCTION_FACTOR = 0.1;
+static const btScalar OVERLAP_REDUCTION_FACTOR = 0.1f;
 static unsigned long seed = 243703;
 //#endif //BT_USE_DOUBLE_PRECISION
 
