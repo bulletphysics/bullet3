@@ -290,8 +290,11 @@ void b3LauncherCL::serializeToFile(const char* fileName, int numWorkItems)
 	*ptr = num;
 
 	FILE* f = fopen(fileName, "wb");
-	fwrite(buf, buffSize + sizeof(int), 1, f);
-	fclose(f);
+	if(f)
+	{
+		fwrite(buf, buffSize + sizeof(int), 1, f);
+		fclose(f);
+	}
 
 	delete[] buf;
 }

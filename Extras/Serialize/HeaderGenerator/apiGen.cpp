@@ -286,25 +286,28 @@ int main(int argc, char **argv)
 	}
 
 	FILE *fpdna = fopen("dnaString.txt", "w");
-	char buf[1024];
-
-	for (int i = 0; i < len - sdnaPos; i++)
+	if(fpdna)
 	{
-		int dnaval = (memBuf + sdnaPos)[i];
+		char buf[1024];
 
-		if ((i % 32) == 0)
+		for (int i = 0; i < len - sdnaPos; i++)
 		{
-			sprintf(buf, "%d,\n", dnaval);
-		}
-		else
-		{
-			sprintf(buf, "%d,", dnaval);
+			int dnaval = (memBuf + sdnaPos)[i];
+
+			if ((i % 32) == 0)
+			{
+				sprintf(buf, "%d,\n", dnaval);
+			}
+			else
+			{
+				sprintf(buf, "%d,", dnaval);
+			}
+
+			fwrite(buf, strlen(buf), 1, fpdna);
 		}
 
-		fwrite(buf, strlen(buf), 1, fpdna);
+		fclose(fpdna);
 	}
-
-	fclose(fpdna);
 
 	mDNA = new bDNA();
 	//mDNA->initMemory();

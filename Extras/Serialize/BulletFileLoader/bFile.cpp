@@ -541,8 +541,11 @@ void bFile::swapDNA(char *ptr)
 void bFile::writeFile(const char *fileName)
 {
 	FILE *f = fopen(fileName, "wb");
-	fwrite(mFileBuffer, 1, (size_t)mFileLen, f);
-	fclose(f);
+	if(f)
+	{
+		fwrite(mFileBuffer, 1, (size_t)mFileLen, f);
+		fclose(f);
+	}
 }
 
 void bFile::preSwap()
