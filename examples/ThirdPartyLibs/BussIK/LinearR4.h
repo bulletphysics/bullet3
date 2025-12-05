@@ -42,7 +42,6 @@ subject to the following restrictions:
 #include <assert.h>
 #include <iostream>
 #include "LinearR3.h"
-using namespace std;
 
 class VectorR4;       // R4 Vector
 class LinearMapR4;    // 4x4 real matrix
@@ -249,7 +248,7 @@ public:
 
 inline VectorR4 operator*(const Matrix4x4&, const VectorR4&);
 
-ostream& operator<<(ostream& os, const Matrix4x4& A);
+std::ostream& operator<<(std::ostream& os, const Matrix4x4& A);
 
 // *****************************************
 // LinearMapR4 class                       *
@@ -413,7 +412,7 @@ RotationMapR4 RotateToMap(const VectorR4& fromVec, const VectorR4& toVec);
 // * Stream Output Routines	(Prototypes)						 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR4& u);
+std::ostream& operator<<(std::ostream& os, const VectorR4& u);
 
 // *****************************************************
 // * VectorR4 class - inlined functions				   *

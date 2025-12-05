@@ -806,12 +806,12 @@ void GetOrtho(const VectorR3& u, VectorR3& v)
 //  Stream Output Routines										 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR3& u)
+std::ostream& operator<<(std::ostream& os, const VectorR3& u)
 {
 	return (os << "<" << u.x << "," << u.y << "," << u.z << ">");
 }
 
-ostream& operator<<(ostream& os, const Matrix3x3& A)
+std::ostream& operator<<(std::ostream& os, const Matrix3x3& A)
 {
 	os << " <" << A.m11 << ", " << A.m12 << ", " << A.m13 << ">\n"
 	   << " <" << A.m21 << ", " << A.m22 << ", " << A.m23 << ">\n"
@@ -819,7 +819,7 @@ ostream& operator<<(ostream& os, const Matrix3x3& A)
 	return (os);
 }
 
-ostream& operator<<(ostream& os, const Matrix3x4& A)
+std::ostream& operator<<(std::ostream& os, const Matrix3x4& A)
 {
 	os << " <" << A.m11 << ", " << A.m12 << ", " << A.m13
 	   << "; " << A.m14 << ">\n"

@@ -44,7 +44,6 @@ subject to the following restrictions:
 #include <assert.h>
 #include <iostream>
 #include "MathMisc.h"
-using namespace std;
 
 class VectorR2;  // R2 Vector
 class VectorHgR2;
@@ -233,7 +232,7 @@ public:
 inline double NormalizeError(const Matrix2x2&);
 inline VectorR2 operator*(const Matrix2x2&, const VectorR2&);
 
-ostream& operator<<(ostream& os, const Matrix2x2& A);
+std::ostream& operator<<(std::ostream& os, const Matrix2x2& A);
 
 // *****************************************
 // LinearMapR2 class                       *
@@ -339,7 +338,7 @@ inline RotationMapR2 RotateToMap(const VectorR2& fromVec, const VectorR2& toVec)
 // * Stream Output Routines	(Prototypes)						 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR2& u);
+std::ostream& operator<<(std::ostream& os, const VectorR2& u);
 
 // *****************************************************
 // * VectorR2 class - inlined functions				   *

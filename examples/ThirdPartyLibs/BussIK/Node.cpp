@@ -25,6 +25,7 @@ subject to the following restrictions:
 #include "LinearR3.h"
 #include "MathMisc.h"
 #include "Node.h"
+using namespace std;
 
 extern int RotAxesOn;
 

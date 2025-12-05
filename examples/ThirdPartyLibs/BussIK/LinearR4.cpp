@@ -461,7 +461,7 @@ RotationMapR4 RotateToMap(const VectorR4& fromVec, const VectorR4& toVec)
 //  Stream Output Routines										 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR4& u)
+std::ostream& operator<<(std::ostream& os, const VectorR4& u)
 {
 	return (os << "<" << u.x << "," << u.y << "," << u.z << "," << u.w << ">");
 }
