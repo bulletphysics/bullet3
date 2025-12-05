@@ -191,7 +191,10 @@ public:
    */
 	B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)
 	{
-		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = 0.0f;
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = 0.0f;
 	}
 
 	/**@brief Initializing constructor
@@ -202,7 +205,10 @@ public:
    */
 	B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w)
 	{
-		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = _w;
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = _w;
 	}
 
 	/**@brief Set each element to the max of the current values and the values of another b3QuadWord

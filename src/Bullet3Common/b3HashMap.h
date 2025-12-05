@@ -54,7 +54,10 @@ struct b3HashString
 		int ret = 0;
 
 		while (!(ret = *(unsigned char*)src - *(unsigned char*)dst) && *dst)
-			++src, ++dst;
+		{
+			++src;
+			++dst;
+		}
 
 		if (ret < 0)
 			ret = -1;
