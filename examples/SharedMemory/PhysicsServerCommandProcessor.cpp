@@ -13618,7 +13618,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 			int DofIndex = 0;
 			for (int i = 0; i < bodyHandle->m_multiBody->getNumLinks(); ++i)
 			{
-				if (bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(i).m_jointType <= 2)
+				if (/*bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 &&*/ bodyHandle->m_multiBody->getLink(i).m_jointType <= 2)
 				{
 					// 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
 					double curPos = 0;
@@ -13684,7 +13684,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 					int DofIndex = 0;
 					for (int j = 0; j < bodyHandle->m_multiBody->getNumLinks(); ++j)
 					{
-						if (bodyHandle->m_multiBody->getLink(j).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(j).m_jointType <= 2)
+						if (/*bodyHandle->m_multiBody->getLink(j).m_jointType >= 0 &&*/ bodyHandle->m_multiBody->getLink(j).m_jointType <= 2)
 						{
 							// 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
 
@@ -13893,7 +13893,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand2(co
 			int DofIndex = 0;
 			for (int i = 0; i < bodyHandle->m_multiBody->getNumLinks(); ++i)
 			{
-				if (bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(i).m_jointType <= 2)
+				if (/*bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 &&*/ bodyHandle->m_multiBody->getLink(i).m_jointType <= 2)
 				{
 					// 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
 					double curPos = 0;
@@ -14012,7 +14012,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand2(co
 					int DofIndex = 0;
 					for (int k = 0; k < bodyHandle->m_multiBody->getNumLinks(); ++k)
 					{
-						if (bodyHandle->m_multiBody->getLink(k).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(k).m_jointType <= 2)
+						if (/*bodyHandle->m_multiBody->getLink(k).m_jointType >= 0 &&*/ bodyHandle->m_multiBody->getLink(k).m_jointType <= 2)
 						{
 							// 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
 							double curPos = startingPositions[DofIndex];
