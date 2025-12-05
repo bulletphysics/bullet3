@@ -900,6 +900,7 @@ bool btGjkEpaSolver3_Distance(const btConvexTemplate& a, const btConvexTemplate&
 							  btGjkEpaSolver3::sResults& results)
 {
 	MinkowskiDiff<btConvexTemplate> shape(a, b);
+	shape.m_enableMargin = false;
 	Initialize(a, b, results, shape);
 	GJK<btConvexTemplate> gjk(a, b);
 	eGjkStatus gjk_status = gjk.Evaluate(shape, guess);
