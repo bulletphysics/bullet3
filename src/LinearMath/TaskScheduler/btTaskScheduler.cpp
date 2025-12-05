@@ -23,7 +23,7 @@
 typedef unsigned long long btU64;
 static const int kCacheLineSize = 64;
 
-void btSpinPause()
+static void btSpinPause()
 {
 #if defined(_WIN32)
 	YieldProcessor();

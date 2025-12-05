@@ -73,7 +73,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-bool dataTypeStandard(bString dataType)
+static bool dataTypeStandard(bString dataType)
 {
 	if (dataType == "char")
 		return true;
@@ -95,7 +95,7 @@ bool dataTypeStandard(bString dataType)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void writeTemplate(short *structData)
+static void writeTemplate(short *structData)
 {
 	bString type = mDNA->getType(structData[0]);
 	bString className = type;
@@ -336,7 +336,7 @@ int main(int argc, char **argv)
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-int _getArraySize(char *str)
+static int _getArraySize(char *str)
 {
 	int a, mul = 1;
 	char stri[100], *cp = 0;

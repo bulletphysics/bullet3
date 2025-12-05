@@ -71,7 +71,7 @@ static const char* spPlatformVendor =
 #endif  //_WIN32
 #endif
 
-void MyFatalBreakAPPLE(const char* errstr,
+static void MyFatalBreakAPPLE(const char* errstr,
 					   const void* /*private_info*/,
 					   size_t /*cb*/,
 					   void* /*user_data*/)
@@ -92,7 +92,7 @@ void MyFatalBreakAPPLE(const char* errstr,
 
 #ifdef B3_USE_CLEW
 
-int b3OpenCLUtils_clewInit()
+static int b3OpenCLUtils_clewInit()
 {
 	int result = -1;
 

@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include <windows.h>
 #endif  //_WIN32
 
-void b3PrintfFuncDefault(const char* msg)
+static void b3PrintfFuncDefault(const char* msg)
 {
 #ifdef _WIN32
 	OutputDebugStringA(msg);
@@ -32,7 +32,7 @@ void b3PrintfFuncDefault(const char* msg)
 	fflush(stdout);
 }
 
-void b3WarningMessageFuncDefault(const char* msg)
+static void b3WarningMessageFuncDefault(const char* msg)
 {
 #ifdef _WIN32
 	OutputDebugStringA(msg);
@@ -42,7 +42,7 @@ void b3WarningMessageFuncDefault(const char* msg)
 	fflush(stdout);
 }
 
-void b3ErrorMessageFuncDefault(const char* msg)
+static void b3ErrorMessageFuncDefault(const char* msg)
 {
 #ifdef _WIN32
 	OutputDebugStringA(msg);
@@ -114,10 +114,10 @@ void b3OutputErrorMessageVarArgsInternal(const char* str, ...)
 	va_end(argList);
 }
 
-void b3EnterProfileZoneDefault(const char* /*name*/)
+static void b3EnterProfileZoneDefault(const char* /*name*/)
 {
 }
-void b3LeaveProfileZoneDefault()
+static void b3LeaveProfileZoneDefault()
 {
 }
 static b3EnterProfileZoneFunc* b3s_enterFunc = b3EnterProfileZoneDefault;

@@ -29,7 +29,7 @@ subject to the following restrictions:
 using namespace bParse;
 #define MAX_STRLEN 1024
 
-const char *getCleanName(const char *memName, char *buffer)
+static const char *getCleanName(const char *memName, char *buffer)
 {
 	int slen = (int)strlen(memName);
 	assert(slen < MAX_STRLEN);

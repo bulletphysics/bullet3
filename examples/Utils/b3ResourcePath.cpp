@@ -88,7 +88,7 @@ void b3ResourcePath::setAdditionalSearchPath(const char* path)
 	}
 }
 
-bool b3MyFindFile(void* /*userPointer*/, const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
+static bool b3MyFindFile(void* /*userPointer*/, const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
 {
 	return b3FileUtils::findFile(orgFileName, relativeFileName, maxRelativeFileNameMaxLen);
 }

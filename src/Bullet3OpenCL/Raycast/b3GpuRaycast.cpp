@@ -97,7 +97,7 @@ b3GpuRaycast::~b3GpuRaycast()
 	delete m_data;
 }
 
-bool sphere_intersect(const b3Vector3& spherePos, b3Scalar radius, const b3Vector3& rayFrom, const b3Vector3& rayTo, float& hitFraction)
+static bool sphere_intersect(const b3Vector3& spherePos, b3Scalar radius, const b3Vector3& rayFrom, const b3Vector3& rayTo, float& hitFraction)
 {
 	b3Vector3 rs = rayFrom - spherePos;
 	b3Vector3 rayDir = rayTo - rayFrom;
@@ -121,7 +121,7 @@ bool sphere_intersect(const b3Vector3& spherePos, b3Scalar radius, const b3Vecto
 	return false;
 }
 
-bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const b3ConvexPolyhedronData& poly,
+static bool rayConvex(const b3Vector3& rayFromLocal, const b3Vector3& rayToLocal, const b3ConvexPolyhedronData& poly,
 			   const b3AlignedObjectArray<b3GpuFace>& faces, float& hitFraction, b3Vector3& hitNormal)
 {
 	float exitFraction = hitFraction;

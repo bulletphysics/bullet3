@@ -1619,7 +1619,7 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 	}
 }
 
-void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
+static void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
 {
 	b3Assert(glGetError() == GL_NO_ERROR);
 	glPixelStorei(GL_PACK_ALIGNMENT, 4);

@@ -5,7 +5,7 @@
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 
-void b3ComputeWorldAabb(int bodyId, __global const b3RigidBodyData_t* bodies, __global const b3Collidable_t* collidables, __global const b3Aabb_t* localShapeAABB, __global b3Aabb_t* worldAabbs)
+static void b3ComputeWorldAabb(int bodyId, __global const b3RigidBodyData_t* bodies, __global const b3Collidable_t* collidables, __global const b3Aabb_t* localShapeAABB, __global b3Aabb_t* worldAabbs)
 {
 	__global const b3RigidBodyData_t* body = &bodies[bodyId];
 

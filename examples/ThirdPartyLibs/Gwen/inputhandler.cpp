@@ -65,7 +65,7 @@ enum
 	ACT_MESSAGE
 };
 
-void UpdateHoveredControl(Controls::Base* pInCanvas)
+static void UpdateHoveredControl(Controls::Base* pInCanvas)
 {
 	Controls::Base* pHovered = pInCanvas->GetControlAt(MousePosition.x, MousePosition.y);
 
@@ -92,7 +92,7 @@ void UpdateHoveredControl(Controls::Base* pInCanvas)
 	}
 }
 
-void FindKeyboardFocus(Controls::Base* pControl)
+static void FindKeyboardFocus(Controls::Base* pControl)
 {
 	if (!pControl) return;
 	if (pControl->GetKeyboardInputEnabled())

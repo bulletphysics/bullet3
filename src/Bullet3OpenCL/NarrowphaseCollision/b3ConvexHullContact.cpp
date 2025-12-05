@@ -339,7 +339,7 @@ struct MyTriangleCallback : public b3NodeOverlapCallback
 #define float4 b3Vector3
 #define make_float4(x, y, z, w) b3MakeVector3(x, y, z, w)
 
-float signedDistanceFromPointToPlane(const float4& point, const float4& planeEqn, float4* closestPointOnFace)
+static float signedDistanceFromPointToPlane(const float4& point, const float4& planeEqn, float4* closestPointOnFace)
 {
 	float4 n = planeEqn;
 	n[3] = 0.f;
@@ -349,7 +349,7 @@ float signedDistanceFromPointToPlane(const float4& point, const float4& planeEqn
 }
 
 #define cross3(a, b) (a.cross(b))
-b3Vector3 transform(const b3Vector3* v, const b3Vector3* pos, const b3Quaternion* orn)
+static b3Vector3 transform(const b3Vector3* v, const b3Vector3* pos, const b3Quaternion* orn)
 {
 	b3Transform tr;
 	tr.setIdentity();
@@ -415,7 +415,7 @@ inline bool IsPointInPolygon(const float4& p,
 
 #define normalize3(a) (a.normalize())
 
-int extractManifoldSequentialGlobal(const float4* p, int nPoints, const float4& nearNormal, b3Int4* contactIdx)
+static int extractManifoldSequentialGlobal(const float4* p, int nPoints, const float4& nearNormal, b3Int4* contactIdx)
 {
 	if (nPoints == 0)
 		return 0;
@@ -701,7 +701,7 @@ static bool findSeparatingAxis(const b3ConvexPolyhedronData& hullA, const b3Conv
 	return true;
 }
 
-bool findSeparatingAxisEdgeEdge(__global const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB,
+static bool findSeparatingAxisEdgeEdge(__global const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB,
 								const b3Float4& posA1,
 								const b3Quat& ornA,
 								const b3Float4& posB1,
@@ -789,7 +789,7 @@ __inline float4 lerp3(const float4& a, const float4& b, float t)
 }
 
 // Clips a face to the back of a plane, return the number of vertices out, stored in ppVtxOut
-int clipFace(const float4* pVtxIn, int numVertsIn, float4& planeNormalWS, float planeEqWS, float4* ppVtxOut)
+static int clipFace(const float4* pVtxIn, int numVertsIn, float4& planeNormalWS, float planeEqWS, float4* ppVtxOut)
 {
 	int ve;
 	float ds, de;
@@ -836,7 +836,7 @@ int clipFace(const float4* pVtxIn, int numVertsIn, float4& planeNormalWS, float 
 	return numVertsOut;
 }
 
-int clipFaceAgainstHull(const float4& separatingNormal, const b3ConvexPolyhedronData* hullA,
+static int clipFaceAgainstHull(const float4& separatingNormal, const b3ConvexPolyhedronData* hullA,
 						const float4& posA, const b3Quaternion& ornA, float4* worldVertsB1, int numWorldVertsB1,
 						float4* worldVertsB2, int /*capacityWorldVertsB2*/,
 						const float minDist, float maxDist,
@@ -1053,7 +1053,7 @@ static int clipHullAgainstHull(const float4& separatingNormal,
 		for (int offset = 0; offset < n; offset++) v[i] = (v[i].y < v[i + offset].y) ? v[i] : v[i + offset]; \
 	}
 
-int extractManifold(const float4* p, int nPoints, const float4& nearNormal, b3Int4* contactIdx)
+static int extractManifold(const float4* p, int nPoints, const float4& nearNormal, b3Int4* contactIdx)
 {
 	if (nPoints == 0)
 		return 0;
@@ -1138,7 +1138,7 @@ int extractManifold(const float4* p, int nPoints, const float4& nearNormal, b3In
 	return 4;
 }
 
-int clipHullHullSingle(
+static int clipHullHullSingle(
 	int bodyIndexA, int bodyIndexB,
 	const float4& posA,
 	const b3Quaternion& ornA,
@@ -1279,7 +1279,7 @@ int clipHullHullSingle(
 	return contactIndex;
 }
 
-void computeContactPlaneConvex(int pairIndex,
+static void computeContactPlaneConvex(int pairIndex,
 							   int bodyIndexA, int bodyIndexB,
 							   int collidableIndexA, int collidableIndexB,
 							   const b3RigidBodyData* rigidBodies,
@@ -1416,7 +1416,7 @@ B3_FORCE_INLINE b3Vector3 MyUnQuantize(const unsigned short* vecIn, const b3Vect
 	return vecOut;
 }
 
-void traverseTreeTree()
+static void traverseTreeTree()
 {
 }
 
@@ -2034,7 +2034,7 @@ __kernel void clipCompoundsHullHullKernel(__global const b3Int4* gpuCompoundPair
 	}          //	if (i<numCompoundPairs)
 }
 
-void computeContactCompoundCompound(int pairIndex,
+static void computeContactCompoundCompound(int pairIndex,
 									int bodyIndexA, int bodyIndexB,
 									int collidableIndexA, int collidableIndexB,
 									const b3RigidBodyData* rigidBodies,
@@ -2192,7 +2192,7 @@ void computeContactCompoundCompound(int pairIndex,
 	*/
 }
 
-void computeContactPlaneCompound(int pairIndex,
+static void computeContactPlaneCompound(int pairIndex,
 								 int bodyIndexA, int bodyIndexB,
 								 int collidableIndexA, int collidableIndexB,
 								 const b3RigidBodyData* rigidBodies,
@@ -2335,7 +2335,7 @@ void computeContactPlaneCompound(int pairIndex,
 	}
 }
 
-void computeContactSphereConvex(int pairIndex,
+static void computeContactSphereConvex(int pairIndex,
 								int bodyIndexA, int bodyIndexB,
 								int collidableIndexA, int /*collidableIndexB*/,
 								const b3RigidBodyData* rigidBodies,
@@ -2486,7 +2486,7 @@ void computeContactSphereConvex(int pairIndex,
 	(void)region;
 }
 
-int computeContactConvexConvex2(
+static int computeContactConvexConvex2(
 	int /*pairIndex*/,
 	int bodyIndexA, int bodyIndexB,
 	int collidableIndexA, int collidableIndexB,

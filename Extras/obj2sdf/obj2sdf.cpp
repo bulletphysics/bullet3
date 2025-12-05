@@ -44,12 +44,12 @@ struct ShapeContainer
 	b3AlignedObjectArray<int> m_shapeIndices;
 };
 
-b3HashMap<b3HashString, ShapeContainer> gMaterialNames;
+static b3HashMap<b3HashString, ShapeContainer> gMaterialNames;
 
 #define MAX_PATH_LEN 1024
 #define APPEND_SIZE 20
 
-std::string StripExtension(const std::string& sPath)
+static std::string StripExtension(const std::string& sPath)
 {
 	for (std::string::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++)
 	{
