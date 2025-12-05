@@ -1661,7 +1661,7 @@ void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName
 			pixels[(j*textureWidth+j)*numComponents+3]=255;
 			*/
 	}
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		//swap the pixels
 		char tmp;

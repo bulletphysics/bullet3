@@ -210,7 +210,7 @@ public:
 		steps++;
 		sim_time += deltaTime;
 		////        int seconds = 1/deltaTime;
-		if (0)
+		if (/* DISABLES CODE */ (0))
 		{
 			//        if (reset_frame==0 && steps<100){
 			////            printf("steps %d, seconds %d, steps/seconds %d\n", steps,seconds,steps/seconds);

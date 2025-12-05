@@ -130,7 +130,7 @@ public:
 
 		int lineWidth = 1;
 
-		if (1)
+		if (/* DISABLES CODE */ (1))
 		{
 			btAlignedObjectArray<btVector3FloatData> points;
 			points.resize(numLines * 2);

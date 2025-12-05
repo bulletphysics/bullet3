@@ -118,7 +118,7 @@ void b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 {
 	B3_PROFILE("b3GpuGridBroadphase::calculateOverlappingPairs");
 
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		calculateOverlappingPairsHost(maxPairs);
 		/*
@@ -239,7 +239,7 @@ void b3GpuGridBroadphase::calculateOverlappingPairs(int maxPairs)
 
 			m_gpuPairs.resize((size_t)numPairs);
 
-			if (0)
+			if (/* DISABLES CODE */ (0))
 			{
 				b3AlignedObjectArray<b3Int4> pairsCpu;
 				m_gpuPairs.copyToHost(pairsCpu);

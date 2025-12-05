@@ -43,7 +43,7 @@ TestHingeTorque::~TestHingeTorque()
 
 void TestHingeTorque::stepSimulation(float /*deltaTime*/)
 {
-	if (0)  //m_once)
+	if (/* DISABLES CODE */ (0))  //m_once)
 	{
 		m_once = false;
 		btHingeConstraint* hinge = (btHingeConstraint*)m_dynamicsWorld->getConstraint(0);

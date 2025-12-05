@@ -285,7 +285,7 @@ void GraspDeformable::initPhysics()
     }
 
     // create a soft block
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		char absolute_path[1024];
 		b3BulletDefaultFileIO fileio;

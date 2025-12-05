@@ -230,7 +230,7 @@ void dumpTextureToPng(int textureWidth, int textureHeight, const char* fileName)
 		{
 			pixels[j * textureWidth + j] = 255;
 		}
-		if (0)
+		if (/* DISABLES CODE */ (0))
 		{
 			for (int j = 0; j < textureHeight / 2; j++)
 			{

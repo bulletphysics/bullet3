@@ -14263,7 +14263,6 @@ int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape
 			collisionShapeBuffer[0].m_dimensions[2] = 0;
 			numConverted++;
 			break;
-			break;
 		}
 		case STATIC_PLANE_PROXYTYPE:
 		{

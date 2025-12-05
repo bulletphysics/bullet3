@@ -189,7 +189,7 @@ GpuSatCollision::GpuSatCollision(cl_context ctx, cl_device_id device, cl_command
 		b3Assert(errNum == CL_SUCCESS);
 	}
 
-	if (1)
+	if (/* DISABLES CODE */ (1))
 	{
 		const char* srcClip = satClipKernelsCL;
 
@@ -234,7 +234,7 @@ GpuSatCollision::GpuSatCollision(cl_context ctx, cl_device_id device, cl_command
 		//		m_extractManifoldAndAddContactKernel = 0;
 	}
 
-	if (1)
+	if (/* DISABLES CODE */ (1))
 	{
 		const char* srcBvh = bvhTraversalKernelCL;
 		cl_program bvhTraversalProg = b3OpenCLUtils::compileCLProgramFromString(m_context, m_device, srcBvh, &errNum, "", BT_NARROWPHASE_BVH_TRAVERSAL_PATH);

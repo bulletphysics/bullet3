@@ -198,7 +198,7 @@ void calcConvexDecomposition(unsigned int vcount,
 	showmesh = true;
 #endif
 
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		showmesh = true;
 		for (float x = -1; x < 1; x += 0.10f)

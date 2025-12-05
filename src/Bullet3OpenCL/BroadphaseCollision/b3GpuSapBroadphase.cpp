@@ -300,7 +300,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		B3_PROFILE("m_overlappingPairs.copyToHost");
 		m_overlappingPairs.copyToHost(allPairs);
 	}
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		{
 			printf("ab[40].min=%f,%f,%f,ab[40].max=%f,%f,%f\n",
@@ -338,7 +338,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		}
 	}
 
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		for (int i = 0; i < m_allAabbsCPU.size(); i++)
 		{

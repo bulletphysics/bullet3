@@ -655,7 +655,7 @@ void SimpleOpenGL3App::drawText(const char* txt, int posXi, int posYi, float siz
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (1)  //m_useTrueTypeFont)
+	if (/* DISABLES CODE */ (1))  //m_useTrueTypeFont)
 	{
 		bool measureOnly = false;
 

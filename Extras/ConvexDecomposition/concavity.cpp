@@ -451,7 +451,7 @@ bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface * /*cal
 
 	if (ret)
 	{
-		if (0)
+		if (/* DISABLES CODE */ (0))
 		{
 			CTriVector::const_iterator it;
 			for (it = input_mesh.begin(); it != input_mesh.end(); ++it)

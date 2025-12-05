@@ -1187,7 +1187,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		dna_write(file, structs[0], len);
 
 		/* a simple dna padding test */
-		if (0)
+		if (/* DISABLES CODE */ (0))
 		{
 			FILE *fp;
 			int a;

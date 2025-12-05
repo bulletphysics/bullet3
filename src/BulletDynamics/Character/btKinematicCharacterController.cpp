@@ -364,7 +364,7 @@ void btKinematicCharacterController::updateTargetPositionBasedOnCollision(const 
 		perpindicularDir = perpindicularComponent(reflectDir, hitNormal);
 
 		m_targetPosition = m_currentPosition;
-		if (0)  //tangentMag != 0.0)
+		if (/* DISABLES CODE */ (0))  //tangentMag != 0.0)
 		{
 			btVector3 parComponent = parallelDir * btScalar(tangentMag * movementLength);
 			//			printf("parComponent=%f,%f,%f\n",parComponent[0],parComponent[1],parComponent[2]);

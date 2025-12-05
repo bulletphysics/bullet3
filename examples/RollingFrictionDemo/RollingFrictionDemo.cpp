@@ -213,7 +213,7 @@ void RollingFrictionDemo::initPhysics()
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		btSerializer* s = new btDefaultSerializer;
 		m_dynamicsWorld->serialize(s);

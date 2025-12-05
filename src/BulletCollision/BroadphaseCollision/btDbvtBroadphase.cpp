@@ -248,7 +248,7 @@ void btDbvtBroadphase::rayTest(const btVector3& rayFrom, const btVector3& rayTo,
 	unsigned int threadIndex = btGetCurrentThreadIndex();
 	btAlignedObjectArray<const btDbvtNode*> localStack;
 	//todo(erwincoumans, "why do we get tsan issue here?")
-	if (0)//threadIndex < m_rayTestStacks.size())
+	if (/* DISABLES CODE */ (0))//threadIndex < m_rayTestStacks.size())
 	//if (threadIndex < m_rayTestStacks.size())
 	{
 		// use per-thread preallocated stack if possible to avoid dynamic allocations
