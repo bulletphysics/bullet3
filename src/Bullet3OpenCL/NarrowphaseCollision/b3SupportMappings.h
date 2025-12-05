@@ -11,7 +11,6 @@ struct b3GjkPairDetector;
 inline b3Vector3 localGetSupportVertexWithMargin(const float4& supportVec, const struct b3ConvexPolyhedronData* hull,
 												 const b3AlignedObjectArray<b3Vector3>& verticesA, b3Scalar /*margin*/)
 {
-	b3Vector3 supVec = b3MakeVector3(b3Scalar(0.), b3Scalar(0.), b3Scalar(0.));
 	b3Scalar maxDot = b3Scalar(-B3_LARGE_FLOAT);
 
 	// Here we take advantage of dot(a, b*c) = dot(a*b, c).  Note: This is true mathematically, but not numerically.
@@ -22,7 +21,7 @@ inline b3Vector3 localGetSupportVertexWithMargin(const float4& supportVec, const
 		return verticesA[hull->m_vertexOffset + index];
 	}
 
-	return supVec;
+	return b3MakeVector3(b3Scalar(0.), b3Scalar(0.), b3Scalar(0.));
 }
 
 inline b3Vector3 localGetSupportVertexWithoutMargin(const float4& supportVec, const struct b3ConvexPolyhedronData* hull,

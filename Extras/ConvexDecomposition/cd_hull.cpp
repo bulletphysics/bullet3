@@ -1097,7 +1097,6 @@ void Plane::Transform(const float3 &position, const Quaternion &orientation)
 // Routine taken from game programming gems.
 Quaternion RotationArc(float3 v0, float3 v1)
 {
-	Quaternion q;
 	v0 = normalize(v0);  // Comment these two lines out if you know its not needed.
 	v1 = normalize(v1);  // If vector is already unit length then why do it again?
 	float3 c = cross(v0, v1);
@@ -1107,6 +1106,7 @@ Quaternion RotationArc(float3 v0, float3 v1)
 		return Quaternion(1, 0, 0, 0);
 	}  // 180 about x axis
 	float s = sqrtf((1 + d) * 2);
+	Quaternion q;
 	q.x = c.x / s;
 	q.y = c.y / s;
 	q.z = c.z / s;

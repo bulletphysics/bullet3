@@ -542,7 +542,7 @@ GTEST_API_ ::std::string FormatFileLocation(const char* file, int line)
 GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(
 	const char* file, int line)
 {
-	const std::string file_name(file == NULL ? kUnknownFile : file);
+	const std::string& file_name(file == NULL ? kUnknownFile : file);
 
 	if (line < 0)
 		return file_name;

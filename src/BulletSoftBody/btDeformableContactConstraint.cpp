@@ -614,7 +614,7 @@ btVector3 btDeformableFaceNodeContactConstraint::getVb() const
 
 btVector3 btDeformableFaceNodeContactConstraint::getDv(const btSoftBody::Node* n) const
 {
-	btVector3 dv = m_total_normal_dv + m_total_tangent_dv;
+	const btVector3& dv = m_total_normal_dv + m_total_tangent_dv;
 	if (n == m_node)
 		return dv;
 	const btSoftBody::DeformableFaceNodeContact* contact = getContact();

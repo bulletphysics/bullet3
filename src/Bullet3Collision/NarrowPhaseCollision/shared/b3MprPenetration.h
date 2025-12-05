@@ -123,7 +123,6 @@ inline int b3MprVec3Eq(const b3Float4 *a, const b3Float4 *b)
 
 inline b3Float4 b3LocalGetSupportVertex(b3Float4ConstArg supportVec, __global const b3ConvexPolyhedronData_t *hull, b3ConstArray(b3Float4) verticesA)
 {
-	b3Float4 supVec = b3MakeFloat4(0, 0, 0, 0);
 	float maxDot = -B3_LARGE_FLOAT;
 
 	if (0 < hull->m_numVertices)
@@ -133,7 +132,7 @@ inline b3Float4 b3LocalGetSupportVertex(b3Float4ConstArg supportVec, __global co
 		return verticesA[hull->m_vertexOffset + index];
 	}
 
-	return supVec;
+	return b3MakeFloat4(0, 0, 0, 0);
 }
 
 B3_STATIC void b3MprConvexSupport(int /*pairIndex*/, int bodyIndex, b3ConstArray(b3RigidBodyData_t) cpuBodyBuf,

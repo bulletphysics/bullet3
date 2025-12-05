@@ -57,7 +57,6 @@ void btConvexHullShape::addPoint(const btVector3& point, bool recalculateLocalAa
 
 btVector3 btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVector3& vec) const
 {
-	btVector3 supVec(btScalar(0.), btScalar(0.), btScalar(0.));
 	btScalar maxDot = btScalar(-BT_LARGE_FLOAT);
 
 	// Here we take advantage of dot(a, b*c) = dot(a*b, c).  Note: This is true mathematically, but not numerically.
@@ -68,7 +67,7 @@ btVector3 btConvexHullShape::localGetSupportingVertexWithoutMargin(const btVecto
 		return m_unscaledPoints[index] * m_localScaling;
 	}
 
-	return supVec;
+	return btVector3(btScalar(0.), btScalar(0.), btScalar(0.));
 }
 
 void btConvexHullShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const
