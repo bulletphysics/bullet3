@@ -101,7 +101,7 @@ struct b3ContactPoint
 	}
 };
 
-static void getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& pointOut)
+void getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& pointOut)
 {
 	pointOut.m_appliedImpulse = 0.f;
 	pointOut.m_appliedImpulseLateral1 = 0.f;
@@ -131,7 +131,7 @@ static void getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoin
 	pointOut.m_positionWorldOnA = worldPosB + normalOnB * pointOut.m_distance;
 }
 
-static int getNumContacts(b3Contact4* contact)
+int getNumContacts(b3Contact4* contact)
 {
 	return contact->getNPoints();
 }

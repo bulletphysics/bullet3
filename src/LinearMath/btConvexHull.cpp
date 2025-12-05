@@ -139,7 +139,7 @@ btScalar DistanceBetweenLines(const btVector3 &ustart, const btVector3 &udir, co
 #define SPLIT (OVER | UNDER)
 #define PAPERWIDTH (btScalar(0.001))
 
-static btScalar planetestepsilon = PAPERWIDTH;
+btScalar planetestepsilon = PAPERWIDTH;
 
 typedef ConvexH::HalfEdge HalfEdge;
 

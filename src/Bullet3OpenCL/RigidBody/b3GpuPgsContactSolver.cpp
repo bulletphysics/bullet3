@@ -506,7 +506,7 @@ static const int gridTable8x8[] =
 
 #endif
 
-static void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* gSortDataOut, int nContacts, float scale, const b3Int4& nSplit, int staticIdx)
+void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* gSortDataOut, int nContacts, float scale, const b3Int4& nSplit, int staticIdx)
 {
 	for (int gIdx = 0; gIdx < nContacts; gIdx++)
 	{

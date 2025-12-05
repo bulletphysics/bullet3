@@ -125,12 +125,12 @@ public:
 	///eSolverPresets
 	struct eSolverPresets
 	{
-		enum _
+		enum _ /* explicit as otherwise END is assigned 1 also */
 		{
-			Positions,
-			Velocities,
+			Positions = 0,
+			Velocities = 1,
 			Default = Positions,
-			END
+			END = 3
 		};
 	};
 
@@ -176,8 +176,8 @@ public:
 			SDF_MDF = 0x0200,   /// GJK based Multibody vs. deformable face
 			SDF_RDN = 0x0400,   /// SDF based Rigid vs. deformable node
 			/* presets	*/
-			Default = SDF_RS,
-			END
+			END,
+			Default = SDF_RS /* moved after END - implicit assignment would otherwise assign END as Default+1 */
 		};
 	};
 

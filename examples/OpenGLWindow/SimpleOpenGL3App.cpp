@@ -115,16 +115,16 @@ static void SimpleKeyboardCallback(int key, int /*state*/)
 	}
 }
 
-static void SimpleMouseButtonCallback(int button, int state, float x, float y)
+void SimpleMouseButtonCallback(int button, int state, float x, float y)
 {
 	gApp->defaultMouseButtonCallback(button, state, x, y);
 }
-static void SimpleMouseMoveCallback(float x, float y)
+void SimpleMouseMoveCallback(float x, float y)
 {
 	gApp->defaultMouseMoveCallback(x, y);
 }
 
-static void SimpleWheelCallback(float deltax, float deltay)
+void SimpleWheelCallback(float deltax, float deltay)
 {
 	gApp->defaultWheelCallback(deltax, deltay);
 }

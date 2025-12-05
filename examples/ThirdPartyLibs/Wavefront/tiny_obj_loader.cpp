@@ -326,7 +326,7 @@ static bool exportFaceGroupToShape(shape_t* shape, const std::vector<face_t>& fa
 	return true;
 }
 
-static void InitMaterial(material_t& material)
+void InitMaterial(material_t& material)
 {
 	material.name = "";
 	material.ambient_texname = "";
@@ -344,7 +344,7 @@ static void InitMaterial(material_t& material)
 	material.transparency = 1.f;
 }
 
-static std::string LoadMtl(
+std::string LoadMtl(
 	std::map<std::string, material_t>& material_map,
 	const char* filename,
 	const char* mtl_basepath,

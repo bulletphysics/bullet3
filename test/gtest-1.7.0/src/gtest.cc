@@ -641,7 +641,7 @@ extern const TypeId kTestTypeIdInGoogleTest = GetTestTypeId();
 // This predicate-formatter checks that 'results' contains a test part
 // failure of the given type and that the failure message contains the
 // given substring.
-static AssertionResult HasOneFailure(const char* /* results_expr */,
+AssertionResult HasOneFailure(const char* /* results_expr */,
 							  const char* /* type_expr */,
 							  const char* /* substr_expr */,
 							  const TestPartResultArray& results,
@@ -1995,7 +1995,7 @@ static std::string FormatWordList(const std::vector<std::string>& words)
 	return word_list.GetString();
 }
 
-static bool ValidateTestPropertyName(const std::string& property_name,
+bool ValidateTestPropertyName(const std::string& property_name,
 							  const std::vector<std::string>& reserved_names)
 {
 	if (std::find(reserved_names.begin(), reserved_names.end(), property_name) !=
@@ -2837,7 +2837,7 @@ WORD GetColorAttribute(GTestColor color)
 
 // Returns the ANSI color code for the given color.  COLOR_DEFAULT is
 // an invalid input.
-static const char* GetAnsiColorCode(GTestColor color)
+const char* GetAnsiColorCode(GTestColor color)
 {
 	switch (color)
 	{
@@ -2893,7 +2893,7 @@ bool ShouldUseColor(bool stdout_is_tty)
 // cannot simply emit special characters and have the terminal change colors.
 // This routine must actually emit the characters rather than return a string
 // that would be colored when printed, as can be done on Linux.
-static void ColoredPrintf(GTestColor color, const char* fmt, ...)
+void ColoredPrintf(GTestColor color, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -2946,7 +2946,7 @@ static void ColoredPrintf(GTestColor color, const char* fmt, ...)
 static const char kTypeParamLabel[] = "TypeParam";
 static const char kValueParamLabel[] = "GetParam()";
 
-static void PrintFullTestCommentIfPresent(const TestInfo& test_info)
+void PrintFullTestCommentIfPresent(const TestInfo& test_info)
 {
 	const char* const type_param = test_info.type_param();
 	const char* const value_param = test_info.value_param();
@@ -5188,7 +5188,7 @@ bool SkipPrefix(const char* prefix, const char** pstr)
 // part can be omitted.
 //
 // Returns the value of the flag, or NULL if the parsing failed.
-static const char* ParseFlagValue(const char* str,
+const char* ParseFlagValue(const char* str,
 						   const char* flag,
 						   bool def_optional)
 {
@@ -5228,7 +5228,7 @@ static const char* ParseFlagValue(const char* str,
 //
 // On success, stores the value of the flag in *value, and returns
 // true.  On failure, returns false without changing *value.
-static bool ParseBoolFlag(const char* str, const char* flag, bool* value)
+bool ParseBoolFlag(const char* str, const char* flag, bool* value)
 {
 	// Gets the value of the flag as a string.
 	const char* const value_str = ParseFlagValue(str, flag, true);
@@ -5264,7 +5264,7 @@ bool ParseInt32Flag(const char* str, const char* flag, Int32* value)
 //
 // On success, stores the value of the flag in *value, and returns
 // true.  On failure, returns false without changing *value.
-static bool ParseStringFlag(const char* str, const char* flag, std::string* value)
+bool ParseStringFlag(const char* str, const char* flag, std::string* value)
 {
 	// Gets the value of the flag as a string.
 	const char* const value_str = ParseFlagValue(str, flag, false);

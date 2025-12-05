@@ -703,10 +703,10 @@ void btLeaveProfileZoneDefault()
 }
 
 #else
-static void btEnterProfileZoneDefault(const char* /*name*/)
+void btEnterProfileZoneDefault(const char* /*name*/)
 {
 }
-static void btLeaveProfileZoneDefault()
+void btLeaveProfileZoneDefault()
 {
 }
 #endif  //BT_NO_PROFILE
@@ -767,11 +767,11 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 static btEnterProfileZoneFunc* bts_enterFunc = btEnterProfileZoneDefault;
 static btLeaveProfileZoneFunc* bts_leaveFunc = btLeaveProfileZoneDefault;
 
-static void btEnterProfileZone(const char* name)
+void btEnterProfileZone(const char* name)
 {
 	(bts_enterFunc)(name);
 }
-static void btLeaveProfileZone()
+void btLeaveProfileZone()
 {
 	(bts_leaveFunc)();
 }
