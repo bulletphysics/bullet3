@@ -14,7 +14,14 @@ subject to the following restrictions:
 */
 
 #include "btBulletXmlWorldImporter.h"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #include "tinyxml2.h"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #include "btBulletDynamicsCommon.h"
 #include "string_split.h"
 using namespace tinyxml2;

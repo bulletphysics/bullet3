@@ -20,7 +20,10 @@ must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source
 distribution.
 */
-
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #include "tinyxml2.h"
 
 #include <new>  // yes, this one new style header, is in the Android SDK.
@@ -2941,6 +2944,9 @@ bool XMLPrinter::Visit(const XMLUnknown& unknown)
 
 }  // namespace tinyxml2
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif

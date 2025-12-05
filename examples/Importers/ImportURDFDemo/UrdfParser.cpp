@@ -1,5 +1,12 @@
 #include "UrdfParser.h"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #include "urdfStringSplit.h"
 #include "urdfLexicalCast.h"
 #include "UrdfFindMeshFile.h"

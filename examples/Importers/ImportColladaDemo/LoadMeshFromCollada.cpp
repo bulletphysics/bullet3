@@ -19,7 +19,14 @@ subject to the following restrictions:
 #include <stdio.h>  //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string>
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 using namespace tinyxml2;
 
 
