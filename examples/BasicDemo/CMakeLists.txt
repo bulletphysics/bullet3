@@ -40,7 +40,6 @@ ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 
 INCLUDE_DIRECTORIES(
         ${BULLET_PHYSICS_SOURCE_DIR}/src
-        ${BULLET_PHYSICS_SOURCE_DIR}/btgui
         ${BULLET_PHYSICS_SOURCE_DIR}/examples
         ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad
 )
@@ -65,9 +64,6 @@ LINK_LIBRARIES(
 
 #some code to support OpenGL and Glew cross platform
 IF (WIN32)
-        INCLUDE_DIRECTORIES(
-             ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
-        )
         ADD_DEFINITIONS(-DGLEW_STATIC)
 	LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
 ELSEIF(APPLE)
@@ -75,9 +71,6 @@ ELSEIF(APPLE)
         MESSAGE(${COCOA})
         link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 ELSE()
-        INCLUDE_DIRECTORIES(
-                ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
-        )
         ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
         ADD_DEFINITIONS("-DGLEW_STATIC")
         ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
