@@ -527,7 +527,6 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 			break;
 		}
 		case SPHERE_LOD_HIGH:
-		default:
 		{
 			int numVertices = (int)(sizeof(detailed_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(detailed_sphere_indices) / sizeof(int);

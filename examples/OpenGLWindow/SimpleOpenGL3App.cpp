@@ -856,7 +856,6 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 			break;
 		}
 		case SPHERE_LOD_HIGH:
-		default:
 		{
 			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
 			int numIndices = sizeof(textured_detailed_sphere_indices) / sizeof(int);

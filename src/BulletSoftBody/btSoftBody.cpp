@@ -2080,6 +2080,8 @@ void btSoftBody::setSolver(eSolverPresets::_ preset)
 
 			m_cfg.m_dsequence.push_back(ePSolver::Linear);
 			break;
+		default:
+			break;
 	}
 }
 

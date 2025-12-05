@@ -335,9 +335,6 @@ void btQuantizedBvh::reportAabbOverlappingNodex(btNodeOverlapCallback* nodeCallb
 				walkRecursiveQuantizedTreeAgainstQueryAabb(rootNode, nodeCallback, quantizedQueryAabbMin, quantizedQueryAabbMax);
 			}
 			break;
-			default:
-				//unsupported
-				btAssert(0);
 		}
 	}
 	else

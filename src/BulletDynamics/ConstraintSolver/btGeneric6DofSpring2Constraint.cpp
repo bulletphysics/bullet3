@@ -289,8 +289,6 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 		case RO_ZYX:
 			matrixToEulerZYX(relative_frame, m_calculatedAxisAngleDiff);
 			break;
-		default:
-			btAssert(false);
 	}
 	// in euler angle mode we do not actually constrain the angular velocity
 	// along the axes axis[0] and axis[2] (although we do use axis[1]) :
@@ -399,8 +397,6 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			m_calculatedAxis[2] = axis0.cross(m_calculatedAxis[1]);
 			break;
 		}
-		default:
-			btAssert(false);
 	}
 
 	m_calculatedAxis[0].normalize();
@@ -581,8 +577,6 @@ int btGeneric6DofSpring2Constraint::setAngularLimits(btConstraintInfo2* info, in
 			cIdx[1] = 1;
 			cIdx[2] = 0;
 			break;
-		default:
-			btAssert(false);
 	}
 
 	for (int ii = 0; ii < 3; ii++)
