@@ -215,7 +215,7 @@ struct btMatrixX
 	{
 		if (val != (T)0)
 		{
-			if (m_storage[col + row * m_cols] == 0.f)
+			if (m_storage[col + row * m_cols] == btScalar(0.f))
 			{
 				setElem(row, col, val);
 			}
@@ -306,7 +306,7 @@ struct btMatrixX
 			m_rowNonZeroElements1[i].resize(0);
 			for (int j = 0; j < cols(); j++)
 			{
-				if ((*this)(i, j) != 0.f)
+				if ((*this)(i, j) != btScalar(0.f))
 				{
 					m_rowNonZeroElements1[i].push_back(j);
 				}
@@ -351,7 +351,7 @@ struct btMatrixX
 							for (int k = 0; k < c; k++)
 							{
 								T w = (*this)(i, k);
-								if (other(k, j) != 0.f)
+								if (other(k, j) != btScalar(0.f))
 								{
 									dotProd += w * other(k, j);
 								}

@@ -237,8 +237,8 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 	}
 	{
 		btVector3 vec;
-		btScalar denom0 = 0.f;
-		btScalar denom1 = 0.f;
+		btScalar denom0 = btScalar(0.f);
+		btScalar denom1 = btScalar(0.f);
 		btScalar* jacB = 0;
 		btScalar* jacA = 0;
 		btScalar* deltaVelA = 0;
@@ -304,14 +304,14 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		else
 		{
 			//disable the constraint row to handle singularity/redundant constraint
-			solverConstraint.m_jacDiagABInv = 0.f;
+			solverConstraint.m_jacDiagABInv = btScalar(0.f);
 		}
 	}
 
 	//compute rhs and remaining solverConstraint fields
 	btScalar penetration = isFriction ? 0 : posError;
 
-	btScalar rel_vel = 0.f;
+	btScalar rel_vel = btScalar(0.f);
 	int ndofA = 0;
 	int ndofB = 0;
 	{
@@ -341,14 +341,14 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 			rel_vel += rb1->getAngularVelocity().dot(solverConstraint.m_relpos2CrossNormal);
 		}
 
-		solverConstraint.m_friction = 0.f;  //cp.m_combinedFriction;
+		solverConstraint.m_friction = btScalar(0.f);  //cp.m_combinedFriction;
 	}
 
-	solverConstraint.m_appliedImpulse = 0.f;
-	solverConstraint.m_appliedPushImpulse = 0.f;
+	solverConstraint.m_appliedImpulse = btScalar(0.f);
+	solverConstraint.m_appliedPushImpulse = btScalar(0.f);
 
 	{
-		btScalar positionalError = 0.f;
+		btScalar positionalError = btScalar(0.f);
 		btScalar velocityError = (desiredVelocity - rel_vel) * damping;
 
 		btScalar erp = infoGlobal.m_erp2;
@@ -371,7 +371,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
 		{
 			//combine position and velocity into rhs
 			solverConstraint.m_rhs = penetrationImpulse + velocityImpulse;
-			solverConstraint.m_rhsPenetration = 0.f;
+			solverConstraint.m_rhsPenetration = btScalar(0.f);
 		}
 		/*else
         {
@@ -381,7 +381,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(btMultiBodySolverConstra
         }
         */
 
-		solverConstraint.m_cfm = 0.f;
+		solverConstraint.m_cfm = btScalar(0.f);
 		solverConstraint.m_lowerLimit = lowerLimit;
 		solverConstraint.m_upperLimit = upperLimit;
 	}

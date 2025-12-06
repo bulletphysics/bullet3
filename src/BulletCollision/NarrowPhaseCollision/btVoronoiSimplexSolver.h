@@ -128,7 +128,7 @@ public:
 
 public:
 	btVoronoiSimplexSolver()
-		: m_equalVertexThreshold(VORONOI_DEFAULT_EQUAL_VERTEX_THRESHOLD)
+		: m_equalVertexThreshold((btScalar)VORONOI_DEFAULT_EQUAL_VERTEX_THRESHOLD)
 	{
 	}
 	void reset();

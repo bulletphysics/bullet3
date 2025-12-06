@@ -135,7 +135,7 @@ void btConvexPlaneCollisionAlgorithm::processCollision(const btCollisionObjectWr
 		btPlaneSpace1(planeNormal, v0, v1);
 		//now perform 'm_numPerturbationIterations' collision queries with the perturbated collision objects
 
-		const btScalar angleLimit = 0.125f * SIMD_PI;
+		const btScalar angleLimit = btScalar(0.125f) * SIMD_PI;
 		btScalar perturbeAngle;
 		btScalar radius = convexShape->getAngularMotionDisc();
 		perturbeAngle = gContactBreakingThreshold / radius;

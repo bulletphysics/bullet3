@@ -172,7 +172,7 @@ public:
 	void setMotorTarget(const btQuaternion& qAinB, btScalar dt);  // qAinB is rotation of body A wrt body B.
 	void setMotorTarget(btScalar targetAngle, btScalar dt);
 
-	void setLimit(btScalar low, btScalar high, btScalar _softness = 0.9f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
+	void setLimit(btScalar low, btScalar high, btScalar _softness = btScalar(0.9), btScalar _biasFactor = btScalar(0.3), btScalar _relaxationFactor = btScalar(1.0))
 	{
 #ifdef _BT_USE_CENTER_LIMIT_
 		m_limit.set(low, high, _softness, _biasFactor, _relaxationFactor);
@@ -449,21 +449,21 @@ SIMD_FORCE_INLINE const char* btHingeConstraint::serialize(void* dataBuffer, btS
 
 	hingeData->m_angularOnly = m_angularOnly;
 	hingeData->m_enableAngularMotor = m_enableAngularMotor;
-	hingeData->m_maxMotorImpulse = float(m_maxMotorImpulse);
-	hingeData->m_motorTargetVelocity = float(m_motorTargetVelocity);
+	hingeData->m_maxMotorImpulse = m_maxMotorImpulse;
+	hingeData->m_motorTargetVelocity = m_motorTargetVelocity;
 	hingeData->m_useReferenceFrameA = m_useReferenceFrameA;
 #ifdef _BT_USE_CENTER_LIMIT_
-	hingeData->m_lowerLimit = float(m_limit.getLow());
-	hingeData->m_upperLimit = float(m_limit.getHigh());
-	hingeData->m_limitSoftness = float(m_limit.getSoftness());
-	hingeData->m_biasFactor = float(m_limit.getBiasFactor());
-	hingeData->m_relaxationFactor = float(m_limit.getRelaxationFactor());
+	hingeData->m_lowerLimit = m_limit.getLow();
+	hingeData->m_upperLimit = m_limit.getHigh();
+	hingeData->m_limitSoftness = m_limit.getSoftness();
+	hingeData->m_biasFactor = m_limit.getBiasFactor();
+	hingeData->m_relaxationFactor = m_limit.getRelaxationFactor();
 #else
-	hingeData->m_lowerLimit = float(m_lowerLimit);
-	hingeData->m_upperLimit = float(m_upperLimit);
-	hingeData->m_limitSoftness = float(m_limitSoftness);
-	hingeData->m_biasFactor = float(m_biasFactor);
-	hingeData->m_relaxationFactor = float(m_relaxationFactor);
+	hingeData->m_lowerLimit = m_lowerLimit;
+	hingeData->m_upperLimit = m_upperLimit;
+	hingeData->m_limitSoftness = m_limitSoftness;
+	hingeData->m_biasFactor = m_biasFactor;
+	hingeData->m_relaxationFactor = m_relaxationFactor;
 #endif
 
 	// Fill padding with zeros to appease msan.

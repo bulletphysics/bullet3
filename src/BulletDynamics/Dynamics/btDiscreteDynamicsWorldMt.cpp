@@ -127,7 +127,7 @@ btScalar btConstraintSolverPoolMt::solveGroup(btCollisionObject** bodies,
 	ThreadSolver* ts = getAndLockThreadSolver();
 	ts->solver->solveGroup(bodies, numBodies, manifolds, numManifolds, constraints, numConstraints, info, debugDrawer, dispatcher);
 	ts->mutex.unlock();
-	return 0.0f;
+	return btScalar(0.0f);
 }
 
 void btConstraintSolverPoolMt::reset()

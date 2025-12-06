@@ -284,7 +284,7 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 					if (colObj0->getActivationState() == ISLAND_SLEEPING)
 					{
 						colObj0->setActivationState(WANTS_DEACTIVATION);
-						colObj0->setDeactivationTime(0.f);
+						colObj0->setDeactivationTime(btScalar(0.f));
 					}
 				}
 			}

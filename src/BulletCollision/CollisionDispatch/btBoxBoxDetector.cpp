@@ -100,7 +100,7 @@ void dLineClosestApproach(const btVector3& pa, const btVector3& ua,
 	}
 	else
 	{
-		d = 1.f / d;
+		d = btScalar(1.f) / d;
 		*alpha = (q1 + uaub * q2) * d;
 		*beta = (uaub * q1 + q2) * d;
 	}
@@ -174,7 +174,7 @@ done:
 	return nr;
 }
 
-#define M__PI 3.14159265f
+#define M__PI btScalar(3.14159265f)
 
 // given n points in the plane (array p, of size 2*n), generate m points that
 // best represent the whole set. the definition of 'best' here is not
@@ -215,7 +215,7 @@ void cullPoints2(int n, btScalar p[], int m, int i0, int iret[])
 		q = p[n * 2 - 2] * p[1] - p[0] * p[n * 2 - 1];
 		if (btFabs(a + q) > SIMD_EPSILON)
 		{
-			a = 1.f / (btScalar(3.0) * (a + q));
+			a = btScalar(1.f) / (btScalar(3.0) * (a + q));
 		}
 		else
 		{
@@ -237,7 +237,7 @@ void cullPoints2(int n, btScalar p[], int m, int i0, int iret[])
 	iret++;
 	for (j = 1; j < m; j++)
 	{
-		a = btScalar(j) * (2 * M__PI / (float)m) + A[i0];
+		a = btScalar(j) * (2 * M__PI / (btScalar)m) + A[i0];
 		if (a > M__PI) a -= 2 * M__PI;
 		btScalar maxdiff = 1e9, diff;
 
@@ -276,7 +276,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 			 int maxc, dContactGeom* /*contact*/, int /*skip*/, btDiscreteCollisionDetectorInterface::Result& output)
 {
 	const btScalar fudge_factor = btScalar(1.05);
-	btVector3 p, pp, normalC(0.f, 0.f, 0.f);
+	btVector3 p, pp, normalC(btScalar(0.f), btScalar(0.f), btScalar(0.f));
 	const btScalar* normalR = 0;
 	btScalar A[3], B[3], R11, R12, R13, R21, R22, R23, R31, R32, R33,
 		Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s, s2, l;
@@ -336,7 +336,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 		code = (cc);                   \
 	} do{} while(0)
 
-	s = -dInfinity;
+	s = (btScalar)-dInfinity;
 	invert_normal = 0;
 	code = 0;
 
@@ -372,7 +372,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 		}                                                \
 	} do{} while(0)
 
-	btScalar fudge2(1.0e-5f);
+	btScalar fudge2 = btScalar(0.00001);
 
 	Q11 += fudge2;
 	Q12 += fudge2;
@@ -632,7 +632,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 	// the 'ret' array as necessary so that 'point' and 'ret' correspond.
 	btScalar point[3 * 8];  // penetrating contact points
 	btScalar dep[8];        // depths for those points
-	btScalar det1 = 1.f / (m11 * m22 - m12 * m21);
+	btScalar det1 = btScalar(1.f) / (m11 * m22 - m12 * m21);
 	m11 *= det1;
 	m12 *= det1;
 	m21 *= det1;
@@ -757,10 +757,10 @@ void btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input, Result& 
 
 	dBoxBox2(transformA.getOrigin(),
 			 R1,
-			 2.f * m_box1->getHalfExtentsWithMargin(),
+			 btScalar(2.f) * m_box1->getHalfExtentsWithMargin(),
 			 transformB.getOrigin(),
 			 R2,
-			 2.f * m_box2->getHalfExtentsWithMargin(),
+			 btScalar(2.f) * m_box2->getHalfExtentsWithMargin(),
 			 normal, &depth, &return_code,
 			 maxc, contact, skip,
 			 output);

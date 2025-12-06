@@ -824,37 +824,37 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 // ----------------------------------------------------- //
 static void getElement(int arrayLen, const char *cur, const char *old, char *oldPtr, char *curData)
 {
-#define getEle(value, current, type, cast, size, ptr) \
-	if (strcmp(current, type) == 0)                   \
-	{                                                 \
-		value = (*(cast *)ptr);                       \
-		ptr += size;                                  \
-	} do{} while(0)
+#define getEle(value, valueType, current, type, cast, size, ptr) \
+	if (strcmp(current, type) == 0)                     \
+	{                                                   \
+		value = (valueType)(*(cast *)ptr);              \
+		ptr += size;                                    \
+	}  do{} while(0)
 
-#define setEle(value, current, type, cast, size, ptr) \
-	if (strcmp(current, type) == 0)                   \
-	{                                                 \
-		(*(cast *)ptr) = (cast)value;                 \
-		ptr += size;                                  \
-	} do{} while(0)
+#define setEle(value, valueType, current, type, cast, size, ptr) \
+	if (strcmp(current, type) == 0)                     \
+	{                                                   \
+		(*(cast *)ptr) = (cast)value;                   \
+		ptr += size;                                    \
+	}  do{} while(0)
 	double value = 0.0;
 
 	for (int i = 0; i < arrayLen; i++)
 	{
-		getEle(value, old, "char", char, sizeof(char), oldPtr);
-		setEle(value, cur, "char", char, sizeof(char), curData);
-		getEle(value, old, "short", short, sizeof(short), oldPtr);
-		setEle(value, cur, "short", short, sizeof(short), curData);
-		getEle(value, old, "ushort", unsigned short, sizeof(unsigned short), oldPtr);
-		setEle(value, cur, "ushort", unsigned short, sizeof(unsigned short), curData);
-		getEle(value, old, "int", int, sizeof(int), oldPtr);
-		setEle(value, cur, "int", int, sizeof(int), curData);
-		getEle(value, old, "long", int, sizeof(int), oldPtr);
-		setEle(value, cur, "long", int, sizeof(int), curData);
-		getEle(value, old, "float", float, sizeof(float), oldPtr);
-		setEle(value, cur, "float", float, sizeof(float), curData);
-		getEle(value, old, "double", double, sizeof(double), oldPtr);
-		setEle(value, cur, "double", double, sizeof(double), curData);
+		getEle(value, double, old, "char", char, sizeof(char), oldPtr);
+		setEle(value, double, cur, "char", char, sizeof(char), curData);
+		getEle(value, double, old, "short", short, sizeof(short), oldPtr);
+		setEle(value, double, cur, "short", short, sizeof(short), curData);
+		getEle(value, double, old, "ushort", unsigned short, sizeof(unsigned short), oldPtr);
+		setEle(value, double, cur, "ushort", unsigned short, sizeof(unsigned short), curData);
+		getEle(value, double, old, "int", int, sizeof(int), oldPtr);
+		setEle(value, double, cur, "int", int, sizeof(int), curData);
+		getEle(value, double, old, "long", int, sizeof(int), oldPtr);
+		setEle(value, double, cur, "long", int, sizeof(int), curData);
+		getEle(value, double, old, "float", float, sizeof(float), oldPtr);
+		setEle(value, double, cur, "float", float, sizeof(float), curData);
+		getEle(value, double, old, "double", double, sizeof(double), oldPtr);
+		setEle(value, double, cur, "double", double, sizeof(double), curData);
 	}
 }
 

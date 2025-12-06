@@ -51,7 +51,7 @@ email: projectileman@yahoo.com
 #define G_ROOT3 1.73205f
 #define G_ROOT2 1.41421f
 #define G_UINT_INFINITY 0xffffffff  //!< A very very high value
-#define G_REAL_INFINITY FLT_MAX
+#define G_REAL_INFINITY (GREAL)FLT_MAX
 #define G_SIGN_BITMASK 0x80000000
 #define G_EPSILON SIMD_EPSILON
 

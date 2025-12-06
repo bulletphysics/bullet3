@@ -78,7 +78,7 @@ bool btCollisionWorldImporter::convertAllObjects(btBulletSerializedArrays* array
 		if (shapePtr && *shapePtr)
 		{
 			btTransform startTransform;
-			colObjData->m_worldTransform.m_origin.m_floats[3] = 0.f;
+			colObjData->m_worldTransform.m_origin.m_floats[3] = btScalar(0.f);
 			startTransform.deSerializeDouble(colObjData->m_worldTransform);
 
 			btCollisionShape* shape = (btCollisionShape*)*shapePtr;
@@ -110,7 +110,7 @@ bool btCollisionWorldImporter::convertAllObjects(btBulletSerializedArrays* array
 		if (shapePtr && *shapePtr)
 		{
 			btTransform startTransform;
-			colObjData->m_worldTransform.m_origin.m_floats[3] = 0.f;
+			colObjData->m_worldTransform.m_origin.m_floats[3] = btScalar(0.f);
 			startTransform.deSerializeFloat(colObjData->m_worldTransform);
 
 			btCollisionShape* shape = (btCollisionShape*)*shapePtr;
@@ -251,7 +251,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 			btVector3 planeNormal, localScaling;
 			planeNormal.deSerializeFloat(planeData->m_planeNormal);
 			localScaling.deSerializeFloat(planeData->m_localScaling);
-			shape = createPlaneShape(planeNormal, planeData->m_planeConstant);
+			shape = createPlaneShape(planeNormal, (btScalar)planeData->m_planeConstant);
 			shape->setLocalScaling(localScaling);
 
 			break;
@@ -340,7 +340,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 			implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 			btVector3 localScaling;
 			localScaling.deSerializeFloat(bsd->m_localScaling);
-			btVector3 margin(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			btVector3 margin((btScalar)bsd->m_collisionMargin, (btScalar)bsd->m_collisionMargin, (btScalar)bsd->m_collisionMargin);
 			switch (shapeData->m_shapeType)
 			{
 				case BOX_SHAPE_PROXYTYPE:
@@ -428,7 +428,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 					for (i = 0; i < numSpheres; i++)
 					{
 						tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
-						radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						radii[i] = (btScalar)mss->m_localPositionArrayPtr[i].m_radius;
 					}
 					shape = createMultiSphereShape(&tmpPos[0], &radii[0], numSpheres);
 					break;
@@ -463,7 +463,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 					{
 						hullShape->addPoint(tmpPoints[i]);
 					}
-					hullShape->setMargin(bsd->m_collisionMargin);
+					hullShape->setMargin((btScalar)bsd->m_collisionMargin);
 					//hullShape->initializePolyhedralFeatures();
 					shape = hullShape;
 					break;
@@ -476,7 +476,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 
 			if (shape)
 			{
-				shape->setMargin(bsd->m_collisionMargin);
+				shape->setMargin((btScalar)bsd->m_collisionMargin);
 
 				btVector3 localScale;
 				localScale.deSerializeFloat(bsd->m_localScaling);
@@ -529,7 +529,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 #endif
 
 			btBvhTriangleMeshShape* trimeshShape = createBvhTriangleMeshShape(meshInterface, bvh);
-			trimeshShape->setMargin(trimesh->m_collisionMargin);
+			trimeshShape->setMargin((btScalar)trimesh->m_collisionMargin);
 			shape = trimeshShape;
 
 			if (trimesh->m_triangleInfoMap)

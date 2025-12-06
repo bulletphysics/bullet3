@@ -528,9 +528,9 @@ void SimpleOpenGL2Renderer::drawLines(const float* positions, const float color[
 
 		glBegin(GL_LINES);
 		glColor3f(fromColor.getX(), fromColor.getY(), fromColor.getZ());
-		glVertex3d(from.getX(), from.getY(), from.getZ());
+		glVertex3d((double)from.getX(), (double)from.getY(), (double)from.getZ());
 		glColor3f(toColor.getX(), toColor.getY(), toColor.getZ());
-		glVertex3d(to.getX(), to.getY(), to.getZ());
+		glVertex3d((double)to.getX(), (double)to.getY(), (double)to.getZ());
 		glEnd();
 	}
 }
@@ -540,8 +540,8 @@ void SimpleOpenGL2Renderer::drawLine(const float from[4], const float to[4], con
 	glLineWidth(lineWidth);
 	glBegin(GL_LINES);
 	glColor3f(color[0], color[1], color[2]);
-	glVertex3d(from[0], from[1], from[2]);
-	glVertex3d(to[0], to[1], to[2]);
+	glVertex3d((double)from[0], (double)from[1], (double)from[2]);
+	glVertex3d((double)to[0], (double)to[1], (double)to[2]);
 	glEnd();
 }
 

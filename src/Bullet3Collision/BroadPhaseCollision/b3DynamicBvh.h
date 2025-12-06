@@ -1064,7 +1064,7 @@ inline void b3DynamicBvh::rayTest(const b3DbvtNode* root,
 		rayDirectionInverse[0] = rayDir[0] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[0];
 		rayDirectionInverse[1] = rayDir[1] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[1];
 		rayDirectionInverse[2] = rayDir[2] == b3Scalar(0.0) ? b3Scalar(B3_LARGE_FLOAT) : b3Scalar(1.0) / rayDir[2];
-		unsigned int signs[3] = {rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
+		unsigned int signs[3] = {rayDirectionInverse[0] < b3Scalar(0.0), rayDirectionInverse[1] < b3Scalar(0.0), rayDirectionInverse[2] < b3Scalar(0.0)};
 
 		b3Scalar lambda_max = rayDir.dot(rayTo - rayFrom);
 #ifdef COMPARE_BTRAY_AABB2

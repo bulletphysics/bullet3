@@ -884,7 +884,7 @@ b3ShortestArcQuat(const b3Vector3& v0, const b3Vector3& v1)  // Game Programming
 	b3Vector3 c = v0.cross(v1);
 	b3Scalar d = v0.dot(v1);
 
-	if (d < -1.0 + B3_EPSILON)
+	if (d < b3Scalar(-1.0) + B3_EPSILON)
 	{
 		b3Vector3 n, unused;
 		b3PlaneSpace1(v0, n, unused);

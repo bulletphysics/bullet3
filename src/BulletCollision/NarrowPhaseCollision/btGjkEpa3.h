@@ -441,7 +441,7 @@ struct GJK
 		if (l > GJK_SIMPLEX3_EPS)
 		{
 			btScalar mindist = -1;
-			btScalar subw[2] = {0.f, 0.f};
+			btScalar subw[2] = {btScalar(0.f), btScalar(0.f)};
 			U subm(0);
 			for (U i = 0; i < 3; ++i)
 			{
@@ -488,7 +488,7 @@ struct GJK
 		if (ng && (btFabs(vl) > GJK_SIMPLEX4_EPS))
 		{
 			btScalar mindist = -1;
-			btScalar subw[3] = {0.f, 0.f, 0.f};
+			btScalar subw[3] = {btScalar(0.f), btScalar(0.f), btScalar(0.f)};
 			U subm(0);
 			for (U i = 0; i < 3; ++i)
 			{

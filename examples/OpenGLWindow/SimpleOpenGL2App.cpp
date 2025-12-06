@@ -432,18 +432,18 @@ void SimpleOpenGL2App::drawText3D(const char* txt, float worldPosX, float worldP
 			float scaling = 1;
 
 			glTexCoord2f(vertexData[0].uv.p[0], vertexData[0].uv.p[1]);
-			glVertex3d(vertexData[0].position.p[0] * scaling, vertexData[0].position.p[1] * scaling, vertexData[0].position.p[2] * scaling);
+			glVertex3d((double)(vertexData[0].position.p[0] * scaling), (double)(vertexData[0].position.p[1] * scaling), (double)(vertexData[0].position.p[2] * scaling));
 			glTexCoord2f(vertexData[1].uv.p[0], vertexData[1].uv.p[1]);
-			glVertex3d(vertexData[1].position.p[0] * scaling, vertexData[1].position.p[1] * scaling, vertexData[1].position.p[2] * scaling);
+			glVertex3d((double)(vertexData[1].position.p[0] * scaling), (double)(vertexData[1].position.p[1] * scaling), (double)(vertexData[1].position.p[2] * scaling));
 			glTexCoord2f(vertexData[2].uv.p[0], vertexData[2].uv.p[1]);
-			glVertex3d(vertexData[2].position.p[0] * scaling, vertexData[2].position.p[1] * scaling, vertexData[2].position.p[2] * scaling);
+			glVertex3d((double)(vertexData[2].position.p[0] * scaling), (double)(vertexData[2].position.p[1] * scaling), (double)(vertexData[2].position.p[2] * scaling));
 
 			glTexCoord2f(vertexData[0].uv.p[0], vertexData[0].uv.p[1]);
-			glVertex3d(vertexData[0].position.p[0] * scaling, vertexData[0].position.p[1] * scaling, vertexData[0].position.p[2] * scaling);
+			glVertex3d((double)(vertexData[0].position.p[0] * scaling), (double)(vertexData[0].position.p[1] * scaling), (double)(vertexData[0].position.p[2] * scaling));
 			glTexCoord2f(vertexData[2].uv.p[0], vertexData[2].uv.p[1]);
-			glVertex3d(vertexData[2].position.p[0] * scaling, vertexData[2].position.p[1] * scaling, vertexData[2].position.p[2] * scaling);
+			glVertex3d((double)(vertexData[2].position.p[0] * scaling), (double)(vertexData[2].position.p[1] * scaling), (double)(vertexData[2].position.p[2] * scaling));
 			glTexCoord2f(vertexData[3].uv.p[0], vertexData[3].uv.p[1]);
-			glVertex3d(vertexData[3].position.p[0] * scaling, vertexData[3].position.p[1] * scaling, vertexData[3].position.p[2] * scaling);
+			glVertex3d((double)(vertexData[3].position.p[0] * scaling), (double)(vertexData[3].position.p[1] * scaling), (double)(vertexData[3].position.p[2] * scaling));
 
 			glEnd();
 

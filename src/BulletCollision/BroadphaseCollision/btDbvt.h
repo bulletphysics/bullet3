@@ -1247,7 +1247,7 @@ inline void btDbvt::rayTestInternal(const btDbvtNode* root,
 			const btDbvtNode* node = stack[--depth];
 			bounds[0] = node->volume.Mins() - aabbMax;
 			bounds[1] = node->volume.Maxs() - aabbMin;
-			btScalar tmin = 1.f, lambda_min = 0.f;
+			btScalar tmin = btScalar(1.), lambda_min = btScalar(0.);
 			unsigned int result1 = false;
 			result1 = (unsigned int)btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
 			if (result1)
@@ -1315,11 +1315,11 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 			bounds[0] = node->volume.Mins();
 			bounds[1] = node->volume.Maxs();
 
-			btScalar tmin = 1.f, lambda_min = 0.f;
+			btScalar tmin = btScalar(1.), lambda_min = btScalar(0.);
 			unsigned int result1 = (unsigned int)btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
 
 #ifdef COMPARE_BTRAY_AABB2
-			btScalar param = 1.f;
+			btScalar param = btScalar(1.);
 			bool result2 = btRayAabb(rayFrom, rayTo, node->volume.Mins(), node->volume.Maxs(), param, resultNormal);
 			btAssert(result1 == result2);
 #endif  //TEST_BTRAY_AABB2

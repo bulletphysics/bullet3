@@ -44,13 +44,13 @@ public:
 									  btMultiBodyJacobianData& data,
 									  const btContactSolverInfo& infoGlobal);
 
-	virtual void setVelocityTarget(btScalar velTarget, btScalar kd = 1.f)
+	virtual void setVelocityTarget(btScalar velTarget, btScalar kd = btScalar(1.f))
 	{
 		m_desiredVelocity = velTarget;
 		m_kd = kd;
 	}
 
-	virtual void setPositionTarget(btScalar posTarget, btScalar kp = 1.f)
+	virtual void setPositionTarget(btScalar posTarget, btScalar kp = btScalar(1.f))
 	{
 		m_desiredPosition = posTarget;
 		m_kp = kp;

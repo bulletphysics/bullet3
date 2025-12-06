@@ -61,7 +61,7 @@ template <typename btConvexTemplate, typename btGjkDistanceTemplate>
 int btComputeGjkEpaPenetration(const btConvexTemplate& a, const btConvexTemplate& b, const btGjkCollisionDescription& colDesc, btVoronoiSimplexSolver& simplexSolver, btGjkDistanceTemplate* distInfo)
 {
 	bool m_catchDegeneracies = true;
-	btScalar m_cachedSeparatingDistance = 0.f;
+	btScalar m_cachedSeparatingDistance = btScalar(0.f);
 
 	btScalar distance = btScalar(0.);
 	btVector3 normalInB(btScalar(0.), btScalar(0.), btScalar(0.));

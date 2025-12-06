@@ -27,8 +27,8 @@ struct btGjkCollisionDescription
 	btGjkCollisionDescription()
 		: m_firstDir(0, 1, 0),
 		  m_maxGjkIterations(1000),
-		  m_maximumDistanceSquared(1e30f),
-		  m_gjkRelError2(1.0e-6f)
+		  m_maximumDistanceSquared(btScalar(1e30f)),
+		  m_gjkRelError2(btScalar(1.0e-6f))
 	{
 	}
 	virtual ~btGjkCollisionDescription()

@@ -449,7 +449,7 @@ public:
         
         for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
         {
-            m_splitV[dof] = 0.f;
+            m_splitV[dof] = btScalar(0.);
         }
     }
 	void processDeltaVeeMultiDof2()
@@ -458,7 +458,7 @@ public:
 
 		for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
 		{
-			m_deltaV[dof] = 0.f;
+			m_deltaV[dof] = btScalar(0.);
 		}
 	}
 

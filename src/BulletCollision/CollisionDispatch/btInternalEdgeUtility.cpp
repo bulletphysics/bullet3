@@ -180,7 +180,7 @@ struct btConnectivityProcessor : public btTriangleCallback
 				}
 
 				btScalar angle2 = 0;
-				btScalar ang4 = 0.f;
+				btScalar ang4 = btScalar(0.f);
 
 				btVector3 calculatedEdge = edgeCrossA.cross(edgeCrossB);
 				btScalar len2 = calculatedEdge.length2();
@@ -191,8 +191,8 @@ struct btConnectivityProcessor : public btTriangleCallback
 
 				if (len2 < m_triangleInfoMap->m_planarEpsilon)
 				{
-					angle2 = 0.f;
-					ang4 = 0.f;
+					angle2 = btScalar(0.f);
+					ang4 = btScalar(0.f);
 					(void)angle2;
 					(void)ang4;
 				}
@@ -374,9 +374,9 @@ void btGenerateInternalEdgeInfo(btBvhTriangleMeshShape* trimeshShape, btTriangle
 				{
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
 					triangleVerts[j] = btVector3(
-						graphicsbase[0] * meshScaling.getX(),
-						graphicsbase[1] * meshScaling.getY(),
-						graphicsbase[2] * meshScaling.getZ());
+						(btScalar)graphicsbase[0] * meshScaling.getX(),
+						(btScalar)graphicsbase[1] * meshScaling.getY(),
+						(btScalar)graphicsbase[2] * meshScaling.getZ());
 				}
 				else
 				{
@@ -545,7 +545,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	if (!info)
 		return;
 
-	btScalar frontFacing = (normalAdjustFlags & BT_TRIANGLE_CONVEX_BACKFACE_MODE) == 0 ? 1.f : -1.f;
+	btScalar frontFacing = (normalAdjustFlags & BT_TRIANGLE_CONVEX_BACKFACE_MODE) == 0 ? btScalar(1.f) : btScalar(-1.f);
 
 	const btTriangleShape* tri_shape = static_cast<const btTriangleShape*>(colObj0Wrap->getCollisionShape());
 	btVector3 v0, v1, v2;
@@ -623,7 +623,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	}
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
-	btVector3 upfix = tri_normal * btVector3(0.1f, 0.1f, 0.1f);
+	btVector3 upfix = tri_normal * btVector3(btScalar(0.1f), btScalar(0.1f), btScalar(0.1f));
 	btDebugDrawLine(tr * v0 + upfix, tr * v1 + upfix, red);
 #endif
 	if (btFabs(info->m_edgeV0V1Angle) < triangleInfoMapPtr->m_maxEdgeAngleThreshold)

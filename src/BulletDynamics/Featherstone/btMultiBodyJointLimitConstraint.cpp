@@ -161,7 +161,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		}
 
 		{
-			btScalar positionalError = 0.f;
+			btScalar positionalError = btScalar(0.f);
 			btScalar velocityError = -rel_vel;  // * damping;
 			btScalar erp = infoGlobal.m_erp2;
 			if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
@@ -184,7 +184,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 			{
 				//combine position and velocity into rhs
 				constraintRow.m_rhs = penetrationImpulse + velocityImpulse;
-				constraintRow.m_rhsPenetration = 0.f;
+				constraintRow.m_rhsPenetration = btScalar(0.f);
 			}
 			else
 			{

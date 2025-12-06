@@ -145,7 +145,7 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
                         col->setActivationState(WANTS_DEACTIVATION);
                     }
 					
-					col->setDeactivationTime(0.f);
+					col->setDeactivationTime(btScalar(0.f));
 				}
 				for (int b = 0; b < body->getNumLinks(); b++)
 				{
@@ -153,7 +153,7 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 					if (collider && collider->getActivationState() == ACTIVE_TAG)
 					{
 						collider->setActivationState(WANTS_DEACTIVATION);
-						collider->setDeactivationTime(0.f);
+						collider->setDeactivationTime(btScalar(0.f));
 					}
 				}
 			}

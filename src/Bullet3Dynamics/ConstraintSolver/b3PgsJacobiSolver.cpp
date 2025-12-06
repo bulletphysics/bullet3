@@ -899,14 +899,14 @@ void b3PgsJacobiSolver::convertContact(b3RigidBodyData* bodies, b3InertiaData* i
 			solverBodyB->getAngularVelocity(angVelB);
 			b3Vector3 relAngVel = angVelB - angVelA;
 
-			if ((cp.m_combinedRollingFriction > 0.f) && (rollingFriction > 0))
+			if ((cp.m_combinedRollingFriction > (b3Scalar)0.f) && (rollingFriction > 0))
 			{
 				//only a single rollingFriction per manifold
 				rollingFriction--;
 				if (relAngVel.length() > infoGlobal.m_singleAxisRollingFrictionThreshold)
 				{
 					relAngVel.normalize();
-					if (relAngVel.length() > 0.001)
+					if (relAngVel.length() > (b3Scalar)0.001)
 						addRollingFrictionConstraint(bodies, inertias, relAngVel, solverBodyIdA, solverBodyIdB, frictionIndex, cp, rel_pos1, rel_pos2, colObj0, colObj1, relaxation);
 				}
 				else

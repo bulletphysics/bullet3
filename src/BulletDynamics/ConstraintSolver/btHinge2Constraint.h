@@ -48,8 +48,8 @@ public:
 	btScalar getAngle1() { return getAngle(2); }
 	btScalar getAngle2() { return getAngle(0); }
 	// limits
-	void setUpperLimit(btScalar ang1max) { setAngularUpperLimit(btVector3(-1.f, 0.f, ang1max)); }
-	void setLowerLimit(btScalar ang1min) { setAngularLowerLimit(btVector3(1.f, 0.f, ang1min)); }
+	void setUpperLimit(btScalar ang1max) { setAngularUpperLimit(btVector3(btScalar(-1.f), btScalar(0.f), ang1max)); }
+	void setLowerLimit(btScalar ang1min) { setAngularLowerLimit(btVector3(btScalar(1.f), btScalar(0.f), ang1min)); }
 };
 
 #endif  // BT_HINGE2_CONSTRAINT_H

@@ -216,7 +216,7 @@ static DBVT_INLINE bool MyIntersect(const btDbvtAabbMm& a,
 									const btDbvtAabbMm& b, const btTransform& xform, btScalar distanceThreshold)
 {
 	btVector3 newmin, newmax;
-	btTransformAabb(b.Mins(), b.Maxs(), 0.f, xform, newmin, newmax);
+	btTransformAabb(b.Mins(), b.Maxs(), btScalar(0.f), xform, newmin, newmax);
 	newmin -= btVector3(distanceThreshold, distanceThreshold, distanceThreshold);
 	newmax += btVector3(distanceThreshold, distanceThreshold, distanceThreshold);
 	btDbvtAabbMm newb = btDbvtAabbMm::FromMM(newmin, newmax);
@@ -409,5 +409,5 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 btScalar btCompoundCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* /*body0*/, btCollisionObject* /*body1*/, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* /*resultOut*/)
 {
 	btAssert(0);
-	return 0.f;
+	return btScalar(0.f);
 }

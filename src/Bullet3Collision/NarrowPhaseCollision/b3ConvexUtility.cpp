@@ -249,7 +249,7 @@ bool b3ConvexUtility::initializePolyhedralFeatures(const b3Vector3* orgVertices,
 
 inline bool IsAlmostZero(const b3Vector3& v)
 {
-	if (fabsf(v.getX()) > 1e-6 || fabsf(v.getY()) > 1e-6 || fabsf(v.getZ()) > 1e-6) return false;
+	if (fabsf(v.getX()) > 1e-6f || fabsf(v.getY()) > 1e-6f || fabsf(v.getZ()) > 1e-6f) return false;
 	return true;
 }
 

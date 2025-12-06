@@ -281,8 +281,8 @@ void btMultiBodyMLCPConstraintSolver::createMLCPFastRigidBody(const btContactSol
 		{
 			if (0)  //m_limitDependencies[i]>=0)
 			{
-				m_lo[i] = -BT_INFINITY;
-				m_hi[i] = BT_INFINITY;
+				m_lo[i] = (btScalar)-BT_INFINITY;
+				m_hi[i] = (btScalar)BT_INFINITY;
 			}
 			else
 			{

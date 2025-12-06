@@ -60,7 +60,7 @@ struct btSoftBodyWorldInfo
 		: air_density((btScalar)1.2),
 		  water_density(0),
 		  water_offset(0),
-		  m_maxDisplacement(1000.f),  //avoid soft body from 'exploding' so use some upper threshold of maximum motion that a node can travel per frame
+		  m_maxDisplacement(btScalar(1000.f)),  //avoid soft body from 'exploding' so use some upper threshold of maximum motion that a node can travel per frame
 		  water_normal(0, 0, 0),
 		  m_broadphase(0),
 		  m_dispatcher(0),
@@ -484,7 +484,7 @@ public:
 		bool m_containsAnchor;
 		bool m_collide;
 		int m_clusterIndex;
-		Cluster() : m_leaf(0), m_ndamping(0), m_ldamping(0), m_adamping(0), m_matching(0), m_maxSelfCollisionImpulse(100.f), m_selfCollisionImpulseFactor(0.01f), m_containsAnchor(false)
+		Cluster() : m_leaf(0), m_ndamping(0), m_ldamping(0), m_adamping(0), m_matching(0), m_maxSelfCollisionImpulse(btScalar(100.f)), m_selfCollisionImpulseFactor(btScalar(0.01f)), m_containsAnchor(false)
 		{
 		}
 	};

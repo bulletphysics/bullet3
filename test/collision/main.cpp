@@ -165,8 +165,8 @@ void testSphereSphereDistance(SphereSphereTestMethod method, btScalar abs_error)
 		btSphereSphereCollisionDescription ssd;
 		ssd.m_sphereTransformA.setIdentity();
 		ssd.m_sphereTransformB.setIdentity();
-		ssd.m_radiusA = 0.f;
-		ssd.m_radiusB = 0.f;
+		ssd.m_radiusA = btScalar(0.f);
+		ssd.m_radiusB = btScalar(0.f);
 		btDistanceInfo distInfo;
 		int result = btComputeSphereSphereCollision(ssd, &distInfo);
 		ASSERT_EQ(0, result);

@@ -105,7 +105,7 @@ SIMD_FORCE_INLINE bool POINT_IN_HULL(
 	for (GUINT _i = 0; _i < plane_count; ++_i)
 	{
 		_dis = DISTANCE_PLANE_POINT(planes[_i], point);
-		if (_dis > 0.0f) return false;
+		if (_dis > GREAL(0.0)) return false;
 	}
 	return true;
 }
@@ -248,7 +248,7 @@ SIMD_FORCE_INLINE bool RAY_PLANE_COLLISION(
 {
 	GREAL _dis, _dotdir;
 	_dotdir = VEC_DOT(plane, vDir);
-	if (_dotdir < PLANEDIREPSILON)
+	if (_dotdir < (GREAL)PLANEDIREPSILON)
 	{
 		return false;
 	}
@@ -277,13 +277,13 @@ SIMD_FORCE_INLINE GUINT LINE_PLANE_COLLISION(
 {
 	GREAL _dis, _dotdir;
 	_dotdir = VEC_DOT(plane, vDir);
-	if (btFabs(_dotdir) < PLANEDIREPSILON)
+	if (btFabs(_dotdir) < (GREAL)PLANEDIREPSILON)
 	{
 		tparam = tmax;
 		return 0;
 	}
 	_dis = DISTANCE_PLANE_POINT(plane, vPoint);
-	char returnvalue = _dis < 0.0f ? 2 : 1;
+	char returnvalue = _dis < (GREAL)0.0f ? 2 : 1;
 	tparam = -_dis / _dotdir;
 
 	if (tparam < tmin)
@@ -347,11 +347,11 @@ SIMD_FORCE_INLINE void CLOSEST_POINT_ON_SEGMENT(
 	VEC_DIFF(cp, v, e1);
 	GREAL _scalar = VEC_DOT(cp, _n);
 	_scalar /= VEC_DOT(_n, _n);
-	if (_scalar < 0.0f)
+	if (_scalar < (GREAL)0.0f)
 	{
 		VEC_COPY(cp, e1);
 	}
-	else if (_scalar > 1.0f)
+	else if (_scalar > (GREAL)1.0f)
 	{
 		VEC_COPY(cp, e2);
 	}
@@ -476,7 +476,7 @@ SIMD_FORCE_INLINE void SEGMENT_COLLISION(
 	VEC_DIFF(vPointB, vPointA, vB1);
 	_tp = VEC_DOT(vPointB, _BD);
 	_tp /= VEC_DOT(_BD, _BD);
-	_tp = GIM_CLAMP(_tp, 0.0f, 1.0f);
+	_tp = GIM_CLAMP(_tp, btScalar(0.0f), btScalar(1.0f));
 	VEC_SCALE(vPointB, _tp, _BD);
 	VEC_SUM(vPointB, vPointB, vB1);
 }

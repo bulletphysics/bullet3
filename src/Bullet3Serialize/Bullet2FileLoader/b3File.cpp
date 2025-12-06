@@ -790,14 +790,14 @@ void bFile::parseStruct(char *strcPtr, char *dtPtr, int old_dna, int new_dna, bo
 // ----------------------------------------------------- //
 static void getElement(int arrayLen, const char *cur, const char *old, char *oldPtr, char *curData)
 {
-#define b3GetEle(value, current, type, cast, size, ptr) \
+#define b3GetEle(value, valueType, current, type, cast, size, ptr) \
 	if (strcmp(current, type) == 0)                     \
 	{                                                   \
-		value = (*(cast *)ptr);                         \
+		value = (valueType)(*(cast *)ptr);              \
 		ptr += size;                                    \
 	}  do{} while(0)
 
-#define b3SetEle(value, current, type, cast, size, ptr) \
+#define b3SetEle(value, valueType, current, type, cast, size, ptr) \
 	if (strcmp(current, type) == 0)                     \
 	{                                                   \
 		(*(cast *)ptr) = (cast)value;                   \
@@ -807,20 +807,20 @@ static void getElement(int arrayLen, const char *cur, const char *old, char *old
 
 	for (int i = 0; i < arrayLen; i++)
 	{
-		b3GetEle(value, old, "char", char, sizeof(char), oldPtr);
-		b3SetEle(value, cur, "char", char, sizeof(char), curData);
-		b3GetEle(value, old, "short", short, sizeof(short), oldPtr);
-		b3SetEle(value, cur, "short", short, sizeof(short), curData);
-		b3GetEle(value, old, "ushort", unsigned short, sizeof(unsigned short), oldPtr);
-		b3SetEle(value, cur, "ushort", unsigned short, sizeof(unsigned short), curData);
-		b3GetEle(value, old, "int", int, sizeof(int), oldPtr);
-		b3SetEle(value, cur, "int", int, sizeof(int), curData);
-		b3GetEle(value, old, "long", int, sizeof(int), oldPtr);
-		b3SetEle(value, cur, "long", int, sizeof(int), curData);
-		b3GetEle(value, old, "float", float, sizeof(float), oldPtr);
-		b3SetEle(value, cur, "float", float, sizeof(float), curData);
-		b3GetEle(value, old, "double", double, sizeof(double), oldPtr);
-		b3SetEle(value, cur, "double", double, sizeof(double), curData);
+		b3GetEle(value, double, old, "char", char, sizeof(char), oldPtr);
+		b3SetEle(value, double, cur, "char", char, sizeof(char), curData);
+		b3GetEle(value, double, old, "short", short, sizeof(short), oldPtr);
+		b3SetEle(value, double, cur, "short", short, sizeof(short), curData);
+		b3GetEle(value, double, old, "ushort", unsigned short, sizeof(unsigned short), oldPtr);
+		b3SetEle(value, double, cur, "ushort", unsigned short, sizeof(unsigned short), curData);
+		b3GetEle(value, double, old, "int", int, sizeof(int), oldPtr);
+		b3SetEle(value, double, cur, "int", int, sizeof(int), curData);
+		b3GetEle(value, double, old, "long", int, sizeof(int), oldPtr);
+		b3SetEle(value, double, cur, "long", int, sizeof(int), curData);
+		b3GetEle(value, double, old, "float", float, sizeof(float), oldPtr);
+		b3SetEle(value, double, cur, "float", float, sizeof(float), curData);
+		b3GetEle(value, double, old, "double", double, sizeof(double), oldPtr);
+		b3SetEle(value, double, cur, "double", double, sizeof(double), curData);
 	}
 }
 

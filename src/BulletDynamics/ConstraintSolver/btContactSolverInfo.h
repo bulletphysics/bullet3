@@ -93,8 +93,8 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_frictionCFM = btScalar(0.);
 		m_sor = btScalar(1.);
 		m_splitImpulse = true;
-		m_splitImpulsePenetrationThreshold = -.04f;
-		m_splitImpulseTurnErp = 0.1f;
+		m_splitImpulsePenetrationThreshold = btScalar(-.04);
+		m_splitImpulseTurnErp = btScalar(0.1);
 		m_linearSlop = btScalar(0.0);
 		m_warmstartingFactor = btScalar(0.85);
 		m_articulatedWarmstartingFactor = btScalar(0.85);
@@ -102,10 +102,10 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_solverMode = SOLVER_USE_WARMSTARTING | SOLVER_SIMD;  // | SOLVER_RANDMIZE_ORDER;
 		m_restingContactRestitutionThreshold = 2;              //unused as of 2.81
 		m_minimumSolverBatchSize = 128;                        //try to combine islands until the amount of constraints reaches this limit
-		m_maxGyroscopicForce = 100.f;                          ///it is only used for 'explicit' version of gyroscopic force
-		m_singleAxisRollingFrictionThreshold = 1e30f;          ///if the velocity is above this threshold, it will use a single constraint row (axis), otherwise 3 rows.
-		m_leastSquaresResidualThreshold = 0.f;
-		m_restitutionVelocityThreshold = 0.2f;  //if the relative velocity is below this threshold, there is zero restitution
+		m_maxGyroscopicForce = btScalar(100.);                          ///it is only used for 'explicit' version of gyroscopic force
+		m_singleAxisRollingFrictionThreshold = btScalar(1e30);          ///if the velocity is above this threshold, it will use a single constraint row (axis), otherwise 3 rows.
+		m_leastSquaresResidualThreshold = btScalar(0.);
+		m_restitutionVelocityThreshold = btScalar(0.2);  //if the relative velocity is below this threshold, there is zero restitution
 		m_jointFeedbackInWorldSpace = false;
 		m_jointFeedbackInJointFrame = false;
 		m_reportSolverAnalytics = 0;

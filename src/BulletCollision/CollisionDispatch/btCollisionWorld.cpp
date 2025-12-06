@@ -288,7 +288,7 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 											 RayResultCallback& resultCallback)
 {
 	btSphereShape pointShape(btScalar(0.0));
-	pointShape.setMargin(0.f);
+	pointShape.setMargin(btScalar(0.f));
 	const btConvexShape* castShape = &pointShape;
 	const btCollisionShape* collisionShape = collisionObjectWrap->getCollisionShape();
 	const btTransform& colObjWorldTransform = collisionObjectWrap->getWorldTransform();
@@ -1086,13 +1086,13 @@ void btCollisionWorld::convexSweepTest(const btConvexShape* castShape, const btT
 	/* Compute AABB that encompasses angular movement */
 	{
 		btVector3 linVel, angVel;
-		btTransformUtil::calculateVelocity(convexFromTrans, convexToTrans, 1.0f, linVel, angVel);
+		btTransformUtil::calculateVelocity(convexFromTrans, convexToTrans, btScalar(1.0f), linVel, angVel);
 		btVector3 zeroLinVel;
 		zeroLinVel.setValue(0, 0, 0);
 		btTransform R;
 		R.setIdentity();
 		R.setRotation(convexFromTrans.getRotation());
-		castShape->calculateTemporalAabb(R, zeroLinVel, angVel, 1.0f, castShapeAabbMin, castShapeAabbMax);
+		castShape->calculateTemporalAabb(R, zeroLinVel, angVel, btScalar(1.0f), castShapeAabbMin, castShapeAabbMax);
 	}
 
 #ifndef USE_BRUTEFORCE_RAYBROADPHASE

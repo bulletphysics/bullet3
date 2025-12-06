@@ -230,7 +230,7 @@ public:
 	// __relaxationFactor:
 	//		0->1, recommend to stay near 1.
 	//		the lower the value, the less the constraint will fight velocities which violate the angular limits.
-	void setLimit(btScalar _swingSpan1, btScalar _swingSpan2, btScalar _twistSpan, btScalar _softness = 1.f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f)
+	void setLimit(btScalar _swingSpan1, btScalar _swingSpan2, btScalar _twistSpan, btScalar _softness = btScalar(1.), btScalar _biasFactor = btScalar(0.3), btScalar _relaxationFactor = btScalar(1.0))
 	{
 		m_swingSpan1 = _swingSpan1;
 		m_swingSpan2 = _swingSpan2;

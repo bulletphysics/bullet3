@@ -74,7 +74,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	{
 		if (m_dynamicsWorld)
 		{
-			m_dynamicsWorld->stepSimulation(deltaTime);
+			m_dynamicsWorld->stepSimulation((btScalar)deltaTime);
 		}
 	}
 
@@ -180,7 +180,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 		float bottom = -1.f;
 		float nearPlane = 1.f;
 		float tanFov = (top - bottom) * 0.5f / nearPlane;
-		float fov = float(btScalar(2.0) * btAtan(tanFov));
+		float fov = float(btScalar(2.0) * btAtan((btScalar)tanFov));
 
 		btVector3 camPos, camTarget;
 
@@ -191,7 +191,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 		btVector3 rayForward = (camTarget - camPos);
 		rayForward.normalize();
 		float farPlane = 10000.f;
-		rayForward *= farPlane;
+		rayForward *= (btScalar)farPlane;
 
 		btVector3 rightOffset;
 		btVector3 cameraUp = btVector3(0, 0, 0);

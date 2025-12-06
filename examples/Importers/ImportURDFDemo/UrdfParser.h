@@ -41,8 +41,8 @@ struct UrdfInertia
 	{
 		m_hasLinkLocalFrame = false;
 		m_linkLocalFrame.setIdentity();
-		m_mass = 0.f;
-		m_ixx = m_ixy = m_ixz = m_iyy = m_iyz = m_izz = 0.f;
+		m_mass = btScalar(0.f);
+		m_ixx = m_ixy = m_ixz = m_iyy = m_iyz = m_izz = btScalar(0.f);
 	}
 };
 

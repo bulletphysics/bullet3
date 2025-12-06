@@ -73,7 +73,7 @@ public:
 	btVector4 m_plane;
 	btScalar m_margin;
 	btScalar m_dummy;
-	btPrimitiveTriangle() : m_margin(0.01f)
+	btPrimitiveTriangle() : m_margin(btScalar(0.01))
 	{
 	}
 

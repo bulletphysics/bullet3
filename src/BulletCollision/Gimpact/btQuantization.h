@@ -57,9 +57,9 @@ SIMD_FORCE_INLINE void bt_quantize_clamp(
 	clampedPoint.setMin(max_bound);
 
 	btVector3 v = (clampedPoint - min_bound) * bvhQuantization;
-	out[0] = (unsigned short)(v.getX() + 0.5f);
-	out[1] = (unsigned short)(v.getY() + 0.5f);
-	out[2] = (unsigned short)(v.getZ() + 0.5f);
+	out[0] = (unsigned short)(v.getX() + btScalar(0.5));
+	out[1] = (unsigned short)(v.getY() + btScalar(0.5));
+	out[2] = (unsigned short)(v.getZ() + btScalar(0.5));
 }
 
 SIMD_FORCE_INLINE btVector3 bt_unquantize(

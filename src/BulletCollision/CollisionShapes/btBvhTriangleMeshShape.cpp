@@ -140,13 +140,13 @@ void btBvhTriangleMeshShape::performRaycast(btTriangleCallback* callback, const 
 				{
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
 
-					m_triangle[j] = btVector3(graphicsbase[0] * meshScaling.getX(), graphicsbase[1] * meshScaling.getY(), graphicsbase[2] * meshScaling.getZ());
+					m_triangle[j] = btVector3((btScalar)graphicsbase[0] * meshScaling.getX(), (btScalar)graphicsbase[1] * meshScaling.getY(), (btScalar)graphicsbase[2] * meshScaling.getZ());
 				}
 				else
 				{
 					double* graphicsbase = (double*)(vertexbase + graphicsindex * stride);
 
-					m_triangle[j] = btVector3(btScalar(graphicsbase[0]) * meshScaling.getX(), btScalar(graphicsbase[1]) * meshScaling.getY(), btScalar(graphicsbase[2]) * meshScaling.getZ());
+					m_triangle[j] = btVector3(btScalar((btScalar)graphicsbase[0]) * meshScaling.getX(), btScalar((btScalar)graphicsbase[1]) * meshScaling.getY(), btScalar((btScalar)graphicsbase[2]) * meshScaling.getZ());
 				}
 			}
 
@@ -298,9 +298,9 @@ void btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback, c
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
 
 					m_triangle[j] = btVector3(
-						graphicsbase[0] * meshScaling.getX(),
-						graphicsbase[1] * meshScaling.getY(),
-						graphicsbase[2] * meshScaling.getZ());
+						(btScalar)graphicsbase[0] * meshScaling.getX(),
+						(btScalar)graphicsbase[1] * meshScaling.getY(),
+						(btScalar)graphicsbase[2] * meshScaling.getZ());
 				}
 				else
 				{

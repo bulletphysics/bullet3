@@ -64,7 +64,7 @@ int main(int /*argc*/, char** /*argv*/)
 		btScalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
+		bool isDynamic = (mass != btScalar(0.f));
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
@@ -90,10 +90,10 @@ int main(int /*argc*/, char** /*argv*/)
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar mass(1.f);
+		btScalar mass(btScalar(1.f));
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
+		bool isDynamic = (mass != btScalar(0.f));
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
@@ -114,7 +114,7 @@ int main(int /*argc*/, char** /*argv*/)
 	///-----stepsimulation_start-----
 	for (i = 0; i < 150; i++)
 	{
-		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+		dynamicsWorld->stepSimulation(btScalar(1.f) / btScalar(60.f), 10);
 
 		//print positions of all objects
 		for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
@@ -130,7 +130,7 @@ int main(int /*argc*/, char** /*argv*/)
 			{
 				trans = obj->getWorldTransform();
 			}
-			printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+			printf("world pos object %d = %f,%f,%f\n", j, double(trans.getOrigin().getX()), double(trans.getOrigin().getY()), double(trans.getOrigin().getZ()));
 		}
 	}
 
