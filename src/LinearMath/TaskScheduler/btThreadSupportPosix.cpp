@@ -14,7 +14,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#if BT_THREADSAFE && !defined(_WIN32)
+#if defined(BT_THREADSAFE) && !defined(_WIN32)
 
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btAlignedObjectArray.h"

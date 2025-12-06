@@ -29,7 +29,7 @@ btGImpactMeshShapePart::btGImpactMeshShapePart(btStridingMeshInterface* meshInte
 	m_primitive_manager.m_meshInterface = meshInterface;
 	m_primitive_manager.m_part = part;
 	m_box_set.setPrimitiveManager(&m_primitive_manager);
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	// If threadsafe is requested, this object uses a different lock/unlock
 	//  model with the btStridingMeshInterface -- lock once when the object is constructed
 	//  and unlock once in the destructor.
@@ -46,7 +46,7 @@ btGImpactMeshShapePart::btGImpactMeshShapePart(btStridingMeshInterface* meshInte
 btGImpactMeshShapePart::~btGImpactMeshShapePart()
 {
 	// moved from .h to .cpp because of conditional compilation
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	m_primitive_manager.unlock();
 #endif
 }
@@ -54,7 +54,7 @@ btGImpactMeshShapePart::~btGImpactMeshShapePart()
 void btGImpactMeshShapePart::lockChildShapes() const
 {
 	// moved from .h to .cpp because of conditional compilation
-#if !BT_THREADSAFE
+#if !defined(BT_THREADSAFE)
 	// called in the narrowphase -- not threadsafe!
 	void* dummy = (void*)(m_box_set.getPrimitiveManager());
 	TrimeshPrimitiveManager* dummymanager = static_cast<TrimeshPrimitiveManager*>(dummy);
@@ -65,7 +65,7 @@ void btGImpactMeshShapePart::lockChildShapes() const
 void btGImpactMeshShapePart::unlockChildShapes() const
 {
 	// moved from .h to .cpp because of conditional compilation
-#if !BT_THREADSAFE
+#if !defined(BT_THREADSAFE)
 	// called in the narrowphase -- not threadsafe!
 	void* dummy = (void*)(m_box_set.getPrimitiveManager());
 	TrimeshPrimitiveManager* dummymanager = static_cast<TrimeshPrimitiveManager*>(dummy);

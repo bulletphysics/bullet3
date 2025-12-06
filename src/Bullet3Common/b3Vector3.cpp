@@ -52,7 +52,7 @@ long b3_maxdot_large(const float *vv, const float *vec, unsigned long count, flo
 	size_t segment = 0;
 	float4 stack_array[STACK_ARRAY_COUNT];
 
-#if DEBUG
+#ifdef DEBUG
 	// memset( stack_array, -1, STACK_ARRAY_COUNT * sizeof(stack_array[0]) );
 #endif
 
@@ -446,7 +446,7 @@ long b3_mindot_large(const float *vv, const float *vec, unsigned long count, flo
 	size_t segment = 0;
 	float4 stack_array[STACK_ARRAY_COUNT];
 
-#if DEBUG
+#ifdef DEBUG
 	// memset( stack_array, -1, STACK_ARRAY_COUNT * sizeof(stack_array[0]) );
 #endif
 

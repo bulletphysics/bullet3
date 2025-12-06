@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 	b3SetCustomPrintfFunc(myprintf);
 	b3SetCustomWarningMessageFunc(myprintf);
 
-#if _MSC_VER
+#ifdef _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//void *testWhetherMemoryLeakDetectionWorks = malloc(1);
 #endif

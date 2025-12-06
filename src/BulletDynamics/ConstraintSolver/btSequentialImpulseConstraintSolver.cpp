@@ -692,7 +692,7 @@ btSolverConstraint& btSequentialImpulseConstraintSolver::addTorsionalFrictionCon
 
 int btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& body, btScalar timeStep)
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	int solverBodyId = -1;
 	const bool isRigidBodyType = btRigidBody::upcast(&body) != NULL;
 	const bool isStaticOrKinematic = body.isStaticOrKinematicObject();
@@ -770,7 +770,7 @@ int btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	{
 		btRigidBody* rb = btRigidBody::upcast(&body);
 		//convert both active and kinematic objects (for their velocity)
-		if (rb && (rb->getInvMass() || rb->isKinematicObject()))
+		if (rb && (rb->getInvMass() != btScalar(0) || rb->isKinematicObject()))
 		{
 			solverBodyIdA = m_tmpSolverBodyPool.size();
 			btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
@@ -1364,7 +1364,7 @@ void btSequentialImpulseConstraintSolver::convertBodies(btCollisionObject** bodi
 	{
 		bodies[i]->setCompanionId(-1);
 	}
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	m_kinematicBodyUniqueIdToSolverBodyTable.resize(0);
 #endif  // BT_THREADSAFE
 

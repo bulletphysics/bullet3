@@ -38,7 +38,7 @@ public:
 	//! Constructor.
 	VHACD()
 	{
-#if USE_THREAD == 1 && _OPENMP
+#if USE_THREAD == 1 && defined(_OPENMP)
 		m_ompNumProcessors = 2 * omp_get_num_procs();
 		omp_set_num_threads(m_ompNumProcessors);
 #else   //USE_THREAD == 1 && _OPENMP

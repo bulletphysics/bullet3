@@ -22,7 +22,7 @@
 #include <iomanip>
 #include <limits>
 #include <sstream>
-#if _OPENMP
+#ifdef _OPENMP
 #include <omp.h>
 #endif  // _OPENMP
 
@@ -858,13 +858,13 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 	timerComputeCost.Tic();
 #endif  // DEBUG_TEMP
 
-#if USE_THREAD == 1 && _OPENMP
+#if USE_THREAD == 1 && defined(_OPENMP)
 #pragma omp parallel for
 #endif
 	for (int x = 0; x < nPlanes; ++x)
 	{
 		int threadID = 0;
-#if USE_THREAD == 1 && _OPENMP
+#if USE_THREAD == 1 && defined(_OPENMP)
 		threadID = omp_get_thread_num();
 #pragma omp flush(cancel)
 #endif
@@ -874,7 +874,7 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 			if (GetCancel())
 			{
 				cancel = true;
-#if USE_THREAD == 1 && _OPENMP
+#if USE_THREAD == 1 && defined(_OPENMP)
 #pragma omp flush(cancel)
 #endif
 			}
@@ -1016,7 +1016,7 @@ void VHACD::ComputeBestClippingPlane(const PrimitiveSet* inputPSet, const double
 			double symmetry = beta * d;
 			double total = concavity + balance + symmetry;
 
-#if USE_THREAD == 1 && _OPENMP
+#if USE_THREAD == 1 && defined(_OPENMP)
 #pragma omp critical
 #endif
 			{

@@ -37,7 +37,7 @@ static B3_DBVT_INLINE int b3IndexOf(const b3DbvtNode* node)
 static B3_DBVT_INLINE b3DbvtVolume b3Merge(const b3DbvtVolume& a,
 										   const b3DbvtVolume& b)
 {
-#if (B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE)
+#if defined(B3_DBVT_MERGE_IMPL) && defined(B3_DBVT_IMPL_SSE) && (B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE)
 	B3_ATTRIBUTE_ALIGNED16(char locals[sizeof(b3DbvtAabbMm)]);
 	b3DbvtVolume& res = *(b3DbvtVolume*)locals;
 #else
@@ -300,7 +300,7 @@ static int b3Split(b3DbvtNode** leaves,
 static b3DbvtVolume b3Bounds(b3DbvtNode** leaves,
 							 int count)
 {
-#if B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE
+#if defined(B3_DBVT_MERGE_IMPL) && defined(B3_DBVT_IMPL_SSE) && B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE
 	B3_ATTRIBUTE_ALIGNED16(char locals[sizeof(b3DbvtVolume)]);
 	b3DbvtVolume& volume = *(b3DbvtVolume*)locals;
 	volume = leaves[0]->volume;

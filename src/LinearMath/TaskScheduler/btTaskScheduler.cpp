@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <cstring>
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 
 #include "btThreadSupportInterface.h"
 
@@ -147,7 +147,7 @@ public:
 
 		// call the functor body to do the work
 		btScalar val = m_body->sumLoop(m_begin, m_end);
-#if BT_PARALLEL_SUM_DETERMINISTISM
+#ifdef BT_PARALLEL_SUM_DETERMINISTISM
 		// by truncating bits of the result, we can make the parallelSum deterministic (at the expense of precision)
 		const float TRUNC_SCALE = float(1 << 19);
 		val = floor(val * TRUNC_SCALE + 0.5f) / TRUNC_SCALE;  // truncate some bits
@@ -787,11 +787,11 @@ btITaskScheduler* btCreateDefaultTaskScheduler()
 	return ts;
 }
 
-#else  // #if BT_THREADSAFE
+#else  // #ifdef BT_THREADSAFE
 
 btITaskScheduler* btCreateDefaultTaskScheduler()
 {
 	return NULL;
 }
 
-#endif  // #else // #if BT_THREADSAFE
+#endif  // #else // #ifdef BT_THREADSAFE

@@ -289,7 +289,7 @@ public:
 	void init()
 	{
 		addTaskScheduler(btGetSequentialTaskScheduler());
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		if (btITaskScheduler* ts = btCreateDefaultTaskScheduler())
 		{
 			m_allocatedTaskSchedulers.push_back(ts);
@@ -307,7 +307,7 @@ public:
 		{
 			btSetTaskScheduler(m_taskSchedulers[0]);
 		}
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 	}
 	void shutdown()
 	{
@@ -322,14 +322,14 @@ public:
 	{
 		if (ts)
 		{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 			// if initial number of threads is 0 or 1,
 			if (ts->getNumThreads() <= 1)
 			{
 				// for OpenMP, TBB, PPL set num threads to number of logical cores
 				ts->setNumThreads(ts->getMaxNumThreads());
 			}
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 			m_taskSchedulers.push_back(ts);
 		}
 	}
@@ -339,7 +339,7 @@ public:
 
 static btTaskSchedulerManager gTaskSchedulerMgr;
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 static bool gMultithreadedWorld = true;
 static bool gDisplayProfileInfo = true;
 static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT;
@@ -355,7 +355,7 @@ static int gSolverMode = SOLVER_SIMD |
 						 // SOLVER_USE_2_FRICTION_DIRECTIONS |
 						 0;
 static btScalar gSliderSolverIterations = 10.0f;                                                        // should be int
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 static btScalar gSliderNumThreads = 1.0f;                                                               // should be int
 static btScalar gSliderIslandBatchingThreshold = 0.0f;                                                  // should be int
 static btScalar gSliderMinBatchSize = btScalar(btSequentialImpulseConstraintSolverMt::s_minBatchSize);  // should be int
@@ -426,7 +426,7 @@ void setSolverTypeComboBoxCallback(int /*combobox*/, const char* item, void* use
 	}
 }
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 static void setNumThreads(int numThreads)
 {
 	int newNumThreads = (std::min)(numThreads, int(BT_MAX_THREAD_COUNT));
@@ -437,11 +437,11 @@ static void setNumThreads(int numThreads)
 		btGetTaskScheduler()->setNumThreads(newNumThreads);
 	}
 }
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 
 void setTaskSchedulerComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < 20; ++i)
 	{
@@ -457,12 +457,12 @@ void setTaskSchedulerComboBoxCallback(int /*combobox*/, const char* item, void* 
 #else
 	(void)item;
 	(void)userPointer;
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 }
 
 void setBatchingMethodComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < btBatchedConstraints::BATCHING_METHOD_COUNT; ++i)
 	{
@@ -476,10 +476,10 @@ void setBatchingMethodComboBoxCallback(int /*combobox*/, const char* item, void*
 #else
 	(void)item;
 	(void)userPointer;
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 }
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 static void setThreadCountCallback(float /*val*/, void* /*userPtr*/)
 {
 	setNumThreads(int(gSliderNumThreads));
@@ -495,7 +495,7 @@ static void setSolverIterationCountCallback(float /*val*/, void* userPtr)
 	}
 }
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 static void setLargeIslandManifoldCountCallback(float /*val*/, void* /*userPtr*/)
 {
 	btSequentialImpulseConstraintSolverMt::s_minimumContactManifoldsForBatching = int(gSliderIslandBatchingThreshold);
@@ -528,7 +528,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 {
 	gNumIslands = 0;
 	m_solverType = gSolverType;
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	btAssert(btGetTaskScheduler() != NULL);
 	if (NULL != btGetTaskScheduler() && gTaskSchedulerMgr.getNumTaskSchedulers() > 1)
 	{
@@ -537,7 +537,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 #endif
 	if (gMultithreadedWorld)
 	{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		m_dispatcher = NULL;
 		btDefaultCollisionConstructionInfo cci;
 		cci.m_defaultMaxPersistentManifoldPoolSize = 80000;
@@ -574,7 +574,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 		m_dynamicsWorld = world;
 		m_multithreadedWorld = true;
 		btAssert(btGetTaskScheduler() != NULL);
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 	}
 	else
 	{
@@ -717,7 +717,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
 	}
 	if (m_multithreadedWorld)
 	{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		if (gTaskSchedulerMgr.getNumTaskSchedulers() >= 1)
 		{
 			// create a combo box for selecting the task scheduler
@@ -821,7 +821,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
 			button.m_callback = boolPtrButtonCallback;
 			m_guiHelper->getParameterInterface()->registerButtonParameter(button);
 		}
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 	}
 }
 
@@ -852,7 +852,7 @@ void CommonRigidBodyMTBase::drawScreenText()
 	{
 		if (m_multithreadedWorld)
 		{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 			int numManifolds = m_dispatcher->getNumManifolds();
 			int numContacts = 0;
 			for (int i = 0; i < numManifolds; ++i)
@@ -870,7 +870,7 @@ void CommonRigidBodyMTBase::drawScreenText()
 					btGetTaskScheduler()->getNumThreads());
 			m_guiHelper->getAppInterface()->drawText(msg, 100, yCoord, 0.4f);
 			yCoord += yStep;
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 		}
 		{
 			int sm = gSolverMode;

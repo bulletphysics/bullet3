@@ -390,7 +390,7 @@ public:
 #ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 		if (VOID_IS_8)
 		{
-#if _WIN64
+#ifdef _WIN64
 			initDNA((const char*)sBulletDNAstr64, sBulletDNAlen64);
 #else
 			btAssert(0);

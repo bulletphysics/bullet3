@@ -55,6 +55,10 @@
 #include <ostream>
 #include <vector>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
+#endif
 #include "gtest/internal/gtest-internal.h"
 #include "gtest/internal/gtest-string.h"
 #include "gtest/gtest-death-test.h"
@@ -2362,5 +2366,9 @@ inline int RUN_ALL_TESTS()
 {
 	return ::testing::UnitTest::GetInstance()->Run();
 }
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 #endif  // GTEST_INCLUDE_GTEST_GTEST_H_

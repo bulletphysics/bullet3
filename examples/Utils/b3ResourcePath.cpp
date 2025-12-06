@@ -18,7 +18,7 @@ int b3ResourcePath::getExePath(char* path, int maxPathLenInBytes)
 {
 	int numBytes = 0;
 
-#if __APPLE__
+#ifdef __APPLE__
 	uint32_t bufsize = uint32_t(maxPathLenInBytes);
 
 	if (_NSGetExecutablePath(path, &bufsize) != 0)

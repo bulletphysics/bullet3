@@ -53,9 +53,9 @@ subject to the following restrictions:
 btConstraintSolverPoolMt::ThreadSolver* btConstraintSolverPoolMt::getAndLockThreadSolver()
 {
 	int i = 0;
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	i = (int)btGetCurrentThreadIndex() % m_solvers.size();
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 	while (true)
 	{
 		ThreadSolver& solver = m_solvers[i];

@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#if defined(_WIN32) && BT_THREADSAFE
+#if defined(_WIN32) && defined(BT_THREADSAFE)
 
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btMinMax.h"

@@ -12,7 +12,7 @@
 #include <windows.h>
 
 #include <mmsystem.h>
-#if _MSC_VER
+#ifdef _MSC_VER
 #pragma comment(lib, "winmm.lib")
 #endif
 
@@ -112,7 +112,7 @@ float Gwen::Platform::GetTimeInSeconds()
 	__int64 thistime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&thistime);
 
-	float fSecondsDifference = (double)(thistime - iLastTime) * GetPerformanceFrequency();
+	float fSecondsDifference = (float)((double)(thistime - iLastTime) * GetPerformanceFrequency());
 	if (fSecondsDifference > 0.1f) fSecondsDifference = 0.1f;
 
 	fCurrentTime += fSecondsDifference;

@@ -109,7 +109,7 @@ struct b3DbvtTreeCollider : b3DynamicBvh::ICollide
 		{
 			b3DbvtProxy* pa = (b3DbvtProxy*)na->data;
 			b3DbvtProxy* pb = (b3DbvtProxy*)nb->data;
-#if B3_DBVT_BP_SORTPAIRS
+#ifdef B3_DBVT_BP_SORTPAIRS
 			if (pa->m_uniqueId > pb->m_uniqueId)
 				b3Swap(pa, pb);
 #endif
@@ -574,7 +574,7 @@ void b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 				b3DbvtProxy* pb = &m_proxies[p.y];
 				if (!b3Intersect(pa->leaf->volume, pb->leaf->volume))
 				{
-#if B3_DBVT_BP_SORTPAIRS
+#ifdef B3_DBVT_BP_SORTPAIRS
 					if (pa->m_uniqueId > pb->m_uniqueId)
 						b3Swap(pa, pb);
 #endif

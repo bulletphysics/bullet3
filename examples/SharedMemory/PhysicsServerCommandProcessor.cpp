@@ -583,7 +583,7 @@ struct CommandLogPlayback
 	{
 //for a little while, keep this flag to be able to read 'old' log files
 //#define BACKWARD_COMPAT
-#if BACKWARD_COMPAT
+#ifdef BACKWARD_COMPAT
 		SharedMemoryCommand unused;
 #endif  //BACKWARD_COMPAT
 		bool result = false;
@@ -6523,7 +6523,7 @@ struct BatchRayCaster
 
 	void castRays(int numWorkers)
 	{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		if (numWorkers <= 1)
 		{
 			castSequentially();

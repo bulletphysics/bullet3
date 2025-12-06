@@ -109,7 +109,7 @@ struct btDbvtTreeCollider : btDbvt::ICollide
 		{
 			btDbvtProxy* pa = (btDbvtProxy*)na->data;
 			btDbvtProxy* pb = (btDbvtProxy*)nb->data;
-#if DBVT_BP_SORTPAIRS
+#ifdef DBVT_BP_SORTPAIRS
 			if (pa->m_uniqueId > pb->m_uniqueId)
 				btSwap(pa, pb);
 #endif
@@ -151,7 +151,7 @@ btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 	{
 		m_stageRoots[i] = 0;
 	}
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	m_rayTestStacks.resize(BT_MAX_THREAD_COUNT);
 #else
 	m_rayTestStacks.resize(1);
@@ -241,7 +241,7 @@ void btDbvtBroadphase::rayTest(const btVector3& rayFrom, const btVector3& rayTo,
 {
 	BroadphaseRayTester callback(rayCallback);
 	btAlignedObjectArray<const btDbvtNode*>* stack = &m_rayTestStacks[0];
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	// for this function to be threadsafe, each thread must have a separate copy
 	// of this stack.  This could be thread-local static to avoid dynamic allocations,
 	// instead of just a local.
@@ -593,7 +593,7 @@ void btDbvtBroadphase::collide(btDispatcher* dispatcher)
 				btDbvtProxy* pb = (btDbvtProxy*)p.m_pProxy1;
 				if (!Intersect(pa->leaf->volume, pb->leaf->volume))
 				{
-#if DBVT_BP_SORTPAIRS
+#ifdef DBVT_BP_SORTPAIRS
 					if (pa->m_uniqueId > pb->m_uniqueId)
 						btSwap(pa, pb);
 #endif

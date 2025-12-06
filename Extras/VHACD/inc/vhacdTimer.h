@@ -21,7 +21,7 @@
 #define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
 #endif
 #include <windows.h>
-#elif __MACH__
+#elif defined(__MACH__)
 #include <mach/clock.h>
 #include <mach/mach.h>
 #else
@@ -63,7 +63,7 @@ private:
 	LARGE_INTEGER m_freq;
 };
 
-#elif __MACH__
+#elif defined(__MACH__)
 class Timer
 {
 public:
