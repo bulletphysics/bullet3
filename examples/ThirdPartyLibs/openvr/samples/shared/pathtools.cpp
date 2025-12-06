@@ -559,7 +559,7 @@ unsigned char *Path_ReadBinaryFile(const std::string &strFilename, int *pSize)
 	if (f != NULL)
 	{
 		fseek(f, 0, SEEK_END);
-		int size = ftell(f);
+		int size = (int)ftell(f);
 		fseek(f, 0, SEEK_SET);
 
 		buf = new unsigned char[(size_t)size];

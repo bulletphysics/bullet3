@@ -348,7 +348,7 @@ void b3PgsJacobiSolver::resolveSplitPenetrationImpulseCacheFriendly(
 void b3PgsJacobiSolver::resolveSplitPenetrationSIMD(b3SolverBody& body1, b3SolverBody& body2, const b3SolverConstraint& c)
 {
 #ifdef USE_SIMD
-	if (!c.m_rhsPenetration)
+	if (c.m_rhsPenetration == b3Scalar(0))
 		return;
 
 	m_numSplitImpulseRecoveries++;

@@ -89,19 +89,19 @@ bool btMiniSDF::load(const char* data, int size)
 	{
 		unsigned long long int cells;
 		if(ds.read(cells))
-			m_n_cells = cells;
+			m_n_cells = (size_t)cells;
 	}
 	{
 		unsigned long long int fields;
 		if(ds.read(fields))
-			m_n_fields = fields;
+			m_n_fields = (size_t)fields;
 	}
 
 	unsigned long long int nodes0;
 	std::size_t n_nodes0;
 	if(ds.read(nodes0))
 	{
-	n_nodes0 = nodes0;
+	n_nodes0 = (size_t)nodes0;
 	if (n_nodes0 > 1024 * 1024 * 1024)
 	{
 		return m_isValid;

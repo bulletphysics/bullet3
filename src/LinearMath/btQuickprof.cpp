@@ -242,7 +242,7 @@ unsigned long long int btClock::getTimeNanoseconds()
 		}
 		conversion = info.numer / info.denom;
 	}
-	return (ticks * conversion);
+	return (ticks * (uint64_t)conversion);
 
 #else  //__APPLE__
 
@@ -740,7 +740,7 @@ void btLeaveProfileZoneDefault()
 
 unsigned int btQuickprofGetCurrentThreadIndex2()
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	return btGetCurrentThreadIndex();
 #else
 #if defined(BT_HAVE_TLS)

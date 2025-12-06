@@ -3229,7 +3229,7 @@ static void getPixelColorRGBA8(unsigned char* r, unsigned char* g,
 			unsigned highest = ((1U << mode->bitdepth) - 1U); /*highest possible value for this bit depth*/
 			size_t j = i * mode->bitdepth;
 			unsigned value = readBitsFromReversedStream(&j, in, mode->bitdepth);
-			*r = *g = *b = (value * 255) / highest;
+			*r = *g = *b = (unsigned char)((value * 255) / highest);
 			if (mode->key_defined && value == mode->key_r)
 				*a = 0;
 			else
@@ -3353,7 +3353,7 @@ static void getPixelColorsRGBA8(unsigned char* buffer, size_t numpixels,
 			for (i = 0; i < numpixels; i++, buffer += num_channels)
 			{
 				unsigned value = readBitsFromReversedStream(&j, in, mode->bitdepth);
-				buffer[0] = buffer[1] = buffer[2] = (value * 255) / highest;
+				buffer[0] = buffer[1] = buffer[2] = (unsigned char)((value * 255) / highest);
 				if (has_alpha) buffer[3] = mode->key_defined && value == mode->key_r ? 0 : 255;
 			}
 		}
@@ -3818,9 +3818,9 @@ are only needed to make the paeth calculation correct.
 */
 static unsigned char paethPredictor(short a, short b, short c)
 {
-	short pa = abs(b - c);
-	short pb = abs(a - c);
-	short pc = abs(a + b - c - c);
+	short pa = (short)abs(b - c);
+	short pb = (short)abs(a - c);
+	short pc = (short)abs(a + b - c - c);
 
 	if (pc < pa && pc < pb)
 		return (unsigned char)c;

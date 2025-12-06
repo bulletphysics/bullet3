@@ -28,7 +28,7 @@ int b3ResourcePath::getExePath(char* path, int maxPathLenInBytes)
 	}
 	else
 	{
-		numBytes = strlen(path);
+		numBytes = (int)strlen(path);
 	}
 #else
 #ifdef _WIN32

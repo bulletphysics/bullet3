@@ -66,7 +66,7 @@ void ThreadSleep(unsigned long nMilliseconds)
 #if defined(_WIN32)
 	::Sleep(nMilliseconds);
 #elif defined(POSIX)
-	usleep(nMilliseconds * 1000);
+	usleep((useconds_t)(nMilliseconds * 1000));
 #endif
 }
 
@@ -1676,7 +1676,7 @@ void CMainApplication::RenderStereoTargets()
 
 	btScalar dtSec = btScalar(m_clock.getTimeInSeconds());
 	dtSec = btMin(dtSec, btScalar(0.1));
-	sExample->stepSimulation(dtSec);
+	sExample->stepSimulation((float)dtSec);
 	m_clock.reset();
 
 	glClearColor(0.15f, 0.15f, 0.18f, 1.0f);  // nice background color, but not black

@@ -817,9 +817,9 @@ unsigned btQuantizedBvh::calculateSerializeBufferSize() const
 	baseSize += sizeof(btBvhSubtreeInfo) * (size_t)m_subtreeHeaderCount;
 	if (m_useQuantization)
 	{
-		return baseSize + (size_t)m_curNodeIndex * sizeof(btQuantizedBvhNode);
+		return (unsigned int)((size_t)baseSize + (size_t)m_curNodeIndex * sizeof(btQuantizedBvhNode));
 	}
-	return baseSize + (size_t)m_curNodeIndex * sizeof(btOptimizedBvhNode);
+	return (unsigned int)((size_t)baseSize + (size_t)m_curNodeIndex * sizeof(btOptimizedBvhNode));
 }
 
 bool btQuantizedBvh::serialize(void* o_alignedDataBuffer, unsigned /*i_dataBufferSize */, bool i_swapEndian) const

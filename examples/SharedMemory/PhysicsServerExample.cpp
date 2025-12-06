@@ -3138,10 +3138,10 @@ void PhysicsServerExample::renderScene()
 			tr.setIdentity();
 			btVector3 VRController2Pos = m_physicsServer.getVRTeleportPosition();
 			btQuaternion VRController2Orn = m_physicsServer.getVRTeleportOrientation();
-			tr.setOrigin(b3MakeVector3(VRController2Pos[0], VRController2Pos[1], VRController2Pos[2]));
-			tr.setRotation(b3Quaternion(VRController2Orn[0], VRController2Orn[1], VRController2Orn[2], VRController2Orn[3]));
-			tr = tr * b3Transform(b3Quaternion(0, 0, -SIMD_HALF_PI), b3MakeVector3(0, 0, 0));
-			b3Scalar dt = btScalar(0.01);
+			tr.setOrigin(b3MakeVector3((b3Scalar)VRController2Pos[0], (b3Scalar)VRController2Pos[1], (b3Scalar)VRController2Pos[2]));
+			tr.setRotation(b3Quaternion((b3Scalar)VRController2Orn[0], (b3Scalar)VRController2Orn[1], (b3Scalar)VRController2Orn[2], (b3Scalar)VRController2Orn[3]));
+			tr = tr * b3Transform(b3Quaternion(0, 0, (b3Scalar)-SIMD_HALF_PI), b3MakeVector3(0, 0, 0));
+			b3Scalar dt = b3Scalar(0.01);
 			m_tinyVrGui->clearTextArea();
 			m_tinyVrGui->grapicalPrintf(line0, 0, 0, 0, 0, 0, 255);
 			m_tinyVrGui->grapicalPrintf(line1, 0, 16, 255, 255, 255, 255);
