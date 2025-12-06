@@ -396,13 +396,13 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 
 	{
 		// compute adler32 on input
-		unsigned int i = 0, s1 = 1, s2 = 0, blocklen = data_len % 5552;
-		int j = 0;
-		while (j < data_len)
+		unsigned int ii = 0, s1 = 1, s2 = 0, blocklen = data_len % 5552;
+		int jj = 0;
+		while (jj < data_len)
 		{
-			for (i = 0; i < blocklen; ++i) s1 += data[j + i], s2 += s1;
+			for (ii = 0; ii < blocklen; ++ii) s1 += data[jj + ii], s2 += s1;
 			s1 %= 65521, s2 %= 65521;
-			j += blocklen;
+			jj += blocklen;
 			blocklen = 5552;
 		}
 		stbi__sbpush(out, (unsigned char)(s2 >> 8));

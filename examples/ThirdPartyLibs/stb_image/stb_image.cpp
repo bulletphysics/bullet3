@@ -1247,7 +1247,7 @@ static int process_marker(jpeg *z, int m)
 			while (L > 0)
 			{
 				uint8 *v;
-				int sizes[16], i, m = 0;
+				int sizes[16], i, mm = 0;
 				int q = get8(z->s);
 				int tc = q >> 4;
 				int th = q & 15;
@@ -1255,7 +1255,7 @@ static int process_marker(jpeg *z, int m)
 				for (i = 0; i < 16; ++i)
 				{
 					sizes[i] = get8(z->s);
-					m += sizes[i];
+					mm += sizes[i];
 				}
 				L -= 17;
 				if (tc == 0)
@@ -1268,9 +1268,9 @@ static int process_marker(jpeg *z, int m)
 					if (!build_huffman(z->huff_ac + th, sizes)) return 0;
 					v = z->huff_ac[th].values;
 				}
-				for (i = 0; i < m; ++i)
+				for (i = 0; i < mm; ++i)
 					v[i] = get8u(z->s);
-				L -= m;
+				L -= mm;
 			}
 			return L == 0;
 	}
@@ -1888,11 +1888,11 @@ static int zbuild_huffman(zhuffman *z, uint8 *sizelist, int num)
 			z->value[c] = (uint16)i;
 			if (s <= ZFAST_BITS)
 			{
-				int k = bit_reverse(next_code[s], s);
-				while (k < (1 << ZFAST_BITS))
+				int kk = bit_reverse(next_code[s], s);
+				while (kk < (1 << ZFAST_BITS))
 				{
-					z->fast[k] = (uint16)c;
-					k += (1 << s);
+					z->fast[kk] = (uint16)c;
+					kk += (1 << s);
 				}
 			}
 			++next_code[s];
@@ -3907,7 +3907,7 @@ static stbi_uc *pic_load2(stbi *s, int width, int height, int *comp, stbi_uc *re
 						if (count >= 128)
 						{  // Repeated
 							stbi_uc value[4];
-							int i;
+							int ii;
 
 							if (count == 128)
 								count = get16(s);
@@ -3919,7 +3919,7 @@ static stbi_uc *pic_load2(stbi *s, int width, int height, int *comp, stbi_uc *re
 							if (!pic_readval(s, packet->channel, value))
 								return 0;
 
-							for (i = 0; i < count; ++i, dest += 4)
+							for (ii = 0; ii < count; ++ii, dest += 4)
 								pic_copyval(packet->channel, dest, value);
 						}
 						else
@@ -4164,7 +4164,7 @@ static uint8 *stbi_process_gif_raster(stbi *s, stbi_gif *g)
 		}
 		else
 		{
-			int32 code = bits & codemask;
+			code = bits & codemask;
 			bits >>= codesize;
 			valid_bits -= codesize;
 			// @OPTIMIZE: is there some way we can accelerate the non-clear path?

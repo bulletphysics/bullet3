@@ -2154,41 +2154,41 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 					// there can be up to two intersections with the pixel. any intersection
 					// with left or right edges can be handled by splitting into two (or three)
 					// regions. intersections with top & bottom do not necessitate case-wise logic.
-					float y0, y1;
+					float y_0, y_1;
 					float y_cur = y_top, x_cur = x0;
 					// x = e->x + e->dx * (y-y_top)
 					// (y-y_top) = (x - e->x) / e->dx
 					// y = (x - e->x) / e->dx + y_top
-					y0 = (x - x0) / dx + y_top;
-					y1 = (x + 1 - x0) / dx + y_top;
+					y_0 = (x - x0) / dx + y_top;
+					y_1 = (x + 1 - x0) / dx + y_top;
 
-					if (y0 < y1)
+					if (y_0 < y_1)
 					{
-						if (y0 > y_top && y0 < y_bottom)
+						if (y_0 > y_top && y_0 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y0);
-							y_cur = y0;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y_0);
+							y_cur = y_0;
 							x_cur = (float)x;
 						}
-						if (y1 >= y_cur && y1 < y_bottom)
+						if (y_1 >= y_cur && y_1 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y1);
-							y_cur = y1;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y_1);
+							y_cur = y_1;
 							x_cur = (float)x + 1;
 						}
 					}
 					else
 					{
-						if (y1 >= y_cur && y1 < y_bottom)
+						if (y_1 >= y_cur && y_1 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y1);
-							y_cur = y1;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y_1);
+							y_cur = y_1;
 							x_cur = (float)x + 1;
 						}
-						if (y0 > y_top && y0 < y_bottom)
+						if (y_0 > y_top && y_0 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y0);
-							y_cur = y0;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y_0);
+							y_cur = y_0;
 							x_cur = (float)x;
 						}
 					}

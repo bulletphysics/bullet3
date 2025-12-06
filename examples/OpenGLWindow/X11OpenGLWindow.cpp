@@ -441,7 +441,7 @@ void X11OpenGLWindow::enableOpenGL()
 		// NOTE: It is not necessary to create or make current to a context before
 		// calling glXGetProcAddressARB, unless we dynamically load OpenGL/GLX/X11
 
-		glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+		glXCreateContextAttribsARBProc fn_createCtxAttribs = 0;
 		*(__GLXextFuncPtr*)&glXCreateContextAttribsARB = 
 			glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
 
@@ -460,7 +460,7 @@ void X11OpenGLWindow::enableOpenGL()
 		// Check for the GLX_ARB_create_context extension string and the function.
 		// If either is not present, use GLX 1.3 context creation method.
 		if (!isExtensionSupported(glxExts, "GLX_ARB_create_context") ||
-			!glXCreateContextAttribsARB)
+			!fn_createCtxAttribs)
 		{
 			printf(
 				"glXCreateContextAttribsARB() not found"
@@ -487,7 +487,7 @@ void X11OpenGLWindow::enableOpenGL()
       };
 */
 			printf("Creating context\n");
-			ctx = glXCreateContextAttribsARB(m_data->m_dpy, m_data->m_bestFbc, 0,
+			ctx = fn_createCtxAttribs(m_data->m_dpy, m_data->m_bestFbc, 0,
 											 True, context_attribs);
 
 			// Sync to ensure any errors generated are processed.
@@ -510,7 +510,7 @@ void X11OpenGLWindow::enableOpenGL()
 				printf(
 					"Failed to create GL 3.3 context"
 					" ... using old-style GLX context\n");
-				ctx = glXCreateContextAttribsARB(m_data->m_dpy, m_data->m_bestFbc, 0,
+				ctx = fn_createCtxAttribs(m_data->m_dpy, m_data->m_bestFbc, 0,
 												 True, context_attribs);
 			}
 		}
