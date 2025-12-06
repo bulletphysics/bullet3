@@ -33,7 +33,6 @@ struct TetraCube
 
 class PinchFriction : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
     PinchFriction(struct GUIHelperInterface* helper)
     : CommonDeformableBodyBase(helper)

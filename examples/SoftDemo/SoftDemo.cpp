@@ -74,18 +74,7 @@ public:
 	btVector3 m_goal;
 	bool m_drag;
 
-	//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
-
-	btBroadphaseInterface* m_broadphase;
-
-	btCollisionDispatcher* m_dispatcher;
-
-	btConstraintSolver* m_solver;
-
 	btCollisionAlgorithmCreateFunc* m_boxBoxCF;
-
-	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 public:
 	void initPhysics();

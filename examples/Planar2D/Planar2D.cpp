@@ -57,17 +57,6 @@ class GL_DialogDynamicsWorld;
 
 class Planar2D : public CommonRigidBodyBase
 {
-	//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
-
-	btBroadphaseInterface* m_broadphase;
-
-	btCollisionDispatcher* m_dispatcher;
-
-	btConstraintSolver* m_solver;
-
-	btDefaultCollisionConfiguration* m_collisionConfiguration;
-
 	btConvex2dConvex2dAlgorithm::CreateFunc* m_convexAlgo2d;
 	btVoronoiSimplexSolver* m_simplexSolver;
 	btMinkowskiPenetrationDepthSolver* m_pdSolver;

@@ -15,7 +15,7 @@
 #include "Bullet3Common/b3Logging.h"
 class InProcessPhysicsClientSharedMemoryMainThread : public PhysicsClientSharedMemory
 {
-	btInProcessExampleBrowserMainThreadInternalData* m_data;
+	btInProcessExampleBrowserMainThreadInternalData* m_dataInProcess;
 	b3Clock m_clock;
 
 public:
@@ -31,8 +31,8 @@ public:
 		newargv[argc + 1] = (char*)"--logtostderr";
 		newargv[argc + 2] = (char*)"--start_demo_name=Physics Server";
 
-		m_data = btCreateInProcessExampleBrowserMainThread(newargc, newargv, useInProcessMemory);
-		SharedMemoryInterface* shMem = btGetSharedMemoryInterfaceMainThread(m_data);
+		m_dataInProcess = btCreateInProcessExampleBrowserMainThread(newargc, newargv, useInProcessMemory);
+		SharedMemoryInterface* shMem = btGetSharedMemoryInterfaceMainThread(m_dataInProcess);
 
 		setSharedMemoryInterface(shMem);
 	}
@@ -40,14 +40,14 @@ public:
 	virtual ~InProcessPhysicsClientSharedMemoryMainThread()
 	{
 		setSharedMemoryInterface(0);
-		btShutDownExampleBrowserMainThread(m_data);
+		btShutDownExampleBrowserMainThread(m_dataInProcess);
 	}
 
 	// return non-null if there is a status, nullptr otherwise
 	virtual const struct SharedMemoryStatus* processServerStatus()
 	{
 		{
-			if (btIsExampleBrowserMainThreadTerminated(m_data))
+			if (btIsExampleBrowserMainThreadTerminated(m_dataInProcess))
 			{
 				PhysicsClientSharedMemory::disconnectSharedMemory();
 			}
@@ -58,7 +58,7 @@ public:
 			{
 				B3_PROFILE("m_clock.reset()");
 
-				btUpdateInProcessExampleBrowserMainThread(m_data);
+				btUpdateInProcessExampleBrowserMainThread(m_dataInProcess);
 				m_clock.reset();
 			}
 		}
@@ -101,7 +101,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMain
 
 class InProcessPhysicsClientSharedMemory : public PhysicsClientSharedMemory
 {
-	btInProcessExampleBrowserInternalData* m_data;
+	btInProcessExampleBrowserInternalData* m_dataInProcess;
 	char** m_newargv;
 
 public:
@@ -118,15 +118,15 @@ public:
 
 		char* t1 = (char*)"--start_demo_name=Physics Server";
 		m_newargv[argc + 1] = t1;
-		m_data = btCreateInProcessExampleBrowser(newargc, m_newargv, useInProcessMemory);
-		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data);
+		m_dataInProcess = btCreateInProcessExampleBrowser(newargc, m_newargv, useInProcessMemory);
+		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_dataInProcess);
 		setSharedMemoryInterface(shMem);
 	}
 
 	virtual ~InProcessPhysicsClientSharedMemory()
 	{
 		setSharedMemoryInterface(0);
-		btShutDownExampleBrowser(m_data);
+		btShutDownExampleBrowser(m_dataInProcess);
 		free(m_newargv);
 	}
 };

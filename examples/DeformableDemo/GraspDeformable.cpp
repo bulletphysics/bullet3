@@ -58,7 +58,6 @@ static bool supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
 
 class GraspDeformable : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
 	GraspDeformable(struct GUIHelperInterface* helper)
     :CommonDeformableBodyBase(helper)

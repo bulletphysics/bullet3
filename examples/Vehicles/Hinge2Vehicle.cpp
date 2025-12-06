@@ -51,7 +51,6 @@ public:
 	btRigidBody* m_carChassis;
 	btRigidBody* localCreateRigidBody(btScalar mass, const btTransform& worldTransform, btCollisionShape* colSape);
 
-	GUIHelperInterface* m_guiHelper;
 	int m_wheelInstances[4];
 
 	bool m_useDefaultCamera;
@@ -170,13 +169,13 @@ static float wheelWidth = 0.4f;
 Hinge2Vehicle::Hinge2Vehicle(struct GUIHelperInterface* helper)
 	: CommonRigidBodyBase(helper),
 	  m_carChassis(0),
-	  m_guiHelper(helper),
 	  m_indexVertexArrays(0),
 	  m_vertices(0),
 	  m_cameraHeight(4.f),
 	  m_minCameraDistance(3.f),
 	  m_maxCameraDistance(10.f)
 {
+	m_guiHelper = helper,
 	helper->setUpAxis(1);
 
 	m_wheelShape = 0;

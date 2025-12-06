@@ -6442,12 +6442,10 @@ struct CastSyncInfo
 struct FilteredClosestRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
 {
 	FilteredClosestRayResultCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, int collisionFilterMask)
-		: btCollisionWorld::ClosestRayResultCallback(rayFromWorld, rayToWorld),
-		  m_collisionFilterMask(collisionFilterMask)
+		: btCollisionWorld::ClosestRayResultCallback(rayFromWorld, rayToWorld)
 	{
+		m_collisionFilterMask = collisionFilterMask;
 	}
-
-	int m_collisionFilterMask;
 
 	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
 	{
@@ -6462,12 +6460,11 @@ struct FilteredAllHitsRayResultCallback : public btCollisionWorld::AllHitsRayRes
 {
 	FilteredAllHitsRayResultCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, int collisionFilterMask, btScalar fractionEpsilon)
 		: btCollisionWorld::AllHitsRayResultCallback(rayFromWorld, rayToWorld),
-		  m_collisionFilterMask(collisionFilterMask),
 		  m_fractionEpsilon(fractionEpsilon)
 	{
+		m_collisionFilterMask = collisionFilterMask;
 	}
 
-	int m_collisionFilterMask;
 	btScalar m_fractionEpsilon;
 
 	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)

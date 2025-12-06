@@ -57,17 +57,6 @@ class btDefaultCollisionConfiguration;
 
 class VoronoiFractureDemo : public CommonRigidBodyBase
 {
-	//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
-
-	btBroadphaseInterface* m_broadphase;
-
-	btCollisionDispatcher* m_dispatcher;
-
-	btConstraintSolver* m_solver;
-
-	btDefaultCollisionConfiguration* m_collisionConfiguration;
-
 	btClock m_perfmTimer;
 
 public:

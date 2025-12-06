@@ -293,8 +293,6 @@ public:
 		pthread_mutex_destroy(&m_mutex);
 	}
 
-	B3_ATTRIBUTE_ALIGNED16(unsigned int mCommonBuff[32]);
-
 	virtual unsigned int getSharedParam(int i)
 	{
 		if (i < 32)

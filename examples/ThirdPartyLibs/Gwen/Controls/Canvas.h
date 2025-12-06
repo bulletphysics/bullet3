@@ -95,7 +95,6 @@ private:
 	friend class Controls::Base;
 	void PreDelete(Controls::Base*);
 
-	bool m_bDrawBackground;
 	Gwen::Color m_BackgroundColor;
 };
 }  // namespace Controls
