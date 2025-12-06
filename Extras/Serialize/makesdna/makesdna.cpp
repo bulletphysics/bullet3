@@ -868,7 +868,7 @@ static int calculate_structlens(int firststruct)
 							dna_error = 1;
 						}
 
-						len += sizeof(void *) * mul;
+						len += sizeof(void *) * (size_t)mul;
 						alphalen += 8 * mul;
 					}
 					else if (typelens[type])
@@ -1048,11 +1048,11 @@ int make_structDNA(char *baseDirectory, FILE *file)
 	structdata = (short *)malloc_and_setzero(maxdata);
 
 	/* a maximum of 5000 variables, must be sufficient? */
-	names = (char **)malloc_and_setzero(int(sizeof(char *) * maxnr));
-	types = (char **)malloc_and_setzero(int(sizeof(char *) * maxnr));
-	typelens = (short *)malloc_and_setzero(int(sizeof(short) * maxnr));
-	alphalens = (short *)malloc_and_setzero(int(sizeof(short) * maxnr));
-	structs = (short **)malloc_and_setzero(int(sizeof(short) * maxnr));
+	names = (char **)malloc_and_setzero(int(sizeof(char *) * (size_t)maxnr));
+	types = (char **)malloc_and_setzero(int(sizeof(char *) * (size_t)maxnr));
+	typelens = (short *)malloc_and_setzero(int(sizeof(short) * (size_t)maxnr));
+	alphalens = (short *)malloc_and_setzero(int(sizeof(short) * (size_t)maxnr));
+	structs = (short **)malloc_and_setzero(int(sizeof(short) * (size_t)maxnr));
 
 	/* insertion of all known types */
 	/* watch it: uint is not allowed! use in structs an unsigned int */

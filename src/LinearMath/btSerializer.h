@@ -607,7 +607,7 @@ public:
 
 	virtual btChunk* allocate(size_t size, int numElements) BT_OVERRIDE
 	{
-		unsigned char* ptr = internalAlloc(int(size) * numElements + sizeof(btChunk));
+		unsigned char* ptr = internalAlloc(size * (size_t)numElements + sizeof(btChunk));
 
 		unsigned char* data = ptr + sizeof(btChunk);
 

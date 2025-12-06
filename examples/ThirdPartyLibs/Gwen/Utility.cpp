@@ -35,8 +35,8 @@ void Gwen::Utility::Strings::Split(const Gwen::String& str, const Gwen::String& 
 	size_t i = str.find(seperator, 0);
 	while (i != std::string::npos)
 	{
-		outbits.push_back(str.substr((size_t)iOffset, (size_t)(i - iOffset)));
-		iOffset = (int)(i + iSepLen);
+		outbits.push_back(str.substr((size_t)iOffset, (size_t)(i - (size_t)iOffset)));
+		iOffset = (int)(i + (size_t)iSepLen);
 
 		i = str.find(seperator, (size_t)iOffset);
 		if (bLeave) iOffset -= iSepLen;
@@ -54,8 +54,8 @@ void Gwen::Utility::Strings::Split(const Gwen::UnicodeString& str, const Gwen::U
 	size_t i = str.find(seperator, 0);
 	while (i != std::wstring::npos)
 	{
-		outbits.push_back(str.substr((size_t)iOffset, (size_t)(i - iOffset)));
-		iOffset = (int)(i + iSepLen);
+		outbits.push_back(str.substr((size_t)iOffset, (size_t)(i - (size_t)iOffset)));
+		iOffset = (int)(i + (size_t)iSepLen);
 
 		i = str.find(seperator, (size_t)iOffset);
 		if (bLeave) iOffset -= iSepLen;

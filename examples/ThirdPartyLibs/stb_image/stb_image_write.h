@@ -59,6 +59,10 @@ USAGE:
 #pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
 #pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
 #endif
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -604,6 +608,9 @@ int stbi_write_png(char const *filename, int x, int y, int comp, const void *dat
 }
 #endif  // STB_IMAGE_WRITE_IMPLEMENTATION
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif

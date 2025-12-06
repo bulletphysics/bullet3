@@ -84,7 +84,7 @@ public:
 	pointer allocate(btSizeType n, const_pointer* hint = 0)
 	{
 		(void)hint;
-		return reinterpret_cast<pointer>(b3AlignedAlloc(sizeof(value_type) * n, Alignment));
+		return reinterpret_cast<pointer>(b3AlignedAlloc(sizeof(value_type) * (size_t)n, Alignment));
 	}
 	void construct(pointer ptr, const value_type& value) { new (ptr) value_type(value); }
 	void deallocate(pointer ptr)

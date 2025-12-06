@@ -433,7 +433,7 @@ static struct sth_glyph* get_glyph(struct sth_stash* stash, struct sth_font* fnt
 
 	// Alloc space for new glyph.
 	fnt->nglyphs++;
-	reallocated = (sth_glyph*)realloc(fnt->glyphs, fnt->nglyphs * sizeof(struct sth_glyph));
+	reallocated = (sth_glyph*)realloc(fnt->glyphs, (size_t)fnt->nglyphs * sizeof(struct sth_glyph));
 	if(!reallocated)
 		return 0;
 	fnt->glyphs = reallocated;

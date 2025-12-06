@@ -447,7 +447,7 @@ public:
 			mysize += B3_HEADER_LENGTH;
 			for (int i = 0; i < m_chunkPtrs.size(); i++)
 			{
-				int curLength = (int)(sizeof(b3Chunk) + m_chunkPtrs[i]->m_length);
+				int curLength = (int)(sizeof(b3Chunk) + (size_t)m_chunkPtrs[i]->m_length);
 				memcpy(currentPtr, m_chunkPtrs[i], (size_t)curLength);
 				b3AlignedFree(m_chunkPtrs[i]);
 				currentPtr += curLength;
@@ -532,7 +532,7 @@ public:
 
 	virtual b3Chunk* allocate(size_t size, int numElements)
 	{
-		unsigned char* ptr = internalAlloc(int(size) * numElements + sizeof(b3Chunk));
+		unsigned char* ptr = internalAlloc(size * (size_t)numElements + sizeof(b3Chunk));
 
 		unsigned char* data = ptr + sizeof(b3Chunk);
 

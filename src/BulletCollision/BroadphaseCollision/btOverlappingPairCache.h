@@ -43,7 +43,7 @@ struct btOverlapFilterCallback
 	virtual bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const = 0;
 };
 
-const int BT_NULL_PAIR = 0xffffffff;
+const int BT_NULL_PAIR = (int)0xffffffff;
 
 ///The btOverlappingPairCache provides an interface for overlapping pair management (add, remove, storage), used by the btBroadphaseInterface broadphases.
 ///The btHashedOverlappingPairCache and btSortedOverlappingPairCache classes are two implementations.

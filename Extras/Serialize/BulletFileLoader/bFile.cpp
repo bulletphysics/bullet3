@@ -651,8 +651,8 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 			if ((strcmp(oldType, "btShortIntIndexData") == 0))
 			{
 				int allocLen = 2;
-				char *dataAlloc = new char[(dataChunk.nr * allocLen) + sizeof(void*)];
-				memset(dataAlloc, 0, (dataChunk.nr * allocLen) + sizeof(void*));
+				char *dataAlloc = new char[(size_t)(dataChunk.nr * allocLen) + sizeof(void*)];
+				memset(dataAlloc, 0, (size_t)(dataChunk.nr * allocLen) + sizeof(void*));
 				short *dest = (short *)dataAlloc;
 				const short *src = (short *)head;
 				for (int i = 0; i < dataChunk.nr; i++)
@@ -690,8 +690,8 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 				// numBlocks * length
 
 				int allocLen = (curLen);
-				char *dataAlloc = new char[(dataChunk.nr * allocLen) + sizeof(void*)];
-				memset(dataAlloc, 0, (dataChunk.nr * allocLen) + sizeof(void*));
+				char *dataAlloc = new char[(size_t)(dataChunk.nr * allocLen) + sizeof(void*)];
+				memset(dataAlloc, 0, (size_t)(dataChunk.nr * allocLen) + sizeof(void*));
 
 				// track allocated
 				addDataBlock(dataAlloc);
@@ -727,8 +727,8 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 #endif  //
 	}
 
-	char *dataAlloc = new char[(dataChunk.len) + sizeof(void*)];
-	memset(dataAlloc, 0, dataChunk.len + sizeof(void*));
+	char *dataAlloc = new char[(size_t)(dataChunk.len) + sizeof(void*)];
+	memset(dataAlloc, 0, (size_t)dataChunk.len + sizeof(void*));
 
 	// track allocated
 	addDataBlock(dataAlloc);

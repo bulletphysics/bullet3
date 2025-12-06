@@ -320,8 +320,8 @@ void btBulletFile::parse(int verboseMode)
 
 		if (m_DnaCopy)
 			delete m_DnaCopy;
-		m_DnaCopy = (char*)btAlignedAlloc(sBulletDNAlen, 16);
-		memcpy(m_DnaCopy, sBulletDNAstr, sBulletDNAlen);
+		m_DnaCopy = (char*)btAlignedAlloc((size_t)sBulletDNAlen, 16);
+		memcpy(m_DnaCopy, sBulletDNAstr, (size_t)sBulletDNAlen);
 		parseInternal(verboseMode, m_DnaCopy, sBulletDNAlen);
 #else
 		btAssert(0);

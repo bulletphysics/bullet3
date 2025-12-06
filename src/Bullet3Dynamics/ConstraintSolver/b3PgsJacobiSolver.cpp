@@ -1153,7 +1153,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 					info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
 					info2.rowskip = sizeof(b3SolverConstraint) / sizeof(b3Scalar);  //check this
 																					///the size of b3SolverConstraint needs be a multiple of b3Scalar
-					b3Assert(info2.rowskip * sizeof(b3Scalar) == sizeof(b3SolverConstraint));
+					b3Assert((size_t)info2.rowskip * sizeof(b3Scalar) == sizeof(b3SolverConstraint));
 					info2.m_constraintError = &currentConstraintRow->m_rhs;
 					currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
 					info2.m_damping = infoGlobal.m_damping;

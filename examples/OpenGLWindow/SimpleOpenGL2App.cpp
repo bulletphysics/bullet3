@@ -506,7 +506,7 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 	{
 		case SPHERE_LOD_POINT_SPRITE:
 		{
-			int numVertices = (int)(sizeof(point_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(point_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(point_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&point_sphere_vertices[0], numVertices, point_sphere_indices, numIndices, B3_GL_POINTS, textureId);
 			break;
@@ -514,21 +514,21 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 
 		case SPHERE_LOD_LOW:
 		{
-			int numVertices = (int)(sizeof(low_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(low_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(low_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&low_sphere_vertices[0], numVertices, low_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 		case SPHERE_LOD_MEDIUM:
 		{
-			int numVertices = (int)(sizeof(medium_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(medium_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(medium_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&medium_sphere_vertices[0], numVertices, medium_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 		case SPHERE_LOD_HIGH:
 		{
-			int numVertices = (int)(sizeof(detailed_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(detailed_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(detailed_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_renderer->registerShape(&detailed_sphere_vertices[0], numVertices, detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
@@ -540,7 +540,7 @@ int SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 int SimpleOpenGL2App::registerCubeShape(float halfExtentsX, float halfExtentsY, float halfExtentsZ, int textureIndex, float textureScaling)
 {
 	int strideInBytes = 9 * sizeof(float);
-	int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
+	int numVertices = (int)(sizeof(cube_vertices_textured) / (size_t)strideInBytes);
 	int numIndices = sizeof(cube_indices) / sizeof(int);
 
 	b3AlignedObjectArray<GLInstanceVertex> verts;

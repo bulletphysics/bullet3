@@ -240,7 +240,7 @@ struct MyRenderCallbacks : public RenderCallbacks
 					m_textureIndex = m_instancingRenderer->registerTexture(&m_rgbaTexture[0], textureWidth, textureHeight, flipPixelsY);
 
 					int strideInBytes = 9 * sizeof(float);
-					int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
+					int numVertices = (int)(sizeof(cube_vertices_textured) / (size_t)strideInBytes);
 					int numIndices = sizeof(cube_indices) / sizeof(int);
 
 					float halfExtentsX = 1;
@@ -722,7 +722,7 @@ void SimpleOpenGL3App::drawTexturedRect(float x0, float y0, float x1, float y1, 
 int SimpleOpenGL3App::registerCubeShape(float halfExtentsX, float halfExtentsY, float halfExtentsZ, int textureIndex, float textureScaling)
 {
 	int strideInBytes = 9 * sizeof(float);
-	int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
+	int numVertices = (int)(sizeof(cube_vertices_textured) / (size_t)strideInBytes);
 	int numIndices = (int)(sizeof(cube_indices) / sizeof(int));
 
 	b3AlignedObjectArray<GfxVertexFormat1> verts;
@@ -835,7 +835,7 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 	{
 		case SPHERE_LOD_POINT_SPRITE:
 		{
-			int numVertices = (int)(sizeof(point_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(point_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(point_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&point_sphere_vertices[0], numVertices, point_sphere_indices, numIndices, B3_GL_POINTS, textureId);
 			break;
@@ -843,21 +843,21 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 
 		case SPHERE_LOD_LOW:
 		{
-			int numVertices = (int)(sizeof(low_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(low_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(low_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&low_sphere_vertices[0], numVertices, low_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 		case SPHERE_LOD_MEDIUM:
 		{
-			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(textured_detailed_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&textured_detailed_sphere_vertices[0], numVertices, textured_detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 		case SPHERE_LOD_HIGH:
 		{
-			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / strideInBytes);
+			int numVertices = (int)(sizeof(textured_detailed_sphere_vertices) / (size_t)strideInBytes);
 			int numIndices = sizeof(textured_detailed_sphere_indices) / sizeof(int);
 			graphicsShapeIndex = m_instancingRenderer->registerShape(&textured_detailed_sphere_vertices[0], numVertices, textured_detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
@@ -1005,8 +1005,8 @@ void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSize
 		glstat = (int)glGetError();
 		b3Assert(glstat == GL_NO_ERROR);
 	}
-	b3Assert((int)(width * height * sizeof(float)) == depthBufferSizeInBytes);
-	if ((int)(width * height * sizeof(float)) == depthBufferSizeInBytes)
+	b3Assert((int)((size_t)width * (size_t)height * sizeof(float)) == depthBufferSizeInBytes);
+	if ((int)((size_t)width * (size_t)height * sizeof(float)) == depthBufferSizeInBytes)
 	{
 		glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuffer);
 		int glstat;

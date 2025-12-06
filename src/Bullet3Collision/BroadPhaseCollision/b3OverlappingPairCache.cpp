@@ -116,7 +116,7 @@ b3BroadphasePair* b3HashedOverlappingPairCache::findPair(int proxy0, int proxy1)
 	/*if (proxyId1 > proxyId2) 
 		b3Swap(proxyId1, proxyId2);*/
 
-	int hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (m_overlappingPairArray.capacity() - 1));
+	int hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 
 	if (hash >= m_hashTable.size())
 	{
@@ -171,7 +171,7 @@ void b3HashedOverlappingPairCache::growTables()
 			int proxyId2 = pair.y;
 			/*if (proxyId1 > proxyId2) 
 				b3Swap(proxyId1, proxyId2);*/
-			int hashValue = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
+			int hashValue = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
 			m_next[i] = m_hashTable[hashValue];
 			m_hashTable[hashValue] = i;
 		}
@@ -188,7 +188,7 @@ b3BroadphasePair* b3HashedOverlappingPairCache::internalAddPair(int proxy0, int 
 	/*if (proxyId1 > proxyId2) 
 		b3Swap(proxyId1, proxyId2);*/
 
-	int hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
+	int hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
 
 	b3BroadphasePair* pair = internalFindPair(proxy0, proxy1, hash);
 	if (pair != NULL)
@@ -218,7 +218,7 @@ b3BroadphasePair* b3HashedOverlappingPairCache::internalAddPair(int proxy0, int 
 	{
 		growTables();
 		//hash with new capacity
-		hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (m_overlappingPairArray.capacity() - 1));
+		hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 	}
 
 	*pair = b3MakeBroadphasePair(proxy0, proxy1);
@@ -245,7 +245,7 @@ void* b3HashedOverlappingPairCache::removeOverlappingPair(int proxy0, int proxy1
 	/*if (proxyId1 > proxyId2) 
 		b3Swap(proxyId1, proxyId2);*/
 
-	int hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (m_overlappingPairArray.capacity() - 1));
+	int hash = static_cast<int>(getHash(static_cast<unsigned int>(proxyId1), static_cast<unsigned int>(proxyId2)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 
 	b3BroadphasePair* pair = internalFindPair(proxy0, proxy1, hash);
 	if (pair == NULL)
@@ -298,7 +298,7 @@ void* b3HashedOverlappingPairCache::removeOverlappingPair(int proxy0, int proxy1
 	// Remove the last pair from the hash table.
 	const b3BroadphasePair* last = &m_overlappingPairArray[lastPairIndex];
 	/* missing swap here too, Nat. */
-	int lastHash = static_cast<int>(getHash(static_cast<unsigned int>(last->x), static_cast<unsigned int>(last->y)) & (m_overlappingPairArray.capacity() - 1));
+	int lastHash = static_cast<int>(getHash(static_cast<unsigned int>(last->x), static_cast<unsigned int>(last->y)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 
 	index = m_hashTable[lastHash];
 	b3Assert(index != B3_NULL_PAIR);

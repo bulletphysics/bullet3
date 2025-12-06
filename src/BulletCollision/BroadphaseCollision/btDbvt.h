@@ -1393,8 +1393,8 @@ inline void btDbvt::collideKDOP(const btDbvtNode* root,
 			{
 				if ((se.mask != inside) && (se.node->isinternal()))
 				{
-					stack.push_back(sStkNP(se.node->childs[0], se.mask));
-					stack.push_back(sStkNP(se.node->childs[1], se.mask));
+					stack.push_back(sStkNP(se.node->childs[0], (unsigned)se.mask));
+					stack.push_back(sStkNP(se.node->childs[1], (unsigned)se.mask));
 				}
 				else
 				{
@@ -1469,8 +1469,8 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 				if (se.node->isinternal())
 				{
 					const btDbvtNode* pns[] = {se.node->childs[0], se.node->childs[1]};
-					sStkNPS nes[] = {sStkNPS(pns[0], se.mask, pns[0]->volume.ProjectMinimum(sortaxis, srtsgns)),
-									 sStkNPS(pns[1], se.mask, pns[1]->volume.ProjectMinimum(sortaxis, srtsgns))};
+					sStkNPS nes[] = {sStkNPS(pns[0], (unsigned)se.mask, pns[0]->volume.ProjectMinimum(sortaxis, srtsgns)),
+									 sStkNPS(pns[1], (unsigned)se.mask, pns[1]->volume.ProjectMinimum(sortaxis, srtsgns))};
 					const int q = nes[0].value < nes[1].value ? 1 : 0;
 					int j = stack.size();
 					if (fsort && (j > 0))
@@ -1485,7 +1485,7 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 						{
 							int num_items_to_move = stack.size() - 1 - j;
 							if (num_items_to_move > 0)
-								memmove(&stack[j + 1], &stack[j], sizeof(int) * num_items_to_move);
+								memmove(&stack[j + 1], &stack[j], sizeof(int) * (size_t)num_items_to_move);
 						}
 #else
 						for (int k = stack.size() - 1; k > j; --k)
@@ -1501,7 +1501,7 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 						{
 							int num_items_to_move = stack.size() - 1 - j;
 							if (num_items_to_move > 0)
-								memmove(&stack[j + 1], &stack[j], sizeof(int) * num_items_to_move);
+								memmove(&stack[j + 1], &stack[j], sizeof(int) * (size_t)num_items_to_move);
 						}
 #else
 						for (int k = stack.size() - 1; k > j; --k)

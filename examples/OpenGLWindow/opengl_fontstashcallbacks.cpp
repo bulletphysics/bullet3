@@ -196,7 +196,7 @@ void InternalOpenGL2RenderCallbacks::render(sth_texture* texture)
 	assert(glGetError() == GL_NO_ERROR);
 	glBindBuffer(GL_ARRAY_BUFFER, s_vertexBuffer);
 	glBindVertexArray(s_vertexArrayObject);
-	glBufferData(GL_ARRAY_BUFFER, (GLintptr)(texture->nverts * sizeof(Vertex)), &texture->newverts[0].position.p[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLintptr)((size_t)texture->nverts * sizeof(Vertex)), &texture->newverts[0].position.p[0], GL_DYNAMIC_DRAW);
 
 	assert(glGetError() == GL_NO_ERROR);
 

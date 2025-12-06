@@ -674,7 +674,7 @@ private:
 
 		PoolArray(int size) : size(size), next(NULL)
 		{
-			array = (T*)btAlignedAlloc(sizeof(T) * size, 16);
+			array = (T*)btAlignedAlloc(sizeof(T) * (size_t)size, 16);
 		}
 
 		~PoolArray()
@@ -2206,7 +2206,7 @@ btScalar btConvexHullInternal::shrink(btScalar amount, btScalar clampAmount)
 	unsigned int seed = 243703;
 	for (int i = 0; i < faceCount; i++, seed = 1664525 * seed + 1013904223)
 	{
-		btSwap(faces[i], faces[(int)(seed % faceCount)]);
+		btSwap(faces[i], faces[(int)(seed % (unsigned int)faceCount)]);
 	}
 
 	for (int i = 0; i < faceCount; i++)

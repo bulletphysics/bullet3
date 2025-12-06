@@ -621,7 +621,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 		{
 			meshPart.m_indexType = PHY_INTEGER;
 			meshPart.m_triangleIndexStride = 3 * sizeof(int);
-			int* indexArray = (int*)btAlignedAlloc(sizeof(int) * 3 * meshPart.m_numTriangles, 16);
+			int* indexArray = (int*)btAlignedAlloc(sizeof(int) * 3 * (size_t)meshPart.m_numTriangles, 16);
 			m_indexArrays.push_back(indexArray);
 			for (int j = 0; j < 3 * meshPart.m_numTriangles; j++)
 			{
@@ -636,7 +636,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 				meshPart.m_indexType = PHY_SHORT;
 				meshPart.m_triangleIndexStride = sizeof(short int) * 3;  //sizeof(btShortIntIndexTripletData);
 
-				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * meshPart.m_numTriangles, 16);
+				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * (size_t)meshPart.m_numTriangles, 16);
 				m_shortIndexArrays.push_back(indexArray);
 
 				for (int j = 0; j < meshPart.m_numTriangles; j++)
@@ -652,7 +652,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 			{
 				meshPart.m_indexType = PHY_SHORT;
 				meshPart.m_triangleIndexStride = 3 * sizeof(short int);
-				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * meshPart.m_numTriangles, 16);
+				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * (size_t)meshPart.m_numTriangles, 16);
 				m_shortIndexArrays.push_back(indexArray);
 				for (int j = 0; j < 3 * meshPart.m_numTriangles; j++)
 				{
@@ -667,7 +667,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 				meshPart.m_indexType = PHY_UCHAR;
 				meshPart.m_triangleIndexStride = sizeof(unsigned char) * 3;
 
-				unsigned char* indexArray = (unsigned char*)btAlignedAlloc(sizeof(unsigned char) * 3 * meshPart.m_numTriangles, 16);
+				unsigned char* indexArray = (unsigned char*)btAlignedAlloc(sizeof(unsigned char) * 3 * (size_t)meshPart.m_numTriangles, 16);
 				m_charIndexArrays.push_back(indexArray);
 
 				for (int j = 0; j < meshPart.m_numTriangles; j++)
@@ -685,7 +685,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 		{
 			meshPart.m_vertexType = PHY_FLOAT;
 			meshPart.m_vertexStride = sizeof(btVector3FloatData);
-			btVector3FloatData* vertices = (btVector3FloatData*)btAlignedAlloc(sizeof(btVector3FloatData) * meshPart.m_numVertices, 16);
+			btVector3FloatData* vertices = (btVector3FloatData*)btAlignedAlloc(sizeof(btVector3FloatData) * (size_t)meshPart.m_numVertices, 16);
 			m_floatVertexArrays.push_back(vertices);
 
 			for (int j = 0; j < meshPart.m_numVertices; j++)
@@ -702,7 +702,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 			meshPart.m_vertexType = PHY_DOUBLE;
 			meshPart.m_vertexStride = sizeof(btVector3DoubleData);
 
-			btVector3DoubleData* vertices = (btVector3DoubleData*)btAlignedAlloc(sizeof(btVector3DoubleData) * meshPart.m_numVertices, 16);
+			btVector3DoubleData* vertices = (btVector3DoubleData*)btAlignedAlloc(sizeof(btVector3DoubleData) * (size_t)meshPart.m_numVertices, 16);
 			m_doubleVertexArrays.push_back(vertices);
 
 			for (int j = 0; j < meshPart.m_numVertices; j++)
@@ -744,7 +744,7 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		if (curPart->m_vertices3f)
 		{
 			curNewPart->m_vertices3f = new btVector3FloatData[(size_t)curNewPart->m_numVertices];
-			memcpy(curNewPart->m_vertices3f, curPart->m_vertices3f, sizeof(btVector3FloatData) * curNewPart->m_numVertices);
+			memcpy(curNewPart->m_vertices3f, curPart->m_vertices3f, sizeof(btVector3FloatData) * (size_t)curNewPart->m_numVertices);
 		}
 		else
 			curNewPart->m_vertices3f = NULL;
@@ -752,7 +752,7 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		if (curPart->m_vertices3d)
 		{
 			curNewPart->m_vertices3d = new btVector3DoubleData[(size_t)curNewPart->m_numVertices];
-			memcpy(curNewPart->m_vertices3d, curPart->m_vertices3d, sizeof(btVector3DoubleData) * curNewPart->m_numVertices);
+			memcpy(curNewPart->m_vertices3d, curPart->m_vertices3d, sizeof(btVector3DoubleData) * (size_t)curNewPart->m_numVertices);
 		}
 		else
 			curNewPart->m_vertices3d = NULL;
@@ -766,7 +766,7 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		{
 			uninitialized3indices8Workaround = true;
 			curNewPart->m_indices32 = new btIntIndexData[(size_t)numIndices];
-			memcpy(curNewPart->m_indices32, curPart->m_indices32, sizeof(btIntIndexData) * numIndices);
+			memcpy(curNewPart->m_indices32, curPart->m_indices32, sizeof(btIntIndexData) * (size_t)numIndices);
 		}
 		else
 			curNewPart->m_indices32 = NULL;
@@ -775,7 +775,7 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		{
 			uninitialized3indices8Workaround = true;
 			curNewPart->m_3indices16 = new btShortIntIndexTripletData[(size_t)curNewPart->m_numTriangles];
-			memcpy(curNewPart->m_3indices16, curPart->m_3indices16, sizeof(btShortIntIndexTripletData) * curNewPart->m_numTriangles);
+			memcpy(curNewPart->m_3indices16, curPart->m_3indices16, sizeof(btShortIntIndexTripletData) * (size_t)curNewPart->m_numTriangles);
 		}
 		else
 			curNewPart->m_3indices16 = NULL;
@@ -784,7 +784,7 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		{
 			uninitialized3indices8Workaround = true;
 			curNewPart->m_indices16 = new btShortIntIndexData[(size_t)numIndices];
-			memcpy(curNewPart->m_indices16, curPart->m_indices16, sizeof(btShortIntIndexData) * numIndices);
+			memcpy(curNewPart->m_indices16, curPart->m_indices16, sizeof(btShortIntIndexData) * (size_t)numIndices);
 		}
 		else
 			curNewPart->m_indices16 = NULL;
@@ -792,7 +792,7 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		if (!uninitialized3indices8Workaround && curPart->m_3indices8)
 		{
 			curNewPart->m_3indices8 = new btCharIndexTripletData[(size_t)curNewPart->m_numTriangles];
-			memcpy(curNewPart->m_3indices8, curPart->m_3indices8, sizeof(btCharIndexTripletData) * curNewPart->m_numTriangles);
+			memcpy(curNewPart->m_3indices8, curPart->m_3indices8, sizeof(btCharIndexTripletData) * (size_t)curNewPart->m_numTriangles);
 		}
 		else
 			curNewPart->m_3indices8 = NULL;

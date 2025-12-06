@@ -47,7 +47,7 @@ struct btHashString
 
 		for (int i = 0; m_string1.c_str()[i]; i++)
 		{
-			hash = hash ^ (m_string1.c_str()[i]); /* xor  the low 8 bits */
+			hash = hash ^ (unsigned int)(m_string1.c_str()[i]); /* xor  the low 8 bits */
 			hash = hash * FNVMultiple;            /* multiply by the magic number */
 		}
 		m_hash = hash;
@@ -59,7 +59,7 @@ struct btHashString
 	}
 };
 
-const int BT_HASH_NULL = 0xffffffff;
+const int BT_HASH_NULL = (int)0xffffffff;
 
 class btHashInt
 {
@@ -443,7 +443,7 @@ public:
 
 	int findIndex(const Key& key) const
 	{
-		unsigned int hash = (unsigned int)(key.getHash() & (m_valueArray.capacity() - 1));
+		unsigned int hash = (unsigned int)key.getHash() & (unsigned int)(m_valueArray.capacity() - 1);
 
 		if (hash >= (unsigned int)m_hashTable.size())
 		{

@@ -814,12 +814,12 @@ unsigned int btQuantizedBvh::getAlignmentSerializationPadding()
 unsigned btQuantizedBvh::calculateSerializeBufferSize() const
 {
 	unsigned baseSize = sizeof(btQuantizedBvh) + getAlignmentSerializationPadding();
-	baseSize += sizeof(btBvhSubtreeInfo) * m_subtreeHeaderCount;
+	baseSize += sizeof(btBvhSubtreeInfo) * (size_t)m_subtreeHeaderCount;
 	if (m_useQuantization)
 	{
-		return baseSize + m_curNodeIndex * sizeof(btQuantizedBvhNode);
+		return baseSize + (size_t)m_curNodeIndex * sizeof(btQuantizedBvhNode);
 	}
-	return baseSize + m_curNodeIndex * sizeof(btOptimizedBvhNode);
+	return baseSize + (size_t)m_curNodeIndex * sizeof(btOptimizedBvhNode);
 }
 
 bool btQuantizedBvh::serialize(void* o_alignedDataBuffer, unsigned /*i_dataBufferSize */, bool i_swapEndian) const
@@ -906,7 +906,7 @@ bool btQuantizedBvh::serialize(void* o_alignedDataBuffer, unsigned /*i_dataBuffe
 				targetBvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex = m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex;
 			}
 		}
-		nodeData += sizeof(btQuantizedBvhNode) * nodeCount;
+		nodeData += sizeof(btQuantizedBvhNode) * (size_t)nodeCount;
 
 		// this clears the pointer in the member variable it doesn't really do anything to the data
 		// it does call the destructor on the contained objects, but they are all classes with no destructor defined
@@ -941,7 +941,7 @@ bool btQuantizedBvh::serialize(void* o_alignedDataBuffer, unsigned /*i_dataBuffe
 				targetBvh->m_contiguousNodes[nodeIndex].m_triangleIndex = m_contiguousNodes[nodeIndex].m_triangleIndex;
 			}
 		}
-		nodeData += sizeof(btOptimizedBvhNode) * nodeCount;
+		nodeData += sizeof(btOptimizedBvhNode) * (size_t)nodeCount;
 
 		// this clears the pointer in the member variable it doesn't really do anything to the data
 		// it does call the destructor on the contained objects, but they are all classes with no destructor defined
@@ -991,7 +991,7 @@ bool btQuantizedBvh::serialize(void* o_alignedDataBuffer, unsigned /*i_dataBuffe
 			targetBvh->m_SubtreeHeaders[i].m_padding[2] = 0;
 		}
 	}
-	nodeData += sizeof(btBvhSubtreeInfo) * m_subtreeHeaderCount;
+	nodeData += sizeof(btBvhSubtreeInfo) * (size_t)m_subtreeHeaderCount;
 	(void)nodeData;
 
 	// this clears the pointer in the member variable it doesn't really do anything to the data
@@ -1064,7 +1064,7 @@ btQuantizedBvh* btQuantizedBvh::deSerializeInPlace(void* i_alignedDataBuffer, un
 				bvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex = static_cast<int>(btSwapEndian(bvh->m_quantizedContiguousNodes[nodeIndex].m_escapeIndexOrTriangleIndex));
 			}
 		}
-		nodeData += sizeof(btQuantizedBvhNode) * nodeCount;
+		nodeData += sizeof(btQuantizedBvhNode) * (size_t)nodeCount;
 	}
 	else
 	{
@@ -1082,7 +1082,7 @@ btQuantizedBvh* btQuantizedBvh::deSerializeInPlace(void* i_alignedDataBuffer, un
 				bvh->m_contiguousNodes[nodeIndex].m_triangleIndex = static_cast<int>(btSwapEndian(bvh->m_contiguousNodes[nodeIndex].m_triangleIndex));
 			}
 		}
-		nodeData += sizeof(btOptimizedBvhNode) * nodeCount;
+		nodeData += sizeof(btOptimizedBvhNode) * (size_t)nodeCount;
 	}
 
 	sizeToAdd = 0;  //(BVH_ALIGNMENT-((unsigned)nodeData & BVH_ALIGNMENT_MASK))&BVH_ALIGNMENT_MASK;

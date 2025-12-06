@@ -678,7 +678,7 @@ private:
 
 		PoolArray(int size) : size(size), next(NULL)
 		{
-			array = (T*)b3AlignedAlloc(sizeof(T) * size, 16);
+			array = (T*)b3AlignedAlloc(sizeof(T) * (size_t)size, 16);
 		}
 
 		~PoolArray()
@@ -2193,7 +2193,7 @@ b3Scalar b3ConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 	unsigned int seed = 243703;
 	for (int i = 0; i < faceCount; i++, seed = 1664525 * seed + 1013904223)
 	{
-		b3Swap(faces[i], faces[(int)(seed % faceCount)]);
+		b3Swap(faces[i], faces[(int)(seed % (unsigned int)faceCount)]);
 	}
 
 	for (int i = 0; i < faceCount; i++)

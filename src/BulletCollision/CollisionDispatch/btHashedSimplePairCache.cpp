@@ -55,7 +55,7 @@ btSimplePair* btHashedSimplePairCache::findPair(int indexA, int indexB)
 	/*if (indexA > indexB) 
 		btSwap(indexA, indexB);*/
 
-	int hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (m_overlappingPairArray.capacity() - 1));
+	int hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 
 	if (hash >= m_hashTable.size())
 	{
@@ -109,7 +109,7 @@ void btHashedSimplePairCache::growTables()
 			int indexA = pair.m_indexA;
 			int indexB = pair.m_indexB;
 
-			int hashValue = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
+			int hashValue = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
 			m_next[i] = m_hashTable[hashValue];
 			m_hashTable[hashValue] = i;
 		}
@@ -118,7 +118,7 @@ void btHashedSimplePairCache::growTables()
 
 btSimplePair* btHashedSimplePairCache::internalAddPair(int indexA, int indexB)
 {
-	int hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
+	int hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));  // New hash value with new mask
 
 	btSimplePair* pair = internalFindPair(indexA, indexB, hash);
 	if (pair != NULL)
@@ -136,7 +136,7 @@ btSimplePair* btHashedSimplePairCache::internalAddPair(int indexA, int indexB)
 	{
 		growTables();
 		//hash with new capacity
-		hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (m_overlappingPairArray.capacity() - 1));
+		hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 	}
 
 	pair = new (mem) btSimplePair(indexA, indexB);
@@ -158,7 +158,7 @@ void* btHashedSimplePairCache::removeOverlappingPair(int indexA, int indexB)
 	/*if (indexA > indexB) 
 		btSwap(indexA, indexB);*/
 
-	int hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (m_overlappingPairArray.capacity() - 1));
+	int hash = static_cast<int>(getHash(static_cast<unsigned int>(indexA), static_cast<unsigned int>(indexB)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 
 	btSimplePair* pair = internalFindPair(indexA, indexB, hash);
 	if (pair == NULL)
@@ -208,7 +208,7 @@ void* btHashedSimplePairCache::removeOverlappingPair(int indexA, int indexB)
 	// Remove the last pair from the hash table.
 	const btSimplePair* last = &m_overlappingPairArray[lastPairIndex];
 	/* missing swap here too, Nat. */
-	int lastHash = static_cast<int>(getHash(static_cast<unsigned int>(last->m_indexA), static_cast<unsigned int>(last->m_indexB)) & (m_overlappingPairArray.capacity() - 1));
+	int lastHash = static_cast<int>(getHash(static_cast<unsigned int>(last->m_indexA), static_cast<unsigned int>(last->m_indexB)) & (unsigned int)(m_overlappingPairArray.capacity() - 1));
 
 	index = m_hashTable[lastHash];
 	btAssert(index != BT_SIMPLE_NULL_PAIR);

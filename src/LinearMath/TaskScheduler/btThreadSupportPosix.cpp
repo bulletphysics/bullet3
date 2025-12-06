@@ -46,7 +46,7 @@ subject to the following restrictions:
 
 int btGetNumHardwareThreads()
 {
-	return btMax(1u, btMin(BT_MAX_THREAD_COUNT, std::thread::hardware_concurrency()));
+	return (int)btMax(1u, btMin(BT_MAX_THREAD_COUNT, std::thread::hardware_concurrency()));
 }
 
 #else
@@ -235,7 +235,7 @@ int btThreadSupportPosix::waitForResponse()
 	// wait for any of the threads to finish
 	checkPThreadFunction(sem_wait(m_mainSemaphore));
 	// get at least one thread which has finished
-	size_t last = -1;
+	size_t last = (size_t)-1;
 
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{

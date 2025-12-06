@@ -1164,8 +1164,8 @@ inline void b3DynamicBvh::collideKDOP(const b3DbvtNode* root,
 			{
 				if ((se.mask != inside) && (se.node->isinternal()))
 				{
-					stack.push_back(sStkNP(se.node->childs[0], se.mask));
-					stack.push_back(sStkNP(se.node->childs[1], se.mask));
+					stack.push_back(sStkNP(se.node->childs[0], (unsigned int)se.mask));
+					stack.push_back(sStkNP(se.node->childs[1], (unsigned int)se.mask));
 				}
 				else
 				{
@@ -1240,8 +1240,8 @@ inline void b3DynamicBvh::collideOCL(const b3DbvtNode* root,
 				if (se.node->isinternal())
 				{
 					const b3DbvtNode* pns[] = {se.node->childs[0], se.node->childs[1]};
-					sStkNPS nes[] = {sStkNPS(pns[0], se.mask, pns[0]->volume.ProjectMinimum(sortaxis, srtsgns)),
-									 sStkNPS(pns[1], se.mask, pns[1]->volume.ProjectMinimum(sortaxis, srtsgns))};
+					sStkNPS nes[] = {sStkNPS(pns[0], (unsigned int)se.mask, pns[0]->volume.ProjectMinimum(sortaxis, srtsgns)),
+									 sStkNPS(pns[1], (unsigned int)se.mask, pns[1]->volume.ProjectMinimum(sortaxis, srtsgns))};
 					const int q = nes[0].value < nes[1].value ? 1 : 0;
 					int j = stack.size();
 					if (fsort && (j > 0))
@@ -1250,7 +1250,7 @@ inline void b3DynamicBvh::collideOCL(const b3DbvtNode* root,
 						j = nearest(&stack[0], &stock[0], nes[q].value, 0, stack.size());
 						stack.push_back(0);
 #if B3_DBVT_USE_MEMMOVE
-						memmove(&stack[j + 1], &stack[j], sizeof(int) * (stack.size() - j - 1));
+						memmove(&stack[j + 1], &stack[j], sizeof(int) * (size_t)(stack.size() - j - 1));
 #else
 						for (int k = stack.size() - 1; k > j; --k) stack[k] = stack[k - 1];
 #endif
@@ -1259,7 +1259,7 @@ inline void b3DynamicBvh::collideOCL(const b3DbvtNode* root,
 						j = nearest(&stack[0], &stock[0], nes[1 - q].value, j, stack.size());
 						stack.push_back(0);
 #if B3_DBVT_USE_MEMMOVE
-						memmove(&stack[j + 1], &stack[j], sizeof(int) * (stack.size() - j - 1));
+						memmove(&stack[j + 1], &stack[j], sizeof(int) * (size_t)(stack.size() - j - 1));
 #else
 						for (int k = stack.size() - 1; k > j; --k) stack[k] = stack[k - 1];
 #endif

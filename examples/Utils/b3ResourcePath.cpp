@@ -39,7 +39,7 @@ int b3ResourcePath::getExePath(char* path, int maxPathLenInBytes)
 
 #else
 	///http://stackoverflow.com/questions/933850/how-to-find-the-location-of-the-executable-in-c
-	numBytes = (int)readlink("/proc/self/exe", path, maxPathLenInBytes - 1);
+	numBytes = (int)readlink("/proc/self/exe", path, (size_t)(maxPathLenInBytes - 1));
 	if (numBytes > 0)
 	{
 		path[numBytes] = 0;

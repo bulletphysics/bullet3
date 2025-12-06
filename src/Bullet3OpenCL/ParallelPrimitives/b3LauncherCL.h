@@ -105,9 +105,9 @@ public:
 		size_t lRange[3] = {1, 1, 1};
 		lRange[0] = (size_t)localSizeX;
 		lRange[1] = (size_t)localSizeY;
-		gRange[0] = b3Max((size_t)1, (numThreadsX / lRange[0]) + (!(numThreadsX % lRange[0]) ? 0 : 1));
+		gRange[0] = b3Max((size_t)1, ((size_t)numThreadsX / lRange[0]) + (!((size_t)numThreadsX % lRange[0]) ? 0 : 1));
 		gRange[0] *= lRange[0];
-		gRange[1] = b3Max((size_t)1, (numThreadsY / lRange[1]) + (!(numThreadsY % lRange[1]) ? 0 : 1));
+		gRange[1] = b3Max((size_t)1, ((size_t)numThreadsY / lRange[1]) + (!((size_t)numThreadsY % lRange[1]) ? 0 : 1));
 		gRange[1] *= lRange[1];
 
 		cl_int status = clEnqueueNDRangeKernel(m_commandQueue,
