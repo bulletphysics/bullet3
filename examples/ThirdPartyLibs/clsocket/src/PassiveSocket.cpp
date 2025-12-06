@@ -301,7 +301,7 @@ int32 CPassiveSocket::Send(const uint8 *pBuf, size_t bytesToSend)
 					m_timer.Initialize();
 					m_timer.SetStartTime();
 
-					m_nBytesSent = SENDTO(m_socket, pBuf, bytesToSend, 0,
+					m_nBytesSent = (int32)SENDTO(m_socket, pBuf, bytesToSend, 0,
 										  (const sockaddr *)&m_stClientSockaddr,
 										  sizeof(m_stClientSockaddr));
 

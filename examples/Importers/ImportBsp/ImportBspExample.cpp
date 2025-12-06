@@ -162,7 +162,7 @@ void BspDemo::initPhysics(const char* bspfilename)
 	{
 		BspLoader bspLoader;
 		int size = 0;
-		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
+		if (fseek(file, 0, SEEK_END) || (size = (int)ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
 		{ /* File operations denied? ok, just close and return failure */
 			printf("Error: cannot get filesize from %s\n", bspfilename);
 		}

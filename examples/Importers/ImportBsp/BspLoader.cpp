@@ -483,7 +483,7 @@ short BspLoader::isLittleShort(short l)
 		b1 = (unsigned char)(l & 255);
 		b2 = (unsigned char)((l >> 8) & 255);
 
-		return (b1 << 8) + b2;
+		return short((b1 << 8) + b2);
 	}
 	//little endian
 	return l;
@@ -501,7 +501,7 @@ short BspLoader::isBigShort(short l)
 	b1 = (unsigned char)(l & 255);
 	b2 = (unsigned char)((l >> 8) & 255);
 
-	return (b1 << 8) + b2;
+	return short((b1 << 8) + b2);
 }
 
 int BspLoader::isLittleLong(int l)

@@ -2259,7 +2259,7 @@ ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 	{
 		under.edges[under_edge_count + i].p = (unsigned char)(underplanescount - 1);
 		under.edges[under_edge_count + i].ea = (short)coplanaredges[i].ea;
-		tmpunderedges[coplanaredges[i].ea].ea = under_edge_count + i;
+		tmpunderedges[coplanaredges[i].ea].ea = (short)(under_edge_count + i);
 		under.edges[under_edge_count + i].v = coplanaredges[i].v0;
 	}
 

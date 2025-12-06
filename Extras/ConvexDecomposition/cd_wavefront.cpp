@@ -224,7 +224,7 @@ void InPlaceParser::SetFile(const char *fname)
 	if (fph)
 	{
 		fseek(fph, 0L, SEEK_END);
-		mLen = ftell(fph);
+		mLen = (int)ftell(fph);
 		fseek(fph, 0L, SEEK_SET);
 		if (mLen > 0)
 		{

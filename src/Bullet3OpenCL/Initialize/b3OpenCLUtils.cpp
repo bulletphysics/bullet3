@@ -830,7 +830,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 				{
 					char* kernelSrc = 0;
 					fseek(file, 0L, SEEK_END);
-					int kernelSize = ftell(file);
+					int kernelSize = (int)ftell(file);
 					rewind(file);
 					kernelSrc = (char*)malloc((size_t)kernelSize + 1);
 					if(kernelSrc)

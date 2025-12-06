@@ -182,7 +182,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 			if (f)
 			{
 				
-				if (fseek(f, 0, SEEK_END) || (size = ftell(f)) == EOF || fseek(f, 0, SEEK_SET))
+				if (fseek(f, 0, SEEK_END) || (size = (int)ftell(f)) == EOF || fseek(f, 0, SEEK_SET))
 				{
 					printf("Error: Cannot access file to determine size\n");
 				}

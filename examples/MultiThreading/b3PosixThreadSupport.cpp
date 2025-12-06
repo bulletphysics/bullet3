@@ -198,14 +198,14 @@ void b3PosixThreadSupport::waitForResponse(int* puiArgument0, int* puiArgument1)
 
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
-		if (2 == m_activeThreadStatus[t].m_status)
+		if (2 == m_activeThreadStatus[(int)t].m_status)
 		{
 			last = t;
 			break;
 		}
 	}
 
-	b3ThreadStatus& spuStatus = m_activeThreadStatus[last];
+	b3ThreadStatus& spuStatus = m_activeThreadStatus[(int)last];
 
 	b3Assert(spuStatus.m_status > 1);
 	spuStatus.m_status = 0;
@@ -255,7 +255,7 @@ void b3PosixThreadSupport::stopThreads()
 {
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
-		b3ThreadStatus& spuStatus = m_activeThreadStatus[t];
+		b3ThreadStatus& spuStatus = m_activeThreadStatus[(int)t];
 
 		// printf("%s: Thread %i used: %ld\n", __FUNCTION__, int(t), spuStatus.threadUsed);
 

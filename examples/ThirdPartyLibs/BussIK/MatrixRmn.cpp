@@ -161,7 +161,7 @@ void MatrixRmn::SetSequence(const VectorRn& d, long startRow, long startCol, lon
 void MatrixRmn::LoadAsSubmatrix(const MatrixRmn& A)
 {
 	assert(A.NumRows <= NumRows && A.NumCols <= NumCols);
-	int extraColStep = NumRows - A.NumRows;
+	int extraColStep = (int)(NumRows - A.NumRows);
 	double* to = x;
 	double* from = A.x;
 	for (long i = A.NumCols; i > 0; i--)

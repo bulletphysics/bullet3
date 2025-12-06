@@ -282,9 +282,9 @@ const char* btStridingMeshInterface::serialize(void* dataBuffer, btSerializer* s
 						for (gfxindex = 0; gfxindex < numtriangles; gfxindex++)
 						{
 							unsigned short int* tri_indices = (unsigned short int*)(indexbase + gfxindex * indexstride);
-							tmpIndices[gfxindex].m_values[0] = (int)tri_indices[0];
-							tmpIndices[gfxindex].m_values[1] = (int)tri_indices[1];
-							tmpIndices[gfxindex].m_values[2] = (int)tri_indices[2];
+							tmpIndices[gfxindex].m_values[0] = (short)tri_indices[0];
+							tmpIndices[gfxindex].m_values[1] = (short)tri_indices[1];
+							tmpIndices[gfxindex].m_values[2] = (short)tri_indices[2];
 							// Fill padding with zeros to appease msan.
 							tmpIndices[gfxindex].m_pad[0] = 0;
 							tmpIndices[gfxindex].m_pad[1] = 0;

@@ -237,7 +237,7 @@ public:
 
 	unsigned int GetVertexCount(void) const
 	{
-		return mVtxs.size();
+		return (unsigned int)mVtxs.size();
 	}
 
 	Type *getBuffer(void)

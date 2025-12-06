@@ -746,7 +746,7 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
 
 	int keysyms_per_keycode_return;
 	KeySym* keysym = MyXGetKeyboardMapping(m_data->m_dpy,
-										   keycode,
+										   (unsigned char)keycode,
 										   1,
 										   &keysyms_per_keycode_return);
 
@@ -1178,7 +1178,7 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 	{
 		while (fgets(filename, maxNameLength - 1, output) != NULL)
 		{
-			len = strlen(filename);
+			len = (int)strlen(filename);
 			if (len > 0)
 			{
 				filename[len - 1] = 0;

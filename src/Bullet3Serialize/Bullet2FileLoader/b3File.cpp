@@ -69,7 +69,7 @@ bFile::bFile(const char *filename, const char headerString[7])
 	if (fp)
 	{
 		fseek(fp, 0L, SEEK_END);
-		mFileLen = ftell(fp);
+		mFileLen = (int)ftell(fp);
 		fseek(fp, 0L, SEEK_SET);
 
 		mFileBuffer = (char *)malloc((size_t)mFileLen + 1);

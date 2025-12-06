@@ -116,7 +116,7 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(const btDefault
 		m_persistentManifoldPool = new (memL) btPoolAllocator(sizeof(btPersistentManifold), constructionInfo.m_defaultMaxPersistentManifoldPoolSize);
 	}
 
-	collisionAlgorithmMaxElementSize = (collisionAlgorithmMaxElementSize + 16) & 0xffffffffffff0;
+	collisionAlgorithmMaxElementSize = (int)((collisionAlgorithmMaxElementSize + 16) & 0xffffffffffff0);
 	if (constructionInfo.m_collisionAlgorithmPool)
 	{
 		m_ownsCollisionAlgorithmPool = false;

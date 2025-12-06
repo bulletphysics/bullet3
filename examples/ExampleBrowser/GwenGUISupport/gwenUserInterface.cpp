@@ -482,10 +482,10 @@ bool GwenUserInterface::mouseMoveCallback(float x, float y)
 		if (!isInitialized)
 		{
 			isInitialized = true;
-			m_lastmousepos[0] = x + 1;
-			m_lastmousepos[1] = y + 1;
+			m_lastmousepos[0] = (int)(x + 1);
+			m_lastmousepos[1] = (int)(y + 1);
 		}
-		handled = m_data->pCanvas->InputMouseMoved(x, y, m_lastmousepos[0], m_lastmousepos[1]);
+		handled = m_data->pCanvas->InputMouseMoved((int)x, (int)y, m_lastmousepos[0], m_lastmousepos[1]);
 	}
 	return handled;
 }
@@ -581,7 +581,7 @@ bool GwenUserInterface::mouseButtonCallback(int button, int state, float x, floa
 	bool handled = false;
 	if (m_data->pCanvas)
 	{
-		handled = m_data->pCanvas->InputMouseMoved(x, y, x, y);
+		handled = m_data->pCanvas->InputMouseMoved((int)x, (int)y, (int)x, (int)y);
 
 		if (button >= 0)
 		{

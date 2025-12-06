@@ -240,7 +240,7 @@ int btThreadSupportPosix::waitForResponse()
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
 		m_cs->lock();
-		bool hasFinished = (2 == m_activeThreadStatus[t].m_status);
+		bool hasFinished = (2 == m_activeThreadStatus[(int)t].m_status);
 		m_cs->unlock(); 
 		if (hasFinished)
 		{
@@ -249,7 +249,7 @@ int btThreadSupportPosix::waitForResponse()
 		}
 	}
 
-	btThreadStatus& threadStatus = m_activeThreadStatus[last];
+	btThreadStatus& threadStatus = m_activeThreadStatus[(int)last];
 
 	btAssert(threadStatus.m_status > 1);
 	threadStatus.m_status = 0;
@@ -258,7 +258,7 @@ int btThreadSupportPosix::waitForResponse()
 	btAssert(last != size_t(-1));
 	m_startedThreadsMask &= ~(UINT64(1) << last);
 
-	return last;
+	return (int)last;
 }
 
 void btThreadSupportPosix::waitForAllTasks()
@@ -300,7 +300,7 @@ void btThreadSupportPosix::stopThreads()
 {
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
-		btThreadStatus& threadStatus = m_activeThreadStatus[t];
+		btThreadStatus& threadStatus = m_activeThreadStatus[(int)t];
 
 		threadStatus.m_userPtr = 0;
 		checkPThreadFunction(sem_post(threadStatus.startSemaphore));

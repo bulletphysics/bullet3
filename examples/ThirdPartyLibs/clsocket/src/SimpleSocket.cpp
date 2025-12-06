@@ -398,7 +398,7 @@ int32 CSimpleSocket::Send(const uint8 *pBuf, size_t bytesToSend)
 					//---------------------------------------------------------
 					do
 					{
-						m_nBytesSent = SEND(m_socket, pBuf, bytesToSend, 0);
+						m_nBytesSent = (int32)SEND(m_socket, pBuf, bytesToSend, 0);
 						TranslateSocketError();
 					} while (GetSocketError() == CSimpleSocket::SocketInterrupted);
 
@@ -433,7 +433,7 @@ int32 CSimpleSocket::Send(const uint8 *pBuf, size_t bytesToSend)
 					{
 						do
 						{
-							m_nBytesSent = SENDTO(m_socket, pBuf, bytesToSend, 0, (const sockaddr *)&m_stServerSockaddr, sizeof(m_stServerSockaddr));
+							m_nBytesSent = (int32)SENDTO(m_socket, pBuf, bytesToSend, 0, (const sockaddr *)&m_stServerSockaddr, sizeof(m_stServerSockaddr));
 							TranslateSocketError();
 						} while (GetSocketError() == CSimpleSocket::SocketInterrupted);
 					}
@@ -585,7 +585,7 @@ int32 CSimpleSocket::Send(const struct iovec *sendVector, int32 nNumItems)
 	SetSocketError(SocketSuccess);
 	m_nBytesSent = 0;
 
-	if ((m_nBytesSent = WRITEV(m_socket, sendVector, (size_t)nNumItems)) == CSimpleSocket::SocketError)
+	if ((m_nBytesSent = (int32)WRITEV(m_socket, sendVector, (int)nNumItems)) == CSimpleSocket::SocketError)
 	{
 		TranslateSocketError();
 	}
@@ -749,7 +749,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 		{
 			do
 			{
-				m_nBytesReceived = RECV(m_socket, (pWorkBuffer + m_nBytesReceived),
+				m_nBytesReceived = (int32)RECV(m_socket, (pWorkBuffer + m_nBytesReceived),
 										nMaxBytes, (int)m_nFlags);
 				TranslateSocketError();
 			} while ((GetSocketError() == CSimpleSocket::SocketInterrupted));
@@ -766,7 +766,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 			{
 				do
 				{
-					m_nBytesReceived = RECVFROM(m_socket, pWorkBuffer, nMaxBytes, 0,
+					m_nBytesReceived = (int32)RECVFROM(m_socket, pWorkBuffer, nMaxBytes, 0,
 												&m_stMulticastGroup, &srcSize);
 					TranslateSocketError();
 				} while (GetSocketError() == CSimpleSocket::SocketInterrupted);
@@ -775,7 +775,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 			{
 				do
 				{
-					m_nBytesReceived = RECVFROM(m_socket, pWorkBuffer, nMaxBytes, 0,
+					m_nBytesReceived = (int32)RECVFROM(m_socket, pWorkBuffer, nMaxBytes, 0,
 												&m_stClientSockaddr, &srcSize);
 					TranslateSocketError();
 				} while (GetSocketError() == CSimpleSocket::SocketInterrupted);

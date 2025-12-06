@@ -712,7 +712,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 						fsize = file.tellg() - fsize;
 						file.seekg(0, std::ios::beg);
 						sdfData.resize((int)fsize);
-						int bytesRead = (int)file.rdbuf()->sgetn(&sdfData[0], fsize);
+						int bytesRead = (int)file.rdbuf()->sgetn(&sdfData[0], (std::streamsize)fsize);
 						btAssert(bytesRead == fsize);
 						file.close();
 					}

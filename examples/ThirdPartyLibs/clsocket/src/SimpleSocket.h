@@ -327,7 +327,7 @@ public:
 	/// @return the length of time in seconds
 	int32 GetConnectTimeoutSec(void)
 	{
-		return m_stConnectTimeout.tv_sec;
+		return (int32)m_stConnectTimeout.tv_sec;
 	}
 
 	/// Gets the timeout value that specifies the maximum number of microseconds
@@ -335,7 +335,7 @@ public:
 	/// @return the length of time in microseconds
 	int32 GetConnectTimeoutUSec(void)
 	{
-		return m_stConnectTimeout.tv_usec;
+		return (int32)m_stConnectTimeout.tv_usec;
 	}
 
 	/// Sets the timeout value that specifies the maximum amount of time a call
@@ -358,7 +358,7 @@ public:
 	/// @return the length of time in seconds
 	int32 GetReceiveTimeoutSec(void)
 	{
-		return m_stRecvTimeout.tv_sec;
+		return (int32)m_stRecvTimeout.tv_sec;
 	}
 
 	/// Gets the timeout value that specifies the maximum number of microseconds
@@ -366,7 +366,7 @@ public:
 	/// @return the length of time in microseconds
 	int32 GetReceiveTimeoutUSec(void)
 	{
-		return m_stRecvTimeout.tv_usec;
+		return (int32)m_stRecvTimeout.tv_usec;
 	}
 
 	/// Sets the timeout value that specifies the maximum amount of time a call
@@ -404,7 +404,7 @@ public:
 	/// @return the length of time in seconds
 	int32 GetSendTimeoutSec(void)
 	{
-		return m_stSendTimeout.tv_sec;
+		return (int32)m_stSendTimeout.tv_sec;
 	}
 
 	/// Gets the timeout value that specifies the maximum number of microseconds
@@ -412,7 +412,7 @@ public:
 	/// @return the length of time in microseconds
 	int32 GetSendTimeoutUSec(void)
 	{
-		return m_stSendTimeout.tv_usec;
+		return (int32)m_stSendTimeout.tv_usec;
 	}
 
 	/// Gets the timeout value that specifies the maximum amount of time a call

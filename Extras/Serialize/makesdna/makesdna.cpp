@@ -586,7 +586,7 @@ static void *read_file_data(char *filename, int *len_r)
 	}
 
 	fseek(fp, 0L, SEEK_END);
-	*len_r = ftell(fp);
+	*len_r = (int)ftell(fp);
 	fseek(fp, 0L, SEEK_SET);
 
 	data = malloc_and_setzero(*len_r);

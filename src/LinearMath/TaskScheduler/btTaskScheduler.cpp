@@ -547,7 +547,7 @@ public:
 		{
 			// re-setup job stealing between queues to avoid attempting to steal from an inactive job queue
 			JobQueue* lastActiveContext = m_perThreadJobQueues[m_numThreads - 1];
-			int iLastActiveContext = lastActiveContext - &m_jobQueues[0];
+			int iLastActiveContext = (int)(lastActiveContext - &m_jobQueues[0]);
 			m_numActiveJobQueues = iLastActiveContext + 1;
 			for (int i = 0; i < m_jobQueues.size(); ++i)
 			{

@@ -4483,11 +4483,11 @@ static float *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 	token = hdr_gettoken(s, buffer);
 	if (strncmp(token, "-Y ", 3)) return epf("unsupported data layout", "Unsupported HDR format");
 	token += 3;
-	height = strtol(token, &token, 10);
+	height = (int)strtol(token, &token, 10);
 	while (*token == ' ') ++token;
 	if (strncmp(token, "+X ", 3)) return epf("unsupported data layout", "Unsupported HDR format");
 	token += 3;
-	width = strtol(token, NULL, 10);
+	width = (int)strtol(token, NULL, 10);
 
 	*x = width;
 	*y = height;
@@ -4616,7 +4616,7 @@ static int stbi_hdr_info(stbi *s, int *x, int *y, int *comp)
 		return 0;
 	}
 	token += 3;
-	*y = strtol(token, &token, 10);
+	*y = (int)strtol(token, &token, 10);
 	while (*token == ' ') ++token;
 	if (strncmp(token, "+X ", 3))
 	{
@@ -4624,7 +4624,7 @@ static int stbi_hdr_info(stbi *s, int *x, int *y, int *comp)
 		return 0;
 	}
 	token += 3;
-	*x = strtol(token, NULL, 10);
+	*x = (int)strtol(token, NULL, 10);
 	*comp = 3;
 	return 1;
 }
