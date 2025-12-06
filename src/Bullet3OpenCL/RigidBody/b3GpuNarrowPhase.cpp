@@ -849,7 +849,7 @@ int b3GpuNarrowPhase::registerRigidBody(int collidableIndex, float mass, const f
 	}
 	//body.m_shapeType = shapeType;
 
-	body.m_invMass = mass ? 1.f / mass : 0.f;
+	body.m_invMass = mass != 0.f ? 1.f / mass : 0.f;
 
 	if (writeToGpu)
 	{

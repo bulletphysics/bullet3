@@ -266,7 +266,7 @@ btMultiBody* MultibodyClothAnchor::createMultiBody(btMultiBodyDynamicsWorld* pWo
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
     float baseMass = 1.f;
 
-    if (baseMass)
+    if (baseMass != 0.0f)
     {
         btCollisionShape* pTempBox = new btBoxShape(btVector3(baseHalfExtents[0], baseHalfExtents[1], baseHalfExtents[2]));
         pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);

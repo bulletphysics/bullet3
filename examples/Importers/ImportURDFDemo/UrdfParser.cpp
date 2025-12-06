@@ -524,7 +524,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, XMLElement* g, ErrorLogger* l
 					logger->reportWarning("Scale should be a vector3, not single scalar. Workaround activated.\n");
 					std::string scalar_str = shape->Attribute("scale");
 					double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
-					if (scaleFactor)
+					if (scaleFactor != 0.0)
 					{
 						geom.m_meshScale.setValue((btScalar)scaleFactor, (btScalar)scaleFactor, (btScalar)scaleFactor);
 					}

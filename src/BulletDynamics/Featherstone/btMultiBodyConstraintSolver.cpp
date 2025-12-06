@@ -853,7 +853,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			solverConstraint.m_appliedImpulse = 0.f;
 		}
 
-		if (solverConstraint.m_appliedImpulse)
+		if (solverConstraint.m_appliedImpulse != btScalar(0))
 		{
 			if (multiBodyA)
 			{
@@ -1463,7 +1463,7 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 
 			btMultiBody* multiBodyA = solverConstraint.m_multiBodyA;
 			btMultiBody* multiBodyB = solverConstraint.m_multiBodyB;
-			if (solverConstraint.m_appliedImpulse)
+			if (solverConstraint.m_appliedImpulse != btScalar(0))
 			{
 				if (multiBodyA)
 				{

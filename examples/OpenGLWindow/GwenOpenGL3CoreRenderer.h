@@ -166,7 +166,7 @@ public:
 			rect.y = (int)((float)view[3] / m_retinaScale - (float)(rect.y + rect.h));
 		}
 
-		glScissor(m_retinaScale * (float)rect.x * Scale(), m_retinaScale * (float)rect.y * Scale(), m_retinaScale * (float)rect.w * Scale(), m_retinaScale * (float)rect.h * Scale());
+		glScissor(GLsizei(m_retinaScale * (float)rect.x * Scale()), GLsizei(m_retinaScale * (float)rect.y * Scale()), GLsizei(m_retinaScale * (float)rect.w * Scale()), GLsizei(m_retinaScale * (float)rect.h * Scale()));
 		glEnable(GL_SCISSOR_TEST);
 		//glDisable( GL_SCISSOR_TEST );
 	}
@@ -230,7 +230,7 @@ public:
 			sth_draw_text(m_font,
 						  1, m_fontScaling,
 						  (float)r.x, (float)r.y + yoffset,
-						  unicodeText, &dx, m_screenWidth, m_screenHeight, measureOnly, m_retinaScale);
+						  unicodeText, &dx, (int)m_screenWidth, (int)m_screenHeight, measureOnly, m_retinaScale);
 		}
 		else
 		{
@@ -252,7 +252,7 @@ public:
 				m_primitiveRenderer->drawTexturedRect2((float)rect.x, (float)rect.y + m_yOffset, (float)(rect.x + rect.w), (float)(rect.y + rect.h) + m_yOffset, m_currentColor, m_currentFont->m_CharU0[c], m_currentFont->m_CharV0[c], m_currentFont->m_CharU1[c], m_currentFont->m_CharV1[c]);
 
 				width += (float)r.w;
-				r.x = width;
+				r.x = (int)width;
 				pos++;
 			}
 			{
@@ -278,19 +278,19 @@ public:
 			sth_draw_text(m_font,
 						  1, m_fontScaling,
 						  xpos, ypos,
-						  unicodeText, &dx, m_screenWidth, m_screenHeight, measureOnly);
+						  unicodeText, &dx, (int)m_screenWidth, (int)m_screenHeight, measureOnly);
 
 			Gwen::Point pt;
 
 			if (m_retinaScale == 2.0f)
 			{
-				pt.x = dx * Scale() / 2.f;
-				pt.y = m_fontScaling / 2 * Scale() + 1;
+				pt.x = (int)(dx * Scale() / 2.f);
+				pt.y = (int)(m_fontScaling / 2 * Scale() + 1);
 			}
 			else
 			{
-				pt.x = dx * Scale();
-				pt.y = m_fontScaling * Scale() + 1;
+				pt.x = (int)(dx * Scale());
+				pt.y = (int)(m_fontScaling * Scale() + 1);
 			}
 			return pt;
 		}
@@ -306,8 +306,8 @@ public:
 			Gwen::Point pt;
 			int fontHeight = m_currentFont->m_CharHeight;
 
-			pt.x = width * Scale();
-			pt.y = (float)(fontHeight + 2) * Scale();
+			pt.x = (int)(width * Scale());
+			pt.y = (int)((float)(fontHeight + 2) * Scale());
 
 			return pt;
 		}

@@ -113,7 +113,7 @@ void TestJointTorqueSetup::initPhysics()
 		btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
 		float baseMass = 1.f;
 
-		if (baseMass)
+		if (baseMass != 0.0f)
 		{
 			//btCollisionShape *shape = new btSphereShape(baseHalfExtents[0]);// btBoxShape(btVector3(baseHalfExtents[0], baseHalfExtents[1], baseHalfExtents[2]));
 			btCollisionShape* shape = new btBoxShape(btVector3(baseHalfExtents[0], baseHalfExtents[1], baseHalfExtents[2]));

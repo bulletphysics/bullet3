@@ -469,7 +469,7 @@ void btMLCPSolver::createMLCP(const btContactSolverInfo& infoGlobal)
 
 	for (int i = 0; i < numConstraintRows; i++)
 	{
-		if (m_allConstraintPtrArray[i]->m_jacDiagABInv)
+		if (m_allConstraintPtrArray[i]->m_jacDiagABInv != btScalar(0))
 		{
 			m_b[i] = m_allConstraintPtrArray[i]->m_rhs / m_allConstraintPtrArray[i]->m_jacDiagABInv;
 			if (infoGlobal.m_splitImpulse)

@@ -292,7 +292,7 @@ static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
 {
 	btScalar deltaImpulse = 0.f;
 
-	if (c.m_rhsPenetration)
+	if (c.m_rhsPenetration != btScalar(0))
 	{
 		gNumSplitImpulseRecoveries++;
 		deltaImpulse = c.m_rhsPenetration - btScalar(c.m_appliedPushImpulse) * c.m_cfm;
@@ -1379,7 +1379,7 @@ void btSequentialImpulseConstraintSolver::convertBodies(btCollisionObject** bodi
 		int bodyId = getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
 
 		btRigidBody* body = btRigidBody::upcast(bodies[i]);
-		if (body && body->getInvMass())
+		if (body && body->getInvMass() != btScalar(0))
 		{
 			btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
 			btVector3 gyroForce(0, 0, 0);

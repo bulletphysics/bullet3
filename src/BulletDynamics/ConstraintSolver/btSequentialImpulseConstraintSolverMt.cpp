@@ -755,7 +755,7 @@ void btSequentialImpulseConstraintSolverMt::internalConvertBodies(btCollisionObj
 		initSolverBody(&solverBody, obj, infoGlobal.m_timeStep);
 
 		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getInvMass())
+		if (body && body->getInvMass() != btScalar(0))
 		{
 			btVector3 gyroForce(0, 0, 0);
 			if (body->getFlags() & BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT)

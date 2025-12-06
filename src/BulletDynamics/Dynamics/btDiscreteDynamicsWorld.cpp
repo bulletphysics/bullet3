@@ -346,7 +346,7 @@ void btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 			btTransform interpolatedTransform;
 			btTransformUtil::integrateTransform(body->getInterpolationWorldTransform(),
 												body->getInterpolationLinearVelocity(), body->getInterpolationAngularVelocity(),
-												(m_latencyMotionStateInterpolation && m_fixedTimeStep) ? m_localTime - m_fixedTimeStep : m_localTime * body->getHitFraction(),
+												(m_latencyMotionStateInterpolation && m_fixedTimeStep != btScalar(0)) ? m_localTime - m_fixedTimeStep : m_localTime * body->getHitFraction(),
 												interpolatedTransform);
 			body->getMotionState()->setWorldTransform(interpolatedTransform);
 		}
@@ -860,7 +860,7 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 
 			btScalar squareMotion = (predictedTrans.getOrigin() - body->getWorldTransform().getOrigin()).length2();
 
-			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
+			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() != btScalar(0) && body->getCcdSquareMotionThreshold() < squareMotion)
 			{
 				BT_PROFILE("predictive convexSweepTest");
 				if (body->getCollisionShape()->isConvex())
@@ -962,7 +962,7 @@ void btDiscreteDynamicsWorld::integrateTransformsInternal(btRigidBody** bodies, 
 
 			btScalar squareMotion = (predictedTrans.getOrigin() - body->getWorldTransform().getOrigin()).length2();
 
-			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() && body->getCcdSquareMotionThreshold() < squareMotion)
+			if (getDispatchInfo().m_useContinuous && body->getCcdSquareMotionThreshold() != btScalar(0) && body->getCcdSquareMotionThreshold() < squareMotion)
 			{
 				BT_PROFILE("CCD motion clamping");
 				if (body->getCollisionShape()->isConvex())

@@ -253,7 +253,7 @@ unsigned long long int btClock::getTimeNanoseconds()
 #else
 	struct timeval currentTime;
 	gettimeofday(&currentTime, 0);
-	return (currentTime.tv_sec - m_data->mStartTime.tv_sec) * 1e9 +
+	return (currentTime.tv_sec - m_data->mStartTime.tv_sec) * (unsigned long long)1e9 +
 		   (currentTime.tv_usec - m_data->mStartTime.tv_usec) * 1000;
 #endif  //BT_LINUX_REALTIME
 

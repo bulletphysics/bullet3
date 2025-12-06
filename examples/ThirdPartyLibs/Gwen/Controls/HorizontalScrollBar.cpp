@@ -41,7 +41,7 @@ void HorizontalScrollBar::Layout(Skin::Base* skin)
 	if (barWidth < GetButtonSize() * 0.5f)
 		barWidth = GetButtonSize() * 0.5f;
 
-	m_Bar->SetWidth(barWidth);
+	m_Bar->SetWidth((int)barWidth);
 	m_Bar->SetHidden((float)(Width() - (GetButtonSize() * 2)) <= barWidth);
 
 	//Based on our last scroll amount, produce a position for the bar
@@ -114,7 +114,7 @@ bool HorizontalScrollBar::SetScrolledAmount(float amount, bool forceUpdate)
 
 	if (forceUpdate)
 	{
-		int newX = (float)GetButtonSize() + (amount * (float)((Width() - m_Bar->Width()) - (GetButtonSize() * 2)));
+		int newX = int((float)GetButtonSize() + (amount * (float)((Width() - m_Bar->Width()) - (GetButtonSize() * 2))));
 		m_Bar->MoveTo(newX, m_Bar->Y());
 	}
 

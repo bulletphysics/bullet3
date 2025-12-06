@@ -833,8 +833,8 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		{
 			btScalar rrA = (m_calculatedTransformA.getOrigin() - transA.getOrigin()).length2();
 			btScalar rrB = (m_calculatedTransformB.getOrigin() - transB.getOrigin()).length2();
-			if (m_rbA.getInvMass()) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
-			if (m_rbB.getInvMass()) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
+			if (m_rbA.getInvMass() != btScalar(0)) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
+			if (m_rbB.getInvMass() != btScalar(0)) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
 		}
 		btScalar m;
 		if (m_rbA.getInvMass() == 0) m = mB; else

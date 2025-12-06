@@ -33,7 +33,7 @@ void Text::RefreshSize()
 		return;
 	}
 
-	Gwen::Point p(1, GetFont()->size);
+	Gwen::Point p(1, (int)GetFont()->size);
 
 	if (Length() > 0)
 	{
@@ -84,7 +84,7 @@ Gwen::Point Text::GetCharacterPosition(int iChar)
 	Gwen::Point p = GetSkin()->GetRender()->MeasureText(GetFont(), sub);
 
 	if ((float)p.y >= m_Font->size)
-		p.y -= m_Font->size;
+		p.y -= (int)m_Font->size;
 
 	return p;
 }

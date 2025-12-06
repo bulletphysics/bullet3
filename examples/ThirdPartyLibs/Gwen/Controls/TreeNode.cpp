@@ -66,7 +66,7 @@ void TreeNode::Render(Skin::Base* skin)
 		iBottom = m_InnerPanel->Children.back()->Y() + m_InnerPanel->Y();
 	}
 
-	skin->DrawTreeNode(this, m_InnerPanel->Visible(), IsSelected(), m_Title->Height(), m_Title->TextRight(), m_ToggleButton->Y() + m_ToggleButton->Height() * 0.5, iBottom, GetParent() == m_TreeControl);
+	skin->DrawTreeNode(this, m_InnerPanel->Visible(), IsSelected(), m_Title->Height(), m_Title->TextRight(), int(m_ToggleButton->Y() + m_ToggleButton->Height() * 0.5), iBottom, GetParent() == m_TreeControl);
 }
 
 TreeNode* TreeNode::AddNode(const UnicodeString& strLabel)

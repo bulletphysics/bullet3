@@ -321,7 +321,7 @@ void b3PgsJacobiSolver::resolveSplitPenetrationImpulseCacheFriendly(
 	b3SolverBody& body2,
 	const b3SolverConstraint& c)
 {
-	if (c.m_rhsPenetration)
+	if (c.m_rhsPenetration != b3Scalar(0))
 	{
 		m_numSplitImpulseRecoveries++;
 		b3Scalar deltaImpulse = c.m_rhsPenetration - b3Scalar(c.m_appliedPushImpulse) * c.m_cfm;
@@ -508,8 +508,8 @@ void b3PgsJacobiSolver::setupFrictionConstraint(b3RigidBodyData* bodies, b3Inert
 		else
 		{
 			denom = relaxation / (denom0 + denom1);
-			b3Scalar countA = body0 && body0->m_invMass ? b3Scalar(m_bodyCount[solverBodyA.m_originalBodyIndex]) : 1.f;
-			b3Scalar countB = body1 && body1->m_invMass ? b3Scalar(m_bodyCount[solverBodyB.m_originalBodyIndex]) : 1.f;
+			b3Scalar countA = body0 && body0->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[solverBodyA.m_originalBodyIndex]) : 1.f;
+			b3Scalar countB = body1 && body1->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[solverBodyB.m_originalBodyIndex]) : 1.f;
 
 			scaledDenom = relaxation / (denom0 * countA + denom1 * countB);
 		}
@@ -708,8 +708,8 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 		{
 			denom = relaxation / (denom0 + denom1);
 
-			b3Scalar countA = rb0 && rb0->m_invMass ? b3Scalar(m_bodyCount[bodyA->m_originalBodyIndex]) : 1.f;
-			b3Scalar countB = rb1 && rb1->m_invMass ? b3Scalar(m_bodyCount[bodyB->m_originalBodyIndex]) : 1.f;
+			b3Scalar countA = rb0 && rb0->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[bodyA->m_originalBodyIndex]) : 1.f;
+			b3Scalar countB = rb1 && rb1->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[bodyB->m_originalBodyIndex]) : 1.f;
 			scaledDenom = relaxation / (denom0 * countA + denom1 * countB);
 		}
 		solverConstraint.m_jacDiagABInv = denom;
@@ -815,9 +815,9 @@ void b3PgsJacobiSolver::setFrictionConstraintImpulse(b3RigidBodyData* bodies, b3
 		if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint1.m_appliedImpulse = cp.m_appliedImpulseLateral1 * infoGlobal.m_warmstartingFactor;
-			if (bodies[bodyA->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyA->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyA->internalApplyImpulse(frictionConstraint1.m_contactNormal * bodies[bodyA->m_originalBodyIndex].m_invMass, frictionConstraint1.m_angularComponentA, frictionConstraint1.m_appliedImpulse);
-			if (bodies[bodyB->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyB->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyB->internalApplyImpulse(frictionConstraint1.m_contactNormal * bodies[bodyB->m_originalBodyIndex].m_invMass, -frictionConstraint1.m_angularComponentB, -(b3Scalar)frictionConstraint1.m_appliedImpulse);
 		}
 		else
@@ -832,9 +832,9 @@ void b3PgsJacobiSolver::setFrictionConstraintImpulse(b3RigidBodyData* bodies, b3
 		if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint2.m_appliedImpulse = cp.m_appliedImpulseLateral2 * infoGlobal.m_warmstartingFactor;
-			if (bodies[bodyA->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyA->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyA->internalApplyImpulse(frictionConstraint2.m_contactNormal * bodies[bodyA->m_originalBodyIndex].m_invMass, frictionConstraint2.m_angularComponentA, frictionConstraint2.m_appliedImpulse);
-			if (bodies[bodyB->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyB->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyB->internalApplyImpulse(frictionConstraint2.m_contactNormal * bodies[bodyB->m_originalBodyIndex].m_invMass, -frictionConstraint2.m_angularComponentB, -(b3Scalar)frictionConstraint2.m_appliedImpulse);
 		}
 		else
@@ -1028,7 +1028,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 		}
 		else
 		{
-			if (bodies[bodyIndexA].m_invMass)
+			if (bodies[bodyIndexA].m_invMass != b3Scalar(0))
 			{
 				//m_bodyCount[bodyIndexA]+=manifoldPtr[i].getNPoints();
 				m_bodyCount[bodyIndexA]++;
@@ -1036,7 +1036,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 			else
 				m_bodyCount[bodyIndexA] = -1;
 
-			if (bodies[bodyIndexB].m_invMass)
+			if (bodies[bodyIndexB].m_invMass != b3Scalar(0))
 				//	m_bodyCount[bodyIndexB]+=manifoldPtr[i].getNPoints();
 				m_bodyCount[bodyIndexB]++;
 			else
@@ -1644,7 +1644,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlyFinish(b3RigidBodyData* bodie
 			//b3Assert(i==bodyIndex);
 
 			b3RigidBodyData* body = &bodies[bodyIndex];
-			if (body->m_invMass)
+			if (body->m_invMass != 0.0f)
 			{
 				if (infoGlobal.m_splitImpulse)
 					m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);

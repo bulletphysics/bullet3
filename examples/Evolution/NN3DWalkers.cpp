@@ -1025,7 +1025,7 @@ void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick)
 					btScalar currentAngle = hingeC->getHingeAngle();
 					btScalar angleError = targetLimitAngle - currentAngle;
 					btScalar desiredAngularVel = 0;
-					if (delta)
+					if (delta != btScalar(0))
 					{
 						desiredAngularVel = angleError / delta;
 					}

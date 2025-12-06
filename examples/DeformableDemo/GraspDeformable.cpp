@@ -441,7 +441,7 @@ btMultiBody* GraspDeformable::createFeatherstoneMultiBody(btMultiBodyDynamicsWor
     float linkMass = 0.1f;
     int numLinks = 2;
     
-    if (baseMass)
+    if (baseMass != 0.0f)
     {
         btCollisionShape* pTempBox = new btBoxShape(btVector3(baseHalfExtents[0], baseHalfExtents[1], baseHalfExtents[2]));
         pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);

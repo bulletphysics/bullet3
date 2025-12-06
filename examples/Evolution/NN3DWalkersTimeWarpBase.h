@@ -737,7 +737,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 	void changePhysicsStepsPerSecond(float physicsStepsPerSecond)
 	{  // change the simulation accuracy
-		if (m_dynamicsWorld && physicsStepsPerSecond)
+		if (m_dynamicsWorld && physicsStepsPerSecond != 0.0f)
 		{
 			fixedPhysicsStepSizeSec = 1.0f / physicsStepsPerSecond;
 			fixedPhysicsStepSizeMilli = 1000.0f / physicsStepsPerSecond;
@@ -785,7 +785,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 
 		for (int i = 0; i < subSteps; i++)
 		{ /**!< Perform the number of substeps to reach the timestep*/
-			if (timeStep && m_dynamicsWorld)
+			if (timeStep != btScalar(0) && m_dynamicsWorld)
 			{
 				// since we want to perform all proper steps, we perform no interpolated substeps
 				int subStepsL = 1;
@@ -799,7 +799,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 	void performInterpolatedSteps(btScalar timeStep)
 	{                                                                         // physics stepping with interpolated substeps
 		int subSteps = 1 + (int)floor((timeStep / fixedPhysicsStepSizeSec) + 0.5); /**!< Calculate the number of full normal time steps we can take, plus 1 for safety of not losing time */
-		if (timeStep && m_dynamicsWorld)
+		if (timeStep != btScalar(0) && m_dynamicsWorld)
 		{
 			m_dynamicsWorld->stepSimulation(btScalar(timeStep), subSteps,
 											btScalar(fixedPhysicsStepSizeSec)); /**!< Perform the number of substeps to reach the timestep*/

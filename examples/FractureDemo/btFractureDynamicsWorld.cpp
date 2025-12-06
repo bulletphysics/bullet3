@@ -124,7 +124,7 @@ void btFractureDynamicsWorld::glueCallback()
 				fractureObjectIndex = i;
 			}
 			btRigidBody* otherObject = btRigidBody::upcast(colObj0);
-			if (!otherObject || !otherObject->getInvMass())
+			if (!otherObject || otherObject->getInvMass() == btScalar(0))
 				continue;
 			numObjects++;
 		}
@@ -183,7 +183,7 @@ void btFractureDynamicsWorld::glueCallback()
 				btRigidBody* otherObject = btRigidBody::upcast(otherCollider);
 				//don't glue/merge with static objects right now, otherwise everything gets stuck to the ground
 				///todo: expose this as a callback
-				if (!otherObject || !otherObject->getInvMass())
+				if (!otherObject || otherObject->getInvMass() == btScalar(0))
 					continue;
 
 				oldImpulses.push_back(otherObject->getLinearVelocity() * (1.f / otherObject->getInvMass()));
@@ -248,7 +248,7 @@ void btFractureDynamicsWorld::glueCallback()
 		removedObjects.pop_back();
 
 		btRigidBody* otherObject = btRigidBody::upcast(otherCollider);
-		if (!otherObject || !otherObject->getInvMass())
+		if (!otherObject || otherObject->getInvMass() == btScalar(0))
 			continue;
 		removeRigidBody(otherObject);
 	}

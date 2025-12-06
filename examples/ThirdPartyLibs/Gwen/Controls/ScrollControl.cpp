@@ -162,11 +162,11 @@ void ScrollControl::UpdateScrollBars()
 
 	if (CanScrollV() && !m_VerticalScrollBar->Hidden())
 	{
-		newInnerPanelPosY = (float)-((m_InnerPanel->Height()) - Height() + (m_HorizontalScrollBar->Hidden() ? 0 : m_HorizontalScrollBar->Height())) * m_VerticalScrollBar->GetScrolledAmount();
+		newInnerPanelPosY = int((float)-((m_InnerPanel->Height()) - Height() + (m_HorizontalScrollBar->Hidden() ? 0 : m_HorizontalScrollBar->Height())) * m_VerticalScrollBar->GetScrolledAmount());
 	}
 	if (CanScrollH() && !m_HorizontalScrollBar->Hidden())
 	{
-		newInnerPanelPosX = (float)-((m_InnerPanel->Width()) - Width() + (m_VerticalScrollBar->Hidden() ? 0 : m_VerticalScrollBar->Width())) * m_HorizontalScrollBar->GetScrolledAmount();
+		newInnerPanelPosX = int((float)-((m_InnerPanel->Width()) - Width() + (m_VerticalScrollBar->Hidden() ? 0 : m_VerticalScrollBar->Width())) * m_HorizontalScrollBar->GetScrolledAmount());
 	}
 
 	m_InnerPanel->SetPos(newInnerPanelPosX, newInnerPanelPosY);

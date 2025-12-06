@@ -542,7 +542,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		tr.setIdentity();
 		heightField->getAabb(tr, aabbMin, aabbMax);
 		MyTriangleCollector2  col(aabbMin, aabbMax);
-		if (heightField->getUserValue3())
+		if (heightField->getUserValue3() != btScalar(0))
 		{
 			col.m_textureScaling = heightField->getUserValue3();
 		}

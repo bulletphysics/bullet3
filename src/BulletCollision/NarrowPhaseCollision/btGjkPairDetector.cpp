@@ -1026,7 +1026,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 					m_cachedSeparatingAxis, tmpPointOnA, tmpPointOnB,
 					debugDraw);
 
-				if (m_cachedSeparatingAxis.length2())
+				if (m_cachedSeparatingAxis.length2() != btScalar(0))
 				{
 					if (isValid2)
 					{
@@ -1161,7 +1161,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 				normalInB *= -1;
 			}
 
-			if (orgNormalInB.length2())
+			if (orgNormalInB.length2() != btScalar(0))
 			{
 				if (d2 > d0 && d2 > d1 && d2 > distance)
 				{

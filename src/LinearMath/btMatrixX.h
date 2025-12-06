@@ -213,7 +213,7 @@ struct btMatrixX
 
 	void addElem(int row, int col, T val)
 	{
-		if (val)
+		if (val != (T)0)
 		{
 			if (m_storage[col + row * m_cols] == 0.f)
 			{
@@ -322,7 +322,7 @@ struct btMatrixX
 			for (int j = 0; j < m_rows; j++)
 			{
 				T v = (*this)(j, i);
-				if (v)
+				if (v != (T)0)
 				{
 					tr.setElem(i, j, v);
 				}
@@ -358,7 +358,7 @@ struct btMatrixX
 							}
 						}
 					}
-					if (dotProd)
+					if (dotProd != (T)0)
 						res.setElem(i, j, dotProd);
 				}
 			}

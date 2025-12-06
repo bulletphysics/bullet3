@@ -329,7 +329,7 @@ btTransform ConvertURDF2BulletInternal(
             color.setValue(visual->material->color.r,visual->material->color.g,visual->material->color.b);//,visual->material->color.a);
          }
          */
-		if (mass)
+		if (mass != btScalar(0))
 		{
 			if (!(flags & CUF_USE_URDF_INERTIA))
 			{

@@ -285,13 +285,13 @@ struct b3SolveTask  // : public ThreadPool::Task
 					usedBodies.resize(bIdx + 1, 0);
 				}
 
-				if (bodyA.m_invMass)
+				if (bodyA.m_invMass != 0.0f)
 				{
 					b3Assert(usedBodies[aIdx] == 0);
 					usedBodies[aIdx]++;
 				}
 
-				if (bodyB.m_invMass)
+				if (bodyB.m_invMass != 0.0f)
 				{
 					b3Assert(usedBodies[bIdx] == 0);
 					usedBodies[bIdx]++;
@@ -400,7 +400,7 @@ int b3CpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* pos
 {
 	b3RigidBodyData body;
 	int bodyIndex = m_data->m_rigidBodies.size();
-	body.m_invMass = mass ? 1.f / mass : 0.f;
+	body.m_invMass = mass != 0.f ? 1.f / mass : 0.f;
 	body.m_angVel.setValue(0, 0, 0);
 	body.m_collidableIdx = collidableIndex;
 	body.m_frictionCoeff = 0.3f;

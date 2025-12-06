@@ -105,13 +105,13 @@ void KinematicMultiBodyExample::initPhysics()
 		btVector3 secondLevelInertiaDiag(0.f, 0.f, 0.f);
 		float secondLevelMass = 0.1f;
 
-		if (baseMass)
+		if (baseMass != 0.0f)
 		{
 			btCollisionShape* pTempBox = new btBoxShape(btVector3(10, 10, 10));
 			pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);
 			delete pTempBox;
 		}
-		if (secondLevelMass)
+		if (secondLevelMass != 0.0f)
 		{
 			btCollisionShape* pTempBox = new btBoxShape(btVector3(0.5, 0.5, 0.5));
 			pTempBox->calculateLocalInertia(secondLevelMass, secondLevelInertiaDiag);

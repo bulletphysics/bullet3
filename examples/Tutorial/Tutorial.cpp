@@ -434,15 +434,15 @@ public:
 
 		if (m_tutorialIndex == TUT_SOLVE_CONTACT_CONSTRAINT)
 		{
-			m_bodies[0]->m_invMass = gMassA ? b3Scalar(1.) / b3Scalar(gMassA) : 0;
+			m_bodies[0]->m_invMass = gMassA != btScalar(0) ? b3Scalar(1.) / b3Scalar(gMassA) : 0;
 			m_bodies[0]->m_collisionShape.m_sphere.computeLocalInertia((b3Scalar)gMassA, m_bodies[0]->m_localInertia);
 
-			m_bodies[1]->m_invMass = gMassB ? b3Scalar(1.) / b3Scalar(gMassB) : 0;
+			m_bodies[1]->m_invMass = gMassB != btScalar(0) ? b3Scalar(1.) / b3Scalar(gMassB) : 0;
 			m_bodies[1]->m_collisionShape.m_sphere.computeLocalInertia((b3Scalar)gMassB, m_bodies[1]->m_localInertia);
 
-			if (gMassA)
+			if (gMassA != btScalar(0))
 				m_bodies[0]->m_linearVelocity.setValue(0, 0, 1);
-			if (gMassB)
+			if (gMassB != btScalar(0))
 				m_bodies[1]->m_linearVelocity.setValue(0, 0, -1);
 		}
 

@@ -648,7 +648,7 @@ int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* pos
 		}
 		else
 		{
-			if (mass)
+			if (mass != 0.0f)
 			{
 				m_data->m_broadphaseSap->createProxy(aabbMin, aabbMax, bodyIndex, 1, 1);  //m_dispatcher);
 			}

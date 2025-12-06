@@ -374,7 +374,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 						b3GpuSolverBody* bodyAPtr = &m_tmpSolverBodyPool[solverBodyIdA];
 						b3GpuSolverBody* bodyBPtr = &m_tmpSolverBodyPool[solverBodyIdB];
 
-						if (rbA.m_invMass)
+						if (rbA.m_invMass != 0.0f)
 						{
 							batchConstraints[i].m_bodyAPtrAndSignBit = solverBodyIdA;
 						}
@@ -385,7 +385,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 							batchConstraints[i].m_bodyAPtrAndSignBit = -solverBodyIdA;
 						}
 
-						if (rbB.m_invMass)
+						if (rbB.m_invMass != 0.0f)
 						{
 							batchConstraints[i].m_bodyBPtrAndSignBit = solverBodyIdB;
 						}
@@ -1026,7 +1026,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b
 				b3Assert(i == bodyIndex);
 
 				b3RigidBodyData* body = &m_gpuData->m_cpuBodies[bodyIndex];
-				if (body->m_invMass)
+				if (body->m_invMass != 0.0f)
 				{
 					if (infoGlobal.m_splitImpulse)
 						m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);

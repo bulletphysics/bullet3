@@ -122,7 +122,7 @@ GwenParameterInterface::~GwenParameterInterface()
 
 void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
 {
-	int sliderCapped = sliderValue + 4;
+	int sliderCapped = int(sliderValue + 4);
 	sliderCapped /= 8;
 	sliderCapped *= 8;
 

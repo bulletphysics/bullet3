@@ -348,7 +348,7 @@ updateHeight
 )
 {
 	btScalar old_val = convertToFloat(p, type);
-	if (!old_val) {
+	if (old_val == btScalar(0)) {
 		convertFromFloat(p, new_val, type);
 	}
 }

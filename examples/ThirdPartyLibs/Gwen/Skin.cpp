@@ -26,11 +26,11 @@ void Base::DrawArrowDown(Gwen::Rect rect)
 	float x = (float)rect.w / 5.0f;
 	float y = (float)rect.h / 5.0f;
 
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 0.0f, (float)rect.y + y * 1.0f, x, y * 1.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 1.0f, x, y * 2.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 2.0f, (float)rect.y + y * 1.0f, x, y * 3.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 3.0f, (float)rect.y + y * 1.0f, x, y * 2.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 4.0f, (float)rect.y + y * 1.0f, x, y * 1.0f));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 0.0f), int((float)rect.y + y * 1.0f), int(x), int(y * 1.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 1.0f), int(x), int(y * 2.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 2.0f), int((float)rect.y + y * 1.0f), int(x), int(y * 3.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 3.0f), int((float)rect.y + y * 1.0f), int(x), int(y * 2.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 4.0f), int((float)rect.y + y * 1.0f), int(x), int(y * 1.0f)));
 }
 
 void Base::DrawArrowUp(Gwen::Rect rect)
@@ -38,11 +38,11 @@ void Base::DrawArrowUp(Gwen::Rect rect)
 	float x = (float)rect.w / 5.0f;
 	float y = (float)rect.h / 5.0f;
 
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 0.0f, (float)rect.y + y * 3.0f, x, y * 1.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 2.0f, x, y * 2.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 2.0f, (float)rect.y + y * 1.0f, x, y * 3.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 3.0f, (float)rect.y + y * 2.0f, x, y * 2.0f));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 4.0f, (float)rect.y + y * 3.0f, x, y * 1.0f));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 0.0f), int((float)rect.y + y * 3.0f), int(x), int(y * 1.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 2.0f), int(x), int(y * 2.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 2.0f), int((float)rect.y + y * 1.0f), int(x), int(y * 3.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 3.0f), int((float)rect.y + y * 2.0f), int(x), int(y * 2.0f)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 4.0f), int((float)rect.y + y * 3.0f), int(x), int(y * 1.0f)));
 }
 
 void Base::DrawArrowLeft(Gwen::Rect rect)
@@ -50,11 +50,11 @@ void Base::DrawArrowLeft(Gwen::Rect rect)
 	float x = (float)rect.w / 5.0f;
 	float y = (float)rect.h / 5.0f;
 
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 3.0f, (float)rect.y + y * 0.0f, x * 1.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 2.0f, (float)rect.y + y * 1.0f, x * 2.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 2.0f, x * 3.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 2.0f, (float)rect.y + y * 3.0f, x * 2.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 3.0f, (float)rect.y + y * 4.0f, x * 1.0f, y));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 3.0f), int((float)rect.y + y * 0.0f), int(x * 1.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 2.0f), int((float)rect.y + y * 1.0f), int(x * 2.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 2.0f), int(x * 3.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 2.0f), int((float)rect.y + y * 3.0f), int(x * 2.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 3.0f), int((float)rect.y + y * 4.0f), int(x * 1.0f), int(y)));
 }
 
 void Base::DrawArrowRight(Gwen::Rect rect)
@@ -62,11 +62,11 @@ void Base::DrawArrowRight(Gwen::Rect rect)
 	float x = (float)rect.w / 5.0f;
 	float y = (float)rect.h / 5.0f;
 
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 0.0f, x * 1.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 1.0f, x * 2.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 2.0f, x * 3.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 3.0f, x * 2.0f, y));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 4.0f, x * 1.0f, y));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 0.0f), int(x * 1.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 1.0f), int(x * 2.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 2.0f), int(x * 3.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 3.0f), int(x * 2.0f), int(y)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 4.0f), int(x * 1.0f), int(y)));
 }
 
 void Base::DrawCheck(Gwen::Rect rect)
@@ -74,11 +74,11 @@ void Base::DrawCheck(Gwen::Rect rect)
 	float x = (float)rect.w / 5.0f;
 	float y = (float)rect.h / 5.0f;
 
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 0.0f, (float)rect.y + y * 3.0f, x * 2, y * 2));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 1.0f, (float)rect.y + y * 4.0f, x * 2, y * 2));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 2.0f, (float)rect.y + y * 3.0f, x * 2, y * 2));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 3.0f, (float)rect.y + y * 1.0f, x * 2, y * 2));
-	m_Render->DrawFilledRect(Gwen::Rect((float)rect.x + x * 4.0f, (float)rect.y + y * 0.0f, x * 2, y * 2));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 0.0f), int((float)rect.y + y * 3.0f), int(x * 2), int(y * 2)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 1.0f), int((float)rect.y + y * 4.0f), int(x * 2), int(y * 2)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 2.0f), int((float)rect.y + y * 3.0f), int(x * 2), int(y * 2)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 3.0f), int((float)rect.y + y * 1.0f), int(x * 2), int(y * 2)));
+	m_Render->DrawFilledRect(Gwen::Rect(int((float)rect.x + x * 4.0f), int((float)rect.y + y * 0.0f), int(x * 2), int(y * 2)));
 }
 }  // namespace Skin
 }  // namespace Gwen

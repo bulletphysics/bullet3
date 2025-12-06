@@ -1652,7 +1652,7 @@ btRigidBody* btWorldImporter::createRigidBody(bool /*isDynamic*/, btScalar mass,
 	btVector3 localInertia;
 	localInertia.setZero();
 
-	if (mass)
+	if (mass != btScalar(0))
 		shape->calculateLocalInertia(mass, localInertia);
 
 	btRigidBody* body = new btRigidBody(mass, 0, shape, localInertia);
@@ -2031,7 +2031,7 @@ btTriangleInfoMap* btWorldImporter::getTriangleInfoMapByIndex(int index) const
 
 void btWorldImporter::convertRigidBodyFloat(btRigidBodyFloatData* colObjData)
 {
-	btScalar mass = btScalar(colObjData->m_inverseMass ? 1.f / colObjData->m_inverseMass : 0.f);
+	btScalar mass = btScalar(colObjData->m_inverseMass != 0.0f ? 1.f / colObjData->m_inverseMass : 0.f);
 	btVector3 localInertia;
 	localInertia.setZero();
 	btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
@@ -2047,7 +2047,7 @@ void btWorldImporter::convertRigidBodyFloat(btRigidBodyFloatData* colObjData)
 		{
 			mass = 0.f;
 		}
-		if (mass)
+		if (mass != btScalar(0))
 		{
 			shape->calculateLocalInertia(mass, localInertia);
 		}
@@ -2081,7 +2081,7 @@ void btWorldImporter::convertRigidBodyFloat(btRigidBodyFloatData* colObjData)
 
 void btWorldImporter::convertRigidBodyDouble(btRigidBodyDoubleData* colObjData)
 {
-	btScalar mass = btScalar(colObjData->m_inverseMass ? 1.f / colObjData->m_inverseMass : 0.f);
+	btScalar mass = btScalar(colObjData->m_inverseMass != 0.0 ? 1.f / colObjData->m_inverseMass : 0.f);
 	btVector3 localInertia;
 	localInertia.setZero();
 	btCollisionShape** shapePtr = m_shapeMap.find(colObjData->m_collisionObjectData.m_collisionShape);
@@ -2097,7 +2097,7 @@ void btWorldImporter::convertRigidBodyDouble(btRigidBodyDoubleData* colObjData)
 		{
 			mass = 0.f;
 		}
-		if (mass)
+		if (mass != btScalar(0))
 		{
 			shape->calculateLocalInertia(mass, localInertia);
 		}

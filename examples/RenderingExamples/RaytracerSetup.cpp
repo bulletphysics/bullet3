@@ -323,7 +323,7 @@ void RaytracerPhysicsSetup::stepSimulation(float /*deltaTime*/)
 			{
 				//	btVector4 rgba = raytracePicture->getPixel(x,y);
 			}
-			if (!rgba.length2())
+			if (rgba.length2() == btScalar(0))
 			{
 				m_internalData->m_canvas->setPixel(m_internalData->m_canvasIndex, x, y, 255, 0, 0, 255);
 			}

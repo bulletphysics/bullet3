@@ -1330,7 +1330,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
 				}
 
 				MinitaurLogRecord logData;
-				int stepCount = m_loggingTimeStamp;
+				int stepCount = (int)m_loggingTimeStamp;
 				float timeStamp = m_loggingTimeStamp * (float)m_dynamicsWorld->getSolverInfo().m_timeStep;
 				logData.m_values.push_back(stepCount);
 				logData.m_values.push_back(timeStamp);
@@ -9554,7 +9554,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->m_cfg.kCHR = collision_hardness;
 
 			psb->m_cfg.kDF = (btScalar)deformable.m_friction;
-			if (deformable.m_springCoefficients.bending_stiffness)
+			if (deformable.m_springCoefficients.bending_stiffness != 0.0)
 			{
 				psb->generateBendingConstraints(deformable.m_springCoefficients.bending_stride);
 			}
@@ -10617,7 +10617,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	int numSteps = 0;
 	if (m_data->m_numSimulationSubSteps > 0)
 	{
-		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
+		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, (int)m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
 		m_data->m_simulationTimestamp += deltaTimeScaled;
 	}
 	else
@@ -11441,7 +11441,7 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 		serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode |= JOINT_FEEDBACK_IN_JOINT_FRAME;
 	}
 
-	serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = m_data->m_numSimulationSubSteps;
+	serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = (int)m_data->m_numSimulationSubSteps;
 	serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numIterations;
 	serverCmd.m_simulationParameterResultArgs.m_numNonContactInnerIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numNonContactInnerIterations;
 	serverCmd.m_simulationParameterResultArgs.m_restitutionVelocityThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold;
@@ -15934,8 +15934,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec, const
 
 	if ((m_data->m_useRealTimeSimulation) && m_data->m_guiHelper)
 	{
-		int maxSteps = m_data->m_numSimulationSubSteps + 3;
-		if (m_data->m_numSimulationSubSteps)
+		int maxSteps = (int)m_data->m_numSimulationSubSteps + 3;
+		if (m_data->m_numSimulationSubSteps != btScalar(0))
 		{
 			gSubStep = m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps;
 		}

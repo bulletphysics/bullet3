@@ -43,7 +43,7 @@ void VerticalScrollBar::Layout(Skin::Base* skin)
 	if (barHeight < GetButtonSize() * 0.5f)
 		barHeight = GetButtonSize() * 0.5f;
 
-	m_Bar->SetHeight(barHeight);
+	m_Bar->SetHeight((int)barHeight);
 	m_Bar->SetHidden((float)(Height() - (GetButtonSize() * 2)) <= barHeight);
 
 	if (Hidden())
@@ -118,7 +118,7 @@ bool VerticalScrollBar::SetScrolledAmount(float amount, bool forceUpdate)
 
 	if (forceUpdate)
 	{
-		int newY = (float)GetButtonSize() + (amount * (float)((Height() - m_Bar->Height()) - (GetButtonSize() * 2)));
+		int newY = int((float)GetButtonSize() + (amount * (float)((Height() - m_Bar->Height()) - (GetButtonSize() * 2))));
 		m_Bar->MoveTo(m_Bar->X(), newY);
 	}
 

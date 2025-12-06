@@ -2776,7 +2776,7 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 
 	for (int i = m_multiThreadedHelper->m_userDebugLines.size() - 1; i >= 0; i--)
 	{
-		if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime)
+		if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime != 0.0)
 		{
 			m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime -= deltaTime;
 			if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime <= 0)
@@ -2789,7 +2789,7 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 
 	for (int i = m_multiThreadedHelper->m_userDebugText.size() - 1; i >= 0; i--)
 	{
-		if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime)
+		if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime != 0.0)
 		{
 			m_multiThreadedHelper->m_userDebugText[i].m_lifeTime -= deltaTime;
 			if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime <= 0)
@@ -2802,7 +2802,7 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 
 	for (int i = m_multiThreadedHelper->m_userDebugPoints.size() - 1; i >= 0; i--)
 	{
-		if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime)
+		if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime != 0.0)
 		{
 			m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime -= deltaTime;
 			if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime <= 0)

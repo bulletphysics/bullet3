@@ -132,7 +132,7 @@ bool TreeControl::OnKeyUp(bool bDown)
 					}
 				}
 				{
-					int numItems = (viewSize) / 16 - 1;
+					int numItems = int((viewSize) / 16 - 1);
 					float newAmount = float((curItem - numItems) * 16) / (contSize - viewSize);
 
 					if (newAmount > curAmount)
@@ -190,7 +190,7 @@ bool TreeControl::OnKeyDown(bool bDown)
 					}
 				}
 				{
-					int numItems = (viewSize) / 16 - 1;
+					int numItems = int((viewSize) / 16 - 1);
 					float newAmount = float((curItem - numItems) * 16) / (contSize - viewSize);
 
 					if (newAmount > curAmount)
@@ -235,7 +235,7 @@ bool TreeControl::OnKeyRight(bool bDown)
 				}
 			}
 			{
-				int numItems = (viewSize) / 16 - 1;
+				int numItems = int((viewSize) / 16 - 1);
 				float newAmount = float((curItem - numItems) * 16) / (contSize - viewSize);
 
 				if (newAmount > curAmount)
@@ -281,7 +281,7 @@ bool TreeControl::OnKeyLeft(bool bDown)
 				}
 			}
 			{
-				int numItems = (viewSize) / 16 - 1;
+				int numItems = int((viewSize) / 16 - 1);
 				float newAmount = float((curItem - numItems) * 16) / (contSize - viewSize);
 
 				if (newAmount > curAmount)

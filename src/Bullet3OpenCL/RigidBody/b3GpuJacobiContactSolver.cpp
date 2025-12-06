@@ -172,12 +172,12 @@ static __inline void solveContact(b3GpuConstraint4& cs,
 			b3Assert(isfinite(linImp1.getX()));
 #endif
 
-			if (invMassA)
+			if (invMassA != 0.0f)
 			{
 				dLinVelA += linImp0;
 				dAngVelA += angImp0;
 			}
-			if (invMassB)
+			if (invMassB != 0.0f)
 			{
 				dLinVelB += linImp1;
 				dAngVelB += angImp1;
@@ -223,12 +223,12 @@ void solveContact3(b3GpuConstraint4* cs,
 		b3Vector3 angImp0 = (invInertiaA * angular0) * rambdaDt;
 		b3Vector3 angImp1 = (invInertiaB * angular1) * rambdaDt;
 
-		if (invMassA)
+		if (invMassA != 0.0f)
 		{
 			*dLinVelA += linImp0;
 			*dAngVelA += angImp0;
 		}
-		if (invMassB)
+		if (invMassB != 0.0f)
 		{
 			*dLinVelB += linImp1;
 			*dAngVelB += angImp1;
@@ -290,12 +290,12 @@ static inline void solveFriction(b3GpuConstraint4& cs,
 		b3Assert(isfinite(linImp0.getX()));
 		b3Assert(isfinite(linImp1.getX()));
 #endif
-		if (invMassA)
+		if (invMassA != 0.0f)
 		{
 			dLinVelA += linImp0;
 			dAngVelA += angImp0;
 		}
-		if (invMassB)
+		if (invMassB != 0.0f)
 		{
 			dLinVelB += linImp1;
 			dAngVelB += angImp1;
@@ -310,9 +310,9 @@ static inline void solveFriction(b3GpuConstraint4& cs,
 			float angNA = b3Dot(n, angVelA);
 			float angNB = b3Dot(n, angVelB);
 
-			if (invMassA)
+			if (invMassA != 0.0f)
 				dAngVelA -= (angNA * 0.1f) * n;
-			if (invMassB)
+			if (invMassB != 0.0f)
 				dAngVelB -= (angNB * 0.1f) * n;
 		}
 	}
@@ -447,8 +447,8 @@ void ContactToConstraintKernel(b3Contact4* gContact, b3RigidBodyData* gBodies, b
 		b3Matrix3x3 invInertiaB = gShapes[bIdx].m_invInertiaWorld;  //m_invInertia;
 
 		b3GpuConstraint4 cs;
-		float countA = invMassA ? (float)(bodyCount[aIdx]) : 1;
-		float countB = invMassB ? (float)(bodyCount[bIdx]) : 1;
+		float countA = invMassA != 0.0f ? (float)(bodyCount[aIdx]) : 1;
+		float countB = invMassB != 0.0f ? (float)(bodyCount[bIdx]) : 1;
 		setConstraint4(posA, linVelA, angVelA, invMassA, invInertiaA, posB, linVelB, angVelB, invMassB, invInertiaB,
 					   &gContact[gIdx], dt, positionDrift, positionConstraintCoeff, countA, countB,
 					   &cs);
@@ -543,7 +543,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 			b3Vector3* dlvBPtr = &zero;
 			b3Vector3* davBPtr = &zero;
 
-			if (bodyA.m_invMass)
+			if (bodyA.m_invMass != 0.0f)
 			{
 				int bodyOffsetA = (int)offsetSplitBodies[aIdx];
 				int constraintOffsetA = contactConstraintOffsets[i].x;
@@ -552,7 +552,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 				davAPtr = &deltaAngularVelocities[splitIndexA];
 			}
 
-			if (bodyB.m_invMass)
+			if (bodyB.m_invMass != 0.0f)
 			{
 				int bodyOffsetB = (int)offsetSplitBodies[bIdx];
 				int constraintOffsetB = contactConstraintOffsets[i].y;
@@ -574,7 +574,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 		//easy
 		for (int b = 0; b < numBodies; b++)
 		{
-			if (bodies[b].m_invMass)
+			if (bodies[b].m_invMass != 0.0f)
 			{
 				int bodyOffset = (int)offsetSplitBodies[b];
 				int count = (int)bodyCount[b];
@@ -625,7 +625,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 			b3Vector3* dlvBPtr = &zero;
 			b3Vector3* davBPtr = &zero;
 
-			if (bodyA.m_invMass)
+			if (bodyA.m_invMass != 0.0f)
 			{
 				int bodyOffsetA = (int)offsetSplitBodies[aIdx];
 				int constraintOffsetA = contactConstraintOffsets[i].x;
@@ -634,7 +634,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 				davAPtr = &deltaAngularVelocities[splitIndexA];
 			}
 
-			if (bodyB.m_invMass)
+			if (bodyB.m_invMass != 0.0f)
 			{
 				int bodyOffsetB = (int)offsetSplitBodies[bIdx];
 				int constraintOffsetB = contactConstraintOffsets[i].y;
@@ -657,7 +657,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 		//easy
 		for (int i = 0; i < numBodies; i++)
 		{
-			if (bodies[i].m_invMass)
+			if (bodies[i].m_invMass != 0.0f)
 			{
 				int bodyOffset = (int)offsetSplitBodies[i];
 				int count = (int)bodyCount[i];
@@ -683,7 +683,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies, b3Inertia
 	//easy
 	for (int i = 0; i < numBodies; i++)
 	{
-		if (bodies[i].m_invMass)
+		if (bodies[i].m_invMass != 0.0f)
 		{
 			int bodyOffset = (int)offsetSplitBodies[i];
 			int count = (int)bodyCount[i];

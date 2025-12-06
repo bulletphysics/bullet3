@@ -212,7 +212,7 @@ public:
 	{
 		b3Vector3 axis = b3MakeVector3((b3Scalar)node->v.x, (b3Scalar)node->v.y, (b3Scalar)node->v.z);
 		b3Quaternion rot(0, 0, 0, 1);
-		if (axis.length())
+		if (axis.length() != b3Scalar(0))
 		{
 			rot = b3Quaternion(axis, (b3Scalar)node->theta);
 		}
