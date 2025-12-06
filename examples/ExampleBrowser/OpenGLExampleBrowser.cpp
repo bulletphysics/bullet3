@@ -1005,7 +1005,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 		else
 		{
 			sth_stash* fontstash = simpleApp->getFontStash();
-			m_internalData->m_gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer, fontstash, width, height, s_window->getRetinaScale(), myTexLoader);
+			m_internalData->m_gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer, fontstash, (float)width, (float)height, s_window->getRetinaScale(), myTexLoader);
 		}
 #endif
 

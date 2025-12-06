@@ -37,50 +37,50 @@ Color HSVToColor(float h, float s, float v)
 	hue = (double)h;
 	if (h > 300 || h <= 60)
 	{
-		r = (int)max;
+		r = (float)(int)max;
 		if (h > 300)
 		{
-			g = (int)min;
+			g = (float)(int)min;
 			hue = (hue - 360.0) / 60.0;
-			b = (int)((hue * delta - min) * -1);
+			b = (float)(int)((hue * delta - min) * -1);
 		}
 		else
 		{
-			b = (int)min;
+			b = (float)(int)min;
 			hue = hue / 60.0;
-			g = (int)(hue * delta + min);
+			g = (float)(int)(hue * delta + min);
 		}
 	}
 	else if (h > 60 && h < 180)
 	{
-		g = (int)max;
+		g = (float)(int)max;
 		if (h < 120)
 		{
-			b = (int)min;
+			b = (float)(int)min;
 			hue = (hue / 60.0 - 2.0) * delta;
-			r = (int)(min - hue);
+			r = (float)(int)(min - hue);
 		}
 		else
 		{
-			r = (int)min;
+			r = (float)(int)min;
 			hue = (hue / 60 - 2.0) * delta;
-			b = (int)(min + hue);
+			b = (float)(int)(min + hue);
 		}
 	}
 	else
 	{
-		b = (int)max;
+		b = (float)(int)max;
 		if (h < 240)
 		{
-			r = (int)min;
+			r = (float)(int)min;
 			hue = (hue / 60.0 - 4.0) * delta;
-			g = (int)(min - hue);
+			g = (float)(int)(min - hue);
 		}
 		else
 		{
-			g = (int)min;
+			g = (float)(int)min;
 			hue = (hue / 60 - 4.0) * delta;
-			r = (int)(min + hue);
+			r = (float)(int)(min + hue);
 		}
 	}
 
@@ -95,7 +95,7 @@ HSV RGBtoHSV(int r, int g, int b)
 	delta = max - min;
 
 	HSV hsv;
-	hsv.v = (int)max;
+	hsv.v = (float)(int)max;
 	if (delta == 0.0)
 	{
 		hsv.h = hsv.s = 0;
@@ -103,7 +103,7 @@ HSV RGBtoHSV(int r, int g, int b)
 	else
 	{
 		temp = delta / max;
-		hsv.s = (int)(temp * 255);
+		hsv.s = (float)(int)(temp * 255);
 
 		if (r == (int)max)
 		{
@@ -126,7 +126,7 @@ HSV RGBtoHSV(int r, int g, int b)
 		{
 			temp = 0;
 		}
-		hsv.h = (int)temp;
+		hsv.h = (float)(int)temp;
 	}
 
 	hsv.s /= 255.0f;
@@ -210,7 +210,7 @@ Gwen::Color ColorLerpBox::GetColorAtPos(int x, int y)
 	float xPercent = ((float)x / (float)Width());
 	float yPercent = 1 - ((float)y / (float)Height());
 
-	Gwen::Color result = HSVToColor(m_Hue, xPercent, yPercent);
+	Gwen::Color result = HSVToColor((float)m_Hue, xPercent, yPercent);
 
 	result.a = 255;
 

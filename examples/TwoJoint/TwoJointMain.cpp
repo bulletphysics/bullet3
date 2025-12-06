@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	double q[2], v[2];
 	while (b3CanSubmitCommand(kPhysClient))
 	{
-		simTimeS += 0.000001 * dtus1;
+		simTimeS += 0.000001 * (double)dtus1;
 		// apply some torque
 		b3GetJointInfo(kPhysClient, twojoint, jointNameToId["joint_2"], &jointInfo);
 		commandL = b3JointControlCommandInit2(kPhysClient, twojoint, CONTROL_MODE_TORQUE);

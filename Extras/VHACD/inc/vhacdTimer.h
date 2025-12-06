@@ -113,7 +113,7 @@ public:
 	}
 	double GetElapsedTime()  // in ms
 	{
-		return 1000.0 * (m_stop.tv_sec - m_start.tv_sec + (1.0E-9) * (m_stop.tv_nsec - m_start.tv_nsec));
+		return 1000.0 * ((double)(m_stop.tv_sec - m_start.tv_sec) + (1.0E-9) * (double)(m_stop.tv_nsec - m_start.tv_nsec));
 	}
 
 private:

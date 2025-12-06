@@ -112,8 +112,8 @@ public:
 	}
 	virtual void Resize(int width, int height)
 	{
-		m_screenWidth = width;
-		m_screenHeight = height;
+		m_screenWidth = (float)width;
+		m_screenHeight = (float)height;
 	}
 
 	virtual void Begin()
@@ -239,7 +239,7 @@ public:
 			//float color[]={0.2f,0.2,0.2f,1.f};
 
 			glBindTexture(GL_TEXTURE_2D, m_fontTextureId);
-			float width = r.x;
+			float width = (float)r.x;
 
 			while (unicodeText[pos])
 			{
@@ -277,7 +277,7 @@ public:
 		{
 			sth_draw_text(m_font,
 						  1, m_fontScaling,
-						  xpos, ypos,
+						  (float)xpos, (float)ypos,
 						  unicodeText, &dx, (int)m_screenWidth, (int)m_screenHeight, measureOnly);
 
 			Gwen::Point pt;

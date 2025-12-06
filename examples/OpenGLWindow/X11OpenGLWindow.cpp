@@ -1002,7 +1002,7 @@ void X11OpenGLWindow::pumpMessage()
 				{
 					//                      printf("xpos = %d, ypos = %d\n",xpos,ypos);
 
-					(*m_data->m_mouseButtonCallback)(button, buttonState, xpos, ypos);
+					(*m_data->m_mouseButtonCallback)(button, buttonState, (float)xpos, (float)ypos);
 				}
 				break;
 			}
@@ -1014,7 +1014,7 @@ void X11OpenGLWindow::pumpMessage()
 				{
 					int xpos = m_data->m_xev.xmotion.x;
 					int ypos = m_data->m_xev.xmotion.y;
-					(*m_data->m_mouseMoveCallback)(xpos, ypos);
+					(*m_data->m_mouseMoveCallback)((float)xpos, (float)ypos);
 				}
 				break;
 			}
@@ -1027,7 +1027,7 @@ void X11OpenGLWindow::pumpMessage()
 
 				if (m_data->m_resizeCallback)
 				{
-					(*m_data->m_resizeCallback)(m_data->m_xev.xconfigure.width, m_data->m_xev.xconfigure.height);
+					(*m_data->m_resizeCallback)((float)m_data->m_xev.xconfigure.width, (float)m_data->m_xev.xconfigure.height);
 				}
 				break;
 			}
@@ -1123,7 +1123,7 @@ void X11OpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
 {
 	if (resizeCallback && m_data->m_glWidth > 0 && m_data->m_glHeight > 0)
 	{
-		resizeCallback(m_data->m_glWidth, m_data->m_glHeight);
+		resizeCallback((float)m_data->m_glWidth, (float)m_data->m_glHeight);
 	}
 	m_data->m_resizeCallback = resizeCallback;
 }

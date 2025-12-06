@@ -12310,7 +12310,7 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 
 		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_WORLD_SIZE)
 		{
-			float worldSize = clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize;
+			float worldSize = (float)clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize;
 			m_data->m_guiHelper->getRenderInterface()->setShadowMapWorldSize(worldSize);
 		}
 	}

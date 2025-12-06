@@ -858,7 +858,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		mModelAccumulator += mFrameTime; /**!< Accumulate the time the physics simulation has to perform in order to stay in real-time (in Milliseconds) */
 		//	b3Printf("Model time accumulator: %u", mModelAccumulator);
 
-		int steps = (int)floor(mModelAccumulator / fixedPhysicsStepSizeMilli); /**!< Calculate the number of time steps we can take */
+		int steps = (int)floor((double)mModelAccumulator / fixedPhysicsStepSizeMilli); /**!< Calculate the number of time steps we can take */
 		//	b3Printf("Next steps: %i", steps);
 
 		if (steps > 0)

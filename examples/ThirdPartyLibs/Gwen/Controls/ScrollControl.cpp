@@ -151,11 +151,11 @@ void ScrollControl::UpdateScrollBars()
 	else
 		m_HorizontalScrollBar->SetHidden(true);
 
-	m_VerticalScrollBar->SetContentSize(m_InnerPanel->Height());
-	m_VerticalScrollBar->SetViewableContentSize(Height() - (m_HorizontalScrollBar->Hidden() ? 0 : m_HorizontalScrollBar->Height()));
+	m_VerticalScrollBar->SetContentSize((float)m_InnerPanel->Height());
+	m_VerticalScrollBar->SetViewableContentSize((float)(Height() - (m_HorizontalScrollBar->Hidden() ? 0 : m_HorizontalScrollBar->Height())));
 
-	m_HorizontalScrollBar->SetContentSize(m_InnerPanel->Width());
-	m_HorizontalScrollBar->SetViewableContentSize(Width() - (m_VerticalScrollBar->Hidden() ? 0 : m_VerticalScrollBar->Width()));
+	m_HorizontalScrollBar->SetContentSize((float)m_InnerPanel->Width());
+	m_HorizontalScrollBar->SetViewableContentSize((float)(Width() - (m_VerticalScrollBar->Hidden() ? 0 : m_VerticalScrollBar->Width())));
 
 	int newInnerPanelPosX = 0;
 	int newInnerPanelPosY = 0;

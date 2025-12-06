@@ -77,9 +77,9 @@ public:
 
 	Vector3d(const int *t)
 	{
-		x = t[0];
-		y = t[1];
-		z = t[2];
+		x = (float)t[0];
+		y = (float)t[1];
+		z = (float)t[2];
 	}
 
 	bool operator==(const Vector3d &a) const

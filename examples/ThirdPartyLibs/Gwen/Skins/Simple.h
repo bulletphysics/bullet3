@@ -507,13 +507,13 @@ public:
 
 		if (bIsHorizontal)
 		{
-			rect.y += (int)(rect.h * 0.4f);
-			rect.h -= (int)(rect.h * 0.8f);
+			rect.y += (int)((float)rect.h * 0.4f);
+			rect.h -= (int)((float)rect.h * 0.8f);
 		}
 		else
 		{
-			rect.x += (int)(rect.w * 0.4f);
-			rect.w -= (int)(rect.w * 0.8f);
+			rect.x += (int)((float)rect.w * 0.4f);
+			rect.w -= (int)((float)rect.w * 0.8f);
 		}
 
 		m_Render->SetDrawColor(m_colBGDark);
@@ -548,7 +548,7 @@ public:
 
 		//draw the top and bottom
 		bool skip = true;
-		for (int i = 0; i < (int)(rect.w * 0.5f); i++)
+		for (int i = 0; i < (int)((float)rect.w * 0.5f); i++)
 		{
 			m_Render->SetDrawColor(Gwen::Color(0, 0, 0, 255));
 			if (!skip)

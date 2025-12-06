@@ -171,7 +171,7 @@ void Base::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeStr
 
 		if (chr == ' ') continue;
 
-		Gwen::Rect r(int(pos.x + i * fSize * 0.4f), pos.y, int(fSize * 0.4f - 1), (int)fSize);
+		Gwen::Rect r(int((float)pos.x + i * fSize * 0.4f), pos.y, int(fSize * 0.4f - 1), (int)fSize);
 
 		/*
 					This isn't important, it's just me messing around changing the
