@@ -134,7 +134,7 @@ in this Software without prior written authorization from The Open Group.
    argument macros, must be only used inside #ifdef _X_NONNULL guards, as
    many legacy X clients are compiled in C89 mode still.
    For C++ variadic macros were introduced in C++11 */
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ - 0 >= 199901L)) || (defined(__cplusplus) && _cplusplus >= 201103L) /* C99 */
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ - 0 >= 199901L)) || (defined(__cplusplus) && __cplusplus >= 201103L) /* C99 */
 #define _X_NONNULL(...)                                              /* */
 #elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 303)
 #define _X_NONNULL(args...) __attribute__((nonnull(args)))
