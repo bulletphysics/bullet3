@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(Bullet3Dynamics_SRCS
+	Bullet3DynamicsPCH.cpp
 	b3CpuRigidBodyPipeline.cpp
 	ConstraintSolver/b3FixedConstraint.cpp
 	ConstraintSolver/b3Generic6DofConstraint.cpp
@@ -30,6 +31,12 @@ SET(Bullet3Dynamics_HDRS
 )
 
 ADD_LIBRARY(Bullet3Dynamics ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
+
+# Enable precompiled headers (CMake 3.16+)
+IF(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+	TARGET_PRECOMPILE_HEADERS(Bullet3Dynamics PRIVATE Bullet3DynamicsPCH.h)
+ENDIF()
+
 if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Dynamics Bullet3Collision)
 endif ()
