@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(Bullet3Collision_SRCS
+	Bullet3CollisionPCH.cpp
 	BroadPhaseCollision/b3DynamicBvh.cpp
 	BroadPhaseCollision/b3DynamicBvhBroadphase.cpp
 	BroadPhaseCollision/b3OverlappingPairCache.cpp
@@ -58,6 +59,12 @@ SET(Bullet3Collision_HDRS
 )
 
 ADD_LIBRARY(Bullet3Collision ${Bullet3Collision_SRCS} ${Bullet3Collision_HDRS})
+
+# Enable precompiled headers (CMake 3.16+)
+IF(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+	TARGET_PRECOMPILE_HEADERS(Bullet3Collision PRIVATE Bullet3CollisionPCH.h)
+ENDIF()
+
 if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Collision Bullet3Geometry)
 endif ()
