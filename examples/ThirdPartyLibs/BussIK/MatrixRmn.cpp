@@ -155,7 +155,7 @@ void MatrixRmn::SetSequence(const VectorRn& d, long startRow, long startCol, lon
 }
 
 // The matrix A is loaded, in into "this" matrix, based at (0,0).
-//  The size of "this" matrix must be large enough to accomodate A.
+//  The size of "this" matrix must be large enough to accommodate A.
 //	The rest of "this" matrix is left unchanged.  It is not filled with zeroes!
 
 void MatrixRmn::LoadAsSubmatrix(const MatrixRmn& A)
@@ -175,7 +175,7 @@ void MatrixRmn::LoadAsSubmatrix(const MatrixRmn& A)
 }
 
 // The matrix A is loaded, in transposed order into "this" matrix, based at (0,0).
-//  The size of "this" matrix must be large enough to accomodate A.
+//  The size of "this" matrix must be large enough to accommodate A.
 //	The rest of "this" matrix is left unchanged.  It is not filled with zeroes!
 void MatrixRmn::LoadAsSubmatrixTranspose(const MatrixRmn& A)
 {
@@ -393,7 +393,7 @@ void MatrixRmn::Solve(const VectorRn& b, VectorRn* xVec, MatrixRmn& AugMat) cons
 //		position for a lead variable.
 // The "NoFree" version operates on the assumption that no free variable will be found.
 // Algorithm uses row operations and row pivoting (only).
-// Augmented matrix is correctly accomodated.  Only the first square part participates
+// Augmented matrix is correctly accommodated.  Only the first square part participates
 //		in the main work of row operations.
 void MatrixRmn::ConvertToRefNoFree()
 {
@@ -523,7 +523,7 @@ void MatrixRmn::PostApplyGivens(double c, double s, long idx1, long idx2)
 
 // ********************************************************************************************
 // Singular value decomposition.
-// Return othogonal matrices U and V and diagonal matrix with diagonal w such that
+// Return orthogonal matrices U and V and diagonal matrix with diagonal w such that
 //     (this) = U * Diag(w) * V^T     (V^T is V-transpose.)
 // Diagonal entries have all non-zero entries before all zero entries, but are not
 //		necessarily sorted.  (Someday, I will write ComputedSortedSVD that handles

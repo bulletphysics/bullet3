@@ -313,7 +313,7 @@ struct btDbvt
 	void clear();
 	bool empty() const { return (NULL == m_root); }
 	void optimizeBottomUp();
-	void optimizeTopDown(int bu_treshold = 128);
+	void optimizeTopDown(int bu_threshold = 128);
 	void optimizeIncremental(int passes);
 	btDbvtNode* insert(const btDbvtVolume& box, void* data);
 	void update(btDbvtNode* leaf, int lookahead = -1);
@@ -829,17 +829,17 @@ inline void btDbvt::collideTT(const btDbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 4;
+		int threshold = DOUBLE_STACKSIZE - 4;
 		btAlignedObjectArray<sStkNN> stkStack;
 		stkStack.resize(DOUBLE_STACKSIZE);
 		stkStack[0] = sStkNN(root0, root1);
 		do
 		{
 			sStkNN p = stkStack[--depth];
-			if (depth > treshold)
+			if (depth > threshold)
 			{
 				stkStack.resize(stkStack.size() * 2);
-				treshold = stkStack.size() - 4;
+				threshold = stkStack.size() - 4;
 			}
 			if (p.a == p.b)
 			{
@@ -893,17 +893,17 @@ inline void btDbvt::selfCollideT(const btDbvntNode* root,
     if (root)
     {
         int depth = 1;
-        int treshold = DOUBLE_STACKSIZE - 4;
+        int threshold = DOUBLE_STACKSIZE - 4;
         btAlignedObjectArray<sStknNN> stkStack;
         stkStack.resize(DOUBLE_STACKSIZE);
         stkStack[0] = sStknNN(root, root);
         do
         {
             sStknNN p = stkStack[--depth];
-            if (depth > treshold)
+            if (depth > threshold)
             {
                 stkStack.resize(stkStack.size() * 2);
-                treshold = stkStack.size() - 4;
+                threshold = stkStack.size() - 4;
             }
             if (p.a == p.b)
             {
@@ -957,17 +957,17 @@ inline void btDbvt::selfCollideTT(const btDbvtNode* root,
     if (root)
     {
         int depth = 1;
-        int treshold = DOUBLE_STACKSIZE - 4;
+        int threshold = DOUBLE_STACKSIZE - 4;
         btAlignedObjectArray<sStkNN> stkStack;
         stkStack.resize(DOUBLE_STACKSIZE);
         stkStack[0] = sStkNN(root, root);
         do
         {
             sStkNN p = stkStack[--depth];
-            if (depth > treshold)
+            if (depth > threshold)
             {
                 stkStack.resize(stkStack.size() * 2);
-                treshold = stkStack.size() - 4;
+                threshold = stkStack.size() - 4;
             }
             if (p.a == p.b)
             {
@@ -1022,17 +1022,17 @@ inline void btDbvt::collideTTpersistentStack(const btDbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 4;
+		int threshold = DOUBLE_STACKSIZE - 4;
 
 		m_stkStack.resize(DOUBLE_STACKSIZE);
 		m_stkStack[0] = sStkNN(root0, root1);
 		do
 		{
 			sStkNN p = m_stkStack[--depth];
-			if (depth > treshold)
+			if (depth > threshold)
 			{
 				m_stkStack.resize(m_stkStack.size() * 2);
-				treshold = m_stkStack.size() - 4;
+				threshold = m_stkStack.size() - 4;
 			}
 			if (p.a == p.b)
 			{
@@ -1089,7 +1089,7 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 		if(root0&&root1)
 		{
 			int								depth=1;
-			int								treshold=DOUBLE_STACKSIZE-4;
+			int								threshold=DOUBLE_STACKSIZE-4;
 			btAlignedObjectArray<sStkNN>	stkStack;
 			stkStack.resize(DOUBLE_STACKSIZE);
 			stkStack[0]=sStkNN(root0,root1);
@@ -1097,10 +1097,10 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 				sStkNN	p=stkStack[--depth];
 				if(Intersect(p.a->volume,p.b->volume,xform))
 				{
-					if(depth>treshold)
+					if(depth>threshold)
 					{
 						stkStack.resize(stkStack.size()*2);
-						treshold=stkStack.size()-4;
+						threshold=stkStack.size()-4;
 					}
 					if(p.a->isinternal())
 					{
@@ -1240,7 +1240,7 @@ inline void btDbvt::rayTestInternal(const btDbvtNode* root,
 		btVector3 resultNormal;
 
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 2;
+		int threshold = DOUBLE_STACKSIZE - 2;
 		stack.resize(DOUBLE_STACKSIZE);
 		stack[0] = root;
 		btVector3 bounds[2];
@@ -1256,10 +1256,10 @@ inline void btDbvt::rayTestInternal(const btDbvtNode* root,
 			{
 				if (node->isinternal())
 				{
-					if (depth > treshold)
+					if (depth > threshold)
 					{
 						stack.resize(stack.size() * 2);
-						treshold = stack.size() - 2;
+						threshold = stack.size() - 2;
 					}
 					stack[depth++] = node->childs[0];
 					stack[depth++] = node->childs[1];
@@ -1300,7 +1300,7 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 		btAlignedObjectArray<const btDbvtNode*> stack;
 
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 2;
+		int threshold = DOUBLE_STACKSIZE - 2;
 
 		char tempmemory[DOUBLE_STACKSIZE * sizeof(const btDbvtNode*)];
 #ifndef BT_DISABLE_STACK_TEMP_MEMORY
@@ -1330,10 +1330,10 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 			{
 				if (node->isinternal())
 				{
-					if (depth > treshold)
+					if (depth > threshold)
 					{
 						stack.resize(stack.size() * 2);
-						treshold = stack.size() - 2;
+						threshold = stack.size() - 2;
 					}
 					stack[depth++] = node->childs[0];
 					stack[depth++] = node->childs[1];

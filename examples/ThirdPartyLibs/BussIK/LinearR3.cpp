@@ -104,7 +104,7 @@ VectorR3& VectorR3::Rotate(double theta, const VectorR3& w)
 }
 
 // Rotate unit vector x in the direction of "dir": length of dir is rotation angle.
-//		x must be a unit vector.  dir must be perpindicular to x.
+//		x must be a unit vector.  dir must be perpendicular to x.
 VectorR3& VectorR3::RotateUnitInDirection(const VectorR3& dir)
 {
 	double theta = dir.NormSq();

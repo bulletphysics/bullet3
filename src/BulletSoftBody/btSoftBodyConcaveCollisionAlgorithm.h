@@ -102,7 +102,7 @@ public:
 	}
 };
 
-/// btSoftBodyConcaveCollisionAlgorithm  supports collision between soft body shapes and (concave) trianges meshes.
+/// btSoftBodyConcaveCollisionAlgorithm  supports collision between soft body shapes and (concave) triangles meshes.
 class btSoftBodyConcaveCollisionAlgorithm : public btCollisionAlgorithm
 {
 	bool m_isSwapped;

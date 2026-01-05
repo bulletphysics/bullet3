@@ -84,7 +84,7 @@ class MotorStateValidator(object):
   def on_state(self, new_state: data_types.MotorState):
     """Adds a new motor state and validates it.
 
-    Will validate both the instantenous state as well as statitical
+    Will validate both the instantanous state as well as statistical
     averages.
 
     Args:

@@ -539,11 +539,11 @@ void Jacobian::CalcDeltaThetasSDLS()
 		double gamma = MaxAngleSDLS;
 		if (N < M)
 		{
-			gamma *= N / M;  // Scale back maximum permissable joint angle
+			gamma *= N / M;  // Scale back maximum permissible joint angle
 		}
 
 		// Calculate the dTheta from pure pseudoinverse considerations
-		double scale = alpha * wiInv;  // This times i-th column of V is the psuedoinverse response
+		double scale = alpha * wiInv;  // This times i-th column of V is the pseudoinverse response
 		dPreTheta.LoadScaled(V.GetColumnPtr(i), scale);
 		// Now rescale the dTheta values.
 		double max = dPreTheta.MaxAbs();
@@ -772,7 +772,7 @@ void Jacobian::CalcDeltaThetasSDLSrev2()
 	
 		double lambda = 1.0;
 		if ( N<P ) {
-			lambda -= N/P;				// Scale back maximum permissable joint angle
+			lambda -= N/P;				// Scale back maximum permissible joint angle
 		}
 		lambda *= lambda;
 		lambda *= DampingLambdaSDLS;

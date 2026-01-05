@@ -120,7 +120,7 @@ struct btDbvtBroadphase : btBroadphaseInterface
 	virtual void getBroadphaseAabb(btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE;
 	virtual void printStats() BT_OVERRIDE;
 
-	///reset broadphase internal structures, to ensure determinism/reproducability
+	///reset broadphase internal structures, to ensure determinism/reproducibility
 	virtual void resetPool(btDispatcher* dispatcher) BT_OVERRIDE;
 
 	void performDeferredRemoval(btDispatcher* dispatcher);

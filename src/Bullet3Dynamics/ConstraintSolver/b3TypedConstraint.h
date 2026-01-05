@@ -405,7 +405,7 @@ public:
 
 	/// Sets all limit's parameters.
 	/// When low > high limit becomes inactive.
-	/// When high - low > 2PI limit is ineffective too becouse no angle can exceed the limit
+	/// When high - low > 2PI limit is ineffective too because no angle can exceed the limit
 	void set(b3Scalar low, b3Scalar high, b3Scalar _softness = 0.9f, b3Scalar _biasFactor = 0.3f, b3Scalar _relaxationFactor = 1.0f);
 
 	/// Checks conastaint angle against limit. If limit is active and the angle violates the limit

@@ -50,7 +50,7 @@ float computeMeshVolume(const float *vertices, unsigned int tcount, const unsign
 		const float *p2 = &vertices[indices[1] * 3];
 		const float *p3 = &vertices[indices[2] * 3];
 
-		volume += det(p1, p2, p3);  // compute the volume of the tetrahedran relative to the origin.
+		volume += det(p1, p2, p3);  // compute the volume of the tetrahedron relative to the origin.
 	}
 
 	volume *= (1.0f / 6.0f);

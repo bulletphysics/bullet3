@@ -191,7 +191,7 @@ class RobotUrdfLoader(object):
     """Builds the base joints dictionary.
 
     In pybullet, a link's id within the robot always equal to its parent joint
-    id. So this base joint dict functionaly is equivalent to the base link dict.
+    id. So this base joint dict functionality is equivalent to the base link dict.
     The dictionary may only contain {ROBOT_BASE: -1} if self._base_names is
     empty.
 

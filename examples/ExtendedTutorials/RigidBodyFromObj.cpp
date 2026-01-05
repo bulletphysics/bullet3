@@ -82,7 +82,7 @@ void RigidBodyFromObjExample::initPhysics()
 
 	b3BulletDefaultFileIO fileIO;
 	GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, "",&fileIO);
-	printf("[INFO] Obj loaded: Extracted %d verticed from obj file [%s]\n", glmesh->m_numvertices, fileName);
+	printf("[INFO] Obj loaded: Extracted %d vertices from obj file [%s]\n", glmesh->m_numvertices, fileName);
 
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
 	btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));

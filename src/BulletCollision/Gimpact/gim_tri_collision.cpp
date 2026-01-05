@@ -221,14 +221,14 @@ public:
 		if (!compute_intervals(dv[0], dv[1], dv[2],
 							   dv0dv1, dv0dv2, tv_scale_e0, tv_scale_e1, tv_e0, tv_e1)) return 0;
 
-		//proyected vertices
+		//protected vertices
 		btVector3 up_e0 = tu_vertices[tu_e0].lerp(tu_vertices[(tu_e0 + 1) % 3], tu_scale_e0);
 		btVector3 up_e1 = tu_vertices[tu_e1].lerp(tu_vertices[(tu_e1 + 1) % 3], tu_scale_e1);
 
 		btVector3 vp_e0 = tv_vertices[tv_e0].lerp(tv_vertices[(tv_e0 + 1) % 3], tv_scale_e0);
 		btVector3 vp_e1 = tv_vertices[tv_e1].lerp(tv_vertices[(tv_e1 + 1) % 3], tv_scale_e1);
 
-		//proyected intervals
+		//protected intervals
 		GREAL isect_u[] = {up_e0.dot(edge_edge_dir), up_e1.dot(edge_edge_dir)};
 		GREAL isect_v[] = {vp_e0.dot(edge_edge_dir), vp_e1.dot(edge_edge_dir)};
 

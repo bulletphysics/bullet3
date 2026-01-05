@@ -71,7 +71,7 @@ protected:
 	bool m_useOffsetForConstraintFrame;
 	btTransform m_frameInA;
 	btTransform m_frameInB;
-	// use frameA fo define limits, if true
+	// use frameA of define limits, if true
 	bool m_useLinearReferenceFrameA;
 	// linear limits
 	btScalar m_lowerLinLimit;

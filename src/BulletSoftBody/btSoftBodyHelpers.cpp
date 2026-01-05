@@ -1690,7 +1690,7 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
 				new_min_bary_weight = btMin(new_min_bary_weight, bary[k]);
 			}
 
-			// p is out of the current best triangle, we found a traingle that's better
+			// p is out of the current best triangle, we found a triangle that's better
 			bool better_than_closest_outisde = (new_min_bary_weight > min_bary_weight && min_bary_weight < 0.);
 			// p is inside of the current best triangle, we found a triangle that's better
 			bool better_than_best_inside = (new_min_bary_weight >= 0 && min_bary_weight >= 0 && btFabs(dist) < btFabs(optimal_dist));

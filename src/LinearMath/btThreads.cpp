@@ -264,7 +264,7 @@ static ThreadsafeCounter gThreadCounter;
 // We allocate thread-indexes as needed with a sequential global thread counter.
 //
 // Our simple thread-counting scheme falls apart if the task scheduler destroys some threads but
-// continues to re-use other threads and the application repeatedly resizes the thread pool of the
+// continues to reuse other threads and the application repeatedly resizes the thread pool of the
 // task scheduler.
 // In order to prevent the thread-counter from exceeding the global max (BT_MAX_THREAD_COUNT), we
 // wrap the thread counter back to 1. This should only happen if the worker threads have all been

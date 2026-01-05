@@ -120,7 +120,7 @@ static int b3OpenCLUtils_clewInit()
 	}
 	else
 	{
-		b3Printf("clewInit succesfull using %s\n", cl);
+		b3Printf("clewInit successful using %s\n", cl);
 	}
 	return result;
 }
@@ -740,7 +740,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 		}
 		else
 		{
-			b3Printf("Succesfully created cache directory: %s\n", sCachedBinaryPath);
+			b3Printf("Successfully created cache directory: %s\n", sCachedBinaryPath);
 		}
 #endif  //_WIN32
 	}

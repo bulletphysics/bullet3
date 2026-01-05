@@ -30,7 +30,7 @@
       <inertia ixx="0.010609" ixy="0" ixz="0" iyy="0.050409" iyz="0" izz="0.05865"/>
     </inertial>
   </link>
-  <!-- Add the left rear wheel with its joints and tranmissions -->
+  <!-- Add the left rear wheel with its joints and transmissions -->
   <link name="left_rear_wheel">
     <contact>
       <lateral_friction value=".5"/>
@@ -63,7 +63,7 @@
     <child link="left_rear_wheel"/>
   </joint>
   
-  <!-- Add the right rear wheel with its joints and tranmissions -->
+  <!-- Add the right rear wheel with its joints and transmissions -->
   <link name="right_rear_wheel">
 <contact>
       <lateral_friction value=".5"/>
@@ -96,7 +96,7 @@
     <child link="right_rear_wheel"/>
   </joint>
   
-  <!-- Add the left steering hinge with its joints and tranmissions -->
+  <!-- Add the left steering hinge with its joints and transmissions -->
   <link name="left_steering_hinge">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -128,7 +128,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the right steering hinge with its joints and tranmissions -->
+  <!-- Add the right steering hinge with its joints and transmissions -->
   <link name="right_steering_hinge">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -160,7 +160,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the left front wheel with its joints and tranmissions -->
+  <!-- Add the left front wheel with its joints and transmissions -->
   <link name="left_front_wheel">
 <contact>
       <lateral_friction value=".8"/>
@@ -204,7 +204,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the left front wheel with its joints and tranmissions -->
+  <!-- Add the left front wheel with its joints and transmissions -->
   <link name="right_front_wheel">
 <contact>
       <lateral_friction value="0.8"/>

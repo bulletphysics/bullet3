@@ -58,7 +58,7 @@ bool TGAImage::read_tga_file(const char *filename)
 	if (!in.good())
 	{
 		in.close();
-		std::cerr << "an error occured while reading the header\n";
+		std::cerr << "an error occurred while reading the header\n";
 		return false;
 	}
 	width = header.width;
@@ -78,7 +78,7 @@ bool TGAImage::read_tga_file(const char *filename)
 		if (!in.good())
 		{
 			in.close();
-			std::cerr << "an error occured while reading the data\n";
+			std::cerr << "an error occurred while reading the data\n";
 			return false;
 		}
 	}
@@ -87,7 +87,7 @@ bool TGAImage::read_tga_file(const char *filename)
 		if (!load_rle_data(in))
 		{
 			in.close();
-			std::cerr << "an error occured while reading the data\n";
+			std::cerr << "an error occurred while reading the data\n";
 			return false;
 		}
 	}
@@ -122,7 +122,7 @@ bool TGAImage::load_rle_data(std::ifstream &in)
 		chunkheader = (unsigned char)in.get();
 		if (!in.good())
 		{
-			std::cerr << "an error occured while reading the data\n";
+			std::cerr << "an error occurred while reading the data\n";
 			return false;
 		}
 		if (chunkheader < 128)
@@ -133,7 +133,7 @@ bool TGAImage::load_rle_data(std::ifstream &in)
 				in.read((char *)colorbuffer.bgra, bytespp);
 				if (!in.good())
 				{
-					std::cerr << "an error occured while reading the header\n";
+					std::cerr << "an error occurred while reading the header\n";
 					return false;
 				}
 				for (int t = 0; t < bytespp; t++)
@@ -152,7 +152,7 @@ bool TGAImage::load_rle_data(std::ifstream &in)
 			in.read((char *)colorbuffer.bgra, bytespp);
 			if (!in.good())
 			{
-				std::cerr << "an error occured while reading the header\n";
+				std::cerr << "an error occurred while reading the header\n";
 				return false;
 			}
 			for (int i = 0; i < chunkheader; i++)

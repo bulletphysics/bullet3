@@ -1998,7 +1998,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 
 	rot_from_world[0] = btMatrix3x3(m_baseQuat);
 
-	// omega coeffients first.
+	// omega coefficients first.
 	btVector3 omega_coeffs_world;
 	omega_coeffs_world = p_minus_com_world.cross(normal_lin_world);
 	jac[0] = omega_coeffs_world[0] + normal_ang_world[0];

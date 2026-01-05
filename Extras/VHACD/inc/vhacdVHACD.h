@@ -318,7 +318,7 @@ private:
 		Init();
 		if (params.m_oclAcceleration)
 		{
-			// build kernals
+			// build kernels
 		}
 		AlignMesh(points, stridePoints, nPoints, triangles, strideTriangles, nTriangles, params);
 		VoxelizeMesh(points, stridePoints, nPoints, triangles, strideTriangles, nTriangles, params);
@@ -328,7 +328,7 @@ private:
 		SimplifyConvexHulls(params);
 		if (params.m_oclAcceleration)
 		{
-			// Release kernals
+			// Release kernels
 		}
 		if (GetCancel())
 		{

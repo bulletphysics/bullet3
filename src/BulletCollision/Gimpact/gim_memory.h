@@ -102,7 +102,7 @@ gim_alloca_function *gim_get_alloca_handler(void);
 gim_realloc_function *gim_get_realloc_handler(void);
 gim_free_function *gim_get_free_handler(void);
 
-///Standar Memory functions
+///Standard Memory functions
 void *gim_alloc(size_t size);
 void *gim_alloca(size_t size);
 void *gim_realloc(void *ptr, size_t oldsize, size_t newsize);

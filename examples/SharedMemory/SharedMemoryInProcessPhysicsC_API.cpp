@@ -291,7 +291,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 
 	cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
-	//backward compatiblity
+	//backward compatibility
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
@@ -312,7 +312,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 
 	cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
-	//backward compatiblity
+	//backward compatibility
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
@@ -331,14 +331,14 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 
 	//cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
-	//backward compatiblity
+	//backward compatibility
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
 
 
 
-//backward compatiblity
+//backward compatibility
 B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect2(void* guiHelperPtr)
 {
 	return b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect3(guiHelperPtr, SHARED_MEMORY_KEY);

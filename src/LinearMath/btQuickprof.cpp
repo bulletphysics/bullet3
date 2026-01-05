@@ -725,7 +725,7 @@ static void btLeaveProfileZoneDefault()
   #define BT_HAVE_TLS 1
 #endif
 
-// __thread is broken on Andorid clang until r12b. See
+// __thread is broken on Android clang until r12b. See
 // https://github.com/android-ndk/ndk/issues/8
 #if defined(__ANDROID__) && defined(__clang__)
   #if __has_include(<android/ndk-version.h>)

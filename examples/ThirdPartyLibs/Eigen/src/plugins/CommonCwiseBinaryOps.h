@@ -12,7 +12,7 @@
 
 /** \returns an expression of the difference of \c *this and \a other
   *
-  * \note If you want to substract a given scalar from all coefficients, see Cwise::operator-().
+  * \note If you want to subtract a given scalar from all coefficients, see Cwise::operator-().
   *
   * \sa class CwiseBinaryOp, operator-=()
   */

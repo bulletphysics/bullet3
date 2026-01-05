@@ -45,7 +45,7 @@ class PmtgWrapperEnv(object):
                action_filter_high_cut=3.0,
                action_filter_initialize=False,
                leg_pose_class=None):
-    """Initialzes the wrapped env.
+    """Initializes the wrapped env.
 
     Args:
       gym_env: An instance of LocomotionGymEnv.
@@ -207,7 +207,7 @@ class PmtgWrapperEnv(object):
       action: Numpy array. The input action from an NN agent.
 
     Returns:
-      The tuple containing the modified observation, the reward, the epsiode end
+      The tuple containing the modified observation, the reward, the episode end
       indicator.
 
     Raises:

@@ -202,7 +202,7 @@ void TabControl::HandleOverflow()
 
 	// Only enable the scrollers if the tabs are at the top.
 	// This is a limitation we should explore.
-	// Really TabControl should have derivitives for tabs placed elsewhere where we could specialize
+	// Really TabControl should have derivatives for tabs placed elsewhere where we could specialize
 	// some functions like this for each direction.
 	bool bNeeded = TabsSize.x > Width() && m_TabStrip->GetDock() == Pos::Top;
 

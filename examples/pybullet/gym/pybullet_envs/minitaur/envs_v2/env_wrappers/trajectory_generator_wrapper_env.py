@@ -13,7 +13,7 @@ class TrajectoryGeneratorWrapperEnv(object):
   """A wrapped LocomotionGymEnv with a built-in trajectory generator."""
 
   def __init__(self, gym_env, trajectory_generator):
-    """Initialzes the wrapped env.
+    """Initializes the wrapped env.
 
     Args:
       gym_env: An instance of LocomotionGymEnv.
@@ -62,7 +62,7 @@ class TrajectoryGeneratorWrapperEnv(object):
       action: Numpy array. The input action from an NN agent.
 
     Returns:
-      The tuple containing the modified observation, the reward, the epsiode end
+      The tuple containing the modified observation, the reward, the episode end
       indicator.
 
     Raises:

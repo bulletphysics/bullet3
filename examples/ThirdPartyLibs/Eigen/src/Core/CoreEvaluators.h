@@ -132,7 +132,7 @@ private:
 // Here we directly specialize evaluator. This is not really a unary expression, and it is, by definition, dense,
 // so no need for more sophisticated dispatching.
 
-// this helper permits to completely eliminate m_outerStride if it is known at compiletime.
+// this helper permits to completely eliminate m_outerStride if it is known at compile time.
 template<typename Scalar,int OuterStride> class plainobjectbase_evaluator_data {
 public:
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
@@ -438,7 +438,7 @@ struct nullary_wrapper<Scalar,NullaryOp,false,false,false> {};
 #if 0 && EIGEN_COMP_MSVC>0
 // Disable this ugly workaround. This is now handled in traits<Ref>::match,
 // but this piece of code might still become handly if some other weird compilation
-// erros pop up again.
+// errors pop up again.
 
 // MSVC exhibits a weird compilation error when
 // compiling:

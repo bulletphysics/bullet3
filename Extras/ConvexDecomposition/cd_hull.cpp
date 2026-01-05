@@ -215,7 +215,7 @@ float3 operator*(const float s, const float3 &v);
 float3 operator/(const float3 &v, const float s);
 inline int operator==(const float3 &a, const float3 &b) { return (a.x == b.x && a.y == b.y && a.z == b.z); }
 inline int operator!=(const float3 &a, const float3 &b) { return (a.x != b.x || a.y != b.y || a.z != b.z); }
-// due to ambiguity and inconsistent standards ther are no overloaded operators for mult such as va*vb.
+// due to ambiguity and inconsistent standards there are no overloaded operators for mult such as va*vb.
 float dot(const float3 &a, const float3 &b);
 float3 cmul(const float3 &a, const float3 &b);
 float3 cross(const float3 &a, const float3 &b);
@@ -574,7 +574,7 @@ float3 normalize(const float3 &v)
 	float d = magnitude(v);
 	if (d == 0)
 	{
-		printf("Cant normalize ZERO vector\n");
+		printf("Can't normalize ZERO vector\n");
 		assert(0);  // yes this could go here
 		d = 0.1f;
 	}
@@ -637,7 +637,7 @@ float3x3 Inverse(const float3x3 &a)
 			int i2 = (i + 2) % 3;
 			int j1 = (j + 1) % 3;
 			int j2 = (j + 2) % 3;
-			// reverse indexs i&j to take transpose
+			// reverse indices i&j to take transpose
 			b[j][i] = (a[i1][j1] * a[i2][j2] - a[i1][j2] * a[i2][j1]) / d;
 		}
 	}
@@ -2082,8 +2082,8 @@ static ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 					vout = vertcountunder++;
 				}
 				under_edge_count++;
-				/// hmmm something to think about: i might be able to output this edge regarless of
-				// wheter or not we know v-in yet.  ok i;ll try this now:
+				/// hmmm something to think about: i might be able to output this edge regardless of
+				// whether or not we know v-in yet.  ok i;ll try this now:
 				tmpunderedges[under_edge_count].v = (unsigned char)vout;
 				tmpunderedges[under_edge_count].p = (unsigned char)underplanescount;
 				tmpunderedges[under_edge_count].ea = -1;
@@ -2104,7 +2104,7 @@ static ConvexH *ConvexHCrop(ConvexH &convex, const Plane &slice)
 
 				edgeflag[e0].undermap = -1;
 				vout = vertflag[edge0.v].undermap;
-				// I hate this but i have to make sure part of this face is UNDER before ouputting this vert
+				// I hate this but i have to make sure part of this face is UNDER before outputting this vert
 				int k = estart;
 				assert(edge0.p == currentplane);
 				while (!(planeside & UNDER) && k < convex.edges.count && convex.edges[k].p == edge0.p)
@@ -2940,7 +2940,7 @@ static void ReleaseHull(PHullResult &result)
 //*********************************************************************
 
 HullError HullLibrary::CreateConvexHull(const HullDesc &desc,  // describes the input request
-										HullResult &result)    // contains the resulst
+										HullResult &result)    // contains the results
 {
 	HullError ret = QE_FAIL;
 

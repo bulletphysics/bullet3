@@ -231,7 +231,7 @@ static inline void MycollideTT(const btDbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = btDbvt::DOUBLE_STACKSIZE - 4;
+		int threshold = btDbvt::DOUBLE_STACKSIZE - 4;
 		btAlignedObjectArray<btDbvt::sStkNN> stkStack;
 #ifdef USE_LOCAL_STACK
 		ATTRIBUTE_ALIGNED16(btDbvt::sStkNN localStack[btDbvt::DOUBLE_STACKSIZE]);
@@ -245,10 +245,10 @@ static inline void MycollideTT(const btDbvtNode* root0,
 			btDbvt::sStkNN p = stkStack[--depth];
 			if (MyIntersect(p.a->volume, p.b->volume, xform, distanceThreshold))
 			{
-				if (depth > treshold)
+				if (depth > threshold)
 				{
 					stkStack.resize(stkStack.size() * 2);
-					treshold = stkStack.size() - 4;
+					threshold = stkStack.size() - 4;
 				}
 				if (p.a->isinternal())
 				{

@@ -494,7 +494,7 @@ B3_STATIC int b3RefinePortal(int pairIndex, int bodyIndexA, int bodyIndexB, b3Co
 	for (int i = 0; i < B3_MPR_MAX_ITERATIONS; i++)
 	//while (1)
 	{
-		// compute direction outside the portal (from v0 throught v1,v2,v3
+		// compute direction outside the portal (from v0 through v1,v2,v3
 		// face)
 		b3PortalDir(portal, &dir);
 

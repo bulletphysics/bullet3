@@ -585,7 +585,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 		m_broadphase = new btDbvtBroadphase();

@@ -235,9 +235,9 @@ bool b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 //return/calculate the closest vertex
 bool b3VoronoiSimplexSolver::closest(b3Vector3& v)
 {
-	bool succes = updateClosestVectorAndPoints();
+	bool success = updateClosestVectorAndPoints();
 	v = m_cachedV;
-	return succes;
+	return success;
 }
 
 b3Scalar b3VoronoiSimplexSolver::maxVertex()

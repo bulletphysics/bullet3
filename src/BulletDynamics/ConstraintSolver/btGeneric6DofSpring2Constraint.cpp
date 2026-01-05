@@ -492,7 +492,7 @@ int btGeneric6DofSpring2Constraint::setLinearLimits(btConstraintInfo2* info, int
 	for (int i = 0; i < 3; i++)
 	{
 		if (m_linearLimits.m_currentLimit[i] || m_linearLimits.m_enableMotor[i] || m_linearLimits.m_enableSpring[i])
-		{  // re-use rotational motor code
+		{  // reuse rotational motor code
 			limot.m_bounce = m_linearLimits.m_bounce[i];
 			limot.m_currentLimit = m_linearLimits.m_currentLimit[i];
 			limot.m_currentPosition = m_linearLimits.m_currentLinearDiff[i];

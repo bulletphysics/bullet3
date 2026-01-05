@@ -126,7 +126,7 @@ class InGraphBatchEnv(object):
 
   @property
   def action(self):
-    """Access the variable holding the last recieved action."""
+    """Access the variable holding the last received action."""
     return self._action
 
   @property

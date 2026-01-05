@@ -167,7 +167,7 @@ public:
 	b3Vector3 m_bvhQuantization;
 
 protected:
-	int m_bulletVersion;  //for serialization versioning. It could also be used to detect endianess.
+	int m_bulletVersion;  //for serialization versioning. It could also be used to detect endianness.
 
 	int m_curNodeIndex;
 	//quantization data
@@ -445,7 +445,7 @@ public:
 
 private:
 	// Special "copy" constructor that allows for in-place deserialization
-	// Prevents b3Vector3's default constructor from being called, but doesn't inialize much else
+	// Prevents b3Vector3's default constructor from being called, but doesn't initialize much else
 	// ownsMemory should most likely be false if deserializing, and if you are not, don't call this (it also changes the function signature, which we need)
 	b3QuantizedBvh(b3QuantizedBvh & other, bool ownsMemory);
 };

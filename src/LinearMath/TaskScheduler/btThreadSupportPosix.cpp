@@ -72,11 +72,11 @@ public:
 		void* m_userPtr;  //for taskDesc etc
 
 		pthread_t thread;
-		//each tread will wait until this signal to start its work
+		//each thread will wait until this signal to start its work
 		sem_t* startSemaphore;
 		btCriticalSection* m_cs;
 		// this is a copy of m_mainSemaphore,
-		//each tread will signal once it is finished with its work
+		//each thread will signal once it is finished with its work
 		sem_t* m_mainSemaphore;
 		unsigned long threadUsed;
 	};

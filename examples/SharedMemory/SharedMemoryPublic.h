@@ -844,7 +844,7 @@ struct b3LinkState
 	double m_worldLinearVelocity[3];   //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
 	double m_worldAngularVelocity[3];  //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
 
-	double m_worldAABBMin[3];  //world space bounding minium and maximum box corners.
+	double m_worldAABBMin[3];  //world space bounding minimum and maximum box corners.
 	double m_worldAABBMax[3];
 };
 

@@ -141,7 +141,7 @@ void RaytestDemo::initPhysics()
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -218,7 +218,7 @@ void RaytestDemo::initPhysics()
 		for (int i = 0; i < 6; i++)
 		{
 			//create a few dynamic rigidbodies
-			// Re-using the same collision is better for memory usage and performance
+			// Reusing the same collision is better for memory usage and performance
 
 			/// Create Dynamic Objects
 			btTransform startTransform;

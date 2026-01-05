@@ -4022,7 +4022,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 						contactOut->copyFromHost(hostContacts);
 					}
 				}
-				//re-use?
+				//reuse?
 			}
 			else
 			{

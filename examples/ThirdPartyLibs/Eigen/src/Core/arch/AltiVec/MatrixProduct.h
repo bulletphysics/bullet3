@@ -1208,7 +1208,7 @@ EIGEN_ALWAYS_INLINE void bscalec(PacketBlock<Packet,N>& aReal, PacketBlock<Packe
   bscalec<Packet,N>(aReal, aImag, bReal, bImag, cReal, cImag);
 }
 
-// Load a PacketBlock, the N parameters make tunning gemm easier so we can add more accumulators as needed.
+// Load a PacketBlock, the N parameters make tuning gemm easier so we can add more accumulators as needed.
 template<typename DataMapper, typename Packet, typename Index, const Index accCols, int StorageOrder, bool Complex, int N>
 EIGEN_ALWAYS_INLINE void bload(PacketBlock<Packet,N*(Complex?2:1)>& acc, const DataMapper& res, Index row, Index col)
 {

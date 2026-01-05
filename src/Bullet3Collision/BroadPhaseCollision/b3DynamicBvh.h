@@ -273,7 +273,7 @@ struct b3DynamicBvh
 	void clear();
 	bool empty() const { return (0 == m_root); }
 	void optimizeBottomUp();
-	void optimizeTopDown(int bu_treshold = 128);
+	void optimizeTopDown(int bu_threshold = 128);
 	void optimizeIncremental(int passes);
 	b3DbvtNode* insert(const b3DbvtVolume& box, void* data);
 	void update(b3DbvtNode* leaf, int lookahead = -1);
@@ -775,17 +775,17 @@ inline void b3DynamicBvh::collideTT(const b3DbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = B3_DOUBLE_STACKSIZE - 4;
+		int threshold = B3_DOUBLE_STACKSIZE - 4;
 		b3AlignedObjectArray<sStkNN> stkStack;
 		stkStack.resize(B3_DOUBLE_STACKSIZE);
 		stkStack[0] = sStkNN(root0, root1);
 		do
 		{
 			sStkNN p = stkStack[--depth];
-			if (depth > treshold)
+			if (depth > threshold)
 			{
 				stkStack.resize(stkStack.size() * 2);
-				treshold = stkStack.size() - 4;
+				threshold = stkStack.size() - 4;
 			}
 			if (p.a == p.b)
 			{
@@ -839,17 +839,17 @@ inline void b3DynamicBvh::collideTTpersistentStack(const b3DbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = B3_DOUBLE_STACKSIZE - 4;
+		int threshold = B3_DOUBLE_STACKSIZE - 4;
 
 		m_stkStack.resize(B3_DOUBLE_STACKSIZE);
 		m_stkStack[0] = sStkNN(root0, root1);
 		do
 		{
 			sStkNN p = m_stkStack[--depth];
-			if (depth > treshold)
+			if (depth > threshold)
 			{
 				m_stkStack.resize(m_stkStack.size() * 2);
-				treshold = m_stkStack.size() - 4;
+				threshold = m_stkStack.size() - 4;
 			}
 			if (p.a == p.b)
 			{
@@ -906,7 +906,7 @@ inline void		b3DynamicBvh::collideTT(	const b3DbvtNode* root0,
 		if(root0&&root1)
 		{
 			int								depth=1;
-			int								treshold=B3_DOUBLE_STACKSIZE-4;
+			int								threshold=B3_DOUBLE_STACKSIZE-4;
 			b3AlignedObjectArray<sStkNN>	stkStack;
 			stkStack.resize(B3_DOUBLE_STACKSIZE);
 			stkStack[0]=sStkNN(root0,root1);
@@ -914,10 +914,10 @@ inline void		b3DynamicBvh::collideTT(	const b3DbvtNode* root0,
 				sStkNN	p=stkStack[--depth];
 				if(b3Intersect(p.a->volume,p.b->volume,xform))
 				{
-					if(depth>treshold)
+					if(depth>threshold)
 					{
 						stkStack.resize(stkStack.size()*2);
-						treshold=stkStack.size()-4;
+						threshold=stkStack.size()-4;
 					}
 					if(p.a->isinternal())
 					{
@@ -1014,7 +1014,7 @@ inline void b3DynamicBvh::rayTestInternal(const b3DbvtNode* root,
 	if (root)
 	{
 		int depth = 1;
-		int treshold = B3_DOUBLE_STACKSIZE - 2;
+		int threshold = B3_DOUBLE_STACKSIZE - 2;
 		b3AlignedObjectArray<const b3DbvtNode*>& stack = m_rayTestStack;
 		stack.resize(B3_DOUBLE_STACKSIZE);
 		stack[0] = root;
@@ -1031,10 +1031,10 @@ inline void b3DynamicBvh::rayTestInternal(const b3DbvtNode* root,
 			{
 				if (node->isinternal())
 				{
-					if (depth > treshold)
+					if (depth > threshold)
 					{
 						stack.resize(stack.size() * 2);
-						treshold = stack.size() - 2;
+						threshold = stack.size() - 2;
 					}
 					stack[depth++] = node->childs[0];
 					stack[depth++] = node->childs[1];
@@ -1076,7 +1076,7 @@ inline void b3DynamicBvh::rayTest(const b3DbvtNode* root,
 		b3AlignedObjectArray<const b3DbvtNode*> stack;
 
 		int depth = 1;
-		int treshold = B3_DOUBLE_STACKSIZE - 2;
+		int threshold = B3_DOUBLE_STACKSIZE - 2;
 
 		stack.resize(B3_DOUBLE_STACKSIZE);
 		stack[0] = root;
@@ -1101,10 +1101,10 @@ inline void b3DynamicBvh::rayTest(const b3DbvtNode* root,
 			{
 				if (node->isinternal())
 				{
-					if (depth > treshold)
+					if (depth > threshold)
 					{
 						stack.resize(stack.size() * 2);
-						treshold = stack.size() - 2;
+						threshold = stack.size() - 2;
 					}
 					stack[depth++] = node->childs[0];
 					stack[depth++] = node->childs[1];

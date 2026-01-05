@@ -156,17 +156,17 @@ public:
 
 	/** @brief Multiply by the target matrix on the right
 	*  @param m Rotation matrix to be applied 
-	* Equivilant to this = this * m */
+	* Equivalent to this = this * m */
 	b3Matrix3x3& operator*=(const b3Matrix3x3& m);
 
 	/** @brief Adds by the target matrix on the right
 	*  @param m matrix to be applied 
-	* Equivilant to this = this + m */
+	* Equivalent to this = this + m */
 	b3Matrix3x3& operator+=(const b3Matrix3x3& m);
 
 	/** @brief Substractss by the target matrix on the right
 	*  @param m matrix to be applied 
-	* Equivilant to this = this - m */
+	* Equivalent to this = this - m */
 	b3Matrix3x3& operator-=(const b3Matrix3x3& m);
 
 	/** @brief Set from the rotational part of a 4x4 OpenGL matrix

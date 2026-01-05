@@ -1362,7 +1362,7 @@ struct btEigen
 				const btScalar w = (a[q][q] - a[p][p]) / (2 * a[p][q]);
 				const btScalar z = btFabs(w);
 				const btScalar t = w / (z * (btSqrt(1 + w * w) + z));
-				if (t == t) /* [WARNING] let hope that one does not get thrown aways by some compilers... */
+				if (t == t) /* [WARNING] let hope that one does not get thrown away by some compilers... */
 				{
 					const btScalar c = 1 / btSqrt(t * t + 1);
 					const btScalar s = c * t;

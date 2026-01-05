@@ -423,7 +423,7 @@ class ChaseController(ControllerBase):
                      self._target_key, observations[self._target_key],
                      delta_vector, delta_t)
 
-    # Avoids sigularity when it is close enough. Keeps previous orientation.
+    # Avoids singularity when it is close enough. Keeps previous orientation.
     distance = np.linalg.norm(delta_vector)
     if distance < _EPS_DISTANCE:
       return target_position.copy(), self._previous_orientation.copy(), {}
@@ -731,7 +731,7 @@ class PauseIfCloseByWrapper(ControllerBase):
         front of controlled object. The pie-shaped area is symmetric about the
         forward direction of controlled object with it angle defined by this
         arg in radians, Only when other objects shows up in this region and
-        pause distance requirement is met, pause is actived.
+        pause distance requirement is met, pause is activated.
     """
 
     self._controller = wrapped_controller

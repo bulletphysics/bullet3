@@ -72,7 +72,7 @@ public:
 	}
 };
 
-/// btConvexConcaveCollisionAlgorithm  supports collision between convex shapes and (concave) trianges meshes.
+/// btConvexConcaveCollisionAlgorithm  supports collision between convex shapes and (concave) triangles meshes.
 ATTRIBUTE_ALIGNED16(class)
 btConvexConcaveCollisionAlgorithm : public btActivatingCollisionAlgorithm
 {

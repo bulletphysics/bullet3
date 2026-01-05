@@ -300,7 +300,7 @@ bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, 
 {
 	m_data->m_nullSpaceVelocity.SetLength(numQ);
 	m_data->m_nullSpaceVelocity.SetZero();
-	// TODO: Expose the coefficents of the null space term so that the user can choose to balance the null space task and the IK target task.
+	// TODO: Expose the coefficients of the null space term so that the user can choose to balance the null space task and the IK target task.
 	// Can also adaptively adjust the coefficients based on the residual of the null space velocity in the IK target task space.
 	double stayCloseToZeroGain = 0.001;
 	double stayAwayFromLimitsGain = 10.0;

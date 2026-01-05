@@ -57,7 +57,7 @@ bool CActiveSocket::ConnectTCP(const char *pAddr, uint16 nPort)
 	struct in_addr stIpAddress;
 
 	//------------------------------------------------------------------
-	// Preconnection setup that must be preformed
+	// Preconnection setup that must be performed
 	//------------------------------------------------------------------
 	memset(&m_stServerSockaddr, 0, sizeof(m_stServerSockaddr));
 	m_stServerSockaddr.sin_family = AF_INET;
@@ -137,7 +137,7 @@ bool CActiveSocket::ConnectUDP(const char *pAddr, uint16 nPort)
 	struct in_addr stIpAddress;
 
 	//------------------------------------------------------------------
-	// Pre-connection setup that must be preformed
+	// Pre-connection setup that must be performed
 	//------------------------------------------------------------------
 	memset(&m_stServerSockaddr, 0, sizeof(m_stServerSockaddr));
 	m_stServerSockaddr.sin_family = AF_INET;
@@ -195,7 +195,7 @@ bool CActiveSocket::ConnectRAW(const char *pAddr, uint16 nPort)
 	bool bRetVal = false;
 	struct in_addr stIpAddress;
 	//------------------------------------------------------------------
-	// Pre-connection setup that must be preformed
+	// Pre-connection setup that must be performed
 	//------------------------------------------------------------------
 	memset(&m_stServerSockaddr, 0, sizeof(m_stServerSockaddr));
 	m_stServerSockaddr.sin_family = AF_INET;

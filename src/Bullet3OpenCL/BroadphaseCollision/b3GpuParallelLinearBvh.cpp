@@ -547,7 +547,7 @@ void b3GpuParallelLinearBvh::constructBinaryRadixTree()
 			launcher.setConst(distanceFromRoot);
 			launcher.setConst(numInternalNodes);
 
-			//It may seem inefficent to launch a thread for each internal node when a
+			//It may seem inefficient to launch a thread for each internal node when a
 			//much smaller number of nodes is actually processed, but this is actually
 			//faster than determining the exact nodes that are ready to merge their child AABBs.
 			launcher.launch1D(numInternalNodes);

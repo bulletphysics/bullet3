@@ -52,7 +52,7 @@ const float RAD_TO_DEG = (360.0f / (2.0f * 3.141592654f));
 class Vector3d
 {
 public:
-	Vector3d(void){}  // null constructor, does not inialize point.
+	Vector3d(void){}  // null constructor, does not initialize point.
 
 	Vector3d(const Vector3d &a)  // constructor copies existing vector.
 	{
@@ -325,7 +325,7 @@ public:
 
 	// Highly specialized interpolate routine.  Will compute the interpolated position
 	// shifted forward or backwards along the ray defined between (from) and (to).
-	// Reason for existance is so that when a bullet collides with a wall, for
+	// Reason for existence is so that when a bullet collides with a wall, for
 	// example, you can generate a graphic effect slightly *before* it hit the
 	// wall so that the effect doesn't sort into the wall itself.
 	void Interpolate(const Vector3d &from, const Vector3d &to, float offset)
@@ -890,7 +890,7 @@ public:
 class Vector2d
 {
 public:
-	Vector2d(void){}  // null constructor, does not inialize point.
+	Vector2d(void){}  // null constructor, does not initialize point.
 
 	Vector2d(const Vector2d &a)  // constructor copies existing vector.
 	{

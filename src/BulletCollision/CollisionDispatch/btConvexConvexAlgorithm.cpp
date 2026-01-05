@@ -403,7 +403,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 			if (sepDist > SIMD_EPSILON)
 			{
 				sepDist += dispatchInfo.m_convexConservativeDistanceThreshold;
-				//now perturbe directions to get multiple contact points
+				//now perturb directions to get multiple contact points
 			}
 		}
 #endif  //USE_SEPDISTANCE_UTIL2

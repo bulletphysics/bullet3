@@ -152,7 +152,7 @@ void KinematicMultiBodyExample::initPhysics()
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 		btBoxShape* colShape = createBoxShape(btVector3(btScalar(.1), btScalar(.1), btScalar(.1)));
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));

@@ -155,7 +155,7 @@ void NewtonsCradleExample::initPhysics()
 		btVector3 position(0.0f, 15.0f, 0.0f);  // initial left-most pendulum position
 		btQuaternion orientation(0, 0, 0, 1);   // orientation of the pendula
 
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
 		m_collisionShapes.push_back(pendulumShape);
 

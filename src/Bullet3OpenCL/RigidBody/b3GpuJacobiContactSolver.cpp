@@ -321,7 +321,7 @@ static inline void solveFriction(b3GpuConstraint4& cs,
 static float calcJacCoeff(const b3Vector3& /*linear0*/, const b3Vector3& /*linear1*/, const b3Vector3& angular0, const b3Vector3& angular1,
 				   float invMass0, const b3Matrix3x3* invInertia0, float invMass1, const b3Matrix3x3* invInertia1, float countA, float countB)
 {
-	//	linear0,1 are normlized
+	//	linear0,1 are normalized
 	float jmj0 = invMass0;  //dot3F4(linear0, linear0)*invMass0;
 
 	float jmj1 = b3Dot(mtMul3(angular0, *invInertia0), angular0);

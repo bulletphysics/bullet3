@@ -166,7 +166,7 @@ void btReducedDeformableBody::updateLocalMomentArm()
 void btReducedDeformableBody::updateExternalForceProjectMatrix(bool initialized)
 {
   // if not initialized, need to compute both P_A and Cq
-  // otherwise, only need to udpate Cq
+  // otherwise, only need to update Cq
   if (!initialized)
   {
     // resize
@@ -720,7 +720,7 @@ void btReducedDeformableBody::internalApplyFullSpaceImpulse(const btVector3& imp
 
 void btReducedDeformableBody::applyFullSpaceNodalForce(const btVector3& f_ext, int n_node)
 {
-  // f_local = R^-1 * f_ext //TODO: interpoalted transfrom
+  // f_local = R^-1 * f_ext //TODO: interpolated transform
   // btVector3 f_local = m_rigidTransformWorld.getBasis().transpose() * f_ext;
   btVector3 f_local = m_interpolationWorldTransform.getBasis().transpose() * f_ext;
 

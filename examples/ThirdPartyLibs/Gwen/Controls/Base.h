@@ -378,7 +378,7 @@ public:
 	Gwen::Event::Caller onHoverEnter;
 	Gwen::Event::Caller onHoverLeave;
 
-	// Childrens List
+	// Children List
 
 	Base::List Children;
 

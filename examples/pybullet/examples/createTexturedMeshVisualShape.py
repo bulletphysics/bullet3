@@ -122,7 +122,7 @@ indices = [
     23
 ]
 
-#the visual shape and collision shape can be re-used by all createMultiBody instances (instancing)
+#the visual shape and collision shape can be reuse by all createMultiBody instances (instancing)
 visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,
                                     rgbaColor=[1, 1, 1, 1],
                                     specularColor=[0.4, .4, 0],

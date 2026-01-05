@@ -219,7 +219,7 @@ enum b36DofFlags
 };
 #define B3_6DOF_FLAGS_AXIS_SHIFT 3  // bits per axis
 
-/// b3Generic6DofConstraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
+/// b3Generic6DofConstraint between two rigidbodies each with a pivotpoint that describes the axis location in local space
 /*!
 b3Generic6DofConstraint can leave any of the 6 degree of freedom 'free' or 'locked'.
 currently this limit supports rotational motors<br>
@@ -294,7 +294,7 @@ protected:
 	b3Scalar m_factB;
 	bool m_hasStaticBody;
 
-	b3Vector3 m_AnchorPos;  // point betwen pivots of bodies A and B to solve linear axes
+	b3Vector3 m_AnchorPos;  // point between pivots of bodies A and B to solve linear axes
 
 	bool m_useLinearReferenceFrameA;
 	bool m_useOffsetForConstraintFrame;
@@ -450,13 +450,13 @@ public:
 			angularUpper[i] = m_angularLimits[i].m_hiLimit;
 	}
 
-	//! Retrieves the angular limit informacion
+	//! Retrieves the angular limit information
 	b3RotationalLimitMotor* getRotationalLimitMotor(int index)
 	{
 		return &m_angularLimits[index];
 	}
 
-	//! Retrieves the  limit informacion
+	//! Retrieves the  limit information
 	b3TranslationalLimitMotor* getTranslationalLimitMotor()
 	{
 		return &m_linearLimits;

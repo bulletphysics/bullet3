@@ -810,7 +810,7 @@ static const char* mprKernelsCL =
 	"	for (int i=0;i<B3_MPR_MAX_ITERATIONS;i++)\n"
 	"    //while (1)\n"
 	"	{\n"
-	"        // compute direction outside the portal (from v0 throught v1,v2,v3\n"
+	"        // compute direction outside the portal (from v0 through v1,v2,v3\n"
 	"        // face)\n"
 	"        b3PortalDir(portal, &dir);\n"
 	"        // test if origin is inside the portal\n"

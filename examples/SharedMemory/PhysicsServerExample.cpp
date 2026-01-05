@@ -1,6 +1,6 @@
 
 
-//todo(erwincoumans): re-use the upcoming b3RobotSimAPI here
+//todo(erwincoumans): reuse the upcoming b3RobotSimAPI here
 
 #include "PhysicsServerExample.h"
 

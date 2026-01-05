@@ -352,7 +352,7 @@ void BenchmarkDemo::initPhysics()
 	//cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
 	//m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 
-	/////use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	/////use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	//m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 	//
 	//m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);

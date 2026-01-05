@@ -474,7 +474,7 @@ float calcRelVel( float4 l0, float4 l1, float4 a0, float4 a1, float4 linVel0, fl
 float calcJacCoeff(const float4 linear0, const float4 linear1, const float4 angular0, const float4 angular1,
 					float invMass0, const Matrix3x3* invInertia0, float invMass1, const Matrix3x3* invInertia1, float countA, float countB)
 {
-	//	linear0,1 are normlized
+	//	linear0,1 are normalized
 	float jmj0 = invMass0;//dot3F4(linear0, linear0)*invMass0;
 	float jmj1 = dot3F4(mtMul3(angular0,*invInertia0), angular0);
 	float jmj2 = invMass1;//dot3F4(linear1, linear1)*invMass1;

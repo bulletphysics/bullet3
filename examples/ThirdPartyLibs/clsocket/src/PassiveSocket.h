@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
-/* Socket.h - Passive Socket Decleration.                                    */
+/* Socket.h - Passive Socket Declaration.                                    */
 /*                                                                           */
 /* Author : Mark Carrier (mark@carrierlabs.com)                              */
 /*                                                                           */

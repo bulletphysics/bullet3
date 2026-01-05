@@ -468,7 +468,7 @@ public:
 
 	/// Sets all limit's parameters.
 	/// When low > high limit becomes inactive.
-	/// When high - low > 2PI limit is ineffective too becouse no angle can exceed the limit
+	/// When high - low > 2PI limit is ineffective too because no angle can exceed the limit
 	void set(btScalar low, btScalar high, btScalar _softness = btScalar(0.9), btScalar _biasFactor = btScalar(0.3), btScalar _relaxationFactor = btScalar(1.0));
 
 	/// Checks conastaint angle against limit. If limit is active and the angle violates the limit

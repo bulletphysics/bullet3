@@ -464,7 +464,7 @@ CircularListElement<TMMTriangle>* ICHull::MakeFace(CircularListElement<TMMVertex
 		e1 = m_mesh.AddEdge();
 		e2 = m_mesh.AddEdge();
 	}
-	else  // otherwise re-use existing edges (in reverse order)
+	else  // otherwise reuse existing edges (in reverse order)
 	{
 		e0 = fold->GetData().m_edges[2];
 		e1 = fold->GetData().m_edges[1];
@@ -687,7 +687,7 @@ bool ICHull::CleanEdges()
 			e->GetData().m_newFace = 0;
 		}
 	}
-	// delete edges maked for deletion
+	// delete edges marked for deletion
 	CircularList<TMMEdge>& edges = m_mesh.GetEdges();
 	const size_t ne_delete = m_edgesToDelete.Size();
 	for (size_t i = 0; i < ne_delete; ++i)

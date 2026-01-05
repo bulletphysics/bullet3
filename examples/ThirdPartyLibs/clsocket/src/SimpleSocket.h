@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
-/* SimpleSocket.h - Simple Socket base class decleration.                    */
+/* SimpleSocket.h - Simple Socket base class declaration.                    */
 /*                                                                           */
 /* Author : Mark Carrier (mark@carrierlabs.com)                              */
 /*                                                                           */
@@ -102,7 +102,7 @@
 class CSimpleSocket
 {
 public:
-	/// Defines the three possible states for shuting down a socket.
+	/// Defines the three possible states for shutting down a socket.
 	typedef enum
 	{
 		Receives = SHUT_RD,  ///< Shutdown passive socket.
@@ -420,10 +420,10 @@ public:
 	/// @return the length of time in seconds
 	bool SetSendTimeout(int32 nSendTimeoutSec, int32 nSendTimeoutUsec = 0);
 
-	/// Returns the last error that occured for the instace of the CSimpleSocket
+	/// Returns the last error that occurred for the instance of the CSimpleSocket
 	/// instance.  This method should be called immediately to retrieve the
-	/// error code for the failing mehtod call.
-	///  @return last error that occured.
+	/// error code for the failing method call.
+	///  @return last error that occurred.
 	CSocketError GetSocketError(void)
 	{
 		return m_socketErrno;

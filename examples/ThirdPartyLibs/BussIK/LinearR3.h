@@ -29,7 +29,7 @@ subject to the following restrictions:
 //    A.1. VectorR3: a real column vector of length 3.
 //
 //	  A.2. VectorHgR3: a column vector of length 4 which is
-//			the homogenous representation of a vector in 3-space
+//			the homogeneous representation of a vector in 3-space
 //
 // B. Matrix Classes
 //
@@ -51,7 +51,7 @@ subject to the following restrictions:
 #include "MathMisc.h"
 
 class VectorR3;    // Space Vector (length 3)
-class VectorHgR3;  // Homogenous Space Vector
+class VectorHgR3;  // homogeneous Space Vector
 class VectorR4;    // Space Vector (length 4)
 
 class LinearMapR3;    // Linear Map (3x3 Matrix)
@@ -2057,13 +2057,13 @@ inline VectorR3 ProjectToUnit(const VectorR3& u, const VectorR3& v)
 	return (u ^ v) * v;
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 inline VectorR3 ProjectPerpUnit(const VectorR3& u, const VectorR3& v)
 {
 	return (u - ((u ^ v) * v));
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 //    This one is more stable when u and v are nearly equal.
 inline VectorR3 ProjectPerpUnitDiff(const VectorR3& u, const VectorR3& v)
 {
@@ -2087,7 +2087,7 @@ inline LinearMapR3 VectorProjectMap(const VectorR3& u)
 }
 
 // PlaneProjectMap returns map projecting onto a given plane.
-//		The plane is the plane orthognal to w.
+//		The plane is the plane orthogonal to w.
 //		w must be a unit vector (otherwise the returned map is
 //		garbage).
 inline LinearMapR3 PlaneProjectMap(const VectorR3& w)

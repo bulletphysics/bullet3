@@ -94,7 +94,7 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
 
 	beforeSolverCallbacks(timeStep);
 
-	// ///solve contact constraints and then deformable bodies momemtum equation
+	// ///solve contact constraints and then deformable bodies momentum equation
 	solveConstraints(timeStep);
 
 	afterSolverCallbacks(timeStep);

@@ -85,7 +85,7 @@ btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolver
 	btVector3 vr = (vb - va);
 	// + (m_anchor->m_node->m_x - cti.m_colObj->getWorldTransform() * m_anchor->m_local) * 10.0
 	const btScalar dn = btDot(vr, vr);
-	// dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
+	// dn is the normal component of velocity difference. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
 	btScalar residualSquare = dn * dn;
 	btVector3 impulse = m_anchor->m_c0 * vr;
 	// apply impulse to deformable nodes involved and change their velocities
@@ -636,7 +636,7 @@ btScalar btDeformableFaceNodeContactConstraint::solveConstraint(const btContactS
 	btVector3 vb = getVb();
 	btVector3 vr = vb - va;
 	const btScalar dn = btDot(vr, m_contact->m_normal);
-	// dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
+	// dn is the normal component of velocity difference. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
 	btScalar residualSquare = dn * dn;
 	btVector3 impulse = m_contact->m_c0 * vr;
 	const btVector3 impulse_normal = m_contact->m_c0 * (m_contact->m_normal * dn);

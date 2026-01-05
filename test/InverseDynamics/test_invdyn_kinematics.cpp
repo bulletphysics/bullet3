@@ -290,7 +290,7 @@ static int calculateDifferentiationError(const MultiBodyTreeCreator& creator, id
 	return 0;
 }
 
-// first test: absolute difference between numerical and numerial
+// first test: absolute difference between numerical and numerical
 // differentiation should be small
 TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 {
@@ -345,7 +345,7 @@ TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 }
 
 // second test: check if the change in the differentiation error
-// is consitent with the second order approximation, ie, error ~ O(dt^2)
+// is consistent with the second order approximation, ie, error ~ O(dt^2)
 TEST(InvDynKinematicsDifferentiation, errorOrder)
 {
 	const idScalar kDeltaTs[2] = {idScalar(1e-4), idScalar(1e-5)};

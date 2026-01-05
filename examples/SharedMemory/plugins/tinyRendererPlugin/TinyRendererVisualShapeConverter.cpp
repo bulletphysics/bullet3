@@ -18,7 +18,7 @@ subject to the following restrictions:
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
 #include "../Importers/ImportSTLDemo/LoadMeshFromSTL.h"
 #include "../Importers/ImportColladaDemo/LoadMeshFromCollada.h"
-#include "BulletCollision/CollisionShapes/btShapeHull.h"  //to create a tesselation of a generic btConvexShape
+#include "BulletCollision/CollisionShapes/btShapeHull.h"  //to create a tessellation of a generic btConvexShape
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include <string>
@@ -657,7 +657,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* /*urdf
 	}
 	}
 
-	//if we have a convex, tesselate into localVertices/localIndices
+	//if we have a convex, tessellate into localVertices/localIndices
 	if ((glmesh == 0) && convexColShape)
 	{
 		btShapeHull* hull = new btShapeHull(convexColShape);

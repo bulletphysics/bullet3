@@ -790,7 +790,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 	{
 		btScalar positionalError = btScalar(0.f);
-		btScalar velocityError = restitution - rel_vel;  // * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
+		btScalar velocityError = restitution - rel_vel;  // * damping;	//note for friction restitution is always set to 0 (check above) so it is actually velocityError = -rel_vel for friction
 		if (isFriction)
 		{
 			positionalError = -distance * erp / infoGlobal.m_timeStep;
@@ -1131,7 +1131,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 	solverConstraint.m_appliedPushImpulse = btScalar(0.f);
 
 	{
-		btScalar velocityError = 0 - rel_vel;  // * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
+		btScalar velocityError = 0 - rel_vel;  // * damping;	//note for friction restitution is always set to 0 (check above) so it is actually velocityError = -rel_vel for friction
 
 		btScalar velocityImpulse = velocityError * solverConstraint.m_jacDiagABInv;
 

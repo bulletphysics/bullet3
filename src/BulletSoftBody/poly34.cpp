@@ -179,7 +179,7 @@ int SolveP4Bi(btScalar* x, btScalar b, btScalar d)  // solve equation x^4 + b*x^
 		return 2;
 	}
 	else
-	{  // if( D < 0 ), two pair of compex roots
+	{  // if( D < 0 ), two pair of complex roots
 		btScalar sD2 = btScalar(0.5) * (btScalar)sqrt(-D);
 		CSqrt(btScalar(-0.5) * b, sD2, x[0], x[1]);
 		CSqrt(btScalar(-0.5) * b, -sD2, x[2], x[3]);
@@ -240,7 +240,7 @@ int SolveP4De(btScalar* x, btScalar b, btScalar c, btScalar d)  // solve equatio
 			return 4;
 		}  // if( x[0] > 0) // all roots are positive
 		// now x[0] <= x[1] < 0, x[2] > 0
-		// two pair of comlex roots
+		// two pair of complex roots
 		btScalar sz1 = (btScalar)sqrt(-x[0]);
 		btScalar sz2 = (btScalar)sqrt(-x[1]);
 		btScalar sz3 = (btScalar)sqrt(x[2]);
@@ -260,7 +260,7 @@ int SolveP4De(btScalar* x, btScalar b, btScalar c, btScalar d)  // solve equatio
 		x[3] = (sz1 + sz2) / 2;
 		return 0;
 	}  // if( res3>1 )    // 3 real roots,
-	// now resoventa have 1 real and pair of compex roots
+	// now resolventa have 1 real and pair of complex roots
 	// x[0] - real root, and x[0]>0,
 	// x[1]i*x[2] - complex roots,
 	// x[0] must be >=0. But one times x[0]=~ 1e-17, so:

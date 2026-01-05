@@ -72,7 +72,7 @@ public:
 	}
 
 private:
-	// Class encompasing the state and logic needed to serve a request.
+	// Class encompassing the state and logic needed to serve a request.
 	class CallData
 	{
 	public:

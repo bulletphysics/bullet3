@@ -61,7 +61,7 @@ public:
   /** Construct a 2D counter clock wise rotation from the angle \a a in radian. */
   EIGEN_DEVICE_FUNC explicit inline Rotation2D(const Scalar& a) : m_angle(a) {}
   
-  /** Default constructor wihtout initialization. The represented rotation is undefined. */
+  /** Default constructor without initialization. The represented rotation is undefined. */
   EIGEN_DEVICE_FUNC Rotation2D() {}
 
   /** Construct a 2D rotation from a 2x2 rotation matrix \a mat.

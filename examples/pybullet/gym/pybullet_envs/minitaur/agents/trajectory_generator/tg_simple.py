@@ -44,7 +44,7 @@ _LEG_COUPLING_DICT = {
     "left right": [0, 0, 1, 1],
     # Diagonal legs are coupled (i.e. trottting).
     "diagonal": [0, 1, 1, 0],
-    # Each leg is indepenent.
+    # Each leg is independent.
     "decoupled": [0, 1, 2, 3]
 }
 
@@ -228,7 +228,7 @@ class TgSimple(object):
 
     Args:
       tg_params: A list consisting of time_scales, intensity, walking_heights,
-        swing_stance_ratio. The size depends on the configuration and inital
+        swing_stance_ratio. The size depends on the configuration and initial
         flags.
 
     Returns:
@@ -336,7 +336,7 @@ class CircularAsymmetricalIntegratorUnit(object):
     self.phase = self._init_phase
 
   def calculate_progressed_phase(self, delta_period, swing_stance_speed_ratio):
-    """Calculate a hypotethical phase based on the current phase and args.
+    """Calculate a hypothetical phase based on the current phase and args.
 
     This is used to both calculate the new phase, as well as the current phase
     of the other legs with a given offset of delta_period.
@@ -349,7 +349,7 @@ class CircularAsymmetricalIntegratorUnit(object):
         stance speed ratio.
       swing_stance_speed_ratio: The ratio of the speed of the phase when it is
         in swing (second half) vs stance (first half). Set to 1.0 by default,
-        making it symettric, same as a classical integrator.
+        making it symmetric, same as a classical integrator.
 
     Returns:
       The new phase between 0 and 2 * pi.
@@ -390,7 +390,7 @@ class CircularAsymmetricalIntegratorUnit(object):
         stance speed ratio.
       swing_stance_ratio: The ratio of the speed of the phase when it is in
         swing (second half) vs stance (first half). Set to 1.0 by default,
-        making it symettric, same as a classical integrator.
+        making it symmetric, same as a classical integrator.
     """
     self.phase = self.calculate_progressed_phase(delta_period,
                                                  swing_stance_ratio)

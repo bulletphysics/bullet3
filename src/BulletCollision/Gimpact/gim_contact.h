@@ -52,7 +52,7 @@ Configuration var for applying interpolation of  contact normals
 /// Structure for collision results
 ///Functions for managing and sorting contacts resulting from a collision query.
 ///Contact lists must be create by calling \ref GIM_CREATE_CONTACT_LIST
-///After querys, contact lists must be destroy by calling \ref GIM_DYNARRAY_DESTROY
+///After queries, contact lists must be destroy by calling \ref GIM_DYNARRAY_DESTROY
 ///Contacts can be merge for avoid duplicate results by calling \ref gim_merge_contacts
 class GIM_CONTACT
 {

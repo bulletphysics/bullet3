@@ -101,7 +101,7 @@ void TestJointTorqueSetup::initPhysics()
 		bool damping = false;
 		bool gyro = false;
 		int numLinks = 2;
-		bool spherical = false;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
+		bool spherical = false;  //set it to false -to use 1DoF hinges instead of 3DoF sphericals
 		bool canSleep = false;
 		bool selfCollide = false;
 		btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));

@@ -1638,7 +1638,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
 			//    if (IsItemHovered() && IsMouseClicked(0))
 			//       OpenPopup(id);
 			//    return BeginPopup(id);
-			// For more advanced uses you may want to replicate and cuztomize this code. This the comments inside BeginPopupContextItem() implementation.
+			// For more advanced uses you may want to replicate and customize this code. This the comments inside BeginPopupContextItem() implementation.
 			static float value = 0.5f;
 			ImGui::Text("Value = %.3f (<-- right-click here)", value);
 			if (ImGui::BeginPopupContextItem("item context menu"))
@@ -1937,7 +1937,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
 
 		bool node_open = ImGui::TreeNode("Tree within single cell");
 		ImGui::SameLine();
-		ShowHelpMarker("NB: Tree node must be poped before ending the cell. There's no storage of state per-cell.");
+		ShowHelpMarker("NB: Tree node must be popped before ending the cell. There's no storage of state per-cell.");
 		if (node_open)
 		{
 			ImGui::Columns(2, "tree items");

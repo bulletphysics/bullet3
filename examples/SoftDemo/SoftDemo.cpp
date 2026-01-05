@@ -223,7 +223,7 @@ static int current_demo = 20;
 #ifdef _DEBUG
 //const int gNumObjects = 1;
 #else
-//const int gNumObjects = 1;//try this in release mode: 3000. never go above 16384, unless you increate maxNumObjects  value in DemoApplication.cp
+//const int gNumObjects = 1;//try this in release mode: 3000. never go above 16384, unless you increase maxNumObjects  value in DemoApplication.cp
 #endif
 
 //const int maxNumObjects = 32760;

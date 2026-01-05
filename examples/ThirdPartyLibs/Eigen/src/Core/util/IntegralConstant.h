@@ -257,8 +257,8 @@ static const auto fix();
   * }
   * \endcode
   * In this example, the function Eigen::seqN knows that the second argument is expected to be a size.
-  * If the passed compile-time value N equals Eigen::Dynamic, then the proxy object returned by fix will be dissmissed, and converted to an Eigen::Index of value \c n.
-  * Otherwise, the runtime-value \c n will be dissmissed, and the returned ArithmeticSequence will be of the exact same type as <tt> seqN(0,fix<N>) </tt>.
+  * If the passed compile-time value N equals Eigen::Dynamic, then the proxy object returned by fix will be dismissed, and converted to an Eigen::Index of value \c n.
+  * Otherwise, the runtime-value \c n will be dismissed, and the returned ArithmeticSequence will be of the exact same type as <tt> seqN(0,fix<N>) </tt>.
   *
   * \sa fix, seqN, class ArithmeticSequence
   */

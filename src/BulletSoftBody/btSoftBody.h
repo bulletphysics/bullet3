@@ -417,7 +417,7 @@ public:
 	{
 		Node* m_node;         // Node
 		Face* m_face;         // Face
-		btVector3 m_weights;  // Weigths
+		btVector3 m_weights;  // Weights
 		btVector3 m_normal;   // Normal
 		btScalar m_margin;    // Margin
 		btScalar m_friction;  // Friction
@@ -1053,7 +1053,7 @@ public:
 	static void clusterDAImpulse(Cluster* cluster, const btVector3& impulse);
 	static void clusterAImpulse(Cluster* cluster, const Impulse& impulse);
 	static void clusterDCImpulse(Cluster* cluster, const btVector3& impulse);
-	/* Generate bending constraints based on distance in the adjency graph	*/
+	/* Generate bending constraints based on distance in the adjacency graph	*/
 	int generateBendingConstraints(int distance,
 								   Material* mat = 0);
 	/* Randomize constraints to reduce solver bias							*/
@@ -1069,7 +1069,7 @@ public:
 	///otherwise an approximation will be used (better performance)
 	int generateClusters(int k, int maxiterations = 8192);
 	/* Refine																*/
-	void refine(ImplicitFn* ifn, btScalar accurary, bool cut);
+	void refine(ImplicitFn* ifn, btScalar accuracy, bool cut);
 	/* CutLink																*/
 	bool cutLink(int node0, int node1, btScalar position);
 	bool cutLink(const Node* node0, const Node* node1, btScalar position);

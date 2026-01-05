@@ -88,7 +88,7 @@ struct UrdfRenderingInterface
 	///provide the image pixels as a part of a stream.
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int* segmentationMaskBuffer, int segmentationMaskSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied) = 0;
 
-	///render an image, using some arbitraty view and projection matrix
+	///render an image, using some arbitrary view and projection matrix
 	virtual void render() = 0;
 
 	///render an image using the provided view and projection matrix

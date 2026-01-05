@@ -292,7 +292,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlySetup(b3OpenCLArray<b3
 			{
 				totalNumRows = 0;
 				gpuConstraints->copyToHost(m_gpuData->m_cpuConstraints);
-				//calculate the total number of contraint rows
+				//calculate the total number of constraint rows
 				for (int i = 0; i < numConstraints; i++)
 				{
 					unsigned int& info1 = m_tmpConstraintSizesPool[i];

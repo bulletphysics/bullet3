@@ -93,7 +93,7 @@ void syncContactManifolds(T** contactManifolds, int numContactManifolds, btMulti
 					else
 					{
 						existingManifold->setNumContacts(0);
-						//printf("Issue: cannot find maching contact manifold (%d, %d), may cause issues in determinism.\n", uid0, uid1);
+						//printf("Issue: cannot find matching contact manifold (%d, %d), may cause issues in determinism.\n", uid0, uid1);
 					}
 
 					manifoldArray.clear();

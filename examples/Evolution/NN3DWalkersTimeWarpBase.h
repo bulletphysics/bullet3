@@ -381,7 +381,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 			// more complex simulations might need a higher number of iterations to converge, it also
 			// depends on the type of solver.
 			SliderParams slider(
-				"Solver interations",
+				"Solver interactions",
 				&gSolverIterations);
 			slider.m_minVal = 0;
 			slider.m_maxVal = 1000;
@@ -457,7 +457,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 		// default broadphase

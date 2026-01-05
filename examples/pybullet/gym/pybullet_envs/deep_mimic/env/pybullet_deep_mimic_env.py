@@ -259,7 +259,7 @@ class PyBulletDeepMimicEnv(Env):
     #  print(a)
     #np.savetxt("pb_action.csv", action, delimiter=",")
     self.desiredPose = self._humanoid.convertActionToPose(action)
-    #we need the target root positon and orientation to be zero, to be compatible with deep mimic
+    #we need the target root position and orientation to be zero, to be compatible with deep mimic
     self.desiredPose[0] = 0
     self.desiredPose[1] = 0
     self.desiredPose[2] = 0

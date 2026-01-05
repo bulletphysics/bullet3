@@ -81,7 +81,7 @@ class WalkingWrapper(object):
                action_repeat=20,
                speed_bound=(-0.3, 0.3),
                angular_speed_bound=(-0.3, 0.3)):
-    """Initialzes the wrapped env.
+    """Initializes the wrapped env.
 
     Args:
       gym_env: An instance of LocomotionGymEnv.

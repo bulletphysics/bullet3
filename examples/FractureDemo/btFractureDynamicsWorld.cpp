@@ -267,7 +267,7 @@ void btFractureDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	//	save all velocities and if one or more objects fracture:
 	//	1) revert all velocties
 	//	2) apply impulses for the fracture bodies at the contact locations
-	//	3)and run the constaint solver again
+	//	3)and run the constraint solver again
 
 	btDiscreteDynamicsWorld::solveConstraints(solverInfo);
 

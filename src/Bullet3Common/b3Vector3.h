@@ -233,11 +233,11 @@ public:
 	}
 
 	/**@brief Return the distance squared between the ends of this and another vector
-   * This is symantically treating the vector like a point */
+   * This is semantically treating the vector like a point */
 	B3_FORCE_INLINE b3Scalar distance2(const b3Vector3& v) const;
 
 	/**@brief Return the distance between the ends of this and another vector
-   * This is symantically treating the vector like a point */
+   * This is semantically treating the vector like a point */
 	B3_FORCE_INLINE b3Scalar distance(const b3Vector3& v) const;
 
 	B3_FORCE_INLINE b3Vector3& safeNormalize()
@@ -697,7 +697,7 @@ public:
 	}
 };
 
-/**@brief Return the sum of two vectors (Point symantics)*/
+/**@brief Return the sum of two vectors (Point semantics)*/
 B3_FORCE_INLINE b3Vector3
 operator+(const b3Vector3& v1, const b3Vector3& v2)
 {
@@ -907,7 +907,7 @@ B3_FORCE_INLINE b3Vector3 b3Vector3::normalized() const
 
 B3_FORCE_INLINE b3Vector3 b3Vector3::rotate(const b3Vector3& wAxis, const b3Scalar _angle) const
 {
-	// wAxis must be a unit lenght vector
+	// wAxis must be a unit length vector
 
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
 

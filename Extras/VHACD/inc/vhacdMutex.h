@@ -5,7 +5,7 @@
 ** Portions of this source has been released with the PhysXViewer application, as well as
 ** Rocket, CreateDynamics, ODF, and as a number of sample code snippets.
 **
-** If you find this code useful or you are feeling particularily generous I would
+** If you find this code useful or you are feeling particularly generous I would
 ** ask that you please go to http://www.amillionpixels.us and make a donation
 ** to Troy DeMolay.
 **

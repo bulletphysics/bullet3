@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
-/* ActiveSocket.h - Active Socket Decleration                                */
+/* ActiveSocket.h - Active Socket Declaration                                */
 /*                                                                           */
 /* Author : Mark Carrier (mark@carrierlabs.com)                              */
 /*                                                                           */

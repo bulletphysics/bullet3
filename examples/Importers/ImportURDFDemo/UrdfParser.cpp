@@ -1270,7 +1270,7 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 	{
 		if (!col_xml->Attribute("filename"))
 		{
-			logger->reportError("expected a filename for collision geoemtry");
+			logger->reportError("expected a filename for collision geometry");
 			return false;
 		}
 		fn = vis_xml->Attribute("filename");
@@ -1435,7 +1435,7 @@ bool UrdfParser::parseReducedDeformable(UrdfModel& model, tinyxml2::XMLElement* 
 	{
 		if (!col_xml->Attribute("filename"))
 		{
-			logger->reportError("expected a filename for collision geoemtry");
+			logger->reportError("expected a filename for collision geometry");
 			return false;
 		}
 		fn = col_xml->Attribute("filename");

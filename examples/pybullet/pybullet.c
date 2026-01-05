@@ -3543,7 +3543,7 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 				}
 				else
 				{
-					//printf("Warning: targetVelocity array size doesn't match joint dimentions (got %d, expected %d).", targetVelocitySize, info.m_uSize);
+					//printf("Warning: targetVelocity array size doesn't match joint dimensions (got %d, expected %d).", targetVelocitySize, info.m_uSize);
 				}
 				if (info.m_uSize == kdSize || kdSize == 1)
 				{
@@ -4629,7 +4629,7 @@ static PyObject* pybullet_getNumJoints(PyObject* self, PyObject* args, PyObject*
 #endif
 }
 
-// Initalize all joint positions given a list of values
+// Initialize all joint positions given a list of values
 static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	{
@@ -4681,7 +4681,7 @@ static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args, PyObje
 }
 
 
-// Initalize all joint positions given a list of values
+// Initialize all joint positions given a list of values
 static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	{
@@ -4873,7 +4873,7 @@ static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* arg
 	return Py_None;
 }
 
-// Initalize all joint positions given a list of values
+// Initialize all joint positions given a list of values
 static PyObject* pybullet_resetJointStateMultiDof(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	{
@@ -10148,7 +10148,7 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	float lightSpecularCoeff = -1;
 	int flags = -1;
 	int renderer = -1;
-	// inialize cmd
+	// initialize cmd
 	b3SharedMemoryCommandHandle command;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
@@ -10511,7 +10511,7 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 	float nearVal, farVal;
 	float fov;
 
-	// inialize cmd
+	// initialize cmd
 	b3SharedMemoryCommandHandle command;
 	b3PhysicsClientHandle sm;
 	int physicsClientId = 0;
@@ -11800,7 +11800,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 				int i;
 				//if (szJointDamping != dofCount)
 				//{
-				//	printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additonal values.");
+				//	printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additional values.");
 				//}
 				jointDamping = (double*)malloc(szInBytes);
 				for (i = 0; i < szJointDamping; i++)
@@ -12050,7 +12050,7 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 					int i;
 					//if (szJointDamping != dofCount)
 					//{
-					//	printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additonal values.");
+					//	printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additional values.");
 					//}
 					jointDamping = (double*)malloc(szInBytes);
 					for (i = 0; i < szJointDamping; i++)
@@ -12638,7 +12638,7 @@ static PyMethodDef SpamMethods[] = {
 
 	{"setDefaultContactERP", (PyCFunction)pybullet_setDefaultContactERP, METH_VARARGS | METH_KEYWORDS,
 	 "setDefaultContactERP(defaultContactERP, physicsClientId=0)\n"
-	 "Set the amount of contact penetration Error Recovery Paramater "
+	 "Set the amount of contact penetration Error Recovery Parameter "
 	 "(ERP) in each time step. \
 		This is an tuning parameter to control resting contact stability. "
 	 "This value depends on the time step."},
@@ -12691,10 +12691,10 @@ static PyMethodDef SpamMethods[] = {
 	 "Load multibodies from an MJCF file."},
 
 	{"createCollisionShape", (PyCFunction)pybullet_createCollisionShape, METH_VARARGS | METH_KEYWORDS,
-	 "Create a collision shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+	 "Create a collision shape. Returns a non-negative (int) unique id, if successful, negative otherwise."},
 
 	{"createCollisionShapeArray", (PyCFunction)pybullet_createCollisionShapeArray, METH_VARARGS | METH_KEYWORDS,
-	 "Create collision shapes. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+	 "Create collision shapes. Returns a non-negative (int) unique id, if successful, negative otherwise."},
 
 	{"removeCollisionShape", (PyCFunction)pybullet_removeCollisionShape, METH_VARARGS | METH_KEYWORDS,
 	 "Remove a collision shape. Only useful when the collision shape is not used in a body (to perform a getClosestPoint query)."},
@@ -12709,16 +12709,16 @@ static PyMethodDef SpamMethods[] = {
 	 "Reset mesh data. Only implemented for deformable bodies."},
 
 	{"createVisualShape", (PyCFunction)pybullet_createVisualShape, METH_VARARGS | METH_KEYWORDS,
-	 "Create a visual shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+	 "Create a visual shape. Returns a non-negative (int) unique id, if successful, negative otherwise."},
 
 	{"createVisualShapeArray", (PyCFunction)pybullet_createVisualShapeArray, METH_VARARGS | METH_KEYWORDS,
-	 "Create visual shapes. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+	 "Create visual shapes. Returns a non-negative (int) unique id, if successful, negative otherwise."},
 
 	{"createMultiBody", (PyCFunction)pybullet_createMultiBody, METH_VARARGS | METH_KEYWORDS,
-	 "Create a multi body. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+	 "Create a multi body. Returns a non-negative (int) unique id, if successful, negative otherwise."},
 
 	{"createConstraint", (PyCFunction)pybullet_createUserConstraint, METH_VARARGS | METH_KEYWORDS,
-	 "Create a constraint between two bodies. Returns a (int) unique id, if successfull."},
+	 "Create a constraint between two bodies. Returns a (int) unique id, if successful."},
 
 	{"changeConstraint", (PyCFunction)pybullet_changeUserConstraint, METH_VARARGS | METH_KEYWORDS,
 	 "Change some parameters of an existing constraint, such as the child pivot or child frame orientation, using its unique id."},
@@ -12994,7 +12994,7 @@ static PyMethodDef SpamMethods[] = {
 
 	{"setDebugObjectColor", (PyCFunction)pybullet_setDebugObjectColor, METH_VARARGS | METH_KEYWORDS,
 	 "Override the wireframe debug drawing color for a particular object unique id / link index."
-	 "If you ommit the color, the custom color will be removed."},
+	 "If you omit the color, the custom color will be removed."},
 
 	{"getDebugVisualizerCamera", (PyCFunction)pybullet_getDebugVisualizerCamera, METH_VARARGS | METH_KEYWORDS,
 	 "Get information about the 3D visualizer camera, such as width, height, view matrix, projection matrix etc."},

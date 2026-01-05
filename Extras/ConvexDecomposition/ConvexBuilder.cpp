@@ -199,7 +199,7 @@ bool ConvexBuilder::combineHulls(void)
 		{
 			CHull *match = mChulls[j];
 
-			if (cr != match)  // don't try to merge a hull with itself, that be stoopid
+			if (cr != match)  // don't try to merge a hull with itself, that be stupid
 			{
 				CHull *merge = canMerge(cr, match);  // if we can merge these two....
 

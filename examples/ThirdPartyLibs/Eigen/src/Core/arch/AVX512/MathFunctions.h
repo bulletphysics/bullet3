@@ -14,7 +14,7 @@ namespace Eigen {
 
 namespace internal {
 
-// Disable the code for older versions of gcc that don't support many of the required avx512 instrinsics.
+// Disable the code for older versions of gcc that don't support many of the required avx512 intrinsics.
 #if EIGEN_GNUC_AT_LEAST(5, 3) || EIGEN_COMP_CLANG  || EIGEN_COMP_MSVC >= 1923
 
 #define _EIGEN_DECLARE_CONST_Packet16f(NAME, X) \

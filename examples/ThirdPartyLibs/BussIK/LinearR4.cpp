@@ -394,7 +394,7 @@ void GetOrtho(int j, RotationMapR4& rotmat)
 // *********************************************************************
 
 // Rotate unit vector x in the direction of "dir": length of dir is rotation angle.
-//		x must be a unit vector.  dir must be perpindicular to x.
+//		x must be a unit vector.  dir must be perpendicular to x.
 VectorR4& VectorR4::RotateUnitInDirection(const VectorR4& dir)
 {
 	assert(this->Norm() < 1.0001 && this->Norm() > 0.9999 &&

@@ -42,7 +42,7 @@ enum btHingeFlags
 	BT_HINGE_FLAGS_ERP_NORM = 8
 };
 
-/// hinge constraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
+/// hinge constraint between two rigidbodies each with a pivotpoint that describes the axis location in local space
 /// axis defines the orientation of the hinge axis
 ATTRIBUTE_ALIGNED16(class)
 btHingeConstraint : public btTypedConstraint

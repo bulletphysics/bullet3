@@ -2720,7 +2720,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 #else
 	m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
 #endif
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_data->m_dispatcher = new btCollisionDispatcher(m_data->m_collisionConfiguration);
 
 	m_data->m_broadphaseCollisionFilterCallback = new MyOverlapFilterCallback(&m_data->m_pluginManager);
@@ -13813,7 +13813,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 					targetBaseCoord.getOrigin().serializeDouble(targetPosBaseCoord);
 					targetBaseCoord.getRotation().serializeDouble(targetOrnBaseCoord);
 
-					// Set joint damping coefficents. A small default
+					// Set joint damping coefficients. A small default
 					// damping constant is added to prevent singularity
 					// with pseudo inverse. The user can set joint damping
 					// coefficients differently for each joint. The larger
@@ -14153,7 +14153,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand2(co
 					endEffectorBaseCoord.getOrigin().serializeDouble(endEffectorWorldPosition);
 					endEffectorBaseCoord.getRotation().serializeDouble(endEffectorWorldOrientation);
 
-					// Set joint damping coefficents. A small default
+					// Set joint damping coefficients. A small default
 					// damping constant is added to prevent singularity
 					// with pseudo inverse. The user can set joint damping
 					// coefficients differently for each joint. The larger
@@ -14816,7 +14816,7 @@ bool PhysicsServerCommandProcessor::processSaveStateCommand(const struct SharedM
 	if (bulletFile->ok())
 	{
 		serverCmd.m_type = CMD_SAVE_STATE_COMPLETED;
-		//re-use state if available
+		//reuse state if available
 		int reuseStateId = -1;
 		for (int i = 0; i < m_data->m_savedStates.size(); i++)
 		{

@@ -265,7 +265,7 @@ Matrix4& Matrix4::invertAffine()
 
 ///////////////////////////////////////////////////////////////////////////////
 // inverse matrix using matrix partitioning (blockwise inverse)
-// It devides a 4x4 matrix into 4 of 2x2 matrices. It works in case of where
+// It divides a 4x4 matrix into 4 of 2x2 matrices. It works in case of where
 // det(A) != 0. If not, use the generic inverse method
 // inverse formula.
 // M = [ A | B ]    A, B, C, D are 2x2 matrix blocks
@@ -343,7 +343,7 @@ Matrix4& Matrix4::invertProjective()
 
 ///////////////////////////////////////////////////////////////////////////////
 // compute the inverse of a general 4x4 matrix using Cramer's Rule
-// If cannot find inverse, return indentity matrix
+// If cannot find inverse, return identity matrix
 // M^-1 = adj(M) / det(M)
 ///////////////////////////////////////////////////////////////////////////////
 Matrix4& Matrix4::invertGeneral()

@@ -3,7 +3,7 @@
 
 /*! \file gim_linear_math.h
 *\author Francisco Leon Najera
-Type Independant Vector and matrix operations.
+Type Independent Vector and matrix operations.
 */
 /*
 -----------------------------------------------------------------------------
@@ -932,7 +932,7 @@ Last column is added as the position
 /** inverse transpose of matrix times vector
  *
  * This macro computes inverse transpose of matrix m,
- * and multiplies vector v into it, to yeild vector p
+ * and multiplies vector v into it, to yield vector p
  *
  * DANGER !!! Do Not use this on normal vectors!!!
  * It will leave normals the wrong length !!!
@@ -959,7 +959,7 @@ Last column is added as the position
  * and then renormalize the vector
  *
  * This macro computes inverse transpose of matrix m,
- * and multiplies vector v into it, to yeild vector p
+ * and multiplies vector v into it, to yield vector p
  * Vector p is then normalized.
  */
 #define NORM_XFORM_2X2(p, m, v)                                           \
@@ -986,7 +986,7 @@ Last column is added as the position
 
 /** outer product of vector times vector transpose
  *
- * The outer product of vector v and vector transpose t yeilds
+ * The outer product of vector v and vector transpose t yields
  * dyadic matrix m.
  */
 #define OUTER_PRODUCT_2X2(m, v, t) \
@@ -1000,7 +1000,7 @@ Last column is added as the position
 
 /** outer product of vector times vector transpose
  *
- * The outer product of vector v and vector transpose t yeilds
+ * The outer product of vector v and vector transpose t yields
  * dyadic matrix m.
  */
 #define OUTER_PRODUCT_3X3(m, v, t) \
@@ -1020,7 +1020,7 @@ Last column is added as the position
 
 /** outer product of vector times vector transpose
  *
- * The outer product of vector v and vector transpose t yeilds
+ * The outer product of vector v and vector transpose t yields
  * dyadic matrix m.
  */
 #define OUTER_PRODUCT_4X4(m, v, t) \
@@ -1048,7 +1048,7 @@ Last column is added as the position
 
 /** outer product of vector times vector transpose
  *
- * The outer product of vector v and vector transpose t yeilds
+ * The outer product of vector v and vector transpose t yields
  * dyadic matrix m.
  */
 #define ACCUM_OUTER_PRODUCT_2X2(m, v, t) \
@@ -1062,7 +1062,7 @@ Last column is added as the position
 
 /** outer product of vector times vector transpose
  *
- * The outer product of vector v and vector transpose t yeilds
+ * The outer product of vector v and vector transpose t yields
  * dyadic matrix m.
  */
 #define ACCUM_OUTER_PRODUCT_3X3(m, v, t) \
@@ -1082,7 +1082,7 @@ Last column is added as the position
 
 /** outer product of vector times vector transpose
  *
- * The outer product of vector v and vector transpose t yeilds
+ * The outer product of vector v and vector transpose t yields
  * dyadic matrix m.
  */
 #define ACCUM_OUTER_PRODUCT_4X4(m, v, t) \

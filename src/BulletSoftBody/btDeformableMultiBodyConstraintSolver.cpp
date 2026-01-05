@@ -78,7 +78,7 @@ void btDeformableMultiBodyConstraintSolver::solveDeformableBodyGroup(btCollision
 	// inherited from MultiBodyConstraintSolver
 	solveGroupCacheFriendlySetup(bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer);
 
-	// overriden
+	// overridden
 	solveDeformableGroupIterations(bodies, numBodies, deformableBodies, numDeformableBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer);
 
 	// inherited from MultiBodyConstraintSolver

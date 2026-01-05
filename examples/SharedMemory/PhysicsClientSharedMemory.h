@@ -23,7 +23,7 @@ public:
 	PhysicsClientSharedMemory();
 	virtual ~PhysicsClientSharedMemory();
 
-	// return true if connection succesfull, can also check 'isConnected'
+	// return true if connection successful, can also check 'isConnected'
 	virtual bool connect();
 
 	virtual void disconnectSharedMemory();

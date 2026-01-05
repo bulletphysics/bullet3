@@ -58,7 +58,7 @@ class MultiBodyTree
 {
 public:
 	ID_DECLARE_ALIGNED_ALLOCATOR();
-	/// The contructor.
+	/// The constructor.
 	/// Initialization & allocation is via addBody and buildSystem calls.
 	MultiBodyTree();
 	/// the destructor. This also deallocates all memory

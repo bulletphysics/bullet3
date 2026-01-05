@@ -108,7 +108,7 @@ public:
 	//! performs refit operation
 	/*!
 	Updates the entire Box set of this shape.
-	\pre postUpdate() must be called for attemps to calculating the box set, else this function
+	\pre postUpdate() must be called for attempts to calculating the box set, else this function
 		will does nothing.
 	\post if m_needs_update == true, then it calls calcLocalAABB();
 	*/
@@ -119,7 +119,7 @@ public:
 		m_needs_update = false;
 	}
 
-	//! If the Bounding box is not updated, then this class attemps to calculate it.
+	//! If the Bounding box is not updated, then this class attempts to calculate it.
 	/*!
     \post Calls updateBound() for update the box set.
     */

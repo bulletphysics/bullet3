@@ -231,7 +231,7 @@ bool VHACD::OCLInit(void* const /*oclDevice*/, IUserLogger* const /*logger*/)
 
 #ifdef OCL_SOURCE_FROM_FILE
 	std::string cl_files = OPENCL_CL_FILES;
-// read kernal from file
+// read kernel from file
 #ifdef _WIN32
 	std::replace(cl_files.begin(), cl_files.end(), '/', '\\');
 #endif  // _WIN32
@@ -368,7 +368,7 @@ bool VHACD::OCLRelease(IUserLogger* const /*logger*/)
 			{
 				if (logger)
 				{
-					logger->Log("Couldn't release kernal\n");
+					logger->Log("Couldn't release kernel\n");
 				}
 				return false;
 			}
@@ -384,7 +384,7 @@ bool VHACD::OCLRelease(IUserLogger* const /*logger*/)
 			{
 				if (logger)
 				{
-					logger->Log("Couldn't release kernal\n");
+					logger->Log("Couldn't release kernel\n");
 				}
 				return false;
 			}
@@ -1442,7 +1442,7 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 			}
 		}
 
-		// Until we cant merge below the maximum cost
+		// Until we can't merge below the maximum cost
 		size_t costSize = m_convexHulls.Size();
 		while (!m_cancel)
 		{

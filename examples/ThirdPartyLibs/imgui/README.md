@@ -250,7 +250,7 @@ See the FAQ in imgui.cpp for answers.
 
 You can control Dear ImGui with a gamepad, see the explanation in imgui.cpp about how to use the navigation feature (short version: map your gamepad inputs into the `io.NavInputs[]` array and set `io.NavFlags |= ImGuiNavFlags_EnableGamepad`).
 
-You can share your computer mouse seamlessy with your console/tablet/phone using [Synergy](http://synergy-project.org). This is the prefered solution for developer productivity. In particular, their [micro-synergy-client](https://github.com/symless/micro-synergy-client) repo there is _uSynergy.c_ sources for a small embeddable that you can use on any platform to connect to your host PC. You may also use a third party solution such as [Remote  ImGui](https://github.com/JordiRos/remoteimgui).
+You can share your computer mouse seamlessly with your console/tablet/phone using [Synergy](http://synergy-project.org). This is the preferred solution for developer productivity. In particular, their [micro-synergy-client](https://github.com/symless/micro-synergy-client) repo there is _uSynergy.c_ sources for a small embeddable that you can use on any platform to connect to your host PC. You may also use a third party solution such as [Remote  ImGui](https://github.com/JordiRos/remoteimgui).
 
 For touch inputs, you can increase the hit box of widgets (via the _style.TouchPadding_ setting) to accommodate a little for the lack of precision of touch inputs, but it is recommended you use a mouse or gamepad to allow optimising for screen real-estate and precision.
 

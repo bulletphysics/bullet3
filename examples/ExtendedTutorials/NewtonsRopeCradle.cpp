@@ -201,7 +201,7 @@ void NewtonsRopeCradleExample::initPhysics()
 		btVector3 position(0.0f, 15.0f, 0.0f);  // initial left-most pendulum position
 		btQuaternion orientation(0, 0, 0, 1);   // orientation of the pendula
 
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
 		m_collisionShapes.push_back(pendulumShape);
 
@@ -264,21 +264,21 @@ void NewtonsRopeCradleExample::createRopePendulum(btSphereShape* colShape,
 	btVector3 bottomSphereRelPosition(0, -height, 0);
 
 	// position the top sphere above ground with appropriate orientation
-	startTransform.setOrigin(btVector3(0, 0, 0));                            // no translation intitially
+	startTransform.setOrigin(btVector3(0, 0, 0));                            // no translation initially
 	startTransform.setRotation(pendulumOrientation);                         // pendulum rotation
 	startTransform.setOrigin(startTransform * topSphere1RelPosition);        // rotate this position
 	startTransform.setOrigin(position + startTransform.getOrigin());         // add non-rotated position to the relative position
 	btRigidBody* topSphere1 = createRigidBody(0, startTransform, colShape);  // make top sphere static
 
 	// position the top sphere above ground with appropriate orientation
-	startTransform.setOrigin(btVector3(0, 0, 0));                            // no translation intitially
+	startTransform.setOrigin(btVector3(0, 0, 0));                            // no translation initially
 	startTransform.setRotation(pendulumOrientation);                         // pendulum rotation
 	startTransform.setOrigin(startTransform * topSphere2RelPosition);        // rotate this position
 	startTransform.setOrigin(position + startTransform.getOrigin());         // add non-rotated position to the relative position
 	btRigidBody* topSphere2 = createRigidBody(0, startTransform, colShape);  // make top sphere static
 
 	// position the bottom sphere below the top sphere
-	startTransform.setOrigin(btVector3(0, 0, 0));                        // no translation intitially
+	startTransform.setOrigin(btVector3(0, 0, 0));                        // no translation initially
 	startTransform.setRotation(pendulumOrientation);                     // pendulum rotation
 	startTransform.setOrigin(startTransform * bottomSphereRelPosition);  // rotate this position
 	startTransform.setOrigin(position + startTransform.getOrigin());     // add non-rotated position to the relative position

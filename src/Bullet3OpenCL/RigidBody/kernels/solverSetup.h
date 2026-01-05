@@ -421,7 +421,7 @@ static const char* solverSetupCL =
 	"float calcJacCoeff(b3Float4ConstArg linear0, b3Float4ConstArg linear1, b3Float4ConstArg angular0, b3Float4ConstArg angular1,\n"
 	"					float invMass0, const b3Mat3x3* invInertia0, float invMass1, const b3Mat3x3* invInertia1)\n"
 	"{\n"
-	"	//	linear0,1 are normlized\n"
+	"	//	linear0,1 are normalized\n"
 	"	float jmj0 = invMass0;//b3Dot3F4(linear0, linear0)*invMass0;\n"
 	"	float jmj1 = b3Dot3F4(mtMul3(angular0,*invInertia0), angular0);\n"
 	"	float jmj2 = invMass1;//b3Dot3F4(linear1, linear1)*invMass1;\n"

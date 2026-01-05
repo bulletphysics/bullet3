@@ -28,7 +28,7 @@ subject to the following restrictions:
 //
 //    A.1. VectorR2: a column vector of length 2
 //
-//	  A.2. VectorHgR2 - homogenous vector for R2 (a 3-Vector)
+//	  A.2. VectorHgR2 - homogeneous vector for R2 (a 3-Vector)
 //
 // B. Matrix Classes
 //
@@ -956,13 +956,13 @@ inline VectorR2 ProjectToUnit(const VectorR2& u, const VectorR2& v)
 	return (u ^ v) * v;
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 inline VectorR2 ProjectPerpUnit(const VectorR2& u, const VectorR2& v)
 {
 	return (u - ((u ^ v) * v));
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 //    This one is more stable when u and v are nearly equal.
 inline VectorR2 ProjectPerpUnitDiff(const VectorR2& u, const VectorR2& v)
 {
@@ -1004,7 +1004,7 @@ inline LinearMapR2 VectorProjectMap(const VectorR2& u)
 }
 
 // PlaneProjectMap returns map projecting onto a given plane.
-//		The plane is the plane orthognal to u.
+//		The plane is the plane orthogonal to u.
 //		u must be a unit vector (otherwise the returned map is
 //		garbage).
 inline LinearMapR2 PerpProjectMap(const VectorR2& u)

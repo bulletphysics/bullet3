@@ -3,7 +3,7 @@
 /*! \file gim_radixsort.h
 \author Francisco Leon Najera.
 Based on the work of Michael Herf : "fast floating-point radix sort"
-Avaliable on http://www.stereopsis.com/radix.html
+Available on http://www.stereopsis.com/radix.html
 */
 /*
 -----------------------------------------------------------------------------

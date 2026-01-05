@@ -46,7 +46,7 @@ public:
 
 	virtual ~btDeformableContactConstraint() {}
 
-	// solve the constraint with inelastic impulse and return the error, which is the square of normal component of velocity diffrerence
+	// solve the constraint with inelastic impulse and return the error, which is the square of normal component of velocity difference
 	// the constraint is solved by calculating the impulse between object A and B in the contact and apply the impulse to both objects involved in the contact
 	virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal) = 0;
 

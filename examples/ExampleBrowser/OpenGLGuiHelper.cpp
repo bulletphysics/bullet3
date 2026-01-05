@@ -1454,7 +1454,7 @@ static bool shapePointerCompareFunc(const btCollisionObject* colA, const btColli
 
 void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld)
 {
-	//sort the collision objects based on collision shape, the gfx library requires instances that re-use a shape to be added after eachother
+	//sort the collision objects based on collision shape, the gfx library requires instances that reuse a shape to be added after each other
 
 	btAlignedObjectArray<btCollisionObject*> sortedObjects;
 	sortedObjects.reserve(rbWorld->getNumCollisionObjects());

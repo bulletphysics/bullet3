@@ -1306,7 +1306,7 @@ void btSequentialImpulseConstraintSolver::convertJoints(btTypedConstraint** cons
 	int totalNumRows = 0;
 
 	m_tmpConstraintSizesPool.resizeNoInitialize(numConstraints);
-	//calculate the total number of contraint rows
+	//calculate the total number of constraint rows
 	for (int i = 0; i < numConstraints; i++)
 	{
 		btTypedConstraint::btConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];

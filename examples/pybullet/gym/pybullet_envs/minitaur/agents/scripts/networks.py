@@ -24,10 +24,10 @@ _LOGSTD_INITIALIZER = tf.random_normal_initializer(-1, 1e-10)
 
 
 class LinearGaussianPolicy(tf.contrib.rnn.RNNCell):
-  """Indepent linear network with a tanh at the end for policy and feedforward network for the value.
+  """Independent linear network with a tanh at the end for policy and feedforward network for the value.
 
   The policy network outputs the mean action and the log standard deviation
-  is learned as indepent parameter vector.
+  is learned as independent parameter vector.
   """
 
   def __init__(self,

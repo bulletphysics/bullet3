@@ -354,7 +354,7 @@ local function screener(input)
 			--line = trim(line)
 			if #line > 0 then
 				if line:byte(1) == CMD_BYTE then 
-					--line = line:gsub("#%s*(.*)", "#%1")	-- remove optinal whitespaces after "#". reduce triming later.
+					--line = line:gsub("#%s*(.*)", "#%1")	-- remove optional whitespaces after "#". reduce trimming later.
 					if #buffer > 0 then 
 						coroutine.yield(table.concat(buffer, NEWL))
 						buffer = {} 
@@ -596,7 +596,7 @@ local function define(state, key, value, override)
 	state.defines[key] = value
 end
 
--- parses CPP exressions
+-- parses CPP expressions
 -- i.e.: #if !defined(_UNICODE) && !defined(UNICODE)
 --
 --BNF:
@@ -655,7 +655,7 @@ local function parseDefined(state, input)
 		end
 	end
 	
-	-- wiht and w/o brackets allowed
+	-- with and w/o brackets allowed
 	if ident and ((bropen and brclose) or (not bropen and not brclose)) then
 		return state:defined(ident)
 	end
@@ -747,7 +747,7 @@ local function parseFunction(state, input)
 		pattern = table.concat(buf)
 	end
 	
-	-- build macro funcion
+	-- build macro function
 	local func = function(input)
 		return input:gsub(pattern, repl)
 	end
@@ -760,14 +760,14 @@ end
 -- LCPP INTERFACE
 -- ------------
 
---- initialies a lcpp state. not needed manually. handy for testing
+--- initializes a lcpp state. not needed manually. handy for testing
 function lcpp.init(input, predefines)
-	-- create sate var
+	-- create state var
 	local state     = {}              -- init the state object
 	state.defines   = {}              -- the table of known defines and replacements
 	state.screener  = screener(input)
 	state.lineno    = 0               -- the current line number
-	state.stack     = {}              -- stores wether the current stack level is to be included
+	state.stack     = {}              -- stores whether the current stack level is to be included
 	state.once      = {}              -- stack level was once true (first if that evals to true)
 	
 	-- funcs
@@ -802,7 +802,7 @@ function lcpp.init(input, predefines)
 		state.stack[#state.stack] = nil
 		state.once [#state.once]  = nil
 		state:define(__LCPP_INDENT__, state:getIndent(), true)
-		if state:getIndent() < 0 then error("Unopened block detected. Indentaion problem.") end
+		if state:getIndent() < 0 then error("Unopened block detected. Indentation problem.") end
 	end
 	state.skip = function(state)
 		for i = 1, #state.stack do

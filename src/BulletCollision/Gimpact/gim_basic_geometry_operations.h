@@ -3,7 +3,7 @@
 
 /*! \file gim_basic_geometry_operations.h
 *\author Francisco Leon Najera
-type independant geometry routines
+type independent geometry routines
 
 */
 /*
@@ -311,7 +311,7 @@ SIMD_FORCE_INLINE GUINT LINE_PLANE_COLLISION(
   \param p2 Plane 2
   \param p Contains the origin of the ray upon returning if planes intersect
   \param d Contains the direction of the ray upon returning if planes intersect
-  \return true if the planes intersect, 0 if paralell.
+  \return true if the planes intersect, 0 if parallel.
 
 */
 template <typename CLASS_POINT, typename CLASS_PLANE>
@@ -510,7 +510,7 @@ SIMD_FORCE_INLINE bool BOX_AXIS_INTERSECT(T pos, T dir, T bmin, T bmax, T &tfirs
 	return true;
 }
 
-//! Sorts 3 componets
+//! Sorts 3 components
 template <typename T>
 SIMD_FORCE_INLINE void SORT_3_INDICES(
 	const T *values,

@@ -235,9 +235,9 @@ bool btVoronoiSimplexSolver::updateClosestVectorAndPoints()
 //return/calculate the closest vertex
 bool btVoronoiSimplexSolver::closest(btVector3& v)
 {
-	bool succes = updateClosestVectorAndPoints();
+	bool success = updateClosestVectorAndPoints();
 	v = m_cachedV;
-	return succes;
+	return success;
 }
 
 btScalar btVoronoiSimplexSolver::maxVertex()

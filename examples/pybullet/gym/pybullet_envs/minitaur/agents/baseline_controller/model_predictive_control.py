@@ -84,7 +84,7 @@ def plan_foot_contact_force(
     mass: The total mass of the robot.
     inertia: The diagnal elements [Ixx, Iyy, Izz] of the robot.
     com_position: Center of mass position in world frame. Usually we cannot
-      accurrately obtain this without motion capture.
+      accurately obtain this without motion capture.
     com_velocity: Center of mass velocity in world frame.
     com_roll_pitch_yaw: Center of mass rotation wrt world frame in euler angles.
     com_angular_velocity: The angular velocity (roll_dot, pitch_dot, yaw_dot).

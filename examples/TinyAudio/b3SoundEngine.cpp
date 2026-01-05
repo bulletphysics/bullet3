@@ -11,7 +11,7 @@
 #include "Bullet3Common/b3HashMap.h"
 
 // The default real-time audio input and output buffer size.  If
-// clicks are occuring in the input and/or output sound stream, a
+// clicks are occurring in the input and/or output sound stream, a
 // larger buffer size may help.  Larger buffer sizes, however, produce
 // more latency.
 //const unsigned int RT_BUFFER_SIZE = 1024;

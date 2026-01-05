@@ -51,7 +51,7 @@ static float calcRelVel(b3Float4ConstArg l0, b3Float4ConstArg l1, b3Float4ConstA
 static float calcJacCoeff(b3Float4ConstArg /*linear0*/, b3Float4ConstArg /*linear1*/, b3Float4ConstArg angular0, b3Float4ConstArg angular1,
 				   float invMass0, const b3Mat3x3* invInertia0, float invMass1, const b3Mat3x3* invInertia1)
 {
-	//	linear0,1 are normlized
+	//	linear0,1 are normalized
 	float jmj0 = invMass0;  //b3Dot3F4(linear0, linear0)*invMass0;
 	float jmj1 = b3Dot3F4(mtMul3(angular0, *invInertia0), angular0);
 	float jmj2 = invMass1;  //b3Dot3F4(linear1, linear1)*invMass1;

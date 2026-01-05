@@ -17,7 +17,7 @@ ABOUT:
 
    The PNG output is not optimal; it is 20-50% larger than the file
    written by a decent optimizing implementation. This library is designed
-   for source code compactness and simplicitly, not optimal image file size
+   for source code compactness and simplicity, not optimal image file size
    or run-time performance.
 
 USAGE:

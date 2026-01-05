@@ -83,7 +83,7 @@ void MultibodyClothAnchor::initPhysics()
     ///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
     
-    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    ///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
     
     m_broadphase = new btDbvtBroadphase();
@@ -164,7 +164,7 @@ void MultibodyClothAnchor::initPhysics()
         bool damping = true;
         bool gyro = false;
         int numLinks = 5;
-        bool spherical = false;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
+        bool spherical = false;  //set it to false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = true;
         btVector3 linkHalfExtents(1.5, .5, .5);

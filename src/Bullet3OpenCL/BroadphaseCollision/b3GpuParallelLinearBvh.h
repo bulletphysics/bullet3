@@ -26,7 +26,7 @@ subject to the following restrictions:
 
 #define b3Int64 cl_long
 
-///@brief GPU Parallel Linearized Bounding Volume Heirarchy(LBVH) that is reconstructed every frame
+///@brief GPU Parallel Linearized Bounding Volume Hierarchy(LBVH) that is reconstructed every frame
 ///@remarks
 ///See presentation in docs/b3GpuParallelLinearBvh.pdf for algorithm details.
 ///@par

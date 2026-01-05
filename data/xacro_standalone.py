@@ -48,7 +48,7 @@ try:
 except NameError:
   _basestr = str
 
-# Dictionary of subtitution args
+# Dictionary of substitution args
 substitution_args_context = {}
 
 
@@ -632,7 +632,7 @@ def eval_self_contained(doc):
 def print_usage(exit_code=0):
   print("Usage: %s [-o <output>] <input>" % 'xacro.py')
   print("       %s --deps       Prints dependencies" % 'xacro.py')
-  print("       %s --includes   Only evalutes includes" % 'xacro.py')
+  print("       %s --includes   Only evaluates includes" % 'xacro.py')
   sys.exit(exit_code)
 
 

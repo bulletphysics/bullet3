@@ -158,13 +158,13 @@ public:
 
 #ifdef TRI_COLLISION_PROFILING
 
-//! Gets the average time in miliseconds of tree collisions
+//! Gets the average time in milliseconds of tree collisions
 float btGImpactCollisionAlgorithm::getAverageTreeCollisionTime()
 {
 	return btGImpactBoxSet::getAverageTreeCollisionTime();
 }
 
-//! Gets the average time in miliseconds of triangle collisions
+//! Gets the average time in milliseconds of triangle collisions
 float btGImpactCollisionAlgorithm::getAverageTriangleCollisionTime()
 {
 	if (g_count_triangle_collision == 0) return 0;

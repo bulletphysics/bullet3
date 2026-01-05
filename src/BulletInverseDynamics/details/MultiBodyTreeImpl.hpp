@@ -258,7 +258,7 @@ private:
 	// Gravitational acceleration (in world frame)
 	vec3 m_world_gravity;
 	// vector of bodies in the system
-	// body 0 is used as an environment body and is allways fixed.
+	// body 0 is used as an environment body and is always fixed.
 	// The bodies are ordered such that a parent body always has an index
 	// smaller than its child.
 	idArray<RigidBody>::type m_body_list;

@@ -281,7 +281,7 @@ struct LodePNGCompressSettings /*deflate = compress*/
 	unsigned btype;        /*the block type for LZ (0, 1, 2 or 3, see zlib standard). Should be 2 for proper compression.*/
 	unsigned use_lz77;     /*whether or not to use LZ77. Should be 1 for proper compression.*/
 	unsigned windowsize;   /*must be a power of two <= 32768. higher compresses more but is slower. Default value: 2048.*/
-	unsigned minmatch;     /*mininum lz77 length. 3 is normally best, 6 can be better for some PNGs. Default: 0*/
+	unsigned minmatch;     /*minimum lz77 length. 3 is normally best, 6 can be better for some PNGs. Default: 0*/
 	unsigned nicematch;    /*stop searching if >= this length found. Set to 258 for best compression. Default: 128*/
 	unsigned lazymatching; /*use lazy matching: better compression but a bit slower. Default: true*/
 
@@ -534,7 +534,7 @@ typedef enum LodePNGFilterStrategy
 {
 	/*every filter at zero*/
 	LFS_ZERO,
-	/*Use filter that gives minumum sum, as described in the official PNG filter heuristic.*/
+	/*Use filter that gives minimum sum, as described in the official PNG filter heuristic.*/
 	LFS_MINSUM,
 	/*Use the filter type that gives smallest Shannon entropy for this scanline. Depending
   on the image, this is better or worse than minsum.*/
@@ -716,7 +716,7 @@ unsigned lodepng_chunk_append(unsigned char** out, size_t* outlength, const unsi
 Appends new chunk to out. The chunk to append is given by giving its length, type
 and data separately. The type is a 4-letter string.
 The out variable and outlength are updated to reflect the new reallocated buffer.
-Returne error code (0 if it went ok)
+Return error code (0 if it went ok)
 */
 unsigned lodepng_chunk_create(unsigned char** out, size_t* outlength, unsigned length,
 							  const char* type, const unsigned char* data);
@@ -1182,7 +1182,7 @@ It can convert from almost any color type to any other color type, except the
 following conversions: RGB to greyscale is not supported, and converting to a
 palette when the palette doesn't have a required color is not supported. This is
 not supported on purpose: this is information loss which requires a color
-reduction algorithm that is beyong the scope of a PNG encoder (yes, RGB to grey
+reduction algorithm that is beyond the scope of a PNG encoder (yes, RGB to grey
 is easy, but there are multiple ways if you want to give some channels more
 weight).
 
@@ -1488,7 +1488,7 @@ C and C++.
 *) Other Compilers
 
 If you encounter problems on any compilers, feel free to let me know and I may
-try to fix it if the compiler is modern and standards complient.
+try to fix it if the compiler is modern and standards compliant.
 
 
 10. examples
@@ -1574,7 +1574,7 @@ symbol.
 *) 22 apr 2012 (!): Made interface more consistent, renaming a lot. Removed
     redundant C++ codec classes. Reduced amount of structs. Everything changed,
     but it is cleaner now imho and functionality remains the same. Also fixed
-    several bugs and shrinked the implementation code. Made new samples.
+    several bugs and shrunk the implementation code. Made new samples.
 *) 6 nov 2011 (!): By default, the encoder now automatically chooses the best
     PNG color model and bit depth, based on the amount and type of colors of the
     raw image. For this, autoLeaveOutAlphaChannel replaced by auto_choose_color.

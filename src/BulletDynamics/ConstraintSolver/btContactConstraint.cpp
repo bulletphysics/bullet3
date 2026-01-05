@@ -118,7 +118,7 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 	}
 	btVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition();
 	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
-	//this jacobian entry could be re-used for all iterations
+	//this jacobian entry could be reused for all iterations
 
 	btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
 	btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);

@@ -1035,7 +1035,7 @@ struct scalar_logistic_op {
   *  Uses just a 9/10-degree rational interpolant which
   *  interpolates 1/(1+exp(-x)) - 0.5 up to a couple of ulps in the range
   *  [-9, 18]. Below -9 we use the more accurate approximation
-  *  1/(1+exp(-x)) ~= exp(x), and above 18 the logistic function is 1 withing
+  *  1/(1+exp(-x)) ~= exp(x), and above 18 the logistic function is 1 within
   *  one ulp. The shifted logistic is interpolated because it was easier to
   *  make the fit converge.
   *

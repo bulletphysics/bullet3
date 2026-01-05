@@ -196,7 +196,7 @@ public:
 	//! node manager prototype functions
 	///@{
 
-	//! this attemps to refit the box set.
+	//! this attempts to refit the box set.
 	SIMD_FORCE_INLINE void update()
 	{
 		refit();

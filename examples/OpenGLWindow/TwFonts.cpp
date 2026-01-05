@@ -157,7 +157,7 @@ CTexFont *TwGenerateFont(const unsigned char *_Bitmap, int _BmWidth, int _BmHeig
             du = 0;
             dv = 0;
         }
-        else    // texel alignement for D3D
+        else    // texel alignment for D3D
         {
             du = 0.5f;
             dv = 0.5f;

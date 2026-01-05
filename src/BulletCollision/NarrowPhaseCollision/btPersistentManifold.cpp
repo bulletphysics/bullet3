@@ -63,17 +63,17 @@ void btPersistentManifold::clearUserCache(btManifoldPoint& pt)
 	{
 #ifdef DEBUG_PERSISTENCY
 		int i;
-		int occurance = 0;
+		int occurrence = 0;
 		for (i = 0; i < m_cachedPoints; i++)
 		{
 			if (m_pointCache[i].m_userPersistentData == oldPtr)
 			{
-				occurance++;
-				if (occurance > 1)
+				occurrence++;
+				if (occurrence > 1)
 					printf("error in clearUserCache\n");
 			}
 		}
-		btAssert(occurance <= 0);
+		btAssert(occurrence <= 0);
 #endif  //DEBUG_PERSISTENCY
 
 		if (pt.m_userPersistentData && gContactDestroyedCallback)

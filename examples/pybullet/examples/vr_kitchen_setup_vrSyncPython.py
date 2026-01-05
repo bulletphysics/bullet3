@@ -151,7 +151,7 @@ objects = [
     p.loadURDF("duck_vhacd.urdf", 0.850000, -0.400000, 0.900000, 0.000000, 0.000000, 0.707107,
                0.707107)
 ]
-#bjects = p.loadSDF("kiva_shelf/model.sdf")
+#objects = p.loadSDF("kiva_shelf/model.sdf")
 #ob = objects[0]
 #p.resetBasePositionAndOrientation(ob,[0.000000,1.000000,1.204500],[0.000000,0.000000,0.000000,1.000000])
 #objects = [p.loadURDF("teddy_vhacd.urdf", -0.100000,0.600000,0.850000,0.000000,0.000000,0.000000,1.000000)]

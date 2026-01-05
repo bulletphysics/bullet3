@@ -48,7 +48,7 @@ inline int btIsDoublePrecision()
 // warning LNK4221: no public symbols found; archive member will be inaccessible
 //
 // This warning occurs on PC and XBOX when a file compiles out completely
-// has no externally visible symbols which may be dependant on configuration
+// has no externally visible symbols which may be dependent on configuration
 // #defines and options.
 //
 // see more https://stackoverflow.com/questions/1822887/what-is-the-best-way-to-eliminate-ms-visual-c-linker-warning-warning-lnk422

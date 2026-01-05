@@ -2588,12 +2588,12 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 				physx::PxArticulationLink* l = physxLinks[0];
 				physx::PxVec3 pos = l->getGlobalPose().p;
 				physx::PxQuat orn = l->getGlobalPose().q;
-				//base position in world space, carthesian
+				//base position in world space, cartesian
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = pos[0];
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[1] = pos[1];
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[2] = pos[2];
 
-				//base orientation, quaternion x,y,z,w, in world space, carthesian
+				//base orientation, quaternion x,y,z,w, in world space, cartesian
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[3] = orn.x;
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[4] = orn.y;
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[5] = orn.z;
@@ -2603,12 +2603,12 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 				physx::PxVec3 linVel = l->getLinearVelocity();
 				physx::PxVec3 angVel = l->getAngularVelocity();
 
-				//base linear velocity (in world space, carthesian)
+				//base linear velocity (in world space, cartesian)
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = linVel.x;
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = linVel.y;
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = linVel.z;
 
-				//base angular velocity (in world space, carthesian)
+				//base angular velocity (in world space, cartesian)
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = angVel.x;
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = angVel.y;
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = angVel.z;

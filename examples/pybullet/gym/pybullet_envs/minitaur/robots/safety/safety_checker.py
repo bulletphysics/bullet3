@@ -26,7 +26,7 @@ class SafetyChecker(object):
       self,
       robot: typing.Any,
   ):
-    """Initilaizes the class.
+    """Initializes the class.
 
     TODO(b/131377892): Implement other state checkings including the
     IMU/temperature/contact force if enabled.

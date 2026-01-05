@@ -323,7 +323,7 @@ void ImDrawList::Clear()
 	_Path.resize(0);
 	_ChannelsCurrent = 0;
 	_ChannelsCount = 1;
-	// NB: Do not clear channels so our allocations are re-used after the first frame.
+	// NB: Do not clear channels so our allocations are reused after the first frame.
 }
 
 void ImDrawList::ClearFreeMemory()
@@ -733,7 +733,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
 				idx1 = idx2;
 			}
 
-			// Add vertexes
+			// Add vertices
 			for (int i = 0; i < points_count; i++)
 			{
 				_VtxWritePtr[0].pos = points[i];
@@ -810,7 +810,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
 				idx1 = idx2;
 			}
 
-			// Add vertexes
+			// Add vertices
 			for (int i = 0; i < points_count; i++)
 			{
 				_VtxWritePtr[0].pos = temp_points[i * 4 + 0];

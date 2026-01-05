@@ -137,7 +137,7 @@ class OpenloopGaitGenerator(gait_generator.GaitGenerator):
   def normalized_phase(self) -> Sequence[float]:
     """The phase within the current swing or stance cycle.
 
-    Reflects the leg's phase within the curren swing or stance stage. For
+    Reflects the leg's phase within the current swing or stance stage. For
     example, at the end of the current swing duration, the phase will
     be set to 1 for all swing legs. Same for stance legs.
 

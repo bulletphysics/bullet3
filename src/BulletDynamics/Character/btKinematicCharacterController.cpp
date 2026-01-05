@@ -124,7 +124,7 @@ btVector3 btKinematicCharacterController::parallelComponent(const btVector3& dir
 }
 
 /*
- * Returns the portion of 'direction' that is perpindicular to 'normal'
+ * Returns the portion of 'direction' that is perpendicular to 'normal'
  */
 btVector3 btKinematicCharacterController::perpindicularComponent(const btVector3& direction, const btVector3& normal)
 {
@@ -825,7 +825,7 @@ void btKinematicCharacterController::playerStep(btCollisionWorld* collisionWorld
 	//	btScalar ds = m_currentPosition[m_upAxis] - m_jumpPosition[m_upAxis];
 	//	if (ds > m_maxJumpHeight)
 	//	{
-	//		// substract the overshoot
+	//		// subtract the overshoot
 	//		m_currentPosition[m_upAxis] -= ds - m_maxJumpHeight;
 
 	//		// max height was reached, so potential energy is at max

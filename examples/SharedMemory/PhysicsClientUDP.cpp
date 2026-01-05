@@ -103,8 +103,8 @@ struct UdpNetworkedInternalData
 		m_client = enet_host_create(NULL,       /* create a client host */
 									1,          /* number of clients */
 									2,          /* number of channels */
-									57600 / 8,  /* incoming bandwith */
-									14400 / 8); /* outgoing bandwith */
+									57600 / 8,  /* incoming bandwidth */
+									14400 / 8); /* outgoing bandwidth */
 
 		if (m_client == NULL)
 		{

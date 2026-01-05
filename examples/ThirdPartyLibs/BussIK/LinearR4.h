@@ -355,13 +355,13 @@ inline VectorR4 ProjectToUnit(const VectorR4& u, const VectorR4& v)
 	return (u ^ v) * v;
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 inline VectorR4 ProjectPerpUnit(const VectorR4& u, const VectorR4& v)
 {
 	return (u - ((u ^ v) * v));
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 //    This one is more stable when u and v are nearly equal.
 inline VectorR4 ProjectPerpUnitDiff(const VectorR4& u, const VectorR4& v)
 {

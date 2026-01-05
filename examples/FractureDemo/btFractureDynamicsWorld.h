@@ -9,7 +9,7 @@ class btCompoundShape;
 class btTransform;
 
 ///The btFractureDynamicsWorld class enabled basic glue and fracture of objects.
-///If/once this implementation is stablized/tested we might merge it into btDiscreteDynamicsWorld and remove the class.
+///If/once this implementation is stabilized/tested we might merge it into btDiscreteDynamicsWorld and remove the class.
 class btFractureDynamicsWorld : public btDiscreteDynamicsWorld
 {
 	btAlignedObjectArray<btFractureBody*> m_fractureBodies;

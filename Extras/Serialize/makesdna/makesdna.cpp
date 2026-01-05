@@ -56,7 +56,7 @@ extern "C"
 
 #if defined(_WIN32) && !defined(FREE_WINDOWS)
 
-	/* The __intXX are built-in types of the visual complier! So we don't
+	/* The __intXX are built-in types of the visual compiler! So we don't
  * need to include anything else here. */
 
 	typedef signed __int8 int8_t;
@@ -111,7 +111,7 @@ typedef intptr_t btintptr_t;
 #include <stdio.h>
 
 //#include "DNA_sdna_types.h"
-// include files for automatic dependancies
+// include files for automatic dependencies
 #include "DNA_rigidbody.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btQuaternion.h"
@@ -215,11 +215,11 @@ int maxdata = 500000, maxnr = 50000;
 int nr_names = 0;
 int nr_types = 0;
 int nr_structs = 0;
-char **names, *namedata;      /* at adress names[a] is string a */
-char **types, *typedata;      /* at adress types[a] is string a */
+char **names, *namedata;      /* at address names[a] is string a */
+char **types, *typedata;      /* at address types[a] is string a */
 short *typelens;              /* at typelens[a] is de length of type a */
 short *alphalens;             /* contains sizes as they are calculated on the DEC Alpha (64 bits) */
-short **structs, *structdata; /* at sp= structs[a] is the first adress of a struct definition
+short **structs, *structdata; /* at sp= structs[a] is the first address of a struct definition
 								   sp[0] is type number
 								   sp[1] is amount of elements
 								   sp[2] sp[3] is typenr,  namenr (etc) */
@@ -280,7 +280,7 @@ static int calculate_structlens(int);
 void dna_write(FILE *file, void *pntr, int size);
 
 /**
- * Report all structures found so far, and print their lenghts.
+ * Report all structures found so far, and print their lengths.
  */
 void printStructLenghts(void);
 
@@ -971,7 +971,7 @@ static int calculate_structlens(int firststruct)
 			structpoin = structs[a];
 			structtype = structpoin[0];
 
-			/* length unkown yet */
+			/* length unknown yet */
 			if (typelens[structtype] == 0)
 			{
 				printf("  %s\n", types[structtype]);
@@ -1042,7 +1042,7 @@ static int make_structDNA(char *baseDirectory, FILE *file)
 		printf("Running makesdna at debug level %d\n", debugSDNA);
 	}
 
-	/* the longest known struct is 50k, so we assume 100k is sufficent! */
+	/* the longest known struct is 50k, so we assume 100k is sufficient! */
 	namedata = (char *)malloc_and_setzero(maxdata);
 	typedata = (char *)malloc_and_setzero(maxdata);
 	structdata = (short *)malloc_and_setzero(maxdata);

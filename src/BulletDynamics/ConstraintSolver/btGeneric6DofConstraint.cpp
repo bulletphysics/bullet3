@@ -560,7 +560,7 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info, int row, c
 	for (int i = 0; i < 3; i++)
 	{
 		if (m_linearLimits.needApplyForce(i))
-		{  // re-use rotational motor code
+		{  // reuse rotational motor code
 			limot.m_bounce = btScalar(0.f);
 			limot.m_currentLimit = m_linearLimits.m_currentLimit[i];
 			limot.m_currentPosition = m_linearLimits.m_currentLinearDiff[i];

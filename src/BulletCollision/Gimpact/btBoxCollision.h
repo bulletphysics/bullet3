@@ -178,7 +178,7 @@ public:
 	{
 	}
 
-	//! Calc the transformation relative  1 to 0. Inverts matrics by transposing
+	//! Calc the transformation relative  1 to 0. Inverts matrices by transposing
 	SIMD_FORCE_INLINE void calc_from_homogenic(const btTransform &trans0, const btTransform &trans1)
 	{
 		btTransform temp_trans = trans0.inverse();
@@ -190,7 +190,7 @@ public:
 		calc_absolute_matrix();
 	}
 
-	//! Calcs the full invertion of the matrices. Useful for scaling matrices
+	//! Calcs the full inversion of the matrices. Useful for scaling matrices
 	SIMD_FORCE_INLINE void calc_from_full_invert(const btTransform &trans0, const btTransform &trans1)
 	{
 		m_R1to0 = trans0.getBasis().inverse();
@@ -616,7 +616,7 @@ public:
 	}
 };
 
-//! Compairison of transformation objects
+//! Comparison of transformation objects
 SIMD_FORCE_INLINE bool btCompareTransformsEqual(const btTransform &t1, const btTransform &t2)
 {
 	if (!(t1.getOrigin() == t2.getOrigin())) return false;

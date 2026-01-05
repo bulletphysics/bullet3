@@ -1459,7 +1459,7 @@ void btLCP::transfer_i_from_N_to_C(int i)
 	// @@@ TO DO LATER
 	// if we just finish here then we'll go back and re-solve for
 	// delta_x. but actually we can be more efficient and incrementally
-	// update delta_x here. but if we do this, we wont have ell and Dell
+	// update delta_x here. but if we do this, we won't have ell and Dell
 	// to use in updating the factorization later.
 }
 
@@ -1998,7 +1998,7 @@ bool btSolveDantzigLCP(int n, btScalar *A, btScalar *x, btScalar *b,
 				// compute: delta_x(C) = -dir*A(C,C)\A(C,i)
 				lcp.solve1(&scratchMem.delta_x[0], i, dir);
 
-				// note that delta_x[i] = dirf, but we wont bother to set it
+				// note that delta_x[i] = dirf, but we won't bother to set it
 
 				// compute: delta_w = A*delta_x ... note we only care about
 				// delta_w(N) and delta_w(i), the rest is ignored

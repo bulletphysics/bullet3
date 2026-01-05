@@ -521,7 +521,7 @@ void HACD::ComputeEdgeCost(size_t e)
 		concavity = Concavity(*ch, gE.m_distPoints);
 	}
 
-	// compute boudary edges
+	// compute boundary edges
 	double perimeter = 0.0;
 	double surf = 1.0;
 	if (m_alpha > 0.0)
@@ -686,8 +686,8 @@ bool HACD::Compute(bool fullCH, bool exportDistPoints)
 		msg << "+ Parameters" << std::endl;
 		msg << "\t min # of clusters              \t" << m_nMinClusters << std::endl;
 		msg << "\t max concavity                  \t" << m_concavity << std::endl;
-		msg << "\t compacity weigth               \t" << m_alpha << std::endl;
-		msg << "\t volume weigth                  \t" << m_beta << std::endl;
+		msg << "\t compacity weight               \t" << m_alpha << std::endl;
+		msg << "\t volume weight                  \t" << m_beta << std::endl;
 		msg << "\t # vertices per convex-hull     \t" << m_nVerticesPerCH << std::endl;
 		msg << "\t scale                          \t" << m_scale << std::endl;
 		msg << "\t add extra distance points      \t" << m_addExtraDistPoints << std::endl;

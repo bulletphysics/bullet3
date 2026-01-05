@@ -349,7 +349,7 @@ public:
 	virtual void sortOverlappingPairs(btDispatcher* dispatcher) BT_OVERRIDE;
 };
 
-///btNullPairCache skips add/removal of overlapping pairs. Userful for benchmarking and unit testing.
+///btNullPairCache skips add/removal of overlapping pairs. Useful for benchmarking and unit testing.
 class btNullPairCache : public btOverlappingPairCache
 {
 	btBroadphasePairArray m_overlappingPairArray;

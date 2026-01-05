@@ -33,7 +33,7 @@ class StreamingNormalize(object):
     outlier values are optional.
 
     Args:
-      template: Example tensor providing shape and dtype of the vaule to track.
+      template: Example tensor providing shape and dtype of the value to track.
       center: Python boolean indicating whether to subtract mean from values.
       scale: Python boolean indicating whether to scale values by stddev.
       clip: If and when to clip normalized values.

@@ -86,7 +86,7 @@ EIGEN_STRONG_INLINE Packet4f shuffle1(const Packet4f& m, int mask){
   return res;
 }
 
-// fuctionally equivalent to _mm_shuffle_ps in SSE when interleave
+// functionally equivalent to _mm_shuffle_ps in SSE when interleave
 // == false (i.e. shuffle<false>(m, n, mask) equals _mm_shuffle_ps(m, n, mask)),
 // interleave m and n when interleave == true. Currently used in LU/arch/InverseSize4.h
 // to enable a shared implementation for fast inversion of matrices of size 4. 
@@ -3386,7 +3386,7 @@ EIGEN_ALWAYS_INLINE void zip_in_place<Packet4bf>(Packet4bf& p1, Packet4bf& p2) {
 
 EIGEN_STRONG_INLINE Packet4bf F32ToBf16(const Packet4f& p)
 {
-  // See the scalar implemention in BFloat16.h for a comprehensible explanation
+  // See the scalar implementation in BFloat16.h for a comprehensible explanation
   // of this fast rounding algorithm
   Packet4ui input = reinterpret_cast<Packet4ui>(p);
 
@@ -3625,7 +3625,7 @@ template<> EIGEN_STRONG_INLINE Packet4bf pnegate<Packet4bf>(const Packet4bf& a)
 
 //---------- double ----------
 
-// Clang 3.5 in the iOS toolchain has an ICE triggered by NEON intrisics for double.
+// Clang 3.5 in the iOS toolchain has an ICE triggered by NEON intrinsics for double.
 // Confirmed at least with __apple_build_version__ = 6000054.
 #ifdef __apple_build_version__
 // Let's hope that by the time __apple_build_version__ hits the 601* range, the bug will be fixed.
@@ -3649,7 +3649,7 @@ template <typename T> float64x2_t vreinterpretq_f64_u64(T a) { return (float64x2
 typedef float64x2_t Packet2d;
 typedef float64x1_t Packet1d;
 
-// fuctionally equivalent to _mm_shuffle_pd in SSE (i.e. shuffle(m, n, mask) equals _mm_shuffle_pd(m,n,mask))
+// functionally equivalent to _mm_shuffle_pd in SSE (i.e. shuffle(m, n, mask) equals _mm_shuffle_pd(m,n,mask))
 // Currently used in LU/arch/InverseSize4.h to enable a shared implementation
 // for fast inversion of matrices of size 4.
 EIGEN_STRONG_INLINE Packet2d shuffle(const Packet2d& m, const Packet2d& n, int mask)

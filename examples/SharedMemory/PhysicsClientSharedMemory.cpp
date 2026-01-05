@@ -482,7 +482,7 @@ void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool
 	btVector3 angularLowerLimit((btScalar)con->m_angularLowerLimit.m_floats[0], (btScalar)con->m_angularLowerLimit.m_floats[1], (btScalar)con->m_angularLowerLimit.m_floats[2]);
 	btVector3 angularUpperLimit((btScalar)con->m_angularUpperLimit.m_floats[0], (btScalar)con->m_angularUpperLimit.m_floats[1], (btScalar)con->m_angularUpperLimit.m_floats[2]);
 
-	//very simple, rudimentary extraction of constaint type, from limits
+	//very simple, rudimentary extraction of constraint type, from limits
 	info.m_jointType = eFixedType;
 	info.m_jointDamping = 0;      //mb->m_links[link].m_jointDamping;
 	info.m_jointFriction = 0;     //mb->m_links[link].m_jointFriction;

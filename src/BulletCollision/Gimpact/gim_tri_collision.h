@@ -305,7 +305,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 		return true;
 	}
 
-	//! Bidireccional ray collision
+	//! Bidirectional ray collision
 	SIMD_FORCE_INLINE bool ray_collision(
 		const btVector3 &vPoint,
 		const btVector3 &vDir, btVector3 &pout, btVector3 &triangle_normal,
@@ -337,7 +337,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 		return true;
 	}
 
-	//! one direccion ray collision
+	//! one direction ray collision
 	SIMD_FORCE_INLINE bool ray_collision_front_side(
 		const btVector3 &vPoint,
 		const btVector3 &vDir, btVector3 &pout, btVector3 &triangle_normal,

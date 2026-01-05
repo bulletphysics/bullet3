@@ -277,7 +277,7 @@ static void Diagonalize(const double (&A)[3][3], double (&Q)[3][3], double (&D)[
 	// A must be a symmetric matrix.
 	// returns Q and D such that
 	// Diagonal matrix D = QT * A * Q;  and  A = Q*D*QT
-	const int maxsteps = 24;  // certainly wont need that many.
+	const int maxsteps = 24;  // certainly won't need that many.
 	int k0, k1, k2;
 	double o[3], m[3];
 	double q[4] = {0.0, 0.0, 0.0, 1.0};

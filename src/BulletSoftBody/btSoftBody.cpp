@@ -1072,7 +1072,7 @@ btTransform btSoftBody::getRigidTransform()
 	// It's important to make sure that S has the correct signs.
 	// SVD is only unique up to the ordering of singular values.
 	// SVD will manipulate U and V to ensure the ordering of singular values. If all three singular
-	// vaues are negative, SVD will permute colums of U to make two of them positive.
+	// values are negative, SVD will permute columns of U to make two of them positive.
 	for (int i = 0; i < m_nodes.size(); ++i)
 	{
 		S -= OuterProduct(m_X[i], t - m_nodes[i].m_x);
@@ -1701,7 +1701,7 @@ int btSoftBody::generateClusters(int k, int maxiterations)
 }
 
 //
-void btSoftBody::refine(ImplicitFn* ifn, btScalar accurary, bool cut)
+void btSoftBody::refine(ImplicitFn* ifn, btScalar accuracy, bool cut)
 {
 	const Node* nbase = &m_nodes[0];
 	int ncount = m_nodes.size();
@@ -1744,7 +1744,7 @@ void btSoftBody::refine(ImplicitFn* ifn, btScalar accurary, bool cut)
 			{
 				Node& a = m_nodes[i];
 				Node& b = m_nodes[j];
-				const btScalar t = ImplicitSolve(ifn, a.m_x, b.m_x, accurary);
+				const btScalar t = ImplicitSolve(ifn, a.m_x, b.m_x, accuracy);
 				if (t > 0)
 				{
 					const btVector3 x = Lerp(a.m_x, b.m_x, t);
@@ -1850,7 +1850,7 @@ void btSoftBody::refine(ImplicitFn* ifn, btScalar accurary, bool cut)
 		for (int i = 0; i < ncount; ++i)
 		{
 			const btVector3 x = m_nodes[i].m_x;
-			if ((i >= pcount) || (btFabs(ifn->Eval(x)) < accurary))
+			if ((i >= pcount) || (btFabs(ifn->Eval(x)) < accuracy))
 			{
 				const btVector3 v = m_nodes[i].m_v;
 				btScalar m = getMass(i);
@@ -1878,8 +1878,8 @@ void btSoftBody::refine(ImplicitFn* ifn, btScalar accurary, bool cut)
 			}
 			else
 			{
-				if (((ifn->Eval(m_nodes[id[0]].m_x) < accurary) &&
-					 (ifn->Eval(m_nodes[id[1]].m_x) < accurary)))
+				if (((ifn->Eval(m_nodes[id[0]].m_x) < accuracy) &&
+					 (ifn->Eval(m_nodes[id[1]].m_x) < accuracy)))
 					todetach = i;
 			}
 			if (todetach)
@@ -1896,9 +1896,9 @@ void btSoftBody::refine(ImplicitFn* ifn, btScalar accurary, bool cut)
 		for (int i = 0, ni = m_faces.size(); i < ni; ++i)
 		{
 			Node** n = m_faces[i].m_n;
-			if ((ifn->Eval(n[0]->m_x) < accurary) &&
-				(ifn->Eval(n[1]->m_x) < accurary) &&
-				(ifn->Eval(n[2]->m_x) < accurary))
+			if ((ifn->Eval(n[0]->m_x) < accuracy) &&
+				(ifn->Eval(n[1]->m_x) < accuracy) &&
+				(ifn->Eval(n[2]->m_x) < accuracy))
 			{
 				for (int j = 0; j < 3; ++j)
 				{

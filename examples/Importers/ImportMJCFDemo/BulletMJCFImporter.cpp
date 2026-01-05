@@ -660,7 +660,7 @@ struct BulletMJCFImporterInternalData
 		if (linkPtrPtr == 0)
 		{
 			// XXX: should it be assert?
-			logger->reportWarning("Invalide linkindex");
+			logger->reportWarning("Invalid linkindex");
 			return false;
 		}
 		UrdfLink* linkPtr = *linkPtrPtr;
@@ -2116,7 +2116,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		}
 	}
 
-	//if we have a convex, tesselate into localVertices/localIndices
+	//if we have a convex, tessellate into localVertices/localIndices
 	if ((glmesh == 0) && convexColShape)
 	{
 		BT_PROFILE("convexColShape");
@@ -2437,7 +2437,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 					}
 					else
 					{
-						//b3Printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
+						//b3Printf("extracted %d vertices from STL file %s\n", glmesh->m_numvertices,fullPath);
 						//int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
 						//convex->setUserIndex(shapeId);
 						btAlignedObjectArray<btVector3> convertedVerts;

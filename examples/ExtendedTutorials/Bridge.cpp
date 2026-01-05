@@ -67,7 +67,7 @@ void BridgeExample::initPhysics()
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 		btScalar plankWidth = btScalar(0.4);
 		btScalar plankHeight = btScalar(0.2);
 		btScalar plankBreadth = 1;

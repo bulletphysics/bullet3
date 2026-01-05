@@ -5,7 +5,7 @@
 
 namespace btInverseDynamics
 {
-/// Creator class for building a "Dill" system as intruduced as benchmark example in
+/// Creator class for building a "Dill" system as introduced as benchmark example in
 /// Featherstone (1999), "A Divide-and-Conquer Articulated-Body Algorithm for Parallel O(log(n))
 /// Calculation of Rigid-Body Dynamics. Part 2: Trees, Loops, and Accuracy.",  The International
 /// Journal of Robotics Research 18 (9): 876–892. doi : 10.1177 / 02783649922066628.

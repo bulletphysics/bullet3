@@ -1063,7 +1063,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 			int i;
 
 			m_tmpConstraintSizesPool.resizeNoInitialize(numConstraints);
-			//calculate the total number of contraint rows
+			//calculate the total number of constraint rows
 			for (i = 0; i < numConstraints; i++)
 			{
 				b3TypedConstraint::b3ConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];

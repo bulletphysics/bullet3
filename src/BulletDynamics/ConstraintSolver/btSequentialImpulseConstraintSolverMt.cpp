@@ -708,7 +708,7 @@ void btSequentialImpulseConstraintSolverMt::convertJoints(btTypedConstraint** co
 	btAlignedObjectArray<JointParams> jointParamsArray;
 	jointParamsArray.resizeNoInitialize(numConstraints);
 
-	//calculate the total number of contraint rows
+	//calculate the total number of constraint rows
 	for (int i = 0; i < numConstraints; i++)
 	{
 		btTypedConstraint* constraint = constraints[i];

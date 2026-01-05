@@ -1301,7 +1301,7 @@ private:
 	internal::UnitTestImpl* impl() { return impl_; }
 	const internal::UnitTestImpl* impl() const { return impl_; }
 
-	// These classes and funcions are friends as they need to access private
+	// These classes and functions are friends as they need to access private
 	// members of UnitTest.
 	friend class Test;
 	friend class internal::AssertHelper;
@@ -1808,7 +1808,7 @@ public:
 private:
 	// We put our data in a struct so that the size of the AssertHelper class can
 	// be as small as possible.  This is important because gcc is incapable of
-	// re-using stack space even for temporary variables, so every EXPECT_EQ
+	// reusing stack space even for temporary variables, so every EXPECT_EQ
 	// reserves stack space for another AssertHelper.
 	struct AssertHelperData
 	{

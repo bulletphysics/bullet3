@@ -23,7 +23,7 @@ p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER, 0)
 
 shift = [0, -0.02, 0]
 meshScale = [0.1, 0.1, 0.1]
-#the visual shape and collision shape can be re-used by all createMultiBody instances (instancing)
+#the visual shape and collision shape can be reuse by all createMultiBody instances (instancing)
 visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,
                                     fileName="duck.obj",
                                     rgbaColor=[1, 1, 1, 1],

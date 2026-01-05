@@ -55,7 +55,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
     )  # Works because robot loads around (0,0,0), and some robots have z != 0 that is left intact
     self.cpp_robot.set_pose(pose)
 
-  electricity_cost = -2.0  # cost for using motors -- this parameter should be carefully tuned against reward for making progress, other values less improtant
+  electricity_cost = -2.0  # cost for using motors -- this parameter should be carefully tuned against reward for making progress, other values less important
   stall_torque_cost = -0.1  # cost for running electric current through a motor even at zero rotational speed, small
   foot_collision_cost = -1.0  # touches another leg, or other objects, that cost makes robot avoid smashing feet into itself
   foot_ground_object_names = set(["floor"])  # to distinguish ground and other objects

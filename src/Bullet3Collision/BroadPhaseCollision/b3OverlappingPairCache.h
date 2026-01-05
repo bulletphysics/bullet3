@@ -349,7 +349,7 @@ public:
 	virtual void sortOverlappingPairs(b3Dispatcher* dispatcher);
 };
 
-///b3NullPairCache skips add/removal of overlapping pairs. Userful for benchmarking and unit testing.
+///b3NullPairCache skips add/removal of overlapping pairs. Useful for benchmarking and unit testing.
 class b3NullPairCache : public b3OverlappingPairCache
 {
 	b3BroadphasePairArray m_overlappingPairArray;

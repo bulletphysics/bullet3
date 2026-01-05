@@ -167,7 +167,7 @@ void PhysicsDirect::clearCachedBodies()
 	m_data->m_bodyJointMap.clear();
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool PhysicsDirect::connect()
 {
 	bool connected = m_data->m_commandProcessor->connect();
@@ -202,7 +202,7 @@ bool PhysicsDirect::connect()
 	return connected;
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool PhysicsDirect::connect(struct GUIHelperInterface* guiHelper)
 {
 	bool connected = m_data->m_commandProcessor->connect();

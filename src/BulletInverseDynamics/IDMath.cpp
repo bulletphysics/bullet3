@@ -98,7 +98,7 @@ void mul(const mat33 &a, const mat3x &b, mat3x *result)
 {
 	if (b.cols() != result->cols())
 	{
-		bt_id_error_message("size missmatch. b.cols()= %d, result->cols()= %d\n",
+		bt_id_error_message("size mismatch. b.cols()= %d, result->cols()= %d\n",
 							static_cast<int>(b.cols()), static_cast<int>(result->cols()));
 		abort();
 	}
@@ -117,7 +117,7 @@ void add(const mat3x &a, const mat3x &b, mat3x *result)
 {
 	if (a.cols() != b.cols())
 	{
-		bt_id_error_message("size missmatch. a.cols()= %d, b.cols()= %d\n",
+		bt_id_error_message("size mismatch. a.cols()= %d, b.cols()= %d\n",
 							static_cast<int>(a.cols()), static_cast<int>(b.cols()));
 		abort();
 	}
@@ -133,7 +133,7 @@ void sub(const mat3x &a, const mat3x &b, mat3x *result)
 {
 	if (a.cols() != b.cols())
 	{
-		bt_id_error_message("size missmatch. a.cols()= %d, b.cols()= %d\n",
+		bt_id_error_message("size mismatch. a.cols()= %d, b.cols()= %d\n",
 							static_cast<int>(a.cols()), static_cast<int>(b.cols()));
 		abort();
 	}

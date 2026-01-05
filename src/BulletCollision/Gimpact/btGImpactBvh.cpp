@@ -41,7 +41,7 @@ void bt_end_gim02_tree_time()
 	g_count_traversing++;
 }
 
-//! Gets the average time in miliseconds of tree collisions
+//! Gets the average time in milliseconds of tree collisions
 float btGImpactBvh::getAverageTreeCollisionTime()
 {
 	if (g_count_traversing == 0) return 0;

@@ -29,7 +29,7 @@ namespace HACD
 const double sc_pi = 3.14159265;
 class HACD;
 
-// just to be able to set the capcity of the container
+// just to be able to set the capacity of the container
 
 template <class _Ty, class _Container = std::vector<_Ty>, class _Pr = std::less<typename _Container::value_type> >
 class reservable_priority_queue : public std::priority_queue<_Ty, _Container, _Pr>
@@ -99,19 +99,19 @@ public:
 	//! Specifies whether faces points should be added when computing the concavity
 	//! @param addFacesPoints true = faces points should be added
 	void SetAddFacesPoints(bool addFacesPoints) { m_addFacesPoints = addFacesPoints; }
-	//! Specifies wheter faces points should be added when computing the concavity
+	//! Specifies whether faces points should be added when computing the concavity
 	//! @return true = faces points should be added
 	bool GetAddFacesPoints() const { return m_addFacesPoints; }
 	//! Specifies whether extra points should be added when computing the concavity
 	//! @param addExtraDistPoints true = extra points should be added
 	void SetAddExtraDistPoints(bool addExtraDistPoints) { m_addExtraDistPoints = addExtraDistPoints; }
-	//! Specifies wheter extra points should be added when computing the concavity
+	//! Specifies whether extra points should be added when computing the concavity
 	//! @return true = extra points should be added
 	bool GetAddExtraDistPoints() const { return m_addExtraDistPoints; }
 	//! Specifies whether extra points should be added when computing the concavity
 	//! @param addNeighboursDistPoints true = extra points should be added
 	void SetAddNeighboursDistPoints(bool addNeighboursDistPoints) { m_addNeighboursDistPoints = addNeighboursDistPoints; }
-	//! Specifies wheter extra points should be added when computing the concavity
+	//! Specifies whether extra points should be added when computing the concavity
 	//! @return true = extra points should be added
 	bool GetAddNeighboursDistPoints() const { return m_addNeighboursDistPoints; }
 	//! Sets the points of the input mesh (Remark: the input points will be scaled and shifted. Use DenormalizeData() to invert those operations)
@@ -185,18 +185,18 @@ public:
 	//! @param numCH cluster's number
 	//! @param points pointer to the vector of points to be filled
 	//! @param triangles pointer to the vector of triangles to be filled
-	//! @return true if sucess
+	//! @return true if success
 	bool GetCH(size_t numCH, Vec3<Real> *const points, Vec3<long> *const triangles);
 	//! Computes the HACD decomposition.
 	//! @param fullCH specifies whether to generate convex-hulls with a full or limited (i.e. < m_nVerticesPerCH) number of vertices
-	//! @param exportDistPoints specifies wheter distance points should ne exported or not (used only for debugging).
-	//! @return true if sucess
+	//! @param exportDistPoints specifies whether distance points should ne exported or not (used only for debugging).
+	//! @return true if success
 	bool Compute(bool fullCH = false, bool exportDistPoints = false);
 	//! Saves the generated convex-hulls in a VRML 2.0 file.
 	//! @param fileName the output file name
 	//! @param uniColor specifies whether the different convex-hulls should have the same color or not
 	//! @param numCluster specifies the cluster to be saved, if numCluster < 0 export all clusters
-	//! @return true if sucess
+	//! @return true if success
 	bool Save(const char *fileName, bool uniColor, long numCluster = -1) const;
 	//! Shifts and scales to the data to have all the coordinates between 0.0 and 1000.0.
 	void NormalizeData();
@@ -259,8 +259,8 @@ private:
 	size_t m_nMinClusters;          //>! minimum number of clusters
 	double m_ccConnectDist;         //>! maximum allowed distance to connect CCs
 	double m_concavity;             //>! maximum concavity
-	double m_alpha;                 //>! compacity weigth
-	double m_beta;                  //>! volume weigth
+	double m_alpha;                 //>! compacity weight
+	double m_beta;                  //>! volume weight
 	double m_diag;                  //>! length of the BB diagonal
 	Vec3<Real> m_barycenter;        //>! barycenter of the mesh
 	std::vector<long> m_cVertices;  //>! array of vertices each belonging to a different cluster
