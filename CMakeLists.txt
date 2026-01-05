@@ -302,8 +302,8 @@ IF(MSVC)
 	SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /wd5287") # operands are different enum types
 	SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /wd4146") # unary minus operator applied to unsigned type, result still unsigned
 	# Eigen:
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5266") # 'const' qualifer on return type has no effect
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6255") # '_alloca' indicates failure by rasing a stack overflow exception. Consider using _malloca
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5266") # 'const' qualifier on return type has no effect
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6255") # '_alloca' indicates failure by raising a stack overflow exception. Consider using _malloca
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6294") # Ill-defined for-loop. Loop body not executed
 	# STB:
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6246") # Local declaration of 'var' hides declaration of the same name in outer scope.
