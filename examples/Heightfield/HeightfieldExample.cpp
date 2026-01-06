@@ -755,9 +755,9 @@ private:
 
 
 #define HEIGHTFIELD_TYPE_COUNT 4
-eTerrainModel gHeightfieldType = eRadial;
+static eTerrainModel gHeightfieldType = eRadial;
 
-void setHeightfieldTypeComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
+static void setHeightfieldTypeComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < HEIGHTFIELD_TYPE_COUNT; ++i)

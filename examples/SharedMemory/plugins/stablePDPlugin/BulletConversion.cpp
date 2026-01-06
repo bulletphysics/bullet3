@@ -1,3 +1,4 @@
+#include "BulletConversion.h"
 #include "btBulletDynamicsCommon.h"
 
 //for inverse dynamics, DeepMimic implementation
@@ -40,7 +41,7 @@ struct TempLink
 	btQuaternion m_this_to_body1;
 };
 
-bool btExtractJointBodyFromTempLinks(btAlignedObjectArray<TempLink>& links, Eigen::MatrixXd& bodyDefs, Eigen::MatrixXd& jointMat)
+static bool btExtractJointBodyFromTempLinks(btAlignedObjectArray<TempLink>& links, Eigen::MatrixXd& bodyDefs, Eigen::MatrixXd& jointMat)
 {
 
 	bool result = true;

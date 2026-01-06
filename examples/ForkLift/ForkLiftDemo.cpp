@@ -155,10 +155,10 @@ public:
 	*/
 };
 
-btScalar maxMotorImpulse = 4000.f;
+static btScalar maxMotorImpulse = 4000.f;
 
 //the sequential impulse solver has difficulties dealing with large mass ratios (differences), between loadMass and the fork parts
-btScalar loadMass = 350.f;  //
+static btScalar loadMass = 350.f;  //
 //btScalar loadMass = 10.f;//this should work fine for the SI solver
 
 #ifndef M_PI
@@ -173,13 +173,13 @@ btScalar loadMass = 350.f;  //
 #define M_PI_4 0.785398163397448309616
 #endif
 
-int rightIndex = 0;
-int upIndex = 1;
-int forwardIndex = 2;
-btVector3 wheelDirectionCS0(0, -1, 0);
-btVector3 wheelAxleCS(-1, 0, 0);
+static int rightIndex = 0;
+static int upIndex = 1;
+static int forwardIndex = 2;
+static btVector3 wheelDirectionCS0(0, -1, 0);
+static btVector3 wheelAxleCS(-1, 0, 0);
 
-bool useMCLPSolver = true;
+static bool useMCLPSolver = true;
 
 #include <stdio.h>  //printf debugging
 
@@ -188,26 +188,26 @@ bool useMCLPSolver = true;
 ///btRaycastVehicle is the interface for the constraint that implements the raycast vehicle
 ///notice that for higher-quality slow-moving vehicles, another approach might be better
 ///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
-float gEngineForce = 0.f;
+static float gEngineForce = 0.f;
 
-float defaultBreakingForce = 10.f;
-float gBreakingForce = 100.f;
+static float defaultBreakingForce = 10.f;
+static float gBreakingForce = 100.f;
 
-float maxEngineForce = 1000.f;  //this should be engine/velocity dependent
-float maxBreakingForce = 100.f;
+static float maxEngineForce = 1000.f;  //this should be engine/velocity dependent
+static float maxBreakingForce = 100.f;
 
-float gVehicleSteering = 0.f;
-float steeringIncrement = 0.04f;
-float steeringClamp = 0.3f;
-float wheelRadius = 0.5f;
-float wheelWidth = 0.4f;
-float wheelFriction = 1000;  //BT_LARGE_FLOAT;
-float suspensionStiffness = 20.f;
-float suspensionDamping = 2.3f;
-float suspensionCompression = 4.4f;
-float rollInfluence = 0.1f;  //1.0f;
+static float gVehicleSteering = 0.f;
+static float steeringIncrement = 0.04f;
+static float steeringClamp = 0.3f;
+static float wheelRadius = 0.5f;
+static float wheelWidth = 0.4f;
+static float wheelFriction = 1000;  //BT_LARGE_FLOAT;
+static float suspensionStiffness = 20.f;
+static float suspensionDamping = 2.3f;
+static float suspensionCompression = 4.4f;
+static float rollInfluence = 0.1f;  //1.0f;
 
-btScalar suspensionRestLength = btScalar(0.6);
+static btScalar suspensionRestLength = btScalar(0.6);
 
 #define CUBE_HALF_EXTENTS 1
 

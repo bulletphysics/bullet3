@@ -11,12 +11,12 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "ActiveSocket.h"
 
-unsigned int b3DeserializeInt2(const unsigned char* input)
+static unsigned int b3DeserializeInt2(const unsigned char* input)
 {
 	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;
 }
-bool gVerboseNetworkMessagesClient2 = false;
+static bool gVerboseNetworkMessagesClient2 = false;
 
 struct TcpNetworkedInternalData
 {

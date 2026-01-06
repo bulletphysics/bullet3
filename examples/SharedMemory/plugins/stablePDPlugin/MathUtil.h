@@ -8,6 +8,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
 #endif
 #include "Eigen/Dense"
 #include "Eigen/StdVector"

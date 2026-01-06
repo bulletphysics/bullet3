@@ -22,35 +22,35 @@
 #include "FontData.h"
 
 //saved OpenGL settings
-GLfloat m_PrevLineWidth;
-GLint m_PrevTexEnv;
-GLint m_PrevPolygonMode[2];
-GLint m_MaxClipPlanes;
-GLint m_PrevTexture;
-GLint m_PrevArrayBufferARB;
-GLint m_PrevElementArrayBufferARB;
-GLboolean m_PrevVertexProgramARB;
-GLboolean m_PrevFragmentProgramARB;
-GLuint m_PrevProgramObjectARB;
-GLboolean m_PrevTexture3D;
-GLboolean m_PrevActiveTexture1D[32];
-GLboolean m_PrevActiveTexture2D[32];
-GLboolean m_PrevActiveTexture3D[32];
-GLint m_PrevActiveTextureARB;
-bool m_SupportTexRect;
-GLboolean m_PrevTexRectARB;
-GLint m_PrevBlendEquation;
-GLint m_PrevBlendEquationRGB;
-GLint m_PrevBlendEquationAlpha;
-GLint m_PrevBlendSrcRGB;
-GLint m_PrevBlendDstRGB;
-GLint m_PrevBlendSrcAlpha;
-GLint m_PrevBlendDstAlpha;
-GLint m_ViewportInit[4];
-GLfloat m_ProjMatrixInit[16];
-GLboolean m_texGenS;
-GLboolean m_texGenT;
-GLboolean m_texGenR;
+static GLfloat m_PrevLineWidth;
+static GLint m_PrevTexEnv;
+static GLint m_PrevPolygonMode[2];
+static GLint m_MaxClipPlanes;
+static GLint m_PrevTexture;
+static GLint m_PrevArrayBufferARB;
+static GLint m_PrevElementArrayBufferARB;
+static GLboolean m_PrevVertexProgramARB;
+static GLboolean m_PrevFragmentProgramARB;
+static GLuint m_PrevProgramObjectARB;
+static GLboolean m_PrevTexture3D;
+static GLboolean m_PrevActiveTexture1D[32];
+static GLboolean m_PrevActiveTexture2D[32];
+static GLboolean m_PrevActiveTexture3D[32];
+static GLint m_PrevActiveTextureARB;
+static bool m_SupportTexRect;
+static GLboolean m_PrevTexRectARB;
+static GLint m_PrevBlendEquation;
+static GLint m_PrevBlendEquationRGB;
+static GLint m_PrevBlendEquationAlpha;
+static GLint m_PrevBlendSrcRGB;
+static GLint m_PrevBlendDstRGB;
+static GLint m_PrevBlendSrcAlpha;
+static GLint m_PrevBlendDstAlpha;
+static GLint m_ViewportInit[4];
+static GLfloat m_ProjMatrixInit[16];
+static GLboolean m_texGenS;
+static GLboolean m_texGenT;
+static GLboolean m_texGenR;
 
 void restoreOpenGLState()
 {

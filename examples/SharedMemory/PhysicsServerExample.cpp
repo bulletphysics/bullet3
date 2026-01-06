@@ -22,27 +22,27 @@
 #include "../Importers/ImportURDFDemo/urdfStringSplit.h"
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
-bool gEnablePicking = true;
-bool gEnableTeleporting = true;
-bool gEnableRendering = true;
-bool gActivedVRRealTimeSimulation = false;
+static bool gEnablePicking = true;
+static bool gEnableTeleporting = true;
+static bool gEnableRendering = true;
+static bool gActivedVRRealTimeSimulation = false;
 
-bool gEnableSyncPhysicsRendering = true;
+static bool gEnableSyncPhysicsRendering = true;
 static int gCamVisualizerWidth = 228;
 static int gCamVisualizerHeight = 192;
 
 static bool gEnableDefaultKeyboardShortcuts = true;
 static bool gEnableDefaultMousePicking = true;
 
-btScalar gVRTeleportRotZ = 0;
+static btScalar gVRTeleportRotZ = 0;
 
 extern int gInternalSimFlags;
 extern bool gResetSimulation;
-int gGraspingController = -1;
+static int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
-bool gBatchUserDebugLines = true;
+static bool gBatchUserDebugLines = true;
 
-const char* startFileNameVR = "0_VRDemoSettings.txt";
+static const char* startFileNameVR = "0_VRDemoSettings.txt";
 
 #include <vector>
 
@@ -80,7 +80,7 @@ static void saveCurrentSettingsVR(const btVector3& VRTeleportPos1)
 		fclose(f);
 	}
 }
-bool gDebugRenderToggle = false;
+static bool gDebugRenderToggle = false;
 void MotionThreadFunc(void* userPtr, void* lsMemory);
 void* MotionlsMemoryFunc();
 void MotionlsMemoryReleaseFunc(void* ptr);
@@ -143,7 +143,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 #ifndef _WIN32
 #include "../MultiThreading/b3PosixThreadSupport.h"
 
-b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("MotionThreads",
 																  MotionThreadFunc,
@@ -158,7 +158,7 @@ b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 #elif defined(_WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
-b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 {
 	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("MotionThreads", MotionThreadFunc, MotionlsMemoryFunc, MotionlsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
@@ -235,7 +235,7 @@ struct MotionThreadLocalStorage
 	int threadId;
 };
 
-float clampedDeltaTime = 0.2f;
+static float clampedDeltaTime = 0.2f;
 
 void MotionThreadFunc(void* userPtr, void* /*lsMemory*/)
 {

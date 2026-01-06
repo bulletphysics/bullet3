@@ -96,7 +96,7 @@ public:
     virtual void removePickingConstraint(){}
 };
 
-void dynamics2(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
+static void dynamics2(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
 {
     btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
     if (rbs.size()<2)

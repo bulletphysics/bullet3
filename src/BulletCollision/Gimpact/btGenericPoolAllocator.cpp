@@ -244,7 +244,7 @@ public:
 };
 
 // global allocator
-GIM_STANDARD_ALLOCATOR g_main_allocator;
+static GIM_STANDARD_ALLOCATOR g_main_allocator;
 
 void *btPoolAlloc(size_t size)
 {

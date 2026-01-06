@@ -8,6 +8,8 @@
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
+#include "RenderInstancingDemo.h"
+
 ///quick demo showing the right-handed coordinate system and positive rotations around each axis
 class RenderInstancingDemo : public CommonExampleInterface
 {
@@ -131,6 +133,7 @@ public:
 	}
 };
 
+class CommonExampleInterface* RenderInstancingCreateFunc(struct CommonExampleOptions& options); // prototype
 class CommonExampleInterface* RenderInstancingCreateFunc(struct CommonExampleOptions& options)
 {
 	return new RenderInstancingDemo(options.m_guiHelper->getAppInterface());

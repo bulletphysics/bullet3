@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 // Load the shader from the source text
-void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
+static void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 {
 	GLchar *fsStringPtr[1];
 

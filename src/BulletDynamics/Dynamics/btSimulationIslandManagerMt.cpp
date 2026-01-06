@@ -113,7 +113,7 @@ void btSimulationIslandManagerMt::Island::append(const Island& other)
 	}
 }
 
-bool btIsBodyInIsland(const btSimulationIslandManagerMt::Island& island, const btCollisionObject* obj)
+static bool btIsBodyInIsland(const btSimulationIslandManagerMt::Island& island, const btCollisionObject* obj)
 {
 	for (int i = 0; i < island.bodyArray.size(); ++i)
 	{

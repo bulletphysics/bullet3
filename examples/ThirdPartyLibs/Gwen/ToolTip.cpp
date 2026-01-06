@@ -12,7 +12,7 @@ using namespace Gwen::Controls;
 
 namespace ToolTip
 {
-Base* g_ToolTip = NULL;
+static Base* g_ToolTip = NULL;
 
 void Enable(Controls::Base* pControl)
 {

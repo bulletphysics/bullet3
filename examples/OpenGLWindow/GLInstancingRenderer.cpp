@@ -140,7 +140,7 @@ static const char* triangleFragmentShader =
 
 static InternalDataRenderer* sData2;
 
-GLint lineWidthRange[2] = {1, 1};
+static GLint lineWidthRange[2] = {1, 1};
 
 
 
@@ -178,7 +178,7 @@ struct b3GraphicsInstance
 	}
 };
 
-bool m_ortho = false;
+static bool m_ortho = false;
 
 //static GLfloat depthLightModelviewMatrix[16];
 
@@ -309,27 +309,27 @@ static GLint points_ProjectionMatrix = 0;
 static GLint points_position = 0;
 static GLint points_colourIn = 0;
 static GLint points_colour = 0;
-GLuint pointsVertexBufferObject = 0;
-GLuint pointsVertexArrayObject = 0;
-GLuint pointsIndexVbo = 0;
+static GLuint pointsVertexBufferObject = 0;
+static GLuint pointsVertexArrayObject = 0;
+static GLuint pointsIndexVbo = 0;
 
 static GLint lines_ModelViewMatrix = 0;
 static GLint lines_ProjectionMatrix = 0;
 static GLint lines_position = 0;
 static GLint lines_colour = 0;
 
-GLuint lineVertexBufferObject = 0;
-GLuint lineVertexArrayObject = 0;
-GLuint lineIndexVbo = 0;
+static GLuint lineVertexBufferObject = 0;
+static GLuint lineVertexArrayObject = 0;
+static GLuint lineIndexVbo = 0;
 
 
 
 
 
 
-GLuint linesVertexBufferObject = 0;
-GLuint linesVertexArrayObject = 0;
-GLuint linesIndexVbo = 0;
+static GLuint linesVertexBufferObject = 0;
+static GLuint linesVertexArrayObject = 0;
+static GLuint linesIndexVbo = 0;
 
 static GLint useShadow_ViewMatrixInverse = 0;
 static GLint useShadow_ModelViewMatrix = 0;
@@ -1619,7 +1619,7 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 	}
 }
 
-void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
+static void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
 {
 	b3Assert(glGetError() == GL_NO_ERROR);
 	glPixelStorei(GL_PACK_ALIGNMENT, 4);

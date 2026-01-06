@@ -16,6 +16,8 @@ subject to the following restrictions:
 ///Original author: Erwin Coumans, January 2016
 ///Compare the simulation of a pendulum with
 
+#include "Pendulum.h"
+
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
 #include "pendulum_gold.h"

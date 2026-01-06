@@ -25,8 +25,8 @@ const int sPointCapacity = 10000;
 const int sNumCompounds = 10;
 const int sNumSpheres = 10;
 
-lwContactPoint pointsOut[sPointCapacity];
-int numNearCallbacks = 0;
+static lwContactPoint pointsOut[sPointCapacity];
+static int numNearCallbacks = 0;
 // clang-format off
 static btVector4 sColors[4] =
 {
@@ -37,7 +37,7 @@ static btVector4 sColors[4] =
 };
 // clang-format on
 
-void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* /*userData*/, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
+static void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* /*userData*/, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
 {
 	numNearCallbacks++;
 	int remainingCapacity = sPointCapacity - gTotalPoints;

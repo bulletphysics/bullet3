@@ -63,7 +63,7 @@ static btVector4 sJointCurveColors[8] =
 };
 // clang-format on
 
-void toggleUseInverseModel(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
+static void toggleUseInverseModel(int /*buttonId*/, bool /*buttonState*/, void* /*userPointer*/)
 {
 	useInverseModel = !useInverseModel;
 	// todo(thomas) is there a way to get a toggle button with changing text?

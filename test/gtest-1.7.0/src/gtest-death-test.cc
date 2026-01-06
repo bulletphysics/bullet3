@@ -269,7 +269,7 @@ enum DeathTestOutcome
 // message is propagated back to the parent process.  Otherwise, the
 // message is simply printed to stderr.  In either case, the program
 // then exits with status 1.
-ANNOTATE_NORETURN void DeathTestAbort(const std::string& message)
+ANNOTATE_NORETURN static void DeathTestAbort(const std::string& message)
 {
 	// On a POSIX system, this function may be called from a threadsafe-style
 	// death test child process, which operates on a very small stack.  Use
@@ -1076,7 +1076,7 @@ void StackLowerThanAddress(const void* ptr, bool* result)
 	*result = (&dummy < ptr);
 }
 
-bool StackGrowsDown()
+static bool StackGrowsDown()
 {
 	int dummy;
 	bool result;
@@ -1331,7 +1331,7 @@ static void SplitString(const ::std::string& str, char delimiter,
 // Recreates the pipe and event handles from the provided parameters,
 // signals the event, and returns a file descriptor wrapped around the pipe
 // handle. This function is called in the child process only.
-int GetStatusFileDescriptor(unsigned int parent_process_id,
+static int GetStatusFileDescriptor(unsigned int parent_process_id,
 							size_t write_handle_as_size_t,
 							size_t event_handle_as_size_t)
 {

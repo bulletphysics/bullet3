@@ -17,6 +17,9 @@
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../Utils/b3BulletDefaultFileIO.h"
+
+#include "TinyRendererSetup.h"
+
 struct TinyRendererSetupInternalData
 {
 	TGAImage m_rgbColorBuffer;
@@ -211,8 +214,8 @@ TinyRendererSetup::~TinyRendererSetup()
 	delete m_internalData;
 }
 
-const char* itemsanimate[] = {"Fixed", "Rotate"};
-void TinyRendererComboCallbackAnimate(int /*combobox*/, const char* item, void* userPointer)
+static const char* itemsanimate[] = {"Fixed", "Rotate"};
+static void TinyRendererComboCallbackAnimate(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);
@@ -228,9 +231,9 @@ void TinyRendererComboCallbackAnimate(int /*combobox*/, const char* item, void* 
 	cl->animateRenderer(index);
 }
 
-const char* items[] = {"Software", "OpenGL"};
+static const char* items[] = {"Software", "OpenGL"};
 
-void TinyRendererComboCallback(int /*combobox*/, const char* item, void* userPointer)
+static void TinyRendererComboCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);

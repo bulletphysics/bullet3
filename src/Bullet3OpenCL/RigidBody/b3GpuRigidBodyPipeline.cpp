@@ -33,16 +33,16 @@ subject to the following restrictions:
 #define B3_RIGIDBODY_INTEGRATE_PATH "src/Bullet3OpenCL/RigidBody/kernels/integrateKernel.cl"
 #define B3_RIGIDBODY_UPDATEAABB_PATH "src/Bullet3OpenCL/RigidBody/kernels/updateAabbsKernel.cl"
 
-bool useBullet2CpuSolver = true;
+static bool useBullet2CpuSolver = true;
 
 //choice of contact solver
-bool gUseJacobi = false;
-bool gUseDbvt = false;
-bool gDumpContactStats = false;
-bool gCalcWorldSpaceAabbOnCpu = false;
-bool gUseCalculateOverlappingPairsHost = false;
-bool gIntegrateOnCpu = false;
-bool gClearPairsOnGpu = true;
+static bool gUseJacobi = false;
+static bool gUseDbvt = false;
+static bool gDumpContactStats = false;
+static bool gCalcWorldSpaceAabbOnCpu = false;
+static bool gUseCalculateOverlappingPairsHost = false;
+static bool gIntegrateOnCpu = false;
+static bool gClearPairsOnGpu = true;
 
 #define TEST_OTHER_GPU_SOLVER 1
 #ifdef TEST_OTHER_GPU_SOLVER

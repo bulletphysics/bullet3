@@ -788,7 +788,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 	}
 }
 
-bool disableCcd = false;
+static bool disableCcd = false;
 btScalar btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0, btCollisionObject* col1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
 {
 	(void)resultOut;

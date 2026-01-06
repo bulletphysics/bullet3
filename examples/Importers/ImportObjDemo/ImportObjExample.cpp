@@ -52,7 +52,7 @@ ImportObjSetup::~ImportObjSetup()
 {
 }
 
-int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer)
+static int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer)
 {
 	int shapeId = -1;
 

@@ -49,7 +49,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btMprPenetration.h"
 
 //this is just an internal debug variable to switch between GJK+MPR or GJK+EPA
-bool gUseMprCollisionFunction = true;
+static bool gUseMprCollisionFunction = true;
 
 btConvexConvexMprAlgorithm::CreateFunc::CreateFunc()
 {
@@ -77,7 +77,7 @@ btConvexConvexMprAlgorithm::~btConvexConvexMprAlgorithm()
 	}
 }
 
-btVector3 btBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
+static btVector3 btBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
 {
 	btConvexShape* shape = (btConvexShape*)shapeAptr;
 	if (includeMargin)
@@ -88,7 +88,7 @@ btVector3 btBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, 
 	return shape->localGetSupportingVertexWithoutMargin(dir);
 }
 
-btVector3 btBulletShapeCenterFunc(const void* /*shapeAptr*/)
+static btVector3 btBulletShapeCenterFunc(const void* /*shapeAptr*/)
 {
 	return btVector3(0, 0, 0);
 }

@@ -137,7 +137,7 @@ public:
 	float mMax[3];
 };
 
-void splitRect(unsigned int axis,
+static void splitRect(unsigned int axis,
 			   const Rect3d &source,
 			   Rect3d &b1,
 			   Rect3d &b2,

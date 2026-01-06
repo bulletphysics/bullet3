@@ -424,6 +424,7 @@ B3_SHARED_API int b3LoadSoftBodySetRepulsionStiffness(b3SharedMemoryCommandHandl
 	return 0;
 }
 
+B3_SHARED_API int b3LoadSoftBodySetGravityFactor(b3SharedMemoryCommandHandle commandHandle, double gravFactor); // prototype
 B3_SHARED_API int b3LoadSoftBodySetGravityFactor(b3SharedMemoryCommandHandle commandHandle, double gravFactor)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
@@ -2294,6 +2295,7 @@ B3_SHARED_API void b3CreateMultiBodySetFlags(b3SharedMemoryCommandHandle command
 	}
 }
 
+B3_SHARED_API int b3GetStatusMultiBodyUniqueId(b3SharedMemoryStatusHandle statusHandle); // prototype
 B3_SHARED_API int b3GetStatusMultiBodyUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
@@ -6442,7 +6444,7 @@ B3_SHARED_API void b3GetQuaternionDifference(const double startQuat[4], const do
 	outOrn[3] = dorn[3];
 }
 
-b3Scalar b3GetMatrixElem(const b3Matrix3x3& mat, int index)
+static b3Scalar b3GetMatrixElem(const b3Matrix3x3& mat, int index)
 {
 	int i = index % 3;
 	int j = index / 3;

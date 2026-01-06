@@ -32,7 +32,7 @@
 
 using namespace btInverseDynamics;
 
-bool FLAGS_verbose = false;
+static bool FLAGS_verbose = false;
 
 static btVector3 gravity(0, 0, -10);
 static const bool kBaseFixed = false;

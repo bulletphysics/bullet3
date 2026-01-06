@@ -5,7 +5,7 @@
 #include "Gwen/Controls/ColorPicker.h"
 //#include "Gwen/Controls/HSVColorPicker.h"
 
-class MyGraphWindow* graphWindow = 0;
+static class MyGraphWindow* graphWindow = 0;
 
 GwenUserInterface::GwenUserInterface()
 {

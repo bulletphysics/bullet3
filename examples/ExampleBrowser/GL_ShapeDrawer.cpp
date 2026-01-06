@@ -218,7 +218,7 @@ GL_ShapeDrawer::ShapeCache* GL_ShapeDrawer::cache(btConvexShape* shape)
 	return (sc);
 }
 
-void renderSquareA(float x, float y, float z)
+static void renderSquareA(float x, float y, float z)
 {
 	glBegin(GL_LINE_LOOP);
 	glVertex3f(x, y, z);

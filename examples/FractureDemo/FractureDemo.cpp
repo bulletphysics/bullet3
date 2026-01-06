@@ -33,7 +33,7 @@ subject to the following restrictions:
 
 #include <stdio.h>  //printf debugging
 
-int sFrameNumber = 0;
+static int sFrameNumber = 0;
 
 #include "btFractureBody.h"
 #include "btFractureDynamicsWorld.h"

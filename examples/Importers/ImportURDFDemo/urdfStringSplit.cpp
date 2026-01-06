@@ -37,7 +37,7 @@ void urdfIsAnyOf(const char *seps, btAlignedObjectArray<std::string> &strArray)
  string is dynamically copied. If the array is NULL, allocate a new
  array. Otherwise, extend the array. Make sure the array is always
  NULL-terminated. Input string might not be '\0'-terminated. */
-char **urdfStrArrayAppend(char **array, size_t nitems, const char *item,
+static char **urdfStrArrayAppend(char **array, size_t nitems, const char *item,
 						  size_t itemlen)
 {
 	/* Make a dynamic copy of the item. */

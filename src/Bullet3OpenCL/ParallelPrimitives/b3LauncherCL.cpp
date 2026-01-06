@@ -1,6 +1,6 @@
 #include "b3LauncherCL.h"
 
-bool gDebugLauncherCL = false;
+static bool gDebugLauncherCL = false;
 
 b3LauncherCL::b3LauncherCL(cl_command_queue queue, cl_kernel kernel, const char* name)
 	: m_commandQueue(queue),

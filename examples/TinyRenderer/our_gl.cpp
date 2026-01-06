@@ -61,7 +61,7 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up)
 	return ModelView;
 }
 
-Vec3d barycentric(Vec2f A1, Vec2f B1, Vec2f C1, Vec2f P1)
+static Vec3d barycentric(Vec2f A1, Vec2f B1, Vec2f C1, Vec2f P1)
 {
 
 	Vec2d A(A1.x, A1.y);

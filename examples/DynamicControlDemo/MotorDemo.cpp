@@ -259,7 +259,7 @@ public:
 	btTypedConstraint** GetJoints() { return &m_joints[0]; }
 };
 
-void motorPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
+static void motorPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
 {
 	MotorDemo* motorDemo = (MotorDemo*)world->getWorldUserInfo();
 
@@ -321,7 +321,7 @@ void MotorDemo::spawnTestRig(const btVector3& startOffset, bool bFixed)
 	m_rigs.push_back(rig);
 }
 
-void PreStep()
+static void PreStep()
 {
 }
 

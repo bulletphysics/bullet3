@@ -53,7 +53,7 @@ void Win32Window::pumpMessage()
 	}
 }
 
-int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
+static int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 {
 	int keycode = -1;
 	if (virtualKeyCode >= 'A' && virtualKeyCode <= 'Z')
@@ -216,7 +216,7 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 	return keycode;
 }
 
-int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
+static int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 {
 	int keycode = 0xffffffff;
 
@@ -262,7 +262,7 @@ bool Win32Window::isModifierKeyPressed(int key)
 	return isPressed;  //m_internalKeyModifierFlags
 }
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//printf("msg = %d\n", message);
 	switch (message)

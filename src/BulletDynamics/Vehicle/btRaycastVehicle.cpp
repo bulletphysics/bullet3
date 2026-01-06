@@ -484,7 +484,7 @@ btScalar calcRollingFriction(btWheelContactPoint& contactPoint, int numWheelsOnG
 	return j1;
 }
 
-btScalar sideFrictionStiffness2 = btScalar(1.0);
+static btScalar sideFrictionStiffness2 = btScalar(1.0);
 void btRaycastVehicle::updateFriction(btScalar timeStep)
 {
 	//calculate the impulse, so that the wheels don't move sidewards

@@ -99,7 +99,7 @@ struct URDF2BulletCachedData
 	}
 };
 
-void ComputeTotalNumberOfJoints(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int linkIndex)
+static void ComputeTotalNumberOfJoints(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int linkIndex)
 {
 	btAlignedObjectArray<int> childIndices;
 	u2b.getLinkChildIndices(linkIndex, childIndices);
@@ -117,7 +117,7 @@ void ComputeTotalNumberOfJoints(const URDFImporterInterface& u2b, URDF2BulletCac
 }
 
 
-void ComputeParentIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int urdfParentIndex)
+static void ComputeParentIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int urdfParentIndex)
 {
 	cache.m_urdfLinkParentIndices[urdfLinkIndex] = urdfParentIndex;
 	cache.m_urdfLinkIndices2BulletLinkIndices[urdfLinkIndex] = cache.m_currentMultiBodyLinkIndex++;
@@ -130,7 +130,7 @@ void ComputeParentIndices(const URDFImporterInterface& u2b, URDF2BulletCachedDat
 	}
 }
 
-void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int flags)
+static void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int flags)
 {
 	//compute the number of links, and compute parent indices array (and possibly other cached data?)
 	cache.m_totalNumJoints1 = 0;
@@ -168,7 +168,7 @@ void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedDat
 	}
 }
 
-void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisionObject* col)
+static void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisionObject* col)
 {
 	if ((contactInfo.m_flags & URDF_CONTACT_HAS_LATERAL_FRICTION) != 0)
 	{
@@ -197,9 +197,9 @@ void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisio
 	}
 }
 
-btScalar tmpUrdfScaling = 2;
+static btScalar tmpUrdfScaling = 2;
 
-btTransform ConvertURDF2BulletInternal(
+static btTransform ConvertURDF2BulletInternal(
 	const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
 	URDF2BulletCachedData& cache, int urdfLinkIndex,
 	const btTransform& parentTransformInWorldSpace, 
@@ -777,7 +777,7 @@ struct childParentIndex
 	
 };
 
-void GetAllIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int parentIndex, btAlignedObjectArray<childParentIndex>& allIndices)
+static void GetAllIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int parentIndex, btAlignedObjectArray<childParentIndex>& allIndices)
 {
 	childParentIndex cp;
 	cp.m_index = urdfLinkIndex;
@@ -799,7 +799,7 @@ void GetAllIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cach
 }
 
 
-bool MyIntCompareFunc(childParentIndex a, childParentIndex b)
+static bool MyIntCompareFunc(childParentIndex a, childParentIndex b)
 {
 	return (a.m_index < b.m_index);
 }

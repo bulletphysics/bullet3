@@ -97,7 +97,7 @@ void tokenize(const std::string& str, AddToken& tokenAdder, const std::string& d
 	}
 }
 
-void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride)
+static void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride)
 {
 	int numVals = 0, stride;
 	XMLElement* array = source->FirstChildElement("float_array");
@@ -117,7 +117,7 @@ void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray,
 	}
 }
 
-btVector3 getVector3FromXmlText(const char* text)
+static btVector3 getVector3FromXmlText(const char* text)
 {
 	btVector3 vec(0, 0, 0);
 	btAlignedObjectArray<float> floatArray;
@@ -132,7 +132,7 @@ btVector3 getVector3FromXmlText(const char* text)
 	return vec;
 }
 
-btVector4 getVector4FromXmlText(const char* text)
+static btVector4 getVector4FromXmlText(const char* text)
 {
 	btVector4 vec(0, 0, 0, 0);
 	btAlignedObjectArray<float> floatArray;
@@ -147,7 +147,7 @@ btVector4 getVector4FromXmlText(const char* text)
 	return vec;
 }
 
-void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btHashMap<btHashString, int>& name2Shape, float extraScaling)
+static void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btHashMap<btHashString, int>& name2Shape, float extraScaling)
 {
 	btHashMap<btHashString, XMLElement*> allSources;
 	btHashMap<btHashString, VertexSource> vertexSources;
@@ -355,7 +355,7 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 	}  //for each geometry
 }
 
-void readNodeHierarchy(XMLElement* node, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, const btMatrix4x4& parentTransMat)
+static void readNodeHierarchy(XMLElement* node, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, const btMatrix4x4& parentTransMat)
 {
 	btMatrix4x4 nodeTrans;
 	nodeTrans.setIdentity();
@@ -458,7 +458,7 @@ void readNodeHierarchy(XMLElement* node, btHashMap<btHashString, int>& name2Shap
 		readNodeHierarchy(childNode, name2Shape, visualShapeInstances, nodeTrans);
 	}
 }
-void readVisualSceneInstanceGeometries(XMLDocument& doc, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances)
+static void readVisualSceneInstanceGeometries(XMLDocument& doc, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances)
 {
 	btHashMap<btHashString, XMLElement*> allVisualScenes;
 
@@ -506,7 +506,7 @@ void readVisualSceneInstanceGeometries(XMLDocument& doc, btHashMap<btHashString,
 	}
 }
 
-void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, float& unitMeterScaling, int clientUpAxis)
+static void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, float& unitMeterScaling, int clientUpAxis)
 {
 	///todo(erwincoumans) those up-axis transformations have been quickly coded without rigorous testing
 

@@ -50,7 +50,7 @@ public:
 	}
 };
 
-btAlignedObjectArray<std::string> gFileNameArray;
+static btAlignedObjectArray<std::string> gFileNameArray;
 
 #define MAX_NUM_MOTORS 1024
 

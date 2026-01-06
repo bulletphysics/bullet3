@@ -14,12 +14,12 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
-bool useGpuInitSolverBodies = true;
-bool useGpuInfo1 = true;
-bool useGpuInfo2 = true;
-bool useGpuSolveJointConstraintRows = true;
-bool useGpuWriteBackVelocities = true;
-bool gpuBreakConstraints = true;
+static bool useGpuInitSolverBodies = true;
+static bool useGpuInfo1 = true;
+static bool useGpuInfo2 = true;
+static bool useGpuSolveJointConstraintRows = true;
+static bool useGpuWriteBackVelocities = true;
+static bool gpuBreakConstraints = true;
 
 #include "b3GpuPgsConstraintSolver.h"
 
@@ -103,7 +103,7 @@ static const b3Vector3& getAngularVelocity(b3RigidBodyData* rb)
 	return rb->m_angVel;
 }
 
-b3Vector3 getVelocityInLocalPoint(b3RigidBodyData* rb, const b3Vector3& rel_pos)
+static b3Vector3 getVelocityInLocalPoint(b3RigidBodyData* rb, const b3Vector3& rel_pos)
 {
 	//we also calculate lin/ang velocity for kinematic objects
 	return getLinearVelocity(rb) + getAngularVelocity(rb).cross(rel_pos);
@@ -572,7 +572,7 @@ __inline void internalApplyImpulse(b3GpuSolverBody* body, const b3Vector3& linea
 	body->m_deltaAngularVelocity += angularComponent * (impulseMagnitude * body->m_angularFactor);
 }
 
-void resolveSingleConstraintRowGeneric2(b3GpuSolverBody* body1, b3GpuSolverBody* body2, b3GpuSolverConstraint* c)
+static void resolveSingleConstraintRowGeneric2(b3GpuSolverBody* body1, b3GpuSolverBody* body2, b3GpuSolverConstraint* c)
 {
 	float deltaImpulse = c->m_rhs - b3Scalar(c->m_appliedImpulse) * c->m_cfm;
 	float deltaVel1Dotn = b3Dot(c->m_contactNormal, body1->m_deltaLinearVelocity) + b3Dot(c->m_relpos1CrossNormal, body1->m_deltaAngularVelocity);

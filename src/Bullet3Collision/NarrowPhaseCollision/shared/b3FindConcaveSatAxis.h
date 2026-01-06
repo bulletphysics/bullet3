@@ -57,7 +57,7 @@ inline bool b3TestSepAxis(const b3ConvexPolyhedronData* hullA, __global const b3
 	return true;
 }
 
-bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB,
+static bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB,
 						  b3Float4ConstArg posA1,
 						  b3QuatConstArg ornA,
 						  b3Float4ConstArg posB1,
@@ -126,7 +126,7 @@ bool b3FindSeparatingAxis(const b3ConvexPolyhedronData* hullA, __global const b3
 }
 
 // clang-format off
-b3Vector3 unitSphere162[] =
+static b3Vector3 unitSphere162[] =
 	{
 		b3MakeVector3(b3Scalar( 0.000000), b3Scalar(-1.000000), b3Scalar( 0.000000)),
 		b3MakeVector3(b3Scalar( 0.203181), b3Scalar(-0.967950), b3Scalar( 0.147618)),
@@ -292,7 +292,7 @@ b3Vector3 unitSphere162[] =
 		b3MakeVector3(b3Scalar( 0.447209), b3Scalar( 0.723612), b3Scalar(-0.525728))};
 // clang-format on
 
-bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB,
+static bool b3FindSeparatingAxisEdgeEdge(const b3ConvexPolyhedronData* hullA, __global const b3ConvexPolyhedronData* hullB,
 								  b3Float4ConstArg posA1,
 								  b3QuatConstArg ornA,
 								  b3Float4ConstArg posB1,
@@ -509,7 +509,7 @@ inline int b3FindClippingFaces(b3Float4ConstArg separatingNormal,
 	return numContactsOut;
 }
 
-__kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
+static __kernel void b3FindConcaveSeparatingAxisKernel(__global b3Int4* concavePairs,
 												__global const b3RigidBodyData* rigidBodies,
 												__global const b3Collidable* collidables,
 												__global const b3ConvexPolyhedronData* convexShapes,

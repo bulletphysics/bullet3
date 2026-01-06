@@ -82,7 +82,7 @@ static int get_int_attribute_by_name(const XMLElement* pElement, const char* att
 	return 0;
 }
 
-void stringToFloatArray(const std::string& string, btAlignedObjectArray<float>& floats)
+static void stringToFloatArray(const std::string& string, btAlignedObjectArray<float>& floats)
 {
 	btAlignedObjectArray<std::string> pieces;
 

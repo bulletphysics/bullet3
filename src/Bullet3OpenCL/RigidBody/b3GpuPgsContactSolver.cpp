@@ -1,15 +1,15 @@
 
-bool gUseLargeBatches = false;
-bool gCpuBatchContacts = false;
-bool gCpuSolveConstraint = false;
-bool gCpuRadixSort = false;
-bool gCpuSetSortData = false;
-bool gCpuSortContactsDeterminism = false;
-bool gUseCpuCopyConstraints = false;
-bool gUseScanHost = false;
-bool gReorderContactsOnCpu = false;
+static bool gUseLargeBatches = false;
+static bool gCpuBatchContacts = false;
+static bool gCpuSolveConstraint = false;
+static bool gCpuRadixSort = false;
+static bool gCpuSetSortData = false;
+static bool gCpuSortContactsDeterminism = false;
+static bool gUseCpuCopyConstraints = false;
+static bool gUseScanHost = false;
+static bool gReorderContactsOnCpu = false;
 
-bool optionalSortContactsDeterminism = true;
+static bool optionalSortContactsDeterminism = true;
 
 #include "b3GpuPgsContactSolver.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
@@ -506,7 +506,7 @@ static const int gridTable8x8[] =
 
 #endif
 
-void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* gSortDataOut, int nContacts, float scale, const b3Int4& nSplit, int staticIdx)
+static void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* gSortDataOut, int nContacts, float scale, const b3Int4& nSplit, int staticIdx)
 {
 	for (int gIdx = 0; gIdx < nContacts; gIdx++)
 	{
@@ -1107,9 +1107,9 @@ void b3GpuPgsContactSolver::batchContacts(b3OpenCLArray<b3Contact4>* /*contacts*
 {
 }
 
-b3AlignedObjectArray<unsigned int> idxBuffer;
-b3AlignedObjectArray<b3SortData> sortData;
-b3AlignedObjectArray<b3Contact4> old;
+static b3AlignedObjectArray<unsigned int> idxBuffer;
+static b3AlignedObjectArray<b3SortData> sortData;
+static b3AlignedObjectArray<b3Contact4> old;
 
 inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, int simdWidth, int staticIdx, int /*numBodies*/)
 {
@@ -1231,7 +1231,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch(b3Contact4* cs, int n, i
 	return batchIdx;
 }
 
-b3AlignedObjectArray<int> bodyUsed2;
+static b3AlignedObjectArray<int> bodyUsed2;
 
 inline int b3GpuPgsContactSolver::sortConstraintByBatch2(b3Contact4* cs, int numConstraints, int simdWidth, int staticIdx, int /*numBodies*/)
 {
@@ -1382,8 +1382,8 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch2(b3Contact4* cs, int num
 	return batchIdx;
 }
 
-b3AlignedObjectArray<int> bodyUsed;
-b3AlignedObjectArray<int> curUsed;
+static b3AlignedObjectArray<int> bodyUsed;
+static b3AlignedObjectArray<int> curUsed;
 
 inline int b3GpuPgsContactSolver::sortConstraintByBatch3(b3Contact4* cs, int numConstraints, int simdWidth, int staticIdx, int numBodies, int* batchSizes)
 {

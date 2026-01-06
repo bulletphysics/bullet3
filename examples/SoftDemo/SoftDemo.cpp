@@ -216,8 +216,8 @@ static int* gGroundIndices = 0;
 //static btRigidBody* staticBody = 0;
 static float waveheight = 5.f;
 
-const float TRIANGLE_SIZE = 8.f;
-int current_demo = 20;
+static const float TRIANGLE_SIZE = 8.f;
+static int current_demo = 20;
 #define DEMO_MODE_TIMEOUT 15.f  //15 seconds for each demo
 
 #ifdef _DEBUG
@@ -261,7 +261,7 @@ void SoftDemo::createStack(btCollisionShape* boxShape, float halfCubeSize, int s
 
 ////////////////////////////////////
 ///for mouse picking
-void pickingPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
+static void pickingPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
 {
 	SoftDemo* softDemo = (SoftDemo*)world->getWorldUserInfo();
 
@@ -1496,7 +1496,7 @@ static void Init_TetraCube(SoftDemo* pdemo)
 }
 
 /* Init		*/
-void (*demofncs[])(SoftDemo*) =
+static void (*demofncs[])(SoftDemo*) =
 	{
 		Init_Cloth,
 		Init_Pressure,

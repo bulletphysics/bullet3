@@ -99,7 +99,7 @@ static btScalar gParallelEvaluations = 10.0f;
 #define JOINT_COUNT (BODYPART_COUNT - 1)
 #define DRAW_INTERPENETRATIONS false
 
-void* GROUND_ID = (void*)1;
+static void* GROUND_ID = (void*)1;
 
 class NN3DWalkersExample : public NN3DWalkersTimeWarpBase
 {
@@ -537,7 +537,7 @@ public:
 
 void evaluationUpdatePreTickCallback(btDynamicsWorld* world, btScalar timeStep);
 
-bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
+static bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
 {
 	btCollisionObject* o1 = static_cast<btCollisionObject*>(body0);
 	btCollisionObject* o2 = static_cast<btCollisionObject*>(body1);
@@ -829,7 +829,7 @@ class CommonExampleInterface* ET_NN3DWalkersCreateFunc(struct CommonExampleOptio
 	return nn3DWalkers;
 }
 
-bool fitnessComparator(const NNWalker* a, const NNWalker* b)
+static bool fitnessComparator(const NNWalker* a, const NNWalker* b)
 {
 	return a->getFitness() > b->getFitness();  // sort walkers descending
 }

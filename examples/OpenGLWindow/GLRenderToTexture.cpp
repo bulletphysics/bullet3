@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 
-bool gIntelLinuxglDrawBufferWorkaround = false;
+static bool gIntelLinuxglDrawBufferWorkaround = false;
 
 GLRenderToTexture::GLRenderToTexture()
 	: m_framebufferName(0)

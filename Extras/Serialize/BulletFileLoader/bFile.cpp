@@ -29,7 +29,7 @@ subject to the following restrictions:
 using namespace bParse;
 #define MAX_STRLEN 1024
 
-const char *getCleanName(const char *memName, char *buffer)
+static const char *getCleanName(const char *memName, char *buffer)
 {
 	int slen = (int)strlen(memName);
 	assert(slen < MAX_STRLEN);
@@ -49,7 +49,7 @@ const char *getCleanName(const char *memName, char *buffer)
 	return buffer;
 }
 
-int numallocs = 0;
+static int numallocs = 0;
 
 // ----------------------------------------------------- //
 bFile::bFile(const char *filename, const char headerString[7])

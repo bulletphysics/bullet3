@@ -155,7 +155,7 @@ namespace VHACD
 	if (min > rad || max < -rad)                     \
 		return 0
 
-int PlaneBoxOverlap(const Vec3<double>& normal,
+static int PlaneBoxOverlap(const Vec3<double>& normal,
 					const Vec3<double>& vert,
 					const Vec3<double>& maxbox)
 {
@@ -272,7 +272,7 @@ int TriBoxOverlap(const Vec3<double>& boxcenter,
 
 // Slightly modified version of  Stan Melax's code for 3x3 matrix diagonalization (Thanks Stan!)
 // source: http://www.melax.com/diag.html?attredirects=0
-void Diagonalize(const double (&A)[3][3], double (&Q)[3][3], double (&D)[3][3])
+static void Diagonalize(const double (&A)[3][3], double (&Q)[3][3], double (&D)[3][3])
 {
 	// A must be a symmetric matrix.
 	// returns Q and D such that

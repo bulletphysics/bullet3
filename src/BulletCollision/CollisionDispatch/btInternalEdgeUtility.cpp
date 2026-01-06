@@ -430,7 +430,7 @@ void btGenerateInternalEdgeInfo(btHeightfieldTerrainShape* heightfieldShape, btT
 
 // Given a point and a line segment (defined by two points), compute the closest point
 // in the line.  Cap the point at the endpoints of the line segment.
-void btNearestPointInLineSegment(const btVector3& point, const btVector3& line0, const btVector3& line1, btVector3& nearestPoint)
+static void btNearestPointInLineSegment(const btVector3& point, const btVector3& line0, const btVector3& line1, btVector3& nearestPoint)
 {
 	btVector3 lineDelta = line1 - line0;
 
@@ -453,7 +453,7 @@ void btNearestPointInLineSegment(const btVector3& point, const btVector3& line0,
 	}
 }
 
-bool btClampNormal(const btVector3& edge, const btVector3& tri_normal_org, const btVector3& localContactNormalOnB, btScalar correctedEdgeAngle, btVector3& clampedLocalNormal)
+static bool btClampNormal(const btVector3& edge, const btVector3& tri_normal_org, const btVector3& localContactNormalOnB, btScalar correctedEdgeAngle, btVector3& clampedLocalNormal)
 {
 	btVector3 tri_normal = tri_normal_org;
 	//we only have a local triangle normal, not a local contact normal -> only normal in world space...

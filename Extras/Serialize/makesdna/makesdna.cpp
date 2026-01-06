@@ -204,7 +204,7 @@ const char *includefiles[] = {
 	// empty string to indicate end of includefiles
 	""};
 
-void *malloc_and_setzero(int numbytes)
+static void *malloc_and_setzero(int numbytes)
 {
 	char *buf = (char *)malloc((size_t)numbytes);
 	memset(buf, 0, (size_t)numbytes);
@@ -619,7 +619,7 @@ const char *skipStructTypes[] =
 		"btTriangleInfo",
 		""};
 
-int skipStruct(const char *structType)
+static int skipStruct(const char *structType)
 {
 	int i = 0;
 	while (strlen(skipStructTypes[i]))
@@ -1027,7 +1027,7 @@ void printStructLenghts(void)
 	printf("*** End of list\n");
 }
 
-int make_structDNA(char *baseDirectory, FILE *file)
+static int make_structDNA(char *baseDirectory, FILE *file)
 {
 	int len, i;
 	short *sp;

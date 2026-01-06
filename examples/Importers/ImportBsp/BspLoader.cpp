@@ -32,19 +32,19 @@ typedef struct
 } BSPScript;
 
 #define MAX_INCLUDES 8
-BSPScript scriptstack[MAX_INCLUDES];
-BSPScript *script;
-int scriptline;
+static BSPScript scriptstack[MAX_INCLUDES];
+static BSPScript *script;
+static int scriptline;
 
-char token[BSPMAXTOKEN];
-bool endofscript;
-bool tokenready;  // only true if UnGetToken was just called
+static char token[BSPMAXTOKEN];
+static bool endofscript;
+static bool tokenready;  // only true if UnGetToken was just called
 
 //
 //loadBSPFile
 //
 
-int extrasize = 100;
+static int extrasize = 100;
 
 BspLoader::BspLoader()
 	: m_num_entities(0)

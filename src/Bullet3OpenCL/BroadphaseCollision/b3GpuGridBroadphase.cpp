@@ -11,15 +11,15 @@
 #define B3_BROADPHASE_SAP_PATH "src/Bullet3OpenCL/BroadphaseCollision/kernels/sap.cl"
 #define B3_GRID_BROADPHASE_PATH "src/Bullet3OpenCL/BroadphaseCollision/kernels/gridBroadphase.cl"
 
-cl_kernel kCalcHashAABB;
-cl_kernel kClearCellStart;
-cl_kernel kFindCellStart;
-cl_kernel kFindOverlappingPairs;
-cl_kernel m_copyAabbsKernel;
-cl_kernel m_sap2Kernel;
+static cl_kernel kCalcHashAABB;
+static cl_kernel kClearCellStart;
+static cl_kernel kFindCellStart;
+static cl_kernel kFindOverlappingPairs;
+static cl_kernel m_copyAabbsKernel;
+static cl_kernel m_sap2Kernel;
 
-//int maxPairsPerBody = 64;
-int maxBodiesPerCell = 256;  //??
+//static int maxPairsPerBody = 64;
+static int maxBodiesPerCell = 256;  //??
 
 b3GpuGridBroadphase::b3GpuGridBroadphase(cl_context ctx, cl_device_id device, cl_command_queue q)
 	: m_context(ctx),

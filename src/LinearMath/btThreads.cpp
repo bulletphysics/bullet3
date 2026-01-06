@@ -365,14 +365,14 @@ void btITaskScheduler::deactivate()
 	}
 }
 
-void btPushThreadsAreRunning()
+static void btPushThreadsAreRunning()
 {
 	gThreadsRunningCounterMutex.lock();
 	gThreadsRunningCounter++;
 	gThreadsRunningCounterMutex.unlock();
 }
 
-void btPopThreadsAreRunning()
+static void btPopThreadsAreRunning()
 {
 	gThreadsRunningCounterMutex.lock();
 	gThreadsRunningCounter--;

@@ -1444,7 +1444,7 @@ struct MyConvertPointerSizeT
 		size_t m_int;
 	};
 };
-bool shapePointerCompareFunc(const btCollisionObject* colA, const btCollisionObject* colB)
+static bool shapePointerCompareFunc(const btCollisionObject* colA, const btCollisionObject* colB)
 {
 	MyConvertPointerSizeT a, b;
 	a.m_ptr = colA->getCollisionShape();

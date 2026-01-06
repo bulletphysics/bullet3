@@ -89,7 +89,7 @@ struct ClipVertex
 #define b2Cross(a, b) (a).cross(b)
 #define btCrossS(a, s) btVector3(s* a.getY(), -s* a.getX(), btScalar(0.f))
 
-int b2_maxManifoldPoints = 2;
+static int b2_maxManifoldPoints = 2;
 
 static int ClipSegmentToLine(ClipVertex vOut[2], ClipVertex vIn[2],
 							 const btVector3& normal, btScalar offset)

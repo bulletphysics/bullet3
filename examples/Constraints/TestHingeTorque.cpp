@@ -3,8 +3,8 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
-int collisionFilterGroup = int(btBroadphaseProxy::CharacterFilter);
-int collisionFilterMask = int(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::CharacterFilter));
+static int collisionFilterGroup = int(btBroadphaseProxy::CharacterFilter);
+static int collisionFilterMask = int(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::CharacterFilter));
 static btScalar radius = btScalar(0.2);
 
 struct TestHingeTorque : public CommonRigidBodyBase

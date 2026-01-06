@@ -126,7 +126,7 @@ bool DockBase::DragAndDrop_CanAcceptPackage(Gwen::DragAndDrop::Package* pPackage
 	return false;
 }
 
-void AddTabToDock(TabButton* pTabButton, DockedTabControl* pControl)
+static void AddTabToDock(TabButton* pTabButton, DockedTabControl* pControl)
 {
 	pControl->AddPage(pTabButton);
 }

@@ -61,14 +61,14 @@ static void Simple2KeyboardCallback(int key, int /*state*/)
 	}
 }
 
-void Simple2MouseButtonCallback(int button, int state, float x, float y)
+static void Simple2MouseButtonCallback(int button, int state, float x, float y)
 {
 	if (gApp2 && gApp2->m_window)
 	{
 		gApp2->defaultMouseButtonCallback(button, state, x, y);
 	}
 }
-void Simple2MouseMoveCallback(float x, float y)
+static void Simple2MouseMoveCallback(float x, float y)
 {
 	if (gApp2 && gApp2->m_window)
 	{
@@ -76,7 +76,7 @@ void Simple2MouseMoveCallback(float x, float y)
 	}
 }
 
-void Simple2WheelCallback(float deltax, float deltay)
+static void Simple2WheelCallback(float deltax, float deltay)
 {
 	gApp2->defaultWheelCallback(deltax, deltay);
 }

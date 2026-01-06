@@ -15,7 +15,7 @@ struct btTiming
 	unsigned long long int m_usEndTime;
 };
 
-FILE* gTimingFile = 0;
+static FILE* gTimingFile = 0;
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif  //__STDC_FORMAT_MACROS
@@ -153,26 +153,26 @@ struct btTimings
 	btAlignedObjectArray<btTiming> m_timings[1];
 };
 //#ifndef BT_NO_PROFILE
-btTimings gTimings[BT_QUICKPROF_MAX_THREAD_COUNT];
+static btTimings gTimings[BT_QUICKPROF_MAX_THREAD_COUNT];
 #define MAX_NESTING 1024
-int gStackDepths[BT_QUICKPROF_MAX_THREAD_COUNT] = {0};
-const char* gFuncNames[BT_QUICKPROF_MAX_THREAD_COUNT][MAX_NESTING];
-unsigned long long int gStartTimes[BT_QUICKPROF_MAX_THREAD_COUNT][MAX_NESTING];
+static int gStackDepths[BT_QUICKPROF_MAX_THREAD_COUNT] = {0};
+static const char* gFuncNames[BT_QUICKPROF_MAX_THREAD_COUNT][MAX_NESTING];
+static unsigned long long int gStartTimes[BT_QUICKPROF_MAX_THREAD_COUNT][MAX_NESTING];
 //#endif
 
-btClock clk;
+static btClock clk;
 
-bool gProfileDisabled = true;
+static bool gProfileDisabled = true;
 
-void MyDummyEnterProfileZoneFunc(const char* /*msg*/)
+static void MyDummyEnterProfileZoneFunc(const char* /*msg*/)
 {
 }
 
-void MyDummyLeaveProfileZoneFunc()
+static void MyDummyLeaveProfileZoneFunc()
 {
 }
 
-void MyEnterProfileZoneFunc(const char* msg)
+static void MyEnterProfileZoneFunc(const char* msg)
 {
 	if (gProfileDisabled)
 		return;
@@ -195,7 +195,7 @@ void MyEnterProfileZoneFunc(const char* msg)
 	gStackDepths[threadId]++;
 
 }
-void MyLeaveProfileZoneFunc()
+static void MyLeaveProfileZoneFunc()
 {
 	if (gProfileDisabled)
 		return;

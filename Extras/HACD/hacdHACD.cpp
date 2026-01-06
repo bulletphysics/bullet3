@@ -26,7 +26,7 @@
 #include <limits>
 #include "assert.h"
 
-bool gCancelRequest = false;
+static bool gCancelRequest = false;
 namespace HACD
 {
 double HACD::Concavity(ICHull& ch, std::map<long, DPoint>& distPoints)
@@ -378,7 +378,7 @@ HACD::~HACD(void)
 	delete[] m_facePoints;
 	delete[] m_faceNormals;
 }
-int iteration = 0;
+static int iteration = 0;
 void HACD::ComputeEdgeCost(size_t e)
 {
 	GraphEdge& gE = m_graph.m_edges[e];

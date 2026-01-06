@@ -495,7 +495,7 @@ bool VHACD::Compute(const float* const points, const unsigned int stridePoints, 
 {
 	return ComputeACD(points, stridePoints, nPoints, triangles, strideTriangles, nTriangles, params);
 }
-double ComputePreferredCuttingDirection(const PrimitiveSet* const tset, Vec3<double>& dir)
+static double ComputePreferredCuttingDirection(const PrimitiveSet* const tset, Vec3<double>& dir)
 {
 	double ex = tset->GetEigenValue(AXIS_X);
 	double ey = tset->GetEigenValue(AXIS_Y);
@@ -528,7 +528,7 @@ double ComputePreferredCuttingDirection(const PrimitiveSet* const tset, Vec3<dou
 		return (e == 0.0) ? 0.0 : 1.0 - vz / e;
 	}
 }
-void ComputeAxesAlignedClippingPlanes(const VoxelSet& vset, const short downsampling, SArray<Plane>& planes)
+static void ComputeAxesAlignedClippingPlanes(const VoxelSet& vset, const short downsampling, SArray<Plane>& planes)
 {
 	const Vec3<short> minV = vset.GetMinBBVoxels();
 	const Vec3<short> maxV = vset.GetMaxBBVoxels();
@@ -574,7 +574,7 @@ void ComputeAxesAlignedClippingPlanes(const VoxelSet& vset, const short downsamp
 		planes.PushBack(plane);
 	}
 }
-void ComputeAxesAlignedClippingPlanes(const TetrahedronSet& tset, const short downsampling, SArray<Plane>& planes)
+static void ComputeAxesAlignedClippingPlanes(const TetrahedronSet& tset, const short downsampling, SArray<Plane>& planes)
 {
 	const Vec3<double> minV = tset.GetMinBB();
 	const Vec3<double> maxV = tset.GetMaxBB();
@@ -621,7 +621,7 @@ void ComputeAxesAlignedClippingPlanes(const TetrahedronSet& tset, const short do
 		planes.PushBack(plane);
 	}
 }
-void RefineAxesAlignedClippingPlanes(const VoxelSet& vset, const Plane& bestPlane, const short downsampling,
+static void RefineAxesAlignedClippingPlanes(const VoxelSet& vset, const Plane& bestPlane, const short downsampling,
 									 SArray<Plane>& planes)
 {
 	const Vec3<short> minV = vset.GetMinBBVoxels();
@@ -678,7 +678,7 @@ void RefineAxesAlignedClippingPlanes(const VoxelSet& vset, const Plane& bestPlan
 		}
 	}
 }
-void RefineAxesAlignedClippingPlanes(const TetrahedronSet& tset, const Plane& bestPlane, const short downsampling,
+static void RefineAxesAlignedClippingPlanes(const TetrahedronSet& tset, const Plane& bestPlane, const short downsampling,
 									 SArray<Plane>& planes)
 {
 	const Vec3<double> minV = tset.GetMinBB();
@@ -1364,7 +1364,7 @@ void VHACD::ComputeACD(const Parameters& params)
 		params.m_logger->Log(msg.str().c_str());
 	}
 }
-void AddPoints(const Mesh* const mesh, SArray<Vec3<double> >& pts)
+static void AddPoints(const Mesh* const mesh, SArray<Vec3<double> >& pts)
 {
 	const int n = (int)mesh->GetNPoints();
 	for (int i = 0; i < n; ++i)
@@ -1372,7 +1372,7 @@ void AddPoints(const Mesh* const mesh, SArray<Vec3<double> >& pts)
 		pts.PushBack(mesh->GetPoint((size_t)i));
 	}
 }
-void ComputeConvexHull(const Mesh* const ch1, const Mesh* const ch2, SArray<Vec3<double> >& pts, Mesh* const combinedCH)
+static void ComputeConvexHull(const Mesh* const ch1, const Mesh* const ch2, SArray<Vec3<double> >& pts, Mesh* const combinedCH)
 {
 	pts.Resize(0);
 	AddPoints(ch1, pts);
@@ -1540,7 +1540,7 @@ void VHACD::MergeConvexHulls(const Parameters& params)
 		params.m_logger->Log(msg.str().c_str());
 	}
 }
-void SimplifyConvexHull(Mesh* const ch, const size_t nvertices, const double minVolume)
+static void SimplifyConvexHull(Mesh* const ch, const size_t nvertices, const double minVolume)
 {
 	if (nvertices <= 4)
 	{

@@ -29,8 +29,8 @@ btMLCPSolver::~btMLCPSolver()
 {
 }
 
-bool gUseMatrixMultiply = false;
-bool interleaveContactAndFriction = false;
+static bool gUseMatrixMultiply = false;
+static bool interleaveContactAndFriction = false;
 
 btScalar btMLCPSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodiesUnUsed, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
 {

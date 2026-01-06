@@ -225,7 +225,7 @@ uint64_t StringToUint64(const std::string &sValue)
 //-----------------------------------------------------------------------------
 // Purpose: Helper for converting a numeric value to a hex digit, value should be 0-15.
 //-----------------------------------------------------------------------------
-char cIntToHexDigit(int nValue)
+static char cIntToHexDigit(int nValue)
 {
 	//Assert( nValue >= 0 && nValue <= 15 );
 	return "0123456789ABCDEF"[nValue & 15];
@@ -235,7 +235,7 @@ char cIntToHexDigit(int nValue)
 // Purpose: Helper for converting a hex char value to numeric, return -1 if the char
 //          is not a valid hex digit.
 //-----------------------------------------------------------------------------
-int iHexCharToInt(char cValue)
+static int iHexCharToInt(char cValue)
 {
 	int32_t iValue = cValue;
 	if ((uint32_t)(iValue - '0') < 10)
@@ -252,7 +252,7 @@ int iHexCharToInt(char cValue)
 // Purpose: Internal implementation of encode, works in the strict RFC manner, or
 //          with spaces turned to + like HTML form encoding.
 //-----------------------------------------------------------------------------
-void V_URLEncodeInternal(char *pchDest, int nDestLen, const char *pchSource, int nSourceLen, bool bUsePlusForSpace)
+static void V_URLEncodeInternal(char *pchDest, int nDestLen, const char *pchSource, int nSourceLen, bool bUsePlusForSpace)
 {
 	//AssertMsg( nDestLen > 3*nSourceLen, "Target buffer for V_URLEncode should be 3x source length, plus one for terminating null\n" );
 
@@ -318,7 +318,7 @@ void V_URLEncodeInternal(char *pchDest, int nDestLen, const char *pchSource, int
 //
 //			Returns the amount of space used in the output buffer.
 //-----------------------------------------------------------------------------
-size_t V_URLDecodeInternal(char *pchDecodeDest, int nDecodeDestLen, const char *pchEncodedSource, int nEncodedSourceLen, bool bUsePlusForSpace)
+static size_t V_URLDecodeInternal(char *pchDecodeDest, int nDecodeDestLen, const char *pchEncodedSource, int nEncodedSourceLen, bool bUsePlusForSpace)
 {
 	if (nDecodeDestLen < nEncodedSourceLen)
 	{

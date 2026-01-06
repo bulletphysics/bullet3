@@ -294,7 +294,7 @@ struct plContactCache
 typedef void (*plDetectCollisionFunc)(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
 									  plContactCache* contactCache);
 
-void detectCollisionDummy(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
+static void detectCollisionDummy(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
 						  plContactCache* contactCache)
 {
 	(void)world;
@@ -304,20 +304,20 @@ void detectCollisionDummy(RTB3CollisionWorld* world, int colA, int shapeIndexA, 
 	(void)shapeIndexB;
 }
 
-void plVecCopy(float* dst, const b3Vector3& src)
+static void plVecCopy(float* dst, const b3Vector3& src)
 {
 	dst[0] = src.x;
 	dst[1] = src.y;
 	dst[2] = src.z;
 }
-void plVecCopy(double* dst, const b3Vector3& src)
+static void plVecCopy(double* dst, const b3Vector3& src)
 {
 	dst[0] = src.x;
 	dst[1] = src.y;
 	dst[2] = src.z;
 }
 
-void ComputeClosestPointsPlaneSphere(const b3Vector3& planeNormalWorld, b3Scalar planeConstant, const b3Vector3& spherePosWorld, b3Scalar sphereRadius, plContactCache* contactCache)
+static void ComputeClosestPointsPlaneSphere(const b3Vector3& planeNormalWorld, b3Scalar planeConstant, const b3Vector3& spherePosWorld, b3Scalar sphereRadius, plContactCache* contactCache)
 {
 	if (contactCache->numAddedPoints < contactCache->pointCapacity)
 	{
@@ -336,7 +336,7 @@ void ComputeClosestPointsPlaneSphere(const b3Vector3& planeNormalWorld, b3Scalar
 	}
 }
 
-void ComputeClosestPointsSphereSphere(b3Scalar sphereARadius, const b3Vector3& sphereAPosWorld, b3Scalar sphereBRadius, const b3Vector3& sphereBPosWorld, plContactCache* contactCache)
+static void ComputeClosestPointsSphereSphere(b3Scalar sphereARadius, const b3Vector3& sphereAPosWorld, b3Scalar sphereBRadius, const b3Vector3& sphereBPosWorld, plContactCache* contactCache)
 {
 	if (contactCache->numAddedPoints < contactCache->pointCapacity)
 	{
@@ -382,7 +382,7 @@ B3_FORCE_INLINE void detectCollisionSphereSphere(RTB3CollisionWorld* world, int 
 	ComputeClosestPointsSphereSphere(radiusA, spherePosAWorld, radiusB, spherePosBWorld, contactCache);
 }
 
-void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIndexA, int /*colB*/, int shapeIndexB,
+static void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIndexA, int /*colB*/, int shapeIndexB,
 								plContactCache* contactCache)
 {
 	const b3Transform& trA = world->m_collidableTransforms[colA];
@@ -397,7 +397,7 @@ void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIn
 	ComputeClosestPointsPlaneSphere(planeNormal, planeConstant, spherePosAWorld, world->m_childShapes[shapeIndexA].m_radius, contactCache);
 }
 
-void detectCollisionPlaneSphere(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
+static void detectCollisionPlaneSphere(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
 								plContactCache* contactCache)
 {
 	(void)world;
@@ -406,13 +406,13 @@ void detectCollisionPlaneSphere(RTB3CollisionWorld* world, int colA, int shapeIn
 }
 
 #ifdef RTB3_SHAPE_CAPSULE
-plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES, ][MAX_NUM_SINGLE_SHAPE_TYPES, ] = {
+static plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES, ][MAX_NUM_SINGLE_SHAPE_TYPES, ] = {
 	{detectCollisionSphereSphere, detectCollisionSpherePlane, detectCollisionSphereCapsule},
 	{detectCollisionPlaneSphere, detectCollisionDummy, detectCollisionPlaneCapsule},
 	{detectCollisionCapsuleSphere, detectCollisionCapsulePlane, detectCollisionCapsuleCapsule},
 };
 #else
-plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES][MAX_NUM_SINGLE_SHAPE_TYPES] = {
+static plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES][MAX_NUM_SINGLE_SHAPE_TYPES] = {
 	{detectCollisionSphereSphere, detectCollisionSpherePlane},
 	{detectCollisionPlaneSphere, detectCollisionDummy},
 };

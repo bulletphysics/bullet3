@@ -54,7 +54,7 @@
 
 namespace ConvexDecomposition
 {
-unsigned int getDebugColor(void)
+static unsigned int getDebugColor(void)
 {
 	static unsigned int colors[8] =
 		{
@@ -395,7 +395,7 @@ public:
 
 typedef std::vector<CTri> CTriVector;
 
-bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface * /*callback*/, const CTriVector &input_mesh)
+static bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface * /*callback*/, const CTriVector &input_mesh)
 {
 	bool ret = false;
 
@@ -496,7 +496,7 @@ bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface * /*cal
 	return ret;
 }
 
-bool isFeatureTri(CTri &t, CTriVector &flist, float fc, ConvexDecompInterface * /*callback*/, unsigned int /*color*/)
+static bool isFeatureTri(CTri &t, CTriVector &flist, float fc, ConvexDecompInterface * /*callback*/, unsigned int /*color*/)
 {
 	bool ret = false;
 

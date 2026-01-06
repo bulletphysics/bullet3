@@ -35,7 +35,7 @@ void b3GpuGenericConstraint::getInfo1(unsigned int* info, const b3RigidBodyData*
 	}
 }
 
-void getInfo2Point2Point(b3GpuGenericConstraint* constraint, b3GpuConstraintInfo2* info, const b3RigidBodyData* bodies)
+static void getInfo2Point2Point(b3GpuGenericConstraint* constraint, b3GpuConstraintInfo2* info, const b3RigidBodyData* bodies)
 {
 	b3Transform trA;
 	trA.setIdentity();

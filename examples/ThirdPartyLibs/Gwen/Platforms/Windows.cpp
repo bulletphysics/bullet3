@@ -88,7 +88,7 @@ bool Gwen::Platform::SetClipboardText(const Gwen::UnicodeString& str)
 	return true;
 }
 
-double GetPerformanceFrequency()
+static double GetPerformanceFrequency()
 {
 	static double Frequency = 0.0f;
 

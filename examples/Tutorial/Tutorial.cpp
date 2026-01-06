@@ -90,7 +90,7 @@ struct LWContactPoint
 };
 
 ///returns true if we found a pair of closest points
-void ComputeClosestPointsPlaneSphere(const LWPlane& planeWorld, const LWSphere& sphere, const LWPose& spherePose, LWContactPoint& pointOut)
+static void ComputeClosestPointsPlaneSphere(const LWPlane& planeWorld, const LWSphere& sphere, const LWPose& spherePose, LWContactPoint& pointOut)
 {
 	b3Vector3 spherePosWorld = spherePose.m_position;
 	btScalar t = -(spherePosWorld.dot(-planeWorld.m_normal) + planeWorld.m_planeConstant);
@@ -102,7 +102,7 @@ void ComputeClosestPointsPlaneSphere(const LWPlane& planeWorld, const LWSphere& 
 	pointOut.m_normalOnB = planeWorld.m_normal;
 }
 
-void ComputeClosestPointsSphereSphere(const LWSphere& sphereA, const LWPose& sphereAPose, const LWSphere& sphereB, const LWPose& sphereBPose, LWContactPoint& pointOut)
+static void ComputeClosestPointsSphereSphere(const LWSphere& sphereA, const LWPose& sphereAPose, const LWSphere& sphereB, const LWPose& sphereBPose, LWContactPoint& pointOut)
 {
 	b3Vector3 diff = sphereAPose.m_position - sphereBPose.m_position;
 	btScalar len = diff.length();
@@ -235,7 +235,7 @@ struct LWRigidBody
 	}
 };
 
-b3Scalar resolveCollision(LWRigidBody& bodyA,
+static b3Scalar resolveCollision(LWRigidBody& bodyA,
 						  LWRigidBody& bodyB,
 						  LWContactPoint& contactPoint)
 {

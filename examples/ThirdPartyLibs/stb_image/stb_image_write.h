@@ -313,6 +313,7 @@ static unsigned int stbi__zhash(unsigned char *data)
 
 #define stbi__ZHASH 16384
 
+unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality); // prototype
 unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality)
 {
 	static unsigned short lengthc[] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 259};
@@ -442,6 +443,7 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 	return (unsigned char *)stbi__sbraw(out);
 }
 
+unsigned int stbi__crc32(unsigned char *buffer, int len); // prototype
 unsigned int stbi__crc32(unsigned char *buffer, int len)
 {
 	static unsigned int crc_table[256];
@@ -474,6 +476,7 @@ static unsigned char stbi__paeth(int a, int b, int c)
 	return (unsigned char)c;
 }
 
+unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len); // prototype
 unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len)
 {
 	int ctype[5] = {-1, 0, 4, 2, 6};

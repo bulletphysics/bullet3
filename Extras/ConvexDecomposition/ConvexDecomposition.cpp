@@ -76,7 +76,7 @@ public:
 	Vector3d mNormal;
 };
 
-void addTri(VertexLookup vl, UintVector &list, const Vector3d &p1, const Vector3d &p2, const Vector3d &p3)
+static void addTri(VertexLookup vl, UintVector &list, const Vector3d &p1, const Vector3d &p2, const Vector3d &p3)
 {
 	unsigned int i1 = Vl_getIndex(vl, p1.Ptr());
 	unsigned int i2 = Vl_getIndex(vl, p2.Ptr());

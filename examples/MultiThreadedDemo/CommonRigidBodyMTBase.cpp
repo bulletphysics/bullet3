@@ -199,7 +199,7 @@ public:
 ///
 /// myParallelIslandDispatch -- wrap default parallel dispatch for profiling and to get the number of simulation islands
 //
-void myParallelIslandDispatch(btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, const btSimulationIslandManagerMt::SolverParams& solverParams)
+static void myParallelIslandDispatch(btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, const btSimulationIslandManagerMt::SolverParams& solverParams)
 {
 	ProfileHelper prof(Profiler::kRecordDispatchIslands);
 	gNumIslands = islandsPtr->size();
@@ -245,7 +245,7 @@ public:
 	}
 };
 
-btConstraintSolver* createSolverByType(SolverType t)
+static btConstraintSolver* createSolverByType(SolverType t)
 {
 	btMLCPSolverInterface* mlcpSolver = NULL;
 	switch (t)
@@ -413,7 +413,7 @@ static void toggleSolverModeCallback(int buttonId, bool buttonState, void* userP
 	}
 }
 
-void setSolverTypeComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
+static void setSolverTypeComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < SOLVER_TYPE_COUNT; ++i)
@@ -439,7 +439,7 @@ static void setNumThreads(int numThreads)
 }
 #endif  // #ifdef BT_THREADSAFE
 
-void setTaskSchedulerComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
+static void setTaskSchedulerComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 #ifdef BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);
@@ -460,7 +460,7 @@ void setTaskSchedulerComboBoxCallback(int /*combobox*/, const char* item, void* 
 #endif  // #ifdef BT_THREADSAFE
 }
 
-void setBatchingMethodComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
+static void setBatchingMethodComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 #ifdef BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);

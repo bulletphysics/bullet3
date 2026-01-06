@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 #include <stdio.h>
 
-int b3g_overlappingPairs = 0;
+static int b3g_overlappingPairs = 0;
 int b3g_removePairs = 0;
 int b3g_addedPairs = 0;
 int b3g_findPairs = 0;

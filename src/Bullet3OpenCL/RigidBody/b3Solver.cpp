@@ -16,8 +16,8 @@ subject to the following restrictions:
 #include "b3Solver.h"
 
 ///useNewBatchingKernel  is a rewritten kernel using just a single thread of the warp, for experiments
-bool useNewBatchingKernel = true;
-bool gConvertConstraintOnCpu = false;
+static bool useNewBatchingKernel = true;
+static bool gConvertConstraintOnCpu = false;
 
 #define B3_SOLVER_SETUP_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup.cl"
 #define B3_SOLVER_SETUP2_KERNEL_PATH "src/Bullet3OpenCL/RigidBody/kernels/solverSetup2.cl"
@@ -637,7 +637,7 @@ void b3Solver::solveContactConstraintHost(b3OpenCLArray<b3RigidBodyData>* bodyBu
 	frame++;
 }
 
-void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* /*bodyBuf*/,
+static void checkConstraintBatch(const b3OpenCLArray<b3RigidBodyData>* /*bodyBuf*/,
 						  const b3OpenCLArray<b3InertiaData>* /*shapeBuf*/,
 						  b3OpenCLArray<b3GpuConstraint4>* constraint,
 						  b3OpenCLArray<unsigned int>* m_numConstraints,

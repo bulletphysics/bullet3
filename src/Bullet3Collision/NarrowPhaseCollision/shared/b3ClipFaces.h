@@ -18,7 +18,7 @@ inline b3Float4 b3Lerp3(b3Float4ConstArg a, b3Float4ConstArg b, float t)
 }
 
 // Clips a face to the back of a plane, return the number of vertices out, stored in ppVtxOut
-int clipFaceGlobal(__global const b3Float4* pVtxIn, int numVertsIn, b3Float4ConstArg planeNormalWS, float planeEqWS, __global b3Float4* ppVtxOut)
+static int clipFaceGlobal(__global const b3Float4* pVtxIn, int numVertsIn, b3Float4ConstArg planeNormalWS, float planeEqWS, __global b3Float4* ppVtxOut)
 {
 	int ve;
 	float ds, de;
@@ -64,7 +64,7 @@ int clipFaceGlobal(__global const b3Float4* pVtxIn, int numVertsIn, b3Float4Cons
 	return numVertsOut;
 }
 
-__kernel void clipFacesAndFindContactsKernel(__global const b3Float4* /*separatingNormals*/,
+static __kernel void clipFacesAndFindContactsKernel(__global const b3Float4* /*separatingNormals*/,
 											 __global const int* hasSeparatingAxis,
 											 __global b3Int4* clippingFacesOut,
 											 __global b3Float4* worldVertsA1,

@@ -844,7 +844,7 @@ public:
 };
 
 ///internal debugging variable. this value shouldn't be too high
-int gNumClampedCcdMotions = 0;
+static int gNumClampedCcdMotions = 0;
 
 void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bodies, int numBodies, btScalar timeStep)
 {

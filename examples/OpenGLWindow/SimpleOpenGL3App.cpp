@@ -115,16 +115,16 @@ static void SimpleKeyboardCallback(int key, int /*state*/)
 	}
 }
 
-void SimpleMouseButtonCallback(int button, int state, float x, float y)
+static void SimpleMouseButtonCallback(int button, int state, float x, float y)
 {
 	gApp->defaultMouseButtonCallback(button, state, x, y);
 }
-void SimpleMouseMoveCallback(float x, float y)
+static void SimpleMouseMoveCallback(float x, float y)
 {
 	gApp->defaultMouseMoveCallback(x, y);
 }
 
-void SimpleWheelCallback(float deltax, float deltay)
+static void SimpleWheelCallback(float deltax, float deltay)
 {
 	gApp->defaultWheelCallback(deltax, deltay);
 }
@@ -307,7 +307,7 @@ static void printGLString(const char* name, GLenum s)
 	printf("%s = %s\n", name, v);
 }
 
-bool sOpenGLVerbose = true;
+static bool sOpenGLVerbose = true;
 
 SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina, int windowType, int renderDevice, int maxNumObjectCapacity, int maxShapeCapacityInBytes)
 {

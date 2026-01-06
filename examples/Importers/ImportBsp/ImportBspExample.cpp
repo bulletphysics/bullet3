@@ -187,12 +187,12 @@ void BspDemo::initPhysics(const char* bspfilename)
 }
 
 //some code that de-mangles the windows filename passed in as argument
-char cleaned_filename[512];
-char* getLastFileName()
+static char cleaned_filename[512];
+static char* getLastFileName()
 {
 	return cleaned_filename;
 }
-char* makeExeToBspFilename(const char* lpCmdLine)
+static char* makeExeToBspFilename(const char* lpCmdLine)
 {
 	// We might get a windows-style path on the command line, this can mess up the DOM which expects
 	// all paths to be URI's.  This block of code does some conversion to try and make the input

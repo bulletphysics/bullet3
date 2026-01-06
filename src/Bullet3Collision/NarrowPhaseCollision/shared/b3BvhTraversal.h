@@ -8,7 +8,7 @@
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3QuantizedBvhNodeData.h"
 
 // work-in-progress
-void b3BvhTraversal(__global const b3Int4* pairs,
+static void b3BvhTraversal(__global const b3Int4* pairs,
 					__global const b3RigidBodyData* rigidBodies,
 					__global const b3Collidable* collidables,
 					__global b3Aabb* aabbs,

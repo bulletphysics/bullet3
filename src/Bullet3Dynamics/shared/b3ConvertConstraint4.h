@@ -35,20 +35,20 @@ void b3PlaneSpace1(b3Float4ConstArg n, b3Float4* p, b3Float4* q)
 	}
 }
 
-void setLinearAndAngular(b3Float4ConstArg n, b3Float4ConstArg r0, b3Float4ConstArg r1, b3Float4* linear, b3Float4* angular0, b3Float4* angular1)
+static void setLinearAndAngular(b3Float4ConstArg n, b3Float4ConstArg r0, b3Float4ConstArg r1, b3Float4* linear, b3Float4* angular0, b3Float4* angular1)
 {
 	*linear = b3MakeFloat4(n.x, n.y, n.z, 0.f);
 	*angular0 = b3Cross3(r0, n);
 	*angular1 = -b3Cross3(r1, n);
 }
 
-float calcRelVel(b3Float4ConstArg l0, b3Float4ConstArg l1, b3Float4ConstArg a0, b3Float4ConstArg a1, b3Float4ConstArg linVel0,
+static float calcRelVel(b3Float4ConstArg l0, b3Float4ConstArg l1, b3Float4ConstArg a0, b3Float4ConstArg a1, b3Float4ConstArg linVel0,
 				 b3Float4ConstArg angVel0, b3Float4ConstArg linVel1, b3Float4ConstArg angVel1)
 {
 	return b3Dot3F4(l0, linVel0) + b3Dot3F4(a0, angVel0) + b3Dot3F4(l1, linVel1) + b3Dot3F4(a1, angVel1);
 }
 
-float calcJacCoeff(b3Float4ConstArg /*linear0*/, b3Float4ConstArg /*linear1*/, b3Float4ConstArg angular0, b3Float4ConstArg angular1,
+static float calcJacCoeff(b3Float4ConstArg /*linear0*/, b3Float4ConstArg /*linear1*/, b3Float4ConstArg angular0, b3Float4ConstArg angular1,
 				   float invMass0, const b3Mat3x3* invInertia0, float invMass1, const b3Mat3x3* invInertia1)
 {
 	//	linear0,1 are normlized
@@ -59,7 +59,7 @@ float calcJacCoeff(b3Float4ConstArg /*linear0*/, b3Float4ConstArg /*linear1*/, b
 	return -1.f / (jmj0 + jmj1 + jmj2 + jmj3);
 }
 
-void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4ConstArg angVelA, float invMassA, b3Mat3x3ConstArg invInertiaA,
+static void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4ConstArg angVelA, float invMassA, b3Mat3x3ConstArg invInertiaA,
 					b3Float4ConstArg posB, b3Float4ConstArg linVelB, b3Float4ConstArg angVelB, float invMassB, b3Mat3x3ConstArg invInertiaB,
 					__global struct b3Contact4Data* src, float dt, float positionDrift, float positionConstraintCoeff,
 					b3ContactConstraint4_t* dstC)

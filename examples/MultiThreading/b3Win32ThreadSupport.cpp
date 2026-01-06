@@ -37,7 +37,7 @@ b3Win32ThreadSupport::~b3Win32ThreadSupport()
 
 #include <stdio.h>
 
-DWORD WINAPI Thread_no_1(LPVOID lpParam)
+static DWORD WINAPI Thread_no_1(LPVOID lpParam)
 {
 	b3Win32ThreadSupport::b3ThreadStatus* status = (b3Win32ThreadSupport::b3ThreadStatus*)lpParam;
 

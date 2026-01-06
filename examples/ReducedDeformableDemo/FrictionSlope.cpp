@@ -124,7 +124,7 @@ public:
 
 namespace FrictionSlopeHelper 
 {
-    void groundMotion(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
+    static void groundMotion(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     {
         btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
 

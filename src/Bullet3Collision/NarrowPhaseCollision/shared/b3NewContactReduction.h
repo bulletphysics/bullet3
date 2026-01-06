@@ -8,7 +8,7 @@
 
 #define GET_NPOINTS(x) (x).m_worldNormalOnB.w
 
-int b3ExtractManifoldSequentialGlobal(__global const b3Float4* p, int nPoints, b3Float4ConstArg nearNormal, b3Int4* contactIdx)
+static int b3ExtractManifoldSequentialGlobal(__global const b3Float4* p, int nPoints, b3Float4ConstArg nearNormal, b3Int4* contactIdx)
 {
 	if (nPoints == 0)
 		return 0;
@@ -93,7 +93,7 @@ int b3ExtractManifoldSequentialGlobal(__global const b3Float4* p, int nPoints, b
 	return 4;
 }
 
-__kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
+static __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 										  __global const b3RigidBodyData_t* rigidBodies,
 										  __global const b3Float4* separatingNormals,
 										  __global const int* hasSeparatingAxis,

@@ -25,9 +25,9 @@
 #include "GraphicsSharedMemoryCommands.h"
 
 
-bool gVerboseNetworkMessagesServer = true;
+static bool gVerboseNetworkMessagesServer = true;
 
-void MySerializeInt(unsigned int sz, unsigned char* output)
+static void MySerializeInt(unsigned int sz, unsigned char* output)
 {
 	unsigned int tmp = sz;
 	output[0] = tmp & 255;
@@ -39,7 +39,7 @@ void MySerializeInt(unsigned int sz, unsigned char* output)
 	output[3] = tmp & 255;
 }
 
-void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStatus, b3AlignedObjectArray<char>& buffer)
+static void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStatus, b3AlignedObjectArray<char>& buffer)
 {
 	b3AlignedObjectArray<unsigned char> packetData;
 	unsigned char* statBytes = (unsigned char*)&serverStatus;
@@ -143,7 +143,7 @@ enum TCPCommunicationEnums
 	eTCPHasTerminated
 };
 
-void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
+static void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("TCPThreadFunc thread started\n");
 
@@ -606,13 +606,13 @@ void TCPThreadFunc(void* userPtr, void* /*lsMemory*/)
 	//do nothing
 }
 
-void* TCPlsMemoryFunc()
+static void* TCPlsMemoryFunc()
 {
 	//don't create local store memory, just return 0
 	return new TCPThreadLocalStorage;
 }
 
-void TCPlsMemoryReleaseFunc(void* ptr)
+static void TCPlsMemoryReleaseFunc(void* ptr)
 {
 	TCPThreadLocalStorage* p = (TCPThreadLocalStorage*)ptr;
 	delete p;
@@ -622,7 +622,7 @@ void TCPlsMemoryReleaseFunc(void* ptr)
 #ifndef _WIN32
 #include "../MultiThreading/b3PosixThreadSupport.h"
 
-b3ThreadSupportInterface* createTCPThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createTCPThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("TCPThreads",
 		TCPThreadFunc,
@@ -637,7 +637,7 @@ b3ThreadSupportInterface* createTCPThreadSupport(int numThreads)
 #elif defined(_WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
-b3ThreadSupportInterface* createTCPThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createTCPThreadSupport(int numThreads)
 {
 	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("TCPThreads", TCPThreadFunc, TCPlsMemoryFunc, TCPlsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);

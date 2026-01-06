@@ -49,6 +49,7 @@ InvertedPendulumPDControl::~InvertedPendulumPDControl()
 }
 
 
+btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GUIHelperInterface* guiHelper, const btTransform& baseWorldTrans, bool fixedBase); // prototype
 btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GUIHelperInterface* guiHelper, const btTransform& baseWorldTrans, bool fixedBase)
 {
 	btVector4 colors[4] =
@@ -342,7 +343,7 @@ void InvertedPendulumPDControl::initPhysics()
 		//break;
 	}
 }
-char fileName[1024];
+static char fileName[1024];
 
 static btAlignedObjectArray<btScalar> qDesiredArray;
 void InvertedPendulumPDControl::stepSimulation(float /*deltaTime*/)

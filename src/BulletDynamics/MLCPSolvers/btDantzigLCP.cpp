@@ -112,7 +112,7 @@ rows/columns and manipulate C.
 
 #include <string.h>  //memcpy
 
-bool s_error = false;
+static bool s_error = false;
 
 //***************************************************************************
 // code generation parameters
@@ -302,7 +302,7 @@ static void btSolveL1_2(const btScalar *L, btScalar *B, int n, int lskip1)
 	}
 }
 
-void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
+static void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
 {
 	int i, j;
 	btScalar sum, *ell, *dee, dd, p1, p2, q1, q2, Z11, m11, Z21, m21, Z22, m22;
@@ -532,7 +532,7 @@ void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
  * if this is in the factorizer source file, n must be a multiple of 4.
  */
 
-void btSolveL1(const btScalar *L, btScalar *B, int n, int lskip1)
+static void btSolveL1(const btScalar *L, btScalar *B, int n, int lskip1)
 {
 	/* declare variables - Z matrix, p and q vectors, etc */
 	btScalar Z11, Z21, Z31, Z41, p1, q1, p2, p3, p4, *ex;
@@ -831,7 +831,7 @@ void btSolveL1(const btScalar *L, btScalar *B, int n, int lskip1)
  * this processes blocks of 4.
  */
 
-void btSolveL1T(const btScalar *L, btScalar *B, int n, int lskip1)
+static void btSolveL1T(const btScalar *L, btScalar *B, int n, int lskip1)
 {
 	/* declare variables - Z matrix, p and q vectors, etc */
 	btScalar Z11, m11, Z21, m21, Z31, m31, Z41, m41, p1, q1, p2, p3, p4, *ex;
@@ -1026,7 +1026,7 @@ void btSolveL1T(const btScalar *L, btScalar *B, int n, int lskip1)
 	}
 }
 
-void btVectorScale(btScalar *a, const btScalar *d, int n)
+static void btVectorScale(btScalar *a, const btScalar *d, int n)
 {
 	btAssert(a && d && n >= 0);
 	for (int i = 0; i < n; i++)
@@ -1035,7 +1035,7 @@ void btVectorScale(btScalar *a, const btScalar *d, int n)
 	}
 }
 
-void btSolveLDLT(const btScalar *L, const btScalar *d, btScalar *b, int n, int nskip)
+static void btSolveLDLT(const btScalar *L, const btScalar *d, btScalar *b, int n, int nskip)
 {
 	btAssert(L && d && b && n > 0 && nskip >= n);
 	btSolveL1(L, b, n, nskip);
@@ -1463,7 +1463,7 @@ void btLCP::transfer_i_from_N_to_C(int i)
 	// to use in updating the factorization later.
 }
 
-void btRemoveRowCol(btScalar *A, int n, int nskip, int r)
+static void btRemoveRowCol(btScalar *A, int n, int nskip, int r)
 {
 	btAssert(A && n > 0 && nskip >= n && r >= 0 && r < n);
 	if (r >= n - 1) return;
@@ -1501,7 +1501,7 @@ void btRemoveRowCol(btScalar *A, int n, int nskip, int r)
 	}
 }
 
-void btLDLTAddTL(btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, btAlignedObjectArray<btScalar> &scratch)
+static void btLDLTAddTL(btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, btAlignedObjectArray<btScalar> &scratch)
 {
 	btAssert(L && d && a && n > 0 && nskip >= n);
 
@@ -1592,7 +1592,7 @@ inline size_t btEstimateLDLTAddTLTmpbufSize(int nskip)
 	return nskip * 2 * sizeof(btScalar);
 }
 
-void btLDLTRemove(btScalar **A, const int *p, btScalar *L, btScalar *d,
+static void btLDLTRemove(btScalar **A, const int *p, btScalar *L, btScalar *d,
 				  int n1, int n2, int r, int nskip, btAlignedObjectArray<btScalar> &scratch)
 {
 	btAssert(A && p && L && d && n1 > 0 && n2 > 0 && r >= 0 && r < n2 &&

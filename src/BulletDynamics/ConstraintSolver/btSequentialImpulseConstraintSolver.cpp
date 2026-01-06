@@ -37,7 +37,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include <string.h>  //for memset
 
-int gNumSplitImpulseRecoveries = 0;
+static int gNumSplitImpulseRecoveries = 0;
 
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 

@@ -21,10 +21,10 @@ subject to the following restrictions:
 #include <stdio.h>
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 
-CommonExampleInterface* example;
+static CommonExampleInterface* example;
 int gSharedMemoryKey = -1;
 
-b3MouseMoveCallback prevMouseMoveCallback = 0;
+static b3MouseMoveCallback prevMouseMoveCallback = 0;
 static void OnMouseMove(float x, float y)
 {
 	bool handled = false;
@@ -36,7 +36,7 @@ static void OnMouseMove(float x, float y)
 	}
 }
 
-b3MouseButtonCallback prevMouseButtonCallback = 0;
+static b3MouseButtonCallback prevMouseButtonCallback = 0;
 static void OnMouseDown(int button, int state, float x, float y)
 {
 	bool handled = false;

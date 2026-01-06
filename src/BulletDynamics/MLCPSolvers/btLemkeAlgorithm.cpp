@@ -26,7 +26,7 @@ subject to the following restrictions:
 using namespace std;
 #endif  //BT_DEBUG_OSTREAM
 
-btScalar btMachEps()
+static btScalar btMachEps()
 {
 	static bool calculated = false;
 	static btScalar machEps = btScalar(1.);
@@ -44,7 +44,7 @@ btScalar btMachEps()
 	return machEps;
 }
 
-btScalar btEpsRoot()
+static btScalar btEpsRoot()
 {
 	static btScalar epsroot = 0.;
 	static bool alreadyCalculated = false;

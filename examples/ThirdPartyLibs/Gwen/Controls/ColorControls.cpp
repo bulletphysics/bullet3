@@ -11,7 +11,7 @@ using namespace Gwen;
 using namespace Gwen::Controls;
 
 //Find a place to put these...
-Color HSVToColor(float h, float s, float v)
+static Color HSVToColor(float h, float s, float v)
 {
 	if (h < 0.0f) h += 360.0f;
 	if (h > 360.0f) h -= 360.0f;
@@ -87,7 +87,7 @@ Color HSVToColor(float h, float s, float v)
 	return Color((unsigned char)r, (unsigned char)g, (unsigned char)b, 255);
 }
 
-HSV RGBtoHSV(int r, int g, int b)
+static HSV RGBtoHSV(int r, int g, int b)
 {
 	double min, max, delta, temp;
 	min = GwenUtil_Min(r, GwenUtil_Min(g, b));
@@ -144,7 +144,7 @@ GWEN_CONTROL_CONSTRUCTOR(ColorLerpBox)
 }
 
 //Find a place to put this? color member?
-Gwen::Color LerpColor(Gwen::Color& toColor, Gwen::Color& fromColor, float amount)
+static Gwen::Color LerpColor(Gwen::Color& toColor, Gwen::Color& fromColor, float amount)
 {
 	Gwen::Color colorDelta = toColor - fromColor;
 

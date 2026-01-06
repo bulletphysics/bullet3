@@ -53,7 +53,7 @@ static b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThread
 #elif defined(_WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
-b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThreads)
 {
 	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads", ExampleBrowserThreadFunc, ExampleBrowserMemoryFunc, ExampleBrowserMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);

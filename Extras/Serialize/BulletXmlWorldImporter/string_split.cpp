@@ -41,7 +41,7 @@ void split(btAlignedObjectArray<std::string> &pieces, const std::string &vector_
  string is dynamically copied. If the array is NULL, allocate a new
  array. Otherwise, extend the array. Make sure the array is always
  NULL-terminated. Input string might not be '\0'-terminated. */
-char **str_array_append(char **array, size_t nitems, const char *item,
+static char **str_array_append(char **array, size_t nitems, const char *item,
 						size_t itemlen)
 {
 	/* Make a dynamic copy of the item. */

@@ -97,7 +97,7 @@ public:
     }
 };
 
-void dynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
+static void dynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
 {
     btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
     if (rbs.size()<2)

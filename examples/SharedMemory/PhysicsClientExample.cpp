@@ -202,7 +202,7 @@ public:
 	}
 };
 
-void MyComboBoxCallback(int combobox, const char* item, void* userPointer)
+static void MyComboBoxCallback(int combobox, const char* item, void* userPointer)
 {
 	//b3Printf("Item selected %s", item);
 
@@ -214,7 +214,7 @@ void MyComboBoxCallback(int combobox, const char* item, void* userPointer)
 	}
 }
 
-void MyCallback(int buttonId, bool buttonState, void* userPtr)
+static void MyCallback(int buttonId, bool buttonState, void* userPtr)
 {
 	PhysicsClientExample* cl = (PhysicsClientExample*)userPtr;
 	b3Assert(cl);

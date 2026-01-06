@@ -24,7 +24,7 @@ static unsigned int b3DeserializeInt3(const unsigned char* input)
 }
 static bool gVerboseNetworkMessagesClient3 = true;//false;
 
-const char* cmd2txt[]=
+static const char* cmd2txt[]=
 {
 	"GFX_CMD_INVALID",
 	"GFX_CMD_0",

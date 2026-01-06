@@ -31,7 +31,7 @@ void SamplelsMemoryReleaseFunc(void* ptr);
 #include "b3PosixThreadSupport.h"
 
 
-b3ThreadSupportInterface* createThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
 	SampleThreadFunc,
@@ -46,7 +46,7 @@ b3ThreadSupportInterface* createThreadSupport(int numThreads)
 #elif defined(_WIN32)
 #include "b3Win32ThreadSupport.h"
 
-b3ThreadSupportInterface* createThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createThreadSupport(int numThreads)
 {
 	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads", SampleThreadFunc, SamplelsMemoryFunc, SamplelsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
@@ -111,7 +111,7 @@ struct SampleArgs
 		return job;
 	}
 };
-SampleArgs args;
+static SampleArgs args;
 struct SampleThreadLocalStorage
 {
 	int threadId;

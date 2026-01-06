@@ -108,12 +108,12 @@ b3GpuJacobiContactSolver::~b3GpuJacobiContactSolver()
 	delete m_data;
 }
 
-b3Vector3 make_float4(float v)
+static b3Vector3 make_float4(float v)
 {
 	return b3MakeVector3(v, v, v);
 }
 
-b3Vector4 make_float4(float x, float y, float z, float w)
+static b3Vector4 make_float4(float x, float y, float z, float w)
 {
 	return b3MakeVector4(x, y, z, w);
 }
@@ -186,7 +186,7 @@ static __inline void solveContact(b3GpuConstraint4& cs,
 	}
 }
 
-void solveContact3(b3GpuConstraint4* cs,
+static void solveContact3(b3GpuConstraint4* cs,
 				   b3Vector3* posAPtr, b3Vector3* linVelA, b3Vector3* angVelA, float invMassA, const b3Matrix3x3& invInertiaA,
 				   b3Vector3* posBPtr, b3Vector3* linVelB, b3Vector3* angVelB, float invMassB, const b3Matrix3x3& invInertiaB,
 				   b3Vector3* dLinVelA, b3Vector3* dAngVelA, b3Vector3* dLinVelB, b3Vector3* dAngVelB)
@@ -318,7 +318,7 @@ static inline void solveFriction(b3GpuConstraint4& cs,
 	}
 }
 
-float calcJacCoeff(const b3Vector3& /*linear0*/, const b3Vector3& /*linear1*/, const b3Vector3& angular0, const b3Vector3& angular1,
+static float calcJacCoeff(const b3Vector3& /*linear0*/, const b3Vector3& /*linear1*/, const b3Vector3& angular0, const b3Vector3& angular1,
 				   float invMass0, const b3Matrix3x3* invInertia0, float invMass1, const b3Matrix3x3* invInertia1, float countA, float countB)
 {
 	//	linear0,1 are normlized
@@ -331,7 +331,7 @@ float calcJacCoeff(const b3Vector3& /*linear0*/, const b3Vector3& /*linear1*/, c
 	//	return -1.f/((jmj0+jmj1)+(jmj2+jmj3));
 }
 
-void setConstraint4(const b3Vector3& posA, const b3Vector3& linVelA, const b3Vector3& angVelA, float invMassA, const b3Matrix3x3& invInertiaA,
+static void setConstraint4(const b3Vector3& posA, const b3Vector3& linVelA, const b3Vector3& angVelA, float invMassA, const b3Matrix3x3& invInertiaA,
 					const b3Vector3& posB, const b3Vector3& linVelB, const b3Vector3& angVelB, float invMassB, const b3Matrix3x3& invInertiaB,
 					b3Contact4* src, float dt, float positionDrift, float positionConstraintCoeff, float countA, float countB,
 					b3GpuConstraint4* dstC)
@@ -422,7 +422,7 @@ void setConstraint4(const b3Vector3& posA, const b3Vector3& linVelA, const b3Vec
 	}
 }
 
-void ContactToConstraintKernel(b3Contact4* gContact, b3RigidBodyData* gBodies, b3InertiaData* gShapes, b3GpuConstraint4* gConstraintOut, int nContacts,
+static void ContactToConstraintKernel(b3Contact4* gContact, b3RigidBodyData* gBodies, b3InertiaData* gShapes, b3GpuConstraint4* gConstraintOut, int nContacts,
 							   float dt,
 							   float positionDrift,
 							   float positionConstraintCoeff, int gIdx, b3AlignedObjectArray<unsigned int>& bodyCount)

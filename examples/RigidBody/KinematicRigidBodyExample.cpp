@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
 
-void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
+static void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 {
 	btRigidBody* groundBody = (btRigidBody*)world->getWorldUserInfo();
 	btTransform predictedTrans;

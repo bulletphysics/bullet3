@@ -59,7 +59,7 @@ static int NextPow2(int _n)
 
 //  ---------------------------------------------------------------------------
 
-const char *g_ErrBadFontHeight = "Cannot determine font height while reading font bitmap (check first pixel column)";
+static const char *g_ErrBadFontHeight = "Cannot determine font height while reading font bitmap (check first pixel column)";
 
 CTexFont *TwGenerateFont(const unsigned char *_Bitmap, int _BmWidth, int _BmHeight)
 {

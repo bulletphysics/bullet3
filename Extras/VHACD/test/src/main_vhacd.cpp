@@ -39,7 +39,7 @@
 using namespace VHACD;
 using namespace std;
 
-bool replace(std::string& str, const std::string& from, const std::string& to)
+static bool replace(std::string& str, const std::string& from, const std::string& to)
 {
 	size_t start_pos = str.find(from);
 	if (start_pos == std::string::npos)
@@ -140,7 +140,7 @@ void ComputeRandomColor(Material& mat);
 void Usage(const Parameters& params);
 void ParseParameters(int argc, char* argv[], Parameters& params);
 
-int main_vhacd2(Parameters& params)
+static int main_vhacd2(Parameters& params)
 {
 	MyCallback myCallback;
 	MyLogger myLogger(params.m_fileNameLog);
@@ -272,6 +272,7 @@ int main_vhacd2(Parameters& params)
 	return 0;
 }
 
+int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut, const std::string& fileNameLog, VHACD::IVHACD::Parameters& paramsVHACD); // prototype
 int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut, const std::string& fileNameLog, VHACD::IVHACD::Parameters& paramsVHACD)
 {
 	Parameters params;
@@ -282,7 +283,7 @@ int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut
 	return main_vhacd2(params);
 }
 
-int main_vhacd(int argc, char* argv[])
+static int main_vhacd(int argc, char* argv[])
 {
 	// --input camel.off --output camel_acd.obj --log log.txt --resolution 1000000 --depth 20 --concavity 0.0025 --planeDownsampling 4 --convexhullDownsampling 4 --alpha 0.05 --beta 0.05 --gamma 0.00125 --pca 0 --mode 0 --maxNumVerticesPerCH 256 --minVolumePerCH 0.0001 --convexhullApproximation 1 --oclDeviceID 2
 	// set parameters

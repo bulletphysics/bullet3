@@ -204,7 +204,7 @@ private:
 };
 
 // calculate maximum difference between finite difference and analytical differentiation
-int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar deltaT,
+static int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar deltaT,
 								  idScalar endTime, idScalar* max_linear_velocity_error,
 								  idScalar* max_angular_velocity_error,
 								  idScalar* max_linear_acceleration_error,

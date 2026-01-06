@@ -19,41 +19,41 @@
 #define MAX_NUM_THETA 1000
 #define MAX_NUM_EFFECT 100
 
-double T = 0;
-VectorR3 targetaa[MAX_NUM_EFFECT];
+static double T = 0;
+static VectorR3 targetaa[MAX_NUM_EFFECT];
 
 // Make slowdown factor larger to make the simulation take larger, less frequent steps
 // Make the constant factor in Tstep larger to make time pass more quickly
 //const int SlowdownFactor = 40;
-const int SlowdownFactor = 0;  // Make higher to take larger steps less frequently
-const int SleepsPerStep = SlowdownFactor;
-int SleepCounter = 0;
+static const int SlowdownFactor = 0;  // Make higher to take larger steps less frequently
+static const int SleepsPerStep = SlowdownFactor;
+static int SleepCounter = 0;
 //const double Tstep = 0.0005*(double)SlowdownFactor;		// Time step
 
-int AxesList; /* list to hold the axes		*/
-int AxesOn;   /* ON or OFF				*/
+static int AxesList; /* list to hold the axes		*/
+static int AxesOn;   /* ON or OFF				*/
 
-float Scale, Scale2; /* scaling factors			*/
+static float Scale, Scale2; /* scaling factors			*/
 
-int JointLimitsOn;
-int RestPositionOn;
-int UseJacobianTargets1;
+static int JointLimitsOn;
+static int RestPositionOn;
+static int UseJacobianTargets1;
 
-int numIteration = 1;
-double error = 0.0;
-double errorDLS = 0.0;
-double errorSDLS = 0.0;
-double sumError = 0.0;
-double sumErrorDLS = 0.0;
-double sumErrorSDLS = 0.0;
+static int numIteration = 1;
+static double error = 0.0;
+static double errorDLS = 0.0;
+static double errorSDLS = 0.0;
+static double sumError = 0.0;
+static double sumErrorDLS = 0.0;
+static double sumErrorSDLS = 0.0;
 
 #ifdef _DYNAMIC
-bool initMaxDist = true;
+static bool initMaxDist = true;
 extern double Excess[];
 extern double dsnorm[];
 #endif
 
-void Reset(Tree& tree, Jacobian* m_ikJacobian)
+static void Reset(Tree& tree, Jacobian* m_ikJacobian)
 {
 	AxesOn = false;
 
@@ -71,7 +71,7 @@ void Reset(Tree& tree, Jacobian* m_ikJacobian)
 
 // Update target positions
 
-void UpdateTargets(double t, Tree& /*treeY*/)
+static void UpdateTargets(double t, Tree& /*treeY*/)
 {
 	targetaa[0].Set(2.0f + 1.5*sin(3 * t) * 2, -0.5 + 1.0f + 0.2*sin(7 * t) * 2, 0.3f + 0.7*sin(5 * t) * 2);
 	targetaa[1].Set(0.5f + 0.4*sin(4 * t) * 2, -0.5 + 0.9f + 0.3*sin(4 * t) * 2, -0.2f + 1.0*sin(3 * t) * 2);
@@ -81,7 +81,7 @@ void UpdateTargets(double t, Tree& /*treeY*/)
 }
 
 // Does a single update (on one kind of m_ikTree)
-void DoUpdateStep(double Tstep, Tree& treeY, Jacobian* jacob, int ikMethod)
+static void DoUpdateStep(double Tstep, Tree& treeY, Jacobian* jacob, int ikMethod)
 {
 	B3_PROFILE("IK_DoUpdateStep");
 	if (SleepCounter == 0)

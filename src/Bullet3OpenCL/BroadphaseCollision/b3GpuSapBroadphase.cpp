@@ -1,5 +1,5 @@
 
-bool searchIncremental3dSapOnGpu = true;
+static bool searchIncremental3dSapOnGpu = true;
 #include <limits.h>
 #include "b3GpuSapBroadphase.h"
 #include "Bullet3Common/b3Vector3.h"
@@ -263,10 +263,10 @@ static bool operator>(const b3Int4& a, const b3Int4& b)
 	return a.x > b.x || (a.x == b.x && a.y > b.y);
 }
 
-b3AlignedObjectArray<b3Int4> addedHostPairs;
-b3AlignedObjectArray<b3Int4> removedHostPairs;
+static b3AlignedObjectArray<b3Int4> addedHostPairs;
+static b3AlignedObjectArray<b3Int4> removedHostPairs;
 
-b3AlignedObjectArray<b3SapAabb> preAabbs;
+static b3AlignedObjectArray<b3SapAabb> preAabbs;
 
 void b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 {

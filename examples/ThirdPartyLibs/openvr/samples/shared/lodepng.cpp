@@ -334,7 +334,7 @@ static void string_set(char** out, const char* in)
 
 /* ////////////////////////////////////////////////////////////////////////// */
 
-unsigned lodepng_read32bitInt(const unsigned char* buffer)
+static unsigned lodepng_read32bitInt(const unsigned char* buffer)
 {
 	return (unsigned)((buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
 }
@@ -2735,7 +2735,7 @@ size_t lodepng_get_raw_size(unsigned w, unsigned h, const LodePNGColorMode* colo
 	return (w * h * lodepng_get_bpp(color) + 7) / 8;
 }
 
-size_t lodepng_get_raw_size_lct(unsigned w, unsigned h, LodePNGColorType colortype, unsigned bitdepth)
+static size_t lodepng_get_raw_size_lct(unsigned w, unsigned h, LodePNGColorType colortype, unsigned bitdepth)
 {
 	return (w * h * lodepng_get_bpp_lct(colortype, bitdepth) + 7) / 8;
 }
@@ -2983,7 +2983,7 @@ unsigned lodepng_info_copy(LodePNGInfo* dest, const LodePNGInfo* source)
 	return 0;
 }
 
-void lodepng_info_swap(LodePNGInfo* a, LodePNGInfo* b)
+static void lodepng_info_swap(LodePNGInfo* a, LodePNGInfo* b)
 {
 	LodePNGInfo temp = *a;
 	*a = *b;
@@ -3577,7 +3577,7 @@ void lodepng_color_profile_init(LodePNGColorProfile* profile)
 }*/
 
 /*Returns how many bits needed to represent given value (max 8 bit)*/
-unsigned getValueRequiredBits(unsigned char value)
+static unsigned getValueRequiredBits(unsigned char value)
 {
 	if (value == 0 || value == 255) return 1;
 	/*The scaling of 2-bit and 4-bit values uses multiples of 85 and 17*/

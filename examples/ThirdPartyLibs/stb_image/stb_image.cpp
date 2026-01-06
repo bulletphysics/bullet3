@@ -266,7 +266,7 @@ unsigned char *stbi_load_from_callbacks(stbi_io_callbacks const *clbk, void *use
 
 #ifndef STBI_NO_HDR
 
-float *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)
+static float *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
 	unsigned char *data;
 #ifndef STBI_NO_HDR
@@ -2182,7 +2182,7 @@ static void init_defaults(void)
 	for (i = 0; i <= 31; ++i) default_distance[i] = 5;
 }
 
-int stbi_png_partial;  // a quick hack to only allow decoding some of a PNG... I should implement real streaming support instead
+static int stbi_png_partial;  // a quick hack to only allow decoding some of a PNG... I should implement real streaming support instead
 static int parse_zlib(zbuf *a, int parse_header)
 {
 	int final, type;
@@ -2257,7 +2257,7 @@ char *stbi_zlib_decode_malloc(char const *buffer, int len, int *outlen)
 	return stbi_zlib_decode_malloc_guesssize(buffer, len, 16384, outlen);
 }
 
-char *stbi_zlib_decode_malloc_guesssize_headerflag(const char *buffer, int len, int initial_size, int *outlen, int parse_header)
+static char *stbi_zlib_decode_malloc_guesssize_headerflag(const char *buffer, int len, int initial_size, int *outlen, int parse_header)
 {
 	zbuf a;
 	char *p = (char *)malloc(initial_size);

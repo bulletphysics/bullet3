@@ -22,9 +22,9 @@ subject to the following restrictions:
 
 #include <float.h>  //for FLT_MAX
 
-int gExpectedNbTests = 0;
-int gActualNbTests = 0;
-bool gUseInternalObject = true;
+static int gExpectedNbTests = 0;
+static int gActualNbTests = 0;
+static bool gUseInternalObject = true;
 
 // Clips a face to the back of a plane
 void btPolyhedralContactClipping::clipFace(const btVertexArray& pVtxIn, btVertexArray& ppVtxOut, const btVector3& planeNormalWS, btScalar planeEqWS)
@@ -127,7 +127,7 @@ inline void BoxSupport(const btScalar extents[3], const btScalar sv[3], btScalar
 	p[2] = sv[2] < 0.0f ? -extents[2] : extents[2];
 }
 
-void InverseTransformPoint3x3(btVector3& out, const btVector3& in, const btTransform& tr)
+static void InverseTransformPoint3x3(btVector3& out, const btVector3& in, const btTransform& tr)
 {
 	const btMatrix3x3& rot = tr.getBasis();
 	const btVector3& r0 = rot[0];
@@ -141,7 +141,7 @@ void InverseTransformPoint3x3(btVector3& out, const btVector3& in, const btTrans
 	out.setValue(x, y, z);
 }
 
-bool TestInternalObjects(const btTransform& trans0, const btTransform& trans1, const btVector3& delta_c, const btVector3& axis, const btConvexPolyhedron& convex0, const btConvexPolyhedron& convex1, btScalar dmin)
+static bool TestInternalObjects(const btTransform& trans0, const btTransform& trans1, const btVector3& delta_c, const btVector3& axis, const btConvexPolyhedron& convex0, const btConvexPolyhedron& convex1, btScalar dmin)
 {
 	const btScalar dp = delta_c.dot(axis);
 

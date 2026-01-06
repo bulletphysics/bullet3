@@ -451,7 +451,7 @@ bool Path_IsDirectory(const std::string &sPath)
 bool Path_IsAppBundle(const std::string &sPath)
 {
 #if defined(OSX)
-	NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithUTF8String:sPath.c_str()]];
+	static NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithUTF8String:sPath.c_str()]];
 	bool bisAppBundle = (NULL != bundle);
 	[bundle release];
 	return bisAppBundle;

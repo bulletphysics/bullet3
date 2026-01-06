@@ -44,7 +44,7 @@
 #include "float_math.h"
 
 // computes the OBB for this set of points relative to this transform matrix.
-void computeOBB(unsigned int vcount, const float *points, unsigned int pstride, float *sides, const float *matrix)
+static void computeOBB(unsigned int vcount, const float *points, unsigned int pstride, float *sides, const float *matrix)
 {
 	const char *src = (const char *)points;
 

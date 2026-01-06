@@ -61,7 +61,7 @@ static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = {};
 #define APIENTRY
 #endif
 
-void ThreadSleep(unsigned long nMilliseconds)
+static void ThreadSleep(unsigned long nMilliseconds)
 {
 #if defined(_WIN32)
 	::Sleep(nMilliseconds);
@@ -308,7 +308,7 @@ CMainApplication::~CMainApplication()
 // Purpose: Helper to get a string from a tracked device property and turn it
 //			into a std::string
 //-----------------------------------------------------------------------------
-std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError *peError = NULL)
+static std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError *peError = NULL)
 {
 	uint32_t unRequiredBufferLen = pHmd->GetStringTrackedDeviceProperty(unDevice, prop, NULL, 0, peError);
 	if (unRequiredBufferLen == 0)
@@ -324,7 +324,7 @@ std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t
 
 b3KeyboardCallback prevKeyboardCallback = 0;
 
-void MyKeyboardCallback(int key, int state)
+static void MyKeyboardCallback(int key, int state)
 {
 	if (key == 'p')
 	{
@@ -352,7 +352,7 @@ static bool gEnableVRRenderControllers = true;
 static bool gEnableVRRendering = true;
 static int gUpAxis = 2;
 
-void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
+static void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
 {
 	if (flag == COV_ENABLE_Y_AXIS_UP)
 	{

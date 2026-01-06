@@ -47,9 +47,9 @@ struct t_KeyData
 	bool LeftMouseDown;
 	bool RightMouseDown;
 
-} KeyData;
+} static KeyData;
 
-Gwen::Point MousePosition;
+static Gwen::Point MousePosition;
 
 static float g_fLastClickTime[MAX_MOUSE_BUTTONS];
 static Gwen::Point g_pntLastClickPos;
@@ -65,7 +65,7 @@ enum
 	ACT_MESSAGE
 };
 
-void UpdateHoveredControl(Controls::Base* pInCanvas)
+static void UpdateHoveredControl(Controls::Base* pInCanvas)
 {
 	Controls::Base* pHovered = pInCanvas->GetControlAt(MousePosition.x, MousePosition.y);
 
@@ -92,7 +92,7 @@ void UpdateHoveredControl(Controls::Base* pInCanvas)
 	}
 }
 
-void FindKeyboardFocus(Controls::Base* pControl)
+static void FindKeyboardFocus(Controls::Base* pControl)
 {
 	if (!pControl) return;
 	if (pControl->GetKeyboardInputEnabled())

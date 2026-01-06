@@ -695,18 +695,18 @@ void CProfileManager::dumpAll()
 }
 
 
-void btEnterProfileZoneDefault(const char* name)
+static void btEnterProfileZoneDefault(const char* name)
 {
 }
-void btLeaveProfileZoneDefault()
+static void btLeaveProfileZoneDefault()
 {
 }
 
 #else
-void btEnterProfileZoneDefault(const char* /*name*/)
+static void btEnterProfileZoneDefault(const char* /*name*/)
 {
 }
-void btLeaveProfileZoneDefault()
+static void btLeaveProfileZoneDefault()
 {
 }
 #endif  //BT_NO_PROFILE
@@ -767,11 +767,11 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 static btEnterProfileZoneFunc* bts_enterFunc = btEnterProfileZoneDefault;
 static btLeaveProfileZoneFunc* bts_leaveFunc = btLeaveProfileZoneDefault;
 
-void btEnterProfileZone(const char* name)
+static void btEnterProfileZone(const char* name)
 {
 	(bts_enterFunc)(name);
 }
-void btLeaveProfileZone()
+static void btLeaveProfileZone()
 {
 	(bts_leaveFunc)();
 }

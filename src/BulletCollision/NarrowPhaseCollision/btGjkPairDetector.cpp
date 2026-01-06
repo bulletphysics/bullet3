@@ -30,10 +30,10 @@ subject to the following restrictions:
 //must be above the machine epsilon
 #ifdef BT_USE_DOUBLE_PRECISION
 #define REL_ERROR2 btScalar(1.0e-12)
-btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
+static btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
 #else
 #define REL_ERROR2 btScalar(1.0e-6)
-btScalar gGjkEpaPenetrationTolerance = btScalar(0.001);
+static btScalar gGjkEpaPenetrationTolerance = btScalar(0.001);
 #endif
 
 
@@ -213,17 +213,17 @@ inline int ccdEq(btScalar _a, btScalar _b)
 	}
 }
 
-btScalar ccdVec3X(const btVector3 *v)
+static btScalar ccdVec3X(const btVector3 *v)
 {
 	return v->x();
 }
 
-btScalar ccdVec3Y(const btVector3 *v)
+static btScalar ccdVec3Y(const btVector3 *v)
 {
 	return v->y();
 }
 
-btScalar ccdVec3Z(const btVector3 *v)
+static btScalar ccdVec3Z(const btVector3 *v)
 {
 	return v->z();
 }
@@ -332,7 +332,7 @@ inline btScalar btVec3PointSegmentDist2(const btVector3 *P,
 	return dist;
 }
 
-btScalar btVec3PointTriDist2(const btVector3 *P,
+static btScalar btVec3PointTriDist2(const btVector3 *P,
 							 const btVector3 *x0, const btVector3 *B,
 							 const btVector3 *C,
 							 btVector3 *witness)

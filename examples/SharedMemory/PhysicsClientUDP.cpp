@@ -13,12 +13,12 @@ void UDPThreadFunc(void* userPtr, void* lsMemory);
 void* UDPlsMemoryFunc();
 void UDPlsMemoryReleaseFunc(void* ptr);
 
-bool gVerboseNetworkMessagesClient = false;
+static bool gVerboseNetworkMessagesClient = false;
 
 #ifndef _WIN32
 #include "../MultiThreading/b3PosixThreadSupport.h"
 
-b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("UDPThread",
 																  UDPThreadFunc,
@@ -33,7 +33,7 @@ b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 #elif defined(_WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
-b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
 	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc, UDPlsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
@@ -46,7 +46,7 @@ struct UDPThreadLocalStorage
 	int threadId;
 };
 
-unsigned int b3DeserializeInt(const unsigned char* input)
+static unsigned int b3DeserializeInt(const unsigned char* input)
 {
 	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;

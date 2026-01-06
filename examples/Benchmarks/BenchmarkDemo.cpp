@@ -580,7 +580,7 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition, int stackSize
 	}
 }
 
-const btVector3 rotate(const btQuaternion& quat, const btVector3& vec)
+static const btVector3 rotate(const btQuaternion& quat, const btVector3& vec)
 {
 	float tmpX, tmpY, tmpZ, tmpW;
 	tmpX = float(((quat.getW() * vec.getX()) + (quat.getY() * vec.getZ())) - (quat.getZ() * vec.getY()));
@@ -1025,7 +1025,7 @@ void BenchmarkDemo::createTest4()
 ///////////////////////////////////////////////////////////////////////////////
 // LargeMesh
 
-int LandscapeVtxCount[] = {
+static int LandscapeVtxCount[] = {
 	Landscape01VtxCount,
 	Landscape02VtxCount,
 	Landscape03VtxCount,
@@ -1036,7 +1036,7 @@ int LandscapeVtxCount[] = {
 	Landscape08VtxCount,
 };
 
-int LandscapeIdxCount[] = {
+static int LandscapeIdxCount[] = {
 	Landscape01IdxCount,
 	Landscape02IdxCount,
 	Landscape03IdxCount,
@@ -1047,7 +1047,7 @@ int LandscapeIdxCount[] = {
 	Landscape08IdxCount,
 };
 
-btScalar* LandscapeVtx[] = {
+static btScalar* LandscapeVtx[] = {
 	Landscape01Vtx,
 	Landscape02Vtx,
 	Landscape03Vtx,
@@ -1058,7 +1058,7 @@ btScalar* LandscapeVtx[] = {
 	Landscape08Vtx,
 };
 
-btScalar* LandscapeNml[] = {
+static btScalar* LandscapeNml[] = {
 	Landscape01Nml,
 	Landscape02Nml,
 	Landscape03Nml,
@@ -1069,7 +1069,7 @@ btScalar* LandscapeNml[] = {
 	Landscape08Nml,
 };
 
-btScalar* LandscapeTex[] = {
+static btScalar* LandscapeTex[] = {
 	Landscape01Tex,
 	Landscape02Tex,
 	Landscape03Tex,
@@ -1080,7 +1080,7 @@ btScalar* LandscapeTex[] = {
 	Landscape08Tex,
 };
 
-unsigned short* LandscapeIdx[] = {
+static unsigned short* LandscapeIdx[] = {
 	Landscape01Idx,
 	Landscape02Idx,
 	Landscape03Idx,

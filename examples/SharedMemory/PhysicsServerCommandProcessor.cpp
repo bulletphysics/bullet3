@@ -132,17 +132,17 @@
 #endif
 
 int gInternalSimFlags = 0;
-bool gResetSimulation = 0;
-int gVRTrackingObjectUniqueId = -1;
-int gVRTrackingObjectFlag = VR_CAMERA_TRACK_OBJECT_ORIENTATION;
+static bool gResetSimulation = 0;
+static int gVRTrackingObjectUniqueId = -1;
+static int gVRTrackingObjectFlag = VR_CAMERA_TRACK_OBJECT_ORIENTATION;
 
-btTransform gVRTrackingObjectTr = btTransform::getIdentity();
+static btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
-btVector3 gVRTeleportPos1(0, 0, 0);
-btQuaternion gVRTeleportOrn(0, 0, 0, 1);
+static btVector3 gVRTeleportPos1(0, 0, 0);
+static btQuaternion gVRTeleportOrn(0, 0, 0, 1);
 
-btScalar simTimeScalingFactor = 1;
-btScalar gRhsClamp = 1.f;
+static btScalar simTimeScalingFactor = 1;
+static btScalar gRhsClamp = 1.f;
 
 #include "../CommonInterfaces/CommonFileIOInterface.h"
 
@@ -2084,14 +2084,14 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 	delete m_data;
 }
 
-void preTickCallback(btDynamicsWorld* world, btScalar timeStep)
+static void preTickCallback(btDynamicsWorld* world, btScalar timeStep)
 {
 	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*)world->getWorldUserInfo();
 
 	proc->tickPlugins(timeStep, true);
 }
 
-void logCallback(btDynamicsWorld* world, btScalar timeStep)
+static void logCallback(btDynamicsWorld* world, btScalar timeStep)
 {
 	//handle the logging and playing sounds
 	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*)world->getWorldUserInfo();
@@ -2101,28 +2101,28 @@ void logCallback(btDynamicsWorld* world, btScalar timeStep)
 	proc->tickPlugins(timeStep, false);
 }
 
-bool MyContactAddedCallback(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int /*partId0*/, int /*index0*/, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+static bool MyContactAddedCallback(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int /*partId0*/, int /*index0*/, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
 {
 	btAdjustInternalEdgeContacts(cp, colObj1Wrap, colObj0Wrap, partId1, index1);
 	return true;
 }
 
-bool MyContactDestroyedCallback(void* /*userPersistentData*/)
+static bool MyContactDestroyedCallback(void* /*userPersistentData*/)
 {
 	//printf("destroyed\n");
 	return false;
 }
 
-bool MyContactProcessedCallback(btManifoldPoint& /*cp*/, void* /*body0*/, void* /*body1*/)
+static bool MyContactProcessedCallback(btManifoldPoint& /*cp*/, void* /*body0*/, void* /*body1*/)
 {
 	//printf("processed\n");
 	return false;
 }
-void MyContactStartedCallback(btPersistentManifold* const& /*manifold*/)
+static void MyContactStartedCallback(btPersistentManifold* const& /*manifold*/)
 {
 	//printf("started\n");
 }
-void MyContactEndedCallback(btPersistentManifold* const& /*manifold*/)
+static void MyContactEndedCallback(btPersistentManifold* const& /*manifold*/)
 {
 	//	printf("ended\n");
 }
@@ -8251,7 +8251,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 	return hasStatus;
 }
 
-bool RequestFiltered(const struct SharedMemoryCommand& clientCmd, int& linkIndexA, int& linkIndexB, int& objectIndexA, int& objectIndexB, bool& swap){
+static bool RequestFiltered(const struct SharedMemoryCommand& clientCmd, int& linkIndexA, int& linkIndexB, int& objectIndexA, int& objectIndexB, bool& swap){
 
     if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
     {
@@ -9243,7 +9243,7 @@ bool PhysicsServerCommandProcessor::processLoadURDFCommand(const struct SharedMe
 	return hasStatus;
 }
 
-void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDeformable& deformable, bool verbose)
+static void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDeformable& deformable, bool verbose)
 {
 	const LoadSoftBodyArgs& loadSoftBodyArgs = clientCmd.m_loadSoftBodyArguments;
 	if (verbose)
@@ -10457,7 +10457,7 @@ bool PhysicsServerCommandProcessor::processProfileTimingCommand(const struct Sha
 	return hasStatus;
 }
 
-void setDefaultRootWorldAABB(SharedMemoryStatus& serverCmd)
+static void setDefaultRootWorldAABB(SharedMemoryStatus& serverCmd)
 {
 	serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
 	serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
@@ -15815,10 +15815,10 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 	m_data->m_logPlayback = pb;
 }
 
-int gDroppedSimulationSteps = 0;
-int gNumSteps = 0;
-double gDtInSec = 0.;
-double gSubStep = 0.;
+static int gDroppedSimulationSteps = 0;
+static int gNumSteps = 0;
+static double gDtInSec = 0.;
+static double gSubStep = 0.;
 
 void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTimeSim)
 {
@@ -15959,7 +15959,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec, const
 	}
 }
 
-b3Notification createTransformChangedNotification(int bodyUniqueId, int linkIndex, const btCollisionObject* colObj)
+static b3Notification createTransformChangedNotification(int bodyUniqueId, int linkIndex, const btCollisionObject* colObj)
 {
 	b3Notification notification;
 	notification.m_notificationType = TRANSFORM_CHANGED;
@@ -15984,7 +15984,7 @@ b3Notification createTransformChangedNotification(int bodyUniqueId, int linkInde
 }
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-b3Notification createSoftBodyChangedNotification(int bodyUniqueId, int linkIndex)
+static b3Notification createSoftBodyChangedNotification(int bodyUniqueId, int linkIndex)
 {
 	b3Notification notification;
 	notification.m_notificationType = SOFTBODY_CHANGED;

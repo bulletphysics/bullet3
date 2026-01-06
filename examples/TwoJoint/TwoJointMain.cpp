@@ -15,17 +15,17 @@ extern const int CONTROL_RATE;
 const int CONTROL_RATE = 500;
 
 // Bullet globals
-b3PhysicsClientHandle kPhysClient = 0;
+static b3PhysicsClientHandle kPhysClient = 0;
 const b3Scalar FIXED_TIMESTEP = b3Scalar(1.0 / ((b3Scalar)CONTROL_RATE));
 // temp vars used a lot
-b3SharedMemoryCommandHandle command;
-b3SharedMemoryStatusHandle statusHandle;
-int statusType, ret;
-b3JointInfo jointInfo;
-b3JointSensorState state;
+static b3SharedMemoryCommandHandle command;
+static b3SharedMemoryStatusHandle statusHandle;
+static int statusType, ret;
+static b3JointInfo jointInfo;
+static b3JointSensorState state;
 // test
-int twojoint;
-std::map<std::string, int> jointNameToId;
+static int twojoint;
+static std::map<std::string, int> jointNameToId;
 
 int main(int argc, char* argv[])
 {

@@ -62,15 +62,15 @@ public:
 #define SIMD_PI_2 ((SIMD_PI)*0.5f)
 #define SIMD_PI_4 ((SIMD_PI)*0.25f)
 
-btTransform sliderTransform;
-btVector3 lowerSliderLimit = btVector3(-10, 0, 0);
-btVector3 hiSliderLimit = btVector3(10, 0, 0);
+static btTransform sliderTransform;
+static btVector3 lowerSliderLimit = btVector3(-10, 0, 0);
+static btVector3 hiSliderLimit = btVector3(10, 0, 0);
 
-btRigidBody* d6body0 = 0;
+static btRigidBody* d6body0 = 0;
 
-btHingeConstraint* spDoorHinge = NULL;
-btHingeConstraint* spHingeDynAB = NULL;
-btGeneric6DofConstraint* spSlider6Dof = NULL;
+static btHingeConstraint* spDoorHinge = NULL;
+static btHingeConstraint* spHingeDynAB = NULL;
+static btGeneric6DofConstraint* spSlider6Dof = NULL;
 
 static bool s_bTestConeTwistMotor = false;
 

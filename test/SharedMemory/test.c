@@ -37,7 +37,7 @@
 #define printf
 #endif
 
-void testSharedMemory(b3PhysicsClientHandle sm)
+static void testSharedMemory(b3PhysicsClientHandle sm)
 {
 	int i, dofCount, posVarCount, ret, numJoints;
 	int sensorJointIndexLeft = -1;
