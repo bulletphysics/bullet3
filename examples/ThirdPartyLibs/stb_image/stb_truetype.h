@@ -2107,11 +2107,17 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 						float t;
 						y0 = y_bottom - (y0 - y_top);
 						y1 = y_bottom - (y1 - y_top);
-						t = y0, y0 = y1, y1 = t;
-						t = x_bottom, x_bottom = x_top, x_top = t;
+						t = y0;
+						y0 = y1;
+						y1 = t;
+						t = x_bottom;
+						x_bottom = x_top;
+						x_top = t;
 						dx = -dx;
 						dy = -dy;
-						t = x0, x0 = xb, xb = t;
+						t = x0;
+						x0 = xb;
+						xb = t;
 					}
 
 					x1 = (int)x_top;
@@ -2440,7 +2446,8 @@ static void stbtt__rasterize(stbtt__bitmap *result, stbtt__point *pts, int *wcou
 			if (invert ? p[j].y > p[k].y : p[j].y < p[k].y)
 			{
 				e[n].invert = 1;
-				a = j, b = k;
+				a = j;
+				b = k;
 			}
 			e[n].x0 = p[a].x * scale_x + shift_x;
 			e[n].y0 = (p[a].y * y_scale_inv + shift_y) * (float)vsubsample;
@@ -2538,11 +2545,13 @@ static stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, 
 					++n;
 					start = num_points;
 
-					x = vertices[i].x, y = vertices[i].y;
+					x = vertices[i].x;
+					y = vertices[i].y;
 					stbtt__add_point(points, num_points++, x, y);
 					break;
 				case STBTT_vline:
-					x = vertices[i].x, y = vertices[i].y;
+					x = vertices[i].x;
+					y = vertices[i].y;
 					stbtt__add_point(points, num_points++, x, y);
 					break;
 				case STBTT_vcurve:
@@ -2550,7 +2559,8 @@ static stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, 
 										   vertices[i].cx, vertices[i].cy,
 										   vertices[i].x, vertices[i].y,
 										   objspace_flatness_squared, 0);
-					x = vertices[i].x, y = vertices[i].y;
+					x = vertices[i].x;
+					y = vertices[i].y;
 					break;
 			}
 		}
@@ -2698,14 +2708,24 @@ STBTT_DEF int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // fo
 
 	for (i = 0; i < num_chars; ++i)
 	{
-		int advance, lsb, x0, y0, x1, y1, gw, gh;
+		int advance;
+		int lsb;
+		int x0;
+		int y0;
+		int x1;
+		int y1;
+		int gw;
+		int gh;
 		int g = stbtt_FindGlyphIndex(&f, first_char + i);
 		stbtt_GetGlyphHMetrics(&f, g, &advance, &lsb);
 		stbtt_GetGlyphBitmapBox(&f, g, scale, scale, &x0, &y0, &x1, &y1);
 		gw = x1 - x0;
 		gh = y1 - y0;
 		if (x + gw + 1 >= pw)
-			y = bottom_y, x = 1;  // advance to next row
+		{
+			y = bottom_y;
+			x = 1;  // advance to next row
+		}
 		if (y + gh + 1 >= ph)     // check if it fits vertically AFTER potentially moving to next row
 			return -i;
 		STBTT_assert(x + gw < pw);

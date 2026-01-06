@@ -175,7 +175,7 @@ Hinge2Vehicle::Hinge2Vehicle(struct GUIHelperInterface* helper)
 	  m_minCameraDistance(3.f),
 	  m_maxCameraDistance(10.f)
 {
-	m_guiHelper = helper,
+	m_guiHelper = helper;
 	helper->setUpAxis(1);
 
 	m_wheelShape = 0;
