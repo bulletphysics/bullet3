@@ -201,7 +201,7 @@ std::string Path_MakeAbsolute(const std::string &sRelativePath, const std::strin
 
 		std::string sCompacted = Path_Compact(Path_Join(sBasePath, sRelativePath, slash), slash);
 		if (Path_IsAbsolute(sCompacted))
-			return sCompacted;
+			return {sCompacted};
 		else
 			return "";
 	}
@@ -379,7 +379,7 @@ std::string Path_Compact(const std::string &sRawPath, char slash)
 		}
 	}
 
-	return sPath;
+	return {sPath};
 }
 
 /** Returns the path to the current DLL or exe */
@@ -501,7 +501,7 @@ std::string Path_FindParentDirectoryRecursively(const std::string &strStartDirec
 	bool bExists = Path_Exists(strCurrentPath);
 	std::string strCurrentDirectoryName = Path_StripDirectory(strCurrentPath);
 	if (bExists && stricmp(strCurrentDirectoryName.c_str(), strDirectoryName.c_str()) == 0)
-		return strCurrentPath;
+		return {strCurrentPath};
 
 	while (bExists && strCurrentPath.length() != 0)
 	{
@@ -509,7 +509,7 @@ std::string Path_FindParentDirectoryRecursively(const std::string &strStartDirec
 		strCurrentDirectoryName = Path_StripDirectory(strCurrentPath);
 		bExists = Path_Exists(strCurrentPath);
 		if (bExists && stricmp(strCurrentDirectoryName.c_str(), strDirectoryName.c_str()) == 0)
-			return strCurrentPath;
+			return {strCurrentPath};
 	}
 
 	return "";
@@ -537,7 +537,7 @@ std::string Path_FindParentSubDirectoryRecursively(const std::string &strStartDi
 			break;
 		}
 	}
-	return strFoundPath;
+	return {strFoundPath};
 }
 
 //-----------------------------------------------------------------------------
@@ -740,7 +740,7 @@ std::string Path_FilePathToUrl(const std::string &sRelativePath, const std::stri
 	{
 		std::string sAbsolute = Path_MakeAbsolute(sRelativePath, sBasePath);
 		if (sAbsolute.empty())
-			return sAbsolute;
+			return {sAbsolute};
 		return std::string(FILE_URL_PREFIX) + sAbsolute;
 	}
 }
