@@ -194,7 +194,7 @@ struct BulletMJCFImporterInternalData
 
 	btAlignedObjectArray<UrdfModel*> m_models;
 
-	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/" inertiafromgeom="true"/>
+	// <compiler angle="radian" meshdir="mesh/" texturedir="texture/" inertiafromgeom="true"/>
 	std::string m_meshDir;
 	std::string m_textureDir;
 	std::string m_angleUnits;
@@ -1514,8 +1514,8 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 		m_data->m_fileModelName = modelName;
 	}
 
-	//<compiler>,<option>,<size>,<default>,<body>,<keyframe>,<contactpair>,
-	//<light>, <camera>,<constraint>,<tendon>,<actuator>,<customfield>,<textfield>
+	// <compiler>,<option>,<size>,<default>,<body>,<keyframe>,<contactpair>,
+	// <light>, <camera>,<constraint>,<tendon>,<actuator>,<customfield>,<textfield>
 
 	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("default"); link_xml; link_xml = link_xml->NextSiblingElement("default"))
 	{
