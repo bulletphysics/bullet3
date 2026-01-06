@@ -53,7 +53,7 @@ static int btGetNumHardwareThreads()
 
 static int btGetNumHardwareThreads()
 {
-	return btMax(1, btMin<int>(BT_MAX_THREAD_COUNT, sysconf(_SC_NPROCESSORS_ONLN)));
+	return btMax(1, btMin<int>(BT_MAX_THREAD_COUNT, (int)sysconf(_SC_NPROCESSORS_ONLN)));
 }
 
 #endif

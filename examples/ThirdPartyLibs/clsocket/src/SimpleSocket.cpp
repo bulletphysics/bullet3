@@ -585,7 +585,7 @@ int32 CSimpleSocket::Send(const struct iovec *sendVector, int32 nNumItems)
 	SetSocketError(SocketSuccess);
 	m_nBytesSent = 0;
 
-	if ((m_nBytesSent = (int32)WRITEV(m_socket, sendVector, (int)nNumItems)) == CSimpleSocket::SocketError)
+	if ((m_nBytesSent = (int32)WRITEV(m_socket, sendVector, (SOCKET_SIZE_TYPE)nNumItems)) == CSimpleSocket::SocketError)
 	{
 		TranslateSocketError();
 	}
@@ -750,7 +750,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 			do
 			{
 				m_nBytesReceived = (int32)RECV(m_socket, (pWorkBuffer + m_nBytesReceived),
-										(size_t)nMaxBytes, (int)m_nFlags);
+										(SOCKET_SIZE_TYPE_RECV_FROM)nMaxBytes, (SOCKET_FLAGS_TO_INT)m_nFlags);
 				TranslateSocketError();
 			} while ((GetSocketError() == CSimpleSocket::SocketInterrupted));
 
@@ -766,7 +766,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 			{
 				do
 				{
-					m_nBytesReceived = (int32)RECVFROM(m_socket, pWorkBuffer, (size_t)nMaxBytes, 0,
+					m_nBytesReceived = (int32)RECVFROM(m_socket, pWorkBuffer, (SOCKET_SIZE_TYPE_RECV_FROM)nMaxBytes, 0,
 												&m_stMulticastGroup, &srcSize);
 					TranslateSocketError();
 				} while (GetSocketError() == CSimpleSocket::SocketInterrupted);
@@ -775,7 +775,7 @@ int32 CSimpleSocket::Receive(int32 nMaxBytes, uint8 *pBuffer)
 			{
 				do
 				{
-					m_nBytesReceived = (int32)RECVFROM(m_socket, pWorkBuffer, (size_t)nMaxBytes, 0,
+					m_nBytesReceived = (int32)RECVFROM(m_socket, pWorkBuffer, (SOCKET_SIZE_TYPE_RECV_FROM)nMaxBytes, 0,
 												&m_stClientSockaddr, &srcSize);
 					TranslateSocketError();
 				} while (GetSocketError() == CSimpleSocket::SocketInterrupted);

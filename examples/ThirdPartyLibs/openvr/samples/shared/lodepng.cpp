@@ -6070,7 +6070,7 @@ void load_file(std::vector<unsigned char>& buffer, const std::string& filename)
 
 	/*get filesize*/
 	std::streamsize size = 0;
-	if (file.seekg(0, std::ios::end).good()) size = file.tellg();
+	if (file.seekg(0, std::ios::end).good()) size = (std::streamsize)file.tellg();
 	if (file.seekg(0, std::ios::beg).good()) size -= file.tellg();
 
 	/*read contents of the file into the vector*/

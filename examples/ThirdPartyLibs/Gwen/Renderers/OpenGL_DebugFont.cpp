@@ -329,8 +329,8 @@ void OpenGL_DebugFont::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen
 
 			if (ch >= 0)
 			{
-				float cx = (ch % 16) / 16.0f;
-				float cy = (ch / 16) / 16.0f;
+				float cx = (float)(ch % 16) / 16.0f;
+				float cy = (float)(ch / 16) / 16.0f;
 				uv_texcoords[0] = cx;
 				uv_texcoords[1] = cy;
 				uv_texcoords[4] = float(cx + 1.0f / 16.0f);
