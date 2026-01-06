@@ -731,6 +731,8 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 				gMaximumSpeed = true;
 				return true;
 			}
+			default:
+				break;
 		}
 		return CommonRigidBodyBase::keyboardCallback(key, state);
 	}

@@ -311,6 +311,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					sData->m_internalKeyModifierFlags &= ~INTERNAL_CONTROL_MODIFIER;
 					break;
 				}
+				default:
+					break;
 			}
 
 			if (keycode >= 0 && sData && sData->m_keyboardCallback)
@@ -357,6 +359,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					sData->m_internalKeyModifierFlags |= INTERNAL_CONTROL_MODIFIER;
 					break;
 				}
+				default:
+					break;
 			}
 			if (keycode >= 0 && sData && sData->m_keyboardCallback && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
@@ -517,6 +521,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//	//gDemoApplication->reshape(sWidth,sHeight);
 					//}
 					return 0;  // Return
+				default:
+					break;
 			}
 			break;
 

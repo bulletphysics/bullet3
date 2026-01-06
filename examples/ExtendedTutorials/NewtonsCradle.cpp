@@ -334,6 +334,8 @@ bool NewtonsCradleExample::keyboardCallback(int key, int /*state*/)
 			applyPendulumForce(gDisplacementForce);
 			return true;
 		}
+		default:
+			break;
 	}
 
 	return false;

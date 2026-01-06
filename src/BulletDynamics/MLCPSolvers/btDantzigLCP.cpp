@@ -516,7 +516,9 @@ void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
 			/* done factorizing 1 x 1 block */
 			break;
 
-			//default: *((char*)0)=0;  /* this should never happen! */
+		default:
+			//*((char*)0)=0;  /* this should never happen! */
+			break;
 	}
 }
 
@@ -2142,6 +2144,8 @@ bool btSolveDantzigLCP(int n, btScalar *A, btScalar *x, btScalar *b,
 						x[si] = hi[si];
 						scratchMem.state[si] = true;
 						lcp.transfer_i_from_C_to_N(si, scratchMem.m_scratch);
+						break;
+					default:
 						break;
 				}
 

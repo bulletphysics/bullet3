@@ -397,6 +397,8 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			m_calculatedAxis[2] = axis0.cross(m_calculatedAxis[1]);
 			break;
 		}
+		default:
+			break;
 	}
 
 	m_calculatedAxis[0].normalize();
@@ -576,6 +578,8 @@ int btGeneric6DofSpring2Constraint::setAngularLimits(btConstraintInfo2* info, in
 			cIdx[0] = 2;
 			cIdx[1] = 1;
 			cIdx[2] = 0;
+			break;
+		default:
 			break;
 	}
 

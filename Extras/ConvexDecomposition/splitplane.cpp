@@ -169,6 +169,8 @@ void splitRect(unsigned int axis,
 			b2.SetMax(source.mMax);
 
 			break;
+		default:
+			break;
 	}
 }
 
@@ -283,6 +285,8 @@ bool computeSplitPlane(unsigned int vcount,
 				p3[1] = bmax[1];
 			}
 
+			break;
+		default:
 			break;
 	}
 

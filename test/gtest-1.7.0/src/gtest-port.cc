@@ -274,6 +274,8 @@ bool AtomMatchesChar(bool escaped, char pattern_char, char ch)
 				return IsAsciiWordChar(ch);
 			case 'W':
 				return !IsAsciiWordChar(ch);
+			default:
+				break;
 		}
 		return IsAsciiPunct(pattern_char) && pattern_char == ch;
 	}

@@ -312,6 +312,8 @@ void calcConvexDecomposition(unsigned int vcount,
 					}
 
 					break;
+				default:
+					break;
 			}
 		}
 

@@ -2769,6 +2769,8 @@ B3_SHARED_API int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle
 				}
 				break;
 			}
+			default:
+				break;
 		}
 	}
 

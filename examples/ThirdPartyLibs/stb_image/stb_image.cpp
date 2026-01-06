@@ -1300,6 +1300,8 @@ static int process_marker(jpeg *z, int m)
 				L -= mm;
 			}
 			return L == 0;
+		default:
+			break;
 	}
 	// check for comment block or APP blocks
 	if ((m >= 0xE0 && m <= 0xEF) || m == 0xFE)
@@ -2438,6 +2440,8 @@ static int create_png_image_raw(png *a, uint8 *raw, uint32 raw_len, int out_n, u
 				case F_paeth_first:
 					cur[k] = raw[k];
 					break;
+				default:
+					break;
 			}
 		}
 		if (img_n != out_n) cur[img_n] = 255;
@@ -2474,6 +2478,8 @@ static int create_png_image_raw(png *a, uint8 *raw, uint32 raw_len, int out_n, u
 				CASE(F_paeth_first)
 				cur[k] = (uint8)(raw[k] + paeth(cur[k - img_n], 0, 0));
 				break;
+				default:
+				break;
 			}
 #undef CASE
 		}
@@ -2506,6 +2512,8 @@ static int create_png_image_raw(png *a, uint8 *raw, uint32 raw_len, int out_n, u
 				break;
 				CASE(F_paeth_first)
 				cur[k] = (uint8)(raw[k] + paeth(cur[k - out_n], 0, 0));
+				break;
+				default:
 				break;
 			}
 #undef CASE
@@ -3522,6 +3530,8 @@ static stbi_uc *tga_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 					trans_data[2] = raw_data[0];
 					trans_data[3] = raw_data[3];
 					break;
+				default:
+					break;
 			}
 			//   clear the reading flag for the next pixel
 			read_next_pixel = 0;
@@ -3550,6 +3560,8 @@ static stbi_uc *tga_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 				tga_data[i * req_comp + 1] = trans_data[1];
 				tga_data[i * req_comp + 2] = trans_data[2];
 				tga_data[i * req_comp + 3] = trans_data[3];
+				break;
+			default:
 				break;
 		}
 		//   in case we're in RLE mode, keep counting down
@@ -4491,6 +4503,8 @@ static void hdr_convert(float *output, stbi_uc *input, int req_comp)
 				output[1] = 1; /* fallthrough */
 			case 1:
 				output[0] = 0;
+				break;
+			default:
 				break;
 		}
 	}

@@ -4127,6 +4127,8 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
 			}
 		}
 		break;
+		default:
+		break;
 	}
 }
 

@@ -840,6 +840,8 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 					//glmesh = LoadMeshFromCollada(success.c_str());
 					break;
 				}
+				default:
+					break;
 			}
 
 			if (!glmesh || glmesh->m_numvertices <= 0)
@@ -1160,6 +1162,8 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 					break;
 				}
+				default:
+					break;
 			}  // switch file type
 
 			if (!glmesh || !glmesh->m_vertices || glmesh->m_numvertices <= 0)

@@ -1298,6 +1298,8 @@ void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 
 			return;
 		}
+		default:
+			break;
 	}
 
 	int split0 = start + n / 2;

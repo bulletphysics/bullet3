@@ -2085,6 +2085,9 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 					break;
 				}
+
+				default:
+					break;
 			}  // switch file type
 
 			if (!glmesh || !glmesh->m_vertices || glmesh->m_numvertices <= 0)

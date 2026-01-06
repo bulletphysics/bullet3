@@ -583,6 +583,8 @@ DBVT_INLINE int btDbvtAabbMm::Classify(const btVector3& n, btScalar o, int s) co
 			px = btVector3(mx.x(), mx.y(), mx.z());
 			pi = btVector3(mi.x(), mi.y(), mi.z());
 			break;
+		default:
+			break;
 	}
 	if ((btDot(n, px) + o) < 0) return (-1);
 	if ((btDot(n, pi) + o) >= 0) return (+1);
@@ -1386,6 +1388,8 @@ inline void btDbvt::collideKDOP(const btDbvtNode* root,
 						case +1:
 							se.mask |= j;
 							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -1458,6 +1462,8 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 								break;
 							case +1:
 								se.mask |= j;
+								break;
+							default:
 								break;
 						}
 					}

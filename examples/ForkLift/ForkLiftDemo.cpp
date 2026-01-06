@@ -817,6 +817,8 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					break;
 				}
+				default:
+					break;
 			}
 		}
 		else

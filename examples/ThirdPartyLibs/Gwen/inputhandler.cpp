@@ -266,6 +266,8 @@ bool Gwen::Input::OnMouseClicked(Controls::Base* pCanvas, int iMouseButton, bool
 				Gwen::HoveredControl->OnMouseClickRight(MousePosition.x, MousePosition.y, bDown);
 			return true;
 		}
+		default:
+			break;
 	}
 
 	return false;

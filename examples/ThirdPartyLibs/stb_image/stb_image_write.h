@@ -186,6 +186,8 @@ static void write_pixels(FILE *f, int rgb_dir, int vdir, int x, int y, int comp,
 				case 3:
 					write3(f, d[1 - rgb_dir], d[1], d[1 + rgb_dir]);
 					break;
+				default:
+					break;
 			}
 			if (write_alpha > 0)
 				fwrite(&d[comp - 1], 1, 1, f);
@@ -527,6 +529,8 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
 						case 6:
 							line_buffer[i] = z[i];
 							break;
+						default:
+							break;
 					}
 				for (i = n; i < x * n; ++i)
 				{
@@ -552,6 +556,8 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
 							break;
 						case 6:
 							line_buffer[i] = z[i] - stbi__paeth(z[i - n], 0, 0);
+							break;
+						default:
 							break;
 					}
 				}

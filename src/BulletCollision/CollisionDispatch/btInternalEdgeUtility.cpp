@@ -283,6 +283,8 @@ struct btConnectivityProcessor : public btTriangleCallback
 							info->m_flags |= TRI_INFO_V1V2_CONVEX;
 						break;
 					}
+					default:
+						break;
 				}
 
 				break;

@@ -266,6 +266,8 @@ struct GJK
 										   cs.c[3]->w,
 										   weights, mask);
 					break;
+				default:
+					break;
 			}
 			if (sqdist >= 0)
 			{ /* Valid	*/
@@ -370,6 +372,8 @@ struct GJK
 							   m_simplex->c[2]->w - m_simplex->c[3]->w)) > 0)
 					return (true);
 			}
+			break;
+			default:
 			break;
 		}
 		return (false);

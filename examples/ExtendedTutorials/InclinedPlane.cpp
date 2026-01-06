@@ -304,6 +304,8 @@ bool InclinedPlaneExample::keyboardCallback(int key, int /*state*/)
 			resetScene();
 			break;
 		}
+		default:
+			break;
 	}
 
 	return false;

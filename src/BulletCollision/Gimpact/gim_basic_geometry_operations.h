@@ -227,6 +227,8 @@ SIMD_FORCE_INLINE eLINE_PLANE_INTERSECTION_TYPE PLANE_CLIP_SEGMENT_CLOSEST(
 		case G_COLLIDE_PLANE_S2:
 			VEC_COPY(clipped2, s2);
 			break;
+		default:
+			break;
 	}
 	return intersection_type;
 }

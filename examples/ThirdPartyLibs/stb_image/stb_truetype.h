@@ -1060,12 +1060,16 @@ STBTT_DEF int stbtt_InitFont(stbtt_fontinfo *info, const unsigned char *data2, i
 						// MS/Unicode
 						info->index_map = cmap + ttULONG(data + encoding_record + 4);
 						break;
+					default:
+						break;
 				}
 				break;
 			case STBTT_PLATFORM_ID_UNICODE:
 				// Mac/iOS has these
 				// all the encodingIDs are unicode, so we don't bother to check it
 				info->index_map = cmap + ttULONG(data + encoding_record + 4);
+				break;
+			default:
 				break;
 		}
 	}
@@ -2561,6 +2565,8 @@ static stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, 
 										   objspace_flatness_squared, 0);
 					x = vertices[i].x;
 					y = vertices[i].y;
+					break;
+				default:
 					break;
 			}
 		}

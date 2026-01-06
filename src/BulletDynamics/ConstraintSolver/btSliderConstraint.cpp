@@ -741,6 +741,8 @@ void btSliderConstraint::setParam(int num, btScalar value, int axis)
 				btAssertConstrParams(0);
 			}
 			break;
+		default:
+				break;
 	}
 }
 
@@ -817,6 +819,8 @@ btScalar btSliderConstraint::getParam(int num, int axis) const
 			{
 				btAssertConstrParams(0);
 			}
+			break;
+		default:
 			break;
 	}
 	return retVal;

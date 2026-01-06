@@ -823,6 +823,8 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 			case 2:
 				drawOpenGL(m, colObj->getCollisionShape(), wireColor * btScalar(0.3), 0, aabbMin, aabbMax);
 				break;
+			default:
+				break;
 		}
 	}
 }

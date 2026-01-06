@@ -529,6 +529,8 @@ B3_DBVT_INLINE int b3DbvtAabbMm::Classify(const b3Vector3& n, b3Scalar o, int s)
 			px = b3MakeVector3(mx.x, mx.y, mx.z);
 			pi = b3MakeVector3(mi.x, mi.y, mi.z);
 			break;
+		default:
+			break;
 	}
 	if ((b3Dot(n, px) + o) < 0) return (-1);
 	if ((b3Dot(n, pi) + o) >= 0) return (+1);
@@ -1157,6 +1159,8 @@ inline void b3DynamicBvh::collideKDOP(const b3DbvtNode* root,
 						case +1:
 							se.mask |= j;
 							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -1229,6 +1233,8 @@ inline void b3DynamicBvh::collideOCL(const b3DbvtNode* root,
 								break;
 							case +1:
 								se.mask |= j;
+								break;
+							default:
 								break;
 						}
 					}

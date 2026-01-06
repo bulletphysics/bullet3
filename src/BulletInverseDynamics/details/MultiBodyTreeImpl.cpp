@@ -159,9 +159,6 @@ int MultiBodyTree::MultiBodyImpl::generateIndexSets()
 				body.m_q_index = q_index;
 				q_index += 3;
 				break;
-			default:
-				bt_id_error_message("unsupported joint type %d\n", body.m_joint_type);
-				return -1;
 		}
 	}
 	// sanity check
@@ -700,6 +697,8 @@ static inline void setThreeDoFJacobians(const int dof, vec3 &Jac_JR, vec3 &Jac_J
 			Jac_JR(2) = 1;
 			setZero(Jac_JT);
 			break;
+		default:
+			break;
 	}
 }
 
@@ -744,6 +743,8 @@ static inline void setSixDoFJacobians(const int dof, vec3 &Jac_JR, vec3 &Jac_JT)
 			Jac_JT(0) = 0;
 			Jac_JT(1) = 0;
 			Jac_JT(2) = 1;
+			break;
+		default:
 			break;
 	}
 }
