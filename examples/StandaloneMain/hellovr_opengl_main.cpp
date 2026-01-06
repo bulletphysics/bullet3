@@ -37,7 +37,28 @@ static int maxShapeCapacityInBytes = 128 * 1024 * 1024;
 #include <string>
 #include <cstdlib>
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunaligned-access"
+#endif
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 5204) // class has virtual functions, but its trivial destructor is not virtual
+#endif
 #include <openvr.h>
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #include "compat.h"
 #include "strtools.h"
 #include "lodepng.h"
@@ -2292,6 +2313,9 @@ int main(int argc, char *argv[])
 
 #ifndef B3_USE_GLFW
 #ifdef _WIN32
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
+#endif
 	//request disable VSYNC
 	typedef bool(APIENTRY * PFNWGLSWAPINTERVALFARPROC)(int);
 	PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT = 0;
