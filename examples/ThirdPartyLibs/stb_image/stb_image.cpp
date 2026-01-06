@@ -549,47 +549,74 @@ static unsigned char *convert_format(unsigned char *data, int img_n, int req_com
 		switch (COMBO(img_n, req_comp))
 		{
 			CASE(1, 2)
-			dest[0] = src[0],
+			{
+			dest[0] = src[0];
 			dest[1] = 255;
+			}
 			break;
 			CASE(1, 3)
+			{
 			dest[0] = dest[1] = dest[2] = src[0];
+			}
 			break;
 			CASE(1, 4)
-			dest[0] = dest[1] = dest[2] = src[0],
+			{
+			dest[0] = dest[1] = dest[2] = src[0];
 			dest[3] = 255;
+			}
 			break;
 			CASE(2, 1)
+			{
 			dest[0] = src[0];
+			}
 			break;
 			CASE(2, 3)
+			{
 			dest[0] = dest[1] = dest[2] = src[0];
+			}
 			break;
 			CASE(2, 4)
-			dest[0] = dest[1] = dest[2] = src[0],
+			{
+			dest[0] = dest[1] = dest[2] = src[0];
 			dest[3] = src[1];
+			}
 			break;
 			CASE(3, 4)
-			dest[0] = src[0],
-			dest[1] = src[1], dest[2] = src[2], dest[3] = 255;
+			{
+			dest[0] = src[0];
+			dest[1] = src[1];
+			dest[2] = src[2];
+			dest[3] = 255;
+			}
 			break;
 			CASE(3, 1)
+			{
 			dest[0] = compute_y(src[0], src[1], src[2]);
+			}
 			break;
 			CASE(3, 2)
-			dest[0] = compute_y(src[0], src[1], src[2]),
+			{
+			dest[0] = compute_y(src[0], src[1], src[2]);
 			dest[1] = 255;
+			}
 			break;
 			CASE(4, 1)
+			{
 			dest[0] = compute_y(src[0], src[1], src[2]);
+			}
 			break;
 			CASE(4, 2)
-			dest[0] = compute_y(src[0], src[1], src[2]),
+			{
+			dest[0] = compute_y(src[0], src[1], src[2]);
 			dest[1] = src[3];
+			}
 			break;
 			CASE(4, 3)
-			dest[0] = src[0],
-			dest[1] = src[1], dest[2] = src[2];
+			{
+			dest[0] = src[0];
+			dest[1] = src[1];
+			dest[2] = src[2];
+			}
 			break;
 			default:
 				assert(0);
@@ -1763,7 +1790,11 @@ static uint8 *load_jpeg_image(jpeg *z, int *out_x, int *out_y, int *comp, int re
 				if (n == 1)
 					for (i = 0; i < z->s->img_x; ++i) out[i] = y[i];
 				else
-					for (i = 0; i < z->s->img_x; ++i) *out++ = y[i], *out++ = 255;
+					for (i = 0; i < z->s->img_x; ++i)
+					{
+						*out++ = y[i];
+						*out++ = 255;
+					}
 			}
 		}
 		cleanup_jpeg(z);
@@ -2947,11 +2978,11 @@ static int high_bit(unsigned int z)
 {
 	int n = 0;
 	if (z == 0) return -1;
-	if (z >= 0x10000) n += 16, z >>= 16;
-	if (z >= 0x00100) n += 8, z >>= 8;
-	if (z >= 0x00010) n += 4, z >>= 4;
-	if (z >= 0x00004) n += 2, z >>= 2;
-	if (z >= 0x00002) n += 1, z >>= 1;
+	if (z >= 0x10000) { n += 16; z >>= 16; }
+	if (z >= 0x00100) { n += 8; z >>= 8; }
+	if (z >= 0x00010) { n += 4; z >>= 4; }
+	if (z >= 0x00004) { n += 2; z >>= 2; }
+	if (z >= 0x00002) { n += 1; z >>= 1; }
 	return n;
 }
 
@@ -3224,7 +3255,9 @@ static stbi_uc *bmp_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 			stbi_uc *p2 = out + (s->img_y - 1 - j) * s->img_x * target;
 			for (i = 0; i < (int)s->img_x * target; ++i)
 			{
-				t = p1[i], p1[i] = p2[i], p2[i] = t;
+				t = p1[i];
+				p1[i] = p2[i];
+				p2[i] = t;
 			}
 		}
 	}
@@ -3669,7 +3702,11 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 			if (channel >= channelCount)
 			{
 				// Fill this channel with default data.
-				for (i = 0; i < pixelCount; i++) *p = (channel == 3 ? 255 : 0), p += 4;
+				for (i = 0; i < pixelCount; i++) 
+				{
+					*p = (channel == 3 ? 255 : 0);
+					p += 4;
+				}
 			}
 			else
 			{
@@ -3728,13 +3765,20 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 			if (channel > channelCount)
 			{
 				// Fill this channel with default data.
-				for (i = 0; i < pixelCount; i++) *p = channel == 3 ? 255 : 0, p += 4;
+				for (i = 0; i < pixelCount; i++) 
+				{
+					*p = channel == 3 ? 255 : 0;
+					p += 4;
+				}
 			}
 			else
 			{
 				// Read the data.
 				for (i = 0; i < pixelCount; i++)
-					*p = get8u(s), p += 4;
+				{
+					*p = get8u(s);
+					p += 4;
+				}
 			}
 		}
 	}

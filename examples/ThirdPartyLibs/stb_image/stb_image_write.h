@@ -134,7 +134,9 @@ static void writefv(FILE *f, const char *fmt, va_list v)
 static void write3(FILE *f, unsigned char a, unsigned char b, unsigned char c)
 {
 	unsigned char arr[3];
-	arr[0] = a, arr[1] = b, arr[2] = c;
+	arr[0] = a;
+	arr[1] = b;
+	arr[2] = c;
 	fwrite(arr, 3, 1, f);
 }
 
@@ -148,9 +150,15 @@ static void write_pixels(FILE *f, int rgb_dir, int vdir, int x, int y, int comp,
 		return;
 
 	if (vdir < 0)
-		j_end = -1, j = y - 1;
+	{
+		j_end = -1;
+		j = y - 1;
+	}
 	else
-		j_end = y, j = 0;
+	{
+		j_end = y;
+		j = 0;
+	}
 
 	for (; j != j_end; j += vdir)
 	{
@@ -336,7 +344,11 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 			if (hlist[j] - data > i - 32768)
 			{  // if entry lies within window
 				int d = stbi__zlib_countm(hlist[j], data + i, data_len - i);
-				if (d >= best) best = d, bestloc = hlist[j];
+				if (d >= best)
+				{
+					best = d;
+					bestloc = hlist[j];
+				}
 			}
 		}
 		// when hash table entry is too long, delete half the entries
@@ -400,12 +412,20 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 
 	{
 		// compute adler32 on input
-		unsigned int ii = 0, s1 = 1, s2 = 0, blocklen = data_len % 5552;
+		unsigned int ii = 0;
+		unsigned int s1 = 1;
+		unsigned int s2 = 0;
+		unsigned int blocklen = data_len % 5552;
 		int jj = 0;
 		while (jj < data_len)
 		{
-			for (ii = 0; ii < blocklen; ++ii) s1 += data[jj + ii], s2 += s1;
-			s1 %= 65521, s2 %= 65521;
+			for (ii = 0; ii < blocklen; ++ii) 
+			{
+				s1 += data[jj + ii];
+				s2 += s1;
+			}
+			s1 %= 65521;
+			s2 %= 65521;
 			jj += blocklen;
 			blocklen = 5552;
 		}
