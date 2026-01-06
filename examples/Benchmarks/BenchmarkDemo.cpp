@@ -153,7 +153,7 @@ public:
 		sum_ms = 0;
 	}
 
-	btRaycastBar2(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper)
+	btRaycastBar2(btScalar ray_length, btScalar z, btScalar max_y_, struct GUIHelperInterface* guiHelper)
 	{
 		m_guiHelper = guiHelper;
 		frame_counter = 0;
@@ -165,7 +165,7 @@ public:
 		dx = 10.0;
 		min_x = 0;
 		max_x = 0;
-		this->max_y = max_y;
+		this->max_y = max_y_;
 		sign = 1.0;
 		btScalar dalpha = 2 * SIMD_2_PI / NUMRAYS;
 		for (int i = 0; i < NUMRAYS; i++)
@@ -177,7 +177,7 @@ public:
 			direction[i] = quatRotate(q, direction[i]);
 			direction[i] = direction[i] * ray_length;
 
-			source[i] = btVector3(min_x, max_y, z);
+			source[i] = btVector3(min_x, max_y_, z);
 			dest[i] = source[i] + direction[i];
 			dest[i][1] = -1000;
 			normal[i] = btVector3(1.0, 0.0, 0.0);
@@ -1188,6 +1188,8 @@ void BenchmarkDemo::createTest5()
 							btCapsuleShape* capsuleShape = new btCapsuleShape(capsuleRadius * r, capsuleHalf * r);
 							createRigidBody(capsuleMass * r, trans, capsuleShape);
 						}
+						break;
+						default:
 						break;
 					}
 

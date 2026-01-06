@@ -74,7 +74,7 @@ public:
 	struct Range
 	{
 		Range() {}
-		Range(btScalar min, btScalar max) : min(min), max(max) {}
+		Range(btScalar min_, btScalar max_) : min(min_), max(max_) {}
 
 		bool overlaps(const Range& other) const
 		{

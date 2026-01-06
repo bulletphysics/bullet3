@@ -258,7 +258,7 @@ class TriangleCollector : public btTriangleCallback
 public:
 	std::vector<btVector3> *triangles;
 
-	explicit TriangleCollector(std::vector<btVector3>* triangles) : triangles(triangles) {}
+	explicit TriangleCollector(std::vector<btVector3>* triangles_) : triangles(triangles_) {}
 	virtual ~TriangleCollector() {}
 
 	virtual void processTriangle(btVector3* triangle, int /*partId*/, int /*triangleIndex*/)

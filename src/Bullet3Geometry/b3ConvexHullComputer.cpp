@@ -61,7 +61,7 @@ public:
 		btInt64_t y;
 		btInt64_t z;
 
-		Point64(btInt64_t x, btInt64_t y, btInt64_t z) : x(x), y(y), z(z)
+		Point64(btInt64_t x_, btInt64_t y_, btInt64_t z_) : x(x_), y(y_), z(z_)
 		{
 		}
 
@@ -88,7 +88,7 @@ public:
 		{
 		}
 
-		Point32(btInt32_t x, btInt32_t y, btInt32_t z) : x(x), y(y), z(z), index(-1)
+		Point32(btInt32_t x_, btInt32_t y_, btInt32_t z_) : x(x_), y(y_), z(z_), index(-1)
 		{
 		}
 
@@ -148,11 +148,11 @@ public:
 		{
 		}
 
-		Int128(btUint64_t low, btUint64_t high) : low(low), high(high)
+		Int128(btUint64_t low_, btUint64_t high_) : low(low_), high(high_)
 		{
 		}
 
-		Int128(btUint64_t low) : low(low), high(0)
+		Int128(btUint64_t low_) : low(low_), high(0)
 		{
 		}
 
@@ -360,26 +360,26 @@ public:
 			isInt64 = true;
 		}
 
-		Rational128(const Int128& numerator, const Int128& denominator)
+		Rational128(const Int128& numerator_, const Int128& denominator_)
 		{
-			sign = numerator.getSign();
+			sign = numerator_.getSign();
 			if (sign >= 0)
 			{
-				this->numerator = numerator;
+				this->numerator = numerator_;
 			}
 			else
 			{
-				this->numerator = -numerator;
+				this->numerator = -numerator_;
 			}
-			int dsign = denominator.getSign();
+			int dsign = denominator_.getSign();
 			if (dsign >= 0)
 			{
-				this->denominator = denominator;
+				this->denominator = denominator_;
 			}
 			else
 			{
 				sign = -sign;
-				this->denominator = -denominator;
+				this->denominator = -denominator_;
 			}
 			isInt64 = false;
 		}
@@ -406,7 +406,7 @@ public:
 		{
 		}
 
-		PointR128(Int128 x, Int128 y, Int128 z, Int128 denominator) : x(x), y(y), z(z), denominator(denominator)
+		PointR128(Int128 x_, Int128 y_, Int128 z_, Int128 denominator_) : x(x_), y(y_), z(z_), denominator(denominator_)
 		{
 		}
 
@@ -676,9 +676,9 @@ private:
 	public:
 		PoolArray<T>* next;
 
-		PoolArray(int size) : size(size), next(NULL)
+		PoolArray(int size_) : size(size_), next(NULL)
 		{
-			array = (T*)b3AlignedAlloc(sizeof(T) * (size_t)size, 16);
+			array = (T*)b3AlignedAlloc(sizeof(T) * (size_t)size_, 16);
 		}
 
 		~PoolArray()

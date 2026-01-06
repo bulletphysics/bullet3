@@ -883,7 +883,7 @@ public:
 		sum_ms = 0;
 	}
 
-	btRaycastBar3(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper, int upAxisIndex)
+	btRaycastBar3(btScalar ray_length, btScalar z, btScalar max_y_, struct GUIHelperInterface* guiHelper, int upAxisIndex)
 	{
 
 		m_guiHelper = guiHelper;
@@ -896,7 +896,7 @@ public:
 		dx = 10.0;
 		min_x = 0;
 		max_x = 0;
-		this->max_y = max_y;
+		this->max_y = max_y_;
 		sign = 1.0;
 		btScalar dalpha = 2 * SIMD_2_PI / NUMRAYS2;
 		for (int i = 0; i < NUMRAYS2; i++)
@@ -913,11 +913,11 @@ public:
 
 			if (upAxisIndex == 1)
 			{
-				source[i] = btVector3(min_x, max_y, z);
+				source[i] = btVector3(min_x, max_y_, z);
 			}
 			else
 			{
-				source[i] = btVector3(min_x, z, max_y);
+				source[i] = btVector3(min_x, z, max_y_);
 			}
 			dest[i] = source[i] + direction[i];
 			dest[i][upAxisIndex] = -1000;
