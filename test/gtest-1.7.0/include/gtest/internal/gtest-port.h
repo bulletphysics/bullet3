@@ -1929,7 +1929,14 @@ inline const char* GetEnv(const char* name)
 // imitation of standard behaviour.
 void Abort();
 #else
-inline void Abort()
+
+#if defined(__GNUC__)
+#define ANNOTATE_NORETURN __attribute((noreturn))
+#else
+#define ANNOTATE_NORETURN
+#endif
+
+ANNOTATE_NORETURN inline void Abort()
 {
 	abort();
 }

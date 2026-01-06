@@ -26,7 +26,14 @@ static OpenGLExampleBrowser* sExampleBrowser = 0;
 #include <signal.h>
 #include <err.h>
 #include <unistd.h>
-static void cleanup(int signo)
+
+#if defined(__GNUC__)
+#define ANNOTATE_NORETURN __attribute((noreturn))
+#else
+#define ANNOTATE_NORETURN
+#endif
+
+static ANNOTATE_NORETURN void cleanup(int signo)
 {
 	if (!interrupted)
 	{  // this is the second time, we're hanging somewhere
