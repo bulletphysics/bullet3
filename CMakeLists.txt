@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
@@ -90,7 +90,6 @@ IF(MSVC)
 
 		SET(CMAKE_EXTRA_LINK_FLAGS ${replacementFlag3})
 
-
 		STRING(REPLACE "INCREMENTAL:YES" "INCREMENTAL:NO" replacementFlags3 "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
 		SET(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${replacementFlags3})
 		SET(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "/INCREMENTAL:NO ${replacementFlags3}" )
@@ -166,8 +165,6 @@ IF(MSVC)
 
 	OPTION(USE_MSVC_EXEPTIONS "Use MSVC C++ exceptions option"	OFF)
 
-
-
 	OPTION(USE_MSVC_COMDAT_FOLDING "Use MSVC /OPT:ICF COMDAT folding option"	ON)
 
 	IF(USE_MSVC_COMDAT_FOLDING)
@@ -186,7 +183,6 @@ IF(MSVC)
 ENDIF(MSVC)
 
 
-
 IF (WIN32)
 OPTION(INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES "Create MSVC projectfiles that can be distributed" OFF)
 
@@ -202,16 +198,12 @@ ELSE()
 ENDIF()
 
 
-
 OPTION(INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES "Create MSVC projectfiles with relative paths" OFF)
 OPTION(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES "Add MSVC postfix for executable names (_Debug)" OFF)
 
 SET(CMAKE_DEBUG_POSTFIX "_Debug" CACHE STRING "Adds a postfix for debug-built libraries.")
 SET(CMAKE_MINSIZEREL_POSTFIX "_MinsizeRel" CACHE STRING "Adds a postfix for MinsizeRelease-built libraries.")
 SET(CMAKE_RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo" CACHE STRING "Adds a postfix for ReleaseWithDebug-built libraries.")
-
-
-
 
 
 IF (INTERNAL_CREATE_MSVC_RELATIVE_PATH_PROJECTFILES)
@@ -223,8 +215,6 @@ ENDIF (WIN32)
 
 
 OPTION(BUILD_CPU_DEMOS "Build original Bullet CPU examples" ON)
-
-
 
 OPTION(INTERNAL_UPDATE_SERIALIZATION_STRUCTURES "Internal update serialization structures" OFF)
 IF (INTERNAL_UPDATE_SERIALIZATION_STRUCTURES)
@@ -295,9 +285,8 @@ IF (USE_GLUT AND MSVC)
 ENDIF()
 
 
-
 ELSE(WIN32)
-OPTION(USE_GLUT "Use Glut"	ON)
+   OPTION(USE_GLUT "Use Glut"	ON)
 ENDIF(WIN32)
 
 
@@ -436,12 +425,10 @@ IF(BUILD_BULLET2_DEMOS)
 ENDIF(BUILD_BULLET2_DEMOS)
 
 
-
 OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
 IF(BUILD_EXTRAS)
   SUBDIRS(Extras)
 ENDIF(BUILD_EXTRAS)
-
 
 
 SUBDIRS(src)
