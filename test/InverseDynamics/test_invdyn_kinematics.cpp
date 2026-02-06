@@ -240,10 +240,10 @@ static int calculateDifferentiationError(const MultiBodyTreeCreator& creator, id
 	{
 		for (int body = 0; body < tree->numBodies(); body++)
 		{
-			q(body) = kAmplitude * (idScalar)sin(t * 2.0 * BT_ID_PI * kFrequency);
-			dot_q(body) = kAmplitude * idScalar(2.0) * BT_ID_PI * kFrequency * (idScalar)cos(t * 2.0 * BT_ID_PI * kFrequency);
+			q(body) = kAmplitude * sin(t * idScalar(2.0) * BT_ID_PI * kFrequency);
+			dot_q(body) = kAmplitude * idScalar(2.0) * BT_ID_PI * kFrequency * cos(t * idScalar(2.0) * BT_ID_PI * kFrequency);
 			ddot_q(body) =
-				-kAmplitude * (idScalar)pow(2.0 * BT_ID_PI * kFrequency, 2) * (idScalar)sin(t * 2.0 * BT_ID_PI * kFrequency);
+				(idScalar)(-kAmplitude * pow(idScalar(2.0) * BT_ID_PI * kFrequency, 2) * sin(t * idScalar(2.0) * BT_ID_PI * kFrequency));
 		}
 
 		if (-1 == tree->calculateInverseDynamics(q, dot_q, ddot_q, &joint_forces))
