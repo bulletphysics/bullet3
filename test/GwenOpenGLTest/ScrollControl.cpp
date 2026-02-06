@@ -60,7 +60,7 @@ public:
 			pCtrl->SetScroll(true, false);
 
 			Controls::Button* pTestButton = new Controls::Button(pCtrl);
-			pTestButton->SetText(L"Horinzontal");
+			pTestButton->SetText(L"Horizontal");
 			pTestButton->SetBounds(0, 0, 200, 200);
 		}
 
@@ -124,7 +124,7 @@ public:
 			pCtrl->SetScroll(true, false);
 
 			Controls::Button* pTestButton = new Controls::Button(pCtrl);
-			pTestButton->SetText(L"Horinzontal");
+			pTestButton->SetText(L"Horizontal");
 			pTestButton->SetBounds(0, 0, 200, 200);
 		}
 	}

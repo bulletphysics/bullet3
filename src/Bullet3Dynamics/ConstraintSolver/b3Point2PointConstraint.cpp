@@ -38,7 +38,7 @@ void b3Point2PointConstraint::getInfo1(b3ConstraintInfo1* info, const b3RigidBod
 	getInfo1NonVirtual(info, bodies);
 }
 
-void b3Point2PointConstraint::getInfo1NonVirtual(b3ConstraintInfo1* info, const b3RigidBodyData* bodies)
+void b3Point2PointConstraint::getInfo1NonVirtual(b3ConstraintInfo1* info, const b3RigidBodyData* /*bodies*/)
 {
 	info->m_numConstraintRows = 3;
 	info->nub = 3;

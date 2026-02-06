@@ -20,10 +20,10 @@ void btFractureBody::recomputeConnectivity(btCollisionWorld* world)
 				{
 					bool m_connected;
 					btScalar m_margin;
-					MyContactResultCallback() : m_connected(false), m_margin(0.05)
+					MyContactResultCallback() : m_connected(false), m_margin(btScalar(0.05))
 					{
 					}
-					virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+					virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* /*colObj0Wrap*/, int /*partId0*/, int /*index0*/, const btCollisionObjectWrapper* /*colObj1Wrap*/, int /*partId1*/, int /*index1*/)
 					{
 						if (cp.getDistance() <= m_margin)
 							m_connected = true;
@@ -59,11 +59,11 @@ btCompoundShape* btFractureBody::shiftTransformDistributeMass(btCompoundShape* b
 {
 	btVector3 principalInertia;
 
-	btScalar* masses = new btScalar[boxCompound->getNumChildShapes()];
+	btScalar* masses = new btScalar[(size_t)boxCompound->getNumChildShapes()];
 	for (int j = 0; j < boxCompound->getNumChildShapes(); j++)
 	{
 		//evenly distribute mass
-		masses[j] = mass / boxCompound->getNumChildShapes();
+		masses[j] = mass / (btScalar)boxCompound->getNumChildShapes();
 	}
 
 	return shiftTransform(boxCompound, masses, shift, principalInertia);

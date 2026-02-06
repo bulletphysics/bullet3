@@ -866,24 +866,24 @@ bool MuJoCoPhysicsServerCommandProcessor::processRequestActualStateCommand(const
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[5] = 0;
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] = 1;
 
-				//base position in world space, carthesian
+				//base position in world space, cartesian
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = pos[0];
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[1] = pos[1];
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[2] = pos[2];
 
-				//base orientation, quaternion x,y,z,w, in world space, carthesian
+				//base orientation, quaternion x,y,z,w, in world space, cartesian
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[3] = orn[0];
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[4] = orn[1];
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[5] = orn[2];
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[6] = orn[3];
 				totalDegreeOfFreedomQ += 7;  //pos + quaternion
 
-				//base linear velocity (in world space, carthesian)
+				//base linear velocity (in world space, cartesian)
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = cvel[3];  //mb->getBaseVel()[0];
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = cvel[4];  //mb->getBaseVel()[1];
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = cvel[5];  //mb->getBaseVel()[2];
 
-				//base angular velocity (in world space, carthesian)
+				//base angular velocity (in world space, cartesian)
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = cvel[0];  //mb->getBaseOmega()[0];
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = cvel[1];  //mb->getBaseOmega()[1];
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = cvel[2];  //mb->getBaseOmega()[2];

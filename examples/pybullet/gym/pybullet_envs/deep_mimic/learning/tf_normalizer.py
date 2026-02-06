@@ -18,7 +18,7 @@ class TFNormalizer(Normalizer):
       self._build_resource_tf()
     return
 
-  # initialze count when loading saved values so that things don't change to quickly during updates
+  # initialize count when loading saved values so that things don't change to quickly during updates
   def load(self):
     self.count = self.count_tf.eval()[0]
     self.mean = self.mean_tf.eval()

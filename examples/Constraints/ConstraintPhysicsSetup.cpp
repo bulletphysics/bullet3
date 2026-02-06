@@ -44,7 +44,7 @@ void ConstraintPhysicsSetup::stepSimulation(float deltaTime)
 	{
 		spDoorHinge->enableAngularMotor(true, targetVel, maxImpulse);
 
-		m_dynamicsWorld->stepSimulation(deltaTime, 10, 1. / 240.);
+		m_dynamicsWorld->stepSimulation(deltaTime, 10, btScalar(1. / 240.));
 
 		btHingeConstraint* hinge = spDoorHinge;
 

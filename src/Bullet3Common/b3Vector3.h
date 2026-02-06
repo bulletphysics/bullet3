@@ -91,7 +91,7 @@ public:
 	union {
 		b3SimdFloat4 mVec128;
 		float m_floats[4];
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			float x, y, z, w;
 		};
@@ -99,7 +99,7 @@ public:
 #else
 	union {
 		float m_floats[4];
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			float x, y, z, w;
 		};
@@ -128,7 +128,7 @@ public:
 
 public:
 	/**@brief Add a vector to this one
- * @param The vector to add to this one */
+ * @param v The vector to add to this one */
 	B3_FORCE_INLINE b3Vector3& operator+=(const b3Vector3& v)
 	{
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
@@ -144,7 +144,7 @@ public:
 	}
 
 	/**@brief Subtract a vector from this one
-   * @param The vector to subtract */
+   * @param v The vector to subtract */
 	B3_FORCE_INLINE b3Vector3& operator-=(const b3Vector3& v)
 	{
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
@@ -203,15 +203,15 @@ public:
 	{
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
 		__m128 vd = _mm_mul_ps(mVec128, v.mVec128);
-		__m128 z = _mm_movehl_ps(vd, vd);
-		__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
-		vd = _mm_add_ss(vd, y);
-		vd = _mm_add_ss(vd, z);
+		__m128 zl = _mm_movehl_ps(vd, vd);
+		__m128 yl = _mm_shuffle_ps(vd, vd, 0x55);
+		vd = _mm_add_ss(vd, yl);
+		vd = _mm_add_ss(vd, zl);
 		return _mm_cvtss_f32(vd);
 #elif defined(B3_USE_NEON)
 		float32x4_t vd = vmulq_f32(mVec128, v.mVec128);
-		float32x2_t x = vpadd_f32(vget_low_f32(vd), vget_low_f32(vd));
-		x = vadd_f32(x, vget_high_f32(vd));
+		float32x2_t xl = vpadd_f32(vget_low_f32(vd), vget_low_f32(vd));
+		xl = vadd_f32(xl, vget_high_f32(vd));
 		return vget_lane_f32(x, 0);
 #else
 		return m_floats[0] * v.m_floats[0] +
@@ -233,11 +233,11 @@ public:
 	}
 
 	/**@brief Return the distance squared between the ends of this and another vector
-   * This is symantically treating the vector like a point */
+   * This is semantically treating the vector like a point */
 	B3_FORCE_INLINE b3Scalar distance2(const b3Vector3& v) const;
 
 	/**@brief Return the distance between the ends of this and another vector
-   * This is symantically treating the vector like a point */
+   * This is semantically treating the vector like a point */
 	B3_FORCE_INLINE b3Scalar distance(const b3Vector3& v) const;
 
 	B3_FORCE_INLINE b3Vector3& safeNormalize()
@@ -262,10 +262,10 @@ public:
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
 		// dot product first
 		__m128 vd = _mm_mul_ps(mVec128, mVec128);
-		__m128 z = _mm_movehl_ps(vd, vd);
-		__m128 y = _mm_shuffle_ps(vd, vd, 0x55);
-		vd = _mm_add_ss(vd, y);
-		vd = _mm_add_ss(vd, z);
+		__m128 zl = _mm_movehl_ps(vd, vd);
+		__m128 yl = _mm_shuffle_ps(vd, vd, 0x55);
+		vd = _mm_add_ss(vd, yl);
+		vd = _mm_add_ss(vd, zl);
 
 #if 0
         vd = _mm_sqrt_ss(vd);
@@ -275,20 +275,20 @@ public:
 #else
 
 		// NR step 1/sqrt(x) - vd is x, y is output
-		y = _mm_rsqrt_ss(vd);  // estimate
+		yl = _mm_rsqrt_ss(vd);  // estimate
 
 		//  one step NR
-		z = b3v1_5;
+		zl = b3v1_5;
 		vd = _mm_mul_ss(vd, b3vHalf);  // vd * 0.5
 		//x2 = vd;
-		vd = _mm_mul_ss(vd, y);  // vd * 0.5 * y0
-		vd = _mm_mul_ss(vd, y);  // vd * 0.5 * y0 * y0
-		z = _mm_sub_ss(z, vd);   // 1.5 - vd * 0.5 * y0 * y0
+		vd = _mm_mul_ss(vd, yl);  // vd * 0.5 * y0
+		vd = _mm_mul_ss(vd, yl);  // vd * 0.5 * y0 * y0
+		zl = _mm_sub_ss(zl, vd);   // 1.5 - vd * 0.5 * y0 * y0
 
-		y = _mm_mul_ss(y, z);  // y0 * (1.5 - vd * 0.5 * y0 * y0)
+		yl = _mm_mul_ss(yl, zl);  // y0 * (1.5 - vd * 0.5 * y0 * y0)
 
-		y = b3_splat_ps(y, 0x80);
-		mVec128 = _mm_mul_ps(mVec128, y);
+		yl = b3_splat_ps(yl, 0x80);
+		mVec128 = _mm_mul_ps(mVec128, yl);
 
 #endif
 
@@ -386,10 +386,10 @@ public:
 
 		// dot:
 		V = _mm_mul_ps(V, mVec128);
-		__m128 z = _mm_movehl_ps(V, V);
-		__m128 y = _mm_shuffle_ps(V, V, 0x55);
-		V = _mm_add_ss(V, y);
-		V = _mm_add_ss(V, z);
+		__m128 zl = _mm_movehl_ps(V, V);
+		__m128 yl = _mm_shuffle_ps(V, V, 0x55);
+		V = _mm_add_ss(V, yl);
+		V = _mm_add_ss(V, zl);
 		return _mm_cvtss_f32(V);
 
 #elif defined(B3_USE_NEON)
@@ -410,9 +410,9 @@ public:
 
 		// dot:
 		V = vmulq_f32(mVec128, V);
-		float32x2_t x = vpadd_f32(vget_low_f32(V), vget_low_f32(V));
-		x = vadd_f32(x, vget_high_f32(V));
-		return vget_lane_f32(x, 0);
+		float32x2_t xl = vpadd_f32(vget_low_f32(V), vget_low_f32(V));
+		xl = vadd_f32(xl, vget_high_f32(V));
+		return vget_lane_f32(xl, 0);
 #else
 		return m_floats[0] * (v1.m_floats[1] * v2.m_floats[2] - v1.m_floats[2] * v2.m_floats[1]) +
 			   m_floats[1] * (v1.m_floats[2] * v2.m_floats[0] - v1.m_floats[0] * v2.m_floats[2]) +
@@ -522,13 +522,13 @@ public:
 	B3_FORCE_INLINE const b3Scalar& getW() const { return m_floats[3]; }
 
 	/**@brief Set the x value */
-	B3_FORCE_INLINE void setX(b3Scalar _x) { m_floats[0] = _x; };
+	B3_FORCE_INLINE void setX(b3Scalar _x) { m_floats[0] = _x; }
 	/**@brief Set the y value */
-	B3_FORCE_INLINE void setY(b3Scalar _y) { m_floats[1] = _y; };
+	B3_FORCE_INLINE void setY(b3Scalar _y) { m_floats[1] = _y; }
 	/**@brief Set the z value */
-	B3_FORCE_INLINE void setZ(b3Scalar _z) { m_floats[2] = _z; };
+	B3_FORCE_INLINE void setZ(b3Scalar _z) { m_floats[2] = _z; }
 	/**@brief Set the w value */
-	B3_FORCE_INLINE void setW(b3Scalar _w) { m_floats[3] = _w; };
+	B3_FORCE_INLINE void setW(b3Scalar _w) { m_floats[3] = _w; }
 
 	//B3_FORCE_INLINE b3Scalar&       operator[](int i)       { return (&m_floats[0])[i];	}
 	//B3_FORCE_INLINE const b3Scalar& operator[](int i) const { return (&m_floats[0])[i]; }
@@ -697,7 +697,7 @@ public:
 	}
 };
 
-/**@brief Return the sum of two vectors (Point symantics)*/
+/**@brief Return the sum of two vectors (Point semantics)*/
 B3_FORCE_INLINE b3Vector3
 operator+(const b3Vector3& v1, const b3Vector3& v2)
 {
@@ -907,7 +907,7 @@ B3_FORCE_INLINE b3Vector3 b3Vector3::normalized() const
 
 B3_FORCE_INLINE b3Vector3 b3Vector3::rotate(const b3Vector3& wAxis, const b3Scalar _angle) const
 {
-	// wAxis must be a unit lenght vector
+	// wAxis must be a unit length vector
 
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
 
@@ -985,7 +985,7 @@ B3_FORCE_INLINE long b3Vector3::maxDot(const b3Vector3* array, long array_count,
 		return ptIndex;
 	}
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
-	return b3_maxdot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return b3_maxdot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif
 }
 
@@ -1025,7 +1025,7 @@ B3_FORCE_INLINE long b3Vector3::minDot(const b3Vector3* array, long array_count,
 		return ptIndex;
 	}
 #if defined(B3_USE_SSE) || defined(B3_USE_NEON)
-	return b3_mindot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return b3_mindot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif
 }
 
@@ -1100,6 +1100,7 @@ public:
 			minIndex = 3;
 			minVal = m_floats[3];
 		}
+		(void)minVal;
 
 		return minIndex;
 	}
@@ -1123,10 +1124,10 @@ public:
 		}
 */
 	/**@brief Set the values
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	B3_FORCE_INLINE void setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w)
 	{

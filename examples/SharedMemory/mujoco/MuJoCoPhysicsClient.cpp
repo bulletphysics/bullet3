@@ -157,7 +157,7 @@ void MuJoCoPhysicsClient::resetData()
 	m_data->m_userConstraintInfoMap.clear();
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool MuJoCoPhysicsClient::connect()
 {
 	bool connected = m_data->m_commandProcessor->connect();
@@ -192,7 +192,7 @@ bool MuJoCoPhysicsClient::connect()
 	return connected;
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool MuJoCoPhysicsClient::connect(struct GUIHelperInterface* guiHelper)
 {
 	bool connected = m_data->m_commandProcessor->connect();

@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
 	server = enet_host_create(&address,
 							  32, /* number of clients */
 							  2,  /* number of channels */
-							  0,  /* Any incoming bandwith */
-							  0); /* Any outgoing bandwith */
+							  0,  /* Any incoming bandwidth */
+							  0); /* Any outgoing bandwidth */
 
 	if (server == NULL)
 	{

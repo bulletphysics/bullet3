@@ -9,7 +9,7 @@ extern int numX;
 // (c) Stan Melax 2006
 // http://www.melax.com/cloth
 // freeware demo and source
-// Although its free software, I'll gaurantee and support this software as much as is reasonable.
+// Although its free software, I'll guarantee and support this software as much as is reasonable.
 // However, if you choose to use any of this code, then you agree that
 // I assume no financial liability should the software not meet your expectations.
 // But do feel free to send any feedback.
@@ -19,7 +19,7 @@ extern int numX;
 // The remainder of the code builds a cloth system with basic render support, I/O, and manipulators,
 // so its possible to make use of the technology within a 3D application.
 // This code is separated from the SpringNetwork class in order to avoid pushing a particular style
-// and prevent any dependancies of the algorithms onto unrelated systems.
+// and prevent any dependencies of the algorithms onto unrelated systems.
 // Feel free to adapt any of this into your own 3D engine/environment.
 //
 // Instead of having unique Hooke force and damping coefficients on each spring, the SpringNetwork
@@ -99,7 +99,7 @@ SpringNetwork::Spring &SpringNetwork::AddBlocks(Spring &s)
 	// Called during initial creation of springs in our spring network.
 	// Sets up the sparse matrices corresponding to connections.
 	// Note the indices (s.iab,s.iba) are also stored with spring to avoid looking them up each time a spring is applied
-	// All 3 matrices A,dFdX, and dFdV are contstructed identically so the block array layout will be the same for each.
+	// All 3 matrices A,dFdX, and dFdV are constructed identically so the block array layout will be the same for each.
 	s.iab = A.blocks.count;  // added 'ab' blocks will have this index.
 	A.blocks.Add(float3Nx3N::Block(s.a, s.b));
 	dFdX.blocks.Add(float3Nx3N::Block(s.a, s.b));
@@ -115,7 +115,7 @@ void SpringNetwork::PreSolveSpring(const SpringNetwork::Spring &s)
 {
 	// Adds this spring's contribution into force vector F and force derivitves dFdX and dFdV
 	// One optimization would be premultiply dfdx by dt*dt and F and dFdV by dt right here in this function.
-	// However, for educational purposes we wont do that now and intead just follow the paper directly.
+	// However, for educational purposes we won't do that now and instead just follow the paper directly.
 	//assert(dFdX.blocks[s.a].c==s.a);  // delete this assert, no bugs here
 	//assert(dFdX.blocks[s.a].r==s.a);
 	float3 extent = X[s.b] - X[s.a];

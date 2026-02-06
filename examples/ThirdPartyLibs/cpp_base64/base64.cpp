@@ -151,7 +151,7 @@ std::string base64_decode(std::string const& encoded_string, bool remove_linebre
     size_t pos = 0;
 
  //
- // The approximate length (bytes) of the decoded string might be one ore
+ // The approximate length (bytes) of the decoded string might be one or
  // two bytes smaller, depending on the amount of trailing equal signs
  // in the encoded string. This approximation is needed to reserve
  // enough space in the string to be returned.

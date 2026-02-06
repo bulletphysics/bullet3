@@ -89,7 +89,7 @@ plCollisionObjectHandle plCreateCollisionObject(plCollisionSdkHandle collisionSd
 	return sdk->createCollisionObject(worldHandle, userData, userIndex, cshape, childPos, childOrn);
 }
 
-void plDeleteCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionObjectHandle body)
+void plDeleteCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle /*worldHandle*/, plCollisionObjectHandle body)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*)collisionSdkHandle;
 	sdk->deleteCollisionObject(body);

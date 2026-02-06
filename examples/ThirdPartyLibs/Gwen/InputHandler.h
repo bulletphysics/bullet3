@@ -53,7 +53,7 @@ enum
 	Redo,
 	SelectAll
 };
-};
+}
 
 // For use in panels
 bool GWEN_EXPORT IsKeyDown(int iKey);
@@ -74,6 +74,6 @@ bool GWEN_EXPORT OnMouseClicked(Controls::Base* pCanvas, int iButton, bool bDown
 bool GWEN_EXPORT OnKeyEvent(Controls::Base* pCanvas, int iKey, bool bDown);
 void GWEN_EXPORT OnCanvasThink(Controls::Base* pControl);
 
-};  // namespace Input
+}  // namespace Input
 }  // namespace Gwen
 #endif

@@ -605,7 +605,7 @@ void btSortedOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroad
 	processAllOverlappingPairs(&removeCallback, dispatcher);
 }
 
-void btSortedOverlappingPairCache::sortOverlappingPairs(btDispatcher* dispatcher)
+void btSortedOverlappingPairCache::sortOverlappingPairs(btDispatcher* /*dispatcher*/)
 {
 	//should already be sorted
 }

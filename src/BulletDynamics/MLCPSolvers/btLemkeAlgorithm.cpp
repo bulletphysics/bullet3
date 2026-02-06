@@ -26,7 +26,7 @@ subject to the following restrictions:
 using namespace std;
 #endif  //BT_DEBUG_OSTREAM
 
-btScalar btMachEps()
+static btScalar btMachEps()
 {
 	static bool calculated = false;
 	static btScalar machEps = btScalar(1.);
@@ -44,7 +44,7 @@ btScalar btMachEps()
 	return machEps;
 }
 
-btScalar btEpsRoot()
+static btScalar btEpsRoot()
 {
 	static btScalar epsroot = 0.;
 	static bool alreadyCalculated = false;
@@ -316,7 +316,7 @@ int btLemkeAlgorithm::findLexicographicMinimum(const btMatrixXu& A, const int& p
 	return 0;
 }
 
-void btLemkeAlgorithm::GaussJordanEliminationStep(btMatrixXu& A, int pivotRowIndex, int pivotColumnIndex, const btAlignedObjectArray<int>& basis)
+void btLemkeAlgorithm::GaussJordanEliminationStep(btMatrixXu& A, int pivotRowIndex, int pivotColumnIndex, const btAlignedObjectArray<int>& /*basis*/)
 {
 	btScalar a = -1 / A(pivotRowIndex, pivotColumnIndex);
 #ifdef BT_DEBUG_OSTREAM

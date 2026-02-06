@@ -55,7 +55,7 @@ class GWEN_EXPORT Slider : public Base
 	virtual float CalculateValue();
 	virtual void OnMoved(Controls::Base* control);
 
-	virtual void OnMouseClickLeft(int /*x*/, int /*y*/, bool /*bDown*/){};
+	virtual void OnMouseClickLeft(int /*x*/, int /*y*/, bool /*bDown*/){}
 
 	virtual bool OnKeyRight(bool bDown)
 	{

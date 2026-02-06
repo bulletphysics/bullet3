@@ -78,7 +78,7 @@ bool btCollisionWorldImporter::convertAllObjects(btBulletSerializedArrays* array
 		if (shapePtr && *shapePtr)
 		{
 			btTransform startTransform;
-			colObjData->m_worldTransform.m_origin.m_floats[3] = 0.f;
+			colObjData->m_worldTransform.m_origin.m_floats[3] = btScalar(0.f);
 			startTransform.deSerializeDouble(colObjData->m_worldTransform);
 
 			btCollisionShape* shape = (btCollisionShape*)*shapePtr;
@@ -110,7 +110,7 @@ bool btCollisionWorldImporter::convertAllObjects(btBulletSerializedArrays* array
 		if (shapePtr && *shapePtr)
 		{
 			btTransform startTransform;
-			colObjData->m_worldTransform.m_origin.m_floats[3] = 0.f;
+			colObjData->m_worldTransform.m_origin.m_floats[3] = btScalar(0.f);
 			startTransform.deSerializeFloat(colObjData->m_worldTransform);
 
 			btCollisionShape* shape = (btCollisionShape*)*shapePtr;
@@ -251,7 +251,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 			btVector3 planeNormal, localScaling;
 			planeNormal.deSerializeFloat(planeData->m_planeNormal);
 			localScaling.deSerializeFloat(planeData->m_localScaling);
-			shape = createPlaneShape(planeNormal, planeData->m_planeConstant);
+			shape = createPlaneShape(planeNormal, (btScalar)planeData->m_planeConstant);
 			shape->setLocalScaling(localScaling);
 
 			break;
@@ -320,7 +320,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 				{
 					printf("error: wrong up axis for btCapsuleShape\n");
 				}
-			};
+			}
 			if (shape)
 			{
 				btCapsuleShape* cap = (btCapsuleShape*)shape;
@@ -340,7 +340,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 			implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 			btVector3 localScaling;
 			localScaling.deSerializeFloat(bsd->m_localScaling);
-			btVector3 margin(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			btVector3 margin((btScalar)bsd->m_collisionMargin, (btScalar)bsd->m_collisionMargin, (btScalar)bsd->m_collisionMargin);
 			switch (shapeData->m_shapeType)
 			{
 				case BOX_SHAPE_PROXYTYPE:
@@ -382,7 +382,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 						{
 							printf("unknown Cylinder up axis\n");
 						}
-					};
+					}
 
 					break;
 				}
@@ -411,7 +411,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 						{
 							printf("unknown Cone up axis\n");
 						}
-					};
+					}
 
 					break;
 				}
@@ -428,7 +428,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 					for (i = 0; i < numSpheres; i++)
 					{
 						tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
-						radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						radii[i] = (btScalar)mss->m_localPositionArrayPtr[i].m_radius;
 					}
 					shape = createMultiSphereShape(&tmpPos[0], &radii[0], numSpheres);
 					break;
@@ -463,7 +463,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 					{
 						hullShape->addPoint(tmpPoints[i]);
 					}
-					hullShape->setMargin(bsd->m_collisionMargin);
+					hullShape->setMargin((btScalar)bsd->m_collisionMargin);
 					//hullShape->initializePolyhedralFeatures();
 					shape = hullShape;
 					break;
@@ -476,11 +476,11 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 
 			if (shape)
 			{
-				shape->setMargin(bsd->m_collisionMargin);
+				shape->setMargin((btScalar)bsd->m_collisionMargin);
 
-				btVector3 localScaling;
-				localScaling.deSerializeFloat(bsd->m_localScaling);
-				shape->setLocalScaling(localScaling);
+				btVector3 localScale;
+				localScale.deSerializeFloat(bsd->m_localScaling);
+				shape->setLocalScaling(localScale);
 			}
 			break;
 		}
@@ -529,7 +529,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 #endif
 
 			btBvhTriangleMeshShape* trimeshShape = createBvhTriangleMeshShape(meshInterface, bvh);
-			trimeshShape->setMargin(trimesh->m_collisionMargin);
+			trimeshShape->setMargin((btScalar)trimesh->m_collisionMargin);
 			shape = trimeshShape;
 
 			if (trimesh->m_triangleInfoMap)
@@ -598,8 +598,8 @@ char* btCollisionWorldImporter::duplicateName(const char* name)
 	if (name)
 	{
 		int l = (int)strlen(name);
-		char* newName = new char[l + 1];
-		memcpy(newName, name, l);
+		char* newName = new char[(size_t)l + 1];
+		memcpy(newName, name, (size_t)l);
 		newName[l] = 0;
 		m_allocatedNames.push_back(newName);
 		return newName;
@@ -621,7 +621,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 		{
 			meshPart.m_indexType = PHY_INTEGER;
 			meshPart.m_triangleIndexStride = 3 * sizeof(int);
-			int* indexArray = (int*)btAlignedAlloc(sizeof(int) * 3 * meshPart.m_numTriangles, 16);
+			int* indexArray = (int*)btAlignedAlloc(sizeof(int) * 3 * (size_t)meshPart.m_numTriangles, 16);
 			m_indexArrays.push_back(indexArray);
 			for (int j = 0; j < 3 * meshPart.m_numTriangles; j++)
 			{
@@ -636,7 +636,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 				meshPart.m_indexType = PHY_SHORT;
 				meshPart.m_triangleIndexStride = sizeof(short int) * 3;  //sizeof(btShortIntIndexTripletData);
 
-				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * meshPart.m_numTriangles, 16);
+				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * (size_t)meshPart.m_numTriangles, 16);
 				m_shortIndexArrays.push_back(indexArray);
 
 				for (int j = 0; j < meshPart.m_numTriangles; j++)
@@ -652,7 +652,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 			{
 				meshPart.m_indexType = PHY_SHORT;
 				meshPart.m_triangleIndexStride = 3 * sizeof(short int);
-				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * meshPart.m_numTriangles, 16);
+				short int* indexArray = (short int*)btAlignedAlloc(sizeof(short int) * 3 * (size_t)meshPart.m_numTriangles, 16);
 				m_shortIndexArrays.push_back(indexArray);
 				for (int j = 0; j < 3 * meshPart.m_numTriangles; j++)
 				{
@@ -667,7 +667,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 				meshPart.m_indexType = PHY_UCHAR;
 				meshPart.m_triangleIndexStride = sizeof(unsigned char) * 3;
 
-				unsigned char* indexArray = (unsigned char*)btAlignedAlloc(sizeof(unsigned char) * 3 * meshPart.m_numTriangles, 16);
+				unsigned char* indexArray = (unsigned char*)btAlignedAlloc(sizeof(unsigned char) * 3 * (size_t)meshPart.m_numTriangles, 16);
 				m_charIndexArrays.push_back(indexArray);
 
 				for (int j = 0; j < meshPart.m_numTriangles; j++)
@@ -685,7 +685,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 		{
 			meshPart.m_vertexType = PHY_FLOAT;
 			meshPart.m_vertexStride = sizeof(btVector3FloatData);
-			btVector3FloatData* vertices = (btVector3FloatData*)btAlignedAlloc(sizeof(btVector3FloatData) * meshPart.m_numVertices, 16);
+			btVector3FloatData* vertices = (btVector3FloatData*)btAlignedAlloc(sizeof(btVector3FloatData) * (size_t)meshPart.m_numVertices, 16);
 			m_floatVertexArrays.push_back(vertices);
 
 			for (int j = 0; j < meshPart.m_numVertices; j++)
@@ -702,7 +702,7 @@ btTriangleIndexVertexArray* btCollisionWorldImporter::createMeshInterface(btStri
 			meshPart.m_vertexType = PHY_DOUBLE;
 			meshPart.m_vertexStride = sizeof(btVector3DoubleData);
 
-			btVector3DoubleData* vertices = (btVector3DoubleData*)btAlignedAlloc(sizeof(btVector3DoubleData) * meshPart.m_numVertices, 16);
+			btVector3DoubleData* vertices = (btVector3DoubleData*)btAlignedAlloc(sizeof(btVector3DoubleData) * (size_t)meshPart.m_numVertices, 16);
 			m_doubleVertexArrays.push_back(vertices);
 
 			for (int j = 0; j < meshPart.m_numVertices; j++)
@@ -731,7 +731,7 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 
 	newData->m_scaling = interfaceData->m_scaling;
 	newData->m_numMeshParts = interfaceData->m_numMeshParts;
-	newData->m_meshPartsPtr = new btMeshPartData[newData->m_numMeshParts];
+	newData->m_meshPartsPtr = new btMeshPartData[(size_t)newData->m_numMeshParts];
 
 	for (int i = 0; i < newData->m_numMeshParts; i++)
 	{
@@ -743,16 +743,16 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 
 		if (curPart->m_vertices3f)
 		{
-			curNewPart->m_vertices3f = new btVector3FloatData[curNewPart->m_numVertices];
-			memcpy(curNewPart->m_vertices3f, curPart->m_vertices3f, sizeof(btVector3FloatData) * curNewPart->m_numVertices);
+			curNewPart->m_vertices3f = new btVector3FloatData[(size_t)curNewPart->m_numVertices];
+			memcpy(curNewPart->m_vertices3f, curPart->m_vertices3f, sizeof(btVector3FloatData) * (size_t)curNewPart->m_numVertices);
 		}
 		else
 			curNewPart->m_vertices3f = NULL;
 
 		if (curPart->m_vertices3d)
 		{
-			curNewPart->m_vertices3d = new btVector3DoubleData[curNewPart->m_numVertices];
-			memcpy(curNewPart->m_vertices3d, curPart->m_vertices3d, sizeof(btVector3DoubleData) * curNewPart->m_numVertices);
+			curNewPart->m_vertices3d = new btVector3DoubleData[(size_t)curNewPart->m_numVertices];
+			memcpy(curNewPart->m_vertices3d, curPart->m_vertices3d, sizeof(btVector3DoubleData) * (size_t)curNewPart->m_numVertices);
 		}
 		else
 			curNewPart->m_vertices3d = NULL;
@@ -765,8 +765,8 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		if (curPart->m_indices32)
 		{
 			uninitialized3indices8Workaround = true;
-			curNewPart->m_indices32 = new btIntIndexData[numIndices];
-			memcpy(curNewPart->m_indices32, curPart->m_indices32, sizeof(btIntIndexData) * numIndices);
+			curNewPart->m_indices32 = new btIntIndexData[(size_t)numIndices];
+			memcpy(curNewPart->m_indices32, curPart->m_indices32, sizeof(btIntIndexData) * (size_t)numIndices);
 		}
 		else
 			curNewPart->m_indices32 = NULL;
@@ -774,8 +774,8 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		if (curPart->m_3indices16)
 		{
 			uninitialized3indices8Workaround = true;
-			curNewPart->m_3indices16 = new btShortIntIndexTripletData[curNewPart->m_numTriangles];
-			memcpy(curNewPart->m_3indices16, curPart->m_3indices16, sizeof(btShortIntIndexTripletData) * curNewPart->m_numTriangles);
+			curNewPart->m_3indices16 = new btShortIntIndexTripletData[(size_t)curNewPart->m_numTriangles];
+			memcpy(curNewPart->m_3indices16, curPart->m_3indices16, sizeof(btShortIntIndexTripletData) * (size_t)curNewPart->m_numTriangles);
 		}
 		else
 			curNewPart->m_3indices16 = NULL;
@@ -783,16 +783,16 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 		if (curPart->m_indices16)
 		{
 			uninitialized3indices8Workaround = true;
-			curNewPart->m_indices16 = new btShortIntIndexData[numIndices];
-			memcpy(curNewPart->m_indices16, curPart->m_indices16, sizeof(btShortIntIndexData) * numIndices);
+			curNewPart->m_indices16 = new btShortIntIndexData[(size_t)numIndices];
+			memcpy(curNewPart->m_indices16, curPart->m_indices16, sizeof(btShortIntIndexData) * (size_t)numIndices);
 		}
 		else
 			curNewPart->m_indices16 = NULL;
 
 		if (!uninitialized3indices8Workaround && curPart->m_3indices8)
 		{
-			curNewPart->m_3indices8 = new btCharIndexTripletData[curNewPart->m_numTriangles];
-			memcpy(curNewPart->m_3indices8, curPart->m_3indices8, sizeof(btCharIndexTripletData) * curNewPart->m_numTriangles);
+			curNewPart->m_3indices8 = new btCharIndexTripletData[(size_t)curNewPart->m_numTriangles];
+			memcpy(curNewPart->m_3indices8, curPart->m_3indices8, sizeof(btCharIndexTripletData) * (size_t)curNewPart->m_numTriangles);
 		}
 		else
 			curNewPart->m_3indices8 = NULL;
@@ -987,7 +987,7 @@ btBvhTriangleMeshShape* btCollisionWorldImporter::createBvhTriangleMeshShape(btS
 	m_allocatedCollisionShapes.push_back(ts);
 	return ts;
 }
-btCollisionShape* btCollisionWorldImporter::createConvexTriangleMeshShape(btStridingMeshInterface* trimesh)
+btCollisionShape* btCollisionWorldImporter::createConvexTriangleMeshShape(btStridingMeshInterface* /*trimesh*/)
 {
 	return 0;
 }

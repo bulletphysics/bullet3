@@ -22,12 +22,12 @@ float HorizontalSlider::CalculateValue()
 
 void HorizontalSlider::UpdateBarFromValue()
 {
-	m_SliderBar->MoveTo((Width() - m_SliderBar->Width()) * (m_fValue), m_SliderBar->Y());
+	m_SliderBar->MoveTo(int((float)(Width() - m_SliderBar->Width()) * (m_fValue)), m_SliderBar->Y());
 }
 
 void HorizontalSlider::OnMouseClickLeft(int x, int y, bool bDown)
 {
-	m_SliderBar->MoveTo(CanvasPosToLocal(Gwen::Point(x, y)).x - m_SliderBar->Width() * 0.5, m_SliderBar->Y());
+	m_SliderBar->MoveTo(CanvasPosToLocal(Gwen::Point(x, y)).x - int(m_SliderBar->Width() * 0.5), m_SliderBar->Y());
 	m_SliderBar->OnMouseClickLeft(x, y, bDown);
 	OnMoved(m_SliderBar);
 }

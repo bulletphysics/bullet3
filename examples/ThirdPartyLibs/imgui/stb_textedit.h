@@ -594,7 +594,7 @@ static void stb_textedit_delete_selection(STB_TEXTEDIT_STRING *str, STB_Textedit
 	}
 }
 
-// canoncialize the selection so start <= end
+// canonicalize the selection so start <= end
 static void stb_textedit_sortselection(STB_TexteditState *state)
 {
 	if (state->select_end < state->select_start)
@@ -683,7 +683,7 @@ static int stb_textedit_cut(STB_TEXTEDIT_STRING *str, STB_TexteditState *state)
 {
 	if (STB_TEXT_HAS_SELECTION(state))
 	{
-		stb_textedit_delete_selection(str, state);  // implicity clamps
+		stb_textedit_delete_selection(str, state);  // implicitly clamps
 		state->has_preferred_x = 0;
 		return 1;
 	}
@@ -740,7 +740,7 @@ retry:
 				}
 				else
 				{
-					stb_textedit_delete_selection(str, state);  // implicity clamps
+					stb_textedit_delete_selection(str, state);  // implicitly clamps
 					if (STB_TEXTEDIT_INSERTCHARS(str, state->cursor, &ch, 1))
 					{
 						stb_text_makeundo_insert(state, state->cursor, 1);

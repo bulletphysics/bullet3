@@ -8,7 +8,7 @@
 
 #define GET_NPOINTS(x) (x).m_worldNormalOnB.w
 
-int b3ExtractManifoldSequentialGlobal(__global const b3Float4* p, int nPoints, b3Float4ConstArg nearNormal, b3Int4* contactIdx)
+static int b3ExtractManifoldSequentialGlobal(__global const b3Float4* p, int nPoints, b3Float4ConstArg nearNormal, b3Int4* contactIdx)
 {
 	if (nPoints == 0)
 		return 0;
@@ -93,7 +93,7 @@ int b3ExtractManifoldSequentialGlobal(__global const b3Float4* p, int nPoints, b
 	return 4;
 }
 
-__kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
+static __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 										  __global const b3RigidBodyData_t* rigidBodies,
 										  __global const b3Float4* separatingNormals,
 										  __global const int* hasSeparatingAxis,
@@ -135,8 +135,8 @@ __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 				{
 					__global struct b3Contact4Data* c = &globalContactsOut[dstIdx];
 					c->m_worldNormalOnB = -normal;
-					c->m_restituitionCoeffCmp = (0.f * 0xffff);
-					c->m_frictionCoeffCmp = (0.7f * 0xffff);
+					c->m_restituitionCoeffCmp = (unsigned short)(0.f * 0xffff);
+					c->m_frictionCoeffCmp = (unsigned short)(0.7f * 0xffff);
 					c->m_batchIdx = pairIndex;
 					int bodyA = pairs[pairIndex].x;
 					int bodyB = pairs[pairIndex].y;
@@ -152,18 +152,21 @@ __kernel void b3NewContactReductionKernel(__global b3Int4* pairs,
 					{
 						case 4:
 							c->m_worldPosB[3] = pointsIn[contactIdx.w];
+						// fallthrough
 						case 3:
 							c->m_worldPosB[2] = pointsIn[contactIdx.z];
+						// fallthrough
 						case 2:
 							c->m_worldPosB[1] = pointsIn[contactIdx.y];
+						// fallthrough
 						case 1:
 							c->m_worldPosB[0] = pointsIn[contactIdx.x];
 						default:
 						{
 						}
-					};
+					}
 
-					GET_NPOINTS(*c) = nReducedContacts;
+					GET_NPOINTS(*c) = (b3Scalar)nReducedContacts;
 				}
 
 				//#endif

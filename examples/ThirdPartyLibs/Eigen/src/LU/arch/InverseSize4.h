@@ -24,7 +24,7 @@
 //
 //   Copyright (c) 2001 Intel Corporation.
 //
-// Permition is granted to use, copy, distribute and prepare derivative works
+// Permission is granted to use, copy, distribute and prepare derivative works
 // of this library for any purpose and without fee, provided, that the above
 // copyright notice and this statement appear in all copies.
 // Intel makes no representations about the suitability of this software for

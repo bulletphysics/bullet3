@@ -102,6 +102,9 @@ struct btWheelInfo
 		m_rollInfluence = btScalar(0.1);
 		m_bIsFrontWheel = ci.m_bIsFrontWheel;
 		m_maxSuspensionForce = ci.m_maxSuspensionForce;
+
+		m_worldTransform.setIdentity();
+		m_raycastInfo = RaycastInfo();
 	}
 
 	void updateWheel(const btRigidBody& chassis, RaycastInfo& raycastInfo);

@@ -231,7 +231,7 @@ MatrixBase<Derived>::blueNorm() const
   return internal::blueNorm_impl(*this);
 }
 
-/** \returns the \em l2 norm of \c *this avoiding undeflow and overflow.
+/** \returns the \em l2 norm of \c *this avoiding underflow and overflow.
   * This version use a concatenation of hypot() calls, and it is very slow.
   *
   * \sa norm(), stableNorm()

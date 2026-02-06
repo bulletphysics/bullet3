@@ -35,7 +35,7 @@ public:
 
 	virtual bool SetBounds(int x, int y, int w, int h);
 
-	virtual void OnResized(){};
+	virtual void OnResized(){}
 
 	Event::Caller onResize;
 

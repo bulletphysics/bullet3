@@ -28,7 +28,7 @@ ul = [.967, 2, 2.96, 2.29, 2.96, 2.09, 3.05]
 jr = [5.8, 4, 5.8, 4, 5.8, 4, 6]
 #restposes for null space
 rp = [0, 0, 0, 0.5 * math.pi, 0, -math.pi * 0.5 * 0.66, 0]
-#joint damping coefficents
+#joint damping coefficients
 jd = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 for i in range(numJoints):

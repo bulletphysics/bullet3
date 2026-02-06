@@ -50,8 +50,8 @@ public:
 	btScalar getAngle1() { return getAngle(2); }
 	btScalar getAngle2() { return getAngle(1); }
 	// limits
-	void setUpperLimit(btScalar ang1max, btScalar ang2max) { setAngularUpperLimit(btVector3(0.f, ang1max, ang2max)); }
-	void setLowerLimit(btScalar ang1min, btScalar ang2min) { setAngularLowerLimit(btVector3(0.f, ang1min, ang2min)); }
+	void setUpperLimit(btScalar ang1max, btScalar ang2max) { setAngularUpperLimit(btVector3(btScalar(0.f), ang1max, ang2max)); }
+	void setLowerLimit(btScalar ang1min, btScalar ang2min) { setAngularLowerLimit(btVector3(btScalar(0.f), ang1min, ang2min)); }
 
 	void setAxis(const btVector3& axis1, const btVector3& axis2);
 };

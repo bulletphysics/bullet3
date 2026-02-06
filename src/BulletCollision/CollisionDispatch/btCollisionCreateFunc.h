@@ -31,13 +31,13 @@ struct btCollisionAlgorithmCreateFunc
 		: m_swapped(false)
 	{
 	}
-	virtual ~btCollisionAlgorithmCreateFunc(){};
+	virtual ~btCollisionAlgorithmCreateFunc(){}
 
 	virtual btCollisionAlgorithm* CreateCollisionAlgorithm(btCollisionAlgorithmConstructionInfo&, const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap)
 	{
 		(void)body0Wrap;
 		(void)body1Wrap;
-		return 0;
+		return NULL;
 	}
 };
 #endif  //BT_COLLISION_CREATE_FUNC

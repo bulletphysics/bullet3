@@ -82,7 +82,7 @@ public:
 	void SetSequence(const VectorRn& d, long startRow, long startCol, long deltaRow, long deltaCol);
 
 	// Loads matrix in as a sub-matrix.  (i,j) is the base point. Defaults to (0,0).
-	// The "Tranpose" versions load the transpose of A.
+	// The "Transpose" versions load the transpose of A.
 	void LoadAsSubmatrix(const MatrixRmn& A);
 	void LoadAsSubmatrix(long i, long j, const MatrixRmn& A);
 	void LoadAsSubmatrixTranspose(const MatrixRmn& A);
@@ -200,7 +200,7 @@ inline void MatrixRmn::SetSize(long numRows, long numCols)
 	{
 		delete[] x;
 		AllocSize = Max(newLength, AllocSize << 1);
-		x = new double[AllocSize];
+		x = new double[(size_t)AllocSize];
 	}
 	NumRows = numRows;
 	NumCols = numCols;

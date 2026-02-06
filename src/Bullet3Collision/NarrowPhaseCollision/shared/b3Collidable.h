@@ -14,7 +14,7 @@ enum b3ShapeTypes
 	SHAPE_CONCAVE_TRIMESH = 5,
 	SHAPE_COMPOUND_OF_CONVEX_HULLS = 6,
 	SHAPE_SPHERE = 7,
-	MAX_NUM_SHAPE_TYPES,
+	MAX_NUM_SHAPE_TYPES
 };
 
 typedef struct b3Collidable b3Collidable_t;

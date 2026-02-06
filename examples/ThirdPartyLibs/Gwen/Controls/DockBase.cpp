@@ -103,7 +103,7 @@ int DockBase::GetDroppedTabDirection(int x, int y)
 
 	float minimum = GwenUtil_Min(GwenUtil_Min(GwenUtil_Min(top, left), right), bottom);
 	m_bDropFar = (minimum < 0.2f);
-	if (minimum > 0.3) return Pos::Fill;
+	if (minimum > 0.3f) return Pos::Fill;
 
 	if (top == minimum && (!m_Top || m_Top->Hidden())) return Pos::Top;
 	if (left == minimum && (!m_Left || m_Left->Hidden())) return Pos::Left;
@@ -126,7 +126,7 @@ bool DockBase::DragAndDrop_CanAcceptPackage(Gwen::DragAndDrop::Package* pPackage
 	return false;
 }
 
-void AddTabToDock(TabButton* pTabButton, DockedTabControl* pControl)
+static void AddTabToDock(TabButton* pTabButton, DockedTabControl* pControl)
 {
 	pControl->AddPage(pTabButton);
 }
@@ -271,26 +271,26 @@ void DockBase::DragAndDrop_Hover(Gwen::DragAndDrop::Package* /*pPackage*/, int x
 
 	if (dir == Pos::Left)
 	{
-		HelpBarWidth = m_HoverRect.w * 0.25f;
+		HelpBarWidth = int((float)m_HoverRect.w * 0.25f);
 		m_HoverRect.w = HelpBarWidth;
 	}
 
 	if (dir == Pos::Right)
 	{
-		HelpBarWidth = m_HoverRect.w * 0.25f;
+		HelpBarWidth = int((float)m_HoverRect.w * 0.25f);
 		m_HoverRect.x = m_HoverRect.w - HelpBarWidth;
 		m_HoverRect.w = HelpBarWidth;
 	}
 
 	if (dir == Pos::Top)
 	{
-		HelpBarWidth = m_HoverRect.h * 0.25f;
+		HelpBarWidth = int((float)m_HoverRect.h * 0.25f);
 		m_HoverRect.h = HelpBarWidth;
 	}
 
 	if (dir == Pos::Bottom)
 	{
-		HelpBarWidth = m_HoverRect.h * 0.25f;
+		HelpBarWidth = int((float)m_HoverRect.h * 0.25f);
 		m_HoverRect.y = m_HoverRect.h - HelpBarWidth;
 		m_HoverRect.h = HelpBarWidth;
 	}

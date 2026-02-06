@@ -35,21 +35,21 @@ subject to the following restrictions:
 
 namespace {
 
-btVector3 MyBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
-{
-	btConvexShape* shape = (btConvexShape*)shapeAptr;
-	if (includeMargin)
-	{
-		return shape->localGetSupportingVertex(dir);
-	}
+// btVector3 MyBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
+// {
+// 	btConvexShape* shape = (btConvexShape*)shapeAptr;
+// 	if (includeMargin)
+// 	{
+// 		return shape->localGetSupportingVertex(dir);
+// 	}
 
-	return shape->localGetSupportingVertexWithoutMargin(dir);
-}
+// 	return shape->localGetSupportingVertexWithoutMargin(dir);
+// }
 
-btVector3 MyBulletShapeCenterFunc(const void* shapeAptr)
-{
-	return btVector3(0, 0, 0);
-}
+// btVector3 MyBulletShapeCenterFunc(const void* /*shapeAptr*/)
+// {
+// 	return btVector3(0, 0, 0);
+// }
 
 enum SphereSphereTestMethod
 {
@@ -97,8 +97,7 @@ inline int btComputeGjkEpaSphereSphereCollision(const btSphereSphereCollisionDes
 	ConvexWrap a, b;
 	a.m_worldTrans = input.m_sphereTransformA;
 	b.m_worldTrans = input.m_sphereTransformB;
-	;
-
+	
 	btMultiSphereShape multiSphereA(&org, &radA, 1);
 	btMultiSphereShape multiSphereB(&org, &radB, 1);
 
@@ -116,7 +115,7 @@ inline int btComputeGjkEpaSphereSphereCollision(const btSphereSphereCollisionDes
 			a.m_convex = &singleSphereA;
 			b.m_convex = &singleSphereB;
 		}
-	};
+	}
 
 	btVoronoiSimplexSolver simplexSolver;
 	simplexSolver.reset();
@@ -166,8 +165,8 @@ void testSphereSphereDistance(SphereSphereTestMethod method, btScalar abs_error)
 		btSphereSphereCollisionDescription ssd;
 		ssd.m_sphereTransformA.setIdentity();
 		ssd.m_sphereTransformB.setIdentity();
-		ssd.m_radiusA = 0.f;
-		ssd.m_radiusB = 0.f;
+		ssd.m_radiusA = btScalar(0.f);
+		ssd.m_radiusB = btScalar(0.f);
 		btDistanceInfo distInfo;
 		int result = btComputeSphereSphereCollision(ssd, &distInfo);
 		ASSERT_EQ(0, result);
@@ -236,22 +235,22 @@ void testSphereSphereDistance(SphereSphereTestMethod method, btScalar abs_error)
 
 TEST(BulletCollisionTest, GjkMPRSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_GJKMPR, 0.0001);
+	testSphereSphereDistance(SSTM_GJKMPR, btScalar(0.0001));
 }
 
 TEST(BulletCollisionTest, GjkEpaSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_GJKEPA, 0.00001);
+	testSphereSphereDistance(SSTM_GJKEPA, btScalar(0.00001));
 }
 
 TEST(BulletCollisionTest, GjkEpaSphereSphereRadiusNotFullMarginDistance)
 {
-	testSphereSphereDistance(SSTM_GJKEPA_RADIUS_NOT_FULL_MARGIN, 0.1);
+	testSphereSphereDistance(SSTM_GJKEPA_RADIUS_NOT_FULL_MARGIN, btScalar(0.1));
 }
 
 TEST(BulletCollisionTest, AnalyticSphereSphereDistance)
 {
-	testSphereSphereDistance(SSTM_ANALYTIC, 0.00001);
+	testSphereSphereDistance(SSTM_ANALYTIC, btScalar(0.00001));
 }
 
 class TriangleCollector : public btTriangleCallback
@@ -259,10 +258,10 @@ class TriangleCollector : public btTriangleCallback
 public:
 	std::vector<btVector3> *triangles;
 
-	explicit TriangleCollector(std::vector<btVector3>* triangles) : triangles(triangles) {}
+	explicit TriangleCollector(std::vector<btVector3>* triangles_) : triangles(triangles_) {}
 	virtual ~TriangleCollector() {}
 
-	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)
+	virtual void processTriangle(btVector3* triangle, int /*partId*/, int /*triangleIndex*/)
 	{
 		triangles->push_back(*triangle);
 	}
@@ -298,7 +297,7 @@ TEST(BulletCollisionTest, Heightfield_ProcessAllTriangles_FiltersByUpAxis)
 
 int main(int argc, char** argv)
 {
-#if _MSC_VER
+#ifdef _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//void *testWhetherMemoryLeakDetectionWorks = malloc(1);
 #endif

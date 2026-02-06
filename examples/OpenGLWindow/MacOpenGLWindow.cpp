@@ -38,7 +38,7 @@ float MacOpenGLWindow::getTimeInSeconds()
 	return 0.f;
 }
 
-void MacOpenGLWindow::setRenderCallback(b3RenderCallback renderCallback)
+void MacOpenGLWindow::setRenderCallback(b3RenderCallback /*renderCallback*/)
 {
 }
 

@@ -13,7 +13,7 @@ void randomInit(unsigned seed);
 /// The results will *not* be perfectly uniform.
 /// \param low is the lower bound (inclusive)
 /// \param high is the lower bound (inclusive)
-/// \return a random number within [\param low, \param high]
+/// \return a random number within [\p low, \p high]
 int randomInt(int low, int high);
 /// Generate a (not quite) uniformly distributed random floats in [low, high]
 /// Note: this is a low-quality implementation using only rand(), as
@@ -21,7 +21,7 @@ int randomInt(int low, int high);
 /// The results will *not* be perfectly uniform.
 /// \param low is the lower bound (inclusive)
 /// \param high is the lower bound (inclusive)
-/// \return a random number within [\param low, \param high]
+/// \return a random number within [\p low, \p high]
 float randomFloat(float low, float high);
 
 /// generate a random valid mass value

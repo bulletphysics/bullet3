@@ -54,8 +54,8 @@ b3BoundSearchCL::b3BoundSearchCL(cl_context ctx, cl_device_id device, cl_command
 
 	//m_constBuffer = new b3OpenCLArray<b3Int4>( device, 1, BufferBase::BUFFER_CONST );
 
-	m_lower = (maxSize == 0) ? 0 : new b3OpenCLArray<unsigned int>(ctx, queue, maxSize);
-	m_upper = (maxSize == 0) ? 0 : new b3OpenCLArray<unsigned int>(ctx, queue, maxSize);
+	m_lower = (maxSize == 0) ? 0 : new b3OpenCLArray<unsigned int>(ctx, queue, (size_t)maxSize);
+	m_upper = (maxSize == 0) ? 0 : new b3OpenCLArray<unsigned int>(ctx, queue, (size_t)maxSize);
 
 	m_filler = new b3FillCL(ctx, device, queue);
 }
@@ -73,9 +73,9 @@ b3BoundSearchCL::~b3BoundSearchCL()
 
 void b3BoundSearchCL::execute(b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCLArray<unsigned int>& dst, int nDst, Option option)
 {
-	b3Int4 constBuffer;
-	constBuffer.x = nSrc;
-	constBuffer.y = nDst;
+	// b3Int4 constBuffer;
+	// constBuffer.x = nSrc;
+	// constBuffer.y = nDst;
 
 	if (option == BOUND_LOWER)
 	{
@@ -103,10 +103,10 @@ void b3BoundSearchCL::execute(b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCL
 	{
 		b3Assert(m_lower);
 		b3Assert(m_upper);
-		b3Assert(m_lower->capacity() <= (int)nDst);
-		b3Assert(m_upper->capacity() <= (int)nDst);
+		b3Assert((int)m_lower->capacity() <= nDst);
+		b3Assert((int)m_upper->capacity() <= nDst);
 
-		int zero = 0;
+		unsigned int zero = 0;
 		m_filler->execute(*m_lower, zero, nDst);
 		m_filler->execute(*m_upper, zero, nDst);
 
@@ -136,13 +136,13 @@ void b3BoundSearchCL::executeHost(b3AlignedObjectArray<b3SortData>& src, int nSr
 	for (int i = 0; i < nSrc - 1; i++)
 		b3Assert(src[i].m_key <= src[i + 1].m_key);
 
-	b3SortData minData, zeroData, maxData;
-	minData.m_key = -1;
-	minData.m_value = -1;
-	zeroData.m_key = 0;
-	zeroData.m_value = 0;
-	maxData.m_key = nDst;
-	maxData.m_value = nDst;
+	b3SortData minData, /*zeroData,*/ maxData;
+	minData.m_key = (unsigned int)-1;
+	minData.m_value = (unsigned int)-1;
+	// zeroData.m_key = 0;
+	// zeroData.m_value = 0;
+	maxData.m_key = (unsigned int)nDst;
+	maxData.m_value = (unsigned int)nDst;
 
 	if (option == BOUND_LOWER)
 	{
@@ -153,9 +153,9 @@ void b3BoundSearchCL::executeHost(b3AlignedObjectArray<b3SortData>& src, int nSr
 
 			if (iData.m_key != jData.m_key)
 			{
-				int k = jData.m_key;
+				int k = (int)jData.m_key;
 				{
-					dst[k] = i;
+					dst[k] = (unsigned int)i;
 				}
 			}
 		}
@@ -169,9 +169,9 @@ void b3BoundSearchCL::executeHost(b3AlignedObjectArray<b3SortData>& src, int nSr
 
 			if (iData.m_key != jData.m_key)
 			{
-				int k = iData.m_key;
+				int k = (int)iData.m_key;
 				{
-					dst[k] = i;
+					dst[k] = (unsigned int)i;
 				}
 			}
 		}

@@ -5,6 +5,7 @@
 // public domain
 //
 #include <math.h>
+#include <float.h>
 
 #include "poly34.h"  // solution of cubic and quartic equation
 #define TwoPi 6.28318530717958648
@@ -15,24 +16,24 @@ const btScalar eps = SIMD_EPSILON;
 //=============================================================================
 static SIMD_FORCE_INLINE btScalar _root3(btScalar x)
 {
-	btScalar s = 1.;
-	while (x < 1.)
+	btScalar s = btScalar(1.);
+	while (x < btScalar(1.))
 	{
-		x *= 8.;
-		s *= 0.5;
+		x *= btScalar(8.);
+		s *= btScalar(0.5);
 	}
-	while (x > 8.)
+	while (x > btScalar(8.))
 	{
-		x *= 0.125;
-		s *= 2.;
+		x *= btScalar(0.125);
+		s *= btScalar(2.);
 	}
-	btScalar r = 1.5;
-	r -= 1. / 3. * (r - x / (r * r));
-	r -= 1. / 3. * (r - x / (r * r));
-	r -= 1. / 3. * (r - x / (r * r));
-	r -= 1. / 3. * (r - x / (r * r));
-	r -= 1. / 3. * (r - x / (r * r));
-	r -= 1. / 3. * (r - x / (r * r));
+	btScalar r = btScalar(1.5);
+	r -= btScalar(1. / 3.) * (r - x / (r * r));
+	r -= btScalar(1. / 3.) * (r - x / (r * r));
+	r -= btScalar(1. / 3.) * (r - x / (r * r));
+	r -= btScalar(1. / 3.) * (r - x / (r * r));
+	r -= btScalar(1. / 3.) * (r - x / (r * r));
+	r -= btScalar(1. / 3.) * (r - x / (r * r));
 	return r * s;
 }
 
@@ -51,16 +52,16 @@ btScalar SIMD_FORCE_INLINE root3(btScalar x)
 // return 0: pair of complex roots: x[0]i*x[1]
 int SolveP2(btScalar* x, btScalar a, btScalar b)
 {  // solve equation x^2 + a*x + b = 0
-	btScalar D = 0.25 * a * a - b;
+	btScalar D = btScalar(0.25) * a * a - b;
 	if (D >= 0)
 	{
-		D = sqrt(D);
-		x[0] = -0.5 * a + D;
-		x[1] = -0.5 * a - D;
+		D = (btScalar)sqrt(D);
+		x[0] = btScalar(-0.5) * a + D;
+		x[1] = btScalar(-0.5) * a - D;
 		return 2;
 	}
-	x[0] = -0.5 * a;
-	x[1] = sqrt(-D);
+	x[0] = btScalar(-0.5) * a;
+	x[1] = (btScalar)sqrt(-D);
 	return 0;
 }
 //---------------------------------------------------------------------------
@@ -80,32 +81,32 @@ int SolveP3(btScalar* x, btScalar a, btScalar b, btScalar c)
 	btScalar q3 = q * q * q;
 	btScalar A, B;
 	if (r2 <= (q3 + eps))
-	{  //<<-- FIXED!
-		btScalar t = r / sqrt(q3);
+	{  // <<-- FIXED!
+		btScalar t = btScalar(r / sqrt(q3));
 		if (t < -1)
 			t = -1;
 		if (t > 1)
 			t = 1;
-		t = acos(t);
+		t = (btScalar)acos(t);
 		a /= 3;
-		q = -2 * sqrt(q);
-		x[0] = q * cos(t / 3) - a;
-		x[1] = q * cos((t + TwoPi) / 3) - a;
-		x[2] = q * cos((t - TwoPi) / 3) - a;
+		q = -2 * (btScalar)sqrt(q);
+		x[0] = q * (btScalar)cos(t / 3) - a;
+		x[1] = q * (btScalar)cos((t + TwoPi) / 3) - a;
+		x[2] = q * (btScalar)cos((t - TwoPi) / 3) - a;
 		return (3);
 	}
 	else
 	{
 		//A =-pow(fabs(r)+sqrt(r2-q3),1./3);
-		A = -root3(fabs(r) + sqrt(r2 - q3));
+		A = -root3(btScalar(fabs(r) + sqrt(r2 - q3)));
 		if (r < 0)
 			A = -A;
 		B = (A == 0 ? 0 : q / A);
 
 		a /= 3;
 		x[0] = (A + B) - a;
-		x[1] = -0.5 * (A + B) - a;
-		x[2] = 0.5 * sqrt(3.) * (A - B);
+		x[1] = btScalar(-0.5) * (A + B) - a;
+		x[2] = (btScalar)(0.5 * sqrt(3.)) * (A - B);
 		if (fabs(x[2]) < eps)
 		{
 			x[2] = x[1];
@@ -118,10 +119,10 @@ int SolveP3(btScalar* x, btScalar a, btScalar b, btScalar c)
 // a>=0!
 void CSqrt(btScalar x, btScalar y, btScalar& a, btScalar& b)  // returns:  a+i*s = sqrt(x+i*y)
 {
-	btScalar r = sqrt(x * x + y * y);
+	btScalar r = (btScalar)sqrt(x * x + y * y);
 	if (y == 0)
 	{
-		r = sqrt(r);
+		r = (btScalar)sqrt(r);
 		if (x >= 0)
 		{
 			a = r;
@@ -135,8 +136,8 @@ void CSqrt(btScalar x, btScalar y, btScalar& a, btScalar& b)  // returns:  a+i*s
 	}
 	else
 	{  // y != 0
-		a = sqrt(0.5 * (x + r));
-		b = 0.5 * y / a;
+		a = (btScalar)sqrt(btScalar(0.5) * (x + r));
+		b = btScalar(0.5) * y / a;
 	}
 }
 //---------------------------------------------------------------------------
@@ -145,13 +146,13 @@ int SolveP4Bi(btScalar* x, btScalar b, btScalar d)  // solve equation x^4 + b*x^
 	btScalar D = b * b - 4 * d;
 	if (D >= 0)
 	{
-		btScalar sD = sqrt(D);
+		btScalar sD = (btScalar)sqrt(D);
 		btScalar x1 = (-b + sD) / 2;
 		btScalar x2 = (-b - sD) / 2;  // x2 <= x1
 		if (x2 >= 0)                  // 0 <= x2 <= x1, 4 real roots
 		{
-			btScalar sx1 = sqrt(x1);
-			btScalar sx2 = sqrt(x2);
+			btScalar sx1 = (btScalar)sqrt(x1);
+			btScalar sx2 = (btScalar)sqrt(x2);
 			x[0] = -sx1;
 			x[1] = sx1;
 			x[2] = -sx2;
@@ -160,8 +161,8 @@ int SolveP4Bi(btScalar* x, btScalar b, btScalar d)  // solve equation x^4 + b*x^
 		}
 		if (x1 < 0)  // x2 <= x1 < 0, two pair of imaginary roots
 		{
-			btScalar sx1 = sqrt(-x1);
-			btScalar sx2 = sqrt(-x2);
+			btScalar sx1 = (btScalar)sqrt(-x1);
+			btScalar sx2 = (btScalar)sqrt(-x2);
 			x[0] = 0;
 			x[1] = sx1;
 			x[2] = 0;
@@ -169,8 +170,8 @@ int SolveP4Bi(btScalar* x, btScalar b, btScalar d)  // solve equation x^4 + b*x^
 			return 0;
 		}
 		// now x2 < 0 <= x1 , two real roots and one pair of imginary root
-		btScalar sx1 = sqrt(x1);
-		btScalar sx2 = sqrt(-x2);
+		btScalar sx1 = (btScalar)sqrt(x1);
+		btScalar sx2 = (btScalar)sqrt(-x2);
 		x[0] = -sx1;
 		x[1] = sx1;
 		x[2] = 0;
@@ -178,10 +179,10 @@ int SolveP4Bi(btScalar* x, btScalar b, btScalar d)  // solve equation x^4 + b*x^
 		return 2;
 	}
 	else
-	{  // if( D < 0 ), two pair of compex roots
-		btScalar sD2 = 0.5 * sqrt(-D);
-		CSqrt(-0.5 * b, sD2, x[0], x[1]);
-		CSqrt(-0.5 * b, -sD2, x[2], x[3]);
+	{  // if( D < 0 ), two pair of complex roots
+		btScalar sD2 = btScalar(0.5) * (btScalar)sqrt(-D);
+		CSqrt(btScalar(-0.5) * b, sD2, x[0], x[1]);
+		CSqrt(btScalar(-0.5) * b, -sD2, x[2], x[3]);
 		return 0;
 	}  // if( D>=0 )
 }  // SolveP4Bi(btScalar *x, btScalar b, btScalar d)    // solve equation x^4 + b*x^2 d
@@ -191,7 +192,7 @@ int SolveP4Bi(btScalar* x, btScalar b, btScalar d)  // solve equation x^4 + b*x^
 		t = b;     \
 		b = a;     \
 		a = t;     \
-	}
+	} do{} while(0)
 static void dblSort3(btScalar& a, btScalar& b, btScalar& c)  // make: a <= b <= c
 {
 	btScalar t;
@@ -219,9 +220,9 @@ int SolveP4De(btScalar* x, btScalar b, btScalar c, btScalar d)  // solve equatio
 		// Note: x[0]*x[1]*x[2]= c*c > 0
 		if (x[0] > 0)  // all roots are positive
 		{
-			btScalar sz1 = sqrt(x[0]);
-			btScalar sz2 = sqrt(x[1]);
-			btScalar sz3 = sqrt(x[2]);
+			btScalar sz1 = (btScalar)sqrt(x[0]);
+			btScalar sz2 = (btScalar)sqrt(x[1]);
+			btScalar sz3 = (btScalar)sqrt(x[2]);
 			// Note: sz1*sz2*sz3= -c (and not equal to 0)
 			if (c > 0)
 			{
@@ -239,10 +240,10 @@ int SolveP4De(btScalar* x, btScalar b, btScalar c, btScalar d)  // solve equatio
 			return 4;
 		}  // if( x[0] > 0) // all roots are positive
 		// now x[0] <= x[1] < 0, x[2] > 0
-		// two pair of comlex roots
-		btScalar sz1 = sqrt(-x[0]);
-		btScalar sz2 = sqrt(-x[1]);
-		btScalar sz3 = sqrt(x[2]);
+		// two pair of complex roots
+		btScalar sz1 = (btScalar)sqrt(-x[0]);
+		btScalar sz2 = (btScalar)sqrt(-x[1]);
+		btScalar sz3 = (btScalar)sqrt(x[2]);
 
 		if (c > 0)  // sign = -1
 		{
@@ -259,13 +260,13 @@ int SolveP4De(btScalar* x, btScalar b, btScalar c, btScalar d)  // solve equatio
 		x[3] = (sz1 + sz2) / 2;
 		return 0;
 	}  // if( res3>1 )    // 3 real roots,
-	// now resoventa have 1 real and pair of compex roots
+	// now resolventa have 1 real and pair of complex roots
 	// x[0] - real root, and x[0]>0,
 	// x[1]i*x[2] - complex roots,
 	// x[0] must be >=0. But one times x[0]=~ 1e-17, so:
 	if (x[0] < 0)
 		x[0] = 0;
-	btScalar sz1 = sqrt(x[0]);
+	btScalar sz1 = (btScalar)sqrt(x[0]);
 	btScalar szr, szi;
 	CSqrt(x[1], x[2], szr, szi);  // (szr+i*szi)^2 = x[1]+i*x[2]
 	if (c > 0)                    // sign = -1
@@ -300,9 +301,9 @@ btScalar N4Step(btScalar x, btScalar a, btScalar b, btScalar c, btScalar d)  // 
 int SolveP4(btScalar* x, btScalar a, btScalar b, btScalar c, btScalar d)
 {  // solve equation x^4 + a*x^3 + b*x^2 + c*x + d by Dekart-Euler method
 	// move to a=0:
-	btScalar d1 = d + 0.25 * a * (0.25 * b * a - 3. / 64 * a * a * a - c);
-	btScalar c1 = c + 0.5 * a * (0.25 * a * a - b);
-	btScalar b1 = b - 0.375 * a * a;
+	btScalar d1 = d + btScalar(0.25) * a * (btScalar(0.25) * b * a - btScalar(3. / 64) * a * a * a - c);
+	btScalar c1 = c + btScalar(0.5) * a * (btScalar(0.25) * a * a - b);
+	btScalar b1 = b - btScalar(0.375) * a * a;
 	int res = SolveP4De(x, b1, c1, d1);
 	if (res == 4)
 	{
@@ -344,15 +345,15 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 	if (fabs(e) < eps)
 		return 0;
 
-	btScalar brd = fabs(a);  // brd - border of real roots
+	btScalar brd = (btScalar)fabs(a);  // brd - border of real roots
 	if (fabs(b) > brd)
-		brd = fabs(b);
+		brd = (btScalar)fabs(b);
 	if (fabs(c) > brd)
-		brd = fabs(c);
+		brd = (btScalar)fabs(c);
 	if (fabs(d) > brd)
-		brd = fabs(d);
+		brd = (btScalar)fabs(d);
 	if (fabs(e) > brd)
-		brd = fabs(e);
+		brd = (btScalar)fabs(e);
 	brd++;  // brd - border of real roots
 
 	btScalar x0, f0;       // less than root
@@ -366,7 +367,7 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 		x1 = brd;
 		f0 = e;
 		f1 = F5(x1);
-		x2 = 0.01 * brd;
+		x2 = (btScalar)0.01 * brd;
 	}  // positive root
 	else
 	{
@@ -374,7 +375,7 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 		x1 = 0;
 		f0 = F5(x0);
 		f1 = e;
-		x2 = -0.01 * brd;
+		x2 = (btScalar)-0.01 * brd;
 	}  // negative root
 
 	if (fabs(f0) < eps)
@@ -401,6 +402,8 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 			x0 = x2;
 			f0 = f2;
 		}
+		(void)f0;
+		(void)f1;
 	}
 
 	// At each step:
@@ -426,10 +429,16 @@ btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e)  
 			x0 = x2;
 			f0 = f2;
 		}
+		(void)f0;
+		(void)f1;
 		f2s = (((5 * x2 + 4 * a) * x2 + 3 * b) * x2 + 2 * c) * x2 + d;  // f'(x2)
 		if (fabs(f2s) < eps)
 		{
-			x2 = 1e99;
+#if defined(BT_USE_DOUBLE_PRECISION)
+			x2 = btScalar(1e99);
+#else
+			x2 = btScalar(1e36);
+#endif
 			continue;
 		}
 		dx = f2 / f2s;

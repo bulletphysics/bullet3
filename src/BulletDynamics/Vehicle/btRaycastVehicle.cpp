@@ -484,7 +484,7 @@ btScalar calcRollingFriction(btWheelContactPoint& contactPoint, int numWheelsOnG
 	return j1;
 }
 
-btScalar sideFrictionStiffness2 = btScalar(1.0);
+static btScalar sideFrictionStiffness2 = btScalar(1.0);
 void btRaycastVehicle::updateFriction(btScalar timeStep)
 {
 	//calculate the impulse, so that the wheels don't move sidewards
@@ -565,7 +565,7 @@ void btRaycastVehicle::updateFriction(btScalar timeStep)
 				else
 				{
 					btScalar defaultRollingFrictionImpulse = 0.f;
-					btScalar maxImpulse = wheelInfo.m_brake ? wheelInfo.m_brake : defaultRollingFrictionImpulse;
+					btScalar maxImpulse = wheelInfo.m_brake != btScalar(0) ? wheelInfo.m_brake : defaultRollingFrictionImpulse;
 					btWheelContactPoint contactPt(m_chassisBody, groundObject, wheelInfo.m_raycastInfo.m_contactPointWS, m_forwardWS[wheel], maxImpulse);
 					btAssert(numWheelsOnGround > 0);
 					rollingFriction = calcRollingFriction(contactPt, numWheelsOnGround);
@@ -638,7 +638,7 @@ void btRaycastVehicle::updateFriction(btScalar timeStep)
 				class btRigidBody* groundObject = (class btRigidBody*)m_wheelInfo[wheel].m_raycastInfo.m_groundObject;
 
 				btVector3 rel_pos2 = wheelInfo.m_raycastInfo.m_contactPointWS -
-									 groundObject->getCenterOfMassPosition();
+									 (groundObject ? groundObject->getCenterOfMassPosition() : btVector3());
 
 				btVector3 sideImp = m_axle[wheel] * m_sideImpulse[wheel];
 

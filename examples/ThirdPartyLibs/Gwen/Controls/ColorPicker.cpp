@@ -118,10 +118,10 @@ void ColorPicker::UpdateColorControls(Gwen::String name, Gwen::Color col, int sl
 	Base* el = FindChildByName(name, true);
 
 	ColorDisplay* disp = el ? el->DynamicCastColorDisplay() : 0;
-	disp->SetColor(col);
+	if(disp) disp->SetColor(col);
 
 	HorizontalSlider* slider = FindChildByName(name + "Slider", true)->DynamicCastHorizontalSlider();
-	slider->SetValue(sliderVal);
+	slider->SetValue((float)sliderVal);
 
 	TextBoxNumeric* box = FindChildByName(name + "Box", true)->DynamicCastTextBoxNumeric();
 	box->SetText(Gwen::Utility::ToString(sliderVal));
@@ -144,7 +144,7 @@ void ColorPicker::SlidersMoved(Gwen::Controls::Base* control)
 {
 	HorizontalSlider* slider = control->DynamicCastHorizontalSlider();
 	if (slider)
-		SetColorByName(GetColorFromName(slider->GetName()), slider->GetValue());
+		SetColorByName(GetColorFromName(slider->GetName()), (int)slider->GetValue());
 
 	UpdateControls();
 	//SetColor( Gwen::Color( redSlider->GetValue(), greenSlider->GetValue(), blueSlider->GetValue(), alphaSlider->GetValue() ) );
@@ -159,7 +159,7 @@ void ColorPicker::Layout(Skin::Base* skin)
 
 	GroupBox* groupBox = FindChildByName("ResultGroupBox", true)->DynamicCastGroupBox();
 	if (groupBox)
-		groupBox->SetPos(groupBox->X(), Height() * 0.5f - groupBox->Height() * 0.5f);
+		groupBox->SetPos(groupBox->X(), int((float)Height() * 0.5f - (float)groupBox->Height() * 0.5f));
 
 	UpdateControls();
 }

@@ -185,7 +185,7 @@ b3GpuSolverBody
 		}
 	}
 
-	void writebackVelocityAndTransform(b3Scalar timeStep, b3Scalar splitImpulseTurnErp)
+	void writebackVelocityAndTransform(b3Scalar timeStep, b3Scalar /*splitImpulseTurnErp*/)
 	{
 		(void)timeStep;
 		if (m_originalBody)

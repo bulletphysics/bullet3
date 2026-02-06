@@ -33,7 +33,7 @@ if(UNIX)
     add_definitions(${OSDEF})
 elseif(WIN32)
     add_definitions(-DWIN32)
-    SET(PROJECT_LIBS Ws2_32.lib)
+    SET(PROJECT_LIBS ws2_32.lib)
     if(MINGW)
         # Special MINGW stuff here
     elseif(MSVC)

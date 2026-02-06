@@ -20,7 +20,8 @@ namespace Hook
 class GWEN_EXPORT BaseHook
 {
 public:
-	virtual bool OnControlClicked(Gwen::Controls::Base*, int /*iMouseX*/, int /*iMouseY*/) { return false; };
+	virtual ~BaseHook() {}
+	virtual bool OnControlClicked(Gwen::Controls::Base*, int /*iMouseX*/, int /*iMouseY*/) { return false; }
 };
 
 typedef std::list<BaseHook*> HookList;

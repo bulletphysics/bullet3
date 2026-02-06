@@ -112,7 +112,7 @@ rows/columns and manipulate C.
 
 #include <string.h>  //memcpy
 
-bool s_error = false;
+static bool s_error = false;
 
 //***************************************************************************
 // code generation parameters
@@ -302,7 +302,7 @@ static void btSolveL1_2(const btScalar *L, btScalar *B, int n, int lskip1)
 	}
 }
 
-void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
+static void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
 {
 	int i, j;
 	btScalar sum, *ell, *dee, dd, p1, p2, q1, q2, Z11, m11, Z21, m21, Z22, m22;
@@ -516,7 +516,9 @@ void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
 			/* done factorizing 1 x 1 block */
 			break;
 
-			//default: *((char*)0)=0;  /* this should never happen! */
+		default:
+			//*((char*)0)=0;  /* this should never happen! */
+			break;
 	}
 }
 
@@ -530,7 +532,7 @@ void btFactorLDLT(btScalar *A, btScalar *d, int n, int nskip1)
  * if this is in the factorizer source file, n must be a multiple of 4.
  */
 
-void btSolveL1(const btScalar *L, btScalar *B, int n, int lskip1)
+static void btSolveL1(const btScalar *L, btScalar *B, int n, int lskip1)
 {
 	/* declare variables - Z matrix, p and q vectors, etc */
 	btScalar Z11, Z21, Z31, Z41, p1, q1, p2, p3, p4, *ex;
@@ -829,7 +831,7 @@ void btSolveL1(const btScalar *L, btScalar *B, int n, int lskip1)
  * this processes blocks of 4.
  */
 
-void btSolveL1T(const btScalar *L, btScalar *B, int n, int lskip1)
+static void btSolveL1T(const btScalar *L, btScalar *B, int n, int lskip1)
 {
 	/* declare variables - Z matrix, p and q vectors, etc */
 	btScalar Z11, m11, Z21, m21, Z31, m31, Z41, m41, p1, q1, p2, p3, p4, *ex;
@@ -1024,7 +1026,7 @@ void btSolveL1T(const btScalar *L, btScalar *B, int n, int lskip1)
 	}
 }
 
-void btVectorScale(btScalar *a, const btScalar *d, int n)
+static void btVectorScale(btScalar *a, const btScalar *d, int n)
 {
 	btAssert(a && d && n >= 0);
 	for (int i = 0; i < n; i++)
@@ -1033,7 +1035,7 @@ void btVectorScale(btScalar *a, const btScalar *d, int n)
 	}
 }
 
-void btSolveLDLT(const btScalar *L, const btScalar *d, btScalar *b, int n, int nskip)
+static void btSolveLDLT(const btScalar *L, const btScalar *d, btScalar *b, int n, int nskip)
 {
 	btAssert(L && d && b && n > 0 && nskip >= n);
 	btSolveL1(L, b, n, nskip);
@@ -1226,7 +1228,7 @@ struct btLCP
 		  bool *_state, int *_findex, int *p, int *c, btScalar **Arows);
 	int getNub() const { return m_nub; }
 	void transfer_i_to_C(int i);
-	void transfer_i_to_N(int i) { m_nN++; }  // because we can assume C and N span 1:i-1
+	void transfer_i_to_N(int /*i*/) { m_nN++; }  // because we can assume C and N span 1:i-1
 	void transfer_i_from_N_to_C(int i);
 	void transfer_i_from_C_to_N(int i, btAlignedObjectArray<btScalar> &scratch);
 	int numC() const { return m_nC; }
@@ -1283,9 +1285,9 @@ btLCP::btLCP(int _n, int _nskip, int _nub, btScalar *_Adata, btScalar *_x, btSca
 	}
 
 	{
-		int *p = m_p;
+		int *mp = m_p;
 		const int n = m_n;
-		for (int k = 0; k < n; ++k) p[k] = k;  // initially unpermuted
+		for (int k = 0; k < n; ++k) mp[k] = k;  // initially unpermuted
 	}
 
 	/*
@@ -1457,11 +1459,11 @@ void btLCP::transfer_i_from_N_to_C(int i)
 	// @@@ TO DO LATER
 	// if we just finish here then we'll go back and re-solve for
 	// delta_x. but actually we can be more efficient and incrementally
-	// update delta_x here. but if we do this, we wont have ell and Dell
+	// update delta_x here. but if we do this, we won't have ell and Dell
 	// to use in updating the factorization later.
 }
 
-void btRemoveRowCol(btScalar *A, int n, int nskip, int r)
+static void btRemoveRowCol(btScalar *A, int n, int nskip, int r)
 {
 	btAssert(A && n > 0 && nskip >= n && r >= 0 && r < n);
 	if (r >= n - 1) return;
@@ -1499,7 +1501,7 @@ void btRemoveRowCol(btScalar *A, int n, int nskip, int r)
 	}
 }
 
-void btLDLTAddTL(btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, btAlignedObjectArray<btScalar> &scratch)
+static void btLDLTAddTL(btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, btAlignedObjectArray<btScalar> &scratch)
 {
 	btAssert(L && d && a && n > 0 && nskip >= n);
 
@@ -1531,6 +1533,7 @@ void btLDLTAddTL(btScalar *L, btScalar *d, const btScalar *a, int n, int nskip, 
 		alpha1 = alphanew;
 		alphanew = alpha2 - (W21 * W21) * dee;
 		dee /= alphanew;
+		(void)dee;
 		//btScalar gamma2 = W21 * dee;
 		alpha2 = alphanew;
 		btScalar k1 = btScalar(1.0) - W21 * gamma1;
@@ -1589,7 +1592,7 @@ inline size_t btEstimateLDLTAddTLTmpbufSize(int nskip)
 	return nskip * 2 * sizeof(btScalar);
 }
 
-void btLDLTRemove(btScalar **A, const int *p, btScalar *L, btScalar *d,
+static void btLDLTRemove(btScalar **A, const int *p, btScalar *L, btScalar *d,
 				  int n1, int n2, int r, int nskip, btAlignedObjectArray<btScalar> &scratch)
 {
 	btAssert(A && p && L && d && n1 > 0 && n2 > 0 && r >= 0 && r < n2 &&
@@ -1597,6 +1600,8 @@ void btLDLTRemove(btScalar **A, const int *p, btScalar *L, btScalar *d,
 #ifdef BT_DEBUG
 	for (int i = 0; i < n2; ++i)
 		btAssert(p[i] >= 0 && p[i] < n1);
+#else
+	(void)n1;
 #endif
 
 	if (r == n2 - 1)
@@ -1796,14 +1801,14 @@ void btLCP::solve1(btScalar *a, int i, int dir, int only_transfer)
 			if (dir > 0)
 			{
 				int *C = m_C;
-				btScalar *tmp = m_tmp;
+				tmp = m_tmp;
 				const int nC = m_nC;
 				for (int j = 0; j < nC; ++j) a[C[j]] = -tmp[j];
 			}
 			else
 			{
 				int *C = m_C;
-				btScalar *tmp = m_tmp;
+				tmp = m_tmp;
 				const int nC = m_nC;
 				for (int j = 0; j < nC; ++j) a[C[j]] = tmp[j];
 			}
@@ -1993,7 +1998,7 @@ bool btSolveDantzigLCP(int n, btScalar *A, btScalar *x, btScalar *b,
 				// compute: delta_x(C) = -dir*A(C,C)\A(C,i)
 				lcp.solve1(&scratchMem.delta_x[0], i, dir);
 
-				// note that delta_x[i] = dirf, but we wont bother to set it
+				// note that delta_x[i] = dirf, but we won't bother to set it
 
 				// compute: delta_w = A*delta_x ... note we only care about
 				// delta_w(N) and delta_w(i), the rest is ignored
@@ -2139,6 +2144,8 @@ bool btSolveDantzigLCP(int n, btScalar *A, btScalar *x, btScalar *b,
 						x[si] = hi[si];
 						scratchMem.state[si] = true;
 						lcp.transfer_i_from_C_to_N(si, scratchMem.m_scratch);
+						break;
+					default:
 						break;
 				}
 

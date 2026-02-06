@@ -61,7 +61,7 @@ public:
 	inline int Alignment() const { return m_iAlign; }
 
 protected:
-	virtual void OnTextChanged(){};
+	virtual void OnTextChanged(){}
 
 	Padding m_rTextPadding;
 	ControlsInternal::Text* m_Text;

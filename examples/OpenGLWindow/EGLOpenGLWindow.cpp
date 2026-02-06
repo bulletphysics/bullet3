@@ -113,7 +113,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	{
 		fprintf(stderr, "failed to EGL with glad.\n");
 		exit(EXIT_FAILURE);
-	};
+	}
 
 	// Query EGL Devices
 	const int max_devices = 32;
@@ -169,7 +169,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 			}
 			else
 			{
-				fprintf(stderr, "GetDisplay %d failed with error: %x\n", i, eglGetError());
+				fprintf(stderr, "GetDisplay %d failed with error: %x\n", i, (unsigned)eglGetError());
 			}
 		}
 	}
@@ -196,13 +196,13 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		}
 		else
 		{
-			fprintf(stderr, "GetDisplay %d failed with error: %x\n", m_data->m_renderDevice, eglGetError());
+			fprintf(stderr, "GetDisplay %d failed with error: %x\n", m_data->m_renderDevice, (unsigned)eglGetError());
 		}
 	}
 
 	if (!eglInitialize(m_data->egl_display, NULL, NULL))
 	{
-		fprintf(stderr, "eglInitialize() failed with error: %x\n", eglGetError());
+		fprintf(stderr, "eglInitialize() failed with error: %x\n", (unsigned)eglGetError());
 		exit(EXIT_FAILURE);
 	}
 
@@ -295,6 +295,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	glViewport(0,0,m_data->m_windowWidth, m_data->m_windowHeight);
 	//int i = pthread_getconcurrency();
 	//printf("pthread_getconcurrency()=%d\n", i);
+	m_OpenGLInitialized = true;
 }
 
 void EGLOpenGLWindow::closeWindow()
@@ -327,7 +328,7 @@ void EGLOpenGLWindow::endRendering()
 	eglSwapBuffers(m_data->egl_display, m_data->egl_surface);
 }
 
-bool EGLOpenGLWindow::isModifierKeyPressed(int key) { return false; }
+bool EGLOpenGLWindow::isModifierKeyPressed(int /*key*/) { return false; }
 
 void EGLOpenGLWindow::setMouseMoveCallback(b3MouseMoveCallback mouseCallback)
 {
@@ -380,18 +381,18 @@ b3KeyboardCallback EGLOpenGLWindow::getKeyboardCallback()
 	return m_data->m_keyboardCallback;
 }
 
-void EGLOpenGLWindow::setRenderCallback(b3RenderCallback renderCallback) {}
-void EGLOpenGLWindow::setWindowTitle(const char* title) {}
+void EGLOpenGLWindow::setRenderCallback(b3RenderCallback /*renderCallback*/) {}
+void EGLOpenGLWindow::setWindowTitle(const char* /*title*/) {}
 
 float EGLOpenGLWindow::getRetinaScale() const { return 1.f; }
 
-void EGLOpenGLWindow::setAllowRetina(bool allow) {}
+void EGLOpenGLWindow::setAllowRetina(bool /*allow*/) {}
 
 int EGLOpenGLWindow::getWidth() const { return m_data->m_windowWidth; }
 
 int EGLOpenGLWindow::getHeight() const { return m_data->m_windowHeight; }
 
-int EGLOpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
+int EGLOpenGLWindow::fileOpenDialog(char* /*fileName*/, int /*maxFileNameLength*/)
 {
 	return 0;
 }

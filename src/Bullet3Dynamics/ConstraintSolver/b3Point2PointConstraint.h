@@ -48,7 +48,7 @@ enum b3Point2PointFlags
 	B3_P2P_FLAGS_CFM = 2
 };
 
-/// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space
+/// point to point constraint between two rigidbodies each with a pivotpoint that describes the 'ballsocket' location in local space
 B3_ATTRIBUTE_ALIGNED16(class)
 b3Point2PointConstraint : public b3TypedConstraint
 {

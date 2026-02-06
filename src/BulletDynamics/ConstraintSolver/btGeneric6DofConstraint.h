@@ -71,18 +71,18 @@ public:
 
 	btRotationalLimitMotor()
 	{
-		m_accumulatedImpulse = 0.f;
+		m_accumulatedImpulse = btScalar(0.);
 		m_targetVelocity = 0;
-		m_maxMotorForce = 6.0f;
-		m_maxLimitForce = 300.0f;
-		m_loLimit = 1.0f;
-		m_hiLimit = -1.0f;
-		m_normalCFM = 0.f;
-		m_stopERP = 0.2f;
-		m_stopCFM = 0.f;
-		m_bounce = 0.0f;
-		m_damping = 1.0f;
-		m_limitSoftness = 0.5f;
+		m_maxMotorForce = btScalar(6.0);
+		m_maxLimitForce = btScalar(300.0);
+		m_loLimit = btScalar(1.0);
+		m_hiLimit = btScalar(-1.0);
+		m_normalCFM = btScalar(0.);
+		m_stopERP = btScalar(0.2);
+		m_stopCFM = btScalar(0.);
+		m_bounce = btScalar(0.0);
+		m_damping = btScalar(1.0);
+		m_limitSoftness = btScalar(0.5);
 		m_currentLimit = 0;
 		m_currentLimitError = 0;
 		m_enableMotor = false;
@@ -152,21 +152,21 @@ public:
 
 	btTranslationalLimitMotor()
 	{
-		m_lowerLimit.setValue(0.f, 0.f, 0.f);
-		m_upperLimit.setValue(0.f, 0.f, 0.f);
-		m_accumulatedImpulse.setValue(0.f, 0.f, 0.f);
-		m_normalCFM.setValue(0.f, 0.f, 0.f);
-		m_stopERP.setValue(0.2f, 0.2f, 0.2f);
-		m_stopCFM.setValue(0.f, 0.f, 0.f);
+		m_lowerLimit.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+		m_upperLimit.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+		m_accumulatedImpulse.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+		m_normalCFM.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+		m_stopERP.setValue(btScalar(0.2), btScalar(0.2), btScalar(0.2));
+		m_stopCFM.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
 
-		m_limitSoftness = 0.7f;
-		m_damping = btScalar(1.0f);
-		m_restitution = btScalar(0.5f);
+		m_limitSoftness = btScalar(0.7);
+		m_damping = btScalar(1.0);
+		m_restitution = btScalar(0.5);
 		for (int i = 0; i < 3; i++)
 		{
 			m_enableMotor[i] = false;
-			m_targetVelocity[i] = btScalar(0.f);
-			m_maxMotorForce[i] = btScalar(0.f);
+			m_targetVelocity[i] = btScalar(0.);
+			m_maxMotorForce[i] = btScalar(0.);
 		}
 	}
 
@@ -227,7 +227,7 @@ enum bt6DofFlags
 };
 #define BT_6DOF_FLAGS_AXIS_SHIFT 3  // bits per axis
 
-/// btGeneric6DofConstraint between two rigidbodies each with a pivotpoint that descibes the axis location in local space
+/// btGeneric6DofConstraint between two rigidbodies each with a pivotpoint that describes the axis location in local space
 /*!
 btGeneric6DofConstraint can leave any of the 6 degree of freedom 'free' or 'locked'.
 currently this limit supports rotational motors<br>
@@ -240,7 +240,7 @@ This is accessible through btGeneric6DofConstraint.getLimitMotor method,
 This brings support for limit parameters and motors. </li>
 
 <li> Angulars limits have these possible ranges:
-<table border=1 >
+<table border="1" >
 <tr>
 	<td><b>AXIS</b></td>
 	<td><b>MIN ANGLE</b></td>
@@ -302,7 +302,7 @@ protected:
 	btScalar m_factB;
 	bool m_hasStaticBody;
 
-	btVector3 m_AnchorPos;  // point betwen pivots of bodies A and B to solve linear axes
+	btVector3 m_AnchorPos;  // point between pivots of bodies A and B to solve linear axes
 
 	bool m_useLinearReferenceFrameA;
 	bool m_useOffsetForConstraintFrame;
@@ -474,13 +474,13 @@ public:
 			angularUpper[i] = m_angularLimits[i].m_hiLimit;
 	}
 
-	//! Retrieves the angular limit informacion
+	//! Retrieves the angular limit information
 	btRotationalLimitMotor* getRotationalLimitMotor(int index)
 	{
 		return &m_angularLimits[index];
 	}
 
-	//! Retrieves the  limit informacion
+	//! Retrieves the  limit information
 	btTranslationalLimitMotor* getTranslationalLimitMotor()
 	{
 		return &m_linearLimits;

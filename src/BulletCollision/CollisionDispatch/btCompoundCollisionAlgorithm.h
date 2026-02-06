@@ -67,13 +67,13 @@ public:
 
 	btScalar calculateTimeOfImpact(btCollisionObject* body0, btCollisionObject* body1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut);
 
-	virtual void getAllContactManifolds(btManifoldArray& manifoldArray)
+	virtual void getAllContactManifolds(btManifoldArray& manifoldArrayL)
 	{
 		int i;
 		for (i = 0; i < m_childCollisionAlgorithms.size(); i++)
 		{
 			if (m_childCollisionAlgorithms[i])
-				m_childCollisionAlgorithms[i]->getAllContactManifolds(manifoldArray);
+				m_childCollisionAlgorithms[i]->getAllContactManifolds(manifoldArrayL);
 		}
 	}
 

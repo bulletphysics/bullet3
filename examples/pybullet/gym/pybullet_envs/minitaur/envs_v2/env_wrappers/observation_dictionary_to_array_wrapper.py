@@ -52,7 +52,7 @@ class ObservationDictionaryToArrayWrapper(gym.Env):
       action: Numpy array. The input action from an NN agent.
 
     Returns:
-      The tuple containing the flattened observation, the reward, the epsiode
+      The tuple containing the flattened observation, the reward, the episode
         end indicator.
     """
     observation_dict, reward, done, _ = self._gym_env.step(action)

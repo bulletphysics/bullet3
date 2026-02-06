@@ -46,6 +46,7 @@ void btFractureDynamicsWorld::glueCallback()
 	unionFind.reset(index);
 
 	int numElem = unionFind.getNumElements();
+	(void)numElem;
 
 	for (int i = 0; i < numManifolds; i++)
 	{
@@ -123,7 +124,7 @@ void btFractureDynamicsWorld::glueCallback()
 				fractureObjectIndex = i;
 			}
 			btRigidBody* otherObject = btRigidBody::upcast(colObj0);
-			if (!otherObject || !otherObject->getInvMass())
+			if (!otherObject || otherObject->getInvMass() == btScalar(0))
 				continue;
 			numObjects++;
 		}
@@ -182,7 +183,7 @@ void btFractureDynamicsWorld::glueCallback()
 				btRigidBody* otherObject = btRigidBody::upcast(otherCollider);
 				//don't glue/merge with static objects right now, otherwise everything gets stuck to the ground
 				///todo: expose this as a callback
-				if (!otherObject || !otherObject->getInvMass())
+				if (!otherObject || otherObject->getInvMass() == btScalar(0))
 					continue;
 
 				oldImpulses.push_back(otherObject->getLinearVelocity() * (1.f / otherObject->getInvMass()));
@@ -247,7 +248,7 @@ void btFractureDynamicsWorld::glueCallback()
 		removedObjects.pop_back();
 
 		btRigidBody* otherObject = btRigidBody::upcast(otherCollider);
-		if (!otherObject || !otherObject->getInvMass())
+		if (!otherObject || otherObject->getInvMass() == btScalar(0))
 			continue;
 		removeRigidBody(otherObject);
 	}
@@ -266,7 +267,7 @@ void btFractureDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	//	save all velocities and if one or more objects fracture:
 	//	1) revert all velocties
 	//	2) apply impulses for the fracture bodies at the contact locations
-	//	3)and run the constaint solver again
+	//	3)and run the constraint solver again
 
 	btDiscreteDynamicsWorld::solveConstraints(solverInfo);
 
@@ -356,6 +357,7 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 
 	unionFind.reset(index);
 	int numElem = unionFind.getNumElements();
+	(void)numElem;
 	for (i = 0; i < fracObj->m_connections.size(); i++)
 	{
 		btConnection& connection = fracObj->m_connections[i];
@@ -387,6 +389,7 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 	btAlignedObjectArray<btCollisionObject*> removedObjects;
 
 	int numIslands = 0;
+	(void)numIslands;
 
 	for (startIslandIndex = 0; startIslandIndex < numElem; startIslandIndex = endIslandIndex)
 	{
@@ -405,10 +408,10 @@ void btFractureDynamicsWorld::breakDisconnectedParts(btFractureBody* fracObj)
 		int idx;
 		for (idx = startIslandIndex; idx < endIslandIndex; idx++)
 		{
-			int i = unionFind.getElement(idx).m_sz;
+			int ii = unionFind.getElement(idx).m_sz;
 			//		btCollisionShape* shape = compound->getChildShape(i);
-			newCompound->addChildShape(compound->getChildTransform(i), compound->getChildShape(i));
-			masses.push_back(fracObj->m_masses[i]);
+			newCompound->addChildShape(compound->getChildTransform(ii), compound->getChildShape(ii));
+			masses.push_back(fracObj->m_masses[ii]);
 			numShapes++;
 		}
 		if (numShapes)
@@ -456,7 +459,7 @@ void btFractureDynamicsWorld::fractureCallback()
 
 		static float maxImpact = 0;
 		if (totalImpact > maxImpact)
-			maxImpact = totalImpact;
+			maxImpact = (float)totalImpact;
 
 		//some threshold otherwise resting contact would break objects after a while
 		if (totalImpact < 40.f)
@@ -480,7 +483,7 @@ void btFractureDynamicsWorld::fractureCallback()
 		int f0 = m_fractureBodies.findLinearSearch((btFractureBody*)manifold->getBody0());
 		int f1 = m_fractureBodies.findLinearSearch((btFractureBody*)manifold->getBody1());
 
-		if (f0 == f1 == m_fractureBodies.size())
+		if ((f0 == f1) && (f1 == m_fractureBodies.size()))
 			continue;
 
 		if (f0 < m_fractureBodies.size())

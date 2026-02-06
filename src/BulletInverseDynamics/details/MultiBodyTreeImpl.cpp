@@ -20,7 +20,7 @@ MultiBodyTree::MultiBodyImpl::MultiBodyImpl(int num_bodies_, int num_dofs_)
 
 	m_world_gravity(0) = 0.0;
 	m_world_gravity(1) = 0.0;
-	m_world_gravity(2) = -9.8;
+	m_world_gravity(2) = btScalar(-9.8);
 }
 
 const char *MultiBodyTree::MultiBodyImpl::jointTypeToString(const JointType &type) const
@@ -159,9 +159,6 @@ int MultiBodyTree::MultiBodyImpl::generateIndexSets()
 				body.m_q_index = q_index;
 				q_index += 3;
 				break;
-			default:
-				bt_id_error_message("unsupported joint type %d\n", body.m_joint_type);
-				return -1;
 		}
 	}
 	// sanity check
@@ -700,6 +697,8 @@ static inline void setThreeDoFJacobians(const int dof, vec3 &Jac_JR, vec3 &Jac_J
 			Jac_JR(2) = 1;
 			setZero(Jac_JT);
 			break;
+		default:
+			break;
 	}
 }
 
@@ -745,6 +744,8 @@ static inline void setSixDoFJacobians(const int dof, vec3 &Jac_JR, vec3 &Jac_JT)
 			Jac_JT(1) = 0;
 			Jac_JT(2) = 1;
 			break;
+		default:
+			break;
 	}
 }
 
@@ -766,7 +767,7 @@ static inline int jointNumDoFs(const JointType &type)
 	bt_id_error_message("invalid joint type\n");
 	// TODO add configurable abort/crash function
 	abort();
-	return 0;
+	// return 0;
 }
 
 int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool update_kinematics,
@@ -936,13 +937,13 @@ int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool 
 						//todo: review
 						setThreeDoFJacobians(row - q_index_min, Jac_JR, Jac_JT);
 						const double Mrc = Jac_JR.dot(body_eom_rot) + Jac_JT.dot(body_eom_trans);
-						setMatxxElem(col, row, Mrc, mass_matrix);
+						setMatxxElem(col, row, (idScalar)Mrc, mass_matrix);
 					}
 					if (FLOATING == body.m_joint_type)
 					{
 						setSixDoFJacobians(row - q_index_min, Jac_JR, Jac_JT);
 						const double Mrc = Jac_JR.dot(body_eom_rot) + Jac_JT.dot(body_eom_trans);
-						setMatxxElem(col, row, Mrc, mass_matrix);
+						setMatxxElem(col, row, (idScalar)Mrc, mass_matrix);
 					}
 				}
 				// 2. ancestor dofs
@@ -961,22 +962,22 @@ int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool 
 					const int parent_body_q_index_min = parent_body.m_q_index;
 					const int parent_body_q_index_max =
 						parent_body_q_index_min + jointNumDoFs(parent_body.m_joint_type) - 1;
-					vec3 Jac_JR = parent_body.m_Jac_JR;
-					vec3 Jac_JT = parent_body.m_Jac_JT;
+					vec3 Jac_JR_L = parent_body.m_Jac_JR;
+					vec3 Jac_JT_L = parent_body.m_Jac_JT;
 					for (int row = parent_body_q_index_max; row >= parent_body_q_index_min; row--)
 					{
 						if (SPHERICAL == parent_body.m_joint_type)
 						{
 							//todo: review
-							setThreeDoFJacobians(row - parent_body_q_index_min, Jac_JR, Jac_JT);
+							setThreeDoFJacobians(row - parent_body_q_index_min, Jac_JR_L, Jac_JT_L);
 						}
 						// set jacobians for 6-DoF joints
 						if (FLOATING == parent_body.m_joint_type)
 						{
-							setSixDoFJacobians(row - parent_body_q_index_min, Jac_JR, Jac_JT);
+							setSixDoFJacobians(row - parent_body_q_index_min, Jac_JR_L, Jac_JT_L);
 						}
-						const double Mrc = Jac_JR.dot(body_eom_rot) + Jac_JT.dot(body_eom_trans);
-						setMatxxElem(col, row, Mrc, mass_matrix);
+						const double Mrc = Jac_JR_L.dot(body_eom_rot) + Jac_JT_L.dot(body_eom_trans);
+						setMatxxElem(col, row, (idScalar)Mrc, mass_matrix);
 					}
 
 					child_idx = parent_idx;

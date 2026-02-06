@@ -118,7 +118,7 @@ public:
 	int getNumTriangleInfoMaps() const;
 	btTriangleInfoMap* getTriangleInfoMapByIndex(int index) const;
 
-	// queris involving named objects
+	// queries involving named objects
 	btCollisionShape* getCollisionShapeByName(const char* name);
 	btCollisionObject* getCollisionObjectByName(const char* name);
 

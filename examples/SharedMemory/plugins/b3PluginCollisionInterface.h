@@ -9,6 +9,8 @@ enum b3PluginCollisionFilterModes
 
 struct b3PluginCollisionInterface
 {
+	virtual ~b3PluginCollisionInterface() {}
+
 	virtual void setBroadphaseCollisionFilter(
 		int objectUniqueIdA, int objectUniqueIdB,
 		int linkIndexA, int linkIndexB,

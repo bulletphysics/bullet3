@@ -38,7 +38,7 @@ public:
 									  btMultiBodyJacobianData& data,
 									  const btContactSolverInfo& infoGlobal);
 
-	virtual void debugDraw(class btIDebugDraw* drawer)
+	virtual void debugDraw(class btIDebugDraw* /*drawer*/)
 	{
 		//todo(erwincoumans)
 	}

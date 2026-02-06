@@ -38,7 +38,7 @@ public:
 /// @param creator an object implementing the MultiBodyTreeCreator interface
 ///        that returns data defining the system
 /// @return A pointer to an allocated multibodytree instance, or
-///         0x0 if an error occured.
+///         0x0 if an error occurred.
 MultiBodyTree* CreateMultiBodyTree(const MultiBodyTreeCreator& creator);
 }  // namespace btInverseDynamics
 

@@ -18,7 +18,7 @@ namespace internal {
 // This is needed to workaround a circular dependency.
 
 /***************************************************************************
- * Some generic implementations to be used by implementors
+ * Some generic implementations to be used by implementers
 ***************************************************************************/
 
 /** Default implementation of pfrexp.

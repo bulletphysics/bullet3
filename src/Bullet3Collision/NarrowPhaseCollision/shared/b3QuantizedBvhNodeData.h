@@ -25,7 +25,7 @@ inline int b3GetTriangleIndex(const b3QuantizedBvhNodeData* rootNode)
 	unsigned int x = 0;
 	unsigned int y = (~(x & 0)) << (31 - B3_MAX_NUM_PARTS_IN_BITS);
 	// Get only the lower bits where the triangle index is stored
-	return (rootNode->m_escapeIndexOrTriangleIndex & ~(y));
+	return (int)(rootNode->m_escapeIndexOrTriangleIndex & ~(y));
 }
 
 inline int b3IsLeaf(const b3QuantizedBvhNodeData* rootNode)

@@ -393,7 +393,7 @@ EIGEN_STRONG_INLINE Packet8d pmax<Packet8d>(const Packet8d& a,
   return _mm512_max_pd(b, a);
 }
 
-// Add specializations for min/max with prescribed NaN progation.
+// Add specializations for min/max with prescribed NaN propagation.
 template<>
 EIGEN_STRONG_INLINE Packet16f pmin<PropagateNumbers, Packet16f>(const Packet16f& a, const Packet16f& b) {
   return pminmax_propagate_numbers(a, b, pmin<Packet16f>);
@@ -1947,7 +1947,7 @@ EIGEN_STRONG_INLINE Packet16bf F32ToBf16(const Packet16f& a) {
 
 #if defined(EIGEN_VECTORIZE_AVX512BF16) && EIGEN_GNUC_AT_LEAST(10, 1)
   // Since GCC 10.1 supports avx512bf16 and C style explicit cast
-  // (C++ static_cast is not supported yet), do converion via intrinsic
+  // (C++ static_cast is not supported yet), do conversion via intrinsic
   // and register path for performance.
   r = (__m256i)(_mm512_cvtneps_pbh(a));
 

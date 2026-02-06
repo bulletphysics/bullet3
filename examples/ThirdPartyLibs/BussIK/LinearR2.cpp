@@ -83,7 +83,7 @@ VectorR2 LinearMapR2::Solve(const VectorR2& u) const  // Returns solution
 //  Stream Output Routines										 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR2& u)
+std::ostream& operator<<(std::ostream& os, const VectorR2& u)
 {
 	return (os << "<" << u.x << "," << u.y << ">");
 }

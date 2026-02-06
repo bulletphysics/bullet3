@@ -36,7 +36,13 @@ extern "C"
 		}
 	};
 
-#define B3_PROFILE(name) b3ProfileZone __profile(name)
+#ifndef MACRO_CONCAT
+#	define MACRO_CONCAT(a, b) a##b
+#endif
+#ifndef CONCAT
+#	define CONCAT(a, b) MACRO_CONCAT(a, b)
+#endif
+#define B3_PROFILE(name) b3ProfileZone CONCAT(__profile,__COUNTER__)(name)
 #endif
 
 #else  //B3_NO_PROFILE

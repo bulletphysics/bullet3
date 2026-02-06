@@ -61,8 +61,8 @@ struct btTriangleInfoMap : public btInternalTriangleInfoMap
 
 	btTriangleInfoMap()
 	{
-		m_convexEpsilon = 0.00f;
-		m_planarEpsilon = 0.0001f;
+		m_convexEpsilon = btScalar(0.00);
+		m_planarEpsilon = btScalar(0.0001);
 		m_equalVertexThreshold = btScalar(0.0001) * btScalar(0.0001);
 		m_edgeDistanceThreshold = btScalar(0.1);
 		m_zeroAreaThreshold = btScalar(0.0001) * btScalar(0.0001);
@@ -128,11 +128,11 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 
 	tmapData->m_hashTableSize = m_hashTable.size();
 
-	tmapData->m_hashTablePtr = tmapData->m_hashTableSize ? (int*)serializer->getUniquePointer((void*)&m_hashTable[0]) : 0;
+	tmapData->m_hashTablePtr = tmapData->m_hashTableSize ? (int*)serializer->getUniquePointer((void*)&m_hashTable[0]) : NULL;
 	if (tmapData->m_hashTablePtr)
 	{
 		//serialize an int buffer
-		int sz = sizeof(int);
+		size_t sz = sizeof(int);
 		int numElem = tmapData->m_hashTableSize;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		int* memPtr = (int*)chunk->m_oldPtr;
@@ -144,10 +144,10 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 
 	tmapData->m_nextSize = m_next.size();
-	tmapData->m_nextPtr = tmapData->m_nextSize ? (int*)serializer->getUniquePointer((void*)&m_next[0]) : 0;
+	tmapData->m_nextPtr = tmapData->m_nextSize ? (int*)serializer->getUniquePointer((void*)&m_next[0]) : NULL;
 	if (tmapData->m_nextPtr)
 	{
-		int sz = sizeof(int);
+		size_t sz = sizeof(int);
 		int numElem = tmapData->m_nextSize;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		int* memPtr = (int*)chunk->m_oldPtr;
@@ -159,10 +159,10 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 
 	tmapData->m_numValues = m_valueArray.size();
-	tmapData->m_valueArrayPtr = tmapData->m_numValues ? (btTriangleInfoData*)serializer->getUniquePointer((void*)&m_valueArray[0]) : 0;
+	tmapData->m_valueArrayPtr = tmapData->m_numValues ? (btTriangleInfoData*)serializer->getUniquePointer((void*)&m_valueArray[0]) : NULL;
 	if (tmapData->m_valueArrayPtr)
 	{
-		int sz = sizeof(btTriangleInfoData);
+		size_t sz = sizeof(btTriangleInfoData);
 		int numElem = tmapData->m_numValues;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		btTriangleInfoData* memPtr = (btTriangleInfoData*)chunk->m_oldPtr;
@@ -177,10 +177,10 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 	}
 
 	tmapData->m_numKeys = m_keyArray.size();
-	tmapData->m_keyArrayPtr = tmapData->m_numKeys ? (int*)serializer->getUniquePointer((void*)&m_keyArray[0]) : 0;
+	tmapData->m_keyArrayPtr = tmapData->m_numKeys ? (int*)serializer->getUniquePointer((void*)&m_keyArray[0]) : NULL;
 	if (tmapData->m_keyArrayPtr)
 	{
-		int sz = sizeof(int);
+		size_t sz = sizeof(int);
 		int numElem = tmapData->m_numValues;
 		btChunk* chunk = serializer->allocate(sz, numElem);
 		int* memPtr = (int*)chunk->m_oldPtr;
@@ -203,11 +203,11 @@ SIMD_FORCE_INLINE const char* btTriangleInfoMap::serialize(void* dataBuffer, btS
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
 SIMD_FORCE_INLINE void btTriangleInfoMap::deSerialize(btTriangleInfoMapData& tmapData)
 {
-	m_convexEpsilon = tmapData.m_convexEpsilon;
-	m_planarEpsilon = tmapData.m_planarEpsilon;
-	m_equalVertexThreshold = tmapData.m_equalVertexThreshold;
-	m_edgeDistanceThreshold = tmapData.m_edgeDistanceThreshold;
-	m_zeroAreaThreshold = tmapData.m_zeroAreaThreshold;
+	m_convexEpsilon = (btScalar)tmapData.m_convexEpsilon;
+	m_planarEpsilon = (btScalar)tmapData.m_planarEpsilon;
+	m_equalVertexThreshold = (btScalar)tmapData.m_equalVertexThreshold;
+	m_edgeDistanceThreshold = (btScalar)tmapData.m_edgeDistanceThreshold;
+	m_zeroAreaThreshold = (btScalar)tmapData.m_zeroAreaThreshold;
 	m_hashTable.resize(tmapData.m_hashTableSize);
 	int i = 0;
 	for (i = 0; i < tmapData.m_hashTableSize; i++)
@@ -222,9 +222,9 @@ SIMD_FORCE_INLINE void btTriangleInfoMap::deSerialize(btTriangleInfoMapData& tma
 	m_valueArray.resize(tmapData.m_numValues);
 	for (i = 0; i < tmapData.m_numValues; i++)
 	{
-		m_valueArray[i].m_edgeV0V1Angle = tmapData.m_valueArrayPtr[i].m_edgeV0V1Angle;
-		m_valueArray[i].m_edgeV1V2Angle = tmapData.m_valueArrayPtr[i].m_edgeV1V2Angle;
-		m_valueArray[i].m_edgeV2V0Angle = tmapData.m_valueArrayPtr[i].m_edgeV2V0Angle;
+		m_valueArray[i].m_edgeV0V1Angle = (btScalar)tmapData.m_valueArrayPtr[i].m_edgeV0V1Angle;
+		m_valueArray[i].m_edgeV1V2Angle = (btScalar)tmapData.m_valueArrayPtr[i].m_edgeV1V2Angle;
+		m_valueArray[i].m_edgeV2V0Angle = (btScalar)tmapData.m_valueArrayPtr[i].m_edgeV2V0Angle;
 		m_valueArray[i].m_flags = tmapData.m_valueArrayPtr[i].m_flags;
 	}
 

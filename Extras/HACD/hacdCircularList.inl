@@ -16,12 +16,12 @@ namespace HACD
 		{
 			CircularListElement<T> * next = element->GetNext();
 			CircularListElement<T> * prev = element->GetPrev();
+			if (element == m_head)
+			{
+					m_head = next;
+			}
 			delete element;
 			m_size--;
-            if (element == m_head)
-            {
-                m_head = next;
-            }
 			next->GetPrev() = prev;
 			prev->GetNext() = next;
 			return true;

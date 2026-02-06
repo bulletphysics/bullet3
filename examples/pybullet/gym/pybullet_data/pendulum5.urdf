@@ -2,7 +2,7 @@
 <robot name="pendulum">
   <!--
   Author: Erwin Coumans <erwincoumans@google.com>
-  Contributers:
+  Contributors:
 -->
   
   <link name="world"/>

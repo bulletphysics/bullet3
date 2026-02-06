@@ -92,7 +92,7 @@ static void computePlane(const float *A, const float *B, const float *C, float *
 class Rect3d
 {
 public:
-	Rect3d(void){};
+	Rect3d(void){}
 
 	Rect3d(const float *bmin, const float *bmax)
 	{
@@ -137,7 +137,7 @@ public:
 	float mMax[3];
 };
 
-void splitRect(unsigned int axis,
+static void splitRect(unsigned int axis,
 			   const Rect3d &source,
 			   Rect3d &b1,
 			   Rect3d &b2,
@@ -169,14 +169,16 @@ void splitRect(unsigned int axis,
 			b2.SetMax(source.mMax);
 
 			break;
+		default:
+			break;
 	}
 }
 
 bool computeSplitPlane(unsigned int vcount,
 					   const float *vertices,
-					   unsigned int tcount,
-					   const unsigned int *indices,
-					   ConvexDecompInterface *callback,
+					   unsigned int /*tcount*/,
+					   const unsigned int * /*indices*/,
+					   ConvexDecompInterface * /*callback*/,
 					   float *plane)
 {
 	float bmin[3] = {1e9, 1e9, 1e9};
@@ -200,6 +202,7 @@ bool computeSplitPlane(unsigned int vcount,
 	float dz = bmax[2] - bmin[2];
 
 	float laxis = dx;
+	(void)laxis;
 
 	unsigned int axis = 0;
 
@@ -214,6 +217,7 @@ bool computeSplitPlane(unsigned int vcount,
 		axis = 2;
 		laxis = dz;
 	}
+	(void)laxis;
 
 	float p1[3];
 	float p2[3];
@@ -281,6 +285,8 @@ bool computeSplitPlane(unsigned int vcount,
 				p3[1] = bmax[1];
 			}
 
+			break;
+		default:
 			break;
 	}
 

@@ -56,7 +56,7 @@ class Minitaur(object):
       pd_control_enabled: Whether to use PD control for the motors.
       accurate_motor_model_enabled: Whether to use the accurate DC motor model.
       motor_kp: proportional gain for the accurate motor model
-      motor_kd: derivative gain for the acurate motor model
+      motor_kd: derivative gain for the accurate motor model
       torque_control_enabled: Whether to use the torque control, if set to
         False, pose control will be used.
       motor_overheat_protection: Whether to shutdown the motor that has exerted

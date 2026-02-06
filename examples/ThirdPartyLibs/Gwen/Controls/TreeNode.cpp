@@ -66,7 +66,7 @@ void TreeNode::Render(Skin::Base* skin)
 		iBottom = m_InnerPanel->Children.back()->Y() + m_InnerPanel->Y();
 	}
 
-	skin->DrawTreeNode(this, m_InnerPanel->Visible(), IsSelected(), m_Title->Height(), m_Title->TextRight(), m_ToggleButton->Y() + m_ToggleButton->Height() * 0.5, iBottom, GetParent() == m_TreeControl);
+	skin->DrawTreeNode(this, m_InnerPanel->Visible(), IsSelected(), m_Title->Height(), m_Title->TextRight(), int(m_ToggleButton->Y() + m_ToggleButton->Height() * 0.5), iBottom, GetParent() == m_TreeControl);
 }
 
 TreeNode* TreeNode::AddNode(const UnicodeString& strLabel)
@@ -125,8 +125,8 @@ void TreeNode::PostLayout(Skin::Base* /*skin*/)
 	}
 }
 
-void TreeNode::SetText(const UnicodeString& text) { m_Title->SetText(text); };
-void TreeNode::SetText(const String& text) { m_Title->SetText(text); };
+void TreeNode::SetText(const UnicodeString& text) { m_Title->SetText(text); }
+void TreeNode::SetText(const String& text) { m_Title->SetText(text); }
 
 UnicodeString TreeNode::GetText() const
 {
@@ -308,7 +308,7 @@ void TreeNode::iterate(int action, int* curIndex, int* targetIndex)
 			default:
 			{
 			}
-		};
+		}
 	}
 
 	if (curIndex)

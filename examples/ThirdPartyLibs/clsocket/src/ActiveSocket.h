@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
-/* ActiveSocket.h - Active Socket Decleration                                */
+/* ActiveSocket.h - Active Socket Declaration                                */
 /*                                                                           */
 /* Author : Mark Carrier (mark@carrierlabs.com)                              */
 /*                                                                           */
@@ -60,7 +60,7 @@ public:
 	virtual ~CActiveSocket()
 	{
 		Close();
-	};
+	}
 
 	/// Established a connection to the address specified by pAddr.
 	/// Connection-based protocol sockets (CSocket::SocketTypeTcp) may

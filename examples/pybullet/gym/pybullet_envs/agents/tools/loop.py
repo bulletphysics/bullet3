@@ -148,7 +148,7 @@ class Loop(object):
       if self._is_every_steps(phase_step, phase.batch, phase.report_every):
         yield mean_score
       if summary and phase.writer:
-        # We want smaller phases to catch up at the beginnig of each epoch so
+        # We want smaller phases to catch up at the beginning of each epoch so
         # that their graphs are aligned.
         longest_phase = max(phase.steps for phase in self._phases)
         summary_step = epoch * longest_phase + steps_in
@@ -160,7 +160,7 @@ class Loop(object):
     Args:
       phase_step: The incrementing step.
       batch: The number of steps progressed at once.
-      every: The interval of the periode.
+      every: The interval of the period.
 
     Returns:
       Boolean of whether the event should happen.
@@ -173,7 +173,7 @@ class Loop(object):
   def _find_current_phase(self, global_step):
     """Determine the current phase based on the global step.
 
-    This ensures continuing the correct phase after restoring checkoints.
+    This ensures continuing the correct phase after restoring checkpoints.
 
     Args:
       global_step: The global number of steps performed across all phases.

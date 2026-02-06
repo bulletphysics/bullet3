@@ -242,6 +242,7 @@ struct GJK
 			}
 			/* Append new vertice in -'v' direction	*/
 			appendvertice(cs, -m_ray);
+			btAssert(cs.rank > 0 && cs.rank < 4);
 			const btVector3& w = cs.c[cs.rank - 1]->w;
 			bool found = false;
 			for (U i = 0; i < 4; ++i)
@@ -291,6 +292,8 @@ struct GJK
 										   cs.c[2]->w,
 										   cs.c[3]->w,
 										   weights, mask);
+					break;
+				default:
 					break;
 			}
 			if (sqdist >= 0)
@@ -396,6 +399,8 @@ struct GJK
 							   m_simplex->c[2]->w - m_simplex->c[3]->w)) > 0)
 					return (true);
 			}
+			break;
+			default:
 			break;
 		}
 		return (false);
@@ -849,14 +854,17 @@ struct EPA
 	sFace* findbest()
 	{
 		sFace* minf = m_hull.root;
-		btScalar mind = minf->d * minf->d;
-		for (sFace* f = minf->l[1]; f; f = f->l[1])
+		if(minf)
 		{
-			const btScalar sqd = f->d * f->d;
-			if (sqd < mind)
+			btScalar mind = minf->d * minf->d;
+			for (sFace* f = minf->l[1]; f; f = f->l[1])
 			{
-				minf = f;
-				mind = sqd;
+				const btScalar sqd = f->d * f->d;
+				if (sqd < mind)
+				{
+					minf = f;
+					mind = sqd;
+				}
 			}
 		}
 		return (minf);
@@ -1044,12 +1052,12 @@ btScalar btGjkEpaSolver2::SignedDistance(const btVector3& position,
 		results.witnesses[1] = wtrs0 * w1;
 		const btVector3 delta = results.witnesses[1] -
 								results.witnesses[0];
-		const btScalar margin = shape0->getMarginNonVirtual() +
+		const btScalar marginNv = shape0->getMarginNonVirtual() +
 								shape1.getMarginNonVirtual();
 		const btScalar length = delta.length();
 		results.normal = delta / length;
-		results.witnesses[0] += results.normal * margin;
-		results.distance = length - margin;
+		results.witnesses[0] += results.normal * marginNv;
+		results.distance = length - marginNv;
 		return results.distance;
 	}
 	else

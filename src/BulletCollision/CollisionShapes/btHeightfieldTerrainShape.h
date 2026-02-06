@@ -51,12 +51,12 @@ subject to the following restrictions:
   heightfieldData array.  
 
    - unsigned char: height at a point is the uchar value at the
-       grid point, multipled by heightScale.  uchar isn't recommended
+       grid point, multiplied by heightScale.  uchar isn't recommended
        because of its inability to deal with negative values, and
        low resolution (8-bit).
 
    - short: height at a point is the short int value at that grid
-       point, multipled by heightScale.
+       point, multiplied by heightScale.
 
    - float or dobule: height at a point is the value at that grid point.
 
@@ -74,7 +74,7 @@ public:
 	struct Range
 	{
 		Range() {}
-		Range(btScalar min, btScalar max) : min(min), max(max) {}
+		Range(btScalar min_, btScalar max_) : min(min_), max(max_) {}
 
 		bool overlaps(const Range& other) const
 		{

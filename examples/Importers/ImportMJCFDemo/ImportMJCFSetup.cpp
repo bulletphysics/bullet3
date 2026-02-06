@@ -38,10 +38,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 3.5;
+		float dist = 3.5f;
 		float pitch = -28;
 		float yaw = -136;
-		float targetPos[3] = {0.47, 0, -0.64};
+		float targetPos[3] = {0.47f, 0, -0.64f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -71,7 +71,7 @@ struct ImportMJCFInternalData
 	btRigidBody* m_rb;
 };
 
-ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
+ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int /*option*/, const char* fileName)
 	: CommonMultiBodyBase(helper),
 	  m_grav(-10),
 	  m_upAxis(2)
@@ -96,14 +96,15 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 		{
 			int result;
 			//warning: we don't avoid string buffer overflow in this basic example in fscanf
-			char fileName[1024];
+			char filename[1024];
+			filename[1023] = '\0';
 			do
 			{
-				result = fscanf(f, "%s", fileName);
-				b3Printf("mjcf_files.txt entry %s", fileName);
+				result = fscanf(f, "%s", filename);
+				b3Printf("mjcf_files.txt entry %s", filename);
 				if (result == 1)
 				{
-					gMCFJFileNameArray.push_back(fileName);
+					gMCFJFileNameArray.push_back(filename);
 				}
 			} while (result == 1);
 
@@ -278,7 +279,7 @@ void ImportMJCFSetup::initPhysics()
 							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 							float maxMotorImpulse = 5.f;
 							btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb, mbLinkIndex, 0, 0, maxMotorImpulse);
-							motor->setErp(0.1);
+							motor->setErp(btScalar(0.1));
 							//motor->setMaxAppliedImpulse(0);
 							m_data->m_jointMotors[m_data->m_numMotors] = motor;
 							m_dynamicsWorld->addMultiBodyConstraint(motor);
@@ -363,7 +364,7 @@ void ImportMJCFSetup::stepSimulation(float deltaTime)
 		}
 
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		m_dynamicsWorld->stepSimulation(deltaTime, 10, 1. / 240.);
+		m_dynamicsWorld->stepSimulation(deltaTime, 10, btScalar(1. / 240.));
 	}
 }
 

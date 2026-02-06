@@ -13,7 +13,7 @@ message Image {
   enum ImageFormat {
     IMAGE_FORMAT_UNSPECIFIED = 0;
 
-    // An 32-bit gray-scale image/matrix with row-major (height, width) memroy
+    // An 32-bit gray-scale image/matrix with row-major (height, width) memory
     // layout. Each pixel is a 32-bit floating-point number.
     IMAGE_FORMAT_GRAY_HW_32F = 1;
 

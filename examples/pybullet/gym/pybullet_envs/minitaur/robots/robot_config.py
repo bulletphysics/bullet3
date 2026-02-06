@@ -24,7 +24,7 @@ class MotorControlMode(enum.Enum):
   # motor torque. This is the most flexible control mode.
   HYBRID = 3,
 
-  # PWM mode is only availalbe for Minitaur
+  # PWM mode is only available for Minitaur
   PWM = 4
 
 

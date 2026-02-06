@@ -107,7 +107,7 @@ std::string Path_StripFilename(const std::string &sPath, char slash)
 	if (n == std::string::npos)
 		return sPath;
 	else
-		return std::string(sPath.begin(), sPath.begin() + n);
+		return std::string(sPath.begin(), sPath.begin() + (std::ptrdiff_t)n);
 }
 
 /** returns just the filename from the provided full or relative path. */
@@ -120,7 +120,7 @@ std::string Path_StripDirectory(const std::string &sPath, char slash)
 	if (n == std::string::npos)
 		return sPath;
 	else
-		return std::string(sPath.begin() + n + 1, sPath.end());
+		return std::string(sPath.begin() + (std::ptrdiff_t)n + 1, sPath.end());
 }
 
 /** returns just the filename with no extension of the provided filename. 
@@ -201,7 +201,7 @@ std::string Path_MakeAbsolute(const std::string &sRelativePath, const std::strin
 
 		std::string sCompacted = Path_Compact(Path_Join(sBasePath, sRelativePath, slash), slash);
 		if (Path_IsAbsolute(sCompacted))
-			return sCompacted;
+			return {sCompacted};
 		else
 			return "";
 	}
@@ -302,7 +302,7 @@ std::string Path_RemoveTrailingSlash(const std::string &sRawPath, char slash)
 
 	if (nLastFound >= 0)
 	{
-		sPath.erase(nLastFound, std::string::npos);
+		sPath.erase((size_t)nLastFound, std::string::npos);
 	}
 
 	return sPath;
@@ -379,7 +379,7 @@ std::string Path_Compact(const std::string &sRawPath, char slash)
 		}
 	}
 
-	return sPath;
+	return {sPath};
 }
 
 /** Returns the path to the current DLL or exe */
@@ -389,7 +389,7 @@ std::string Path_GetThisModulePath()
 #ifdef WIN32
 	HMODULE hmodule = NULL;
 
-	::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCTSTR>(Path_GetThisModulePath), &hmodule);
+	::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCTSTR>((void*)Path_GetThisModulePath), &hmodule);
 
 	wchar_t *pwchPath = new wchar_t[MAX_UNICODE_PATH];
 	char *pchPath = new char[MAX_UNICODE_PATH_IN_UTF8];
@@ -404,7 +404,8 @@ std::string Path_GetThisModulePath()
 #elif defined(OSX) || defined(LINUX)
 	// get the addr of a function in vrclient.so and then ask the dlopen system about it
 	Dl_info info;
-	dladdr((void *)Path_GetThisModulePath, &info);
+	std::string (*fn)() = Path_GetThisModulePath;
+	dladdr(*(void **)&fn, &info);
 	return info.dli_fname;
 #endif
 }
@@ -450,11 +451,12 @@ bool Path_IsDirectory(const std::string &sPath)
 bool Path_IsAppBundle(const std::string &sPath)
 {
 #if defined(OSX)
-	NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithUTF8String:sPath.c_str()]];
-	bool bisAppBundle = (nullptr != bundle);
+	static NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithUTF8String:sPath.c_str()]];
+	bool bisAppBundle = (NULL != bundle);
 	[bundle release];
 	return bisAppBundle;
 #else
+	(void)sPath;
 	return false;
 #endif
 }
@@ -499,7 +501,7 @@ std::string Path_FindParentDirectoryRecursively(const std::string &strStartDirec
 	bool bExists = Path_Exists(strCurrentPath);
 	std::string strCurrentDirectoryName = Path_StripDirectory(strCurrentPath);
 	if (bExists && stricmp(strCurrentDirectoryName.c_str(), strDirectoryName.c_str()) == 0)
-		return strCurrentPath;
+		return {strCurrentPath};
 
 	while (bExists && strCurrentPath.length() != 0)
 	{
@@ -507,7 +509,7 @@ std::string Path_FindParentDirectoryRecursively(const std::string &strStartDirec
 		strCurrentDirectoryName = Path_StripDirectory(strCurrentPath);
 		bExists = Path_Exists(strCurrentPath);
 		if (bExists && stricmp(strCurrentDirectoryName.c_str(), strDirectoryName.c_str()) == 0)
-			return strCurrentPath;
+			return {strCurrentPath};
 	}
 
 	return "";
@@ -535,7 +537,7 @@ std::string Path_FindParentSubDirectoryRecursively(const std::string &strStartDi
 			break;
 		}
 	}
-	return strFoundPath;
+	return {strFoundPath};
 }
 
 //-----------------------------------------------------------------------------
@@ -557,11 +559,11 @@ unsigned char *Path_ReadBinaryFile(const std::string &strFilename, int *pSize)
 	if (f != NULL)
 	{
 		fseek(f, 0, SEEK_END);
-		int size = ftell(f);
+		int size = (int)ftell(f);
 		fseek(f, 0, SEEK_SET);
 
-		buf = new unsigned char[size];
-		if (buf && fread(buf, size, 1, f) == 1)
+		buf = new unsigned char[(size_t)size];
+		if (buf && fread(buf, (size_t)size, 1, f) == 1)
 		{
 			if (pSize)
 				*pSize = size;
@@ -639,7 +641,7 @@ bool Path_WriteBinaryFile(const std::string &strFilename, unsigned char *pData, 
 		fclose(f);
 	}
 
-	return written = nSize ? true : false;
+	return (written = nSize ? true : false);
 }
 
 std::string Path_ReadTextFile(const std::string &strFilename)
@@ -703,7 +705,7 @@ bool Path_WriteStringToTextFileAtomic(const std::string &strFilename, const char
 #if defined(_WIN32)
 	std::wstring wsFilename = UTF8to16(strFilename.c_str());
 	std::wstring wsTmpFilename = UTF8to16(strTmpFilename.c_str());
-	if (!::ReplaceFileW(wsFilename.c_str(), wsTmpFilename.c_str(), nullptr, 0, 0, 0))
+	if (!::ReplaceFileW(wsFilename.c_str(), wsTmpFilename.c_str(), NULL, 0, 0, 0))
 	{
 		// if we couldn't ReplaceFile, try a non-atomic write as a fallback
 		if (!Path_WriteStringToTextFile(strFilename, pchData))
@@ -738,7 +740,7 @@ std::string Path_FilePathToUrl(const std::string &sRelativePath, const std::stri
 	{
 		std::string sAbsolute = Path_MakeAbsolute(sRelativePath, sBasePath);
 		if (sAbsolute.empty())
-			return sAbsolute;
+			return {sAbsolute};
 		return std::string(FILE_URL_PREFIX) + sAbsolute;
 	}
 }

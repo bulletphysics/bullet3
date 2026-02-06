@@ -38,6 +38,10 @@
 // when it's fused.
 #include "gtest/gtest.h"
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
+#endif
 // The following lines pull in the real gtest *.cc files.
 #include "src/gtest.cc"
 #include "src/gtest-death-test.cc"
@@ -46,3 +50,6 @@
 #include "src/gtest-printers.cc"
 #include "src/gtest-test-part.cc"
 #include "src/gtest-typed-test.cc"
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif

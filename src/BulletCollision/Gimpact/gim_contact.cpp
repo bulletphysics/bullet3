@@ -130,7 +130,7 @@ void gim_contact_array::merge_contacts_unique(const gim_contact_array& contacts)
 	}
 
 	//divide
-	GREAL divide_average = 1.0f / ((GREAL)contacts.size());
+	GREAL divide_average = GREAL(1.0f) / ((GREAL)contacts.size());
 
 	average_contact.m_point *= divide_average;
 

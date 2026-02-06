@@ -50,7 +50,7 @@ PhysicsLoopBack::~PhysicsLoopBack()
 	delete m_data;
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool PhysicsLoopBack::connect()
 {
 	m_data->m_physicsServer->connectSharedMemory(&m_data->m_noGfx);

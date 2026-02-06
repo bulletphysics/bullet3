@@ -13,12 +13,12 @@ void UDPThreadFunc(void* userPtr, void* lsMemory);
 void* UDPlsMemoryFunc();
 void UDPlsMemoryReleaseFunc(void* ptr);
 
-bool gVerboseNetworkMessagesClient = false;
+static bool gVerboseNetworkMessagesClient = false;
 
 #ifndef _WIN32
 #include "../MultiThreading/b3PosixThreadSupport.h"
 
-b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("UDPThread",
 																  UDPThreadFunc,
@@ -33,7 +33,7 @@ b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 #elif defined(_WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
-b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
 	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc, UDPlsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
@@ -46,9 +46,9 @@ struct UDPThreadLocalStorage
 	int threadId;
 };
 
-unsigned int b3DeserializeInt(const unsigned char* input)
+static unsigned int b3DeserializeInt(const unsigned char* input)
 {
-	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
+	unsigned int tmp = (unsigned int)((input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0]);
 	return tmp;
 }
 
@@ -103,8 +103,8 @@ struct UdpNetworkedInternalData
 		m_client = enet_host_create(NULL,       /* create a client host */
 									1,          /* number of clients */
 									2,          /* number of channels */
-									57600 / 8,  /* incoming bandwith */
-									14400 / 8); /* outgoing bandwith */
+									57600 / 8,  /* incoming bandwidth */
+									14400 / 8); /* outgoing bandwidth */
 
 		if (m_client == NULL)
 		{
@@ -113,7 +113,7 @@ struct UdpNetworkedInternalData
 		}
 
 		enet_address_set_host(&m_address, m_hostName.c_str());
-		m_address.port = m_port;
+		m_address.port = (enet_uint16)m_port;
 
 		m_peer = enet_host_connect(m_client,
 								   &m_address, /* address to connect to */
@@ -166,7 +166,7 @@ struct UdpNetworkedInternalData
 						printf(
 							"A packet of length %lu containing '%s' was "
 							"received from %s on channel %u.\n",
-							m_event.packet->dataLength,
+							(unsigned long)m_event.packet->dataLength,
 							(char*)m_event.packet->data,
 							(char*)m_event.peer->data,
 							m_event.channelID);
@@ -222,15 +222,15 @@ struct UdpNetworkedInternalData
 						printf(
 							"A packet of length %lu containing '%s' was "
 							"received from %s on channel %u.\n",
-							m_event.packet->dataLength,
+							(unsigned long)m_event.packet->dataLength,
 							(char*)m_event.packet->data,
 							(char*)m_event.peer->data,
 							m_event.channelID);
 					}
 
-					int packetSizeInBytes = b3DeserializeInt(m_event.packet->data);
+					int packetSizeInBytes = (int)b3DeserializeInt(m_event.packet->data);
 
-					if (packetSizeInBytes == m_event.packet->dataLength)
+					if (packetSizeInBytes == (int)m_event.packet->dataLength)
 					{
 						SharedMemoryStatus* statPtr = (SharedMemoryStatus*)&m_event.packet->data[4];
 						if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
@@ -248,7 +248,7 @@ struct UdpNetworkedInternalData
 							m_stream.resize(numStreamBytes);
 							for (int i = 0; i < numStreamBytes; i++)
 							{
-								m_stream[i] = m_event.packet->data[i + streamOffsetInBytes];
+								m_stream[i] = (char)m_event.packet->data[i + streamOffsetInBytes];
 							}
 						}
 					}
@@ -297,11 +297,11 @@ enum UDPCommandEnums
 	eUDP_Connected,
 	eUDP_ConnectionFailed,
 	eUDP_DisconnectRequest,
-	eUDP_Disconnected,
+	eUDP_Disconnected
 
 };
 
-void UDPThreadFunc(void* userPtr, void* lsMemory)
+void UDPThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("UDPThreadFunc thread started\n");
 	//	UDPThreadLocalStorage* localStorage = (UDPThreadLocalStorage*)lsMemory;
@@ -324,6 +324,7 @@ void UDPThreadFunc(void* userPtr, void* lsMemory)
 			b3Clock::usleep(0);
 
 			deltaTimeInSeconds += double(clock.getTimeMicroseconds()) / 1000000.;
+			(void)deltaTimeInSeconds;
 
 			{
 				clock.reset();
@@ -346,7 +347,7 @@ void UDPThreadFunc(void* userPtr, void* lsMemory)
 					default:
 					{
 					}
-				};
+				}
 
 				if (args->m_isConnected)
 				{
@@ -356,7 +357,7 @@ void UDPThreadFunc(void* userPtr, void* lsMemory)
 
 					if (hasCommand)
 					{
-						int sz = 0;
+						size_t sz = 0;
 						ENetPacket* packet = 0;
 
 						if (args->m_clientCmd.m_type == CMD_STEP_FORWARD_SIMULATION)
@@ -371,6 +372,7 @@ void UDPThreadFunc(void* userPtr, void* lsMemory)
 						}
 						int res;
 						res = enet_peer_send(args->m_peer, 0, packet);
+						(void)res;
 						args->m_cs->lock();
 						args->m_hasCommand = false;
 						args->m_cs->unlock();
@@ -435,7 +437,7 @@ UdpNetworkedPhysicsProcessor::~UdpNetworkedPhysicsProcessor()
 	delete m_data;
 }
 
-bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& /*serverStatusOut*/, char* /*bufferServerToClient*/, int /*bufferSizeInBytes*/)
 {
 	if (gVerboseNetworkMessagesClient)
 	{
@@ -513,15 +515,15 @@ bool UdpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	return hasStatus;
 }
 
-void UdpNetworkedPhysicsProcessor::renderScene(int renderFlags)
+void UdpNetworkedPhysicsProcessor::renderScene(int /*renderFlags*/)
 {
 }
 
-void UdpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
+void UdpNetworkedPhysicsProcessor::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-void UdpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* guiHelper)
+void UdpNetworkedPhysicsProcessor::setGuiHelper(struct GUIHelperInterface* /*guiHelper*/)
 {
 }
 
@@ -581,7 +583,7 @@ void UdpNetworkedPhysicsProcessor::disconnect()
 			{
 				b3Clock::usleep(1000);
 			}
-		};
+		}
 
 		printf("stopping threads\n");
 

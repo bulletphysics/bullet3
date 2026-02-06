@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 		printf("clewInit failed with error code %d\n", result);
 	else
 	{
-		printf("clewInit succesfull using %s\n", cl);
+		printf("clewInit successful using %s\n", cl);
 
 		//some test and then
 		clewExit();

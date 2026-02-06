@@ -63,7 +63,7 @@ public:
 		{
 		}
 
-		virtual ~CastResult(){};
+		virtual ~CastResult(){}
 
 		btTransform m_hitTransformA;
 		btTransform m_hitTransformB;

@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	///this callback is called for each brush that succesfully converted into vertices
+	///this callback is called for each brush that successfully converted into vertices
 	virtual void addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
 };
 

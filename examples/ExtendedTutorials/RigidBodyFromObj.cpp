@@ -43,7 +43,7 @@ struct RigidBodyFromObjExample : public CommonRigidBodyBase
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -67,7 +67,7 @@ void RigidBodyFromObjExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -82,12 +82,12 @@ void RigidBodyFromObjExample::initPhysics()
 
 	b3BulletDefaultFileIO fileIO;
 	GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, "",&fileIO);
-	printf("[INFO] Obj loaded: Extracted %d verticed from obj file [%s]\n", glmesh->m_numvertices, fileName);
+	printf("[INFO] Obj loaded: Extracted %d vertices from obj file [%s]\n", glmesh->m_numvertices, fileName);
 
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
 	btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));
 
-	float scaling[4] = {0.1, 0.1, 0.1, 1};
+	float scaling[4] = {0.1f, 0.1f, 0.1f, 1};
 
 	btVector3 localScaling(scaling[0], scaling[1], scaling[2]);
 	shape->setLocalScaling(localScaling);
@@ -119,7 +119,7 @@ void RigidBodyFromObjExample::initPhysics()
 	float pos[4] = {0, 3, 0, 0};
 	btVector3 position(pos[0], pos[1], pos[2]);
 	startTransform.setOrigin(position);
-	btRigidBody* body = createRigidBody(mass, startTransform, shape);
+	btRigidBody* body = createRigidBody((float)mass, startTransform, shape);
 
 	bool useConvexHullForRendering = ((m_options & ObjUseConvexHullForRendering) != 0);
 

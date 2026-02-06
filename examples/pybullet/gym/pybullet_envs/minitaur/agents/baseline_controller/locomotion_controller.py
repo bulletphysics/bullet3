@@ -83,7 +83,7 @@ class LocomotionController(object):
     self._stance_leg_controller.update(self._time_since_reset)
 
   def get_action(self):
-    """Returns the control ouputs (e.g. positions/torques) for all motors."""
+    """Returns the control outputs (e.g. positions/torques) for all motors."""
     swing_action = self._swing_leg_controller.get_action()
     stance_action = self._stance_leg_controller.get_action()
     action = []

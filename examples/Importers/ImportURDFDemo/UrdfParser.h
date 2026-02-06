@@ -41,8 +41,8 @@ struct UrdfInertia
 	{
 		m_hasLinkLocalFrame = false;
 		m_linkLocalFrame.setIdentity();
-		m_mass = 0.f;
-		m_ixx = m_ixy = m_ixz = m_iyy = m_iyz = m_izz = 0.f;
+		m_mass = btScalar(0.f);
+		m_ixx = m_ixy = m_ixz = m_iyy = m_iyz = m_izz = btScalar(0.f);
 	}
 };
 
@@ -56,7 +56,7 @@ enum UrdfGeomTypes
 	URDF_GEOM_CAPSULE,  //non-standard URDF
 	URDF_GEOM_CDF,      //signed-distance-field, non-standard URDF
 	URDF_GEOM_HEIGHTFIELD,   //heightfield, non-standard URDF
-	URDF_GEOM_UNKNOWN,
+	URDF_GEOM_UNKNOWN
 };
 
 struct UrdfGeometry
@@ -82,7 +82,7 @@ struct UrdfGeometry
 		FILE_OBJ = 3,
 		FILE_CDF = 4,
 		MEMORY_VERTICES = 5,
-	        FILE_VTK = 6,
+		FILE_VTK = 6
 
 	};
 	int m_meshFileType;
@@ -335,7 +335,7 @@ struct UrdfModel
 namespace tinyxml2
 {
 class XMLElement;
-};
+}
 
 class UrdfParser
 {

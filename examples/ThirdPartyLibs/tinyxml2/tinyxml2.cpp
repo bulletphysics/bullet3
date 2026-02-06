@@ -20,7 +20,10 @@ must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source
 distribution.
 */
-
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #include "tinyxml2.h"
 
 #include <new>  // yes, this one new style header, is in the Android SDK.
@@ -30,6 +33,11 @@ distribution.
 #else
 #include <cstddef>
 #include <cstdarg>
+#endif
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2' - signed/unsigned mismatch
 #endif
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1400) && (!defined WINCE)
@@ -2431,7 +2439,7 @@ void XMLDocument::SetError(XMLError error, int lineNum, const char* format, ...)
 	size_t BUFFER_SIZE = 1000;
 	char* buffer = new char[BUFFER_SIZE];
 
-	TIXML_SNPRINTF(buffer, BUFFER_SIZE, "Error=%s ErrorID=%d (0x%x) Line number=%d", ErrorIDToName(error), int(error), int(error), lineNum);
+	TIXML_SNPRINTF(buffer, BUFFER_SIZE, "Error=%s ErrorID=%d (0x%x) Line number=%d", ErrorIDToName(error), int(error), unsigned(error), lineNum);
 
 	if (format)
 	{
@@ -2935,3 +2943,10 @@ bool XMLPrinter::Visit(const XMLUnknown& unknown)
 }
 
 }  // namespace tinyxml2
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif

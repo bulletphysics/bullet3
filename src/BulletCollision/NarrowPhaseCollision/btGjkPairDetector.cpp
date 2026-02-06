@@ -30,10 +30,10 @@ subject to the following restrictions:
 //must be above the machine epsilon
 #ifdef BT_USE_DOUBLE_PRECISION
 #define REL_ERROR2 btScalar(1.0e-12)
-btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
+static btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
 #else
 #define REL_ERROR2 btScalar(1.0e-6)
-btScalar gGjkEpaPenetrationTolerance = 0.001;
+static btScalar gGjkEpaPenetrationTolerance = btScalar(0.001);
 #endif
 
 
@@ -213,17 +213,17 @@ inline int ccdEq(btScalar _a, btScalar _b)
 	}
 }
 
-btScalar ccdVec3X(const btVector3 *v)
+static btScalar ccdVec3X(const btVector3 *v)
 {
 	return v->x();
 }
 
-btScalar ccdVec3Y(const btVector3 *v)
+static btScalar ccdVec3Y(const btVector3 *v)
 {
 	return v->y();
 }
 
-btScalar ccdVec3Z(const btVector3 *v)
+static btScalar ccdVec3Z(const btVector3 *v)
 {
 	return v->z();
 }
@@ -332,7 +332,7 @@ inline btScalar btVec3PointSegmentDist2(const btVector3 *P,
 	return dist;
 }
 
-btScalar btVec3PointTriDist2(const btVector3 *P,
+static btScalar btVec3PointTriDist2(const btVector3 *P,
 							 const btVector3 *x0, const btVector3 *B,
 							 const btVector3 *C,
 							 btVector3 *witness)
@@ -365,12 +365,12 @@ btScalar btVec3PointTriDist2(const btVector3 *P,
 	s = (q * r - w * p) / (w * v - r * r);
 	t = (-s * r - q) / w;
 
-	if ((btFuzzyZero(s) || s > btScalar(0)) && (ccdEq(s, btScalar(1)) || s < btScalar(1)) && (btFuzzyZero(t) || t > btScalar(0)) && (ccdEq(t, btScalar(1)) || t < btScalar(1)) && (ccdEq(t + s, btScalar(1)) || t + s < btScalar(1)))
+	if ((btFuzzyZero(btScalar(s)) || s > btScalar(0)) && (ccdEq(btScalar(s), btScalar(1)) || s < 1) && (btFuzzyZero(btScalar(t)) || t > btScalar(0)) && (ccdEq(btScalar(t), btScalar(1)) || t < 1) && (ccdEq(btScalar(t + s), btScalar(1)) || t + s < 1))
 	{
 		if (witness)
 		{
-			btVec3Scale(&d1, s);
-			btVec3Scale(&d2, t);
+			btVec3Scale(&d1, btScalar(s));
+			btVec3Scale(&d2, btScalar(t));
 			btVec3Copy(witness, x0);
 			ccdVec3Add(witness, &d1);
 			ccdVec3Add(witness, &d2);
@@ -408,7 +408,7 @@ btScalar btVec3PointTriDist2(const btVector3 *P,
 		}
 	}
 
-	return dist;
+	return (btScalar)dist;
 }
 
 static int btDoSimplex2(btSimplex *simplex, btVector3 *dir)
@@ -552,10 +552,10 @@ static int btDoSimplex3(btSimplex *simplex, btVector3 *dir)
 			}
 			else
 			{
-				btSupportVector tmp;
-				btSupportCopy(&tmp, C);
+				btSupportVector tmpVec;
+				btSupportCopy(&tmpVec, C);
 				btSimplexSet(simplex, 0, B);
-				btSimplexSet(simplex, 1, &tmp);
+				btSimplexSet(simplex, 1, &tmpVec);
 
 				btVec3Copy(dir, &ABC);
 				btVec3Scale(dir, -btScalar(1));
@@ -767,8 +767,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 				// check if farthest point in Minkowski difference in direction dir
 				// isn't somewhere before origin (the test on negative dot product)
 				// - because if it is, objects are not intersecting at all.
-				btScalar delta = lastSupV.dot(dir);
-				if (delta < 0)
+				btScalar deltaDiff = lastSupV.dot(dir);
+				if (deltaDiff < 0)
 				{
 					//no intersection, besides margin
 					status = -1;
@@ -1026,7 +1026,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 					m_cachedSeparatingAxis, tmpPointOnA, tmpPointOnB,
 					debugDraw);
 
-				if (m_cachedSeparatingAxis.length2())
+				if (m_cachedSeparatingAxis.length2() != btScalar(0))
 				{
 					if (isValid2)
 					{
@@ -1161,7 +1161,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput &inpu
 				normalInB *= -1;
 			}
 
-			if (orgNormalInB.length2())
+			if (orgNormalInB.length2() != btScalar(0))
 			{
 				if (d2 > d0 && d2 > d1 && d2 > distance)
 				{

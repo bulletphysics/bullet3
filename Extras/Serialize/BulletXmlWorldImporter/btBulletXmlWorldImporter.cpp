@@ -14,7 +14,14 @@ subject to the following restrictions:
 */
 
 #include "btBulletXmlWorldImporter.h"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #include "tinyxml2.h"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #include "btBulletDynamicsCommon.h"
 #include "string_split.h"
 using namespace tinyxml2;
@@ -75,7 +82,7 @@ static int get_int_attribute_by_name(const XMLElement* pElement, const char* att
 	return 0;
 }
 
-void stringToFloatArray(const std::string& string, btAlignedObjectArray<float>& floats)
+static void stringToFloatArray(const std::string& string, btAlignedObjectArray<float>& floats)
 {
 	btAlignedObjectArray<std::string> pieces;
 
@@ -119,43 +126,43 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(XMLNode* pParent, btA
 #define SET_INT_VALUE(xmlnode, targetdata, argname)                                                          \
 	btAssert((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement()); \
 	if ((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement())       \
-		(targetdata)->argname = (int)atof(xmlnode->FirstChildElement(#argname)->ToElement()->GetText());
+		(targetdata)->argname = (int)atof(xmlnode->FirstChildElement(#argname)->ToElement()->GetText())
 
 #define SET_FLOAT_VALUE(xmlnode, targetdata, argname)                                                        \
 	btAssert((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement()); \
 	if ((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement())       \
-		(targetdata)->argname = (float)atof(xmlnode->FirstChildElement(#argname)->ToElement()->GetText());
+		(targetdata)->argname = (float)atof(xmlnode->FirstChildElement(#argname)->ToElement()->GetText())
 
 #define SET_POINTER_VALUE(xmlnode, targetdata, argname, pointertype) \
-	{                                                                \
+	do {                                                             \
 		XMLNode* node = xmlnode->FirstChildElement(#argname);        \
 		btAssert(node);                                              \
 		if (node)                                                    \
 		{                                                            \
-			const char* txt = (node)->ToElement()->GetText();        \
-			MyLocalCaster cast;                                      \
-			cast.m_int = (int)atof(txt);                             \
-			(targetdata).argname = (pointertype)cast.m_ptr;          \
+			const char* text = (node)->ToElement()->GetText();       \
+			MyLocalCaster caster;                                    \
+			caster.m_int = (int)atof(text);                          \
+			(targetdata).argname = (pointertype)caster.m_ptr;        \
 		}                                                            \
-	}
+	} while(0)
 
-#define SET_VECTOR4_VALUE(xmlnode, targetdata, argname)                            \
-	{                                                                              \
-		XMLNode* flNode = xmlnode->FirstChildElement(#argname);                    \
-		btAssert(flNode);                                                          \
-		if (flNode && flNode->FirstChildElement())                                 \
-		{                                                                          \
-			const char* txt = flNode->FirstChildElement()->ToElement()->GetText(); \
-			btVector3FloatData vec4 = TextToVector3Data(txt);                      \
-			(targetdata)->argname.m_floats[0] = vec4.m_floats[0];                  \
-			(targetdata)->argname.m_floats[1] = vec4.m_floats[1];                  \
-			(targetdata)->argname.m_floats[2] = vec4.m_floats[2];                  \
-			(targetdata)->argname.m_floats[3] = vec4.m_floats[3];                  \
-		}                                                                          \
-	}
+#define SET_VECTOR4_VALUE(xmlnode, targetdata, argname)                             \
+	do {                                                                            \
+		XMLNode* flNode = xmlnode->FirstChildElement(#argname);                     \
+		btAssert(flNode);                                                           \
+		if (flNode && flNode->FirstChildElement())                                  \
+		{                                                                           \
+			const char* text = flNode->FirstChildElement()->ToElement()->GetText(); \
+			btVector3FloatData v4 = TextToVector3Data(text);                        \
+			(targetdata)->argname.m_floats[0] = v4.m_floats[0];                     \
+			(targetdata)->argname.m_floats[1] = v4.m_floats[1];                     \
+			(targetdata)->argname.m_floats[2] = v4.m_floats[2];                     \
+			(targetdata)->argname.m_floats[3] = v4.m_floats[3];                     \
+		}                                                                           \
+	} while(0)
 
 #define SET_MATRIX33_VALUE(n, targetdata, argname)                                      \
-	{                                                                                   \
+	do {                                                                                \
 		XMLNode* xmlnode = n->FirstChildElement(#argname);                              \
 		btAssert(xmlnode);                                                              \
 		if (xmlnode)                                                                    \
@@ -165,53 +172,53 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(XMLNode* pParent, btA
 			if (eleNode && eleNode->FirstChildElement())                                \
 			{                                                                           \
 				const char* txt = eleNode->FirstChildElement()->ToElement()->GetText(); \
-				btVector3FloatData vec4 = TextToVector3Data(txt);                       \
-				(targetdata)->argname.m_el[0].m_floats[0] = vec4.m_floats[0];           \
-				(targetdata)->argname.m_el[0].m_floats[1] = vec4.m_floats[1];           \
-				(targetdata)->argname.m_el[0].m_floats[2] = vec4.m_floats[2];           \
-				(targetdata)->argname.m_el[0].m_floats[3] = vec4.m_floats[3];           \
+				btVector3FloatData vec41 = TextToVector3Data(txt);                      \
+				(targetdata)->argname.m_el[0].m_floats[0] = vec41.m_floats[0];          \
+				(targetdata)->argname.m_el[0].m_floats[1] = vec41.m_floats[1];          \
+				(targetdata)->argname.m_el[0].m_floats[2] = vec41.m_floats[2];          \
+				(targetdata)->argname.m_el[0].m_floats[3] = vec41.m_floats[3];          \
                                                                                         \
 				XMLNode* n1 = eleNode->FirstChildElement()->NextSibling();              \
 				btAssert(n1);                                                           \
 				if (n1)                                                                 \
 				{                                                                       \
-					const char* txt = n1->ToElement()->GetText();                       \
-					btVector3FloatData vec4 = TextToVector3Data(txt);                   \
-					(targetdata)->argname.m_el[1].m_floats[0] = vec4.m_floats[0];       \
-					(targetdata)->argname.m_el[1].m_floats[1] = vec4.m_floats[1];       \
-					(targetdata)->argname.m_el[1].m_floats[2] = vec4.m_floats[2];       \
-					(targetdata)->argname.m_el[1].m_floats[3] = vec4.m_floats[3];       \
+					const char* txt2 = n1->ToElement()->GetText();                      \
+					btVector3FloatData vec42 = TextToVector3Data(txt2);                 \
+					(targetdata)->argname.m_el[1].m_floats[0] = vec42.m_floats[0];      \
+					(targetdata)->argname.m_el[1].m_floats[1] = vec42.m_floats[1];      \
+					(targetdata)->argname.m_el[1].m_floats[2] = vec42.m_floats[2];      \
+					(targetdata)->argname.m_el[1].m_floats[3] = vec42.m_floats[3];      \
                                                                                         \
 					XMLNode* n2 = n1->NextSibling();                                    \
 					btAssert(n2);                                                       \
 					if (n2)                                                             \
 					{                                                                   \
-						const char* txt = n2->ToElement()->GetText();                   \
-						btVector3FloatData vec4 = TextToVector3Data(txt);               \
-						(targetdata)->argname.m_el[2].m_floats[0] = vec4.m_floats[0];   \
-						(targetdata)->argname.m_el[2].m_floats[1] = vec4.m_floats[1];   \
-						(targetdata)->argname.m_el[2].m_floats[2] = vec4.m_floats[2];   \
-						(targetdata)->argname.m_el[2].m_floats[3] = vec4.m_floats[3];   \
+						const char* txt3 = n2->ToElement()->GetText();                  \
+						btVector3FloatData vec43 = TextToVector3Data(txt3);             \
+						(targetdata)->argname.m_el[2].m_floats[0] = vec43.m_floats[0];  \
+						(targetdata)->argname.m_el[2].m_floats[1] = vec43.m_floats[1];  \
+						(targetdata)->argname.m_el[2].m_floats[2] = vec43.m_floats[2];  \
+						(targetdata)->argname.m_el[2].m_floats[3] = vec43.m_floats[3];  \
 					}                                                                   \
 				}                                                                       \
 			}                                                                           \
 		}                                                                               \
-	}
+	} while(0)
 
-#define SET_TRANSFORM_VALUE(n, targetdata, argname)                     \
-	{                                                                   \
-		XMLNode* trNode = n->FirstChildElement(#argname);               \
-		btAssert(trNode);                                               \
-		if (trNode)                                                     \
-		{                                                               \
-			SET_VECTOR4_VALUE(trNode, &(targetdata)->argname, m_origin) \
-			SET_MATRIX33_VALUE(trNode, &(targetdata)->argname, m_basis) \
-		}                                                               \
-	}
+#define SET_TRANSFORM_VALUE(n, targetdata, argname)                      \
+	do {                                                                 \
+		XMLNode* trNode = n->FirstChildElement(#argname);                \
+		btAssert(trNode);                                                \
+		if (trNode)                                                      \
+		{                                                                \
+			SET_VECTOR4_VALUE(trNode, &(targetdata)->argname, m_origin); \
+			SET_MATRIX33_VALUE(trNode, &(targetdata)->argname, m_basis); \
+		}                                                                \
+	} while(0)
 
 void btBulletXmlWorldImporter::deSerializeCollisionShapeData(XMLNode* pParent, btCollisionShapeData* colShapeData)
 {
-	SET_INT_VALUE(pParent, colShapeData, m_shapeType)
+	SET_INT_VALUE(pParent, colShapeData, m_shapeType);
 	colShapeData->m_name = 0;
 }
 
@@ -230,9 +237,9 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(XMLNode* pParent)
 
 	deSerializeCollisionShapeData(xmlColShape, &convexHullData->m_convexInternalShapeData.m_collisionShapeData);
 
-	SET_FLOAT_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_collisionMargin)
-	SET_VECTOR4_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_localScaling)
-	SET_VECTOR4_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_implicitShapeDimensions)
+	SET_FLOAT_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_collisionMargin);
+	SET_VECTOR4_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_localScaling);
+	SET_VECTOR4_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_implicitShapeDimensions);
 
 	//convexHullData->m_unscaledPointsFloatPtr
 	//#define SET_POINTER_VALUE(xmlnode, targetdata, argname, pointertype)
@@ -243,9 +250,9 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(XMLNode* pParent)
 		if (node)
 		{
 			const char* txt = (node)->ToElement()->GetText();
-			MyLocalCaster cast;
-			cast.m_int = (int)atof(txt);
-			(*convexHullData).m_unscaledPointsFloatPtr = (btVector3FloatData*)cast.m_ptr;
+			MyLocalCaster caster;
+			caster.m_int = (int)atof(txt);
+			(*convexHullData).m_unscaledPointsFloatPtr = (btVector3FloatData*)caster.m_ptr;
 		}
 	}
 
@@ -274,13 +281,13 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(XMLNode* pParen
 		while (transNode && colShapeNode && marginNode && childTypeNode)
 		{
 			compoundChildArrayPtr->expandNonInitializing();
-			SET_VECTOR4_VALUE(transNode, &compoundChildArrayPtr->at(i).m_transform, m_origin)
-			SET_MATRIX33_VALUE(transNode, &compoundChildArrayPtr->at(i).m_transform, m_basis)
+			SET_VECTOR4_VALUE(transNode, &compoundChildArrayPtr->at(i).m_transform, m_origin);
+			SET_MATRIX33_VALUE(transNode, &compoundChildArrayPtr->at(i).m_transform, m_basis);
 
 			const char* txt = (colShapeNode)->ToElement()->GetText();
-			MyLocalCaster cast;
-			cast.m_int = (int)atof(txt);
-			compoundChildArrayPtr->at(i).m_childShape = (btCollisionShapeData*)cast.m_ptr;
+			MyLocalCaster caster;
+			caster.m_int = (int)atof(txt);
+			compoundChildArrayPtr->at(i).m_childShape = (btCollisionShapeData*)caster.m_ptr;
 
 			btAssert(childTypeNode->ToElement());
 			if (childTypeNode->ToElement())
@@ -335,9 +342,9 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeData(XMLNode* pParent)
 		while (node)
 		{
 			const char* txt = (node)->ToElement()->GetText();
-			MyLocalCaster cast;
-			cast.m_int = (int)atof(txt);
-			compoundData->m_childShapePtr = (btCompoundShapeChildData*)cast.m_ptr;
+			MyLocalCaster caster;
+			caster.m_int = (int)atof(txt);
+			compoundData->m_childShapePtr = (btCompoundShapeChildData*)caster.m_ptr;
 			node = node->NextSiblingElement("m_childShapePtr");
 		}
 		//SET_POINTER_VALUE(xmlColShape, *compoundData,m_childShapePtr,btCompoundShapeChildData*);
@@ -367,7 +374,7 @@ void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(XMLNode* pParent)
 	m_pointerLookup.insert(cast.m_ptr, planeData);
 }
 
-void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(XMLNode* pParent)
+void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(XMLNode* /*pParent*/)
 {
 	btContactSolverInfo solverInfo;
 	//btVector3 gravity(0,0,0);
@@ -390,9 +397,9 @@ void btBulletXmlWorldImporter::deSerializeConvexInternalShapeData(XMLNode* pPare
 
 	deSerializeCollisionShapeData(xmlShapeData, &convexShape->m_collisionShapeData);
 
-	SET_FLOAT_VALUE(pParent, convexShape, m_collisionMargin)
-	SET_VECTOR4_VALUE(pParent, convexShape, m_localScaling)
-	SET_VECTOR4_VALUE(pParent, convexShape, m_implicitShapeDimensions)
+	SET_FLOAT_VALUE(pParent, convexShape, m_collisionMargin);
+	SET_VECTOR4_VALUE(pParent, convexShape, m_localScaling);
+	SET_VECTOR4_VALUE(pParent, convexShape, m_implicitShapeDimensions);
 
 	m_collisionShapeData.push_back((btCollisionShapeData*)convexShape);
 	m_pointerLookup.insert(cast.m_ptr, convexShape);
@@ -470,9 +477,9 @@ void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(XMLNode* pParent)
 		SET_POINTER_VALUE(n, rbData->m_collisionObjectData, m_collisionShape, void*);
 		SET_TRANSFORM_VALUE(n, &rbData->m_collisionObjectData, m_worldTransform);
 		SET_TRANSFORM_VALUE(n, &rbData->m_collisionObjectData, m_interpolationWorldTransform);
-		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_interpolationLinearVelocity)
-		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_interpolationAngularVelocity)
-		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_anisotropicFriction)
+		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_interpolationLinearVelocity);
+		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_interpolationAngularVelocity);
+		SET_VECTOR4_VALUE(n, &rbData->m_collisionObjectData, m_anisotropicFriction);
 		SET_FLOAT_VALUE(n, &rbData->m_collisionObjectData, m_contactProcessingThreshold);
 		SET_FLOAT_VALUE(n, &rbData->m_collisionObjectData, m_deactivationTime);
 		SET_FLOAT_VALUE(n, &rbData->m_collisionObjectData, m_friction);
@@ -493,15 +500,15 @@ void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(XMLNode* pParent)
 
 	SET_MATRIX33_VALUE(pParent, rbData, m_invInertiaTensorWorld);
 
-	SET_VECTOR4_VALUE(pParent, rbData, m_linearVelocity)
-	SET_VECTOR4_VALUE(pParent, rbData, m_angularVelocity)
-	SET_VECTOR4_VALUE(pParent, rbData, m_angularFactor)
-	SET_VECTOR4_VALUE(pParent, rbData, m_linearFactor)
-	SET_VECTOR4_VALUE(pParent, rbData, m_gravity)
-	SET_VECTOR4_VALUE(pParent, rbData, m_gravity_acceleration)
-	SET_VECTOR4_VALUE(pParent, rbData, m_invInertiaLocal)
-	SET_VECTOR4_VALUE(pParent, rbData, m_totalTorque)
-	SET_VECTOR4_VALUE(pParent, rbData, m_totalForce)
+	SET_VECTOR4_VALUE(pParent, rbData, m_linearVelocity);
+	SET_VECTOR4_VALUE(pParent, rbData, m_angularVelocity);
+	SET_VECTOR4_VALUE(pParent, rbData, m_angularFactor);
+	SET_VECTOR4_VALUE(pParent, rbData, m_linearFactor);
+	SET_VECTOR4_VALUE(pParent, rbData, m_gravity);
+	SET_VECTOR4_VALUE(pParent, rbData, m_gravity_acceleration);
+	SET_VECTOR4_VALUE(pParent, rbData, m_invInertiaLocal);
+	SET_VECTOR4_VALUE(pParent, rbData, m_totalTorque);
+	SET_VECTOR4_VALUE(pParent, rbData, m_totalForce);
 	SET_FLOAT_VALUE(pParent, rbData, m_inverseMass);
 	SET_FLOAT_VALUE(pParent, rbData, m_linearDamping);
 	SET_FLOAT_VALUE(pParent, rbData, m_angularDamping);

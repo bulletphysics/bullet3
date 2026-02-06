@@ -65,24 +65,24 @@ int RandomTreeCreator::getBody(const int body_index, int* parent_index, JointTyp
 	(*parent_r_parent_body_ref)(1) = randomFloat(-1.0, 1.0);
 	(*parent_r_parent_body_ref)(2) = randomFloat(-1.0, 1.0);
 
-	bodyTParentFromAxisAngle(randomAxis(), randomFloat(-BT_ID_PI, BT_ID_PI), body_T_parent_ref);
+	bodyTParentFromAxisAngle(randomAxis(), randomFloat((float)-BT_ID_PI, (float)BT_ID_PI), body_T_parent_ref);
 
 	*body_axis_of_motion = randomAxis();
 	*mass = randomMass();
 	(*body_r_body_com)(0) = randomFloat(-1.0, 1.0);
 	(*body_r_body_com)(1) = randomFloat(-1.0, 1.0);
 	(*body_r_body_com)(2) = randomFloat(-1.0, 1.0);
-	const double a = randomFloat(-BT_ID_PI, BT_ID_PI);
-	const double b = randomFloat(-BT_ID_PI, BT_ID_PI);
-	const double c = randomFloat(-BT_ID_PI, BT_ID_PI);
+	const double a = randomFloat((float)-BT_ID_PI, (float)BT_ID_PI);
+	const double b = randomFloat((float)-BT_ID_PI, (float)BT_ID_PI);
+	const double c = randomFloat((float)-BT_ID_PI, (float)BT_ID_PI);
 	vec3 ii = randomInertiaPrincipal();
 	mat33 ii_diag;
 	setZero(ii_diag);
 	ii_diag(0, 0) = ii(0);
 	ii_diag(1, 1) = ii(1);
 	ii_diag(2, 2) = ii(2);
-	*body_I_body = transformX(a) * transformY(b) * transformZ(c) * ii_diag *
-				   transformZ(-c) * transformY(-b) * transformX(-a);
+	*body_I_body = transformX(idScalar(a)) * transformY(idScalar(b)) * transformZ(idScalar(c)) * ii_diag *
+				   transformZ(idScalar(-c)) * transformY(idScalar(-b)) * transformX(idScalar(-a));
 	*user_int = 0;
 	*user_ptr = 0;
 

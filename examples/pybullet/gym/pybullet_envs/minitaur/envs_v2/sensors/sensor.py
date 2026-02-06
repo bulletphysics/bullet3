@@ -251,7 +251,7 @@ class Sensor(object):
     """A callback for each observation received.
 
     To be differentiated from on_step, which will be called only once per
-    control step (i.e. env.step), this API will be called everytime in the
+    control step (i.e. env.step), this API will be called every time in the
     substep/action repeat loop, when new observations are expected. Each derived
     sensor class should implement this API by implementing:
 
@@ -407,7 +407,7 @@ class BoxSpaceSensor(Sensor):
     # the checking here.
     if isinstance(robot, robot_base.RobotBase):
       raise ValueError(
-          "Cannot use new robot interface RobotBase with old sensor calss.")
+          "Cannot use new robot interface RobotBase with old sensor class.")
     self._robot = robot
 
   def get_shape(self) -> Tuple[int, ...]:

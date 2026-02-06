@@ -114,13 +114,13 @@ public:
 			btSoftBody* psb = m_softBodies[i];
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-				psb->m_nodes[j].index = node_id;
+				psb->m_nodes[j].index = (int)node_id;
 				m_nodes.push_back(&psb->m_nodes[j]);
 				++node_id;
 			}
 			for (int j = 0; j < psb->m_faces.size(); ++j)
 			{
-				psb->m_faces[j].m_index = face_id;
+				psb->m_faces[j].m_index = (int)face_id;
 				++face_id;
 			}
 		}
@@ -177,14 +177,14 @@ public:
 
 	void calculateContactForce(const TVStack& dv, const TVStack& rhs, TVStack& f)
 	{
-		size_t counter = 0;
+		int counter = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)
 		{
 			btSoftBody* psb = m_softBodies[i];
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
 				const btSoftBody::Node& node = psb->m_nodes[j];
-				f[counter] = (node.m_im == 0) ? btVector3(0, 0, 0) : dv[counter] / node.m_im;
+				f[(int)counter] = (node.m_im == 0) ? btVector3(0, 0, 0) : dv[counter] / node.m_im;
 				++counter;
 			}
 		}
@@ -194,7 +194,8 @@ public:
 			m_lf[i]->addScaledDampingForceDifferential(-m_dt, dv, f);
 		}
 		counter = 0;
-		for (; counter < f.size(); ++counter)
+		const int stackSize = f.size() >= 0 ? f.size() : 0;
+		for (; counter < stackSize; ++counter)
 		{
 			f[counter] = rhs[counter] - f[counter];
 		}

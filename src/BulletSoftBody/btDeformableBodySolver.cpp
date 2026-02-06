@@ -20,7 +20,7 @@
 #include "LinearMath/btQuickprof.h"
 static const int kMaxConjugateGradientIterations = 300;
 btDeformableBodySolver::btDeformableBodySolver()
-	: m_numNodes(0), m_cg(kMaxConjugateGradientIterations), m_cr(kMaxConjugateGradientIterations), m_maxNewtonIterations(1), m_newtonTolerance(1e-4), m_lineSearch(false), m_useProjection(false)
+	: m_numNodes(0), m_cg(kMaxConjugateGradientIterations), m_cr(kMaxConjugateGradientIterations), m_maxNewtonIterations(1), m_newtonTolerance(btScalar(1e-4)), m_lineSearch(false), m_useProjection(false)
 {
 	m_objective = new btDeformableBackwardEulerObjective(m_softBodies, m_backupVelocity);
 	m_reducedSolver = false;
@@ -70,7 +70,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 				{
 					if (psb->m_nodes[j].m_im > 0)
 					{
-						m_residual[counter] = (-1. / psb->m_nodes[j].m_im) * m_dv[counter];
+						m_residual[counter] = (btScalar(-1.) / psb->m_nodes[j].m_im) * m_dv[counter];
 					}
 					++counter;
 				}
@@ -86,7 +86,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 			if (m_lineSearch)
 			{
 				btScalar inner_product = computeDescentStep(m_ddv, m_residual);
-				btScalar alpha = 0.01, beta = 0.5;  // Boyd & Vandenberghe suggested alpha between 0.01 and 0.3, beta between 0.1 to 0.8
+				btScalar alpha = btScalar(0.01), beta = btScalar(0.5);  // Boyd & Vandenberghe suggested alpha between 0.01 and 0.3, beta between 0.1 to 0.8
 				btScalar scale = 2;
 				btScalar f0 = m_objective->totalEnergy(solverdt) + kineticEnergy(), f1, f2;
 				backupDv();
@@ -130,7 +130,7 @@ btScalar btDeformableBodySolver::kineticEnergy()
 			btSoftBody::Node& node = psb->m_nodes[j];
 			if (node.m_im > 0)
 			{
-				ke += m_dv[node.index].length2() * 0.5 / node.m_im;
+				ke += m_dv[node.index].length2() * btScalar(0.5) / node.m_im;
 			}
 		}
 	}
@@ -168,7 +168,7 @@ btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack&
 	m_cg.solve(*m_objective, ddv, residual, false);
 	btScalar inner_product = m_cg.dot(residual, m_ddv);
 	btScalar res_norm = m_objective->computeNorm(residual);
-	btScalar tol = 1e-5 * res_norm * m_objective->computeNorm(m_ddv);
+	btScalar tol = btScalar(1e-5) * res_norm * m_objective->computeNorm(m_ddv);
 	if (inner_product < -tol)
 	{
 		if (verbose)
@@ -296,19 +296,19 @@ void btDeformableBodySolver::updateVelocity()
 
 void btDeformableBodySolver::updateTempPosition()
 {
-	int counter = 0;
+	// int counter = 0;
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];
 		if (!psb->isActive())
 		{
-			counter += psb->m_nodes.size();
+			// counter += psb->m_nodes.size();
 			continue;
 		}
 		for (int j = 0; j < psb->m_nodes.size(); ++j)
 		{
 			psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + m_dt * (psb->m_nodes[j].m_v + psb->m_nodes[j].m_splitv);
-			++counter;
+			// ++counter;
 		}
 		psb->updateDeformation();
 	}

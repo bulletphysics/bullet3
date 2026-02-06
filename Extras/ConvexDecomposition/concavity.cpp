@@ -54,7 +54,7 @@
 
 namespace ConvexDecomposition
 {
-unsigned int getDebugColor(void)
+static unsigned int getDebugColor(void)
 {
 	static unsigned int colors[8] =
 		{
@@ -127,7 +127,7 @@ static void intersect(const float *p1, const float *p2, float *split, const floa
 class CTri
 {
 public:
-	CTri(void){};
+	CTri(void){}
 
 	CTri(const float *p1, const float *p2, const float *p3, unsigned int i1, unsigned int i2, unsigned int i3)
 	{
@@ -318,7 +318,7 @@ public:
 		return a;
 	}
 
-	void addWeighted(WpointVector &list, ConvexDecompInterface *callback)
+	void addWeighted(WpointVector &list, ConvexDecompInterface * /*callback*/)
 	{
 		Wpoint p1(mP1, mC1);
 		Wpoint p2(mP2, mC2);
@@ -395,7 +395,7 @@ public:
 
 typedef std::vector<CTri> CTriVector;
 
-bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface *callback, const CTriVector &input_mesh)
+static bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface * /*callback*/, const CTriVector &input_mesh)
 {
 	bool ret = false;
 
@@ -451,12 +451,12 @@ bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface *callba
 
 	if (ret)
 	{
-		if (0)
+		if (/* DISABLES CODE */ (0))
 		{
-			CTriVector::const_iterator i;
-			for (i = input_mesh.begin(); i != input_mesh.end(); ++i)
+			CTriVector::const_iterator it;
+			for (it = input_mesh.begin(); it != input_mesh.end(); ++it)
 			{
-				const CTri &c = (*i);
+				const CTri &c = (*it);
 				if (c.mI1 != m.mI1 && c.mI2 != m.mI2 && c.mI3 != m.mI3)
 				{
 					c.clip(m.mP1, m.mNear1);
@@ -496,7 +496,7 @@ bool featureMatch(CTri &m, const CTriVector &tris, ConvexDecompInterface *callba
 	return ret;
 }
 
-bool isFeatureTri(CTri &t, CTriVector &flist, float fc, ConvexDecompInterface *callback, unsigned int color)
+static bool isFeatureTri(CTri &t, CTriVector &flist, float fc, ConvexDecompInterface * /*callback*/, unsigned int /*color*/)
 {
 	bool ret = false;
 
@@ -546,7 +546,7 @@ float computeConcavity(unsigned int vcount,
 					   unsigned int tcount,
 					   const unsigned int *indices,
 					   ConvexDecompInterface *callback,
-					   float *plane,  // plane equation to split on
+					   float * /*plane*/,  // plane equation to split on
 					   float &volume)
 {
 	float cret = 0;
@@ -623,12 +623,12 @@ float computeConcavity(unsigned int vcount,
 			CTriVector input_mesh;
 			if (1)
 			{
-				const unsigned int *src = indices;
+				const unsigned int *srcIdx = indices;
 				for (unsigned int i = 0; i < tcount; i++)
 				{
-					unsigned int i1 = *src++;
-					unsigned int i2 = *src++;
-					unsigned int i3 = *src++;
+					unsigned int i1 = *srcIdx++;
+					unsigned int i2 = *srcIdx++;
+					unsigned int i3 = *srcIdx++;
 
 					const float *p1 = &vertices[i1 * 3];
 					const float *p2 = &vertices[i2 * 3];

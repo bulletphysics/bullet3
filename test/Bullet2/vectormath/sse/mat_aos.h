@@ -845,12 +845,12 @@ VECTORMATH_FORCE_INLINE const Matrix4 inverse(const Matrix4 &mat)
 	RDet = _mm_div_ss(_mm_load_ss((float *)&_vmathZERONE), Det);  // TODO: just 1.0f?
 	RDet = _mm_shuffle_ps(RDet, RDet, 0x00);
 
-	// Devide the first 12 minterms with the determinant.
+	// Divide the first 12 minterms with the determinant.
 	mtL1 = _mm_mul_ps(mtL1, RDet);
 	mtL2 = _mm_mul_ps(mtL2, RDet);
 	mtL3 = _mm_mul_ps(mtL3, RDet);
 
-	// Calculate the minterms of the forth line and devide by the determinant.
+	// Calculate the minterms of the forth line and divide by the determinant.
 	tt = _mm_ror_ps(_L3, 1);
 	sum = _mm_mul_ps(tt, r1);
 	tt = _mm_ror_ps(tt, 1);

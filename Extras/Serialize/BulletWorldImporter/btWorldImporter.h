@@ -60,7 +60,7 @@ struct btRigidBodyFloatData;
 
 enum btWorldImporterFlags
 {
-	eRESTORE_EXISTING_OBJECTS = 1,  //don't create new objects
+	eRESTORE_EXISTING_OBJECTS = 1  //don't create new objects
 };
 
 class btWorldImporter
@@ -154,7 +154,7 @@ public:
 	int getNumTriangleInfoMaps() const;
 	btTriangleInfoMap* getTriangleInfoMapByIndex(int index) const;
 
-	// queris involving named objects
+	// queries involving named objects
 	btCollisionShape* getCollisionShapeByName(const char* name);
 	btRigidBody* getRigidBodyByName(const char* name);
 	btTypedConstraint* getConstraintByName(const char* name);

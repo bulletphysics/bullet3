@@ -29,7 +29,7 @@ subject to the following restrictions:
 //    A.1. VectorR3: a real column vector of length 3.
 //
 //	  A.2. VectorHgR3: a column vector of length 4 which is
-//			the homogenous representation of a vector in 3-space
+//			the homogeneous representation of a vector in 3-space
 //
 // B. Matrix Classes
 //
@@ -49,10 +49,9 @@ subject to the following restrictions:
 #include <assert.h>
 #include <iostream>
 #include "MathMisc.h"
-using namespace std;
 
 class VectorR3;    // Space Vector (length 3)
-class VectorHgR3;  // Homogenous Space Vector
+class VectorHgR3;  // homogeneous Space Vector
 class VectorR4;    // Space Vector (length 4)
 
 class LinearMapR3;    // Linear Map (3x3 Matrix)
@@ -194,7 +193,7 @@ public:
 	VectorR3& RotateUnitInDirection(const VectorR3& dir);  // rotate in direction dir
 	VectorR3& Rotate(const Quaternion&);                   // Rotate according to quaternion
 
-	friend ostream& operator<<(ostream& os, const VectorR3& u);
+	friend std::ostream& operator<<(std::ostream& os, const VectorR3& u);
 };
 
 inline VectorR3 operator+(const VectorR3& u, const VectorR3& v);
@@ -314,7 +313,7 @@ protected:
 
 inline VectorR3 operator*(const Matrix3x3&, const VectorR3&);
 
-ostream& operator<<(ostream& os, const Matrix3x3& A);
+std::ostream& operator<<(std::ostream& os, const Matrix3x3& A);
 
 // *****************************************
 // Matrix3x4 class                         *
@@ -393,7 +392,7 @@ protected:
 
 inline VectorR3 operator*(const Matrix3x4&, const VectorR3&);
 
-ostream& operator<<(ostream& os, const Matrix3x4& A);
+std::ostream& operator<<(std::ostream& os, const Matrix3x4& A);
 
 // *****************************************
 // LinearMapR3 class                       *
@@ -523,7 +522,7 @@ public:
 
 	RotationMapR3& operator*=(const RotationMapR3&);  // Matrix product
 
-	RotationMapR3 Transpose() const { return Inverse(); };  // Returns the transpose
+	RotationMapR3 Transpose() const { return Inverse(); }   // Returns the transpose
 	RotationMapR3 Inverse() const;                          // Returns inverse
 	RotationMapR3& Invert();                                // Converts into inverse.
 	VectorR3 Solve(const VectorR3&) const;                  // Returns solution	// Was named Invert
@@ -539,7 +538,7 @@ inline RotationMapR3 ToRotationMapR3(const Quaternion& q)
 	return (RotationMapR3().Set(q));
 }
 
-ostream& operator<<(ostream& os, const RotationMapR3& A);
+std::ostream& operator<<(std::ostream& os, const RotationMapR3& A);
 
 // ***************************************************************
 // * RigidMapR3 class - prototypes.								 *													 *
@@ -643,7 +642,7 @@ RotationMapR3 RotateToMap(const VectorR3& fromVec, const VectorR3& toVec);
 // * Stream Output Routines	(Prototypes)						 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR3& u);
+std::ostream& operator<<(std::ostream& os, const VectorR3& u);
 
 // *****************************************************
 // * VectorR3 class - inlined functions				   *
@@ -659,9 +658,9 @@ inline VectorR3& VectorR3::Load(const double* v)
 
 inline VectorR3& VectorR3::Load(const float* v)
 {
-	x = *v;
-	y = *(v + 1);
-	z = *(v + 2);
+	x = (double)*v;
+	y = (double)*(v + 1);
+	z = (double)*(v + 2);
 	return *this;
 }
 
@@ -2058,13 +2057,13 @@ inline VectorR3 ProjectToUnit(const VectorR3& u, const VectorR3& v)
 	return (u ^ v) * v;
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 inline VectorR3 ProjectPerpUnit(const VectorR3& u, const VectorR3& v)
 {
 	return (u - ((u ^ v) * v));
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 //    This one is more stable when u and v are nearly equal.
 inline VectorR3 ProjectPerpUnitDiff(const VectorR3& u, const VectorR3& v)
 {
@@ -2088,7 +2087,7 @@ inline LinearMapR3 VectorProjectMap(const VectorR3& u)
 }
 
 // PlaneProjectMap returns map projecting onto a given plane.
-//		The plane is the plane orthognal to w.
+//		The plane is the plane orthogonal to w.
 //		w must be a unit vector (otherwise the returned map is
 //		garbage).
 inline LinearMapR3 PlaneProjectMap(const VectorR3& w)

@@ -37,7 +37,7 @@ protected:
 	btScalar m_ratio;
 
 public:
-	btGearConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& axisInA, const btVector3& axisInB, btScalar ratio = 1.f);
+	btGearConstraint(btRigidBody& rbA, btRigidBody& rbB, const btVector3& axisInA, const btVector3& axisInB, btScalar ratio = btScalar(1.));
 	virtual ~btGearConstraint();
 
 	///internal method used by the constraint solver, don't use them directly
@@ -85,7 +85,7 @@ public:
 		(void)num;
 		(void)axis;
 		btAssert(0);
-		return 0.f;
+		return btScalar(0.);
 	}
 
 	virtual int calculateSerializeBufferSize() const;

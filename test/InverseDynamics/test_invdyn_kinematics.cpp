@@ -16,7 +16,7 @@
 using namespace btInverseDynamics;
 
 const int kLevel = 5;
-const int kNumBodies = BT_ID_POW(2, kLevel);
+const int kNumBodies = (int)BT_ID_POW(2, (btScalar)kLevel);
 
 // template function for calculating the norm
 template <typename T>
@@ -36,7 +36,7 @@ DiffType toDiffType(ValueType& fd, ValueType& val);
 
 // vector case: just return finite difference approximation
 template <>
-vec3 toDiffType(vec3& fd, vec3& val)
+vec3 toDiffType(vec3& fd, vec3& /*val*/)
 {
 	return fd;
 }
@@ -49,9 +49,9 @@ vec3 toDiffType(mat33& fd, mat33& val)
 	mat33 omega_tilde = fd * val.transpose();
 	// extract vector from spin tensor
 	vec3 omega;
-	omega(0) = 0.5 * (omega_tilde(2, 1) - omega_tilde(1, 2));
-	omega(1) = 0.5 * (omega_tilde(0, 2) - omega_tilde(2, 0));
-	omega(2) = 0.5 * (omega_tilde(1, 0) - omega_tilde(0, 1));
+	omega(0) = idScalar(0.5) * (omega_tilde(2, 1) - omega_tilde(1, 2));
+	omega(1) = idScalar(0.5) * (omega_tilde(0, 2) - omega_tilde(2, 0));
+	omega(2) = idScalar(0.5) * (omega_tilde(1, 0) - omega_tilde(0, 1));
 	return omega;
 }
 
@@ -81,7 +81,7 @@ public:
 		if (m_num_updates > 2)
 		{
 			// 2nd order finite difference approximation for d(value)/dt
-			ValueType diff_value_fd = (val - m_older_val) / (2.0 * m_dt);
+			ValueType diff_value_fd = (val - m_older_val) / (idScalar(2.0) * m_dt);
 			// convert to analytical diff type. This is for angular velocities
 			m_diff_fd = toDiffType<ValueType, DiffType>(diff_value_fd, m_old_val);
 			// now, calculate the error
@@ -146,20 +146,21 @@ template <typename ValueType, typename DiffType>
 class VecDiffFD
 {
 public:
-	VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd(dim), m_dt(dt)
+	VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd((size_t)dim), m_dt(dt)
 	{
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			char buf[256];
-			BT_ID_SNPRINTF(buf, 256, "%s-%.2d", name.c_str(), i);
+			BT_ID_SNPRINTF(buf, 255, "%s-%.2d", name.c_str(), (int)i);
+			buf[255]='\0';
 			m_fd[i].init(buf, dt);
 		}
 	}
-	void update(int i, ValueType& val, DiffType& true_diff) { m_fd[i].update(val, true_diff); }
+	void update(int i, ValueType& val, DiffType& true_diff) { m_fd[(size_t)i].update(val, true_diff); }
 	idScalar getMaxError() const
 	{
 		idScalar max_error = 0;
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			const idScalar error = m_fd[i].getMaxError();
 			if (error > max_error)
@@ -172,7 +173,7 @@ public:
 	idScalar getMaxValue() const
 	{
 		idScalar max_value = 0;
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			const idScalar value = m_fd[i].getMaxValue();
 			if (value > max_value)
@@ -189,7 +190,7 @@ public:
 
 	void printCurrent()
 	{
-		for (int i = 0; i < m_fd.size(); i++)
+		for (unsigned int i = 0; i < m_fd.size(); i++)
 		{
 			m_fd[i].printCurrent();
 		}
@@ -203,7 +204,7 @@ private:
 };
 
 // calculate maximum difference between finite difference and analytical differentiation
-int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar deltaT,
+static int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar deltaT,
 								  idScalar endTime, idScalar* max_linear_velocity_error,
 								  idScalar* max_angular_velocity_error,
 								  idScalar* max_linear_acceleration_error,
@@ -239,10 +240,10 @@ int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar 
 	{
 		for (int body = 0; body < tree->numBodies(); body++)
 		{
-			q(body) = kAmplitude * sin(t * 2.0 * BT_ID_PI * kFrequency);
-			dot_q(body) = kAmplitude * 2.0 * BT_ID_PI * kFrequency * cos(t * 2.0 * BT_ID_PI * kFrequency);
+			q(body) = kAmplitude * sin(t * idScalar(2.0) * BT_ID_PI * kFrequency);
+			dot_q(body) = kAmplitude * idScalar(2.0) * BT_ID_PI * kFrequency * cos(t * idScalar(2.0) * BT_ID_PI * kFrequency);
 			ddot_q(body) =
-				-kAmplitude * pow(2.0 * BT_ID_PI * kFrequency, 2) * sin(t * 2.0 * BT_ID_PI * kFrequency);
+				(idScalar)(-kAmplitude * pow(idScalar(2.0) * BT_ID_PI * kFrequency, 2) * sin(t * idScalar(2.0) * BT_ID_PI * kFrequency));
 		}
 
 		if (-1 == tree->calculateInverseDynamics(q, dot_q, ddot_q, &joint_forces))
@@ -289,19 +290,19 @@ int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar 
 	return 0;
 }
 
-// first test: absolute difference between numerical and numerial
+// first test: absolute difference between numerical and numerical
 // differentiation should be small
 TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 {
 	//CAVEAT:these values are hand-tuned to work for the specific trajectory defined above.
 #ifdef BT_ID_USE_DOUBLE_PRECISION
-	const idScalar kDeltaT = 1e-7;
-	const idScalar kAcceptableError = 1e-4;
+	const idScalar kDeltaT = idScalar(1e-7);
+	const idScalar kAcceptableError = idScalar(1e-4);
 #else
-	const idScalar kDeltaT = 1e-4;
-	const idScalar kAcceptableError = 5e-3;
+	const idScalar kDeltaT = idScalar(1e-4);
+	const idScalar kAcceptableError = idScalar(5e-3);
 #endif
-	const idScalar kDuration = 0.01;
+	const idScalar kDuration = idScalar(0.01);
 
 	CoilCreator coil_creator(kNumBodies);
 	DillCreator dill_creator(kLevel);
@@ -344,11 +345,11 @@ TEST(InvDynKinematicsDifferentiation, errorAbsolute)
 }
 
 // second test: check if the change in the differentiation error
-// is consitent with the second order approximation, ie, error ~ O(dt^2)
+// is consistent with the second order approximation, ie, error ~ O(dt^2)
 TEST(InvDynKinematicsDifferentiation, errorOrder)
 {
-	const idScalar kDeltaTs[2] = {1e-4, 1e-5};
-	const idScalar kDuration = 1e-2;
+	const idScalar kDeltaTs[2] = {idScalar(1e-4), idScalar(1e-5)};
+	const idScalar kDuration = idScalar(1e-2);
 
 	CoilCreator coil_creator(kNumBodies);
 	//    DillCreator dill_creator(kLevel);
@@ -400,5 +401,5 @@ int main(int argc, char** argv)
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 
-	return EXIT_SUCCESS;
+	// return EXIT_SUCCESS;
 }

@@ -38,7 +38,7 @@ public:
 		float dist = 1;
 		float pitch = -35;
 		float yaw = 50;
-		float targetPos[3] = {-3, 2.8, -2.5};
+		float targetPos[3] = {-3, 2.8f, -2.5f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -76,7 +76,7 @@ MultiDofDemo::~MultiDofDemo()
 void MultiDofDemo::stepSimulation(float deltaTime)
 {
 	//use a smaller internal timestep, there are stability issues
-	float internalTimeStep = 1. / 240.f;
+	float internalTimeStep = 1.f / 240.f;
 	m_dynamicsWorld->stepSimulation(deltaTime, 10, internalTimeStep);
 }
 
@@ -86,14 +86,14 @@ void MultiDofDemo::initPhysics()
 
 	if (g_firstInit)
 	{
-		m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraDistance(btScalar(10. * scaling));
+		m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraDistance(10.f * scaling);
 		m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraPitch(50);
 		g_firstInit = false;
 	}
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -137,7 +137,7 @@ void MultiDofDemo::initPhysics()
 	//	m_dynamicsWorld->setDebugDrawer(&gDebugDraw);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-	m_dynamicsWorld->getSolverInfo().m_globalCfm = 1e-3;
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-3);
 
 	///create a few basic rigid bodies
 	btVector3 groundHalfExtents(50, 50, 50);
@@ -157,13 +157,13 @@ void MultiDofDemo::initPhysics()
 	bool damping = true;
 	bool gyro = true;
 	int numLinks = 5;
-	bool spherical = true;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
+	bool spherical = true;  //set it to false -to use 1DoF hinges instead of 3DoF sphericals
 	bool multibodyOnly = false;
 	bool canSleep = false;
 	bool selfCollide = true;
 	bool multibodyConstraint = false;
-	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-	btVector3 baseHalfExtents(0.05, 0.37, 0.1);
+	btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
+	btVector3 baseHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
 
 	btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(world, numLinks, btVector3(-0.4f, 3.f, 0.f), baseHalfExtents, linkHalfExtents, spherical, g_floatingBase);
 	//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
@@ -183,7 +183,7 @@ void MultiDofDemo::initPhysics()
 		mbC->setAngularDamping(0.9f);
 	}
 	//
-	m_dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+	m_dynamicsWorld->setGravity(btVector3(0, btScalar(-9.81), 0));
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
 	//////////////////////////////////////////////
 	if (numLinks > 0)
@@ -204,7 +204,7 @@ void MultiDofDemo::initPhysics()
 	addColliders_testMultiDof(mbC, world, baseHalfExtents, linkHalfExtents);
 
 	/////////////////////////////////////////////////////////////////
-	btScalar groundHeight = -51.55;
+	btScalar groundHeight = btScalar(-51.55);
 	if (!multibodyOnly)
 	{
 		btScalar mass(0.);
@@ -286,7 +286,7 @@ btMultiBody* MultiDofDemo::createFeatherstoneMultiBody_testMultiDof(btMultiBodyD
 	btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
 	float baseMass = 1.f;
 
-	if (baseMass)
+	if (baseMass != 0.0f)
 	{
 		btCollisionShape* pTempBox = new btBoxShape(btVector3(baseHalfExtents[0], baseHalfExtents[1], baseHalfExtents[2]));
 		pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);
@@ -406,7 +406,7 @@ void MultiDofDemo::addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBod
 void MultiDofDemo::addBoxes_testMultiDof()
 {
 	//create a few dynamic rigidbodies
-	// Re-using the same collision is better for memory usage and performance
+	// Reusing the same collision is better for memory usage and performance
 
 	btBoxShape* colShape = new btBoxShape(btVector3(1, 1, 1));
 	//btCollisionShape* colShape = new btSphereShape(btScalar(1.));

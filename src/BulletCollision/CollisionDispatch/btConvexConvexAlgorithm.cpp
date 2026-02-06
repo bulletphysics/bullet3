@@ -68,11 +68,11 @@ static SIMD_FORCE_INLINE void segmentsClosestPoints(
 	btScalar dirA_dot_trans = btDot(dirA, translation);
 	btScalar dirB_dot_trans = btDot(dirB, translation);
 
-	btScalar denom = 1.0f - dirA_dot_dirB * dirA_dot_dirB;
+	btScalar denom = btScalar(1.0f) - dirA_dot_dirB * dirA_dot_dirB;
 
-	if (denom == 0.0f)
+	if (denom == btScalar(0.0f))
 	{
-		tA = 0.0f;
+		tA = btScalar(0.0f);
 	}
 	else
 	{
@@ -362,7 +362,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 		m_sepDistance.updateSeparatingDistance(body0->getWorldTransform(), body1->getWorldTransform());
 	}
 
-	if (!dispatchInfo.m_useConvexConservativeDistanceUtil || m_sepDistance.getConservativeSeparatingDistance() <= 0.f)
+	if (!dispatchInfo.m_useConvexConservativeDistanceUtil || m_sepDistance.getConservativeSeparatingDistance() <= btScalar(0.f))
 #endif  //USE_SEPDISTANCE_UTIL2
 
 	{
@@ -396,14 +396,14 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 		input.m_transformB = body1Wrap->getWorldTransform();
 
 #ifdef USE_SEPDISTANCE_UTIL2
-		btScalar sepDist = 0.f;
+		btScalar sepDist = btScalar(0.f);
 		if (dispatchInfo.m_useConvexConservativeDistanceUtil)
 		{
 			sepDist = gjkPairDetector.getCachedSeparatingDistance();
 			if (sepDist > SIMD_EPSILON)
 			{
 				sepDist += dispatchInfo.m_convexConservativeDistanceThreshold;
-				//now perturbe directions to get multiple contact points
+				//now perturb directions to get multiple contact points
 			}
 		}
 #endif  //USE_SEPDISTANCE_UTIL2
@@ -422,8 +422,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				{
 				}
 
-				virtual void setShapeIdentifiersA(int partId0, int index0) {}
-				virtual void setShapeIdentifiersB(int partId1, int index1) {}
+				virtual void setShapeIdentifiersA(int /*partId0*/, int /*index0*/) {}
+				virtual void setShapeIdentifiersB(int /*partId1*/, int /*index1*/) {}
 				virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth)
 				{
 					m_hasContact = true;
@@ -450,8 +450,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				{
 				}
 
-				virtual void setShapeIdentifiersA(int partId0, int index0) {}
-				virtual void setShapeIdentifiersB(int partId1, int index1) {}
+				virtual void setShapeIdentifiersA(int /*partId0*/, int /*index0*/) {}
+				virtual void setShapeIdentifiersB(int /*partId1*/, int /*index1*/) {}
 				virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorldOrg, btScalar depthOrg)
 				{
 					m_reportedDistance = depthOrg;
@@ -459,7 +459,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 
 					btVector3 adjustedPointB = pointInWorldOrg - normalOnBInWorld * m_marginOnB;
 					m_reportedDistance = depthOrg + (m_marginOnA + m_marginOnB);
-					if (m_reportedDistance < 0.f)
+					if (m_reportedDistance < btScalar(0.f))
 					{
 						m_foundResult = true;
 					}
@@ -471,8 +471,8 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 
 			///btBoxShape is an exception: its vertices are created WITH margin so don't subtract it
 
-			btScalar min0Margin = min0->getShapeType() == BOX_SHAPE_PROXYTYPE ? 0.f : min0->getMargin();
-			btScalar min1Margin = min1->getShapeType() == BOX_SHAPE_PROXYTYPE ? 0.f : min1->getMargin();
+			btScalar min0Margin = min0->getShapeType() == BOX_SHAPE_PROXYTYPE ? btScalar(0.f) : min0->getMargin();
+			btScalar min1Margin = min1->getShapeType() == BOX_SHAPE_PROXYTYPE ? btScalar(0.f) : min1->getMargin();
 
 			btWithoutMarginResult withoutMargin(resultOut, min0Margin, min1Margin);
 
@@ -482,7 +482,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 			{
 				btScalar threshold = m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
 
-				btScalar minDist = -1e30f;
+				btScalar minDist = btScalar(-1e30f);
 				btVector3 sepNormalWorldSpace;
 				bool foundSepAxis = true;
 
@@ -550,7 +550,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 					btScalar threshold = m_manifoldPtr->getContactBreakingThreshold()+ resultOut->m_closestPointDistanceThreshold;
 
 					btVector3 sepNormalWorldSpace;
-					btScalar minDist = -1e30f;
+					btScalar minDist = btScalar(-1e30f);
 					btScalar maxDist = threshold;
 
 					bool foundSepAxis = false;
@@ -586,7 +586,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 								combinedFaceA.m_indices.push_back(2);
 								btVector3 faceNormal = uniqueEdges[0].cross(uniqueEdges[1]);
 								faceNormal.normalize();
-								btScalar planeEq = 1e30f;
+								btScalar planeEq = btScalar(1e30f);
 								for (int v = 0; v < combinedFaceA.m_indices.size(); v++)
 								{
 									btScalar eq = tri->m_vertices1[combinedFaceA.m_indices[v]].dot(faceNormal);
@@ -608,7 +608,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 								combinedFaceB.m_indices.push_back(1);
 								btVector3 faceNormal = -uniqueEdges[0].cross(uniqueEdges[1]);
 								faceNormal.normalize();
-								btScalar planeEq = 1e30f;
+								btScalar planeEq = btScalar(1e30f);
 								for (int v = 0; v < combinedFaceB.m_indices.size(); v++)
 								{
 									btScalar eq = tri->m_vertices1[combinedFaceB.m_indices[v]].dot(faceNormal);
@@ -710,12 +710,12 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 
 			if (l2 > SIMD_EPSILON)
 			{
-				sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis() * (1.f / l2);
+				sepNormalWorldSpace = gjkPairDetector.getCachedSeparatingAxis() * (btScalar(1.f) / l2);
 
 				btPlaneSpace1(sepNormalWorldSpace, v0, v1);
 
 				bool perturbeA = true;
-				const btScalar angleLimit = 0.125f * SIMD_PI;
+				const btScalar angleLimit = btScalar(0.125f) * SIMD_PI;
 				btScalar perturbeAngle;
 				btScalar radiusA = min0->getAngularMotionDisc();
 				btScalar radiusB = min1->getAngularMotionDisc();
@@ -747,7 +747,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 					if (v0.length2() > SIMD_EPSILON)
 					{
 						btQuaternion perturbeRot(v0, perturbeAngle);
-						btScalar iterationAngle = i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
+						btScalar iterationAngle = (btScalar)i * (SIMD_2_PI / btScalar(m_numPerturbationIterations));
 						btQuaternion rotq(sepNormalWorldSpace, iterationAngle);
 
 						if (perturbeA)
@@ -788,7 +788,7 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 	}
 }
 
-bool disableCcd = false;
+static bool disableCcd = false;
 btScalar btConvexConvexAlgorithm::calculateTimeOfImpact(btCollisionObject* col0, btCollisionObject* col1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
 {
 	(void)resultOut;

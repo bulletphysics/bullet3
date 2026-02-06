@@ -56,14 +56,14 @@ void Tree::SetSeqNum(Node* node)
 	}
 }
 
-void Tree::InsertRoot(Node* root)
+void Tree::InsertRoot(Node* rootL)
 {
 	assert(nNode == 0);
 	nNode++;
-	Tree::root = root;
-	root->r = root->attach;
+	Tree::root = rootL;
+	rootL->r = rootL->attach;
 	assert(!(root->left || root->right));
-	SetSeqNum(root);
+	SetSeqNum(rootL);
 }
 
 void Tree::InsertLeftChild(Node* parent, Node* child)
@@ -100,11 +100,13 @@ Node* Tree::SearchJoint(Node* node, int index)
 		}
 		else
 		{
-			if ((ret = SearchJoint(node->left, index)))
+			ret = SearchJoint(node->left, index);
+			if (ret)
 			{
 				return ret;
 			}
-			if ((ret = SearchJoint(node->right, index)))
+			ret = SearchJoint(node->right, index);
+			if (ret)
 			{
 				return ret;
 			}
@@ -135,11 +137,13 @@ Node* Tree::SearchEffector(Node* node, int index)
 		}
 		else
 		{
-			if ((ret = SearchEffector(node->left, index)))
+			ret = SearchEffector(node->left, index);
+			if (ret)
 			{
 				return ret;
 			}
-			if ((ret = SearchEffector(node->right, index)))
+			ret = SearchEffector(node->right, index);
+			if (ret)
 			{
 				return ret;
 			}

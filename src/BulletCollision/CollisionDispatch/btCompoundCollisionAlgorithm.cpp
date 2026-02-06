@@ -356,7 +356,7 @@ btScalar btCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* 
 	//given Proxy0 and Proxy1, if both have a tree, Tree0 and Tree1, this means:
 	//determine overlapping nodes of Proxy1 using Proxy0 AABB against Tree1
 	//then use each overlapping node AABB against Tree0
-	//and vise versa.
+	//and vice versa.
 
 	btScalar hitFraction = btScalar(1.);
 

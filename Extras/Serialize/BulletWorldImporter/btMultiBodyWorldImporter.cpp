@@ -64,7 +64,7 @@ void syncContactManifolds(T** contactManifolds, int numContactManifolds, btMulti
 		{
 			dispatcher->dispatchAllCollisionPairs(pairCache, dispatchInfo, dispatcher);
 		}
-		int numExistingManifolds = m_data->m_mbDynamicsWorld->getDispatcher()->getNumManifolds();
+		// int numExistingManifolds = m_data->m_mbDynamicsWorld->getDispatcher()->getNumManifolds();
 		btManifoldArray manifoldArray;
 		for (int i = 0; i < pairCache->getNumOverlappingPairs(); i++)
 		{
@@ -93,7 +93,7 @@ void syncContactManifolds(T** contactManifolds, int numContactManifolds, btMulti
 					else
 					{
 						existingManifold->setNumContacts(0);
-						//printf("Issue: cannot find maching contact manifold (%d, %d), may cause issues in determinism.\n", uid0, uid1);
+						//printf("Issue: cannot find matching contact manifold (%d, %d), may cause issues in determinism.\n", uid0, uid1);
 					}
 
 					manifoldArray.clear();
@@ -104,10 +104,10 @@ void syncContactManifolds(T** contactManifolds, int numContactManifolds, btMulti
 }
 
 template <class T>
-void syncMultiBody(T* mbd, btMultiBody* mb, btMultiBodyWorldImporterInternalData* m_data, btAlignedObjectArray<btQuaternion>& scratchQ, btAlignedObjectArray<btVector3>& scratchM)
+void syncMultiBody(T* mbd, btMultiBody* mb, btMultiBodyWorldImporterInternalData* /*m_data*/, btAlignedObjectArray<btQuaternion>& scratchQ, btAlignedObjectArray<btVector3>& scratchM)
 {
-	bool isFixedBase = mbd->m_baseMass == 0;
-	bool canSleep = false;
+	// bool isFixedBase = mbd->m_baseMass == 0;
+	// bool canSleep = false;
 	btVector3 baseInertia;
 	baseInertia.deSerialize(mbd->m_baseInertia);
 
@@ -139,14 +139,14 @@ void syncMultiBody(T* mbd, btMultiBody* mb, btMultiBodyWorldImporterInternalData
 			}
 			case btMultibodyLink::ePrismatic:
 			{
-				mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
-				mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
+				mb->setJointPos(i, (btScalar)mbd->m_links[i].m_jointPos[0]);
+				mb->setJointVel(i, (btScalar)mbd->m_links[i].m_jointVel[0]);
 				break;
 			}
 			case btMultibodyLink::eRevolute:
 			{
-				mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
-				mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
+				mb->setJointPos(i, (btScalar)mbd->m_links[i].m_jointPos[0]);
+				mb->setJointVel(i, (btScalar)mbd->m_links[i].m_jointVel[0]);
 				break;
 			}
 			case btMultibodyLink::eSpherical:
@@ -178,7 +178,7 @@ void convertMultiBody(T* mbd, btMultiBodyWorldImporterInternalData* m_data)
 	bool canSleep = false;
 	btVector3 baseInertia;
 	baseInertia.deSerialize(mbd->m_baseInertia);
-	btMultiBody* mb = new btMultiBody(mbd->m_numLinks, mbd->m_baseMass, baseInertia, isFixedBase, canSleep);
+	btMultiBody* mb = new btMultiBody(mbd->m_numLinks, (btScalar)mbd->m_baseMass, baseInertia, isFixedBase, canSleep);
 	mb->setHasSelfCollision(false);
 
 	btVector3 baseWorldPos;
@@ -205,7 +205,7 @@ void convertMultiBody(T* mbd, btMultiBodyWorldImporterInternalData* m_data)
 		{
 			case btMultibodyLink::eFixed:
 			{
-				mb->setupFixed(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
+				mb->setupFixed(i, (btScalar)mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 							   parentRotToThis, parentComToThisPivotOffset, thisPivotToThisComOffset);
 				//search for the collider
 				//mbd->m_links[i].m_linkCollider
@@ -216,11 +216,11 @@ void convertMultiBody(T* mbd, btMultiBodyWorldImporterInternalData* m_data)
 				btVector3 jointAxis;
 				jointAxis.deSerialize(mbd->m_links[i].m_jointAxisBottom[0]);
 				bool disableParentCollision = true;  //todo
-				mb->setupPrismatic(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
+				mb->setupPrismatic(i, (btScalar)mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 								   parentRotToThis, jointAxis, parentComToThisPivotOffset, thisPivotToThisComOffset, disableParentCollision);
-				mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
+				mb->setJointPos(i, (btScalar)mbd->m_links[i].m_jointPos[0]);
 				mb->finalizeMultiDof();
-				mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
+				mb->setJointVel(i, (btScalar)mbd->m_links[i].m_jointVel[0]);
 				break;
 			}
 			case btMultibodyLink::eRevolute:
@@ -228,18 +228,18 @@ void convertMultiBody(T* mbd, btMultiBodyWorldImporterInternalData* m_data)
 				btVector3 jointAxis;
 				jointAxis.deSerialize(mbd->m_links[i].m_jointAxisTop[0]);
 				bool disableParentCollision = true;  //todo
-				mb->setupRevolute(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
+				mb->setupRevolute(i, (btScalar)mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 								  parentRotToThis, jointAxis, parentComToThisPivotOffset, thisPivotToThisComOffset, disableParentCollision);
-				mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
+				mb->setJointPos(i, (btScalar)mbd->m_links[i].m_jointPos[0]);
 				mb->finalizeMultiDof();
-				mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
+				mb->setJointVel(i, (btScalar)mbd->m_links[i].m_jointVel[0]);
 				break;
 			}
 			case btMultibodyLink::eSpherical:
 			{
 				btAssert(0);
 				bool disableParentCollision = true;  //todo
-				mb->setupSpherical(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
+				mb->setupSpherical(i, (btScalar)mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 								   parentRotToThis, parentComToThisPivotOffset, thisPivotToThisComOffset, disableParentCollision);
 				btScalar jointPos[4] = {(btScalar)mbd->m_links[i].m_jointPos[0], (btScalar)mbd->m_links[i].m_jointPos[1], (btScalar)mbd->m_links[i].m_jointPos[2], (btScalar)mbd->m_links[i].m_jointPos[3]};
 				btScalar jointVel[3] = {(btScalar)mbd->m_links[i].m_jointVel[0], (btScalar)mbd->m_links[i].m_jointVel[1], (btScalar)mbd->m_links[i].m_jointVel[2]};
@@ -304,11 +304,11 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 				btRigidBodyDoubleData* rbd = (btRigidBodyDoubleData*)bulletFile2->m_rigidBodies[i];
 				int foundRb = -1;
 				int uid = rbd->m_collisionObjectData.m_uniqueId;
-				for (int i = 0; i < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); i++)
+				for (int j = 0; j < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); j++)
 				{
-					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId)
+					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[j]->getBroadphaseHandle()->m_uniqueId)
 					{
-						foundRb = i;
+						foundRb = j;
 						break;
 					}
 				}
@@ -389,11 +389,11 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 				btRigidBodyFloatData* rbd = (btRigidBodyFloatData*)bulletFile2->m_rigidBodies[i];
 				int foundRb = -1;
 				int uid = rbd->m_collisionObjectData.m_uniqueId;
-				for (int i = 0; i < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); i++)
+				for (int j = 0; j < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); j++)
 				{
-					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId)
+					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[j]->getBroadphaseHandle()->m_uniqueId)
 					{
-						foundRb = i;
+						foundRb = j;
 						break;
 					}
 				}
@@ -477,8 +477,8 @@ bool btMultiBodyWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFil
 			{
 				btMultiBody* mb = *ptr;
 				mb->finalizeMultiDof();
-				btVector3 linvel = mb->getBaseVel();
-				btVector3 angvel = mb->getBaseOmega();
+				// btVector3 linvel = mb->getBaseVel();
+				// btVector3 angvel = mb->getBaseOmega();
 				mb->forwardKinematics(scratchQ, scratchM);
 			}
 		}

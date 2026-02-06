@@ -46,7 +46,7 @@ extern int b3g_removePairs;
 extern int b3g_addedPairs;
 extern int b3g_findPairs;
 
-const int B3_NULL_PAIR = 0xffffffff;
+const int B3_NULL_PAIR = (int)0xffffffff;
 
 ///The b3OverlappingPairCache provides an interface for overlapping pair management (add, remove, storage), used by the b3BroadphaseInterface broadphases.
 ///The b3HashedOverlappingPairCache and b3SortedOverlappingPairCache classes are two implementations.
@@ -349,7 +349,7 @@ public:
 	virtual void sortOverlappingPairs(b3Dispatcher* dispatcher);
 };
 
-///b3NullPairCache skips add/removal of overlapping pairs. Userful for benchmarking and unit testing.
+///b3NullPairCache skips add/removal of overlapping pairs. Useful for benchmarking and unit testing.
 class b3NullPairCache : public b3OverlappingPairCache
 {
 	b3BroadphasePairArray m_overlappingPairArray;

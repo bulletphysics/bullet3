@@ -75,7 +75,7 @@ public:
 		mMaxVertices = 4096;  // maximum number of points to be considered for a convex hull.
 		mMaxFaces = 4096;
 		mSkinWidth = 0.01f;  // default is one centimeter
-	};
+	}
 
 	HullDesc(HullFlag flag,
 			 unsigned int vcount,
@@ -127,7 +127,7 @@ class HullLibrary
 {
 public:
 	HullError CreateConvexHull(const HullDesc &desc,  // describes the input request
-							   HullResult &result);   // contains the resulst
+							   HullResult &result);   // contains the results
 
 	HullError ReleaseResult(HullResult &result);  // release memory allocated for this result, we are done with it.
 

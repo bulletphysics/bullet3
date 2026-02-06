@@ -63,14 +63,14 @@ static btScalar dDOT14(const btScalar* a, const btScalar* b) { return dDOTpq(a, 
 		(A)[0] op dDOT41((B), (C));     \
 		(A)[1] op dDOT41((B + 1), (C)); \
 		(A)[2] op dDOT41((B + 2), (C)); \
-	}
+	}  do{} while(0)
 
 #define dMULTIPLYOP0_331(A, op, B, C) \
 	{                                 \
 		(A)[0] op dDOT((B), (C));     \
 		(A)[1] op dDOT((B + 4), (C)); \
 		(A)[2] op dDOT((B + 8), (C)); \
-	}
+	}  do{} while(0)
 
 #define dMULTIPLY1_331(A, B, C) dMULTIPLYOP1_331(A, =, B, C)
 #define dMULTIPLY0_331(A, B, C) dMULTIPLYOP0_331(A, =, B, C)
@@ -100,7 +100,7 @@ void dLineClosestApproach(const btVector3& pa, const btVector3& ua,
 	}
 	else
 	{
-		d = 1.f / d;
+		d = btScalar(1.f) / d;
 		*alpha = (q1 + uaub * q2) * d;
 		*beta = (uaub * q1 + q2) * d;
 	}
@@ -134,7 +134,7 @@ static int intersectRectQuad2(btScalar h[2], btScalar p[8], btScalar ret[16])
 			for (int i = nq; i > 0; i--)
 			{
 				// go through all points in q and all lines between adjacent points
-				if (sign * pq[dir] < h[dir])
+				if ((btScalar)sign * pq[dir] < h[dir])
 				{
 					// this point is inside the chopping line
 					pr[0] = pq[0];
@@ -148,12 +148,12 @@ static int intersectRectQuad2(btScalar h[2], btScalar p[8], btScalar ret[16])
 					}
 				}
 				btScalar* nextq = (i > 1) ? pq + 2 : q;
-				if ((sign * pq[dir] < h[dir]) ^ (sign * nextq[dir] < h[dir]))
+				if (((btScalar)sign * pq[dir] < h[dir]) ^ ((btScalar)sign * nextq[dir] < h[dir]))
 				{
 					// this line crosses the chopping line
 					pr[1 - dir] = pq[1 - dir] + (nextq[1 - dir] - pq[1 - dir]) /
-													(nextq[dir] - pq[dir]) * (sign * h[dir] - pq[dir]);
-					pr[dir] = sign * h[dir];
+													(nextq[dir] - pq[dir]) * ((btScalar)sign * h[dir] - pq[dir]);
+					pr[dir] = (btScalar)sign * h[dir];
 					pr += 2;
 					nr++;
 					if (nr & 8)
@@ -174,7 +174,7 @@ done:
 	return nr;
 }
 
-#define M__PI 3.14159265f
+#define M__PI btScalar(3.14159265f)
 
 // given n points in the plane (array p, of size 2*n), generate m points that
 // best represent the whole set. the definition of 'best' here is not
@@ -215,7 +215,7 @@ void cullPoints2(int n, btScalar p[], int m, int i0, int iret[])
 		q = p[n * 2 - 2] * p[1] - p[0] * p[n * 2 - 1];
 		if (btFabs(a + q) > SIMD_EPSILON)
 		{
-			a = 1.f / (btScalar(3.0) * (a + q));
+			a = btScalar(1.f) / (btScalar(3.0) * (a + q));
 		}
 		else
 		{
@@ -226,7 +226,7 @@ void cullPoints2(int n, btScalar p[], int m, int i0, int iret[])
 	}
 
 	// compute the angle of each point w.r.t. the centroid
-	btScalar A[8];
+	btScalar A[8] = {};
 	for (i = 0; i < n; i++) A[i] = btAtan2(p[i * 2 + 1] - cy, p[i * 2] - cx);
 
 	// search for points that have angles closest to A[i0] + i*(2*pi/m).
@@ -237,7 +237,7 @@ void cullPoints2(int n, btScalar p[], int m, int i0, int iret[])
 	iret++;
 	for (j = 1; j < m; j++)
 	{
-		a = btScalar(j) * (2 * M__PI / m) + A[i0];
+		a = btScalar(j) * (2 * M__PI / (btScalar)m) + A[i0];
 		if (a > M__PI) a -= 2 * M__PI;
 		btScalar maxdiff = 1e9, diff;
 
@@ -276,7 +276,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 			 int maxc, dContactGeom* /*contact*/, int /*skip*/, btDiscreteCollisionDetectorInterface::Result& output)
 {
 	const btScalar fudge_factor = btScalar(1.05);
-	btVector3 p, pp, normalC(0.f, 0.f, 0.f);
+	btVector3 p, pp, normalC(btScalar(0.f), btScalar(0.f), btScalar(0.f));
 	const btScalar* normalR = 0;
 	btScalar A[3], B[3], R11, R12, R13, R21, R22, R23, R31, R32, R33,
 		Q11, Q12, Q13, Q21, Q22, Q23, Q31, Q32, Q33, s, s2, l;
@@ -334,9 +334,9 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 		normalR = norm;                \
 		invert_normal = ((expr1) < 0); \
 		code = (cc);                   \
-	}
+	} do{} while(0)
 
-	s = -dInfinity;
+	s = (btScalar)-dInfinity;
 	invert_normal = 0;
 	code = 0;
 
@@ -370,9 +370,9 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 			invert_normal = ((expr1) < 0);               \
 			code = (cc);                                 \
 		}                                                \
-	}
+	} do{} while(0)
 
-	btScalar fudge2(1.0e-5f);
+	btScalar fudge2 = btScalar(0.00001);
 
 	Q11 += fudge2;
 	Q12 += fudge2;
@@ -521,7 +521,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 	anr[1] = btFabs(nr[1]);
 	anr[2] = btFabs(nr[2]);
 
-	// find the largest compontent of anr: this corresponds to the normal
+	// find the largest component of anr: this corresponds to the normal
 	// for the indident face. the other axis numbers of the indicent face
 	// are stored in a1,a2.
 	int lanr, a1, a2;
@@ -632,7 +632,7 @@ int dBoxBox2(const btVector3& p1, const dMatrix3 R1,
 	// the 'ret' array as necessary so that 'point' and 'ret' correspond.
 	btScalar point[3 * 8];  // penetrating contact points
 	btScalar dep[8];        // depths for those points
-	btScalar det1 = 1.f / (m11 * m22 - m12 * m21);
+	btScalar det1 = btScalar(1.f) / (m11 * m22 - m12 * m21);
 	m11 *= det1;
 	m12 *= det1;
 	m21 *= det1;
@@ -757,10 +757,10 @@ void btBoxBoxDetector::getClosestPoints(const ClosestPointInput& input, Result& 
 
 	dBoxBox2(transformA.getOrigin(),
 			 R1,
-			 2.f * m_box1->getHalfExtentsWithMargin(),
+			 btScalar(2.f) * m_box1->getHalfExtentsWithMargin(),
 			 transformB.getOrigin(),
 			 R2,
-			 2.f * m_box2->getHalfExtentsWithMargin(),
+			 btScalar(2.f) * m_box2->getHalfExtentsWithMargin(),
 			 normal, &depth, &return_code,
 			 maxc, contact, skip,
 			 output);

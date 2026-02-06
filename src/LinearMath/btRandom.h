@@ -32,7 +32,7 @@ SIMD_FORCE_INLINE unsigned int GEN_rand() { return genrand_int32(); }
 #define GEN_RAND_MAX RAND_MAX
 
 SIMD_FORCE_INLINE void GEN_srand(unsigned int seed) { srand(seed); }
-SIMD_FORCE_INLINE unsigned int GEN_rand() { return rand(); }
+SIMD_FORCE_INLINE unsigned int GEN_rand() { return (unsigned int)rand(); }
 
 #endif
 

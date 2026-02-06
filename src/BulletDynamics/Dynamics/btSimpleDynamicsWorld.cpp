@@ -159,11 +159,11 @@ void btSimpleDynamicsWorld::debugDrawWorld()
 {
 }
 
-void btSimpleDynamicsWorld::addAction(btActionInterface* action)
+void btSimpleDynamicsWorld::addAction(btActionInterface* /*action*/)
 {
 }
 
-void btSimpleDynamicsWorld::removeAction(btActionInterface* action)
+void btSimpleDynamicsWorld::removeAction(btActionInterface* /*action*/)
 {
 }
 

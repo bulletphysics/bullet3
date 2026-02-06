@@ -20,7 +20,7 @@ subject to the following restrictions:
 struct b3RigidBodyData;
 enum B3_CONSTRAINT_FLAGS
 {
-	B3_CONSTRAINT_FLAG_ENABLED = 1,
+	B3_CONSTRAINT_FLAG_ENABLED = 1
 };
 
 enum b3GpuGenericConstraintType

@@ -3,10 +3,12 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btThreads.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btOverride.h"
 #include <stdio.h>
 #include <algorithm>
+#include <cstring>
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 
 #include "btThreadSupportInterface.h"
 
@@ -21,7 +23,7 @@
 typedef unsigned long long btU64;
 static const int kCacheLineSize = 64;
 
-void btSpinPause()
+static void btSpinPause()
 {
 #if defined(_WIN32)
 	YieldProcessor();
@@ -35,7 +37,7 @@ struct WorkerThreadStatus
 		kInvalid,
 		kWaitingForWork,
 		kWorking,
-		kSleeping,
+		kSleeping
 	};
 };
 
@@ -52,7 +54,7 @@ public:
 		kInvalid,
 		kGoToSleep,         // go to sleep
 		kStayAwakeButIdle,  // wait for not checking job queue
-		kScanForJobs,       // actively scan job queue for jobs
+		kScanForJobs        // actively scan job queue for jobs
 	};
 	WorkerThreadDirectives()
 	{
@@ -98,6 +100,7 @@ ThreadLocalStorage
 
 struct IJob
 {
+	virtual ~IJob() {}
 	virtual void executeJob(int threadId) = 0;
 };
 
@@ -114,7 +117,7 @@ public:
 		m_begin = iBegin;
 		m_end = iEnd;
 	}
-	virtual void executeJob(int threadId) BT_OVERRIDE
+	virtual void executeJob(int /*threadId*/) BT_OVERRIDE
 	{
 		BT_PROFILE("executeJob");
 
@@ -144,7 +147,7 @@ public:
 
 		// call the functor body to do the work
 		btScalar val = m_body->sumLoop(m_begin, m_end);
-#if BT_PARALLEL_SUM_DETERMINISTISM
+#ifdef BT_PARALLEL_SUM_DETERMINISTISM
 		// by truncating bits of the result, we can make the parallelSum deterministic (at the expense of precision)
 		const float TRUNC_SCALE = float(1 << 19);
 		val = floor(val * TRUNC_SCALE + 0.5f) / TRUNC_SCALE;  // truncate some bits
@@ -185,7 +188,7 @@ JobQueue
 		if (newSize > m_jobMemSize)
 		{
 			freeJobMem();
-			m_jobMem = static_cast<char*>(btAlignedAlloc(newSize, kCacheLineSize));
+			m_jobMem = static_cast<char*>(btAlignedAlloc((size_t)newSize, kCacheLineSize));
 			m_jobMemSize = newSize;
 		}
 	}
@@ -195,11 +198,13 @@ public:
 	{
 		m_jobMem = NULL;
 		m_jobMemSize = 0;
+		m_queueIsEmpty = true;
 		m_threadSupport = NULL;
 		m_queueLock = NULL;
 		m_headIndex = 0;
 		m_tailIndex = 0;
 		m_useSpinMutex = false;
+		memset(&m_cachePadding,0,sizeof(m_cachePadding));
 	}
 	~JobQueue()
 	{
@@ -443,7 +448,7 @@ public:
 		m_workerDirective = NULL;
 	}
 
-	virtual ~btTaskSchedulerDefault()
+	virtual ~btTaskSchedulerDefault() BT_OVERRIDE
 	{
 		waitForWorkersToSleep();
 
@@ -542,7 +547,7 @@ public:
 		{
 			// re-setup job stealing between queues to avoid attempting to steal from an inactive job queue
 			JobQueue* lastActiveContext = m_perThreadJobQueues[m_numThreads - 1];
-			int iLastActiveContext = lastActiveContext - &m_jobQueues[0];
+			int iLastActiveContext = (int)(lastActiveContext - &m_jobQueues[0]);
 			m_numActiveJobQueues = iLastActiveContext + 1;
 			for (int i = 0; i < m_jobQueues.size(); ++i)
 			{
@@ -759,9 +764,9 @@ public:
 
 			// add up all the thread sums
 			btScalar sum = btScalar(0);
-			for (int iThread = 0; iThread < m_numThreads; ++iThread)
+			for (int idxThread = 0; idxThread < m_numThreads; ++idxThread)
 			{
-				sum += m_threadLocalStorage[iThread].m_sumResult;
+				sum += m_threadLocalStorage[idxThread].m_sumResult;
 			}
 			m_antiNestingLock.unlock();
 			return sum;
@@ -782,11 +787,11 @@ btITaskScheduler* btCreateDefaultTaskScheduler()
 	return ts;
 }
 
-#else  // #if BT_THREADSAFE
+#else  // #ifdef BT_THREADSAFE
 
 btITaskScheduler* btCreateDefaultTaskScheduler()
 {
 	return NULL;
 }
 
-#endif  // #else // #if BT_THREADSAFE
+#endif  // #else // #ifdef BT_THREADSAFE

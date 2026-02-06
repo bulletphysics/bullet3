@@ -101,11 +101,11 @@ private:
 public:
 	void begin(RecordType rt)
 	{
-		mRecords[rt].begin(mClock.getTimeMicroseconds());
+		mRecords[rt].begin((unsigned int)mClock.getTimeMicroseconds());
 	}
 	void end(RecordType rt)
 	{
-		mRecords[rt].end(mClock.getTimeMicroseconds());
+		mRecords[rt].end((unsigned int)mClock.getTimeMicroseconds());
 	}
 	float getAverageTime(RecordType rt) const
 	{
@@ -131,12 +131,12 @@ public:
 	}
 };
 
-static void profileBeginCallback(btDynamicsWorld* world, btScalar timeStep)
+static void profileBeginCallback(btDynamicsWorld* /*world*/, btScalar /*timeStep*/)
 {
 	gProfiler.begin(Profiler::kRecordInternalTimeStep);
 }
 
-static void profileEndCallback(btDynamicsWorld* world, btScalar timeStep)
+static void profileEndCallback(btDynamicsWorld* /*world*/, btScalar /*timeStep*/)
 {
 	gProfiler.end(Profiler::kRecordInternalTimeStep);
 }
@@ -199,7 +199,7 @@ public:
 ///
 /// myParallelIslandDispatch -- wrap default parallel dispatch for profiling and to get the number of simulation islands
 //
-void myParallelIslandDispatch(btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, const btSimulationIslandManagerMt::SolverParams& solverParams)
+static void myParallelIslandDispatch(btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, const btSimulationIslandManagerMt::SolverParams& solverParams)
 {
 	ProfileHelper prof(Profiler::kRecordDispatchIslands);
 	gNumIslands = islandsPtr->size();
@@ -245,7 +245,7 @@ public:
 	}
 };
 
-btConstraintSolver* createSolverByType(SolverType t)
+static btConstraintSolver* createSolverByType(SolverType t)
 {
 	btMLCPSolverInterface* mlcpSolver = NULL;
 	switch (t)
@@ -289,7 +289,7 @@ public:
 	void init()
 	{
 		addTaskScheduler(btGetSequentialTaskScheduler());
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		if (btITaskScheduler* ts = btCreateDefaultTaskScheduler())
 		{
 			m_allocatedTaskSchedulers.push_back(ts);
@@ -307,7 +307,7 @@ public:
 		{
 			btSetTaskScheduler(m_taskSchedulers[0]);
 		}
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 	}
 	void shutdown()
 	{
@@ -322,14 +322,14 @@ public:
 	{
 		if (ts)
 		{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 			// if initial number of threads is 0 or 1,
 			if (ts->getNumThreads() <= 1)
 			{
 				// for OpenMP, TBB, PPL set num threads to number of logical cores
 				ts->setNumThreads(ts->getMaxNumThreads());
 			}
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 			m_taskSchedulers.push_back(ts);
 		}
 	}
@@ -339,7 +339,7 @@ public:
 
 static btTaskSchedulerManager gTaskSchedulerMgr;
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 static bool gMultithreadedWorld = true;
 static bool gDisplayProfileInfo = true;
 static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT;
@@ -355,10 +355,12 @@ static int gSolverMode = SOLVER_SIMD |
 						 // SOLVER_USE_2_FRICTION_DIRECTIONS |
 						 0;
 static btScalar gSliderSolverIterations = 10.0f;                                                        // should be int
+#ifdef BT_THREADSAFE
 static btScalar gSliderNumThreads = 1.0f;                                                               // should be int
 static btScalar gSliderIslandBatchingThreshold = 0.0f;                                                  // should be int
 static btScalar gSliderMinBatchSize = btScalar(btSequentialImpulseConstraintSolverMt::s_minBatchSize);  // should be int
 static btScalar gSliderMaxBatchSize = btScalar(btSequentialImpulseConstraintSolverMt::s_maxBatchSize);  // should be int
+#endif
 static btScalar gSliderLeastSquaresResidualThreshold = 0.0f;
 
 ////////////////////////////////////
@@ -384,7 +386,7 @@ CommonRigidBodyMTBase::~CommonRigidBodyMTBase()
 {
 }
 
-static void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
+static void boolPtrButtonCallback(int /*buttonId*/, bool /*buttonState*/, void* userPointer)
 {
 	if (bool* val = static_cast<bool*>(userPointer))
 	{
@@ -411,7 +413,7 @@ static void toggleSolverModeCallback(int buttonId, bool buttonState, void* userP
 	}
 }
 
-void setSolverTypeComboBoxCallback(int combobox, const char* item, void* userPointer)
+static void setSolverTypeComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < SOLVER_TYPE_COUNT; ++i)
@@ -424,9 +426,9 @@ void setSolverTypeComboBoxCallback(int combobox, const char* item, void* userPoi
 	}
 }
 
+#ifdef BT_THREADSAFE
 static void setNumThreads(int numThreads)
 {
-#if BT_THREADSAFE
 	int newNumThreads = (std::min)(numThreads, int(BT_MAX_THREAD_COUNT));
 	int oldNumThreads = btGetTaskScheduler()->getNumThreads();
 	// only call when the thread count is different
@@ -434,12 +436,12 @@ static void setNumThreads(int numThreads)
 	{
 		btGetTaskScheduler()->setNumThreads(newNumThreads);
 	}
-#endif  // #if BT_THREADSAFE
 }
+#endif  // #ifdef BT_THREADSAFE
 
-void setTaskSchedulerComboBoxCallback(int combobox, const char* item, void* userPointer)
+static void setTaskSchedulerComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < 20; ++i)
 	{
@@ -452,12 +454,15 @@ void setTaskSchedulerComboBoxCallback(int combobox, const char* item, void* user
 			break;
 		}
 	}
-#endif  // #if BT_THREADSAFE
+#else
+	(void)item;
+	(void)userPointer;
+#endif  // #ifdef BT_THREADSAFE
 }
 
-void setBatchingMethodComboBoxCallback(int combobox, const char* item, void* userPointer)
+static void setBatchingMethodComboBoxCallback(int /*combobox*/, const char* item, void* userPointer)
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	const char** items = static_cast<const char**>(userPointer);
 	for (int i = 0; i < btBatchedConstraints::BATCHING_METHOD_COUNT; ++i)
 	{
@@ -468,18 +473,21 @@ void setBatchingMethodComboBoxCallback(int combobox, const char* item, void* use
 			break;
 		}
 	}
-#endif  // #if BT_THREADSAFE
+#else
+	(void)item;
+	(void)userPointer;
+#endif  // #ifdef BT_THREADSAFE
 }
 
-static void setThreadCountCallback(float val, void* userPtr)
+#ifdef BT_THREADSAFE
+static void setThreadCountCallback(float /*val*/, void* /*userPtr*/)
 {
-#if BT_THREADSAFE
 	setNumThreads(int(gSliderNumThreads));
 	gSliderNumThreads = float(btGetTaskScheduler()->getNumThreads());
-#endif  // #if BT_THREADSAFE
 }
+#endif
 
-static void setSolverIterationCountCallback(float val, void* userPtr)
+static void setSolverIterationCountCallback(float /*val*/, void* userPtr)
 {
 	if (btDiscreteDynamicsWorld* world = reinterpret_cast<btDiscreteDynamicsWorld*>(userPtr))
 	{
@@ -487,26 +495,28 @@ static void setSolverIterationCountCallback(float val, void* userPtr)
 	}
 }
 
-static void setLargeIslandManifoldCountCallback(float val, void* userPtr)
+#ifdef BT_THREADSAFE
+static void setLargeIslandManifoldCountCallback(float /*val*/, void* /*userPtr*/)
 {
 	btSequentialImpulseConstraintSolverMt::s_minimumContactManifoldsForBatching = int(gSliderIslandBatchingThreshold);
 }
 
-static void setMinBatchSizeCallback(float val, void* userPtr)
+static void setMinBatchSizeCallback(float /*val*/, void* /*userPtr*/)
 {
 	gSliderMaxBatchSize = (std::max)(gSliderMinBatchSize, gSliderMaxBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_minBatchSize = int(gSliderMinBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_maxBatchSize = int(gSliderMaxBatchSize);
 }
 
-static void setMaxBatchSizeCallback(float val, void* userPtr)
+static void setMaxBatchSizeCallback(float /*val*/, void* /*userPtr*/)
 {
 	gSliderMinBatchSize = (std::min)(gSliderMinBatchSize, gSliderMaxBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_minBatchSize = int(gSliderMinBatchSize);
 	btSequentialImpulseConstraintSolverMt::s_maxBatchSize = int(gSliderMaxBatchSize);
 }
+#endif
 
-static void setLeastSquaresResidualThresholdCallback(float val, void* userPtr)
+static void setLeastSquaresResidualThresholdCallback(float /*val*/, void* userPtr)
 {
 	if (btDiscreteDynamicsWorld* world = reinterpret_cast<btDiscreteDynamicsWorld*>(userPtr))
 	{
@@ -518,7 +528,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 {
 	gNumIslands = 0;
 	m_solverType = gSolverType;
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	btAssert(btGetTaskScheduler() != NULL);
 	if (NULL != btGetTaskScheduler() && gTaskSchedulerMgr.getNumTaskSchedulers() > 1)
 	{
@@ -527,7 +537,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 #endif
 	if (gMultithreadedWorld)
 	{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		m_dispatcher = NULL;
 		btDefaultCollisionConstructionInfo cci;
 		cci.m_defaultMaxPersistentManifoldPoolSize = 80000;
@@ -564,7 +574,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 		m_dynamicsWorld = world;
 		m_multithreadedWorld = true;
 		btAssert(btGetTaskScheduler() != NULL);
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 	}
 	else
 	{
@@ -575,7 +585,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 		m_broadphase = new btDbvtBroadphase();
@@ -707,7 +717,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
 	}
 	if (m_multithreadedWorld)
 	{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		if (gTaskSchedulerMgr.getNumTaskSchedulers() >= 1)
 		{
 			// create a combo box for selecting the task scheduler
@@ -766,7 +776,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
 			{
 				sBatchingMethodComboBoxItems[btBatchedConstraints::BATCHING_METHOD_SPATIAL_GRID_2D] = "Batching: 2D Grid";
 				sBatchingMethodComboBoxItems[btBatchedConstraints::BATCHING_METHOD_SPATIAL_GRID_3D] = "Batching: 3D Grid";
-			};
+			}
 			ComboBoxParams comboParams;
 			comboParams.m_userPointer = sBatchingMethodComboBoxItems;
 			comboParams.m_numItems = btBatchedConstraints::BATCHING_METHOD_COUNT;
@@ -811,7 +821,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
 			button.m_callback = boolPtrButtonCallback;
 			m_guiHelper->getParameterInterface()->registerButtonParameter(button);
 		}
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 	}
 }
 
@@ -842,7 +852,7 @@ void CommonRigidBodyMTBase::drawScreenText()
 	{
 		if (m_multithreadedWorld)
 		{
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 			int numManifolds = m_dispatcher->getNumManifolds();
 			int numContacts = 0;
 			for (int i = 0; i < numManifolds; ++i)
@@ -860,7 +870,7 @@ void CommonRigidBodyMTBase::drawScreenText()
 					btGetTaskScheduler()->getNumThreads());
 			m_guiHelper->getAppInterface()->drawText(msg, 100, yCoord, 0.4f);
 			yCoord += yStep;
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 		}
 		{
 			int sm = gSolverMode;
@@ -935,6 +945,7 @@ void CommonRigidBodyMTBase::drawScreenText()
 					gProfiler.getAverageTime(Profiler::kRecordIntegrateTransforms) * 0.001f);
 			m_guiHelper->getAppInterface()->drawText(msg, xCoord, yCoord, 0.4f);
 			yCoord += yStep;
+			(void)yCoord;
 		}
 	}
 }

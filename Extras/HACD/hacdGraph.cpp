@@ -79,7 +79,7 @@ long Graph::AddVertex()
 {
 	size_t name = m_vertices.size();
 	m_vertices.resize(name + 1);
-	m_vertices[name].m_name = static_cast<long>(name);
+	m_vertices[(size_t)name].m_name = static_cast<long>(name);
 	m_nV++;
 	return static_cast<long>(name);
 }
@@ -88,11 +88,11 @@ long Graph::AddEdge(long v1, long v2)
 {
 	size_t name = m_edges.size();
 	m_edges.push_back(GraphEdge());
-	m_edges[name].m_name = static_cast<long>(name);
-	m_edges[name].m_v1 = v1;
-	m_edges[name].m_v2 = v2;
-	m_vertices[v1].AddEdge(static_cast<long>(name));
-	m_vertices[v2].AddEdge(static_cast<long>(name));
+	m_edges[(size_t)name].m_name = static_cast<long>(name);
+	m_edges[(size_t)name].m_v1 = v1;
+	m_edges[(size_t)name].m_v2 = v2;
+	m_vertices[(size_t)v1].AddEdge(static_cast<long>(name));
+	m_vertices[(size_t)v2].AddEdge(static_cast<long>(name));
 	m_nE++;
 	return static_cast<long>(name);
 }
@@ -101,15 +101,15 @@ bool Graph::DeleteEdge(long name)
 {
 	if (name < static_cast<long>(m_edges.size()))
 	{
-		long v1 = m_edges[name].m_v1;
-		long v2 = m_edges[name].m_v2;
-		m_edges[name].m_deleted = true;
-		m_vertices[v1].DeleteEdge(name);
-		m_vertices[v2].DeleteEdge(name);
-		delete m_edges[name].m_convexHull;
-		m_edges[name].m_distPoints.clear();
-		m_edges[name].m_boudaryEdges.clear();
-		m_edges[name].m_convexHull = 0;
+		long v1 = m_edges[(size_t)name].m_v1;
+		long v2 = m_edges[(size_t)name].m_v2;
+		m_edges[(size_t)name].m_deleted = true;
+		m_vertices[(size_t)v1].DeleteEdge(name);
+		m_vertices[(size_t)v2].DeleteEdge(name);
+		delete m_edges[(size_t)name].m_convexHull;
+		m_edges[(size_t)name].m_distPoints.clear();
+		m_edges[(size_t)name].m_boudaryEdges.clear();
+		m_edges[(size_t)name].m_convexHull = 0;
 		m_nE--;
 		return true;
 	}
@@ -119,13 +119,13 @@ bool Graph::DeleteVertex(long name)
 {
 	if (name < static_cast<long>(m_vertices.size()))
 	{
-		m_vertices[name].m_deleted = true;
-		m_vertices[name].m_edges.clear();
-		m_vertices[name].m_ancestors = std::vector<long>();
-		delete m_vertices[name].m_convexHull;
-		m_vertices[name].m_distPoints.clear();
-		m_vertices[name].m_boudaryEdges.clear();
-		m_vertices[name].m_convexHull = 0;
+		m_vertices[(size_t)name].m_deleted = true;
+		m_vertices[(size_t)name].m_edges.clear();
+		m_vertices[(size_t)name].m_ancestors = std::vector<long>();
+		delete m_vertices[(size_t)name].m_convexHull;
+		m_vertices[(size_t)name].m_distPoints.clear();
+		m_vertices[(size_t)name].m_boudaryEdges.clear();
+		m_vertices[(size_t)name].m_convexHull = 0;
 		m_nV--;
 		return true;
 	}
@@ -139,36 +139,36 @@ bool Graph::EdgeCollapse(long v1, long v2)
 		// delete the edge (v1, v2)
 		DeleteEdge(edgeToDelete);
 		// add v2 to v1 ancestors
-		m_vertices[v1].m_ancestors.push_back(v2);
+		m_vertices[(size_t)v1].m_ancestors.push_back(v2);
 		// add v2's ancestors to v1's ancestors
-		m_vertices[v1].m_ancestors.insert(m_vertices[v1].m_ancestors.begin(),
-										  m_vertices[v2].m_ancestors.begin(),
-										  m_vertices[v2].m_ancestors.end());
+		m_vertices[(size_t)v1].m_ancestors.insert(m_vertices[(size_t)v1].m_ancestors.begin(),
+										  m_vertices[(size_t)v2].m_ancestors.begin(),
+										  m_vertices[(size_t)v2].m_ancestors.end());
 		// update adjacency information
-		std::set<long>& v1Edges = m_vertices[v1].m_edges;
-		std::set<long>::const_iterator ed(m_vertices[v2].m_edges.begin());
-		std::set<long>::const_iterator itEnd(m_vertices[v2].m_edges.end());
+		std::set<long>& v1Edges = m_vertices[(size_t)v1].m_edges;
+		std::set<long>::const_iterator ed(m_vertices[(size_t)v2].m_edges.begin());
+		std::set<long>::const_iterator itEnd(m_vertices[(size_t)v2].m_edges.end());
 		long b = -1;
 		for (; ed != itEnd; ++ed)
 		{
-			if (m_edges[*ed].m_v1 == v2)
+			if (m_edges[(size_t)*ed].m_v1 == v2)
 			{
-				b = m_edges[*ed].m_v2;
+				b = m_edges[(size_t)*ed].m_v2;
 			}
 			else
 			{
-				b = m_edges[*ed].m_v1;
+				b = m_edges[(size_t)*ed].m_v1;
 			}
 			if (GetEdgeID(v1, b) >= 0)
 			{
-				m_edges[*ed].m_deleted = true;
-				m_vertices[b].DeleteEdge(*ed);
+				m_edges[(size_t)*ed].m_deleted = true;
+				m_vertices[(size_t)b].DeleteEdge(*ed);
 				m_nE--;
 			}
 			else
 			{
-				m_edges[*ed].m_v1 = v1;
-				m_edges[*ed].m_v2 = b;
+				m_edges[(size_t)*ed].m_v1 = v1;
+				m_edges[(size_t)*ed].m_v2 = b;
 				v1Edges.insert(*ed);
 			}
 		}
@@ -181,16 +181,16 @@ bool Graph::EdgeCollapse(long v1, long v2)
 
 long Graph::GetEdgeID(long v1, long v2) const
 {
-	if (v1 < static_cast<long>(m_vertices.size()) && !m_vertices[v1].m_deleted)
+	if (v1 < static_cast<long>(m_vertices.size()) && !m_vertices[(size_t)v1].m_deleted)
 	{
-		std::set<long>::const_iterator ed(m_vertices[v1].m_edges.begin());
-		std::set<long>::const_iterator itEnd(m_vertices[v1].m_edges.end());
+		std::set<long>::const_iterator ed(m_vertices[(size_t)v1].m_edges.begin());
+		std::set<long>::const_iterator itEnd(m_vertices[(size_t)v1].m_edges.end());
 		for (; ed != itEnd; ++ed)
 		{
-			if ((m_edges[*ed].m_v1 == v2) ||
-				(m_edges[*ed].m_v2 == v2))
+			if ((m_edges[(size_t)*ed].m_v1 == v2) ||
+				(m_edges[(size_t)*ed].m_v2 == v2))
 			{
-				return m_edges[*ed].m_name;
+				return m_edges[(size_t)*ed].m_name;
 			}
 		}
 	}
@@ -211,7 +211,7 @@ void Graph::Print() const
 			std::set<long>::const_iterator itEnd(currentVertex.m_edges.end());
 			for (; ed != itEnd; ++ed)
 			{
-				std::cout << "(" << m_edges[*ed].m_v1 << "," << m_edges[*ed].m_v2 << ") ";
+				std::cout << "(" << m_edges[(size_t)*ed].m_v1 << "," << m_edges[(size_t)*ed].m_v2 << ") ";
 			}
 			std::cout << std::endl;
 		}
@@ -263,21 +263,21 @@ long Graph::ExtractCCs()
 			{
 				long vertex = temp[temp.size() - 1];
 				temp.pop_back();
-				std::set<long>::const_iterator ed(m_vertices[vertex].m_edges.begin());
-				std::set<long>::const_iterator itEnd(m_vertices[vertex].m_edges.end());
+				std::set<long>::const_iterator ed(m_vertices[(size_t)vertex].m_edges.begin());
+				std::set<long>::const_iterator itEnd(m_vertices[(size_t)vertex].m_edges.end());
 				for (; ed != itEnd; ++ed)
 				{
-					if (m_edges[*ed].m_v1 == vertex)
+					if (m_edges[(size_t)*ed].m_v1 == vertex)
 					{
-						v2 = m_edges[*ed].m_v2;
+						v2 = m_edges[(size_t)*ed].m_v2;
 					}
 					else
 					{
-						v2 = m_edges[*ed].m_v1;
+						v2 = m_edges[(size_t)*ed].m_v1;
 					}
-					if (!m_vertices[v2].m_deleted && m_vertices[v2].m_cc == -1)
+					if (!m_vertices[(size_t)v2].m_deleted && m_vertices[(size_t)v2].m_cc == -1)
 					{
-						m_vertices[v2].m_cc = static_cast<long>(m_nCCs);
+						m_vertices[(size_t)v2].m_cc = static_cast<long>(m_nCCs);
 						temp.push_back(v2);
 					}
 				}

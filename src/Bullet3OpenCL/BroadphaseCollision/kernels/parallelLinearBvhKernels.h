@@ -260,7 +260,7 @@ static const char* parallelLinearBvhCL =
 	"	\n"
 	"	int4 isNegative = isless( rayNormalizedDirection, ((b3Vector3){0.0f, 0.0f, 0.0f, 0.0f}) );	//isless(x,y) returns (x < y)\n"
 	"	\n"
-	"	//When using vector types, the select() function checks the most signficant bit, \n"
+	"	//When using vector types, the select() function checks the most significant bit, \n"
 	"	//but isless() sets the least significant bit.\n"
 	"	isNegative <<= 31;\n"
 	"	//select(b, a, condition) == condition ? a : b\n"

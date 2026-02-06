@@ -19,7 +19,14 @@ subject to the following restrictions:
 #include <stdio.h>  //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string>
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 using namespace tinyxml2;
 
 
@@ -45,7 +52,7 @@ struct TokenFloatArray
 	}
 	inline void add(const char* token)
 	{
-		float v = atof(token);
+		float v = (float)atof(token);
 		m_values.push_back(v);
 	}
 };
@@ -58,7 +65,7 @@ struct TokenIntArray
 	}
 	inline void add(const char* token)
 	{
-		float v = atoi(token);
+		int v = atoi(token);
 		m_values.push_back(v);
 	}
 };
@@ -90,9 +97,9 @@ void tokenize(const std::string& str, AddToken& tokenAdder, const std::string& d
 	}
 }
 
-void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride)
+static void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride)
 {
-	int numVals, stride;
+	int numVals = 0, stride;
 	XMLElement* array = source->FirstChildElement("float_array");
 	if (array)
 	{
@@ -110,7 +117,7 @@ void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray,
 	}
 }
 
-btVector3 getVector3FromXmlText(const char* text)
+static btVector3 getVector3FromXmlText(const char* text)
 {
 	btVector3 vec(0, 0, 0);
 	btAlignedObjectArray<float> floatArray;
@@ -125,7 +132,7 @@ btVector3 getVector3FromXmlText(const char* text)
 	return vec;
 }
 
-btVector4 getVector4FromXmlText(const char* text)
+static btVector4 getVector4FromXmlText(const char* text)
 {
 	btVector4 vec(0, 0, 0, 0);
 	btAlignedObjectArray<float> floatArray;
@@ -140,7 +147,7 @@ btVector4 getVector4FromXmlText(const char* text)
 	return vec;
 }
 
-void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btHashMap<btHashString, int>& name2Shape, float extraScaling)
+static void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btHashMap<btHashString, int>& name2Shape, float extraScaling)
 {
 	btHashMap<btHashString, XMLElement*> allSources;
 	btHashMap<btHashString, VertexSource> vertexSources;
@@ -229,15 +236,15 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 						if (semName == "VERTEX")
 						{
 							//now we have POSITION and possibly NORMAL too, using same index array (<p>)
-							VertexSource* vs = vertexSources[source_name.c_str()];
-							if (vs->m_positionArrayId.length())
+							VertexSource* vertSrc = vertexSources[source_name.c_str()];
+							if (vertSrc->m_positionArrayId.length())
 							{
-								positionSourceName = vs->m_positionArrayId;
+								positionSourceName = vertSrc->m_positionArrayId;
 								posOffset = offset;
 							}
-							if (vs->m_normalArrayId.length())
+							if (vertSrc->m_normalArrayId.length())
 							{
-								normalSourceName = vs->m_normalArrayId;
+								normalSourceName = vertSrc->m_normalArrayId;
 								normalOffset = offset;
 							}
 						}
@@ -314,13 +321,13 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 				for (int v = 0; v < vertexPositions.size(); v++)
 				{
 					GLInstanceVertex vtx;
-					vtx.xyzw[0] = vertexPositions[v].x();
-					vtx.xyzw[1] = vertexPositions[v].y();
-					vtx.xyzw[2] = vertexPositions[v].z();
+					vtx.xyzw[0] = (float)vertexPositions[v].x();
+					vtx.xyzw[1] = (float)vertexPositions[v].y();
+					vtx.xyzw[2] = (float)vertexPositions[v].z();
 					vtx.xyzw[3] = 1.f;
-					vtx.normal[0] = vertexNormals[v].x();
-					vtx.normal[1] = vertexNormals[v].y();
-					vtx.normal[2] = vertexNormals[v].z();
+					vtx.normal[0] = (float)vertexNormals[v].x();
+					vtx.normal[1] = (float)vertexNormals[v].y();
+					vtx.normal[2] = (float)vertexNormals[v].z();
 					vtx.uv[0] = 0.5f;
 					vtx.uv[1] = 0.5f;
 					visualShape.m_vertices->push_back(vtx);
@@ -335,6 +342,7 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 				indexBase = visualShape.m_vertices->size();
 				visualShape.m_numIndices = visualShape.m_indices->size();
 				visualShape.m_numvertices = visualShape.m_vertices->size();
+				(void)indexBase;
 			}
 			//b3Printf("geometry name=%s\n",geometryName);
 			name2Shape.insert(geometryName, shapeIndex);
@@ -347,7 +355,7 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 	}  //for each geometry
 }
 
-void readNodeHierarchy(XMLElement* node, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, const btMatrix4x4& parentTransMat)
+static void readNodeHierarchy(XMLElement* node, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, const btMatrix4x4& parentTransMat)
 {
 	btMatrix4x4 nodeTrans;
 	nodeTrans.setIdentity();
@@ -450,7 +458,7 @@ void readNodeHierarchy(XMLElement* node, btHashMap<btHashString, int>& name2Shap
 		readNodeHierarchy(childNode, name2Shape, visualShapeInstances, nodeTrans);
 	}
 }
-void readVisualSceneInstanceGeometries(XMLDocument& doc, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances)
+static void readVisualSceneInstanceGeometries(XMLDocument& doc, btHashMap<btHashString, int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances)
 {
 	btHashMap<btHashString, XMLElement*> allVisualScenes;
 
@@ -498,7 +506,7 @@ void readVisualSceneInstanceGeometries(XMLDocument& doc, btHashMap<btHashString,
 	}
 }
 
-void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, float& unitMeterScaling, int clientUpAxis)
+static void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, float& unitMeterScaling, int clientUpAxis)
 {
 	///todo(erwincoumans) those up-axis transformations have been quickly coded without rigorous testing
 
@@ -507,7 +515,7 @@ void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, fl
 	{
 		const char* meterText = unitMeter->Attribute("meter");
 		//printf("meterText=%s\n", meterText);
-		unitMeterScaling = atof(meterText);
+		unitMeterScaling = (float)atof(meterText);
 	}
 
 	XMLElement* upAxisElem = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("up_axis");
@@ -560,7 +568,7 @@ void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, fl
 				//we don't support X or other up axis
 				btAssert(0);
 			}
-		};
+		}
 	}
 }
 
@@ -598,7 +606,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 	if (xmlString.size()==0)
 		return;
 
-	if (doc.Parse(&xmlString[0], xmlString.size()) != XML_SUCCESS)
+	if (doc.Parse(&xmlString[0], (size_t)xmlString.size()) != XML_SUCCESS)
 	//if (doc.LoadFile(filename) != XML_SUCCESS)
 		return;
 

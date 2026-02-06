@@ -53,9 +53,9 @@ subject to the following restrictions:
 btConstraintSolverPoolMt::ThreadSolver* btConstraintSolverPoolMt::getAndLockThreadSolver()
 {
 	int i = 0;
-#if BT_THREADSAFE
-	i = btGetCurrentThreadIndex() % m_solvers.size();
-#endif  // #if BT_THREADSAFE
+#ifdef BT_THREADSAFE
+	i = (int)btGetCurrentThreadIndex() % m_solvers.size();
+#endif  // #ifdef BT_THREADSAFE
 	while (true)
 	{
 		ThreadSolver& solver = m_solvers[i];
@@ -127,7 +127,7 @@ btScalar btConstraintSolverPoolMt::solveGroup(btCollisionObject** bodies,
 	ThreadSolver* ts = getAndLockThreadSolver();
 	ts->solver->solveGroup(bodies, numBodies, manifolds, numManifolds, constraints, numConstraints, info, debugDrawer, dispatcher);
 	ts->mutex.unlock();
-	return 0.0f;
+	return btScalar(0.0f);
 }
 
 void btConstraintSolverPoolMt::reset()

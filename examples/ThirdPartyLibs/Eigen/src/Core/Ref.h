@@ -298,7 +298,7 @@ template<typename PlainObjectType, int Options, typename StrideType> class Ref
                                  typename internal::enable_if<bool(Traits::template match<Derived>::MatchAtCompileTime),Derived>::type* = 0)
     {
       EIGEN_STATIC_ASSERT(bool(Traits::template match<Derived>::MatchAtCompileTime), STORAGE_LAYOUT_DOES_NOT_MATCH);
-      // Construction must pass since we will not create temprary storage in the non-const case.
+      // Construction must pass since we will not create temporary storage in the non-const case.
       const bool success = Base::construct(expr.derived());
       EIGEN_UNUSED_VARIABLE(success)
       eigen_assert(success);

@@ -10,17 +10,17 @@ namespace btInverseDynamics
 {
 // constants for random mass and inertia generation
 // these are arbitrary positive values.
-static const float mass_min = 0.001;
-static const float mass_max = 1.0;
+static const float mass_min = 0.001f;
+static const float mass_max = 1.0f;
 
-void randomInit() { srand(time(NULL)); }
+void randomInit() { srand((unsigned int)time(NULL)); }
 void randomInit(unsigned seed) { srand(seed); }
 
 int randomInt(int low, int high) { return rand() % (high + 1 - low) + low; }
 
 float randomFloat(float low, float high)
 {
-	return low + static_cast<float>(rand()) / RAND_MAX * (high - low);
+	return low + static_cast<float>(rand()) / (float)RAND_MAX * (high - low);
 }
 
 float randomMass() { return randomFloat(mass_min, mass_max); }
@@ -43,8 +43,8 @@ mat33 randomInertiaMatrix()
 	// generate random valid inertia matrix by first getting valid components
 	// along major axes and then rotating by random amount
 	vec3 principal = randomInertiaPrincipal();
-	mat33 rot(transformX(randomFloat(-BT_ID_PI, BT_ID_PI)) * transformY(randomFloat(-BT_ID_PI, BT_ID_PI)) *
-			  transformZ(randomFloat(-BT_ID_PI, BT_ID_PI)));
+	mat33 rot(transformX(randomFloat((float)-BT_ID_PI, (float)BT_ID_PI)) * transformY(randomFloat((float)-BT_ID_PI, (float)BT_ID_PI)) *
+			  transformZ(randomFloat((float)-BT_ID_PI, (float)BT_ID_PI)));
 	mat33 inertia;
 	inertia(0, 0) = principal(0);
 	inertia(0, 1) = 0;

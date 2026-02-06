@@ -22,7 +22,14 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h>  //printf debugging
 #include "TaruData.h"
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4305) // 'initializing': truncation from 'double' to 'float'
+#endif
 #include "HaltonData.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 #include "landscapeData.h"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 
@@ -60,7 +67,7 @@ class BenchmarkDemo : public CommonRigidBodyMTBase
 		//??
 	}
 
-	void setCameraDistance(btScalar dist)
+	void setCameraDistance(btScalar /*dist*/)
 	{
 	}
 	void createTest1();
@@ -104,7 +111,7 @@ public:
 		float dist = 120;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 10.46, 0};
+		float targetPos[3] = {0, 10.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -146,7 +153,7 @@ public:
 		sum_ms = 0;
 	}
 
-	btRaycastBar2(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper)
+	btRaycastBar2(btScalar ray_length, btScalar z, btScalar max_y_, struct GUIHelperInterface* guiHelper)
 	{
 		m_guiHelper = guiHelper;
 		frame_counter = 0;
@@ -158,19 +165,19 @@ public:
 		dx = 10.0;
 		min_x = 0;
 		max_x = 0;
-		this->max_y = max_y;
+		this->max_y = max_y_;
 		sign = 1.0;
 		btScalar dalpha = 2 * SIMD_2_PI / NUMRAYS;
 		for (int i = 0; i < NUMRAYS; i++)
 		{
-			btScalar alpha = dalpha * i;
+			btScalar alpha = dalpha * (btScalar)i;
 			// rotate around by alpha degrees y
 			btQuaternion q(btVector3(0.0, 1.0, 0.0), alpha);
 			direction[i] = btVector3(1.0, 0.0, 0.0);
 			direction[i] = quatRotate(q, direction[i]);
 			direction[i] = direction[i] * ray_length;
 
-			source[i] = btVector3(min_x, max_y, z);
+			source[i] = btVector3(min_x, max_y_, z);
 			dest[i] = source[i] + direction[i];
 			dest[i][1] = -1000;
 			normal[i] = btVector3(1.0, 0.0, 0.0);
@@ -200,7 +207,7 @@ public:
 
 			{
 				BT_PROFILE("cw->rayTest");
-				cw->rayTest(source[i], dest[i], cb);
+				if(cw) cw->rayTest(source[i], dest[i], cb);
 			}
 			if (cb.hasHit())
 			{
@@ -269,7 +276,7 @@ public:
 			castRays(cw, 0, NUMRAYS);
 		}
 #ifdef USE_BT_CLOCK
-		ms += frame_timer.getTimeMilliseconds();
+		ms += (int)frame_timer.getTimeMilliseconds();
 #endif  //USE_BT_CLOCK
 		frame_counter++;
 		if (frame_counter > 50)
@@ -293,21 +300,21 @@ public:
 			btAlignedObjectArray<unsigned int> indices;
 			btAlignedObjectArray<btVector3FloatData> points;
 
-			float lineColor[4] = {1, 0.4, .4, 1};
+			float lineColor[4] = {1, 0.4f, .4f, 1};
 
 			for (int i = 0; i < NUMRAYS; i++)
 			{
 				btVector3FloatData s, h;
 				for (int w = 0; w < 4; w++)
 				{
-					s.m_floats[w] = source[i][w];
-					h.m_floats[w] = hit[i][w];
+					s.m_floats[w] = (float)source[i][w];
+					h.m_floats[w] = (float)hit[i][w];
 				}
 
 				points.push_back(s);
 				points.push_back(h);
-				indices.push_back(indices.size());
-				indices.push_back(indices.size());
+				indices.push_back((unsigned int)indices.size());
+				indices.push_back((unsigned int)indices.size());
 			}
 
 			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], lineColor, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), 1);
@@ -345,7 +352,7 @@ void BenchmarkDemo::initPhysics()
 	//cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
 	//m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 
-	/////use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	/////use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	//m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 	//
 	//m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
@@ -467,7 +474,7 @@ void BenchmarkDemo::createTest1()
 	const float cubeSize = 1.0f;
 	float spacing = cubeSize;
 	btVector3 pos(0.0f, cubeSize * 2, 0.f);
-	float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+	float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 	btBoxShape* blockShape = new btBoxShape(btVector3(cubeSize - COLLISION_RADIUS, cubeSize - COLLISION_RADIUS, cubeSize - COLLISION_RADIUS));
 	btVector3 localInertia(0, 0, 0);
@@ -489,9 +496,10 @@ void BenchmarkDemo::createTest1()
 				trans.setOrigin(pos);
 				btRigidBody* cmbody;
 				cmbody = createRigidBody(mass, trans, blockShape);
+				(void)cmbody;
 			}
 		}
-		offset -= 0.05f * spacing * (size - 1);
+		offset -= 0.05f * spacing * (float)(size - 1);
 		//		spacing *= 1.01f;
 		pos[1] += (cubeSize * 2.0f + spacing);
 	}
@@ -512,7 +520,7 @@ void BenchmarkDemo::createWall(const btVector3& offsetPosition, int stackSize, c
 	btScalar diffY = boxSize[1] * 1.0f;
 	btScalar diffZ = boxSize[2] * 1.0f;
 
-	btScalar offset = -stackSize * (diffZ * 2.0f) * 0.5f;
+	btScalar offset = (btScalar)-stackSize * (diffZ * 2.0f) * 0.5f;
 	btVector3 pos(0.0f, diffY, 0.0f);
 
 	btTransform trans;
@@ -551,8 +559,8 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition, int stackSize
 	btScalar diffY = boxSize[1] * 1.02f;
 	btScalar diffZ = boxSize[2] * 1.02f;
 
-	btScalar offsetX = -stackSize * (diffX * 2.0f + space) * 0.5f;
-	btScalar offsetZ = -stackSize * (diffZ * 2.0f + space) * 0.5f;
+	btScalar offsetX = (btScalar)-stackSize * (diffX * 2.0f + space) * 0.5f;
+	btScalar offsetZ = (btScalar)-stackSize * (diffZ * 2.0f + space) * 0.5f;
 	while (stackSize)
 	{
 		for (int j = 0; j < stackSize; j++)
@@ -562,7 +570,7 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition, int stackSize
 			{
 				pos[0] = offsetX + (float)i * (diffX * 2.0f + space);
 				trans.setOrigin(offsetPosition + pos);
-				this->createRigidBody(mass, trans, blockShape);
+				this->createRigidBody((float)mass, trans, blockShape);
 			}
 		}
 		offsetX += diffX;
@@ -572,13 +580,13 @@ void BenchmarkDemo::createPyramid(const btVector3& offsetPosition, int stackSize
 	}
 }
 
-const btVector3 rotate(const btQuaternion& quat, const btVector3& vec)
+static const btVector3 rotate(const btQuaternion& quat, const btVector3& vec)
 {
 	float tmpX, tmpY, tmpZ, tmpW;
-	tmpX = (((quat.getW() * vec.getX()) + (quat.getY() * vec.getZ())) - (quat.getZ() * vec.getY()));
-	tmpY = (((quat.getW() * vec.getY()) + (quat.getZ() * vec.getX())) - (quat.getX() * vec.getZ()));
-	tmpZ = (((quat.getW() * vec.getZ()) + (quat.getX() * vec.getY())) - (quat.getY() * vec.getX()));
-	tmpW = (((quat.getX() * vec.getX()) + (quat.getY() * vec.getY())) + (quat.getZ() * vec.getZ()));
+	tmpX = float(((quat.getW() * vec.getX()) + (quat.getY() * vec.getZ())) - (quat.getZ() * vec.getY()));
+	tmpY = float(((quat.getW() * vec.getY()) + (quat.getZ() * vec.getX())) - (quat.getX() * vec.getZ()));
+	tmpZ = float(((quat.getW() * vec.getZ()) + (quat.getX() * vec.getY())) - (quat.getY() * vec.getX()));
+	tmpW = float(((quat.getX() * vec.getX()) + (quat.getY() * vec.getY())) + (quat.getZ() * vec.getZ()));
 	return btVector3(
 		((((tmpW * quat.getX()) + (tmpX * quat.getW())) - (tmpY * quat.getZ())) + (tmpZ * quat.getY())),
 		((((tmpW * quat.getY()) + (tmpY * quat.getW())) - (tmpZ * quat.getX())) + (tmpX * quat.getZ())),
@@ -596,11 +604,11 @@ void BenchmarkDemo::createTowerCircle(const btVector3& offsetPosition, int stack
 	btVector3 localInertia(0, 0, 0);
 	blockShape->calculateLocalInertia(mass, localInertia);
 
-	float radius = 1.3f * rotSize * boxSize[0] / SIMD_PI;
+	float radius = float(btScalar(1.3) * (btScalar)rotSize * boxSize[0] / SIMD_PI);
 
 	// create active boxes
 	btQuaternion rotY(0, 1, 0, 0);
-	float posY = boxSize[1];
+	float posY = (float)boxSize[1];
 
 	for (int i = 0; i < stackSize; i++)
 	{
@@ -610,10 +618,10 @@ void BenchmarkDemo::createTowerCircle(const btVector3& offsetPosition, int stack
 			trans.setRotation(rotY);
 			createRigidBody(mass, trans, blockShape);
 
-			rotY *= btQuaternion(btVector3(0, 1, 0), SIMD_PI / (rotSize * btScalar(0.5)));
+			rotY *= btQuaternion(btVector3(0, 1, 0), SIMD_PI / ((btScalar)rotSize * btScalar(0.5)));
 		}
 
-		posY += boxSize[1] * 2.0f;
+		posY += (float)boxSize[1] * 2.0f;
 		rotY *= btQuaternion(btVector3(0, 1, 0), SIMD_PI / (float)rotSize);
 	}
 }
@@ -763,22 +771,22 @@ public:
 
 		transform.setIdentity();
 		transform.setOrigin(scale * btVector3(btScalar(-0.35), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0, 0, M_PI_2);
+		transform.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		m_bodies[BODYPART_LEFT_UPPER_ARM] = createRigidBody(btScalar(1.), offset * transform, m_shapes[BODYPART_LEFT_UPPER_ARM]);
 
 		transform.setIdentity();
 		transform.setOrigin(scale * btVector3(btScalar(-0.7), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0, 0, M_PI_2);
+		transform.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		m_bodies[BODYPART_LEFT_LOWER_ARM] = createRigidBody(btScalar(1.), offset * transform, m_shapes[BODYPART_LEFT_LOWER_ARM]);
 
 		transform.setIdentity();
 		transform.setOrigin(scale * btVector3(btScalar(0.35), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
+		transform.getBasis().setEulerZYX(0, 0, btScalar(-M_PI_2));
 		m_bodies[BODYPART_RIGHT_UPPER_ARM] = createRigidBody(btScalar(1.), offset * transform, m_shapes[BODYPART_RIGHT_UPPER_ARM]);
 
 		transform.setIdentity();
 		transform.setOrigin(scale * btVector3(btScalar(0.7), btScalar(1.45), btScalar(0.)));
-		transform.getBasis().setEulerZYX(0, 0, -M_PI_2);
+		transform.getBasis().setEulerZYX(0, 0, btScalar(-M_PI_2));
 		m_bodies[BODYPART_RIGHT_LOWER_ARM] = createRigidBody(btScalar(1.), offset * transform, m_shapes[BODYPART_RIGHT_LOWER_ARM]);
 
 		// Setup some damping on the m_bodies
@@ -797,9 +805,9 @@ public:
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localA.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localA.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localB.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)));
 		hingeC = new btHingeConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_SPINE], localA, localB);
 		hingeC->setLimit(btScalar(-M_PI_4), btScalar(M_PI_2));
@@ -808,31 +816,31 @@ public:
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, 0, M_PI_2);
+		localA.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		localA.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.30), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, 0, M_PI_2);
+		localB.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_HEAD], localA, localB);
-		coneC->setLimit(M_PI_4, M_PI_4, M_PI_2);
+		coneC->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), btScalar(M_PI_2));
 		m_joints[JOINT_SPINE_HEAD] = coneC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_SPINE_HEAD], true);
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, 0, -M_PI_4 * 5);
+		localA.getBasis().setEulerZYX(0, 0, btScalar(-M_PI_4 * 5));
 		localA.setOrigin(scale * btVector3(btScalar(-0.18), btScalar(-0.10), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, 0, -M_PI_4 * 5);
+		localB.getBasis().setEulerZYX(0, 0, btScalar(-M_PI_4 * 5));
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_LEFT_UPPER_LEG], localA, localB);
-		coneC->setLimit(M_PI_4, M_PI_4, 0);
+		coneC->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), 0);
 		m_joints[JOINT_LEFT_HIP] = coneC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_HIP], true);
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localA.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localA.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localB.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
 		hingeC = new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_LEG], *m_bodies[BODYPART_LEFT_LOWER_LEG], localA, localB);
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
@@ -841,20 +849,20 @@ public:
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, 0, M_PI_4);
+		localA.getBasis().setEulerZYX(0, 0, btScalar(M_PI_4));
 		localA.setOrigin(scale * btVector3(btScalar(0.18), btScalar(-0.10), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, 0, M_PI_4);
+		localB.getBasis().setEulerZYX(0, 0, btScalar(M_PI_4));
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.225), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_PELVIS], *m_bodies[BODYPART_RIGHT_UPPER_LEG], localA, localB);
-		coneC->setLimit(M_PI_4, M_PI_4, 0);
+		coneC->setLimit(btScalar(M_PI_4), btScalar(M_PI_4), 0);
 		m_joints[JOINT_RIGHT_HIP] = coneC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_HIP], true);
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localA.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localA.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.225), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localB.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.185), btScalar(0.)));
 		hingeC = new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_LEG], *m_bodies[BODYPART_RIGHT_LOWER_LEG], localA, localB);
 		hingeC->setLimit(btScalar(0), btScalar(M_PI_2));
@@ -863,23 +871,23 @@ public:
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, 0, M_PI);
+		localA.getBasis().setEulerZYX(0, 0, btScalar(M_PI));
 		localA.setOrigin(scale * btVector3(btScalar(-0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, 0, M_PI_2);
+		localB.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_LEFT_UPPER_ARM], localA, localB);
-		coneC->setLimit(M_PI_2, M_PI_2, 0);
+		coneC->setLimit(btScalar(M_PI_2), btScalar(M_PI_2), 0);
 		m_joints[JOINT_LEFT_SHOULDER] = coneC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_SHOULDER], true);
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localA.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localA.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localB.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		hingeC = new btHingeConstraint(*m_bodies[BODYPART_LEFT_UPPER_ARM], *m_bodies[BODYPART_LEFT_LOWER_ARM], localA, localB);
-		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+		hingeC->setLimit(btScalar(btScalar(-M_PI_2)), btScalar(0));
 		m_joints[JOINT_LEFT_ELBOW] = hingeC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_LEFT_ELBOW], true);
 
@@ -887,21 +895,21 @@ public:
 		localB.setIdentity();
 		localA.getBasis().setEulerZYX(0, 0, 0);
 		localA.setOrigin(scale * btVector3(btScalar(0.2), btScalar(0.15), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, 0, M_PI_2);
+		localB.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.18), btScalar(0.)));
 		coneC = new btConeTwistConstraint(*m_bodies[BODYPART_SPINE], *m_bodies[BODYPART_RIGHT_UPPER_ARM], localA, localB);
-		coneC->setLimit(M_PI_2, M_PI_2, 0);
+		coneC->setLimit(btScalar(M_PI_2), btScalar(M_PI_2), 0);
 		m_joints[JOINT_RIGHT_SHOULDER] = coneC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_SHOULDER], true);
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localA.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localA.setOrigin(scale * btVector3(btScalar(0.), btScalar(0.18), btScalar(0.)));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
+		localB.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
 		localB.setOrigin(scale * btVector3(btScalar(0.), btScalar(-0.14), btScalar(0.)));
 		hingeC = new btHingeConstraint(*m_bodies[BODYPART_RIGHT_UPPER_ARM], *m_bodies[BODYPART_RIGHT_LOWER_ARM], localA, localB);
-		hingeC->setLimit(btScalar(-M_PI_2), btScalar(0));
+		hingeC->setLimit(btScalar(btScalar(-M_PI_2)), btScalar(0));
 		m_joints[JOINT_RIGHT_ELBOW] = hingeC;
 		m_ownerWorld->addConstraint(m_joints[JOINT_RIGHT_ELBOW], true);
 	}
@@ -948,7 +956,7 @@ void BenchmarkDemo::createTest3()
 	btVector3 pos(0.0f, sizeY, 0.0f);
 	while (size)
 	{
-		float offset = -size * (sizeX * 6.0f) * 0.5f;
+		float offset = (float)-size * (sizeX * 6.0f) * 0.5f;
 		for (int i = 0; i < size; i++)
 		{
 			pos[0] = offset + (float)i * (sizeX * 6.0f);
@@ -961,6 +969,7 @@ void BenchmarkDemo::createTest3()
 		pos[1] += (sizeY * 7.0f);
 		pos[2] -= sizeX * 2.0f;
 		size--;
+		(void)offset;
 	}
 }
 void BenchmarkDemo::createTest4()
@@ -971,7 +980,7 @@ void BenchmarkDemo::createTest4()
 	const float cubeSize = 1.5f;
 	float spacing = cubeSize;
 	btVector3 pos(0.0f, cubeSize * 2, 0.0f);
-	float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+	float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 	btConvexHullShape* convexHullShape = new btConvexHullShape();
 
@@ -1007,7 +1016,7 @@ void BenchmarkDemo::createTest4()
 				createRigidBody(mass, trans, convexHullShape);
 			}
 		}
-		offset -= 0.05f * spacing * (size - 1);
+		offset -= 0.05f * spacing * (float)(size - 1);
 		spacing *= 1.01f;
 		pos[1] += (cubeSize * 2.0f + spacing);
 	}
@@ -1016,7 +1025,7 @@ void BenchmarkDemo::createTest4()
 ///////////////////////////////////////////////////////////////////////////////
 // LargeMesh
 
-int LandscapeVtxCount[] = {
+static int LandscapeVtxCount[] = {
 	Landscape01VtxCount,
 	Landscape02VtxCount,
 	Landscape03VtxCount,
@@ -1027,7 +1036,7 @@ int LandscapeVtxCount[] = {
 	Landscape08VtxCount,
 };
 
-int LandscapeIdxCount[] = {
+static int LandscapeIdxCount[] = {
 	Landscape01IdxCount,
 	Landscape02IdxCount,
 	Landscape03IdxCount,
@@ -1038,7 +1047,7 @@ int LandscapeIdxCount[] = {
 	Landscape08IdxCount,
 };
 
-btScalar* LandscapeVtx[] = {
+static btScalar* LandscapeVtx[] = {
 	Landscape01Vtx,
 	Landscape02Vtx,
 	Landscape03Vtx,
@@ -1049,7 +1058,7 @@ btScalar* LandscapeVtx[] = {
 	Landscape08Vtx,
 };
 
-btScalar* LandscapeNml[] = {
+static btScalar* LandscapeNml[] = {
 	Landscape01Nml,
 	Landscape02Nml,
 	Landscape03Nml,
@@ -1060,7 +1069,7 @@ btScalar* LandscapeNml[] = {
 	Landscape08Nml,
 };
 
-btScalar* LandscapeTex[] = {
+static btScalar* LandscapeTex[] = {
 	Landscape01Tex,
 	Landscape02Tex,
 	Landscape03Tex,
@@ -1071,7 +1080,7 @@ btScalar* LandscapeTex[] = {
 	Landscape08Tex,
 };
 
-unsigned short* LandscapeIdx[] = {
+static unsigned short* LandscapeIdx[] = {
 	Landscape01Idx,
 	Landscape02Idx,
 	Landscape03Idx,
@@ -1127,12 +1136,13 @@ void BenchmarkDemo::createTest5()
 		int size = 10;
 		int height = 10;
 
-		const float cubeSize = boxSize[0];
+		const float cubeSize = (float)boxSize[0];
 		float spacing = 2.0f;
 		btVector3 pos(0.0f, 20.0f, 0.0f);
-		float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+		float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 		int numBodies = 0;
+		(void)numBodies;
 
 		for (int k = 0; k < height; k++)
 		{
@@ -1154,7 +1164,7 @@ void BenchmarkDemo::createTest5()
 						case 1:
 						case 2:
 						{
-							float r = 0.5f * (idx + 1);
+							float r = 0.5f * (float)(idx + 1);
 							btBoxShape* boxShape = new btBoxShape(boxSize * r);
 							createRigidBody(boxMass * r, trans, boxShape);
 						}
@@ -1164,7 +1174,7 @@ void BenchmarkDemo::createTest5()
 						case 4:
 						case 5:
 						{
-							float r = 0.5f * (idx - 3 + 1);
+							float r = 0.5f * (float)(idx - 3 + 1);
 							btSphereShape* sphereShape = new btSphereShape(sphereRadius * r);
 							createRigidBody(sphereMass * r, trans, sphereShape);
 						}
@@ -1174,17 +1184,19 @@ void BenchmarkDemo::createTest5()
 						case 7:
 						case 8:
 						{
-							float r = 0.5f * (idx - 6 + 1);
+							float r = 0.5f * (float)(idx - 6 + 1);
 							btCapsuleShape* capsuleShape = new btCapsuleShape(capsuleRadius * r, capsuleHalf * r);
 							createRigidBody(capsuleMass * r, trans, capsuleShape);
 						}
+						break;
+						default:
 						break;
 					}
 
 					numBodies++;
 				}
 			}
-			offset -= 0.05f * spacing * (size - 1);
+			offset -= 0.05f * spacing * (float)(size - 1);
 			spacing *= 1.1f;
 			pos[1] += (cubeSize * 2.0f + spacing);
 		}
@@ -1217,10 +1229,10 @@ void BenchmarkDemo::createTest6()
 		int size = 10;
 		int height = 10;
 
-		const float cubeSize = boxSize[0];
+		const float cubeSize = (float)boxSize[0];
 		float spacing = 2.0f;
 		btVector3 pos(0.0f, 20.0f, 0.0f);
-		float offset = -size * (cubeSize * 2.0f + spacing) * 0.5f;
+		float offset = (float)-size * (cubeSize * 2.0f + spacing) * 0.5f;
 
 		for (int k = 0; k < height; k++)
 		{
@@ -1236,7 +1248,7 @@ void BenchmarkDemo::createTest6()
 					createRigidBody(mass, trans, convexHullShape);
 				}
 			}
-			offset -= 0.05f * spacing * (size - 1);
+			offset -= 0.05f * spacing * (float)(size - 1);
 			spacing *= 1.1f;
 			pos[1] += (cubeSize * 2.0f + spacing);
 		}

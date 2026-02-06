@@ -48,7 +48,7 @@ class MotorActionValidator(object):
       delta_position_bound: The bound between the current motor position and the
         command position, in position control mode.
       average_abs_delta_position_bound: The bound for average motor position and
-        command poisition difference.
+        command position difference.
       state_buffer_size: The buffer size used to calculate the average.
     """
     assert state_buffer_size > 1

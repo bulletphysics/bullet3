@@ -142,8 +142,8 @@ public:
 	};
 
 	/// constructor
-	/// @param num_bodies the number of bodies in the system
-	/// @param num_dofs number of degrees of freedom in the system
+	/// @param num_bodies_ the number of bodies in the system
+	/// @param num_dofs_ number of degrees of freedom in the system
 	MultiBodyImpl(int num_bodies_, int num_dofs_);
 
 	/// \copydoc MultiBodyTree::calculateInverseDynamics
@@ -258,7 +258,7 @@ private:
 	// Gravitational acceleration (in world frame)
 	vec3 m_world_gravity;
 	// vector of bodies in the system
-	// body 0 is used as an environment body and is allways fixed.
+	// body 0 is used as an environment body and is always fixed.
 	// The bodies are ordered such that a parent body always has an index
 	// smaller than its child.
 	idArray<RigidBody>::type m_body_list;

@@ -41,7 +41,7 @@ protected:
 
 	int m_numSplitImpulseRecoveries;
 
-	b3Scalar getContactProcessingThreshold(b3Contact4* contact)
+	b3Scalar getContactProcessingThreshold(b3Contact4* /*contact*/)
 	{
 		return 0.02f;
 	}

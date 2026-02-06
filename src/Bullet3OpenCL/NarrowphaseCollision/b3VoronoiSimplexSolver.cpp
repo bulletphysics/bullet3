@@ -33,7 +33,7 @@ subject to the following restrictions:
 #define B3_CATCH_DEGENERATE_TETRAHEDRON 1
 void b3VoronoiSimplexSolver::removeVertex(int index)
 {
-	b3Assert(m_numVertices > 0);
+	b3Assert(m_numVertices > 0 && m_numVertices < VORONOI_SIMPLEX_MAX_VERTS);
 	m_numVertices--;
 	m_simplexVectorW[index] = m_simplexVectorW[m_numVertices];
 	m_simplexPointsP[index] = m_simplexPointsP[m_numVertices];
@@ -100,7 +100,7 @@ bool b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 				m_cachedBC.setBarycentricCoordinates(b3Scalar(1.), b3Scalar(0.), b3Scalar(0.), b3Scalar(0.));
 				m_cachedValidClosest = m_cachedBC.isValid();
 				break;
-			};
+			}
 			case 2:
 			{
 				//closest point origin from line segment
@@ -226,7 +226,7 @@ bool b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 			{
 				m_cachedValidClosest = false;
 			}
-		};
+		}
 	}
 
 	return m_cachedValidClosest;
@@ -235,9 +235,9 @@ bool b3VoronoiSimplexSolver::updateClosestVectorAndPoints()
 //return/calculate the closest vertex
 bool b3VoronoiSimplexSolver::closest(b3Vector3& v)
 {
-	bool succes = updateClosestVectorAndPoints();
+	bool success = updateClosestVectorAndPoints();
 	v = m_cachedV;
-	return succes;
+	return success;
 }
 
 b3Scalar b3VoronoiSimplexSolver::maxVertex()
@@ -545,6 +545,7 @@ bool b3VoronoiSimplexSolver::closestPtPointTetrahedron(const b3Vector3& p, const
 		if (sqDist < bestSqDist)
 		{
 			bestSqDist = sqDist;
+			(void)bestSqDist;
 			finalResult.m_closestPointOnSimplex = q;
 			finalResult.m_usedVertices.reset();
 			//

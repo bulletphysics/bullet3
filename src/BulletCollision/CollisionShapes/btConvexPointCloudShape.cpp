@@ -27,7 +27,6 @@ void btConvexPointCloudShape::setLocalScaling(const btVector3& scaling)
 #ifndef __SPU__
 btVector3 btConvexPointCloudShape::localGetSupportingVertexWithoutMargin(const btVector3& vec0) const
 {
-	btVector3 supVec(btScalar(0.), btScalar(0.), btScalar(0.));
 	btScalar maxDot = btScalar(-BT_LARGE_FLOAT);
 
 	btVector3 vec = vec0;
@@ -50,7 +49,7 @@ btVector3 btConvexPointCloudShape::localGetSupportingVertexWithoutMargin(const b
 		return getScaledPoint(index);
 	}
 
-	return supVec;
+	return btVector3(btScalar(0.), btScalar(0.), btScalar(0.));
 }
 
 void btConvexPointCloudShape::batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const
@@ -101,7 +100,7 @@ int btConvexPointCloudShape::getNumEdges() const
 	return 0;
 }
 
-void btConvexPointCloudShape::getEdge(int i, btVector3& pa, btVector3& pb) const
+void btConvexPointCloudShape::getEdge(int /*i*/, btVector3& /*pa*/, btVector3& /*pb*/) const
 {
 	btAssert(0);
 }

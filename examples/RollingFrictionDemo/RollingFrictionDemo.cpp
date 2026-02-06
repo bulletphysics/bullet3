@@ -70,7 +70,7 @@ void RollingFrictionDemo::initPhysics()
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -94,7 +94,7 @@ void RollingFrictionDemo::initPhysics()
 		btTransform groundTransform;
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0, 0, -28));
-		groundTransform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI * 0.03));
+		groundTransform.setRotation(btQuaternion(btVector3(0, 1, 0), btScalar(SIMD_PI * 0.03)));
 		//We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
 		btScalar mass(0.);
 
@@ -138,14 +138,14 @@ void RollingFrictionDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setFriction(.1);
+		body->setFriction(btScalar(.1));
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 #define NUM_SHAPES 10
 		btCollisionShape* colShapes[NUM_SHAPES] = {
 			new btSphereShape(btScalar(0.5)),
@@ -200,8 +200,8 @@ void RollingFrictionDemo::initPhysics()
 						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 						btRigidBody* body = new btRigidBody(rbInfo);
 						body->setFriction(1.f);
-						body->setRollingFriction(.1);
-						body->setSpinningFriction(0.1);
+						body->setRollingFriction(btScalar(.1));
+						body->setSpinningFriction(btScalar(0.1));
 						body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(), btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 
 						m_dynamicsWorld->addRigidBody(body);
@@ -213,7 +213,7 @@ void RollingFrictionDemo::initPhysics()
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		btSerializer* s = new btDefaultSerializer;
 		m_dynamicsWorld->serialize(s);
@@ -221,7 +221,7 @@ void RollingFrictionDemo::initPhysics()
 		if (b3ResourcePath::findResourcePath("slope.bullet", resourcePath, 1024,0))
 		{
 			FILE* f = fopen(resourcePath, "wb");
-			fwrite(s->getBufferPointer(), s->getCurrentBufferSize(), 1, f);
+			fwrite(s->getBufferPointer(), (size_t)s->getCurrentBufferSize(), 1, f);
 			fclose(f);
 		}
 	}

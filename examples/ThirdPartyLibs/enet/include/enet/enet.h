@@ -396,7 +396,7 @@ extern "C"
 
 		/** a peer has disconnected.  This event is generated on a successful 
      * completion of a disconnect initiated by enet_pper_disconnect, if 
-     * a peer has timed out, or if a connection request intialized by 
+     * a peer has timed out, or if a connection request initialized by 
      * enet_host_connect has timed out.  The peer field contains the peer 
      * which disconnected. The data field contains user supplied data 
      * describing the disconnection, or 0, if none is available.

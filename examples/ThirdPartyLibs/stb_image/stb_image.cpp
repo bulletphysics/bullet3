@@ -25,6 +25,17 @@
 #define stbi_inline __forceinline
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4312) // 'type cast': conversion from 'type1' to 'type2' of greater size
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
+#pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
+#pragma warning(disable: 4457) // declaration of 'name' hides function parameter
+#if(_MSC_VER > 1927) // from MSVC 2019 16.7 (19.27.29112.0)
+#pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
+#endif
+#endif
+
 // implementation:
 typedef unsigned char uint8;
 typedef unsigned short uint16;
@@ -40,7 +51,7 @@ typedef unsigned char validate_uint32[sizeof(uint32) == 4 ? 1 : -1];
 #define STBI_NO_WRITE
 #endif
 
-#define STBI_NOTUSED(v) (void)sizeof(v)
+#define STBI_NOTUSED(v) (void)v
 
 #ifdef _MSC_VER
 #define STBI_HAS_LROTL
@@ -255,7 +266,7 @@ unsigned char *stbi_load_from_callbacks(stbi_io_callbacks const *clbk, void *use
 
 #ifndef STBI_NO_HDR
 
-float *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)
+static float *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
 	unsigned char *data;
 #ifndef STBI_NO_HDR
@@ -430,7 +441,7 @@ static void skip(stbi *s, int n)
 {
 	if (s->io.read)
 	{
-		int blen = s->img_buffer_end - s->img_buffer;
+		int blen = int(s->img_buffer_end - s->img_buffer);
 		if (blen < n)
 		{
 			s->img_buffer = s->img_buffer_end;
@@ -445,7 +456,7 @@ static int getn(stbi *s, stbi_uc *buffer, int n)
 {
 	if (s->io.read)
 	{
-		int blen = s->img_buffer_end - s->img_buffer;
+		int blen = int(s->img_buffer_end - s->img_buffer);
 		if (blen < n)
 		{
 			int res, count;
@@ -538,47 +549,74 @@ static unsigned char *convert_format(unsigned char *data, int img_n, int req_com
 		switch (COMBO(img_n, req_comp))
 		{
 			CASE(1, 2)
-			dest[0] = src[0],
+			{
+			dest[0] = src[0];
 			dest[1] = 255;
+			}
 			break;
 			CASE(1, 3)
+			{
 			dest[0] = dest[1] = dest[2] = src[0];
+			}
 			break;
 			CASE(1, 4)
-			dest[0] = dest[1] = dest[2] = src[0],
+			{
+			dest[0] = dest[1] = dest[2] = src[0];
 			dest[3] = 255;
+			}
 			break;
 			CASE(2, 1)
+			{
 			dest[0] = src[0];
+			}
 			break;
 			CASE(2, 3)
+			{
 			dest[0] = dest[1] = dest[2] = src[0];
+			}
 			break;
 			CASE(2, 4)
-			dest[0] = dest[1] = dest[2] = src[0],
+			{
+			dest[0] = dest[1] = dest[2] = src[0];
 			dest[3] = src[1];
+			}
 			break;
 			CASE(3, 4)
-			dest[0] = src[0],
-			dest[1] = src[1], dest[2] = src[2], dest[3] = 255;
+			{
+			dest[0] = src[0];
+			dest[1] = src[1];
+			dest[2] = src[2];
+			dest[3] = 255;
+			}
 			break;
 			CASE(3, 1)
+			{
 			dest[0] = compute_y(src[0], src[1], src[2]);
+			}
 			break;
 			CASE(3, 2)
-			dest[0] = compute_y(src[0], src[1], src[2]),
+			{
+			dest[0] = compute_y(src[0], src[1], src[2]);
 			dest[1] = 255;
+			}
 			break;
 			CASE(4, 1)
+			{
 			dest[0] = compute_y(src[0], src[1], src[2]);
+			}
 			break;
 			CASE(4, 2)
-			dest[0] = compute_y(src[0], src[1], src[2]),
+			{
+			dest[0] = compute_y(src[0], src[1], src[2]);
 			dest[1] = src[3];
+			}
 			break;
 			CASE(4, 3)
-			dest[0] = src[0],
-			dest[1] = src[1], dest[2] = src[2];
+			{
+			dest[0] = src[0];
+			dest[1] = src[1];
+			dest[2] = src[2];
+			}
 			break;
 			default:
 				assert(0);
@@ -877,7 +915,7 @@ stbi_inline static int extend_receive(jpeg *j, int n)
 	// predict well. I tried to table accelerate it but failed.
 	// maybe it's compiling as a conditional move?
 	if (k < m)
-		return (-1 << n) + k + 1;
+		return (int)((unsigned int)-1 << n) + k + 1;
 	else
 		return k;
 }
@@ -1236,7 +1274,7 @@ static int process_marker(jpeg *z, int m)
 			while (L > 0)
 			{
 				uint8 *v;
-				int sizes[16], i, m = 0;
+				int sizes[16], i, mm = 0;
 				int q = get8(z->s);
 				int tc = q >> 4;
 				int th = q & 15;
@@ -1244,7 +1282,7 @@ static int process_marker(jpeg *z, int m)
 				for (i = 0; i < 16; ++i)
 				{
 					sizes[i] = get8(z->s);
-					m += sizes[i];
+					mm += sizes[i];
 				}
 				L -= 17;
 				if (tc == 0)
@@ -1257,11 +1295,13 @@ static int process_marker(jpeg *z, int m)
 					if (!build_huffman(z->huff_ac + th, sizes)) return 0;
 					v = z->huff_ac[th].values;
 				}
-				for (i = 0; i < m; ++i)
+				for (i = 0; i < mm; ++i)
 					v[i] = get8u(z->s);
-				L -= m;
+				L -= mm;
 			}
 			return L == 0;
+		default:
+			break;
 	}
 	// check for comment block or APP blocks
 	if ((m >= 0xE0 && m <= 0xEF) || m == 0xFE)
@@ -1540,7 +1580,7 @@ static uint8 *resample_row_hv_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w
 	return out;
 }
 
-static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 * /*in_far*/, int w, int hs)
 {
 	// resample with nearest-neighbor
 	int i, j;
@@ -1752,7 +1792,11 @@ static uint8 *load_jpeg_image(jpeg *z, int *out_x, int *out_y, int *comp, int re
 				if (n == 1)
 					for (i = 0; i < z->s->img_x; ++i) out[i] = y[i];
 				else
-					for (i = 0; i < z->s->img_x; ++i) *out++ = y[i], *out++ = 255;
+					for (i = 0; i < z->s->img_x; ++i)
+					{
+						*out++ = y[i];
+						*out++ = 255;
+					}
 			}
 		}
 		cleanup_jpeg(z);
@@ -1877,11 +1921,11 @@ static int zbuild_huffman(zhuffman *z, uint8 *sizelist, int num)
 			z->value[c] = (uint16)i;
 			if (s <= ZFAST_BITS)
 			{
-				int k = bit_reverse(next_code[s], s);
-				while (k < (1 << ZFAST_BITS))
+				int kk = bit_reverse(next_code[s], s);
+				while (kk < (1 << ZFAST_BITS))
 				{
-					z->fast[k] = (uint16)c;
-					k += (1 << s);
+					z->fast[kk] = (uint16)c;
+					kk += (1 << s);
 				}
 			}
 			++next_code[s];
@@ -2138,7 +2182,7 @@ static void init_defaults(void)
 	for (i = 0; i <= 31; ++i) default_distance[i] = 5;
 }
 
-int stbi_png_partial;  // a quick hack to only allow decoding some of a PNG... I should implement real streaming support instead
+static int stbi_png_partial;  // a quick hack to only allow decoding some of a PNG... I should implement real streaming support instead
 static int parse_zlib(zbuf *a, int parse_header)
 {
 	int final, type;
@@ -2213,7 +2257,7 @@ char *stbi_zlib_decode_malloc(char const *buffer, int len, int *outlen)
 	return stbi_zlib_decode_malloc_guesssize(buffer, len, 16384, outlen);
 }
 
-char *stbi_zlib_decode_malloc_guesssize_headerflag(const char *buffer, int len, int initial_size, int *outlen, int parse_header)
+static char *stbi_zlib_decode_malloc_guesssize_headerflag(const char *buffer, int len, int initial_size, int *outlen, int parse_header)
 {
 	zbuf a;
 	char *p = (char *)malloc(initial_size);
@@ -2396,6 +2440,8 @@ static int create_png_image_raw(png *a, uint8 *raw, uint32 raw_len, int out_n, u
 				case F_paeth_first:
 					cur[k] = raw[k];
 					break;
+				default:
+					break;
 			}
 		}
 		if (img_n != out_n) cur[img_n] = 255;
@@ -2432,6 +2478,8 @@ static int create_png_image_raw(png *a, uint8 *raw, uint32 raw_len, int out_n, u
 				CASE(F_paeth_first)
 				cur[k] = (uint8)(raw[k] + paeth(cur[k - img_n], 0, 0));
 				break;
+				default:
+				break;
 			}
 #undef CASE
 		}
@@ -2464,6 +2512,8 @@ static int create_png_image_raw(png *a, uint8 *raw, uint32 raw_len, int out_n, u
 				break;
 				CASE(F_paeth_first)
 				cur[k] = (uint8)(raw[k] + paeth(cur[k - out_n], 0, 0));
+				break;
+				default:
 				break;
 			}
 #undef CASE
@@ -2554,7 +2604,7 @@ static int expand_palette(png *a, uint8 *palette, int len, int pal_img_n)
 	p = (uint8 *)malloc(pixel_count * pal_img_n);
 	if (p == NULL) return e("outofmem", "Out of memory");
 
-	// between here and free(out) below, exitting would leak
+	// between here and free(out) below, exiting would leak
 	temp_out = p;
 
 	if (pal_img_n == 3)
@@ -2936,11 +2986,11 @@ static int high_bit(unsigned int z)
 {
 	int n = 0;
 	if (z == 0) return -1;
-	if (z >= 0x10000) n += 16, z >>= 16;
-	if (z >= 0x00100) n += 8, z >>= 8;
-	if (z >= 0x00010) n += 4, z >>= 4;
-	if (z >= 0x00004) n += 2, z >>= 2;
-	if (z >= 0x00002) n += 1, z >>= 1;
+	if (z >= 0x10000) { n += 16; z >>= 16; }
+	if (z >= 0x00100) { n += 8; z >>= 8; }
+	if (z >= 0x00010) { n += 4; z >>= 4; }
+	if (z >= 0x00004) { n += 2; z >>= 2; }
+	if (z >= 0x00002) { n += 1; z >>= 1; }
 	return n;
 }
 
@@ -3213,7 +3263,9 @@ static stbi_uc *bmp_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 			stbi_uc *p2 = out + (s->img_y - 1 - j) * s->img_x * target;
 			for (i = 0; i < (int)s->img_x * target; ++i)
 			{
-				t = p1[i], p1[i] = p2[i], p2[i] = t;
+				t = p1[i];
+				p1[i] = p2[i];
+				p2[i] = t;
 			}
 		}
 	}
@@ -3337,7 +3389,7 @@ static stbi_uc *tga_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 	int RLE_repeating = 0;
 	int read_next_pixel = 1;
 
-	//   do a tiny bit of precessing
+	//   do a tiny bit of precossing
 	if (tga_image_type >= 8)
 	{
 		tga_image_type -= 8;
@@ -3478,6 +3530,8 @@ static stbi_uc *tga_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 					trans_data[2] = raw_data[0];
 					trans_data[3] = raw_data[3];
 					break;
+				default:
+					break;
 			}
 			//   clear the reading flag for the next pixel
 			read_next_pixel = 0;
@@ -3506,6 +3560,8 @@ static stbi_uc *tga_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 				tga_data[i * req_comp + 1] = trans_data[1];
 				tga_data[i * req_comp + 2] = trans_data[2];
 				tga_data[i * req_comp + 3] = trans_data[3];
+				break;
+			default:
 				break;
 		}
 		//   in case we're in RLE mode, keep counting down
@@ -3645,7 +3701,7 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 		//     Else if n is 128, noop.
 		// Endloop
 
-		// The RLE-compressed data is preceeded by a 2-byte data count for each row in the data,
+		// The RLE-compressed data is preceded by a 2-byte data count for each row in the data,
 		// which we're going to just skip.
 		skip(s, h * channelCount * 2);
 
@@ -3658,7 +3714,11 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 			if (channel >= channelCount)
 			{
 				// Fill this channel with default data.
-				for (i = 0; i < pixelCount; i++) *p = (channel == 3 ? 255 : 0), p += 4;
+				for (i = 0; i < pixelCount; i++) 
+				{
+					*p = (channel == 3 ? 255 : 0);
+					p += 4;
+				}
 			}
 			else
 			{
@@ -3717,13 +3777,20 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 			if (channel > channelCount)
 			{
 				// Fill this channel with default data.
-				for (i = 0; i < pixelCount; i++) *p = channel == 3 ? 255 : 0, p += 4;
+				for (i = 0; i < pixelCount; i++) 
+				{
+					*p = channel == 3 ? 255 : 0;
+					p += 4;
+				}
 			}
 			else
 			{
 				// Read the data.
 				for (i = 0; i < pixelCount; i++)
-					*p = get8u(s), p += 4;
+				{
+					*p = get8u(s);
+					p += 4;
+				}
 			}
 		}
 	}
@@ -3896,7 +3963,7 @@ static stbi_uc *pic_load2(stbi *s, int width, int height, int *comp, stbi_uc *re
 						if (count >= 128)
 						{  // Repeated
 							stbi_uc value[4];
-							int i;
+							int ii;
 
 							if (count == 128)
 								count = get16(s);
@@ -3908,7 +3975,7 @@ static stbi_uc *pic_load2(stbi *s, int width, int height, int *comp, stbi_uc *re
 							if (!pic_readval(s, packet->channel, value))
 								return 0;
 
-							for (i = 0; i < count; ++i, dest += 4)
+							for (ii = 0; ii < count; ++ii, dest += 4)
 								pic_copyval(packet->channel, dest, value);
 						}
 						else
@@ -4153,7 +4220,7 @@ static uint8 *stbi_process_gif_raster(stbi *s, stbi_gif *g)
 		}
 		else
 		{
-			int32 code = bits & codemask;
+			code = bits & codemask;
 			bits >>= codesize;
 			valid_bits -= codesize;
 			// @OPTIMIZE: is there some way we can accelerate the non-clear path?
@@ -4341,7 +4408,7 @@ static uint8 *stbi_gif_load_next(stbi *s, stbi_gif *g, int *comp, int req_comp)
 static stbi_uc *stbi_gif_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
 	uint8 *u = 0;
-	stbi_gif g = {0};
+	stbi_gif g = {};
 
 	u = stbi_gif_load_next(s, &g, comp, req_comp);
 	if (u == (void *)1) u = 0;  // end of animated gif marker
@@ -4437,6 +4504,8 @@ static void hdr_convert(float *output, stbi_uc *input, int req_comp)
 			case 1:
 				output[0] = 0;
 				break;
+			default:
+				break;
 		}
 	}
 }
@@ -4472,11 +4541,11 @@ static float *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 	token = hdr_gettoken(s, buffer);
 	if (strncmp(token, "-Y ", 3)) return epf("unsupported data layout", "Unsupported HDR format");
 	token += 3;
-	height = strtol(token, &token, 10);
+	height = (int)strtol(token, &token, 10);
 	while (*token == ' ') ++token;
 	if (strncmp(token, "+X ", 3)) return epf("unsupported data layout", "Unsupported HDR format");
 	token += 3;
-	width = strtol(token, NULL, 10);
+	width = (int)strtol(token, NULL, 10);
 
 	*x = width;
 	*y = height;
@@ -4605,7 +4674,7 @@ static int stbi_hdr_info(stbi *s, int *x, int *y, int *comp)
 		return 0;
 	}
 	token += 3;
-	*y = strtol(token, &token, 10);
+	*y = (int)strtol(token, &token, 10);
 	while (*token == ' ') ++token;
 	if (strncmp(token, "+X ", 3))
 	{
@@ -4613,7 +4682,7 @@ static int stbi_hdr_info(stbi *s, int *x, int *y, int *comp)
 		return 0;
 	}
 	token += 3;
-	*x = strtol(token, NULL, 10);
+	*x = (int)strtol(token, NULL, 10);
 	*comp = 3;
 	return 1;
 }
@@ -4799,6 +4868,10 @@ int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int *x, int
 	return stbi_info_main(&s, x, y, comp);
 }
 
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #endif  // STBI_HEADER_FILE_ONLY
 
 /*
@@ -4810,7 +4883,7 @@ int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int *x, int
       1.31 (2011-06-20)
              a few more leak fixes, bug in PNG handling (SpartanJ)
       1.30 (2011-06-11)
-             added ability to load files via callbacks to accomidate custom input streams (Ben Wenger)
+             added ability to load files via callbacks to accommodate custom input streams (Ben Wenger)
              removed deprecated format-specific test/load functions
              removed support for installable file formats (stbi_loader) -- would have been broken for IO callbacks anyway
              error cases in bmp and tga give messages and don't leak (Raymond Barbiero, grisha)

@@ -26,7 +26,7 @@ class int3
 {
 public:
 	int x, y, z;
-	int3(){};
+	int3(){}
 	int3(int _x, int _y, int _z)
 	{
 		x = _x;
@@ -139,7 +139,7 @@ btScalar DistanceBetweenLines(const btVector3 &ustart, const btVector3 &udir, co
 #define SPLIT (OVER | UNDER)
 #define PAPERWIDTH (btScalar(0.001))
 
-btScalar planetestepsilon = PAPERWIDTH;
+static btScalar planetestepsilon = PAPERWIDTH;
 
 typedef ConvexH::HalfEdge HalfEdge;
 
@@ -255,9 +255,9 @@ int maxdirsterid(const T *p, int count, const T &dir, btAlignedObjectArray<int> 
 				int mc = ma;
 				for (btScalar xx = x - btScalar(40.0); xx <= x; xx += btScalar(5.0))
 				{
-					btScalar s = btSin(SIMD_RADS_PER_DEG * (xx));
-					btScalar c = btCos(SIMD_RADS_PER_DEG * (xx));
-					int md = maxdirfiltered(p, count, dir + (u * s + v * c) * btScalar(0.025), allow);
+					btScalar sin = btSin(SIMD_RADS_PER_DEG * (xx));
+					btScalar cos = btCos(SIMD_RADS_PER_DEG * (xx));
+					int md = maxdirfiltered(p, count, dir + (u * sin + v * cos) * btScalar(0.025), allow);
 					if (mc == m && md == m)
 					{
 						allow[m] = 3;
@@ -451,7 +451,7 @@ btHullTriangle *HullLibrary::extrudable(btScalar epsilon)
 			t = m_tris[i];
 		}
 	}
-	return (t->rise > epsilon) ? t : NULL;
+	return (t && t->rise > epsilon) ? t : NULL;
 }
 
 int4 HullLibrary::FindSimplex(btVector3 *verts, int verts_count, btAlignedObjectArray<int> &allow)
@@ -668,7 +668,7 @@ void ReleaseHull(PHullResult &result)
 //*********************************************************************
 
 HullError HullLibrary::CreateConvexHull(const HullDesc &desc,  // describes the input request
-										HullResult &result)    // contains the resulst
+										HullResult &result)    // contains the results
 {
 	HullError ret = QE_FAIL;
 
@@ -837,7 +837,7 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 
 	vcount = 0;
 
-	btScalar recip[3] = {0.f, 0.f, 0.f};
+	btScalar recip[3] = {btScalar(0.), btScalar(0.), btScalar(0.)};
 
 	if (scale)
 	{
@@ -846,8 +846,8 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 		scale[2] = 1;
 	}
 
-	btScalar bmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
-	btScalar bmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+	btScalar bmin[3] = {btScalar(FLT_MAX), btScalar(FLT_MAX), btScalar(FLT_MAX)};
+	btScalar bmax[3] = {btScalar(-FLT_MAX), btScalar(-FLT_MAX), btScalar(-FLT_MAX)};
 
 	const char *vtx = (const char *)svertices;
 
@@ -879,13 +879,13 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 
 	if (dx < EPSILON || dy < EPSILON || dz < EPSILON || svcount < 3)
 	{
-		btScalar len = FLT_MAX;
+		btScalar len = btScalar(FLT_MAX);
 
 		if (dx > EPSILON && dx < len) len = dx;
 		if (dy > EPSILON && dy < len) len = dy;
 		if (dz > EPSILON && dz < len) len = dz;
 
-		if (len == FLT_MAX)
+		if (len == btScalar(FLT_MAX))
 		{
 			dx = dy = dz = btScalar(0.01);  // one centimeter
 		}
@@ -965,11 +965,11 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 				btScalar y = v[1];
 				btScalar z = v[2];
 
-				btScalar dx = btFabs(x - px);
-				btScalar dy = btFabs(y - py);
-				btScalar dz = btFabs(z - pz);
+				btScalar dxL = btFabs(x - px);
+				btScalar dyL = btFabs(y - py);
+				btScalar dzL = btFabs(z - pz);
 
-				if (dx < normalepsilon && dy < normalepsilon && dz < normalepsilon)
+				if (dxL < normalepsilon && dyL < normalepsilon && dzL < normalepsilon)
 				{
 					// ok, it is close enough to the old one
 					// now let us see if it is further from the center of the point cloud than the one we already recorded.
@@ -997,61 +997,61 @@ bool HullLibrary::CleanupVertices(unsigned int svcount,
 				dest[2] = pz;
 				vcount++;
 			}
-			m_vertexIndexMapping.push_back(j);
+			m_vertexIndexMapping.push_back((int)j);
 		}
 	}
 
 	// ok..now make sure we didn't prune so many vertices it is now invalid.
 	//	if ( 1 )
 	{
-		btScalar bmin[3] = {FLT_MAX, FLT_MAX, FLT_MAX};
-		btScalar bmax[3] = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+		btScalar bbmin[3] = {btScalar(FLT_MAX), btScalar(FLT_MAX), btScalar(FLT_MAX)};
+		btScalar bbmax[3] = {btScalar(-FLT_MAX), btScalar(-FLT_MAX), btScalar(-FLT_MAX)};
 
 		for (unsigned int i = 0; i < vcount; i++)
 		{
 			const btVector3 &p = vertices[i];
 			for (int j = 0; j < 3; j++)
 			{
-				if (p[j] < bmin[j]) bmin[j] = p[j];
-				if (p[j] > bmax[j]) bmax[j] = p[j];
+				if (p[j] < bbmin[j]) bbmin[j] = p[j];
+				if (p[j] > bbmax[j]) bbmax[j] = p[j];
 			}
 		}
 
-		btScalar dx = bmax[0] - bmin[0];
-		btScalar dy = bmax[1] - bmin[1];
-		btScalar dz = bmax[2] - bmin[2];
+		btScalar dxL = bbmax[0] - bbmin[0];
+		btScalar dyL = bbmax[1] - bbmin[1];
+		btScalar dzL = bbmax[2] - bbmin[2];
 
-		if (dx < EPSILON || dy < EPSILON || dz < EPSILON || vcount < 3)
+		if (dxL < EPSILON || dyL < EPSILON || dzL < EPSILON || vcount < 3)
 		{
-			btScalar cx = dx * btScalar(0.5) + bmin[0];
-			btScalar cy = dy * btScalar(0.5) + bmin[1];
-			btScalar cz = dz * btScalar(0.5) + bmin[2];
+			btScalar cx = dxL * btScalar(0.5) + bbmin[0];
+			btScalar cy = dyL * btScalar(0.5) + bbmin[1];
+			btScalar cz = dzL * btScalar(0.5) + bbmin[2];
 
-			btScalar len = FLT_MAX;
+			btScalar len = btScalar(FLT_MAX);
 
-			if (dx >= EPSILON && dx < len) len = dx;
-			if (dy >= EPSILON && dy < len) len = dy;
-			if (dz >= EPSILON && dz < len) len = dz;
+			if (dxL >= EPSILON && dxL < len) len = dxL;
+			if (dyL >= EPSILON && dyL < len) len = dyL;
+			if (dzL >= EPSILON && dzL < len) len = dzL;
 
-			if (len == FLT_MAX)
+			if (len == btScalar(FLT_MAX))
 			{
-				dx = dy = dz = btScalar(0.01);  // one centimeter
+				dxL = dyL = dzL = btScalar(0.01);  // one centimeter
 			}
 			else
 			{
-				if (dx < EPSILON) dx = len * btScalar(0.05);  // 1/5th the shortest non-zero edge.
-				if (dy < EPSILON) dy = len * btScalar(0.05);
-				if (dz < EPSILON) dz = len * btScalar(0.05);
+				if (dxL < EPSILON) dxL = len * btScalar(0.05);  // 1/5th the shortest non-zero edge.
+				if (dyL < EPSILON) dyL = len * btScalar(0.05);
+				if (dzL < EPSILON) dzL = len * btScalar(0.05);
 			}
 
-			btScalar x1 = cx - dx;
-			btScalar x2 = cx + dx;
+			btScalar x1 = cx - dxL;
+			btScalar x2 = cx + dxL;
 
-			btScalar y1 = cy - dy;
-			btScalar y2 = cy + dy;
+			btScalar y1 = cy - dyL;
+			btScalar y2 = cy + dyL;
 
-			btScalar z1 = cz - dz;
-			btScalar z2 = cz + dz;
+			btScalar z1 = cz - dzL;
+			btScalar z2 = cz + dzL;
 
 			vcount = 0;  // add box
 
@@ -1092,7 +1092,7 @@ void HullLibrary::BringOutYourDead(const btVector3 *verts, unsigned int vcount, 
 	{
 		unsigned int v = indices[i];  // original array index
 
-		btAssert(v >= 0 && v < vcount);
+		btAssert(v < vcount);
 
 		if (usedIndices[static_cast<int>(v)])  // if already remapped
 		{
@@ -1109,12 +1109,12 @@ void HullLibrary::BringOutYourDead(const btVector3 *verts, unsigned int vcount, 
 			for (int k = 0; k < m_vertexIndexMapping.size(); k++)
 			{
 				if (tmpIndices[k] == int(v))
-					m_vertexIndexMapping[k] = ocount;
+					m_vertexIndexMapping[k] = (int)ocount;
 			}
 
 			ocount++;  // increment output vert count
 
-			btAssert(ocount >= 0 && ocount <= vcount);
+			btAssert(ocount <= vcount);
 
 			usedIndices[static_cast<int>(v)] = ocount;  // assign new index remapping
 		}

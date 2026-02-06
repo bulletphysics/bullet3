@@ -32,7 +32,7 @@ public:
 
 	virtual btScalar calculateTimeOfImpact(btCollisionObject* body0, btCollisionObject* body1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut);
 
-	virtual void getAllContactManifolds(btManifoldArray& manifoldArray)
+	virtual void getAllContactManifolds(btManifoldArray& /*manifoldArray*/)
 	{
 	}
 

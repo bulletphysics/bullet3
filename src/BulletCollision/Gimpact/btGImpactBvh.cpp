@@ -41,7 +41,7 @@ void bt_end_gim02_tree_time()
 	g_count_traversing++;
 }
 
-//! Gets the average time in miliseconds of tree collisions
+//! Gets the average time in milliseconds of tree collisions
 float btGImpactBvh::getAverageTreeCollisionTime()
 {
 	if (g_count_traversing == 0) return 0;
@@ -254,7 +254,7 @@ void btGImpactBvh::buildSet()
 {
 	//obtain primitive boxes
 	GIM_BVH_DATA_ARRAY primitive_boxes;
-	primitive_boxes.resize(m_primitive_manager->get_primitive_count());
+	// primitive_boxes.resize(m_primitive_manager->get_primitive_count());
 
 	for (int i = 0; i < primitive_boxes.size(); i++)
 	{

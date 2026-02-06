@@ -239,7 +239,7 @@ void btReducedDeformableBodySolver::setConstraints(const btContactSolverInfo& in
   }
 }
 
-btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
+btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObject** /*deformableBodies*/, int /*numDeformableBodies*/, const btContactSolverInfo& infoGlobal)
 {
   btScalar residualSquare = 0;
 
@@ -248,7 +248,7 @@ btScalar btReducedDeformableBodySolver::solveContactConstraints(btCollisionObjec
     btAlignedObjectArray<int> m_orderNonContactConstraintPool;
     btAlignedObjectArray<int> m_orderContactConstraintPool;
 
-    btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
+    // btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(m_softBodies[i]);
 
     // shuffle the order of applying constraint
     m_orderNonContactConstraintPool.resize(m_staticConstraints[i].size());

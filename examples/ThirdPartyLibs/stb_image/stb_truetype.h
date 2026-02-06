@@ -88,7 +88,7 @@
 //
 // USAGE
 //
-//   Include this file in whatever places neeed to refer to it. In ONE C/C++
+//   Include this file in whatever places need to refer to it. In ONE C/C++
 //   file, write:
 //      #define STB_TRUETYPE_IMPLEMENTATION
 //   before the #include of this file. This expands out the actual
@@ -226,7 +226,7 @@
 //   Sample code                        140 LOC  /
 //   Truetype parsing                   620 LOC  ---- 620 LOC TrueType
 //   Software rasterization             240 LOC  \                           .
-//   Curve tesselation                  120 LOC   \__ 550 LOC Bitmap creation
+//   Curve tessellation                 120 LOC   \__ 550 LOC Bitmap creation
 //   Bitmap management                  100 LOC   /
 //   Baked bitmap interface              70 LOC  /
 //   Font name matching & access        150 LOC  ---- 150
@@ -615,7 +615,7 @@ extern "C"
 	// return '0' for index 0, and -1 for all other indices. You can just skip
 	// this step if you know it's that kind of font.
 
-	// The following structure is defined publically so you can declare one on
+	// The following structure is defined publicly so you can declare one on
 	// the stack or as a global or etc, but you should treat it as opaque.
 	typedef struct stbtt_fontinfo
 	{
@@ -707,7 +707,7 @@ extern "C"
 	};
 #endif
 
-#ifndef stbtt_vertex             // you can predefine this to use different values \
+#ifndef stbtt_vertex             // you can predefine this to use different values
 								 // (we share this with other code at RAD)
 #define stbtt_vertex_type short  // can't use stbtt_int16 because that's not visible in the header file
 	typedef struct
@@ -725,7 +725,7 @@ extern "C"
 	// returns # of vertices and fills *vertices with the pointer to them
 	//   these are expressed in "unscaled" coordinates
 	//
-	// The shape is a series of countours. Each one starts with
+	// The shape is a series of contours. Each one starts with
 	// a STBTT_moveto, then consists of a series of mixed
 	// STBTT_lineto and STBTT_curveto segments. A lineto
 	// draws a line from previous endpoint to its x,y; a curveto
@@ -1060,12 +1060,16 @@ STBTT_DEF int stbtt_InitFont(stbtt_fontinfo *info, const unsigned char *data2, i
 						// MS/Unicode
 						info->index_map = cmap + ttULONG(data + encoding_record + 4);
 						break;
+					default:
+						break;
 				}
 				break;
 			case STBTT_PLATFORM_ID_UNICODE:
 				// Mac/iOS has these
 				// all the encodingIDs are unicode, so we don't bother to check it
 				info->index_map = cmap + ttULONG(data + encoding_record + 4);
+				break;
+			default:
 				break;
 		}
 	}
@@ -1626,13 +1630,13 @@ STBTT_DEF void stbtt_GetFontBoundingBox(const stbtt_fontinfo *info, int *x0, int
 STBTT_DEF float stbtt_ScaleForPixelHeight(const stbtt_fontinfo *info, float height)
 {
 	int fheight = ttSHORT(info->data + info->hhea + 4) - ttSHORT(info->data + info->hhea + 6);
-	return (float)height / fheight;
+	return (float)height / (float)fheight;
 }
 
 STBTT_DEF float stbtt_ScaleForMappingEmToPixels(const stbtt_fontinfo *info, float pixels)
 {
 	int unitsPerEm = ttUSHORT(info->data + info->head + 18);
-	return pixels / unitsPerEm;
+	return pixels / (float)unitsPerEm;
 }
 
 STBTT_DEF void stbtt_FreeShape(const stbtt_fontinfo *info, stbtt_vertex *v)
@@ -1659,10 +1663,10 @@ STBTT_DEF void stbtt_GetGlyphBitmapBoxSubpixel(const stbtt_fontinfo *font, int g
 	else
 	{
 		// move to integral bboxes (treating pixels as little squares, what pixels get touched)?
-		if (ix0) *ix0 = STBTT_ifloor(x0 * scale_x + shift_x);
-		if (iy0) *iy0 = STBTT_ifloor(-y1 * scale_y + shift_y);
-		if (ix1) *ix1 = STBTT_iceil(x1 * scale_x + shift_x);
-		if (iy1) *iy1 = STBTT_iceil(-y0 * scale_y + shift_y);
+		if (ix0) *ix0 = STBTT_ifloor((float)x0 * scale_x + shift_x);
+		if (iy0) *iy0 = STBTT_ifloor((float)-y1 * scale_y + shift_y);
+		if (ix1) *ix1 = STBTT_iceil((float)x1 * scale_x + shift_x);
+		if (iy1) *iy1 = STBTT_iceil((float)-y0 * scale_y + shift_y);
 	}
 }
 
@@ -1797,7 +1801,7 @@ static stbtt__active_edge *stbtt__new_active(stbtt__hheap *hh, stbtt__edge *e, i
 	z->fdx = dxdy;
 	z->fdy = (1 / dxdy);
 	z->fx = e->x0 + dxdy * (start_point - e->y0);
-	z->fx -= off_x;
+	z->fx -= (float)off_x;
 	z->direction = e->invert ? 1.0f : -1.0f;
 	z->sy = e->y0;
 	z->ey = e->y1;
@@ -1999,25 +2003,25 @@ static void stbtt__handle_clipped_edge(float *scanline, int x, stbtt__active_edg
 		y1 = e->ey;
 	}
 
-	if (x0 == x)
+	if (x0 == (float)x)
 		assert(x1 <= x + 1);
-	else if (x0 == x + 1)
+	else if (x0 == (float)(x + 1))
 		assert(x1 >= x);
-	else if (x0 <= x)
+	else if (x0 <= (float)x)
 		assert(x1 <= x);
-	else if (x0 >= x + 1)
+	else if (x0 >= (float)(x + 1))
 		assert(x1 >= x + 1);
 	else
 		assert(x1 >= x && x1 <= x + 1);
 
-	if (x0 <= x && x1 <= x)
+	if (x0 <= (float)x && x1 <= (float)x)
 		scanline[x] += e->direction * (y1 - y0);
-	else if (x0 >= x + 1 && x1 >= x + 1)
+	else if (x0 >= (float)(x + 1) && x1 >= (float)(x + 1))
 		;
 	else
 	{
 		assert(x0 >= x && x0 <= x + 1 && x1 >= x && x1 <= x + 1);
-		scanline[x] += e->direction * (y1 - y0) * (1 - ((x0 - x) + (x1 - x)) / 2);  // coverage = 1 - average x position
+		scanline[x] += e->direction * (y1 - y0) * (1 - ((x0 - (float)x) + (x1 - (float)x)) / 2);  // coverage = 1 - average x position
 	}
 }
 
@@ -2035,7 +2039,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 		if (e->fdx == 0)
 		{
 			float x0 = e->fx;
-			if (x0 < len)
+			if (x0 < (float)len)
 			{
 				if (x0 >= 0)
 				{
@@ -2082,7 +2086,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 				y1 = y_bottom;
 			}
 
-			if (x_top >= 0 && x_bottom >= 0 && x_top < len && x_bottom < len)
+			if (x_top >= 0 && x_bottom >= 0 && x_top < (float)len && x_bottom < (float)len)
 			{
 				// from here on, we don't have to range check x values
 
@@ -2093,7 +2097,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 					int x = (int)x_top;
 					height = y1 - y0;
 					assert(x >= 0 && x < len);
-					scanline[x] += e->direction * (1 - ((x_top - x) + (x_bottom - x)) / 2) * height;
+					scanline[x] += e->direction * (1 - ((x_top - (float)x) + (x_bottom - (float)x)) / 2) * height;
 					scanline_fill[x] += e->direction * height;  // everything right of this pixel is filled
 				}
 				else
@@ -2107,23 +2111,29 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 						float t;
 						y0 = y_bottom - (y0 - y_top);
 						y1 = y_bottom - (y1 - y_top);
-						t = y0, y0 = y1, y1 = t;
-						t = x_bottom, x_bottom = x_top, x_top = t;
+						t = y0;
+						y0 = y1;
+						y1 = t;
+						t = x_bottom;
+						x_bottom = x_top;
+						x_top = t;
 						dx = -dx;
 						dy = -dy;
-						t = x0, x0 = xb, xb = t;
+						t = x0;
+						x0 = xb;
+						xb = t;
 					}
 
 					x1 = (int)x_top;
 					x2 = (int)x_bottom;
 					// compute intersection with y axis at x1+1
-					y_crossing = (x1 + 1 - x0) * dy + y_top;
+					y_crossing = ((float)x1 + 1 - x0) * dy + y_top;
 
 					sign = e->direction;
 					// area of the rectangle covered from y0..y_crossing
 					area = sign * (y_crossing - y0);
 					// area of the triangle (x_top,y0), (x+1,y0), (x+1,y_crossing)
-					scanline[x1] += area * (1 - ((x_top - x1) + (x1 + 1 - x1)) / 2);
+					scanline[x1] += area * (1 - ((x_top - (float)x1) + ((float)x1 + 1 - (float)x1)) / 2);
 
 					step = sign * dy;
 					for (x = x1 + 1; x < x2; ++x)
@@ -2131,11 +2141,11 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 						scanline[x] += area + step / 2;
 						area += step;
 					}
-					y_crossing += dy * (x2 - (x1 + 1));
+					y_crossing += dy * ((float)x2 - ((float)x1 + 1));
 
 					assert(fabs(area) <= 1.01f);
 
-					scanline[x2] += area + sign * (1 - ((x2 - x2) + (x_bottom - x2)) / 2) * (y1 - y_crossing);
+					scanline[x2] += area + sign * (1 - (((float)x2 - (float)x2) + (x_bottom - (float)x2)) / 2) * (y1 - y_crossing);
 
 					scanline_fill[x2] += sign * (y1 - y0);
 				}
@@ -2154,41 +2164,41 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 					// there can be up to two intersections with the pixel. any intersection
 					// with left or right edges can be handled by splitting into two (or three)
 					// regions. intersections with top & bottom do not necessitate case-wise logic.
-					float y0, y1;
+					float y_0, y_1;
 					float y_cur = y_top, x_cur = x0;
 					// x = e->x + e->dx * (y-y_top)
 					// (y-y_top) = (x - e->x) / e->dx
 					// y = (x - e->x) / e->dx + y_top
-					y0 = (x - x0) / dx + y_top;
-					y1 = (x + 1 - x0) / dx + y_top;
+					y_0 = ((float)x - x0) / dx + y_top;
+					y_1 = ((float)x + 1 - x0) / dx + y_top;
 
-					if (y0 < y1)
+					if (y_0 < y_1)
 					{
-						if (y0 > y_top && y0 < y_bottom)
+						if (y_0 > y_top && y_0 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y0);
-							y_cur = y0;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y_0);
+							y_cur = y_0;
 							x_cur = (float)x;
 						}
-						if (y1 >= y_cur && y1 < y_bottom)
+						if (y_1 >= y_cur && y_1 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y1);
-							y_cur = y1;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y_1);
+							y_cur = y_1;
 							x_cur = (float)x + 1;
 						}
 					}
 					else
 					{
-						if (y1 >= y_cur && y1 < y_bottom)
+						if (y_1 >= y_cur && y_1 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y1);
-							y_cur = y1;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x + 1, y_1);
+							y_cur = y_1;
 							x_cur = (float)x + 1;
 						}
-						if (y0 > y_top && y0 < y_bottom)
+						if (y_0 > y_top && y_0 < y_bottom)
 						{
-							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y0);
-							y_cur = y0;
+							stbtt__handle_clipped_edge(scanline, x, e, x_cur, y_cur, (float)x, y_0);
+							y_cur = y_0;
 							x_cur = (float)x;
 						}
 					}
@@ -2201,9 +2211,9 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 }
 
 // directly AA rasterize edges w/o supersampling
-static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e, int n, int vsubsample, int off_x, int off_y, void *userdata)
+static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e, int n, int /*vsubsample*/, int off_x, int off_y, void *userdata)
 {
-	stbtt__hheap hh = {0};
+	stbtt__hheap hh = {};
 	stbtt__active_edge *active = NULL;
 	int y, j = 0, i;
 	float scanline_data[129], *scanline, *scanline2;
@@ -2221,8 +2231,8 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
 	while (j < result->h)
 	{
 		// find center of pixel for this scanline
-		float scan_y_top = y + 0.0f;
-		float scan_y_bottom = y + 1.0f;
+		float scan_y_top = (float)y + 0.0f;
+		float scan_y_bottom = (float)y + 1.0f;
 		stbtt__active_edge **step = &active;
 
 		STBTT_memset(scanline, 0, result->w * sizeof(scanline[0]));
@@ -2321,7 +2331,7 @@ static void stbtt__sort_edges_ins_sort(stbtt__edge *p, int n)
 
 static void stbtt__sort_edges_quicksort(stbtt__edge *p, int n)
 {
-	/* threshhold for transitioning to insertion sort */
+	/* threshold for transitioning to insertion sort */
 	while (n > 12)
 	{
 		stbtt__edge t;
@@ -2440,12 +2450,13 @@ static void stbtt__rasterize(stbtt__bitmap *result, stbtt__point *pts, int *wcou
 			if (invert ? p[j].y > p[k].y : p[j].y < p[k].y)
 			{
 				e[n].invert = 1;
-				a = j, b = k;
+				a = j;
+				b = k;
 			}
 			e[n].x0 = p[a].x * scale_x + shift_x;
-			e[n].y0 = (p[a].y * y_scale_inv + shift_y) * vsubsample;
+			e[n].y0 = (p[a].y * y_scale_inv + shift_y) * (float)vsubsample;
 			e[n].x1 = p[b].x * scale_x + shift_x;
-			e[n].y1 = (p[b].y * y_scale_inv + shift_y) * vsubsample;
+			e[n].y1 = (p[b].y * y_scale_inv + shift_y) * (float)vsubsample;
 			++n;
 		}
 	}
@@ -2467,7 +2478,7 @@ static void stbtt__add_point(stbtt__point *points, int n, float x, float y)
 	points[n].y = y;
 }
 
-// tesselate until threshhold p is happy... @TODO warped to compensate for non-linear stretching
+// tessellate until threshold p is happy... @TODO warped to compensate for non-linear stretching
 static int stbtt__tesselate_curve(stbtt__point *points, int *num_points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n)
 {
 	// midpoint
@@ -2538,11 +2549,13 @@ static stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, 
 					++n;
 					start = num_points;
 
-					x = vertices[i].x, y = vertices[i].y;
+					x = vertices[i].x;
+					y = vertices[i].y;
 					stbtt__add_point(points, num_points++, x, y);
 					break;
 				case STBTT_vline:
-					x = vertices[i].x, y = vertices[i].y;
+					x = vertices[i].x;
+					y = vertices[i].y;
 					stbtt__add_point(points, num_points++, x, y);
 					break;
 				case STBTT_vcurve:
@@ -2550,7 +2563,10 @@ static stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, 
 										   vertices[i].cx, vertices[i].cy,
 										   vertices[i].x, vertices[i].y,
 										   objspace_flatness_squared, 0);
-					x = vertices[i].x, y = vertices[i].y;
+					x = vertices[i].x;
+					y = vertices[i].y;
+					break;
+				default:
 					break;
 			}
 		}
@@ -2698,14 +2714,24 @@ STBTT_DEF int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // fo
 
 	for (i = 0; i < num_chars; ++i)
 	{
-		int advance, lsb, x0, y0, x1, y1, gw, gh;
+		int advance;
+		int lsb;
+		int x0;
+		int y0;
+		int x1;
+		int y1;
+		int gw;
+		int gh;
 		int g = stbtt_FindGlyphIndex(&f, first_char + i);
 		stbtt_GetGlyphHMetrics(&f, g, &advance, &lsb);
 		stbtt_GetGlyphBitmapBox(&f, g, scale, scale, &x0, &y0, &x1, &y1);
 		gw = x1 - x0;
 		gh = y1 - y0;
 		if (x + gw + 1 >= pw)
-			y = bottom_y, x = 1;  // advance to next row
+		{
+			y = bottom_y;
+			x = 1;  // advance to next row
+		}
 		if (y + gh + 1 >= ph)     // check if it fits vertically AFTER potentially moving to next row
 			return -i;
 		STBTT_assert(x + gw < pw);
@@ -2715,7 +2741,7 @@ STBTT_DEF int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // fo
 		chardata[i].y0 = (stbtt_int16)y;
 		chardata[i].x1 = (stbtt_int16)(x + gw);
 		chardata[i].y1 = (stbtt_int16)(y + gh);
-		chardata[i].xadvance = scale * advance;
+		chardata[i].xadvance = scale * (float)advance;
 		chardata[i].xoff = (float)x0;
 		chardata[i].yoff = (float)y0;
 		x = x + gw + 1;
@@ -2728,15 +2754,15 @@ STBTT_DEF int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // fo
 STBTT_DEF void stbtt_GetBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q, int opengl_fillrule)
 {
 	float d3d_bias = opengl_fillrule ? 0 : -0.5f;
-	float ipw = 1.0f / pw, iph = 1.0f / ph;
+	float ipw = 1.0f / (float)pw, iph = 1.0f / (float)ph;
 	stbtt_bakedchar *b = chardata + char_index;
 	int round_x = STBTT_ifloor((*xpos + b->xoff) + 0.5f);
 	int round_y = STBTT_ifloor((*ypos + b->yoff) + 0.5f);
 
-	q->x0 = round_x + d3d_bias;
-	q->y0 = round_y + d3d_bias;
-	q->x1 = round_x + b->x1 - b->x0 + d3d_bias;
-	q->y1 = round_y + b->y1 - b->y0 + d3d_bias;
+	q->x0 = (float)round_x + d3d_bias;
+	q->y0 = (float)round_y + d3d_bias;
+	q->x1 = (float)round_x + b->x1 - b->x0 + d3d_bias;
+	q->y1 = (float)round_y + b->y1 - b->y0 + d3d_bias;
 
 	q->s0 = b->x0 * ipw;
 	q->t0 = b->y0 * iph;
@@ -3016,8 +3042,8 @@ static float stbtt__oversample_shift(int oversample)
 STBTT_DEF int stbtt_PackFontRanges(stbtt_pack_context *spc, unsigned char *fontdata, int font_index, stbtt_pack_range *ranges, int num_ranges)
 {
 	stbtt_fontinfo info;
-	float recip_h = 1.0f / spc->h_oversample;
-	float recip_v = 1.0f / spc->v_oversample;
+	float recip_h = 1.0f / (float)spc->h_oversample;
+	float recip_v = 1.0f / (float)spc->v_oversample;
 	float sub_x = stbtt__oversample_shift(spc->h_oversample);
 	float sub_y = stbtt__oversample_shift(spc->v_oversample);
 	int i, j, k, n, return_value = 1;
@@ -3050,12 +3076,12 @@ STBTT_DEF int stbtt_PackFontRanges(stbtt_pack_context *spc, unsigned char *fontd
 		{
 			int x0, y0, x1, y1;
 			stbtt_GetCodepointBitmapBoxSubpixel(&info, ranges[i].first_unicode_char_in_range + j,
-												scale * spc->h_oversample,
-												scale * spc->v_oversample,
+												scale * (float)spc->h_oversample,
+												scale * (float)spc->v_oversample,
 												0, 0,
 												&x0, &y0, &x1, &y1);
-			rects[k].w = (stbrp_coord)(x1 - x0 + spc->padding + spc->h_oversample - 1);
-			rects[k].h = (stbrp_coord)(y1 - y0 + spc->padding + spc->v_oversample - 1);
+			rects[k].w = (stbrp_coord)((float)x1 - (float)x0 + (float)spc->padding + (float)spc->h_oversample - 1);
+			rects[k].h = (stbrp_coord)((float)y1 - (float)y0 + (float)spc->padding + (float)spc->v_oversample - 1);
 			++k;
 		}
 	}
@@ -3084,16 +3110,16 @@ STBTT_DEF int stbtt_PackFontRanges(stbtt_pack_context *spc, unsigned char *fontd
 				r->h -= pad;
 				stbtt_GetGlyphHMetrics(&info, glyph, &advance, &lsb);
 				stbtt_GetGlyphBitmapBox(&info, glyph,
-										scale * spc->h_oversample,
-										scale * spc->v_oversample,
+										scale * (float)spc->h_oversample,
+										scale * (float)spc->v_oversample,
 										&x0, &y0, &x1, &y1);
 				stbtt_MakeGlyphBitmapSubpixel(&info,
 											  spc->pixels + r->x + r->y * spc->stride_in_bytes,
 											  r->w - spc->h_oversample + 1,
 											  r->h - spc->v_oversample + 1,
 											  spc->stride_in_bytes,
-											  scale * spc->h_oversample,
-											  scale * spc->v_oversample,
+											  scale * (float)spc->h_oversample,
+											  scale * (float)spc->v_oversample,
 											  0, 0,
 											  glyph);
 
@@ -3111,11 +3137,11 @@ STBTT_DEF int stbtt_PackFontRanges(stbtt_pack_context *spc, unsigned char *fontd
 				bc->y0 = (stbtt_int16)r->y;
 				bc->x1 = (stbtt_int16)(r->x + r->w);
 				bc->y1 = (stbtt_int16)(r->y + r->h);
-				bc->xadvance = scale * advance;
+				bc->xadvance = scale * (float)advance;
 				bc->xoff = (float)x0 * recip_h + sub_x;
 				bc->yoff = (float)y0 * recip_v + sub_y;
-				bc->xoff2 = (x0 + r->w) * recip_h + sub_x;
-				bc->yoff2 = (y0 + r->h) * recip_v + sub_y;
+				bc->xoff2 = ((float)x0 + (float)r->w) * recip_h + sub_x;
+				bc->yoff2 = ((float)y0 + (float)r->h) * recip_v + sub_y;
 			}
 			else
 			{
@@ -3143,7 +3169,7 @@ STBTT_DEF int stbtt_PackFontRange(stbtt_pack_context *spc, unsigned char *fontda
 
 STBTT_DEF void stbtt_GetPackedQuad(stbtt_packedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q, int align_to_integer)
 {
-	float ipw = 1.0f / pw, iph = 1.0f / ph;
+	float ipw = 1.0f / (float)pw, iph = 1.0f / (float)ph;
 	stbtt_packedchar *b = chardata + char_index;
 
 	if (align_to_integer)

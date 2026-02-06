@@ -28,7 +28,7 @@ class ptr
 	ptr(const ptr&);
 
 public:
-	ptr(T* p) : m_p(p){};
+	ptr(T* p) : m_p(p){}
 	~ptr() { delete m_p; }
 	T& operator*() { return *m_p; }
 	T* operator->() { return m_p; }
@@ -44,7 +44,7 @@ private:
 	T* m_p;
 };
 
-void calculateDotJacUError(const MultiBodyTreeCreator& creator, const int nloops,
+static void calculateDotJacUError(const MultiBodyTreeCreator& creator, const int nloops,
 						   double* max_error)
 {
 	// tree1 is used as reference to compute dot(Jacobian)*u from acceleration(dot(u)=0)
@@ -111,7 +111,7 @@ void calculateDotJacUError(const MultiBodyTreeCreator& creator, const int nloops
 	*max_error = max_ang_error > max_lin_error ? max_ang_error : max_lin_error;
 }
 
-void calculateJacobianError(const MultiBodyTreeCreator& creator, const int nloops,
+static void calculateJacobianError(const MultiBodyTreeCreator& creator, const int nloops,
 							double* max_error)
 {
 	// tree1 is used as reference to compute the Jacobian from velocities with unit u vectors.
@@ -196,7 +196,7 @@ void calculateJacobianError(const MultiBodyTreeCreator& creator, const int nloop
 	*max_error = max_ang_error > max_lin_error ? max_ang_error : max_lin_error;
 }
 
-void calculateVelocityJacobianError(const MultiBodyTreeCreator& creator, const int nloops,
+static void calculateVelocityJacobianError(const MultiBodyTreeCreator& creator, const int nloops,
 									double* max_error)
 {
 	// tree1 is used as reference to compute the velocities directly
@@ -278,7 +278,7 @@ TEST(InvDynJacobians, JacDotJacU)
 	const int kNumLoops = 20;
 	for (int level = 0; level < kNumLevels; level++)
 	{
-		const int nbodies = BT_ID_POW(2, level);
+		const int nbodies = (int)BT_ID_POW(2, (btScalar)level);
 		CoilCreator coil(nbodies);
 		double error;
 		calculateDotJacUError(coil, kNumLoops, &error);
@@ -312,7 +312,7 @@ TEST(InvDynJacobians, Jacobians)
 	const int kNumLoops = 20;
 	for (int level = 0; level < kNumLevels; level++)
 	{
-		const int nbodies = BT_ID_POW(2, level);
+		const int nbodies = (int)BT_ID_POW(2, (btScalar)level);
 		CoilCreator coil(nbodies);
 		double error;
 		calculateJacobianError(coil, kNumLoops, &error);

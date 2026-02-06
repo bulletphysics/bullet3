@@ -51,7 +51,7 @@ public:
 	{
 	}
 
-	void MenuItemSelect(Gwen::Controls::Base* pControl)
+	void MenuItemSelect(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_graphWindow->Hidden())
 		{

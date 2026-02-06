@@ -14,12 +14,13 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#if BT_THREADSAFE && !defined(_WIN32)
+#if defined(BT_THREADSAFE) && !defined(_WIN32)
 
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btThreads.h"
 #include "LinearMath/btMinMax.h"
+#include "LinearMath/btOverride.h"
 #include "btThreadSupportInterface.h"
 
 #include <stdio.h>
@@ -43,16 +44,16 @@ subject to the following restrictions:
 
 #include <thread>
 
-int btGetNumHardwareThreads()
+static int btGetNumHardwareThreads()
 {
-	return btMax(1u, btMin(BT_MAX_THREAD_COUNT, std::thread::hardware_concurrency()));
+	return (int)btMax(1u, btMin(BT_MAX_THREAD_COUNT, std::thread::hardware_concurrency()));
 }
 
 #else
 
-int btGetNumHardwareThreads()
+static int btGetNumHardwareThreads()
 {
-	return btMax(1, btMin<int>(BT_MAX_THREAD_COUNT, sysconf(_SC_NPROCESSORS_ONLN)));
+	return btMax(1, btMin<int>(BT_MAX_THREAD_COUNT, (int)sysconf(_SC_NPROCESSORS_ONLN)));
 }
 
 #endif
@@ -71,11 +72,11 @@ public:
 		void* m_userPtr;  //for taskDesc etc
 
 		pthread_t thread;
-		//each tread will wait until this signal to start its work
+		//each thread will wait until this signal to start its work
 		sem_t* startSemaphore;
 		btCriticalSection* m_cs;
 		// this is a copy of m_mainSemaphore,
-		//each tread will signal once it is finished with its work
+		//each thread will signal once it is finished with its work
 		sem_t* m_mainSemaphore;
 		unsigned long threadUsed;
 	};
@@ -94,7 +95,7 @@ private:
 	btCriticalSection* m_cs;
 public:
 	btThreadSupportPosix(const ConstructionInfo& threadConstructionInfo);
-	virtual ~btThreadSupportPosix();
+	virtual ~btThreadSupportPosix() BT_OVERRIDE;
 
 	virtual int getNumWorkerThreads() const BT_OVERRIDE { return m_numThreads; }
 	// TODO: return the number of logical processors sharing the first L3 cache
@@ -113,7 +114,7 @@ public:
 	if (0 != returnValue)                                                                                 \
 	{                                                                                                     \
 		printf("PThread problem at line %i in file %s: %i %d\n", __LINE__, __FILE__, returnValue, errno); \
-	}
+	}  do{} while(0)
 
 // The number of threads should be equal to the number of available cores
 // Todo: each worker should be linked to a single core, using SetThreadIdealProcessor.
@@ -138,8 +139,8 @@ btThreadSupportPosix::~btThreadSupportPosix()
 
 static sem_t* createSem(const char* baseName)
 {
-	static int semCount = 0;
 #ifdef NAMED_SEMAPHORES
+	static int semCount = 0;
 	/// Named semaphore begin
 	char name[32];
 	snprintf(name, 32, "/%8.s-%4.d-%4.4d", baseName, getpid(), semCount++);
@@ -156,6 +157,7 @@ static sem_t* createSem(const char* baseName)
 	}
 	/// Named semaphore end
 #else
+	(void)baseName;
 	sem_t* tempSem = new sem_t;
 	checkPThreadFunction(sem_init(tempSem, 0, 0));
 #endif
@@ -233,12 +235,12 @@ int btThreadSupportPosix::waitForResponse()
 	// wait for any of the threads to finish
 	checkPThreadFunction(sem_wait(m_mainSemaphore));
 	// get at least one thread which has finished
-	size_t last = -1;
+	size_t last = (size_t)-1;
 
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
 		m_cs->lock();
-		bool hasFinished = (2 == m_activeThreadStatus[t].m_status);
+		bool hasFinished = (2 == m_activeThreadStatus[(int)t].m_status);
 		m_cs->unlock(); 
 		if (hasFinished)
 		{
@@ -247,16 +249,16 @@ int btThreadSupportPosix::waitForResponse()
 		}
 	}
 
-	btThreadStatus& threadStatus = m_activeThreadStatus[last];
+	btThreadStatus& threadStatus = m_activeThreadStatus[(int)last];
 
 	btAssert(threadStatus.m_status > 1);
 	threadStatus.m_status = 0;
 
 	// need to find an active spu
-	btAssert(last >= 0);
+	btAssert(last != size_t(-1));
 	m_startedThreadsMask &= ~(UINT64(1) << last);
 
-	return last;
+	return (int)last;
 }
 
 void btThreadSupportPosix::waitForAllTasks()
@@ -298,7 +300,7 @@ void btThreadSupportPosix::stopThreads()
 {
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
-		btThreadStatus& threadStatus = m_activeThreadStatus[t];
+		btThreadStatus& threadStatus = m_activeThreadStatus[(int)t];
 
 		threadStatus.m_userPtr = 0;
 		checkPThreadFunction(sem_post(threadStatus.startSemaphore));

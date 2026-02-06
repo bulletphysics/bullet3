@@ -156,19 +156,18 @@ protected:
 		btTypedConstraint** constraints,
 		int numConstraints,
 		const btContactSolverInfo& infoGlobal,
-		btIDebugDraw* debugDrawer) ;
+		btIDebugDraw* debugDrawer) BT_OVERRIDE;
 
 public:
-	BT_DECLARE_ALIGNED_ALLOCATOR()
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	/// Constructor
 	///
 	/// \param[in] solver MLCP solver. Assumed it's not null.
-	/// \param[in] maxLCPSize Maximum size of LCP to solve using MLCP solver. If the MLCP size exceeds this number, sequaltial impulse method will be used.
 	explicit btMultiBodyMLCPConstraintSolver(btMLCPSolverInterface* solver);
 
 	/// Destructor
-	virtual ~btMultiBodyMLCPConstraintSolver();
+	virtual ~btMultiBodyMLCPConstraintSolver() BT_OVERRIDE;
 
 	/// Sets MLCP solver. Assumed it's not null.
 	void setMLCPSolver(btMLCPSolverInterface* solver);
@@ -181,7 +180,7 @@ public:
 	void setNumFallbacks(int num);
 
 	/// Returns the constraint solver type.
-	virtual btConstraintSolverType getSolverType() const;
+	virtual btConstraintSolverType getSolverType() const BT_OVERRIDE;
 };
 
 #endif  // BT_MULTIBODY_MLCP_CONSTRAINT_SOLVER_H

@@ -26,6 +26,7 @@ public:
 		: m_guiHelper(helper),
 		  m_options(options)
 	{
+		(void)m_options;
 	}
 
 	virtual ~JointLimit()
@@ -70,7 +71,7 @@ public:
 	{
 		m_robotSim.disconnect();
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_robotSim.stepSimulation();
 	}
@@ -87,7 +88,7 @@ public:
 	{
 		return m_robotSim.mouseButtonCallback(button, state, x, y);
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -97,7 +98,7 @@ public:
 		float dist = 3;
 		float pitch = -10;
 		float yaw = 18;
-		float targetPos[3] = {0.6, 0.8, 0.3};
+		float targetPos[3] = {0.6f, 0.8f, 0.3f};
 
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}

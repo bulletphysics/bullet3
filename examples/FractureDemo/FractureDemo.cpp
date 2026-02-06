@@ -33,7 +33,7 @@ subject to the following restrictions:
 
 #include <stdio.h>  //printf debugging
 
-int sFrameNumber = 0;
+static int sFrameNumber = 0;
 
 #include "btFractureBody.h"
 #include "btFractureDynamicsWorld.h"
@@ -83,7 +83,7 @@ public:
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -96,7 +96,7 @@ void FractureDemo::initPhysics()
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -137,7 +137,7 @@ void FractureDemo::initPhysics()
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 
 		btCollisionShape* colShape = new btBoxShape(btVector3(SCALING * 1, SCALING * 1, SCALING * 1));
 		//btCollisionShape* colShape = new btCapsuleShape(SCALING*0.4,SCALING*1);
@@ -164,7 +164,7 @@ void FractureDemo::initPhysics()
 			btTransform trans;
 			trans.setIdentity();
 
-			btVector3 pos(i * 2 * CUBE_HALF_EXTENTS, 20, 0);
+			btVector3 pos((float)i * 2 * CUBE_HALF_EXTENTS, 20, 0);
 			trans.setOrigin(pos);
 
 			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -177,7 +177,7 @@ void FractureDemo::initPhysics()
 		}
 	}
 
-	fractureWorld->stepSimulation(1. / 60., 0);
+	fractureWorld->stepSimulation(btScalar(1. / 60.), 0);
 	fractureWorld->glueCallback();
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

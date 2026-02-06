@@ -141,7 +141,7 @@ float3x3 Inverse(const float3x3 &a)
 			int i2 = (i + 2) % 3;
 			int j1 = (j + 1) % 3;
 			int j2 = (j + 2) % 3;
-			// reverse indexs i&j to take transpose
+			// reverse indices i&j to take transpose
 			b[j][i] = (a[i1][j1] * a[i2][j2] - a[i1][j2] * a[i2][j1]) / d;
 		}
 	}
@@ -925,7 +925,7 @@ float3 PlanesIntersection(const Plane &p0, const Plane &p1, const Plane &p2)
 float3 PlanesIntersection(const Plane *planes, int planes_count, const float3 &seed)
 {
 	int i;
-	float3x3 A;  // gets initilized to 0 matrix
+	float3x3 A;  // gets initialized to 0 matrix
 	float3 b(0, 0, 0);
 	for (i = 0; i < planes_count; i++)
 	{
@@ -1109,7 +1109,7 @@ Quaternion Diagonalizer(const float3x3 &A)
 	// Diagonal matrix D = Q * A * Transpose(Q);  and  A = QT*D*Q
 	// The rows of q are the eigenvectors D's diagonal is the eigenvalues
 	// As per 'row' convention if float3x3 Q = q.getmatrix(); then v*Q = q*v*conj(q)
-	int maxsteps = 24;  // certainly wont need that many.
+	int maxsteps = 24;  // certainly won't need that many.
 	int i;
 	Quaternion q(0, 0, 0, 1);
 	for (i = 0; i < maxsteps; i++)

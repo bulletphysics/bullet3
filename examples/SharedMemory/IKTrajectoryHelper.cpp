@@ -41,8 +41,8 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 								   const double endEffectorTargetOrientation[4],
 								   const double endEffectorWorldPosition[3],
 								   const double endEffectorWorldOrientation[4],
-								   const double* q_current, int numQ, int endEffectorIndex,
-								   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6])
+								   const double* q_current, int numQ, int /*endEffectorIndex*/,
+								   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int /*jacobian_size*/, const double dampIk[6])
 {
 	MatrixRmn AugMat;
 	bool useAngularPart = (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION || ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE || ikMethod == IK2_VEL_SDLS_WITH_ORIENTATION) ? true : false;
@@ -76,18 +76,18 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 	VectorRn deltaR(3);
 	if (useAngularPart)
 	{
-		btQuaternion startQ(endEffectorWorldOrientation[0], endEffectorWorldOrientation[1], endEffectorWorldOrientation[2], endEffectorWorldOrientation[3]);
-		btQuaternion endQ(endEffectorTargetOrientation[0], endEffectorTargetOrientation[1], endEffectorTargetOrientation[2], endEffectorTargetOrientation[3]);
+		btQuaternion startQ((btScalar)endEffectorWorldOrientation[0], (btScalar)endEffectorWorldOrientation[1], (btScalar)endEffectorWorldOrientation[2], (btScalar)endEffectorWorldOrientation[3]);
+		btQuaternion endQ((btScalar)endEffectorTargetOrientation[0], (btScalar)endEffectorTargetOrientation[1], (btScalar)endEffectorTargetOrientation[2], (btScalar)endEffectorTargetOrientation[3]);
 		btQuaternion deltaQ = endQ * startQ.inverse();
-		float angle = deltaQ.getAngle();
+		float angle = (float)deltaQ.getAngle();
 		btVector3 axis = deltaQ.getAxis();
 		if (angle > PI)
 		{
-			angle -= 2.0 * PI;
+			angle -= (float)(2.0 * PI);
 		}
 		else if (angle < -PI)
 		{
-			angle += 2.0 * PI;
+			angle += (float)(2.0 * PI);
 		}
 		float angleDot = angle;
 		btVector3 angularVel = angleDot * axis.normalize();
@@ -300,7 +300,7 @@ bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, 
 {
 	m_data->m_nullSpaceVelocity.SetLength(numQ);
 	m_data->m_nullSpaceVelocity.SetZero();
-	// TODO: Expose the coefficents of the null space term so that the user can choose to balance the null space task and the IK target task.
+	// TODO: Expose the coefficients of the null space term so that the user can choose to balance the null space task and the IK target task.
 	// Can also adaptively adjust the coefficients based on the residual of the null space velocity in the IK target task space.
 	double stayCloseToZeroGain = 0.001;
 	double stayAwayFromLimitsGain = 10.0;

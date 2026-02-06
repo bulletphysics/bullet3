@@ -132,6 +132,7 @@ bool InDeathTestChild()
 {
 #if GTEST_OS_WINDOWS
 
+	(void)g_in_fast_death_test_child;
 	// On Windows, death tests are thread-safe regardless of the value of the
 	// death_test_style flag.
 	return !GTEST_FLAG(internal_run_death_test).empty();
@@ -268,7 +269,7 @@ enum DeathTestOutcome
 // message is propagated back to the parent process.  Otherwise, the
 // message is simply printed to stderr.  In either case, the program
 // then exits with status 1.
-void DeathTestAbort(const std::string& message)
+ANNOTATE_NORETURN static void DeathTestAbort(const std::string& message)
 {
 	// On a POSIX system, this function may be called from a threadsafe-style
 	// death test child process, which operates on a very small stack.  Use
@@ -823,8 +824,8 @@ DeathTest::TestRole WindowsDeathTest::AssumeRole()
 	GTEST_DEATH_TEST_CHECK_(::CreateProcessA(
 								executable_path,
 								const_cast<char*>(command_line.c_str()),
-								NULL,  // Retuned process handle is not inheritable.
-								NULL,  // Retuned thread handle is not inheritable.
+								NULL,  // Returned process handle is not inheritable.
+								NULL,  // Returned thread handle is not inheritable.
 								TRUE,  // Child inherits all inheritable handles (for write_handle_).
 								0x0,   // Default creation flags.
 								NULL,  // Inherit the parent's environment.
@@ -1075,7 +1076,7 @@ void StackLowerThanAddress(const void* ptr, bool* result)
 	*result = (&dummy < ptr);
 }
 
-bool StackGrowsDown()
+static bool StackGrowsDown()
 {
 	int dummy;
 	bool result;
@@ -1330,7 +1331,7 @@ static void SplitString(const ::std::string& str, char delimiter,
 // Recreates the pipe and event handles from the provided parameters,
 // signals the event, and returns a file descriptor wrapped around the pipe
 // handle. This function is called in the child process only.
-int GetStatusFileDescriptor(unsigned int parent_process_id,
+static int GetStatusFileDescriptor(unsigned int parent_process_id,
 							size_t write_handle_as_size_t,
 							size_t event_handle_as_size_t)
 {

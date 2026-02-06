@@ -132,27 +132,27 @@ void GLPrimitiveRenderer::loadBufferData()
 	int count = 0;
 	for (int i = 0; i < MAX_VERTICES2; i += 4)
 	{
-		indexData[count++] = i;
-		indexData[count++] = i + 1;
-		indexData[count++] = i + 2;
+		indexData[count++] = (unsigned int)i;
+		indexData[count++] = (unsigned int)(i + 1);
+		indexData[count++] = (unsigned int)(i + 2);
 
-		indexData[count++] = i;
-		indexData[count++] = i + 2;
-		indexData[count++] = i + 3;
+		indexData[count++] = (unsigned int)i;
+		indexData[count++] = (unsigned int)(i + 2);
+		indexData[count++] = (unsigned int)(i + 3);
 	}
 	glGenBuffers(1, &m_data->m_indexBuffer2);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data->m_indexBuffer2);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(int), indexData, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)(count * sizeof(int)), indexData, GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(m_data->m_positionAttribute);
-	glEnableVertexAttribArray(m_data->m_colourAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_positionAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_colourAttribute);
 	b3Assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(m_data->m_textureAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_textureAttribute);
 
-	glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
-	glVertexAttribPointer(m_data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
-	glVertexAttribPointer(m_data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4) + sizeof(PrimVec4)));
+	glVertexAttribPointer((GLuint)m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
+	glVertexAttribPointer((GLuint)m_data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
+	glVertexAttribPointer((GLuint)m_data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4) + sizeof(PrimVec4)));
 	b3Assert(glGetError() == GL_NO_ERROR);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -267,17 +267,17 @@ void GLPrimitiveRenderer::drawTexturedRect3D(const PrimVertex &v0, const PrimVer
 
 	b3Assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(m_data->m_positionAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_positionAttribute);
 	b3Assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(m_data->m_colourAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_colourAttribute);
 	b3Assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(m_data->m_textureAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_textureAttribute);
 
-	glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
-	glVertexAttribPointer(m_data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
-	glVertexAttribPointer(m_data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4) + sizeof(PrimVec4)));
+	glVertexAttribPointer((GLuint)m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
+	glVertexAttribPointer((GLuint)m_data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
+	glVertexAttribPointer((GLuint)m_data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4) + sizeof(PrimVec4)));
 	b3Assert(glGetError() == GL_NO_ERROR);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data->m_indexBuffer);
@@ -354,7 +354,7 @@ void GLPrimitiveRenderer::drawTexturedRect3D2(PrimVertex *vertices, int numVerti
 		};
     */
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, numVertices * sizeof(PrimVertex), vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)(numVertices * sizeof(PrimVertex)), vertices);
 
 	b3Assert(glGetError() == GL_NO_ERROR);
 
@@ -371,17 +371,17 @@ void GLPrimitiveRenderer::drawTexturedRect3D2(PrimVertex *vertices, int numVerti
 
 	b3Assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(m_data->m_positionAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_positionAttribute);
 	b3Assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(m_data->m_colourAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_colourAttribute);
 	b3Assert(glGetError() == GL_NO_ERROR);
 
-	glEnableVertexAttribArray(m_data->m_textureAttribute);
+	glEnableVertexAttribArray((GLuint)m_data->m_textureAttribute);
 
-	glVertexAttribPointer(m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
-	glVertexAttribPointer(m_data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
-	glVertexAttribPointer(m_data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4) + sizeof(PrimVec4)));
+	glVertexAttribPointer((GLuint)m_data->m_positionAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)0);
+	glVertexAttribPointer((GLuint)m_data->m_colourAttribute, 4, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)sizeof(PrimVec4));
+	glVertexAttribPointer((GLuint)m_data->m_textureAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(PrimVertex), (const GLvoid *)(sizeof(PrimVec4) + sizeof(PrimVec4)));
 	b3Assert(glGetError() == GL_NO_ERROR);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data->m_indexBuffer2);
@@ -410,7 +410,7 @@ void GLPrimitiveRenderer::drawTexturedRect3D2(PrimVertex *vertices, int numVerti
 	b3Assert(glGetError() == GL_NO_ERROR);
 }
 
-void GLPrimitiveRenderer::drawTexturedRect2a(float x0, float y0, float x1, float y1, float color[4], float u0, float v0, float u1, float v1, int useRGBA)
+void GLPrimitiveRenderer::drawTexturedRect2a(float x0, float y0, float x1, float y1, float color[4], float u0, float v0, float u1, float v1, int /*useRGBA*/)
 {
 	PrimVertex vertexData[4] = {
 		PrimVertex(PrimVec4(-1.f + 2.f * x0 / float(m_screenWidth), 1.f - 2.f * y0 / float(m_screenHeight), 0.f, 1.f), PrimVec4(color[0], color[1], color[2], color[3]), PrimVec2(u0, v0)),
@@ -459,7 +459,7 @@ void GLPrimitiveRenderer::drawTexturedRect2(float x0, float y0, float x1, float 
 
 	if (m_data2->m_numVerticesText >= MAX_VERTICES2)
 	{
-		drawTexturedRect3D2(m_data2->m_verticesText, m_data2->m_numVerticesText, useRGBA);
+		drawTexturedRect3D2(m_data2->m_verticesText, m_data2->m_numVerticesText, useRGBA != 0);
 		m_data2->m_numVerticesText = 0;
 	}
 }
@@ -476,7 +476,7 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
 		PrimVertex(PrimVec4(-1.f + 2.f * x1 / float(m_screenWidth), 1.f - 2.f * y1 / float(m_screenHeight), 0.f, 1.f), PrimVec4(color[0], color[1], color[2], color[3]), PrimVec2(u1, v1)),
 		PrimVertex(PrimVec4(-1.f + 2.f * x1 / float(m_screenWidth), 1.f - 2.f * y0 / float(m_screenHeight), 0.f, 1.f), PrimVec4(color[0], color[1], color[2], color[3]), PrimVec2(u1, v0))};
 
-	drawTexturedRect3D(vertexData[0], vertexData[1], vertexData[2], vertexData[3], identity, identity, useRGBA);
+	drawTexturedRect3D(vertexData[0], vertexData[1], vertexData[2], vertexData[3], identity, identity, useRGBA != 0);
 }
 
 void GLPrimitiveRenderer::setScreenSize(int width, int height)

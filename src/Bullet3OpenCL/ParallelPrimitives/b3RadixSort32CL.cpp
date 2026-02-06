@@ -25,11 +25,11 @@ b3RadixSort32CL::b3RadixSort32CL(cl_context ctx, cl_device_id device, cl_command
 
 	if (initialCapacity > 0)
 	{
-		m_workBuffer1->resize(initialCapacity);
-		m_workBuffer3->resize(initialCapacity);
-		m_workBuffer3a->resize(initialCapacity);
-		m_workBuffer4->resize(initialCapacity);
-		m_workBuffer4a->resize(initialCapacity);
+		m_workBuffer1->resize((size_t)initialCapacity);
+		m_workBuffer3->resize((size_t)initialCapacity);
+		m_workBuffer3a->resize((size_t)initialCapacity);
+		m_workBuffer4->resize((size_t)initialCapacity);
+		m_workBuffer4a->resize((size_t)initialCapacity);
 	}
 
 	m_scan = new b3PrefixScanCL(ctx, device, queue);
@@ -110,7 +110,7 @@ void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int s
 
 		for (int i = 0; i < n; i++)
 		{
-			int tableIdx = (src[i].m_key >> startBit) & (NUM_TABLES - 1);
+			int tableIdx = (int)((src[i].m_key >> startBit) & (NUM_TABLES - 1));
 			tables[tableIdx]++;
 		}
 //#define TEST
@@ -123,7 +123,7 @@ void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int s
 				printf("tables[%d]=%d]\n", i, tables[i]);
 			}
 		}
-#endif  //TEST \
+#endif  //TEST
 	//	prefix scan
 		int sum = 0;
 		for (int i = 0; i < NUM_TABLES; i++)
@@ -137,7 +137,7 @@ void b3RadixSort32CL::executeHost(b3AlignedObjectArray<b3SortData>& inout, int s
 		//	distribute
 		for (int i = 0; i < n; i++)
 		{
-			int tableIdx = (src[i].m_key >> startBit) & (NUM_TABLES - 1);
+			int tableIdx = (int)((src[i].m_key >> startBit) & (NUM_TABLES - 1));
 
 			dst[tables[tableIdx] + counter[tableIdx]] = src[i];
 			counter[tableIdx]++;
@@ -163,8 +163,8 @@ void b3RadixSort32CL::executeHost(b3OpenCLArray<b3SortData>& keyValuesInOut, int
 	keyValuesInOut.copyFromHost(inout);
 }
 
-void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysIn, b3OpenCLArray<unsigned int>& keysOut, b3OpenCLArray<unsigned int>& valuesIn,
-							  b3OpenCLArray<unsigned int>& valuesOut, int n, int sortBits)
+void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& /*keysIn*/, b3OpenCLArray<unsigned int>& /*keysOut*/, b3OpenCLArray<unsigned int>& /*valuesIn*/,
+							  b3OpenCLArray<unsigned int>& /*valuesOut*/, int /*n*/, int /*sortBits*/)
 {
 }
 
@@ -173,7 +173,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysIn, b3OpenCLArray
 
 void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sortBits /* = 32 */)
 {
-	int originalSize = keyValuesInOut.size();
+	int originalSize = (int)keyValuesInOut.size();
 	int workingSize = originalSize;
 
 	int dataAlignment = DATA_ALIGNMENT;
@@ -195,7 +195,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 	{
 		workingSize += dataAlignment - (workingSize % dataAlignment);
 		m_workBuffer4->copyFromOpenCLArray(keyValuesInOut);
-		m_workBuffer4->resize(workingSize);
+		m_workBuffer4->resize((size_t)workingSize);
 		b3SortData fillValue;
 		fillValue.m_key = 0xffffffff;
 		fillValue.m_value = 0xffffffff;
@@ -225,8 +225,8 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 
 	int n = workingSize;
 
-	m_workBuffer1->resize(minCap);
-	m_workBuffer3->resize(workingSize);
+	m_workBuffer1->resize((size_t)minCap);
+	m_workBuffer3->resize((size_t)workingSize);
 
 	//	ADLASSERT( ELEMENTS_PER_WORK_ITEM == 4 );
 	b3Assert(BITS_PER_PASS == 4);
@@ -501,7 +501,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 
 	if (m_workBuffer4->size())
 	{
-		m_workBuffer4->resize(originalSize);
+		m_workBuffer4->resize((size_t)originalSize);
 		keyValuesInOut.copyFromOpenCLArray(*m_workBuffer4);
 	}
 
@@ -519,7 +519,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<b3SortData>& keyValuesInOut, int sor
 
 void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBits /* = 32 */)
 {
-	int originalSize = keysInOut.size();
+	int originalSize = (int)keysInOut.size();
 	int workingSize = originalSize;
 
 	int dataAlignment = DATA_ALIGNMENT;
@@ -530,7 +530,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 	{
 		workingSize += dataAlignment - (workingSize % dataAlignment);
 		m_workBuffer4a->copyFromOpenCLArray(keysInOut);
-		m_workBuffer4a->resize(workingSize);
+		m_workBuffer4a->resize((size_t)workingSize);
 		unsigned int fillValue = 0xffffffff;
 
 		m_fill->execute(*m_workBuffer4a, fillValue, workingSize - originalSize, originalSize);
@@ -548,9 +548,9 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 
 	int n = workingSize;
 
-	m_workBuffer1->resize(minCap);
-	m_workBuffer3->resize(workingSize);
-	m_workBuffer3a->resize(workingSize);
+	m_workBuffer1->resize((size_t)minCap);
+	m_workBuffer3->resize((size_t)workingSize);
+	m_workBuffer3a->resize((size_t)workingSize);
 
 	//	ADLASSERT( ELEMENTS_PER_WORK_ITEM == 4 );
 	b3Assert(BITS_PER_PASS == 4);
@@ -640,7 +640,7 @@ void b3RadixSort32CL::execute(b3OpenCLArray<unsigned int>& keysInOut, int sortBi
 
 	if (m_workBuffer4a->size())
 	{
-		m_workBuffer4a->resize(originalSize);
+		m_workBuffer4a->resize((size_t)originalSize);
 		keysInOut.copyFromOpenCLArray(*m_workBuffer4a);
 	}
 }

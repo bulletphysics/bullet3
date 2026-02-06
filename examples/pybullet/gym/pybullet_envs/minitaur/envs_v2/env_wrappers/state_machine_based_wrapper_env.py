@@ -54,7 +54,7 @@ class StateMachineBasedWrapperEnv(object):
                action_lower_bound=(-0.0, -0.25, -0.25),
                action_upper_bound=(0.3, 0.25, 0.25),
                state_to_foot_id=(0, 3, 2, 1)):
-    """Initialzes the wrapped env.
+    """Initializes the wrapped env.
 
     Args:
       gym_env: An instance of LocomotionGymEnv.
@@ -125,7 +125,7 @@ class StateMachineBasedWrapperEnv(object):
     Args:
       target_com_movement: Target COM movement relative to the previous COM
         position in the x-y plane.
-      time_since_transition: Time elapsed since last state machien transition.
+      time_since_transition: Time elapsed since last state machine transition.
       state_duration: Duration of the state machine. The first half will be used
         for moving COM and the second half for moving the swing leg.
 
@@ -170,7 +170,7 @@ class StateMachineBasedWrapperEnv(object):
     Args:
       target_toe_movement: Target toe movement relative to the default toe
         position in the positive x direction.
-      time_since_transition: Time elapsed since last state machien transition.
+      time_since_transition: Time elapsed since last state machine transition.
       state_duration: Duration of the state machine. The first half will be used
         for moving COM and the second half for moving the swing leg.
 
@@ -260,7 +260,7 @@ class StateMachineBasedWrapperEnv(object):
       action: Numpy array. The input action from an NN agent.
 
     Returns:
-      The tuple containing the modified observation, the reward, the epsiode end
+      The tuple containing the modified observation, the reward, the episode end
       indicator.
 
     Raises:

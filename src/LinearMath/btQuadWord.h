@@ -102,13 +102,13 @@ public:
 	/**@brief Return the z value */
 	SIMD_FORCE_INLINE const btScalar& getZ() const { return m_floats[2]; }
 	/**@brief Set the x value */
-	SIMD_FORCE_INLINE void setX(btScalar _x) { m_floats[0] = _x; };
+	SIMD_FORCE_INLINE void setX(btScalar _x) { m_floats[0] = _x; }
 	/**@brief Set the y value */
-	SIMD_FORCE_INLINE void setY(btScalar _y) { m_floats[1] = _y; };
+	SIMD_FORCE_INLINE void setY(btScalar _y) { m_floats[1] = _y; }
 	/**@brief Set the z value */
-	SIMD_FORCE_INLINE void setZ(btScalar _z) { m_floats[2] = _z; };
+	SIMD_FORCE_INLINE void setZ(btScalar _z) { m_floats[2] = _z; }
 	/**@brief Set the w value */
-	SIMD_FORCE_INLINE void setW(btScalar _w) { m_floats[3] = _w; };
+	SIMD_FORCE_INLINE void setW(btScalar _w) { m_floats[3] = _w; }
 	/**@brief Return the x value */
 	SIMD_FORCE_INLINE const btScalar& x() const { return m_floats[0]; }
 	/**@brief Return the y value */
@@ -142,16 +142,16 @@ public:
 	}
 
 	/**@brief Set x,y,z and zero w 
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
    */
 	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z)
 	{
 		m_floats[0] = _x;
 		m_floats[1] = _y;
 		m_floats[2] = _z;
-		m_floats[3] = 0.f;
+		m_floats[3] = btScalar(0.);
 	}
 
 	/*		void getValue(btScalar *m) const 
@@ -162,10 +162,10 @@ public:
 		}
 */
 	/**@brief Set the values 
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
 	{
@@ -181,24 +181,30 @@ public:
 	}
 
 	/**@brief Three argument constructor (zeros w)
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
    */
 	SIMD_FORCE_INLINE btQuadWord(const btScalar& _x, const btScalar& _y, const btScalar& _z)
 	{
-		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = 0.0f;
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = btScalar(0.0);
 	}
 
 	/**@brief Initializing constructor
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	SIMD_FORCE_INLINE btQuadWord(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
 	{
-		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = _w;
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = _w;
 	}
 
 	/**@brief Set each element to the max of the current values and the values of another btQuadWord

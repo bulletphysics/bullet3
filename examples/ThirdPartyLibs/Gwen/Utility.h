@@ -101,8 +101,8 @@ namespace Strings
 typedef std::vector<Gwen::String> List;
 typedef std::vector<Gwen::UnicodeString> UnicodeList;
 
-GWEN_EXPORT void Split(const Gwen::String& str, const Gwen::String& seperator, Strings::List& outbits, bool bLeaveSeperators = false);
-GWEN_EXPORT void Split(const Gwen::UnicodeString& str, const Gwen::UnicodeString& seperator, Strings::UnicodeList& outbits, bool bLeaveSeperators = false);
+GWEN_EXPORT void Split(const Gwen::String& str, const Gwen::String& separator, Strings::List& outbits, bool bLeaveSeparators = false);
+GWEN_EXPORT void Split(const Gwen::UnicodeString& str, const Gwen::UnicodeString& separator, Strings::UnicodeList& outbits, bool bLeaveSeparators = false);
 
 template <typename T>
 T TrimLeft(const T& str, const T& strChars)

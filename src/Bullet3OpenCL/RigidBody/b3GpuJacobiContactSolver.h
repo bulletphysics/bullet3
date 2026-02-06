@@ -24,7 +24,7 @@ struct b3JacobiSolverInfo
 
 	b3JacobiSolverInfo()
 		: m_fixedBodyIndex(0),
-		  m_deltaTime(1. / 60.f),
+		  m_deltaTime(1.f / 60.f),
 		  m_positionDrift(0.005f),
 		  m_positionConstraintCoeff(0.99f),
 		  m_numIterations(7)

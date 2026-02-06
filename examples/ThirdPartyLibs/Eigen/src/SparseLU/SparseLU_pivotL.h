@@ -34,7 +34,7 @@ namespace Eigen {
 namespace internal {
   
 /**
- * \brief Performs the numerical pivotin on the current column of L, and the CDIV operation.
+ * \brief Performs the numerical pivoting on the current column of L, and the CDIV operation.
  * 
  * Pivot policy :
  * (1) Compute thresh = u * max_(i>=j) abs(A_ij);

@@ -63,7 +63,7 @@ bool GraphingTexture::create(int texWidth, int texHeight)
 
 void GraphingTexture::uploadImageData()
 {
-	glBindTexture(GL_TEXTURE_2D, m_textureId);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)m_textureId);
 	assert(glGetError() == GL_NO_ERROR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_imageData[0]);

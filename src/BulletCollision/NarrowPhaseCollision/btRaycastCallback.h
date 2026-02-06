@@ -46,7 +46,7 @@ public:
 
 	btTriangleRaycastCallback(const btVector3& from, const btVector3& to, unsigned int flags = 0);
 
-	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex);
+	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex) BT_OVERRIDE;
 
 	virtual btScalar reportHit(const btVector3& hitNormalLocal, btScalar hitFraction, int partId, int triangleIndex) = 0;
 };
@@ -64,7 +64,7 @@ public:
 
 	btTriangleConvexcastCallback(const btConvexShape* convexShape, const btTransform& convexShapeFrom, const btTransform& convexShapeTo, const btTransform& triangleToWorld, const btScalar triangleCollisionMargin);
 
-	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex);
+	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex) BT_OVERRIDE;
 
 	virtual btScalar reportHit(const btVector3& hitNormalLocal, const btVector3& hitPointLocal, btScalar hitFraction, int partId, int triangleIndex) = 0;
 };

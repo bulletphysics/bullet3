@@ -100,7 +100,7 @@ def parse_text(text):
     
     The elements are then parsed to int/float-only lists.
     Args:
-      text(str): text with elements seperated by whitespace
+      text(str): text with elements separated by whitespace
     Returns:
       : list(str/float/int) -- list with elements parsed to the same type
     """

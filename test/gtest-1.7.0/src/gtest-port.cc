@@ -274,6 +274,8 @@ bool AtomMatchesChar(bool escaped, char pattern_char, char ch)
 				return IsAsciiWordChar(ch);
 			case 'W':
 				return !IsAsciiWordChar(ch);
+			default:
+				break;
 		}
 		return IsAsciiPunct(pattern_char) && pattern_char == ch;
 	}
@@ -282,7 +284,7 @@ bool AtomMatchesChar(bool escaped, char pattern_char, char ch)
 }
 
 // Helper function used by ValidateRegex() to format error messages.
-std::string FormatRegexSyntaxError(const char* regex, int index)
+static std::string FormatRegexSyntaxError(const char* regex, int index)
 {
 	return (Message() << "Syntax error at index " << index
 					  << " in simple regular expression \"" << regex << "\": ")
@@ -373,8 +375,8 @@ bool MatchRepetitionAndRegexAtHead(
 	bool escaped, char c, char repeat, const char* regex,
 	const char* str)
 {
-	const size_t min_count = (repeat == '+') ? 1 : 0;
-	const size_t max_count = (repeat == '?') ? 1 : static_cast<size_t>(-1) - 1;
+	const size_t min_count = (size_t)((repeat == '+') ? 1 : 0);
+	const size_t max_count = (size_t)((repeat == '?') ? 1 : static_cast<size_t>(-1) - 1);
 	// We cannot call numeric_limits::max() as it conflicts with the
 	// max() macro on Windows.
 
@@ -542,7 +544,7 @@ GTEST_API_ ::std::string FormatFileLocation(const char* file, int line)
 GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(
 	const char* file, int line)
 {
-	const std::string file_name(file == NULL ? kUnknownFile : file);
+	const std::string& file_name(file == NULL ? kUnknownFile : file);
 
 	if (line < 0)
 		return file_name;
@@ -710,7 +712,7 @@ static CapturedStream* g_captured_stderr = NULL;
 static CapturedStream* g_captured_stdout = NULL;
 
 // Starts capturing an output stream (stdout/stderr).
-void CaptureStream(int fd, const char* stream_name, CapturedStream** stream)
+static void CaptureStream(int fd, const char* stream_name, CapturedStream** stream)
 {
 	if (*stream != NULL)
 	{
@@ -721,7 +723,7 @@ void CaptureStream(int fd, const char* stream_name, CapturedStream** stream)
 }
 
 // Stops capturing the output stream and returns the captured string.
-std::string GetCapturedStream(CapturedStream** captured_stream)
+static std::string GetCapturedStream(CapturedStream** captured_stream)
 {
 	const std::string content = (*captured_stream)->GetCapturedString();
 

@@ -1,0 +1,1 @@
+codespell -L acount,ans,bload,bReal,Buss,childs,colorIn,directionA,empy,findn,halfs,inout,inport,lastr,lod,lowd,observ,padd,paeth,matA,matC,mi,ND,normalY,numer,preverse,prverse,pEvent,pointIn,reacher,scond,SEH,ser,strIn,te,thet,ue

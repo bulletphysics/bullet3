@@ -36,7 +36,9 @@
 // http://www.amillionpixels.us
 //
 
+#ifdef _MSC_VER
 #pragma warning(disable : 4786)
+#endif
 
 #include <math.h>
 #include <float.h>
@@ -50,45 +52,45 @@ const float RAD_TO_DEG = (360.0f / (2.0f * 3.141592654f));
 class Vector3d
 {
 public:
-	Vector3d(void){};  // null constructor, does not inialize point.
+	Vector3d(void){}  // null constructor, does not initialize point.
 
 	Vector3d(const Vector3d &a)  // constructor copies existing vector.
 	{
 		x = a.x;
 		y = a.y;
 		z = a.z;
-	};
+	}
 
 	Vector3d(float a, float b, float c)  // construct with initial point.
 	{
 		x = a;
 		y = b;
 		z = c;
-	};
+	}
 
 	Vector3d(const float *t)
 	{
 		x = t[0];
 		y = t[1];
 		z = t[2];
-	};
+	}
 
 	Vector3d(const int *t)
 	{
-		x = t[0];
-		y = t[1];
-		z = t[2];
-	};
+		x = (float)t[0];
+		y = (float)t[1];
+		z = (float)t[2];
+	}
 
 	bool operator==(const Vector3d &a) const
 	{
 		return (a.x == x && a.y == y && a.z == z);
-	};
+	}
 
 	bool operator!=(const Vector3d &a) const
 	{
 		return (a.x != x || a.y != y || a.z != z);
-	};
+	}
 
 	// Operators
 	Vector3d &operator=(const Vector3d &A)  // ASSIGNMENT (=)
@@ -97,58 +99,58 @@ public:
 		y = A.y;
 		z = A.z;
 		return (*this);
-	};
+	}
 
 	Vector3d operator+(const Vector3d &A) const  // ADDITION (+)
 	{
 		Vector3d Sum(x + A.x, y + A.y, z + A.z);
 		return (Sum);
-	};
+	}
 
 	Vector3d operator-(const Vector3d &A) const  // SUBTRACTION (-)
 	{
 		Vector3d Diff(x - A.x, y - A.y, z - A.z);
 		return (Diff);
-	};
+	}
 
 	Vector3d operator*(const float s) const  // MULTIPLY BY SCALAR (*)
 	{
 		Vector3d Scaled(x * s, y * s, z * s);
 		return (Scaled);
-	};
+	}
 
 	Vector3d operator+(const float s) const  // ADD CONSTANT TO ALL 3 COMPONENTS (*)
 	{
 		Vector3d Scaled(x + s, y + s, z + s);
 		return (Scaled);
-	};
+	}
 
 	Vector3d operator/(const float s) const  // DIVIDE BY SCALAR (/)
 	{
 		float r = 1.0f / s;
 		Vector3d Scaled(x * r, y * r, z * r);
 		return (Scaled);
-	};
+	}
 
 	void operator/=(float A)  // ACCUMULATED VECTOR ADDITION (/=)
 	{
 		x /= A;
 		y /= A;
 		z /= A;
-	};
+	}
 
 	void operator+=(const Vector3d A)  // ACCUMULATED VECTOR ADDITION (+=)
 	{
 		x += A.x;
 		y += A.y;
 		z += A.z;
-	};
+	}
 	void operator-=(const Vector3d A)  // ACCUMULATED VECTOR SUBTRACTION (+=)
 	{
 		x -= A.x;
 		y -= A.y;
 		z -= A.z;
-	};
+	}
 	void operator*=(const float s)  // ACCUMULATED SCALAR MULTIPLICATION (*=) (bpc 4/24/2000)
 	{
 		x *= s;
@@ -161,36 +163,36 @@ public:
 		x += A;
 		y += A;
 		z += A;
-	};
+	}
 
 	Vector3d operator-(void) const  // NEGATION (-)
 	{
 		Vector3d Negated(-x, -y, -z);
 		return (Negated);
-	};
+	}
 
 	float operator[](const int i) const  // ALLOWS VECTOR ACCESS AS AN ARRAY.
 	{
 		return ((i == 0) ? x : ((i == 1) ? y : z));
-	};
+	}
 	float &operator[](const int i)
 	{
 		return ((i == 0) ? x : ((i == 1) ? y : z));
-	};
+	}
 	//
 
 	// accessor methods.
-	float GetX(void) const { return x; };
-	float GetY(void) const { return y; };
-	float GetZ(void) const { return z; };
+	float GetX(void) const { return x; }
+	float GetY(void) const { return y; }
+	float GetZ(void) const { return z; }
 
-	float X(void) const { return x; };
-	float Y(void) const { return y; };
-	float Z(void) const { return z; };
+	float X(void) const { return x; }
+	float Y(void) const { return y; }
+	float Z(void) const { return z; }
 
-	void SetX(float t) { x = t; };
-	void SetY(float t) { y = t; };
-	void SetZ(float t) { z = t; };
+	void SetX(float t) { x = t; }
+	void SetY(float t) { y = t; }
+	void SetZ(float t) { z = t; }
 
 	bool IsSame(const Vector3d &v, float epsilon) const
 	{
@@ -251,14 +253,14 @@ public:
 		float t = y;
 		y = z;
 		z = t;
-	};
+	}
 
 	void Get(float *v) const
 	{
 		v[0] = x;
 		v[1] = y;
 		v[2] = z;
-	};
+	}
 
 	void Set(const int *p)
 	{
@@ -279,12 +281,12 @@ public:
 		x = a;
 		y = b;
 		z = c;
-	};
+	}
 
 	void Zero(void)
 	{
 		x = y = z = 0;
-	};
+	}
 
 	const float *Ptr() const { return &x; }
 	float *Ptr() { return &x; }
@@ -302,28 +304,28 @@ public:
 	float Magnitude(void) const
 	{
 		return float(sqrt(x * x + y * y + z * z));
-	};
+	}
 
 	float FastMagnitude(void) const
 	{
 		return float(sqrtf(x * x + y * y + z * z));
-	};
+	}
 
 	float FasterMagnitude(void) const
 	{
 		return float(sqrtf(x * x + y * y + z * z));
-	};
+	}
 
 	void Lerp(const Vector3d &from, const Vector3d &to, float slerp)
 	{
 		x = ((to.x - from.x) * slerp) + from.x;
 		y = ((to.y - from.y) * slerp) + from.y;
 		z = ((to.z - from.z) * slerp) + from.z;
-	};
+	}
 
 	// Highly specialized interpolate routine.  Will compute the interpolated position
 	// shifted forward or backwards along the ray defined between (from) and (to).
-	// Reason for existance is so that when a bullet collides with a wall, for
+	// Reason for existence is so that when a bullet collides with a wall, for
 	// example, you can generate a graphic effect slightly *before* it hit the
 	// wall so that the effect doesn't sort into the wall itself.
 	void Interpolate(const Vector3d &from, const Vector3d &to, float offset)
@@ -340,7 +342,7 @@ public:
 		x = x * d + from.x;
 		y = y * d + from.y;
 		z = z * d + from.z;
-	};
+	}
 
 	bool BinaryEqual(const Vector3d &p) const
 	{
@@ -352,7 +354,7 @@ public:
 			source[2] == dest[2]) return true;
 
 		return false;
-	};
+	}
 
 	/*bool BinaryEqual(const Vector3d<int> &p) const
 	{
@@ -376,19 +378,19 @@ public:
 		x = -d.x;
 		y = -d.y;
 		z = -d.z;
-	};
+	}
 
 	void AngleAxis(float angle, const Vector3d &axis)
 	{
 		x = axis.x * angle;
 		y = axis.y * angle;
 		z = axis.z * angle;
-	};
+	}
 
 	float Length(void) const  // length of vector.
 	{
 		return float(sqrt(x * x + y * y + z * z));
-	};
+	}
 
 	float ComputePlane(const Vector3d &A,
 					   const Vector3d &B,
@@ -431,18 +433,18 @@ public:
 	float FastLength(void) const  // length of vector.
 	{
 		return float(sqrtf(x * x + y * y + z * z));
-	};
+	}
 
 	float FasterLength(void) const  // length of vector.
 	{
 		return float(sqrtf(x * x + y * y + z * z));
-	};
+	}
 
 	float Length2(void) const  // squared distance, prior to square root.
 	{
 		float l2 = x * x + y * y + z * z;
 		return l2;
-	};
+	}
 
 	float Distance(const Vector3d &a) const  // distance between two points.
 	{
@@ -476,7 +478,7 @@ public:
 		float dy = a.y - y;
 		float dz = a.z - z;
 		return dx * dx + dy * dy + dz * dz;
-	};
+	}
 
 	float Partial(const Vector3d &p) const
 	{
@@ -506,7 +508,7 @@ public:
 			x = y = z = 1;
 		}
 		return d;
-	};
+	}
 
 	inline float FastNormalize(void)  // normalize to a unit vector, returns distance.
 	{
@@ -523,7 +525,7 @@ public:
 			x = y = z = 1;
 		}
 		return d;
-	};
+	}
 
 	inline float FasterNormalize(void)  // normalize to a unit vector, returns distance.
 	{
@@ -540,12 +542,12 @@ public:
 			x = y = z = 1;
 		}
 		return d;
-	};
+	}
 
 	float Dot(const Vector3d &a) const  // computes dot product.
 	{
 		return (x * a.x + y * a.y + z * a.z);
-	};
+	}
 
 	Vector3d Cross(const Vector3d &other) const
 	{
@@ -559,7 +561,7 @@ public:
 		x = a.y * b.z - a.z * b.y;
 		y = a.z * b.x - a.x * b.z;
 		z = a.x * b.y - a.y * b.x;
-	};
+	}
 
 	/******************************************/
 	// Check if next edge (b to c) turns inward
@@ -615,7 +617,7 @@ public:
 		if (mag > 0.0f) return false;
 
 		return (true);
-	};
+	}
 
 	bool PointTestXY(const Vector3d &i, const Vector3d &j) const
 	{
@@ -649,7 +651,7 @@ public:
 		float bCROSScp = bx * cpy - by * cpx;
 
 		return ((aCROSSbp >= 0.0f) && (bCROSScp >= 0.0f) && (cCROSSap >= 0.0f));
-	};
+	}
 
 	// test to see if this point is inside the triangle specified by
 	// these three points on the X/Y plane.
@@ -675,7 +677,7 @@ public:
 		float bCROSScp = by * cpz - bz * cpy;
 
 		return ((aCROSSbp >= 0.0f) && (bCROSScp >= 0.0f) && (cCROSSap >= 0.0f));
-	};
+	}
 
 	// test to see if this point is inside the triangle specified by
 	// these three points on the X/Y plane.
@@ -701,7 +703,7 @@ public:
 		float bCROSScp = bz * cpx - bx * cpz;
 
 		return ((aCROSSbp >= 0.0f) && (bCROSScp >= 0.0f) && (cCROSSap >= 0.0f));
-	};
+	}
 
 	// Given a point and a line (defined by two points), compute the closest point
 	// in the line.  (The line is treated as infinitely long.)
@@ -857,6 +859,7 @@ public:
 					bForce = false;
 					bestMagnitude2 = closeMagnitude2;
 					nearestPoint = closePoint;
+					(void)bestMagnitude2;
 				}
 			}
 
@@ -887,25 +890,25 @@ public:
 class Vector2d
 {
 public:
-	Vector2d(void){};  // null constructor, does not inialize point.
+	Vector2d(void){}  // null constructor, does not initialize point.
 
 	Vector2d(const Vector2d &a)  // constructor copies existing vector.
 	{
 		x = a.x;
 		y = a.y;
-	};
+	}
 
 	Vector2d(const float *t)
 	{
 		x = t[0];
 		y = t[1];
-	};
+	}
 
 	Vector2d(float a, float b)  // construct with initial point.
 	{
 		x = a;
 		y = b;
-	};
+	}
 
 	const float *Ptr() const { return &x; }
 	float *Ptr() { return &x; }
@@ -915,66 +918,66 @@ public:
 		x += a.x;
 		y += a.y;
 		return *this;
-	};
+	}
 
 	Vector2d &operator-=(const Vector2d &a)
 	{
 		x -= a.x;
 		y -= a.y;
 		return *this;
-	};
+	}
 
 	Vector2d &operator*=(const Vector2d &a)
 	{
 		x *= a.x;
 		y *= a.y;
 		return *this;
-	};
+	}
 
 	Vector2d &operator/=(const Vector2d &a)
 	{
 		x /= a.x;
 		y /= a.y;
 		return *this;
-	};
+	}
 
 	bool operator==(const Vector2d &a) const
 	{
 		if (a.x == x && a.y == y) return true;
 		return false;
-	};
+	}
 
 	bool operator!=(const Vector2d &a) const
 	{
 		if (a.x != x || a.y != y) return true;
 		return false;
-	};
+	}
 
 	Vector2d operator+(Vector2d a) const
 	{
 		a.x += x;
 		a.y += y;
 		return a;
-	};
+	}
 
 	Vector2d operator-(Vector2d a) const
 	{
 		a.x = x - a.x;
 		a.y = y - a.y;
 		return a;
-	};
+	}
 
 	Vector2d operator-(void) const
 	{
 		return negative();
-	};
+	}
 
 	Vector2d operator*(Vector2d a) const
 	{
 		a.x *= x;
 		a.y *= y;
 		return a;
-	};
+	}
 
 	Vector2d operator*(float c) const
 	{
@@ -984,36 +987,36 @@ public:
 		a.y = y * c;
 
 		return a;
-	};
+	}
 
 	Vector2d operator/(Vector2d a) const
 	{
 		a.x = x / a.x;
 		a.y = y / a.y;
 		return a;
-	};
+	}
 
 	float Dot(const Vector2d &a) const  // computes dot product.
 	{
 		return (x * a.x + y * a.y);
-	};
+	}
 
-	float GetX(void) const { return x; };
-	float GetY(void) const { return y; };
+	float GetX(void) const { return x; }
+	float GetY(void) const { return y; }
 
-	void SetX(float t) { x = t; };
-	void SetY(float t) { y = t; };
+	void SetX(float t) { x = t; }
+	void SetY(float t) { y = t; }
 
 	void Set(float a, float b)
 	{
 		x = a;
 		y = b;
-	};
+	}
 
 	void Zero(void)
 	{
 		x = y = 0;
-	};
+	}
 
 	Vector2d negative(void) const
 	{
@@ -1043,17 +1046,17 @@ public:
 	float Length(void) const  // length of vector.
 	{
 		return float(sqrtf(x * x + y * y));
-	};
+	}
 
 	float FastLength(void) const  // length of vector.
 	{
 		return float(sqrtf(x * x + y * y));
-	};
+	}
 
 	float FasterLength(void) const  // length of vector.
 	{
 		return float(sqrtf(x * x + y * y));
-	};
+	}
 
 	float Length2(void)  // squared distance, prior to square root.
 	{
@@ -1066,7 +1069,7 @@ public:
 		float dy = a.y - y;
 		float d = dx * dx + dy * dy;
 		return sqrtf(d);
-	};
+	}
 
 	float FastDistance(const Vector2d &a) const  // distance between two points.
 	{
@@ -1074,7 +1077,7 @@ public:
 		float dy = a.y - y;
 		float d = dx * dx + dy * dy;
 		return sqrtf(d);
-	};
+	}
 
 	float FasterDistance(const Vector2d &a) const  // distance between two points.
 	{
@@ -1082,26 +1085,26 @@ public:
 		float dy = a.y - y;
 		float d = dx * dx + dy * dy;
 		return sqrtf(d);
-	};
+	}
 
 	float Distance2(Vector2d &a)  // squared distance.
 	{
 		float dx = a.x - x;
 		float dy = a.y - y;
 		return dx * dx + dy * dy;
-	};
+	}
 
 	void Lerp(const Vector2d &from, const Vector2d &to, float slerp)
 	{
 		x = ((to.x - from.x) * slerp) + from.x;
 		y = ((to.y - from.y) * slerp) + from.y;
-	};
+	}
 
 	void Cross(const Vector2d &a, const Vector2d &b)  // cross two vectors result in this one.
 	{
 		x = a.y * b.x - a.x * b.y;
 		y = a.x * b.x - a.x * b.x;
-	};
+	}
 
 	float Normalize(void)  // normalize to a unit vector, returns distance.
 	{
@@ -1117,7 +1120,7 @@ public:
 			x = y = 0;
 		}
 		return l;
-	};
+	}
 
 	float FastNormalize(void)  // normalize to a unit vector, returns distance.
 	{
@@ -1133,7 +1136,7 @@ public:
 			x = y = 0;
 		}
 		return l;
-	};
+	}
 
 	float FasterNormalize(void)  // normalize to a unit vector, returns distance.
 	{
@@ -1149,7 +1152,7 @@ public:
 			x = y = 0;
 		}
 		return l;
-	};
+	}
 
 	float x;
 	float y;
@@ -1162,7 +1165,7 @@ public:
 	{
 		mP1 = from;
 		mP2 = to;
-	};
+	}
 	// JWR  Test for the intersection of two lines.
 
 	bool Intersect(const Line &src, Vector3d &sect);

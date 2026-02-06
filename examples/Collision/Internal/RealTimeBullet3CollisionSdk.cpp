@@ -27,7 +27,7 @@ enum RTB3ShapeTypes
 	RTB3_SHAPE_PLANE,
 	RTB3_SHAPE_CAPSULE,
 	MAX_NUM_SINGLE_SHAPE_TYPES,
-	RTB3_SHAPE_COMPOUND_INTERNAL,
+	RTB3_SHAPE_COMPOUND_INTERNAL
 
 };
 
@@ -124,7 +124,7 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createSphereShape(plCollisio
 		b3GpuChildShape& shape = world->m_childShapes[world->m_nextFreeShapeIndex];
 		shape.m_childPosition.setZero();
 		shape.m_childOrientation.setValue(0, 0, 0, 1);
-		shape.m_radius = radius;
+		shape.m_radius = (float)radius;
 		shape.m_shapeType = RTB3_SHAPE_SPHERE;
 		world->m_nextFreeShapeIndex++;
 		return (plCollisionShapeHandle)world->m_nextFreeShapePtr;
@@ -146,7 +146,7 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createPlaneShape(plCollision
 		b3GpuChildShape& shape = world->m_childShapes[world->m_nextFreeShapeIndex];
 		shape.m_childPosition.setZero();
 		shape.m_childOrientation.setValue(0, 0, 0, 1);
-		world->m_planeFaces[world->m_nextFreePlaneFaceIndex].m_plane = b3MakeVector4(planeNormalX, planeNormalY, planeNormalZ, planeConstant);
+		world->m_planeFaces[world->m_nextFreePlaneFaceIndex].m_plane = b3MakeVector4((b3Scalar)planeNormalX, (b3Scalar)planeNormalY, (b3Scalar)planeNormalZ, (b3Scalar)planeConstant);
 		shape.m_shapeIndex = world->m_nextFreePlaneFaceIndex++;
 		shape.m_shapeType = RTB3_SHAPE_PLANE;
 		world->m_nextFreeShapeIndex++;
@@ -168,8 +168,8 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createCapsuleShape(plCollisi
 		b3GpuChildShape& shape = world->m_childShapes[world->m_nextFreeShapeIndex];
 		shape.m_childPosition.setZero();
 		shape.m_childOrientation.setValue(0, 0, 0, 1);
-		shape.m_radius = radius;
-		shape.m_height = height;
+		shape.m_radius = (float)radius;
+		shape.m_height = (float)height;
 		shape.m_shapeIndex = capsuleAxis;
 		shape.m_shapeType = RTB3_SHAPE_CAPSULE;
 		world->m_nextFreeShapeIndex++;
@@ -196,10 +196,10 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createCompoundShape(plCollis
 	return 0;
 }
 
-void RealTimeBullet3CollisionSdk::addChildShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle compoundShape, plCollisionShapeHandle childShape, plVector3 childPos, plQuaternion childOrn)
+void RealTimeBullet3CollisionSdk::addChildShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle /*compoundShape*/, plCollisionShapeHandle /*childShape*/, plVector3 /*childPos*/, plQuaternion /*childOrn*/)
 {
 }
-void RealTimeBullet3CollisionSdk::deleteShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape)
+void RealTimeBullet3CollisionSdk::deleteShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle /*shape*/)
 {
 	///todo
 	//deleting shapes would involve a garbage collection phase, and mess up all user indices
@@ -207,12 +207,12 @@ void RealTimeBullet3CollisionSdk::deleteShape(plCollisionWorldHandle worldHandle
 	//for now, we don't delete and eventually run out-of-shapes
 }
 
-void RealTimeBullet3CollisionSdk::addCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)
+void RealTimeBullet3CollisionSdk::addCollisionObject(plCollisionWorldHandle /*world*/, plCollisionObjectHandle /*object*/)
 {
 	///createCollisionObject already adds it to the world
 }
 
-void RealTimeBullet3CollisionSdk::removeCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)
+void RealTimeBullet3CollisionSdk::removeCollisionObject(plCollisionWorldHandle /*world*/, plCollisionObjectHandle /*object*/)
 {
 	///todo, see deleteShape
 }
@@ -226,8 +226,8 @@ plCollisionObjectHandle RealTimeBullet3CollisionSdk::createCollisionObject(plCol
 	if (world->m_nextFreeCollidableIndex < world->m_collidables.size())
 	{
 		b3Collidable& collidable = world->m_collidables[world->m_nextFreeCollidableIndex];
-		world->m_collidablePositions[world->m_nextFreeCollidableIndex].setValue(startPosition[0], startPosition[1], startPosition[2]);
-		world->m_collidableOrientations[world->m_nextFreeCollidableIndex].setValue(startOrientation[0], startOrientation[1], startOrientation[2], startOrientation[3]);
+		world->m_collidablePositions[world->m_nextFreeCollidableIndex].setValue((b3Scalar)startPosition[0], (b3Scalar)startPosition[1], (b3Scalar)startPosition[2]);
+		world->m_collidableOrientations[world->m_nextFreeCollidableIndex].setValue((b3Scalar)startOrientation[0], (b3Scalar)startOrientation[1], (b3Scalar)startOrientation[2], (b3Scalar)startOrientation[3]);
 		world->m_collidableTransforms[world->m_nextFreeCollidableIndex].setOrigin(world->m_collidablePositions[world->m_nextFreeCollidableIndex]);
 		world->m_collidableTransforms[world->m_nextFreeCollidableIndex].setRotation(world->m_collidableOrientations[world->m_nextFreeCollidableIndex]);
 		world->m_collidableUserPointers[world->m_nextFreeCollidableIndex] = userPointer;
@@ -274,13 +274,13 @@ plCollisionObjectHandle RealTimeBullet3CollisionSdk::createCollisionObject(plCol
 	return 0;
 }
 
-void RealTimeBullet3CollisionSdk::deleteCollisionObject(plCollisionObjectHandle body)
+void RealTimeBullet3CollisionSdk::deleteCollisionObject(plCollisionObjectHandle /*body*/)
 {
 	///todo, see deleteShape
 }
 
-void RealTimeBullet3CollisionSdk::setCollisionObjectTransform(plCollisionWorldHandle world, plCollisionObjectHandle body,
-															  plVector3 position, plQuaternion orientation)
+void RealTimeBullet3CollisionSdk::setCollisionObjectTransform(plCollisionWorldHandle /*world*/, plCollisionObjectHandle /*body*/,
+															  plVector3 /*position*/, plQuaternion /*orientation*/)
 {
 }
 
@@ -294,28 +294,30 @@ struct plContactCache
 typedef void (*plDetectCollisionFunc)(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
 									  plContactCache* contactCache);
 
-void detectCollisionDummy(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
+static void detectCollisionDummy(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
 						  plContactCache* contactCache)
 {
 	(void)world;
 	(void)colA, (void)colB;
 	(void)contactCache;
+	(void)shapeIndexA;
+	(void)shapeIndexB;
 }
 
-void plVecCopy(float* dst, const b3Vector3& src)
+static void plVecCopy(float* dst, const b3Vector3& src)
 {
 	dst[0] = src.x;
 	dst[1] = src.y;
 	dst[2] = src.z;
 }
-void plVecCopy(double* dst, const b3Vector3& src)
+static void plVecCopy(double* dst, const b3Vector3& src)
 {
 	dst[0] = src.x;
 	dst[1] = src.y;
 	dst[2] = src.z;
 }
 
-void ComputeClosestPointsPlaneSphere(const b3Vector3& planeNormalWorld, b3Scalar planeConstant, const b3Vector3& spherePosWorld, b3Scalar sphereRadius, plContactCache* contactCache)
+static void ComputeClosestPointsPlaneSphere(const b3Vector3& planeNormalWorld, b3Scalar planeConstant, const b3Vector3& spherePosWorld, b3Scalar sphereRadius, plContactCache* contactCache)
 {
 	if (contactCache->numAddedPoints < contactCache->pointCapacity)
 	{
@@ -334,7 +336,7 @@ void ComputeClosestPointsPlaneSphere(const b3Vector3& planeNormalWorld, b3Scalar
 	}
 }
 
-void ComputeClosestPointsSphereSphere(b3Scalar sphereARadius, const b3Vector3& sphereAPosWorld, b3Scalar sphereBRadius, const b3Vector3& sphereBPosWorld, plContactCache* contactCache)
+static void ComputeClosestPointsSphereSphere(b3Scalar sphereARadius, const b3Vector3& sphereAPosWorld, b3Scalar sphereBRadius, const b3Vector3& sphereBPosWorld, plContactCache* contactCache)
 {
 	if (contactCache->numAddedPoints < contactCache->pointCapacity)
 	{
@@ -354,7 +356,7 @@ void ComputeClosestPointsSphereSphere(b3Scalar sphereARadius, const b3Vector3& s
 			plVecCopy(pointOut.m_normalOnB, normOnB);
 			b3Vector3 ptAWorld = sphereAPosWorld - sphereARadius * normOnB;
 			plVecCopy(pointOut.m_ptOnAWorld, ptAWorld);
-			plVecCopy(pointOut.m_ptOnBWorld, ptAWorld - normOnB * pointOut.m_distance);
+			plVecCopy(pointOut.m_ptOnBWorld, ptAWorld - normOnB * (b3Scalar)pointOut.m_distance);
 
 			contactCache->numAddedPoints++;
 		}
@@ -380,7 +382,7 @@ B3_FORCE_INLINE void detectCollisionSphereSphere(RTB3CollisionWorld* world, int 
 	ComputeClosestPointsSphereSphere(radiusA, spherePosAWorld, radiusB, spherePosBWorld, contactCache);
 }
 
-void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
+static void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIndexA, int /*colB*/, int shapeIndexB,
 								plContactCache* contactCache)
 {
 	const b3Transform& trA = world->m_collidableTransforms[colA];
@@ -395,7 +397,7 @@ void detectCollisionSpherePlane(RTB3CollisionWorld* world, int colA, int shapeIn
 	ComputeClosestPointsPlaneSphere(planeNormal, planeConstant, spherePosAWorld, world->m_childShapes[shapeIndexA].m_radius, contactCache);
 }
 
-void detectCollisionPlaneSphere(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
+static void detectCollisionPlaneSphere(RTB3CollisionWorld* world, int colA, int shapeIndexA, int colB, int shapeIndexB,
 								plContactCache* contactCache)
 {
 	(void)world;
@@ -404,13 +406,13 @@ void detectCollisionPlaneSphere(RTB3CollisionWorld* world, int colA, int shapeIn
 }
 
 #ifdef RTB3_SHAPE_CAPSULE
-plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES, ][MAX_NUM_SINGLE_SHAPE_TYPES, ] = {
+static plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES, ][MAX_NUM_SINGLE_SHAPE_TYPES, ] = {
 	{detectCollisionSphereSphere, detectCollisionSpherePlane, detectCollisionSphereCapsule},
 	{detectCollisionPlaneSphere, detectCollisionDummy, detectCollisionPlaneCapsule},
 	{detectCollisionCapsuleSphere, detectCollisionCapsulePlane, detectCollisionCapsuleCapsule},
 };
 #else
-plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES][MAX_NUM_SINGLE_SHAPE_TYPES] = {
+static plDetectCollisionFunc funcTbl_detectCollision[MAX_NUM_SINGLE_SHAPE_TYPES][MAX_NUM_SINGLE_SHAPE_TYPES] = {
 	{detectCollisionSphereSphere, detectCollisionSpherePlane},
 	{detectCollisionPlaneSphere, detectCollisionDummy},
 };
@@ -444,10 +446,8 @@ int RealTimeBullet3CollisionSdk::collide(plCollisionWorldHandle worldHandle, plC
 				//					   [world->m_childShapes[colB.m_shapeIndex+j].m_shapeType](world,colAIndex,colA.m_shapeIndex+i,colBIndex,colB.m_shapeIndex+j,&contactCache);
 			}
 		}
-		return contactCache.numAddedPoints;
 	}
-
-	return 0;
+	return contactCache.numAddedPoints;
 }
 
 void RealTimeBullet3CollisionSdk::collideWorld(plCollisionWorldHandle worldHandle,

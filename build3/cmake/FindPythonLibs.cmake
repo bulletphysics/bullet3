@@ -44,7 +44,7 @@
 
 if(NOT DEFINED PYTHON_INCLUDE_DIR)
   if(DEFINED PYTHON_INCLUDE_PATH)
-    # For backward compatibility, repect PYTHON_INCLUDE_PATH.
+    # For backward compatibility, respect PYTHON_INCLUDE_PATH.
     set(PYTHON_INCLUDE_DIR "${PYTHON_INCLUDE_PATH}" CACHE PATH
       "Path to where Python.h is found" FORCE)
   else()
@@ -104,7 +104,7 @@ else()
     list(APPEND _PYTHON_VERSIONS ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
   endif()
   if (NOT _PYTHON_VERSIONS)
-    set(_PYTHON_VERSIONS ";") # empty entry at the front makeing sure we search for "python" first
+    set(_PYTHON_VERSIONS ";") # empty entry at the front making sure we search for "python" first
   endif()
   list(APPEND _PYTHON_VERSIONS ${_PYTHON_FIND_OTHER_VERSIONS})
 

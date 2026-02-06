@@ -98,7 +98,7 @@ bool btSphereBoxCollisionAlgorithm::getSphereDistance(const btCollisionObjectWra
 	const btBoxShape* boxShape = (const btBoxShape*)boxObjWrap->getCollisionShape();
 	btVector3 const& boxHalfExtent = boxShape->getHalfExtentsWithoutMargin();
 	btScalar boxMargin = boxShape->getMargin();
-	penetrationDepth = 1.0f;
+	penetrationDepth = btScalar(1.0f);
 
 	// convert the sphere position to the box's local space
 	btTransform const& m44T = boxObjWrap->getWorldTransform();

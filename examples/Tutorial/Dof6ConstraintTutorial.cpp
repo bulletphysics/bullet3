@@ -79,7 +79,7 @@ struct Dof6ConstraintTutorialInternalData
 
 	unsigned int frameID;
 	Dof6ConstraintTutorialInternalData()
-		: mDt(1. / 60.), frameID(0)
+		: mDt(1.f / 60.f), frameID(0)
 	{
 	}
 };
@@ -127,7 +127,7 @@ void Dof6ConstraintTutorial::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 
 	// Setup a big ground box
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.), btScalar(5.), btScalar(200.)));
 		btTransform groundTransform;
@@ -500,18 +500,19 @@ void Dof6ConstraintTutorial::stepSimulation(float deltaTime)
 
 	//float time = m_data->m_timeSeriesCanvas->getCurrentTime();
 
-	float prevPos = m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
+	float prevPos = (float)m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
 	m_dynamicsWorld->stepSimulation(deltaTime);
-	float xPos = m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
+	float xPos = (float)m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
 
 	m_data->m_timeSeriesCanvas->insertDataAtCurrentTime(xPos, 0, true);
-	m_data->m_timeSeriesCanvas->insertDataAtCurrentTime(m_data->m_TranslateSpringBody->getLinearVelocity().x(), 1, true);
+	m_data->m_timeSeriesCanvas->insertDataAtCurrentTime((float)m_data->m_TranslateSpringBody->getLinearVelocity().x(), 1, true);
 
 	if (deltaTime > 0)
 	{
 		m_data->m_timeSeriesCanvas->insertDataAtCurrentTime((xPos - prevPos) / deltaTime, 2, true);
 	}
 	prevPos = xPos;
+	(void)prevPos;
 	m_data->m_timeSeriesCanvas->nextTick();
 }
 

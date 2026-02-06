@@ -6,7 +6,7 @@
 <robot name="xarm6_link4">
   <!--
   Author: Jason Peng <jason@ufactory.cc>
-  Contributers:
+  Contributors:
 -->
   <gazebo>
     <plugin filename="libgazebo_ros_control.so" name="gazebo_ros_control">

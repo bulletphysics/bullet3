@@ -63,8 +63,8 @@ public:
 		{
 			int sphereId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_MEDIUM);
 			b3Quaternion orn(0, 0, 0, 1);
-			b3Vector4 color = b3MakeVector4(1., 0.3, 0.3, 1);
-			b3Vector3 scaling = b3MakeVector3(.02, .02, .02);
+			b3Vector4 color = b3MakeVector4(1., b3Scalar(0.3), b3Scalar(0.3), 1);
+			b3Vector3 scaling = b3MakeVector3(b3Scalar(.02), b3Scalar(.02), b3Scalar(.02));
 			m_targetSphereInstance = m_app->m_renderer->registerGraphicsInstance(sphereId, m_targetPos, orn, color, scaling);
 		}
 		m_app->m_renderer->writeTransforms();
@@ -121,15 +121,16 @@ public:
 		btClamp(dt, 0.0001f, 0.01f);
 
 		m_time += dt;
-		m_targetPos.setValue(0.4 - 0.4 * b3Cos(m_time), 0, 0.8 + 0.4 * b3Cos(m_time));
+		m_targetPos.setValue(b3Scalar(0.4) - b3Scalar(0.4) * b3Cos((b3Scalar)m_time), 0, b3Scalar(0.8) + b3Scalar(0.4) * b3Cos((b3Scalar)m_time));
 		m_targetOri.setValue(0, 1.0, 0, 0);
-		m_targetPos.setValue(0.2 * b3Cos(m_time), 0.2 * b3Sin(m_time), 1.1);
+		m_targetPos.setValue(b3Scalar(0.2) * b3Cos((b3Scalar)m_time), b3Scalar(0.2) * b3Sin((b3Scalar)m_time), b3Scalar(1.1));
 
 		int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
 
 		if (numJoints == 7)
 		{
 			double q_current[7] = {0, 0, 0, 0, 0, 0, 0};
+			(void)q_current;
 
 			b3JointStates2 jointStates;
 
@@ -148,8 +149,8 @@ public:
 			bool computeForwardKinematics = true;
 			m_robotSim.getLinkState(0, 6, computeVelocity, computeForwardKinematics, &linkState);
 
-			m_worldPos.setValue(linkState.m_worldLinkFramePosition[0], linkState.m_worldLinkFramePosition[1], linkState.m_worldLinkFramePosition[2]);
-			m_worldOri.setValue(linkState.m_worldLinkFrameOrientation[0], linkState.m_worldLinkFrameOrientation[1], linkState.m_worldLinkFrameOrientation[2], linkState.m_worldLinkFrameOrientation[3]);
+			m_worldPos.setValue((b3Scalar)linkState.m_worldLinkFramePosition[0], (b3Scalar)linkState.m_worldLinkFramePosition[1], (b3Scalar)linkState.m_worldLinkFramePosition[2]);
+			m_worldOri.setValue((b3Scalar)linkState.m_worldLinkFrameOrientation[0], (b3Scalar)linkState.m_worldLinkFrameOrientation[1], (b3Scalar)linkState.m_worldLinkFrameOrientation[2], (b3Scalar)linkState.m_worldLinkFrameOrientation[3]);
 
 			b3Vector3DoubleData targetPosDataOut;
 			m_targetPos.serializeDouble(targetPosDataOut);
@@ -252,15 +253,15 @@ public:
 	{
 		m_robotSim.debugDraw(debugDrawMode);
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -270,7 +271,7 @@ public:
 		float dist = 3;
 		float pitch = -30;
 		float yaw = 0;
-		float targetPos[3] = {-0.2, 0.8, 0.3};
+		float targetPos[3] = {-0.2f, 0.8f, 0.3f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

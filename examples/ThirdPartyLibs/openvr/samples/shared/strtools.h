@@ -45,6 +45,12 @@ inline int stricmp(const char *pStr1, const char *pStr2)
 #ifndef _stricmp
 #define _stricmp stricmp
 #endif
+#ifdef strncasecmp
+#undef strncasecmp
+#endif
+#ifdef strnicmp
+#undef strnicmp
+#endif
 inline int strnicmp(const char *pStr1, const char *pStr2, size_t unBufferLen)
 {
 	return strncasecmp(pStr1, pStr2, unBufferLen);
@@ -63,14 +69,14 @@ inline int strnicmp(const char *pStr1, const char *pStr2, size_t unBufferLen)
 #if defined(OSX)
 // behaviors ensure NULL-termination at least as well as _TRUNCATE does, but
 // wcsncpy_s/strncpy_s can non-NULL-terminate, wcslcpy/strlcpy can not.
-inline errno_t wcsncpy_s(wchar_t *strDest, size_t numberOfElements, const wchar_t *strSource, size_t count)
+inline errno_t wcsncpy_s(wchar_t *strDest, size_t numberOfElements, const wchar_t *strSource, size_t /*count*/)
 {
-	return wcslcpy(strDest, strSource, numberOfElements);
+	return (errno_t)wcslcpy(strDest, strSource, numberOfElements);
 }
 
-inline errno_t strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t count)
+inline errno_t strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t /*count*/)
 {
-	return strlcpy(strDest, strSource, numberOfElements);
+	return (errno_t)strlcpy(strDest, strSource, numberOfElements);
 }
 
 #endif
@@ -80,13 +86,13 @@ inline errno_t strncpy_s(char *strDest, size_t numberOfElements, const char *str
 // truncated, but that is straightforward to fix if anybody actually needs the
 // return code.
 #include "string.h"
-inline void wcsncpy_s(wchar_t *strDest, size_t numberOfElements, const wchar_t *strSource, size_t count)
+inline void wcsncpy_s(wchar_t *strDest, size_t numberOfElements, const wchar_t *strSource, size_t /*count*/)
 {
 	wcsncpy(strDest, strSource, numberOfElements);
 	strDest[numberOfElements - 1] = '\0';
 }
 
-inline void strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t count)
+inline void strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t /*count*/)
 {
 	strncpy(strDest, strSource, numberOfElements);
 	strDest[numberOfElements - 1] = '\0';
@@ -94,7 +100,7 @@ inline void strncpy_s(char *strDest, size_t numberOfElements, const char *strSou
 
 #endif
 
-#if defined(_WIN32) && _MSC_VER < 1800
+#if defined(_MSC_VER) && _MSC_VER < 1800
 inline uint64_t strtoull(const char *str, char **endptr, int base)
 {
 	return _strtoui64(str, endptr, base);

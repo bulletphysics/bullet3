@@ -34,7 +34,7 @@ static btScalar gBoxRestitution = 0;  // set box restitution to 0
 static btScalar gSphereFriction = 1;  // set sphere friction to 1
 
 static btScalar gSphereRollingFriction = 1;     // set sphere rolling friction to 1
-static btScalar gSphereSpinningFriction = 0.3;  // set sphere spinning friction to 0.3
+static btScalar gSphereSpinningFriction = btScalar(0.3);  // set sphere spinning friction to 0.3
 
 static btScalar gSphereRestitution = 0;  // set sphere restitution to 0
 
@@ -60,7 +60,7 @@ struct InclinedPlaneExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -84,7 +84,7 @@ void InclinedPlaneExample::initPhysics()
 	{  // create slider to change the ramp tilt
 		SliderParams slider("Ramp Tilt", &gTilt);
 		slider.m_minVal = 0;
-		slider.m_maxVal = SIMD_PI / 2.0f;
+		slider.m_maxVal = (float)SIMD_PI / 2.0f;
 		slider.m_clampToNotches = false;
 		slider.m_callback = onRampInclinationChanged;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
@@ -178,7 +178,7 @@ void InclinedPlaneExample::initPhysics()
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0, -50, 0));
 
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
@@ -199,7 +199,7 @@ void InclinedPlaneExample::initPhysics()
 		incline.setRotation(btVector3(0, 0, 1), gTilt);
 		startTransform.setRotation(incline);
 
-		btScalar mass(0.);
+		float mass(0.);
 		ramp = createRigidBody(mass, startTransform, inclinedPlaneShape);
 		ramp->setFriction(gRampFriction);
 		ramp->setRestitution(gRampRestitution);
@@ -213,7 +213,7 @@ void InclinedPlaneExample::initPhysics()
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar boxMass(1.f);
+		float boxMass(1.f);
 
 		startTransform.setOrigin(
 			btVector3(btScalar(0), btScalar(20), btScalar(2)));
@@ -232,7 +232,7 @@ void InclinedPlaneExample::initPhysics()
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar sphereMass(1.f);
+		float sphereMass(1.f);
 
 		startTransform.setOrigin(
 			btVector3(btScalar(0), btScalar(20), btScalar(4)));
@@ -293,7 +293,7 @@ void InclinedPlaneExample::renderScene()
 	CommonRigidBodyBase::renderScene();
 }
 
-bool InclinedPlaneExample::keyboardCallback(int key, int state)
+bool InclinedPlaneExample::keyboardCallback(int key, int /*state*/)
 {
 	//	b3Printf("Key pressed: %d in state %d \n",key,state);
 
@@ -304,6 +304,8 @@ bool InclinedPlaneExample::keyboardCallback(int key, int state)
 			resetScene();
 			break;
 		}
+		default:
+			break;
 	}
 
 	return false;
@@ -346,7 +348,7 @@ void onSphereRestitutionChanged(float restitution, void*)
 	}
 }
 
-void onRampInclinationChanged(float inclination, void*)
+void onRampInclinationChanged(float /*inclination*/, void*)
 {
 	if (ramp)
 	{

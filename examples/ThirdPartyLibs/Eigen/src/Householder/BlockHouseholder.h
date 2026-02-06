@@ -31,7 +31,7 @@ namespace internal {
 //     // Warning, note that hCoeffs may alias with vectors.
 //     // It is then necessary to copy it before modifying vectors(i,i). 
 //     typename CoeffsType::Scalar h = hCoeffs(i);
-//     // This hack permits to pass trough nested Block<> and Transpose<> expressions.
+//     // This hack permits to pass through nested Block<> and Transpose<> expressions.
 //     Scalar *Vii_ptr = const_cast<Scalar*>(vectors.data() + vectors.outerStride()*i + vectors.innerStride()*i);
 //     Scalar Vii = *Vii_ptr;
 //     *Vii_ptr = Scalar(1);

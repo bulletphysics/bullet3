@@ -7,7 +7,7 @@ template <typename T>
 T urdfLexicalCast(const char* txt)
 {
 	double result = atof(txt);
-	return result;
-};
+	return (T)result;
+}
 
 #endif

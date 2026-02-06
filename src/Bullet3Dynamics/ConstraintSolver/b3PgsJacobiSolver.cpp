@@ -101,7 +101,7 @@ struct b3ContactPoint
 	}
 };
 
-void getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& pointOut)
+static void getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& pointOut)
 {
 	pointOut.m_appliedImpulse = 0.f;
 	pointOut.m_appliedImpulseLateral1 = 0.f;
@@ -131,7 +131,7 @@ void getContactPoint(b3Contact4* contact, int contactIndex, b3ContactPoint& poin
 	pointOut.m_positionWorldOnA = worldPosB + normalOnB * pointOut.m_distance;
 }
 
-int getNumContacts(b3Contact4* contact)
+static int getNumContacts(b3Contact4* contact)
 {
 	return contact->getNPoints();
 }
@@ -321,7 +321,7 @@ void b3PgsJacobiSolver::resolveSplitPenetrationImpulseCacheFriendly(
 	b3SolverBody& body2,
 	const b3SolverConstraint& c)
 {
-	if (c.m_rhsPenetration)
+	if (c.m_rhsPenetration != b3Scalar(0))
 	{
 		m_numSplitImpulseRecoveries++;
 		b3Scalar deltaImpulse = c.m_rhsPenetration - b3Scalar(c.m_appliedPushImpulse) * c.m_cfm;
@@ -348,7 +348,7 @@ void b3PgsJacobiSolver::resolveSplitPenetrationImpulseCacheFriendly(
 void b3PgsJacobiSolver::resolveSplitPenetrationSIMD(b3SolverBody& body1, b3SolverBody& body2, const b3SolverConstraint& c)
 {
 #ifdef USE_SIMD
-	if (!c.m_rhsPenetration)
+	if (c.m_rhsPenetration == b3Scalar(0))
 		return;
 
 	m_numSplitImpulseRecoveries++;
@@ -454,7 +454,7 @@ b3Scalar b3PgsJacobiSolver::restitutionCurve(b3Scalar rel_vel, b3Scalar restitut
 	return rest;
 }
 
-void b3PgsJacobiSolver::setupFrictionConstraint(b3RigidBodyData* bodies, b3InertiaData* inertias, b3SolverConstraint& solverConstraint, const b3Vector3& normalAxis, int solverBodyIdA, int solverBodyIdB, b3ContactPoint& cp, const b3Vector3& rel_pos1, const b3Vector3& rel_pos2, b3RigidBodyData* colObj0, b3RigidBodyData* colObj1, b3Scalar relaxation, b3Scalar desiredVelocity, b3Scalar cfmSlip)
+void b3PgsJacobiSolver::setupFrictionConstraint(b3RigidBodyData* bodies, b3InertiaData* inertias, b3SolverConstraint& solverConstraint, const b3Vector3& normalAxis, int solverBodyIdA, int solverBodyIdB, b3ContactPoint& cp, const b3Vector3& rel_pos1, const b3Vector3& rel_pos2, b3RigidBodyData* /*colObj0*/, b3RigidBodyData* /*colObj1*/, b3Scalar relaxation, b3Scalar desiredVelocity, b3Scalar cfmSlip)
 {
 	solverConstraint.m_contactNormal = normalAxis;
 	b3SolverBody& solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
@@ -508,8 +508,8 @@ void b3PgsJacobiSolver::setupFrictionConstraint(b3RigidBodyData* bodies, b3Inert
 		else
 		{
 			denom = relaxation / (denom0 + denom1);
-			b3Scalar countA = body0->m_invMass ? b3Scalar(m_bodyCount[solverBodyA.m_originalBodyIndex]) : 1.f;
-			b3Scalar countB = body1->m_invMass ? b3Scalar(m_bodyCount[solverBodyB.m_originalBodyIndex]) : 1.f;
+			b3Scalar countA = body0 && body0->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[solverBodyA.m_originalBodyIndex]) : 1.f;
+			b3Scalar countB = body1 && body1->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[solverBodyB.m_originalBodyIndex]) : 1.f;
 
 			scaledDenom = relaxation / (denom0 * countA + denom1 * countB);
 		}
@@ -545,8 +545,8 @@ b3SolverConstraint& b3PgsJacobiSolver::addFrictionConstraint(b3RigidBodyData* bo
 }
 
 void b3PgsJacobiSolver::setupRollingFrictionConstraint(b3RigidBodyData* bodies, b3InertiaData* inertias, b3SolverConstraint& solverConstraint, const b3Vector3& normalAxis1, int solverBodyIdA, int solverBodyIdB,
-													   b3ContactPoint& cp, const b3Vector3& rel_pos1, const b3Vector3& rel_pos2,
-													   b3RigidBodyData* colObj0, b3RigidBodyData* colObj1, b3Scalar relaxation,
+													   b3ContactPoint& cp, const b3Vector3& /*rel_pos1*/, const b3Vector3& /*rel_pos2*/,
+													   b3RigidBodyData* /*colObj0*/, b3RigidBodyData* /*colObj1*/, b3Scalar /*relaxation*/,
 													   b3Scalar desiredVelocity, b3Scalar cfmSlip)
 
 {
@@ -615,7 +615,7 @@ b3SolverConstraint& b3PgsJacobiSolver::addRollingFrictionConstraint(b3RigidBodyD
 	return solverConstraint;
 }
 
-int b3PgsJacobiSolver::getOrInitSolverBody(int bodyIndex, b3RigidBodyData* bodies, b3InertiaData* inertias)
+int b3PgsJacobiSolver::getOrInitSolverBody(int bodyIndex, b3RigidBodyData* bodies, b3InertiaData* /*inertias*/)
 {
 	//b3Assert(bodyIndex< m_tmpSolverBodyPool.size());
 
@@ -708,8 +708,8 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 		{
 			denom = relaxation / (denom0 + denom1);
 
-			b3Scalar countA = rb0->m_invMass ? b3Scalar(m_bodyCount[bodyA->m_originalBodyIndex]) : 1.f;
-			b3Scalar countB = rb1->m_invMass ? b3Scalar(m_bodyCount[bodyB->m_originalBodyIndex]) : 1.f;
+			b3Scalar countA = rb0 && rb0->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[bodyA->m_originalBodyIndex]) : 1.f;
+			b3Scalar countB = rb1 && rb1->m_invMass != b3Scalar(0) ? b3Scalar(m_bodyCount[bodyB->m_originalBodyIndex]) : 1.f;
 			scaledDenom = relaxation / (denom0 * countA + denom1 * countB);
 		}
 		solverConstraint.m_jacDiagABInv = denom;
@@ -738,7 +738,7 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 		if (restitution <= b3Scalar(0.))
 		{
 			restitution = 0.f;
-		};
+		}
 	}
 
 	///warm starting (or zero if disabled)
@@ -760,10 +760,10 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 	{
 		b3Scalar vel1Dotn = solverConstraint.m_contactNormal.dot(rb0 ? bodyA->m_linearVelocity : b3MakeVector3(0, 0, 0)) + solverConstraint.m_relpos1CrossNormal.dot(rb0 ? bodyA->m_angularVelocity : b3MakeVector3(0, 0, 0));
 		b3Scalar vel2Dotn = -solverConstraint.m_contactNormal.dot(rb1 ? bodyB->m_linearVelocity : b3MakeVector3(0, 0, 0)) + solverConstraint.m_relpos2CrossNormal.dot(rb1 ? bodyB->m_angularVelocity : b3MakeVector3(0, 0, 0));
-		b3Scalar rel_vel = vel1Dotn + vel2Dotn;
+		b3Scalar rel_velocity = vel1Dotn + vel2Dotn;
 
 		b3Scalar positionalError = 0.f;
-		b3Scalar velocityError = restitution - rel_vel;  // * damping;
+		b3Scalar velocityError = restitution - rel_velocity;  // * damping;
 
 		b3Scalar erp = infoGlobal.m_erp2;
 		if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
@@ -803,7 +803,7 @@ void b3PgsJacobiSolver::setupContactConstraint(b3RigidBodyData* bodies, b3Inerti
 	}
 }
 
-void b3PgsJacobiSolver::setFrictionConstraintImpulse(b3RigidBodyData* bodies, b3InertiaData* inertias, b3SolverConstraint& solverConstraint,
+void b3PgsJacobiSolver::setFrictionConstraintImpulse(b3RigidBodyData* bodies, b3InertiaData* /*inertias*/, b3SolverConstraint& solverConstraint,
 													 int solverBodyIdA, int solverBodyIdB,
 													 b3ContactPoint& cp, const b3ContactSolverInfo& infoGlobal)
 {
@@ -815,9 +815,9 @@ void b3PgsJacobiSolver::setFrictionConstraintImpulse(b3RigidBodyData* bodies, b3
 		if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint1.m_appliedImpulse = cp.m_appliedImpulseLateral1 * infoGlobal.m_warmstartingFactor;
-			if (bodies[bodyA->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyA->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyA->internalApplyImpulse(frictionConstraint1.m_contactNormal * bodies[bodyA->m_originalBodyIndex].m_invMass, frictionConstraint1.m_angularComponentA, frictionConstraint1.m_appliedImpulse);
-			if (bodies[bodyB->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyB->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyB->internalApplyImpulse(frictionConstraint1.m_contactNormal * bodies[bodyB->m_originalBodyIndex].m_invMass, -frictionConstraint1.m_angularComponentB, -(b3Scalar)frictionConstraint1.m_appliedImpulse);
 		}
 		else
@@ -832,9 +832,9 @@ void b3PgsJacobiSolver::setFrictionConstraintImpulse(b3RigidBodyData* bodies, b3
 		if (infoGlobal.m_solverMode & B3_SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint2.m_appliedImpulse = cp.m_appliedImpulseLateral2 * infoGlobal.m_warmstartingFactor;
-			if (bodies[bodyA->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyA->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyA->internalApplyImpulse(frictionConstraint2.m_contactNormal * bodies[bodyA->m_originalBodyIndex].m_invMass, frictionConstraint2.m_angularComponentA, frictionConstraint2.m_appliedImpulse);
-			if (bodies[bodyB->m_originalBodyIndex].m_invMass)
+			if (bodies[bodyB->m_originalBodyIndex].m_invMass != b3Scalar(0))
 				bodyB->internalApplyImpulse(frictionConstraint2.m_contactNormal * bodies[bodyB->m_originalBodyIndex].m_invMass, -frictionConstraint2.m_angularComponentB, -(b3Scalar)frictionConstraint2.m_appliedImpulse);
 		}
 		else
@@ -899,14 +899,14 @@ void b3PgsJacobiSolver::convertContact(b3RigidBodyData* bodies, b3InertiaData* i
 			solverBodyB->getAngularVelocity(angVelB);
 			b3Vector3 relAngVel = angVelB - angVelA;
 
-			if ((cp.m_combinedRollingFriction > 0.f) && (rollingFriction > 0))
+			if ((cp.m_combinedRollingFriction > (b3Scalar)0.f) && (rollingFriction > 0))
 			{
 				//only a single rollingFriction per manifold
 				rollingFriction--;
 				if (relAngVel.length() > infoGlobal.m_singleAxisRollingFrictionThreshold)
 				{
 					relAngVel.normalize();
-					if (relAngVel.length() > 0.001)
+					if (relAngVel.length() > (b3Scalar)0.001)
 						addRollingFrictionConstraint(bodies, inertias, relAngVel, solverBodyIdA, solverBodyIdB, frictionIndex, cp, rel_pos1, rel_pos2, colObj0, colObj1, relaxation);
 				}
 				else
@@ -1028,7 +1028,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 		}
 		else
 		{
-			if (bodies[bodyIndexA].m_invMass)
+			if (bodies[bodyIndexA].m_invMass != b3Scalar(0))
 			{
 				//m_bodyCount[bodyIndexA]+=manifoldPtr[i].getNPoints();
 				m_bodyCount[bodyIndexA]++;
@@ -1036,7 +1036,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 			else
 				m_bodyCount[bodyIndexA] = -1;
 
-			if (bodies[bodyIndexB].m_invMass)
+			if (bodies[bodyIndexB].m_invMass != b3Scalar(0))
 				//	m_bodyCount[bodyIndexB]+=manifoldPtr[i].getNPoints();
 				m_bodyCount[bodyIndexB]++;
 			else
@@ -1063,7 +1063,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 			int i;
 
 			m_tmpConstraintSizesPool.resizeNoInitialize(numConstraints);
-			//calculate the total number of contraint rows
+			//calculate the total number of constraint rows
 			for (i = 0; i < numConstraints; i++)
 			{
 				b3TypedConstraint::b3ConstraintInfo1& info1 = m_tmpConstraintSizesPool[i];
@@ -1153,7 +1153,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 					info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
 					info2.rowskip = sizeof(b3SolverConstraint) / sizeof(b3Scalar);  //check this
 																					///the size of b3SolverConstraint needs be a multiple of b3Scalar
-					b3Assert(info2.rowskip * sizeof(b3Scalar) == sizeof(b3SolverConstraint));
+					b3Assert((size_t)info2.rowskip * sizeof(b3Scalar) == sizeof(b3SolverConstraint));
 					info2.m_constraintError = &currentConstraintRow->m_rhs;
 					currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
 					info2.m_damping = infoGlobal.m_damping;
@@ -1278,7 +1278,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 	return 0.f;
 }
 
-b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration, b3TypedConstraint** constraints, int numConstraints, const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration, b3TypedConstraint** /*constraints*/, int /*numConstraints*/, const b3ContactSolverInfo& infoGlobal)
 {
 	int numNonContactPool = m_tmpSolverNonContactConstraintPool.size();
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
@@ -1485,7 +1485,7 @@ b3Scalar b3PgsJacobiSolver::solveSingleIteration(int iteration, b3TypedConstrain
 	return 0.f;
 }
 
-void b3PgsJacobiSolver::solveGroupCacheFriendlySplitImpulseIterations(b3TypedConstraint** constraints, int numConstraints, const b3ContactSolverInfo& infoGlobal)
+void b3PgsJacobiSolver::solveGroupCacheFriendlySplitImpulseIterations(b3TypedConstraint** /*constraints*/, int /*numConstraints*/, const b3ContactSolverInfo& infoGlobal)
 {
 	int iteration;
 	if (infoGlobal.m_splitImpulse)
@@ -1586,7 +1586,7 @@ void b3PgsJacobiSolver::averageVelocities()
 	}
 }
 
-b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlyFinish(b3RigidBodyData* bodies, b3InertiaData* inertias, int numBodies, const b3ContactSolverInfo& infoGlobal)
+b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlyFinish(b3RigidBodyData* bodies, b3InertiaData* /*inertias*/, int /*numBodies*/, const b3ContactSolverInfo& infoGlobal)
 {
 	B3_PROFILE("solveGroupCacheFriendlyFinish");
 	int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
@@ -1644,7 +1644,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlyFinish(b3RigidBodyData* bodie
 			//b3Assert(i==bodyIndex);
 
 			b3RigidBodyData* body = &bodies[bodyIndex];
-			if (body->m_invMass)
+			if (body->m_invMass != 0.0f)
 			{
 				if (infoGlobal.m_splitImpulse)
 					m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);

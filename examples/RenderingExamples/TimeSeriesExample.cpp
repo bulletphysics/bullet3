@@ -96,26 +96,26 @@ void TimeSeriesExample::stepSimulation(float deltaTime)
 	m_internalData->m_timeSeriesCanvas->nextTick();
 }
 
-void TimeSeriesExample::physicsDebugDraw(int debugDrawFlags)
+void TimeSeriesExample::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-bool TimeSeriesExample::mouseMoveCallback(float x, float y)
-{
-	return false;
-}
-
-bool TimeSeriesExample::mouseButtonCallback(int button, int state, float x, float y)
+bool TimeSeriesExample::mouseMoveCallback(float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-bool TimeSeriesExample::keyboardCallback(int key, int state)
+bool TimeSeriesExample::mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-void TimeSeriesExample::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
+bool TimeSeriesExample::keyboardCallback(int /*key*/, int /*state*/)
+{
+	return false;
+}
+
+void TimeSeriesExample::syncPhysicsToGraphics(GraphicsPhysicsBridge& /*gfxBridge*/)
 {
 }
 

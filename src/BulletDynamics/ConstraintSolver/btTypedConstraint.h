@@ -106,7 +106,7 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	virtual ~btTypedConstraint(){};
+	virtual ~btTypedConstraint(){}
 	btTypedConstraint(btTypedConstraintType type, btRigidBody & rbA);
 	btTypedConstraint(btTypedConstraintType type, btRigidBody & rbA, btRigidBody & rbB);
 
@@ -160,7 +160,7 @@ public:
 	}
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void buildJacobian(){};
+	virtual void buildJacobian(){}
 
 	///internal method used by the constraint solver, don't use them directly
 	virtual void setupSolverConstraint(btConstraintArray & ca, int solverBodyA, int solverBodyB, btScalar timeStep)
@@ -209,7 +209,7 @@ public:
 	}
 
 	///internal method used by the constraint solver, don't use them directly
-	virtual void solveConstraintObsolete(btSolverBody& /*bodyA*/, btSolverBody& /*bodyB*/, btScalar /*timeStep*/){};
+	virtual void solveConstraintObsolete(btSolverBody& /*bodyA*/, btSolverBody& /*bodyB*/, btScalar /*timeStep*/){}
 
 	const btRigidBody& getRigidBodyA() const
 	{
@@ -237,7 +237,7 @@ public:
 	void setUserConstraintType(int userConstraintType)
 	{
 		m_userConstraintType = userConstraintType;
-	};
+	}
 
 	void setUserConstraintId(int uid)
 	{
@@ -455,21 +455,21 @@ private:
 public:
 	/// Default constructor initializes limit as inactive, allowing free constraint movement
 	btAngularLimit()
-		: m_center(0.0f),
-		  m_halfRange(-1.0f),
-		  m_softness(0.9f),
-		  m_biasFactor(0.3f),
-		  m_relaxationFactor(1.0f),
-		  m_correction(0.0f),
-		  m_sign(0.0f),
+		: m_center(btScalar(0.0)),
+		  m_halfRange(btScalar(-1.0)),
+		  m_softness(btScalar(0.9)),
+		  m_biasFactor(btScalar(0.3)),
+		  m_relaxationFactor(btScalar(1.0)),
+		  m_correction(btScalar(0.0)),
+		  m_sign(btScalar(0.0)),
 		  m_solveLimit(false)
 	{
 	}
 
 	/// Sets all limit's parameters.
 	/// When low > high limit becomes inactive.
-	/// When high - low > 2PI limit is ineffective too becouse no angle can exceed the limit
-	void set(btScalar low, btScalar high, btScalar _softness = 0.9f, btScalar _biasFactor = 0.3f, btScalar _relaxationFactor = 1.0f);
+	/// When high - low > 2PI limit is ineffective too because no angle can exceed the limit
+	void set(btScalar low, btScalar high, btScalar _softness = btScalar(0.9), btScalar _biasFactor = btScalar(0.3), btScalar _relaxationFactor = btScalar(1.0));
 
 	/// Checks conastaint angle against limit. If limit is active and the angle violates the limit
 	/// correction is calculated.

@@ -22,6 +22,10 @@ struct idArray
 typedef std::vector<int>::size_type idArrayIdx;
 // default to standard malloc/free
 #include <cstdlib>
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi-stmt"
+#endif
 #define ID_DECLARE_ALIGNED_ALLOCATOR() EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 // Note on interfaces:
 // Eigen::Matrix has data(), to get c-array storage
@@ -29,4 +33,7 @@ typedef std::vector<int>::size_type idArrayIdx;
 #define ID_LINEAR_MATH_USE_EIGEN
 #include "Eigen/Eigen"
 #include "details/IDEigenInterface.hpp"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 #endif

@@ -485,7 +485,7 @@ ZEXTERN int ZEXPORT inflateInit OF((z_streamp strm));
   instead use raw inflate, see inflateInit2() below, or inflateBack() and
   perform their own processing of the gzip header and trailer.  When processing
   gzip-wrapped deflate data, strm->adler32 is set to the CRC-32 of the output
-  producted so far.  The CRC-32 is checked against the gzip trailer.
+  produced so far.  The CRC-32 is checked against the gzip trailer.
 
     inflate() returns Z_OK if some progress has been made (more input processed
   or more output produced), Z_STREAM_END if the end of the compressed data has
@@ -844,7 +844,7 @@ ZEXTERN int ZEXPORT inflateInit2 OF((z_streamp strm,
    to dictionary.  dictionary must have enough space, where 32768 bytes is
    always enough.  If inflateGetDictionary() is called with dictionary equal to
    Z_NULL, then only the dictionary length is returned, and nothing is copied.
-   Similary, if dictLength is Z_NULL, then it is not set.
+   Similarly, if dictLength is Z_NULL, then it is not set.
 
      inflateGetDictionary returns Z_OK on success, or Z_STREAM_ERROR if the
    stream state is inconsistent.
@@ -1414,7 +1414,7 @@ ZEXTERN gzFile ZEXPORT gzopen OF((const char *path, const char *mode));
      If the flush parameter is Z_FINISH, the remaining data is written and the
    gzip stream is completed in the output.  If gzwrite() is called again, a new
    gzip stream will be started in the output.  gzread() is able to read such
-   concatented gzip streams.
+   concatenated gzip streams.
 
      gzflush should be called only when strictly necessary because it will
    degrade compression if called too often.

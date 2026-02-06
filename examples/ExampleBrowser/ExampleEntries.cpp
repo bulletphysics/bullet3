@@ -187,7 +187,7 @@ static ExampleEntry gDefaultExamples[] =
 
 		ExampleEntry(0, "Inverse Dynamics"),
 		ExampleEntry(1, "Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc, BT_ID_LOAD_URDF),
-		ExampleEntry(1, "Inverse Dynamics Prog", "Create a btMultiBody programatically. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc, BT_ID_PROGRAMMATICALLY),
+		ExampleEntry(1, "Inverse Dynamics Prog", "Create a btMultiBody programmatically. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc, BT_ID_PROGRAMMATICALLY),
 
 		ExampleEntry(0, "Inverse Kinematics"),
 		ExampleEntry(1, "SDLS", "Selectively Damped Least Squares by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_SDLS),
@@ -293,7 +293,7 @@ static ExampleEntry gDefaultExamples[] =
 		//#endif
 
 		ExampleEntry(0, "Importers"),
-		ExampleEntry(1, "Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianess, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
+		ExampleEntry(1, "Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianness, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
 		ExampleEntry(1, "Wavefront Obj", "Import a Wavefront .obj file", ImportObjCreateFunc, 0),
 		ExampleEntry(1, "Obj2RigidBody (Show Obj)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body. We can use the original .obj mesh data to visualize the rigid body. In 'debug' wireframe mode (press 'w' to toggle) we still see the convex hull data.", ET_RigidBodyFromObjCreateFunc),
 		ExampleEntry(1, "Obj2RigidBody (Show Hull)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body", ET_RigidBodyFromObjCreateFunc, ObjUseConvexHullForRendering),
@@ -348,13 +348,13 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "MultiThreading (submitJob)", "Simple example of executing jobs across multiple threads.",
 					 MultiThreadingExampleCreateFunc, SINGLE_SIM_THREAD),
 
-		ExampleEntry(1, "Voronoi Fracture", "Automatically create a compound rigid body using voronoi tesselation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
+		ExampleEntry(1, "Voronoi Fracture", "Automatically create a compound rigid body using voronoi tessellation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
 					 VoronoiFractureCreateFunc),
 
 		ExampleEntry(1, "Fracture demo", "Create a basic custom implementation to model fracturing objects, based on a btCompoundShape. It explicitly propagates the collision impulses and breaks the rigid body into multiple rigid bodies. Press F to toggle fracture and glue mode.", FractureDemoCreateFunc),
 
 		ExampleEntry(1, "Planar 2D", "Show the use of 2D collision shapes and rigid body simulation. The collision shape is wrapped into a btConvex2dShape. The rigid bodies are restricted in a plane using the 'setAngularFactor' and 'setLinearFactor' API call.", Planar2DCreateFunc),
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 		// only enable MultiThreaded demo if a task scheduler is available
 		ExampleEntry(1, "Multithreaded Demo",
 					 "Stacks of boxes that do not sleep. Good for testing performance with large numbers of bodies and contacts. Sliders can be used to change the number of stacks (restart needed after each change).",

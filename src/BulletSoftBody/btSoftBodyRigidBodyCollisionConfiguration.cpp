@@ -64,8 +64,8 @@ btSoftBodyRigidBodyCollisionConfiguration::btSoftBodyRigidBodyCollisionConfigura
 		{
 			m_collisionAlgorithmPool->~btPoolAllocator();
 			btAlignedFree(m_collisionAlgorithmPool);
-			void* mem = btAlignedAlloc(sizeof(btPoolAllocator), 16);
-			m_collisionAlgorithmPool = new (mem) btPoolAllocator(collisionAlgorithmMaxElementSize, constructionInfo.m_defaultMaxCollisionAlgorithmPoolSize);
+			void* memL = btAlignedAlloc(sizeof(btPoolAllocator), 16);
+			m_collisionAlgorithmPool = new (memL) btPoolAllocator(collisionAlgorithmMaxElementSize, constructionInfo.m_defaultMaxCollisionAlgorithmPoolSize);
 		}
 	}
 }

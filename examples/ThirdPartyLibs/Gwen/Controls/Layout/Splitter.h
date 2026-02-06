@@ -59,13 +59,13 @@ private:
 		if (m_pPanel[0])
 		{
 			const Margin& m = m_pPanel[0]->GetMargin();
-			m_pPanel[0]->SetBounds(m.left, m.top, w - m.left - m.right, (h * 0.5) - m.top - m.bottom);
+			m_pPanel[0]->SetBounds(m.left, m.top, w - m.left - m.right, int((h * 0.5) - m.top - m.bottom));
 		}
 
 		if (m_pPanel[1])
 		{
 			const Margin& m = m_pPanel[1]->GetMargin();
-			m_pPanel[1]->SetBounds(m.left, m.top + (h * 0.5f), w - m.left - m.right, (h * 0.5f) - m.top - m.bottom);
+			m_pPanel[1]->SetBounds(m.left, int((float)m.top + ((float)h * 0.5f)), int((float)w - (float)m.left - (float)m.right), int(((float)h * 0.5f) - (float)m.top - (float)m.bottom));
 		}
 	}
 

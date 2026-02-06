@@ -45,7 +45,7 @@ public:
 
 	virtual ~PhysicsDirect();
 
-	// return true if connection succesfull, can also check 'isConnected'
+	// return true if connection successful, can also check 'isConnected'
 	//it is OK to pass a null pointer for the gui helper
 	virtual bool connect();
 

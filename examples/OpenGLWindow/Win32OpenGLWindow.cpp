@@ -77,6 +77,7 @@ void Win32OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		printf("gladLoaderLoadGL failed!\n");
 		exit(-1);
 	}
+	m_OpenGLInitialized=true;
 }
 
 Win32OpenGLWindow::Win32OpenGLWindow()
@@ -114,7 +115,7 @@ void Win32OpenGLWindow::endRendering()
 	SwapBuffers(m_data->m_hDC);
 }
 
-int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
+int Win32OpenGLWindow::fileOpenDialog(char* fileName, int /*maxFileNameLength*/)
 {
 #if 0
 	//wchar_t wideChars[1024];
@@ -125,6 +126,7 @@ int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
 	ofn.hwndOwner = NULL  ;
 
 #ifdef UNICODE
+	(void)fileName;
 	WCHAR bla[1024];
 	ofn.lpstrFile = bla;
 	ofn.lpstrFile[0] = '\0';
@@ -147,6 +149,7 @@ int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
 	GetOpenFileName( &ofn );
 	return strlen(fileName);
 #else
+	(void)fileName;
 	return 0;
 #endif
 }

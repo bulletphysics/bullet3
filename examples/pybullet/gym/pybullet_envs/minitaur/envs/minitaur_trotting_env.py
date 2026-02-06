@@ -93,7 +93,7 @@ class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
       swing_amplitude: The maximum leg swing change within a cycle.
     """
 
-    # _swing_offset and _extension_offset is to mimick the bent legs. The
+    # _swing_offset and _extension_offset is to mimic the bent legs. The
     # offsets will be added when applying the motor commands.
     self._swing_offset = np.zeros(NUM_LEGS)
     self._extension_offset = np.zeros(NUM_LEGS)
@@ -213,7 +213,7 @@ class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
     Returns:
       A numpy array of the desired motor angles for the given leg space action.
     """
-    # Add swing_offset and extension_offset to mimick the bent legs.
+    # Add swing_offset and extension_offset to mimic the bent legs.
     action[0:NUM_LEGS] += self._swing_offset
     action[NUM_LEGS:2 * NUM_LEGS] += self._extension_offset
 
@@ -235,7 +235,7 @@ class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
     """Get the true observations of this environment.
 
     It includes the true roll, pitch, roll dot and pitch dot of the base. Also
-    includes the disired/observed motor angles if the relevant flags are set.
+    includes the desired/observed motor angles if the relevant flags are set.
 
     Returns:
       The observation list.
@@ -255,7 +255,7 @@ class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
     """Get observations of this environment.
 
     It includes the base roll, pitch, roll dot and pitch dot which may contain
-    noises, bias, and latency. Also includes the disired/observed motor angles
+    noises, bias, and latency. Also includes the desired/observed motor angles
     if the relevant flags are set.
 
     Returns:

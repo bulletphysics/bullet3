@@ -33,7 +33,7 @@ btMultiBodySphericalJointLimit::btMultiBodySphericalJointLimit(btMultiBody* body
 	m_desiredPosition(0,0,0,1),
 	m_use_multi_dof_params(false),
 	m_kd(1., 1., 1.),
-	m_kp(0.2, 0.2, 0.2),
+	m_kp(btScalar(0.2), btScalar(0.2), btScalar(0.2)),
 	m_erp(1),
 	m_rhsClamp(SIMD_INFINITY),
 	m_maxAppliedImpulseMultiDof(maxAppliedImpulse, maxAppliedImpulse, maxAppliedImpulse),
@@ -55,7 +55,7 @@ void btMultiBodySphericalJointLimit::finalizeMultiDof()
 	// note: we rely on the fact that data.m_jacobians are
 	// always initialized to zero by the Constraint ctor
 	int linkDoF = 0;
-	unsigned int offset = 6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF);
+	unsigned int offset = (unsigned int)(6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF));
 
 	// row 0: the lower bound
 	// row 0: the lower bound
@@ -127,18 +127,18 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 	if (m_maxAppliedImpulse == 0.f)
 		return;
 
-	const btScalar posError = 0;
+	// const btScalar posError = 0;
 	const btVector3 zero(0, 0, 0);
 
 	
-	btVector3 axis[3] = { btVector3(1, 0, 0), btVector3(0, 1, 0), btVector3(0, 0, 1) };
+	// btVector3 axis[3] = { btVector3(1, 0, 0), btVector3(0, 1, 0), btVector3(0, 0, 1) };
 	
 	btQuaternion currentQuat(m_bodyA->getJointPosMultiDof(m_linkA)[0],
 		m_bodyA->getJointPosMultiDof(m_linkA)[1],
 		m_bodyA->getJointPosMultiDof(m_linkA)[2],
 		m_bodyA->getJointPosMultiDof(m_linkA)[3]);
 
-	btQuaternion refQuat = m_desiredPosition;
+	// btQuaternion refQuat = m_desiredPosition;
 	btVector3 vTwist(0,0,1);
 	
 	btVector3 vConeNoTwist = quatRotate(currentQuat, vTwist);
@@ -170,7 +170,7 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 		vTwistAxis.normalize();
 	
 	if (vTwistAxis.dot(vTwist)<0)
-		twistAngle*=-1.;
+		twistAngle*=btScalar(-1.);
 
 	angleDiff[2] = twistAngle;
 
@@ -199,13 +199,13 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 		}
 		
 
-		int dof = row;
+		// int dof = row;
 		
-		btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
-		btScalar desiredVelocity = this->m_desiredVelocity[row];
+		// btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
+		// btScalar desiredVelocity = this->m_desiredVelocity[row];
 		
-		double kd = m_use_multi_dof_params ? m_kd[row % 3] : m_kd[0];
-		btScalar velocityError = (desiredVelocity - currentVelocity) * kd;
+		// double kd = m_use_multi_dof_params ? m_kd[row % 3] : m_kd[0];
+		// btScalar velocityError = (desiredVelocity - currentVelocity) * kd;
 
 		btMatrix3x3 frameAworld;
 		frameAworld.setIdentity();
@@ -219,12 +219,12 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 				{
 					btVector3 constraintNormalAng = frameAworld.getColumn(row % 3);
 					double kp = m_use_multi_dof_params ? m_kp[row % 3] : m_kp[0];
-					posError = kp*angleDiff[row % 3];
-					double max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
+					posError = btScalar(kp*(double)angleDiff[row % 3]);
+					btScalar max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
 					//should multiply by time step
 					//max_applied_impulse *= infoGlobal.m_timeStep
 
-					double min_applied_impulse = -max_applied_impulse;
+					btScalar min_applied_impulse = -max_applied_impulse;
 					
 
 					if (posError>0)
@@ -251,7 +251,7 @@ void btMultiBodySphericalJointLimit::createConstraintRows(btMultiBodyConstraintA
 				{
 					btAssert(0);
 				}
-			};
+			}
 		}
 	}
 }
@@ -265,6 +265,6 @@ void btMultiBodySphericalJointLimit::debugDraw(class btIDebugDraw* drawer)
 	{
 		btVector3 pivotBworld = m_bodyB->localPosToWorld(m_linkB, m_pivotB);
 		tr.setOrigin(pivotBworld);
-		drawer->drawTransform(tr, 0.1);
+		drawer->drawTransform(tr, btScalar(0.1));
 	}
 }

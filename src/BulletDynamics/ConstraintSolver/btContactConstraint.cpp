@@ -36,11 +36,11 @@ void btContactConstraint::setContactManifold(btPersistentManifold* contactManifo
 	m_contactManifold = *contactManifold;
 }
 
-void btContactConstraint::getInfo1(btConstraintInfo1* info)
+void btContactConstraint::getInfo1(btConstraintInfo1* /*info*/)
 {
 }
 
-void btContactConstraint::getInfo2(btConstraintInfo2* info)
+void btContactConstraint::getInfo2(btConstraintInfo2* /*info*/)
 {
 }
 
@@ -118,7 +118,7 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 	}
 	btVector3 rel_pos1 = pos1 - body1.getCenterOfMassPosition();
 	btVector3 rel_pos2 = pos2 - body2.getCenterOfMassPosition();
-	//this jacobian entry could be re-used for all iterations
+	//this jacobian entry could be reused for all iterations
 
 	btVector3 vel1 = body1.getVelocityInLocalPoint(rel_pos1);
 	btVector3 vel2 = body2.getVelocityInLocalPoint(rel_pos2);
@@ -132,13 +132,13 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 	btScalar jacDiagAB = jac.getDiagonal();
 	btScalar jacDiagABInv = btScalar(1.) / jacDiagAB;
 
-	btScalar rel_vel = jac.getRelativeVelocity(
+	/*btScalar rel_vel = jac.getRelativeVelocity(
 		body1.getLinearVelocity(),
 		body1.getCenterOfMassTransform().getBasis().transpose() * body1.getAngularVelocity(),
 		body2.getLinearVelocity(),
-		body2.getCenterOfMassTransform().getBasis().transpose() * body2.getAngularVelocity());
+		body2.getCenterOfMassTransform().getBasis().transpose() * body2.getAngularVelocity());*/
 
-	rel_vel = normal.dot(vel);
+	btScalar rel_vel = normal.dot(vel);
 
 	//todo: move this into proper structure
 	btScalar contactDamping = btScalar(0.2);

@@ -63,10 +63,10 @@ static inline void *b3AlignedAllocDefault(size_t size, int alignment)
 {
 	void *ret;
 	char *real;
-	real = (char *)b3s_allocFunc(size + sizeof(void *) + (alignment - 1));
+	real = (char *)b3s_allocFunc(size + sizeof(void *) + (size_t)(alignment - 1));
 	if (real)
 	{
-		ret = b3AlignPointer(real + sizeof(void *), alignment);
+		ret = b3AlignPointer(real + sizeof(void *), (size_t)alignment);
 		*((void **)(ret)-1) = (void *)(real);
 	}
 	else

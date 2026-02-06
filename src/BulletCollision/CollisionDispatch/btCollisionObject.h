@@ -175,7 +175,7 @@ public:
 	void setAnisotropicFriction(const btVector3& anisotropicFriction, int frictionMode = CF_ANISOTROPIC_FRICTION)
 	{
 		m_anisotropicFriction = anisotropicFriction;
-		bool isUnity = (anisotropicFriction[0] != 1.f) || (anisotropicFriction[1] != 1.f) || (anisotropicFriction[2] != 1.f);
+		bool isUnity = (anisotropicFriction[0] != btScalar(1.)) || (anisotropicFriction[1] != btScalar(1.)) || (anisotropicFriction[2] != btScalar(1.));
 		m_hasAnisotropicFriction = isUnity ? frictionMode : 0;
 	}
 	bool hasAnisotropicFriction(int frictionMode = CF_ANISOTROPIC_FRICTION) const
@@ -184,7 +184,7 @@ public:
 	}
 
 	///the constraint solver can discard solving contacts, if the distance is above this threshold. 0 by default.
-	///Note that using contacts with positive distance can improve stability. It increases, however, the chance of colliding with degerate contacts, such as 'interior' triangle edges
+	///Note that using contacts with positive distance can improve stability. It increases, however, the chance of colliding with degenerate contacts, such as 'interior' triangle edges
 	void setContactProcessingThreshold(btScalar contactProcessingThreshold)
 	{
 		m_contactProcessingThreshold = contactProcessingThreshold;

@@ -129,7 +129,7 @@ public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btSequentialImpulseConstraintSolverMt();
-	virtual ~btSequentialImpulseConstraintSolverMt();
+	virtual ~btSequentialImpulseConstraintSolverMt() BT_OVERRIDE;
 
 	btScalar resolveMultipleJointConstraints(const btAlignedObjectArray<int>& consIndices, int batchBegin, int batchEnd, int iteration);
 	btScalar resolveMultipleContactConstraints(const btAlignedObjectArray<int>& consIndices, int batchBegin, int batchEnd);

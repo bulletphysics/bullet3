@@ -44,7 +44,7 @@ Configuration var for applying interpolation of  contact normals
 #endif
 
 #ifndef CONTACT_DIFF_EPSILON
-#define CONTACT_DIFF_EPSILON 0.00001f
+#define CONTACT_DIFF_EPSILON GREAL(0.00001f)
 #endif
 
 #ifndef BT_CONTACT_H_STRUCTS_INCLUDED
@@ -52,7 +52,7 @@ Configuration var for applying interpolation of  contact normals
 /// Structure for collision results
 ///Functions for managing and sorting contacts resulting from a collision query.
 ///Contact lists must be create by calling \ref GIM_CREATE_CONTACT_LIST
-///After querys, contact lists must be destroy by calling \ref GIM_DYNARRAY_DESTROY
+///After queries, contact lists must be destroy by calling \ref GIM_DYNARRAY_DESTROY
 ///Contacts can be merge for avoid duplicate results by calling \ref gim_merge_contacts
 class GIM_CONTACT
 {
@@ -94,9 +94,9 @@ public:
 	SIMD_FORCE_INLINE GUINT calc_key_contact() const
 	{
 		GINT _coords[] = {
-			(GINT)(m_point[0] * 1000.0f + 1.0f),
-			(GINT)(m_point[1] * 1333.0f),
-			(GINT)(m_point[2] * 2133.0f + 3.0f)};
+			(GINT)(m_point[0] * GREAL(1000.0f) + GREAL(1.0f)),
+			(GINT)(m_point[1] * GREAL(1333.0f)),
+			(GINT)(m_point[2] * GREAL(2133.0f) + GREAL(3.0f))};
 		GUINT _hash = 0;
 		GUINT *_uitmp = (GUINT *)(&_coords[0]);
 		_hash = *_uitmp;

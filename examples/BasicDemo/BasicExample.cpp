@@ -68,15 +68,15 @@ void BasicExample::initPhysics()
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
+		btBoxShape* colShape = createBoxShape(btVector3(btScalar(.1), btScalar(.1), btScalar(.1)));
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -105,7 +105,7 @@ void BasicExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape);
+					createRigidBody((float)mass, startTransform, colShape);
 				}
 			}
 		}

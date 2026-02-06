@@ -57,11 +57,11 @@ public:
 		void* m_lsMemory;  //initialized using PosixLocalStoreMemorySetupFunc
 
 		pthread_t thread;
-		//each tread will wait until this signal to start its work
+		//each thread will wait until this signal to start its work
 		sem_t* startSemaphore;
 
 		// this is a copy of m_mainSemaphore,
-		//each tread will signal once it is finished with its work
+		//each thread will signal once it is finished with its work
 		sem_t* m_mainSemaphore;
 		unsigned long threadUsed;
 	};
@@ -115,7 +115,7 @@ public:
 	///tell the task scheduler we are done with the SPU tasks
 	virtual void stopThreads();
 
-	virtual void setNumTasks(int numTasks) {}
+	virtual void setNumTasks(int /*numTasks*/) {}
 
 	virtual int getNumTasks() const
 	{

@@ -184,7 +184,7 @@ class PermutationBase : public EigenBase<Derived>
       */
     inline InverseReturnType inverse() const
     { return InverseReturnType(derived()); }
-    /** \returns the tranpose permutation matrix.
+    /** \returns the transpose permutation matrix.
       *
       * \note \blank \note_try_to_help_rvo
       */

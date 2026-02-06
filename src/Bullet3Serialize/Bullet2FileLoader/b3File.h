@@ -41,7 +41,7 @@ enum bFileVerboseMode
 	FD_VERBOSE_EXPORT_XML = 1,
 	FD_VERBOSE_DUMP_DNA_TYPE_DEFINITIONS = 2,
 	FD_VERBOSE_DUMP_CHUNKS = 4,
-	FD_VERBOSE_DUMP_FILE_INFO = 8,
+	FD_VERBOSE_DUMP_FILE_INFO = 8
 };
 // ----------------------------------------------------- //
 class bFile

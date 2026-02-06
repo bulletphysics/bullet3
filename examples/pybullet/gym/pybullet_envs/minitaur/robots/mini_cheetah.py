@@ -59,7 +59,7 @@ class MiniCheetah(minitaur.Minitaur):
     if "motor_torque_limits" not in kwargs:
       kwargs["motor_torque_limits"] = _DEFAULT_TORQUE_LIMITS
 
-    # The follwing parameters are fixed for the vision60 robot.
+    # The following parameters are fixed for the vision60 robot.
     kwargs["num_motors"] = NUM_MOTORS
     kwargs["dofs_per_leg"] = DOFS_PER_LEG
     kwargs["motor_direction"] = JOINT_DIRECTIONS

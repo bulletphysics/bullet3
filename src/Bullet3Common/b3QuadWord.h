@@ -52,7 +52,7 @@ public:
 	union {
 		b3SimdFloat4 mVec128;
 		b3Scalar m_floats[4];
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			b3Scalar x, y, z, w;
 		};
@@ -71,7 +71,7 @@ public:
 public:
 	union {
 		b3Scalar m_floats[4];
-		struct
+		ANONYMOUS_STRUCTS struct
 		{
 			b3Scalar x, y, z, w;
 		};
@@ -113,13 +113,13 @@ public:
 	/**@brief Return the z value */
 	B3_FORCE_INLINE const b3Scalar& getZ() const { return m_floats[2]; }
 	/**@brief Set the x value */
-	B3_FORCE_INLINE void setX(b3Scalar _x) { m_floats[0] = _x; };
+	B3_FORCE_INLINE void setX(b3Scalar _x) { m_floats[0] = _x; }
 	/**@brief Set the y value */
-	B3_FORCE_INLINE void setY(b3Scalar _y) { m_floats[1] = _y; };
+	B3_FORCE_INLINE void setY(b3Scalar _y) { m_floats[1] = _y; }
 	/**@brief Set the z value */
-	B3_FORCE_INLINE void setZ(b3Scalar _z) { m_floats[2] = _z; };
+	B3_FORCE_INLINE void setZ(b3Scalar _z) { m_floats[2] = _z; }
 	/**@brief Set the w value */
-	B3_FORCE_INLINE void setW(b3Scalar _w) { m_floats[3] = _w; };
+	B3_FORCE_INLINE void setW(b3Scalar _w) { m_floats[3] = _w; }
 	/**@brief Return the x value */
 
 	//B3_FORCE_INLINE b3Scalar&       operator[](int i)       { return (&m_floats[0])[i];	}
@@ -146,9 +146,9 @@ public:
 	}
 
 	/**@brief Set x,y,z and zero w 
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
    */
 	B3_FORCE_INLINE void setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)
 	{
@@ -166,10 +166,10 @@ public:
 		}
 */
 	/**@brief Set the values 
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	B3_FORCE_INLINE void setValue(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w)
 	{
@@ -185,24 +185,30 @@ public:
 	}
 
 	/**@brief Three argument constructor (zeros w)
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
    */
 	B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z)
 	{
-		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = 0.0f;
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = 0.0f;
 	}
 
 	/**@brief Initializing constructor
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	B3_FORCE_INLINE b3QuadWord(const b3Scalar& _x, const b3Scalar& _y, const b3Scalar& _z, const b3Scalar& _w)
 	{
-		m_floats[0] = _x, m_floats[1] = _y, m_floats[2] = _z, m_floats[3] = _w;
+		m_floats[0] = _x;
+		m_floats[1] = _y;
+		m_floats[2] = _z;
+		m_floats[3] = _w;
 	}
 
 	/**@brief Set each element to the max of the current values and the values of another b3QuadWord

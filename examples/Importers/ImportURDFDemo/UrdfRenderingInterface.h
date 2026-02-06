@@ -10,7 +10,7 @@ class btVector3;
 
 ///UrdfRenderingInterface is a simple rendering interface, mainly for URDF-based robots.
 ///There is an implementation in
-///bullet3\examples\SharedMemory\plugins\tinyRendererPlugin\TinyRendererVisualShapeConverter.cpp
+///bullet3/examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 struct UrdfRenderingInterface
 {
 	virtual ~UrdfRenderingInterface() {}
@@ -88,7 +88,7 @@ struct UrdfRenderingInterface
 	///provide the image pixels as a part of a stream.
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int* segmentationMaskBuffer, int segmentationMaskSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied) = 0;
 
-	///render an image, using some arbitraty view and projection matrix
+	///render an image, using some arbitrary view and projection matrix
 	virtual void render() = 0;
 
 	///render an image using the provided view and projection matrix
@@ -101,11 +101,11 @@ struct UrdfRenderingInterface
 	///register a texture using an in-memory pixel buffer of a given width and height
 	virtual int registerTexture(unsigned char* texels, int width, int height) = 0;
 
-	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]) {}
-	virtual void setProjectiveTexture(bool useProjectiveTexture) {}
+	virtual void setProjectiveTextureMatrices(const float /*viewMatrix*/[16], const float /*projectionMatrix*/[16]) {}
+	virtual void setProjectiveTexture(bool /*useProjectiveTexture*/) {}
 
 
-	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
+	virtual bool getCameraInfo(int* /*width*/, int* /*height*/, float /*viewMatrix*/[16], float /*projectionMatrix*/[16], float /*camUp*/[3], float /*camForward*/[3], float /*hor*/[3], float /*vert*/[3], float* /*yaw*/, float* /*pitch*/, float* /*camDist*/, float /*cameraTarget*/[3]) const
 	{
 		return false;
 	}

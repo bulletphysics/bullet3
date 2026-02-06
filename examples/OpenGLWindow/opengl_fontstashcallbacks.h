@@ -40,9 +40,9 @@ struct OpenGL2RenderCallbacks : public InternalOpenGL2RenderCallbacks
 	GLPrimitiveRenderer* m_primRender2;
 	virtual PrimInternalData* getData();
 
-	virtual void setWorldPosition(float pos[3]) {}
-	virtual void setWorldOrientation(float orn[4]) {}
-	virtual void setColorRGBA(float color[4]) {}
+	virtual void setWorldPosition(float /*pos*/[3]) {}
+	virtual void setWorldOrientation(float /*orn*/[4]) {}
+	virtual void setColorRGBA(float /*color*/[4]) {}
 
 	OpenGL2RenderCallbacks(GLPrimitiveRenderer* primRender);
 	virtual ~OpenGL2RenderCallbacks();

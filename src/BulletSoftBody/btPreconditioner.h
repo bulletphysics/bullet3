@@ -34,7 +34,7 @@ public:
 		for (int i = 0; i < b.size(); ++i)
 			b[i] = x[i];
 	}
-	virtual void reinitialize(bool nodeUpdated)
+	virtual void reinitialize(bool /*nodeUpdated*/)
 	{
 	}
 
@@ -114,7 +114,7 @@ public:
 			//            printf("A[%d] = %f, %f, %f \n", i, m_inv_A[i][0], m_inv_A[i][1], m_inv_A[i][2]);
 			for (int d = 0; d < 3; ++d)
 			{
-				m_inv_A[i][d] = (m_inv_A[i][d] == 0) ? 0.0 : 1.0 / m_inv_A[i][d];
+				m_inv_A[i][d] = (m_inv_A[i][d] == 0) ? btScalar(0.0) : btScalar(1.0) / m_inv_A[i][d];
 			}
 		}
 		m_inv_S.resize(m_projections.m_lagrangeMultipliers.size());
@@ -125,7 +125,7 @@ public:
 			//            printf("S[%d] = %f, %f, %f \n", i, m_inv_S[i][0], m_inv_S[i][1], m_inv_S[i][2]);
 			for (int d = 0; d < 3; ++d)
 			{
-				m_inv_S[i][d] = (m_inv_S[i][d] == 0) ? 0.0 : 1.0 / m_inv_S[i][d];
+				m_inv_S[i][d] = (m_inv_S[i][d] == 0) ? btScalar(0.0) : btScalar(1.0) / m_inv_S[i][d];
 			}
 		}
 	}
@@ -139,7 +139,7 @@ public:
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
 				const btSoftBody::Node& node = psb->m_nodes[j];
-				diagA[counter] = (node.m_im == 0) ? btVector3(0, 0, 0) : btVector3(1.0 / node.m_im, 1.0 / node.m_im, 1.0 / node.m_im);
+				diagA[(int)counter] = (node.m_im == 0) ? btVector3(0, 0, 0) : btVector3(btScalar(1.0) / node.m_im, btScalar(1.0) / node.m_im, btScalar(1.0) / node.m_im);
 				++counter;
 			}
 		}

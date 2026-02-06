@@ -1,6 +1,6 @@
 
 
-//todo(erwincoumans): re-use the upcoming b3RobotSimAPI here
+//todo(erwincoumans): reuse the upcoming b3RobotSimAPI here
 
 #include "PhysicsServerExample.h"
 
@@ -22,27 +22,27 @@
 #include "../Importers/ImportURDFDemo/urdfStringSplit.h"
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
-bool gEnablePicking = true;
-bool gEnableTeleporting = true;
-bool gEnableRendering = true;
-bool gActivedVRRealTimeSimulation = false;
+static bool gEnablePicking = true;
+static bool gEnableTeleporting = true;
+static bool gEnableRendering = true;
+static bool gActivedVRRealTimeSimulation = false;
 
-bool gEnableSyncPhysicsRendering = true;
+static bool gEnableSyncPhysicsRendering = true;
 static int gCamVisualizerWidth = 228;
 static int gCamVisualizerHeight = 192;
 
 static bool gEnableDefaultKeyboardShortcuts = true;
 static bool gEnableDefaultMousePicking = true;
 
-btScalar gVRTeleportRotZ = 0;
+static btScalar gVRTeleportRotZ = 0;
 
 extern int gInternalSimFlags;
 extern bool gResetSimulation;
-int gGraspingController = -1;
+static int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
-bool gBatchUserDebugLines = true;
+static bool gBatchUserDebugLines = true;
 
-const char* startFileNameVR = "0_VRDemoSettings.txt";
+static const char* startFileNameVR = "0_VRDemoSettings.txt";
 
 #include <vector>
 
@@ -64,7 +64,7 @@ static void loadCurrentSettingsVR(b3CommandLineArgs& args)
 		}
 		fclose(f);
 	}
-};
+}
 
 //remember the settings (you don't want to re-tune again and again...)
 
@@ -79,8 +79,8 @@ static void saveCurrentSettingsVR(const btVector3& VRTeleportPos1)
 		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
 		fclose(f);
 	}
-};
-bool gDebugRenderToggle = false;
+}
+static bool gDebugRenderToggle = false;
 void MotionThreadFunc(void* userPtr, void* lsMemory);
 void* MotionlsMemoryFunc();
 void MotionlsMemoryReleaseFunc(void* ptr);
@@ -134,7 +134,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperResetCamera,
 	eGUIHelperChangeGraphicsInstanceFlags,
 	eGUIHelperSetRgbBackground,
-	eGUIUserDebugAddPoints,
+	eGUIUserDebugAddPoints
 };
 
 #include <stdio.h>
@@ -143,7 +143,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 #ifndef _WIN32
 #include "../MultiThreading/b3PosixThreadSupport.h"
 
-b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("MotionThreads",
 																  MotionThreadFunc,
@@ -158,7 +158,7 @@ b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 #elif defined(_WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
-b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
+static b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 {
 	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("MotionThreads", MotionThreadFunc, MotionlsMemoryFunc, MotionlsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
@@ -235,9 +235,9 @@ struct MotionThreadLocalStorage
 	int threadId;
 };
 
-float clampedDeltaTime = 0.2;
+static float clampedDeltaTime = 0.2f;
 
-void MotionThreadFunc(void* userPtr, void* lsMemory)
+void MotionThreadFunc(void* userPtr, void* /*lsMemory*/)
 {
 	printf("MotionThreadFunc thread started\n");
 	//MotionThreadLocalStorage* localStorage = (MotionThreadLocalStorage*) lsMemory;
@@ -257,7 +257,7 @@ void MotionThreadFunc(void* userPtr, void* lsMemory)
 		args->m_cs->unlock();
 
 		double deltaTimeInSeconds = 0;
-		int numCmdSinceSleep1ms = 0;
+		int numCmdSinceSleep1ms = 0; (void)numCmdSinceSleep1ms;
 		unsigned long long int prevTime = clock.getTimeMicroseconds();
 
 		do
@@ -398,7 +398,7 @@ void MotionThreadFunc(void* userPtr, void* lsMemory)
 							{
 								args->m_physicsServerPtr->movePickedBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
 								break;
-							};
+							}
 							case MyMouseButtonDown:
 							{
 								args->m_physicsServerPtr->pickBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
@@ -514,7 +514,7 @@ struct UserDebugParameter
 	int m_itemUniqueId;
 };
 
-static void UserButtonToggle(int buttonId, bool buttonState, void* userPointer)
+static void UserButtonToggle(int /*buttonId*/, bool /*buttonState*/, void* userPointer)
 {
 	UserDebugParameter* param = (UserDebugParameter*)userPointer;
 	param->m_value += 1;
@@ -547,10 +547,10 @@ struct ColorWidth
 	int width;
 	int getHash() const
 	{
-		unsigned char r = (unsigned char)m_color.m_floats[0] * 255;
-		unsigned char g = (unsigned char)m_color.m_floats[1] * 255;
-		unsigned char b = (unsigned char)m_color.m_floats[2] * 255;
-		unsigned char w = width;
+		unsigned char r = (unsigned char)(m_color.m_floats[0] * 255);
+		unsigned char g = (unsigned char)(m_color.m_floats[1] * 255);
+		unsigned char b = (unsigned char)(m_color.m_floats[2] * 255);
+		unsigned char w = (unsigned char)width;
 		return r + (256 * g) + (256 * 256 * b) + (256 * 256 * 256 * w);
 	}
 	bool equals(const ColorWidth& other) const
@@ -586,7 +586,7 @@ public:
 				int numPoints = m_sortedLines[index].size();
 				const unsigned int* indices = &m_sortedIndices[index][0];
 				int numIndices = m_sortedIndices[index].size();
-				m_guiHelper->getRenderInterface()->drawLines(positions, cw.m_color.m_floats, numPoints, stride, indices, numIndices, cw.width);
+				m_guiHelper->getRenderInterface()->drawLines(positions, cw.m_color.m_floats, numPoints, stride, indices, numIndices, (float)cw.width);
 			}
 		}
 	}
@@ -622,27 +622,27 @@ public:
 			if (index >= 0)
 			{
 				btVector3FloatData from1, toX1;
-				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				m_sortedIndices[index].push_back((unsigned int)m_sortedLines[index].size());
 				from.serializeFloat(from1);
 				m_sortedLines[index].push_back(from1);
-				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				m_sortedIndices[index].push_back((unsigned int)m_sortedLines[index].size());
 				to.serializeFloat(toX1);
 				m_sortedLines[index].push_back(toX1);
 			}
 		}
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int /*lifeTime*/, const btVector3& color)
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
-		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
+		drawLine(PointOnB, PointOnB + normalOnB * btScalar(0.01), ncolor);
 	}
 
-	virtual void reportErrorWarning(const char* warningString)
+	virtual void reportErrorWarning(const char* /*warningString*/)
 	{
 	}
-	virtual void draw3dText(const btVector3& location, const char* textString)
+	virtual void draw3dText(const btVector3& /*location*/, const char* /*textString*/)
 	{
 	}
 	virtual void setDebugMode(int debugMode)
@@ -766,7 +766,7 @@ public:
 		}
 	}
 
-	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
+	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* /*app*/, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
 		:  //m_app(app),
 		m_cs(0),
 		m_cs2(0),
@@ -778,7 +778,7 @@ public:
 		m_shapeIndex(-1),
 		m_textureId(-1),
 		m_instanceId(-1),
-		m_skipGraphicsUpdate(skipGraphicsUpdate)
+		m_skipGraphicsUpdate(skipGraphicsUpdate != 0)
 	{
 		m_cameraUpdated = 0;
 		m_childGuiHelper = guiHelper;
@@ -895,7 +895,7 @@ public:
 		m_childGuiHelper->syncPhysicsToGraphics2(positions, numPositions);
 	}
 
-	virtual void render(const btDiscreteDynamicsWorld* rbWorld)
+	virtual void render(const btDiscreteDynamicsWorld* /*rbWorld*/)
 	{
 		m_childGuiHelper->render(0);
 	}
@@ -987,7 +987,7 @@ public:
   void setSharedParam(int slot, int param)
   {
     m_csGUI->lock();
-    m_cs->setSharedParam(slot, param);
+    m_cs->setSharedParam(slot, (unsigned int)param);
     m_csGUI->unlock();
   }
 	void setVisualizerFlag(int flag, int enable)
@@ -1295,11 +1295,11 @@ public:
 		workerThreadWait();
 	}
 
-	virtual void drawText3D(const char* txt, float posX, float posZY, float posZ, float size)
+	virtual void drawText3D(const char* /*txt*/, float /*posX*/, float /*posZY*/, float /*posZ*/, float /*size*/)
 	{
 	}
 
-	virtual void drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+	virtual void drawText3D(const char* /*txt*/, float /*position*/[3], float /*orientation*/[4], float /*color*/[4], float /*size*/, int /*optionFlag*/)
 	{
 	}
 
@@ -1373,7 +1373,7 @@ public:
 		strcpy(m_tmpParam.m_text, txt);
 		m_tmpParam.m_rangeMin = rangeMin;
 		m_tmpParam.m_rangeMax = rangeMax;
-		m_tmpParam.m_value = startValue;
+		m_tmpParam.m_value = (btScalar)startValue;
 		m_tmpParam.m_itemUniqueId = m_uidGenerator++;
 
 		m_cs->lock();
@@ -1631,7 +1631,7 @@ public:
 		m_args[0].m_csGUI->unlock();
 
 		return false;
-	};
+	}
 
 	virtual bool mouseButtonCallback(int button, int state, float x, float y)
 	{
@@ -1777,43 +1777,43 @@ public:
 			{
 				if (key == 'w' && state)
 				{
-					VRTeleportPos[0] += shift;
+					VRTeleportPos[0] += (btScalar)shift;
 					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
 					saveCurrentSettingsVR(VRTeleportPos);
 				}
 				if (key == 's' && state)
 				{
-					VRTeleportPos[0] -= shift;
+					VRTeleportPos[0] -= (btScalar)shift;
 					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
 					saveCurrentSettingsVR(VRTeleportPos);
 				}
 				if (key == 'a' && state)
 				{
-					VRTeleportPos[1] -= shift;
+					VRTeleportPos[1] -= (btScalar)shift;
 					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
 					saveCurrentSettingsVR(VRTeleportPos);
 				}
 				if (key == 'd' && state)
 				{
-					VRTeleportPos[1] += shift;
+					VRTeleportPos[1] += (btScalar)shift;
 					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
 					saveCurrentSettingsVR(VRTeleportPos);
 				}
 				if (key == 'q' && state)
 				{
-					VRTeleportPos[2] += shift;
+					VRTeleportPos[2] += (btScalar)shift;
 					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
 					saveCurrentSettingsVR(VRTeleportPos);
 				}
 				if (key == 'e' && state)
 				{
-					VRTeleportPos[2] -= shift;
+					VRTeleportPos[2] -= (btScalar)shift;
 					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
 					saveCurrentSettingsVR(VRTeleportPos);
 				}
 				if (key == 'z' && state)
 				{
-					gVRTeleportRotZ += shift;
+					gVRTeleportRotZ += (btScalar)shift;
 					btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
 					m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
 					saveCurrentSettingsVR(VRTeleportPos);
@@ -1892,7 +1892,7 @@ public:
 	}
 };
 
-PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int options)
+PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int /*options*/)
 	: SharedMemoryCommon(helper),
 	  m_physicsServer(commandProcessorCreator, sharedMem, 0),
 	  m_wantsShutdown(false),
@@ -2063,7 +2063,7 @@ void PhysicsServerExample::exitPhysics()
 		//we need to call 'stepSimulation' to make sure that
 		//other threads get out of blocking state (workerThreadWait)
 		stepSimulation(0);
-	};
+	}
 
 	printf("stopping threads\n");
 
@@ -2462,19 +2462,19 @@ void PhysicsServerExample::updateGraphics()
 								if (depthValue > -1e20)
 								{
 									int rgb = 0;
-									btScalar frustumZNear = 0.1;
+									btScalar frustumZNear = btScalar(0.1);
 									btScalar frustumZFar = 30;
-									btScalar minDepthValue = frustumZNear;  //todo: compute more reasonably min/max depth range
-									btScalar maxDepthValue = frustumZFar;
+									// btScalar minDepthValue = frustumZNear;  //todo: compute more reasonably min/max depth range
+									// btScalar maxDepthValue = frustumZFar;
 
 									float depth = depthValue;
-									btScalar linearDepth = 255. * (2.0 * frustumZNear) / (frustumZFar + frustumZNear - depth * (frustumZFar - frustumZNear));
+									btScalar linearDepth = btScalar(255.) * (btScalar(2.0) * frustumZNear) / (frustumZFar + frustumZNear - (btScalar)depth * (frustumZFar - frustumZNear));
 									btClamp(linearDepth, btScalar(0), btScalar(255));
-									rgb = linearDepth;
+									rgb = (int)linearDepth;
 
 									m_canvas->setPixel(m_canvasDepthIndex, i, j,
-													   rgb,
-													   rgb,
+													   (unsigned char)rgb,
+													   (unsigned char)rgb,
 													   255, 255);  //alpha set to 255
 								}
 								else
@@ -2506,9 +2506,9 @@ void PhysicsServerExample::updateGraphics()
 									btVector4 rgb = palette[(obIndex + linkIndex) & 3];
 
 									m_canvas->setPixel(m_canvasSegMaskIndex, i, j,
-													   rgb.x(),
-													   rgb.y(),
-													   rgb.z(), 255);  //alpha set to 255
+													   (unsigned char)rgb.x(),
+													   (unsigned char)rgb.y(),
+													   (unsigned char)rgb.z(), 255);  //alpha set to 255
 								}
 								else
 								{
@@ -2615,8 +2615,8 @@ void PhysicsServerExample::updateGraphics()
 			if (param->m_rangeMin<= param->m_rangeMax)
 			{
 				SliderParams slider(param->m_text, &param->m_value);
-				slider.m_minVal = param->m_rangeMin;
-				slider.m_maxVal = param->m_rangeMax;
+				slider.m_minVal = (float)param->m_rangeMin;
+				slider.m_maxVal = (float)param->m_rangeMax;
 
 				if (m_multiThreadedHelper->m_childGuiHelper->getParameterInterface())
 					m_multiThreadedHelper->m_childGuiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
@@ -2776,7 +2776,7 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 
 	for (int i = m_multiThreadedHelper->m_userDebugLines.size() - 1; i >= 0; i--)
 	{
-		if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime)
+		if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime != 0.0)
 		{
 			m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime -= deltaTime;
 			if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime <= 0)
@@ -2789,7 +2789,7 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 
 	for (int i = m_multiThreadedHelper->m_userDebugText.size() - 1; i >= 0; i--)
 	{
-		if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime)
+		if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime != 0.0)
 		{
 			m_multiThreadedHelper->m_userDebugText[i].m_lifeTime -= deltaTime;
 			if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime <= 0)
@@ -2802,7 +2802,7 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 
 	for (int i = m_multiThreadedHelper->m_userDebugPoints.size() - 1; i >= 0; i--)
 	{
-		if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime)
+		if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime != 0.0)
 		{
 			m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime -= deltaTime;
 			if (m_multiThreadedHelper->m_userDebugPoints[i].m_lifeTime <= 0)
@@ -2857,13 +2857,13 @@ void PhysicsServerExample::drawUserDebugLines()
 		for (int i = 0; i < m_multiThreadedHelper->m_userDebugLines.size(); i++)
 		{
 			btVector3 from;
-			from.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
-						  m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
-						  m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[2]);
+			from.setValue((btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
+						  (btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
+						  (btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[2]);
 			btVector3 toX;
-			toX.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
-						 m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
-						 m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
+			toX.setValue((btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
+						 (btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
+						 (btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
 
 			int graphicsIndex = m_multiThreadedHelper->m_userDebugLines[i].m_trackingVisualShapeIndex;
 			if (graphicsIndex >= 0)
@@ -2886,12 +2886,12 @@ void PhysicsServerExample::drawUserDebugLines()
 			}
 
 			btVector3 color;
-			color.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
-						   m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
-						   m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
+			color.setValue((btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
+						   (btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
+						   (btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
 			ColorWidth cw;
 			color.serializeFloat(cw.m_color);
-			cw.width = m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth;
+			cw.width = (int)m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth;
 			int index = -1;
 
 			if (gBatchUserDebugLines)
@@ -2912,17 +2912,17 @@ void PhysicsServerExample::drawUserDebugLines()
 				if (index >= 0)
 				{
 					btVector3FloatData from1, toX1;
-					sortedIndices[index].push_back(sortedLines[index].size());
+					sortedIndices[index].push_back((unsigned int)sortedLines[index].size());
 					from.serializeFloat(from1);
 					sortedLines[index].push_back(from1);
-					sortedIndices[index].push_back(sortedLines[index].size());
+					sortedIndices[index].push_back((unsigned int)sortedLines[index].size());
 					toX.serializeFloat(toX1);
 					sortedLines[index].push_back(toX1);
 				}
 			}
 			else
 			{
-				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, (btScalar)m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
 			}
 		}
 
@@ -2937,7 +2937,7 @@ void PhysicsServerExample::drawUserDebugLines()
 				int numPoints = sortedLines[index].size();
 				const unsigned int* indices = &sortedIndices[index][0];
 				int numIndices = sortedIndices[index].size();
-				m_guiHelper->getAppInterface()->m_renderer->drawLines(positions, cw.m_color.m_floats, numPoints, stride, indices, numIndices, cw.width);
+				m_guiHelper->getAppInterface()->m_renderer->drawLines(positions, cw.m_color.m_floats, numPoints, stride, indices, numIndices, (float)cw.width);
 			}
 		}
 
@@ -2992,14 +2992,14 @@ void PhysicsServerExample::drawUserDebugLines()
 						childTr.setRotation(btQuaternion(orientation[0], orientation[1], orientation[2], orientation[3]));
 
 						btTransform siteTr = parentTrans * childTr;
-						pos[0] = siteTr.getOrigin()[0];
-						pos[1] = siteTr.getOrigin()[1];
-						pos[2] = siteTr.getOrigin()[2];
+						pos[0] = (float)siteTr.getOrigin()[0];
+						pos[1] = (float)siteTr.getOrigin()[1];
+						pos[2] = (float)siteTr.getOrigin()[2];
 						btQuaternion siteOrn = siteTr.getRotation();
-						orientation[0] = siteOrn[0];
-						orientation[1] = siteOrn[1];
-						orientation[2] = siteOrn[2];
-						orientation[3] = siteOrn[3];
+						orientation[0] = (float)siteOrn[0];
+						orientation[1] = (float)siteOrn[1];
+						orientation[2] = (float)siteOrn[2];
+						orientation[3] = (float)siteOrn[3];
 					}
 				}
 			}
@@ -3023,7 +3023,7 @@ void PhysicsServerExample::drawUserDebugLines()
 				{
 					btTransform offset;
 					offset.setIdentity();
-					offset.setOrigin(btVector3(0, -float(t) * sz, 0));
+					offset.setOrigin(btVector3(0, (btScalar)(-double(t) * sz), 0));
 					btTransform result = tr * offset;
 					float newpos[3] = {(float)result.getOrigin()[0],
 									   (float)result.getOrigin()[1],
@@ -3031,7 +3031,7 @@ void PhysicsServerExample::drawUserDebugLines()
 
 					m_guiHelper->getAppInterface()->drawText3D(pieces[t].c_str(),
 															   newpos, orientation, colorRGBA,
-															   sz, optionFlag);
+															   (float)sz, optionFlag);
 				}
 			}
 
@@ -3051,16 +3051,19 @@ void PhysicsServerExample::drawUserDebugLines()
 
 			float* pos = (float*)malloc(pointNum * 3 * sizeof(float));
 			float* clr = (float*)malloc(pointNum * 4 * sizeof(float));
-			for (int i = 0; i < pointNum; i++) {
-				pos[i * 3 + 0] = (float)positions[i * 3 + 0];
-				pos[i * 3 + 1] = (float)positions[i * 3 + 1];
-				pos[i * 3 + 2] = (float)positions[i * 3 + 2];
-				clr[i * 4 + 0] = (float)colors[i * 3 + 0];
-				clr[i * 4 + 1] = (float)colors[i * 3 + 1];
-				clr[i * 4 + 2] = (float)colors[i * 3 + 2];
-				clr[i * 4 + 3] = 1.f;
+			if(pos && clr)
+			{
+				for (int j = 0; j < pointNum; j++) {
+					pos[j * 3 + 0] = (float)positions[j * 3 + 0];
+					pos[j * 3 + 1] = (float)positions[j * 3 + 1];
+					pos[j * 3 + 2] = (float)positions[j * 3 + 2];
+					clr[j * 4 + 0] = (float)colors[j * 3 + 0];
+					clr[j * 4 + 1] = (float)colors[j * 3 + 1];
+					clr[j * 4 + 2] = (float)colors[j * 3 + 2];
+					clr[j * 4 + 3] = 1.f;
+				}
+				m_guiHelper->getAppInterface()->m_renderer->drawPoints(pos, clr, pointNum, 3 * sizeof(float), (float)sz);
 			}
-			m_guiHelper->getAppInterface()->m_renderer->drawPoints(pos, clr, pointNum, 3 * sizeof(float), sz);
 			free(pos);
 			free(clr);
 		}
@@ -3078,13 +3081,14 @@ void PhysicsServerExample::renderScene()
 	if (m_physicsServer.isRealTimeSimulationEnabled())
 	{
 		static int frameCount = 0;
-		static btScalar prevTime = m_clock.getTimeSeconds();
 		frameCount++;
+		(void)frameCount;
 
 		static char line0[1024] = {0};
 		static char line1[1024] = {0};
 
 #if 0
+		static btScalar prevTime = m_clock.getTimeSeconds();
 
 		static btScalar worseFps = 1000000;
 		int numFrames = 200;
@@ -3134,16 +3138,19 @@ void PhysicsServerExample::renderScene()
 			tr.setIdentity();
 			btVector3 VRController2Pos = m_physicsServer.getVRTeleportPosition();
 			btQuaternion VRController2Orn = m_physicsServer.getVRTeleportOrientation();
-			tr.setOrigin(b3MakeVector3(VRController2Pos[0], VRController2Pos[1], VRController2Pos[2]));
-			tr.setRotation(b3Quaternion(VRController2Orn[0], VRController2Orn[1], VRController2Orn[2], VRController2Orn[3]));
-			tr = tr * b3Transform(b3Quaternion(0, 0, -SIMD_HALF_PI), b3MakeVector3(0, 0, 0));
-			b3Scalar dt = 0.01;
+			tr.setOrigin(b3MakeVector3((b3Scalar)VRController2Pos[0], (b3Scalar)VRController2Pos[1], (b3Scalar)VRController2Pos[2]));
+			tr.setRotation(b3Quaternion((b3Scalar)VRController2Orn[0], (b3Scalar)VRController2Orn[1], (b3Scalar)VRController2Orn[2], (b3Scalar)VRController2Orn[3]));
+			tr = tr * b3Transform(b3Quaternion(0, 0, (b3Scalar)-SIMD_HALF_PI), b3MakeVector3(0, 0, 0));
+			b3Scalar dt = b3Scalar(0.01);
 			m_tinyVrGui->clearTextArea();
 			m_tinyVrGui->grapicalPrintf(line0, 0, 0, 0, 0, 0, 255);
 			m_tinyVrGui->grapicalPrintf(line1, 0, 16, 255, 255, 255, 255);
 
 			m_tinyVrGui->tick(dt, tr);
 		}
+#else
+	(void)line0;
+	(void)line1;
 #endif  //BT_ENABLE_VR
 	}
 	///debug rendering
@@ -3164,13 +3171,13 @@ void PhysicsServerExample::renderScene()
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			vrOffset[i + 4 * j] = vrOffsetRot[i][j];
+			vrOffset[i + 4 * j] = (float)vrOffsetRot[i][j];
 		}
 	}
 
-	vrOffset[12] = trInv.getOrigin()[0];
-	vrOffset[13] = trInv.getOrigin()[1];
-	vrOffset[14] = trInv.getOrigin()[2];
+	vrOffset[12] = (float)trInv.getOrigin()[0];
+	vrOffset[13] = (float)trInv.getOrigin()[1];
+	vrOffset[14] = (float)trInv.getOrigin()[2];
 
 	if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
 	{
@@ -3203,11 +3210,11 @@ void PhysicsServerExample::renderScene()
 
 				btVector4 color;
 				color = btVector4(1, 0, 0, 1);
-				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, width);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, (float)width);
 				color = btVector4(0, 1, 0, 1);
-				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toY, color, width);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toY, color, (float)width);
 				color = btVector4(0, 0, 1, 1);
-				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toZ, color, width);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toZ, color, (float)width);
 			}
 		}
 	}
@@ -3265,7 +3272,7 @@ btVector3 PhysicsServerExample::getRayTo(int x, int y)
 	float bottom = -1.f;
 	float nearPlane = 1.f;
 	float tanFov = (top - bottom) * 0.5f / nearPlane;
-	float fov = btScalar(2.0) * btAtan(tanFov);
+	float fov = float(btScalar(2.0) * btAtan(tanFov));
 
 	btVector3 camPos, camTarget;
 	renderer->getActiveCamera()->getCameraPosition(camPos);
@@ -3422,13 +3429,13 @@ void PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
 	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_CONTROLLER;
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = (float)trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = (float)trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = (float)trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = (float)trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = (float)trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = (float)trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = (float)trTotal.getRotation()[3];
 	m_args[0].m_vrControllerEvents[controllerId].m_numButtonEvents++;
 	if (state)
 	{
@@ -3481,13 +3488,13 @@ void PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
 	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_CONTROLLER;
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = (float)trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = (float)trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = (float)trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = (float)trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = (float)trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = (float)trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = (float)trTotal.getRotation()[3];
 	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
 	m_args[0].m_vrControllerEvents[controllerId].m_analogAxis = analogAxis;
 	for (int i = 0; i < 10; i++)
@@ -3527,13 +3534,13 @@ void PhysicsServerExample::vrHMDMoveCallback(int controllerId, float pos[4], flo
 	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
 	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_HMD;
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = (float)trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = (float)trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = (float)trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = (float)trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = (float)trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = (float)trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = (float)trTotal.getRotation()[3];
 	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
 	m_args[0].m_csGUI->unlock();
 }
@@ -3566,13 +3573,13 @@ void PhysicsServerExample::vrGenericTrackerMoveCallback(int controllerId, float 
 	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
 	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_GENERIC_TRACKER;
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
-	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = (float)trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = (float)trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = (float)trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = (float)trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = (float)trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = (float)trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = (float)trTotal.getRotation()[3];
 	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
 	m_args[0].m_csGUI->unlock();
 }

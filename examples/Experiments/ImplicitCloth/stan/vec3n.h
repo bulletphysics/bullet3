@@ -187,7 +187,7 @@ inline void float3N::Init(const float3 &v)
 #ifdef WE_LIKE_SLOW_CODE
 
 // Unoptimized Slow Basic Version of big vector operators.
-// Uses typical implmentation for operators +/-*=
+// Uses typical implementation for operators +/-*=
 // These operators cause lots of unnecessary construction, memory allocation, and copying.
 
 inline float3N operator+(const float3N &a, const float3N &b)

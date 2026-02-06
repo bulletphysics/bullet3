@@ -34,7 +34,7 @@ class Kuka:
     self.jr = [5.8, 4, 5.8, 4, 5.8, 4, 6]
     #restposes for null space
     self.rp = [0, 0, 0, 0.5 * math.pi, 0, -math.pi * 0.5 * 0.66, 0]
-    #joint damping coefficents
+    #joint damping coefficients
     self.jd = [
         0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001,
         0.00001, 0.00001, 0.00001, 0.00001

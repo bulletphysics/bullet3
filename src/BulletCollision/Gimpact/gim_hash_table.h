@@ -159,9 +159,9 @@ inline GUINT gim_next_prime(GUINT number)
 
 //! A compact hash table implementation
 /*!
-A memory aligned compact hash table that coud be treated as an array.
+A memory aligned compact hash table that could be treated as an array.
 It could be a simple sorted array without the overhead of the hash key bucked, or could
-be a formely hash table with an array of keys.
+be a formerly hash table with an array of keys.
 You can use switch_to_hashtable() and switch_to_sorted_array for saving space or increase speed.
 </br>
 
@@ -209,11 +209,11 @@ protected:
 		return GIM_INVALID_HASH;
 	}
 
-	//! Find the avaliable cell for the hashkey, and return an existing cell if it has the same hash key
-	inline GUINT _find_avaliable_cell(GUINT hashkey)
+	//! Find the available cell for the hashkey, and return an existing cell if it has the same hash key
+	inline GUINT _find_available_cell(GUINT hashkey)
 	{
 		_node_type* nodesptr = m_nodes.pointer();
-		GUINT avaliable_index = GIM_INVALID_HASH;
+		GUINT available_index = GIM_INVALID_HASH;
 		GUINT start_index = (hashkey % m_table_size) * m_node_size;
 		GUINT end_index = start_index + m_node_size;
 
@@ -222,9 +222,9 @@ protected:
 			GUINT value = m_hash_table[start_index];
 			if (value == GIM_INVALID_HASH)
 			{
-				if (avaliable_index == GIM_INVALID_HASH)
+				if (available_index == GIM_INVALID_HASH)
 				{
-					avaliable_index = start_index;
+					available_index = start_index;
 				}
 			}
 			else if (nodesptr[value].m_key == hashkey)
@@ -233,7 +233,7 @@ protected:
 			}
 			start_index++;
 		}
-		return avaliable_index;
+		return available_index;
 	}
 
 	//! reserves the memory for the hash table.
@@ -284,11 +284,11 @@ protected:
 			GUINT nodekey = nodesptr[i].m_key;
 			if (nodekey != GIM_INVALID_HASH)
 			{
-				//Search for the avaliable cell in buffer
-				GUINT index = _find_avaliable_cell(nodekey);
+				//Search for the available cell in buffer
+				GUINT index = _find_available_cell(nodekey);
 
 				if (m_hash_table[index] != GIM_INVALID_HASH)
-				{  //The new index is alreade used... discard this new incomming object, repeated key
+				{  //The new index is alreade used... discard this new incoming object, repeated key
 					btAssert(m_hash_table[index] == nodekey);
 					nodesptr[i].m_key = GIM_INVALID_HASH;
 				}
@@ -320,16 +320,16 @@ protected:
 		_clear_table_memory();
 	}
 
-	//! Finds an avaliable hash table cell, and resizes the table if there isn't space
+	//! Finds an available hash table cell, and resizes the table if there isn't space
 	inline GUINT _assign_hash_table_cell(GUINT hashkey)
 	{
-		GUINT cell_index = _find_avaliable_cell(hashkey);
+		GUINT cell_index = _find_available_cell(hashkey);
 
 		if (cell_index == GIM_INVALID_HASH)
 		{
 			//rehashing
 			_resize_table(m_table_size + 1);
-			GUINT cell_index = _find_avaliable_cell(hashkey);
+			GUINT cell_index = _find_available_cell(hashkey);
 			btAssert(cell_index != GIM_INVALID_HASH);
 		}
 		return cell_index;
@@ -341,7 +341,7 @@ protected:
 		if (index >= m_nodes.size()) return false;
 		if (m_nodes[index].m_key != GIM_INVALID_HASH)
 		{
-			//Search for the avaliable cell in buffer
+			//Search for the available cell in buffer
 			GUINT cell_index = _find_cell(m_nodes[index].m_key);
 
 			btAssert(cell_index != GIM_INVALID_HASH);
@@ -358,7 +358,7 @@ protected:
 	{
 		if (hashkey == GIM_INVALID_HASH) return false;
 
-		//Search for the avaliable cell in buffer
+		//Search for the available cell in buffer
 		GUINT cell_index = _find_cell(hashkey);
 		if (cell_index == GIM_INVALID_HASH) return false;
 
@@ -449,7 +449,7 @@ protected:
 				//update the new position of the last element
 				GUINT cell_index = _find_cell(hashkey);
 				btAssert(cell_index != GIM_INVALID_HASH);
-				//new position of the last element which will be swaped
+				//new position of the last element which will be swapped
 				m_hash_table[cell_index] = index;
 			}
 		}
@@ -595,8 +595,8 @@ public:
 		if (m_nodes.size() < 2) return false;
 
 		_node_type* ptr = m_nodes.pointer();
-		GUINT siz = m_nodes.size();
-		gim_sort_hash_node_array(ptr, siz);
+		GUINT size = m_nodes.size();
+		gim_sort_hash_node_array(ptr, size);
 		m_sorted = true;
 
 		if (m_hash_table)
@@ -806,7 +806,7 @@ public:
 
 	//! Insert an element into the hash
 	/*!
-    \return If GIM_INVALID_HASH, the object has been inserted succesfully. Else it returns the position
+    \return If GIM_INVALID_HASH, the object has been inserted successfully. Else it returns the position
     of the existing element.
     */
 	inline GUINT insert(GUINT hashkey, const T& element)
@@ -822,9 +822,9 @@ public:
 		return this->_insert_unsorted(hashkey, element);
 	}
 
-	//! Insert an element into the hash, and could overrite an existing object with the same hash.
+	//! Insert an element into the hash, and could overwrite an existing object with the same hash.
 	/*!
-    \return If GIM_INVALID_HASH, the object has been inserted succesfully. Else it returns the position
+    \return If GIM_INVALID_HASH, the object has been inserted successfully. Else it returns the position
     of the replaced element.
     */
 	inline GUINT insert_override(GUINT hashkey, const T& element)

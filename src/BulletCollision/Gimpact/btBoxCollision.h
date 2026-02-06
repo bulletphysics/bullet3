@@ -32,7 +32,7 @@ subject to the following restrictions:
 		a = a + b;            \
 		b = a - b;            \
 		a = a - b;            \
-	}
+	}  do{} while(0)
 
 #define BT_MAX(a, b) (a < b ? b : a)
 #define BT_MIN(a, b) (a > b ? b : a)
@@ -128,17 +128,17 @@ enum eBT_PLANE_INTERSECTION_TYPE
 #define TEST_CROSS_EDGE_BOX_X_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 2, 1, 1, 2); \
-	}
+	}  do{} while(0)
 
 #define TEST_CROSS_EDGE_BOX_Y_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 0, 2, 2, 0); \
-	}
+	}  do{} while(0)
 
 #define TEST_CROSS_EDGE_BOX_Z_AXIS_MCR(edge, absolute_edge, pointa, pointb, _extend)       \
 	{                                                                                      \
 		TEST_CROSS_EDGE_BOX_MCR(edge, absolute_edge, pointa, pointb, _extend, 1, 0, 0, 1); \
-	}
+	}  do{} while(0)
 
 //! Returns the dot product between a vec3f and the col of a matrix
 SIMD_FORCE_INLINE btScalar bt_mat3_dot_col(
@@ -169,7 +169,7 @@ public:
 		{
 			for (j = 0; j < 3; j++)
 			{
-				m_AR[i][j] = 1e-6f + btFabs(m_R1to0[i][j]);
+				m_AR[i][j] = btScalar(1e-6) + btFabs(m_R1to0[i][j]);
 			}
 		}
 	}
@@ -178,7 +178,7 @@ public:
 	{
 	}
 
-	//! Calc the transformation relative  1 to 0. Inverts matrics by transposing
+	//! Calc the transformation relative  1 to 0. Inverts matrices by transposing
 	SIMD_FORCE_INLINE void calc_from_homogenic(const btTransform &trans0, const btTransform &trans1)
 	{
 		btTransform temp_trans = trans0.inverse();
@@ -190,7 +190,7 @@ public:
 		calc_absolute_matrix();
 	}
 
-	//! Calcs the full invertion of the matrices. Useful for scaling matrices
+	//! Calcs the full inversion of the matrices. Useful for scaling matrices
 	SIMD_FORCE_INLINE void calc_from_full_invert(const btTransform &trans0, const btTransform &trans1)
 	{
 		m_R1to0 = trans0.getBasis().inverse();
@@ -208,7 +208,7 @@ public:
 	}
 };
 
-#define BOX_PLANE_EPSILON 0.000001f
+#define BOX_PLANE_EPSILON btScalar(0.000001)
 
 //! Axis aligned box
 ATTRIBUTE_ALIGNED16(class)
@@ -229,12 +229,12 @@ public:
 		m_min[0] = BT_MIN3(V1[0], V2[0], V3[0]);
 		m_min[1] = BT_MIN3(V1[1], V2[1], V3[1]);
 		m_min[2] = BT_MIN3(V1[2], V2[2], V3[2]);
-		m_min[3] = 0.f;
+		m_min[3] = btScalar(0.);
 
 		m_max[0] = BT_MAX3(V1[0], V2[0], V3[0]);
 		m_max[1] = BT_MAX3(V1[1], V2[1], V3[1]);
 		m_max[2] = BT_MAX3(V1[2], V2[2], V3[2]);
-		m_max[3] = 0.f;
+		m_max[3] = btScalar(0.);
 	}
 
 	btAABB(const btVector3 &V1,
@@ -245,12 +245,12 @@ public:
 		m_min[0] = BT_MIN3(V1[0], V2[0], V3[0]);
 		m_min[1] = BT_MIN3(V1[1], V2[1], V3[1]);
 		m_min[2] = BT_MIN3(V1[2], V2[2], V3[2]);
-		m_min[3] = 0.f;
+		m_min[3] = btScalar(0.);
 
 		m_max[0] = BT_MAX3(V1[0], V2[0], V3[0]);
 		m_max[1] = BT_MAX3(V1[1], V2[1], V3[1]);
 		m_max[2] = BT_MAX3(V1[2], V2[2], V3[2]);
-		m_max[3] = 0.f;
+		m_max[3] = btScalar(0.);
 
 		m_min[0] -= margin;
 		m_min[1] -= margin;
@@ -279,11 +279,11 @@ public:
 		m_min[0] = SIMD_INFINITY;
 		m_min[1] = SIMD_INFINITY;
 		m_min[2] = SIMD_INFINITY;
-		m_min[3] = 0.f;
+		m_min[3] = btScalar(0.);
 		m_max[0] = -SIMD_INFINITY;
 		m_max[1] = -SIMD_INFINITY;
 		m_max[2] = -SIMD_INFINITY;
-		m_max[3] = 0.f;
+		m_max[3] = btScalar(0.);
 	}
 
 	SIMD_FORCE_INLINE void increment_margin(btScalar margin)
@@ -301,12 +301,12 @@ public:
 		m_min[0] = other.m_min[0] - margin;
 		m_min[1] = other.m_min[1] - margin;
 		m_min[2] = other.m_min[2] - margin;
-		m_min[3] = 0.f;
+		m_min[3] = btScalar(0.);
 
 		m_max[0] = other.m_max[0] + margin;
 		m_max[1] = other.m_max[1] + margin;
 		m_max[2] = other.m_max[2] + margin;
-		m_max[3] = 0.f;
+		m_max[3] = btScalar(0.);
 	}
 
 	template <typename CLASS_POINT>
@@ -318,12 +318,12 @@ public:
 		m_min[0] = BT_MIN3(V1[0], V2[0], V3[0]);
 		m_min[1] = BT_MIN3(V1[1], V2[1], V3[1]);
 		m_min[2] = BT_MIN3(V1[2], V2[2], V3[2]);
-		m_min[3] = 0.f;
+		m_min[3] = btScalar(0.);
 
 		m_max[0] = BT_MAX3(V1[0], V2[0], V3[0]);
 		m_max[1] = BT_MAX3(V1[1], V2[1], V3[1]);
 		m_max[2] = BT_MAX3(V1[2], V2[2], V3[2]);
-		m_max[3] = 0.f;
+		m_max[3] = btScalar(0.);
 	}
 
 	template <typename CLASS_POINT>
@@ -335,12 +335,12 @@ public:
 		m_min[0] = BT_MIN3(V1[0], V2[0], V3[0]);
 		m_min[1] = BT_MIN3(V1[1], V2[1], V3[1]);
 		m_min[2] = BT_MIN3(V1[2], V2[2], V3[2]);
-		m_min[3] = 0.f;
+		m_min[3] = btScalar(0.);
 
 		m_max[0] = BT_MAX3(V1[0], V2[0], V3[0]);
 		m_max[1] = BT_MAX3(V1[1], V2[1], V3[1]);
 		m_max[2] = BT_MAX3(V1[2], V2[2], V3[2]);
-		m_max[3] = 0.f;
+		m_max[3] = btScalar(0.);
 
 		m_min[0] -= margin;
 		m_min[1] -= margin;
@@ -353,7 +353,7 @@ public:
 	//! Apply a transform to an AABB
 	SIMD_FORCE_INLINE void appy_transform(const btTransform &trans)
 	{
-		btVector3 center = (m_max + m_min) * 0.5f;
+		btVector3 center = (m_max + m_min) * btScalar(0.5);
 		btVector3 extends = m_max - center;
 		// Compute new center
 		center = trans(center);
@@ -369,7 +369,7 @@ public:
 	//! Apply a transform to an AABB
 	SIMD_FORCE_INLINE void appy_transform_trans_cache(const BT_BOX_BOX_TRANSFORM_CACHE &trans)
 	{
-		btVector3 center = (m_max + m_min) * 0.5f;
+		btVector3 center = (m_max + m_min) * btScalar(0.5);
 		btVector3 extends = m_max - center;
 		// Compute new center
 		center = trans.transform(center);
@@ -410,7 +410,7 @@ public:
 	//! Gets the extend and center
 	SIMD_FORCE_INLINE void get_center_extend(btVector3 & center, btVector3 & extend) const
 	{
-		center = (m_max + m_min) * 0.5f;
+		center = (m_max + m_min) * btScalar(0.5);
 		extend = m_max - center;
 	}
 
@@ -441,7 +441,6 @@ public:
 	}
 
 	/*! \brief Finds the Ray intersection parameter.
-	\param aabb Aligned box
 	\param vorigin A vec3f with the origin of the ray
 	\param vdir A vec3f with the direction of the ray
 	*/
@@ -449,14 +448,13 @@ public:
 	{
 		btVector3 extents, center;
 		this->get_center_extend(center, extents);
-		;
 
 		btScalar Dx = vorigin[0] - center[0];
-		if (BT_GREATER(Dx, extents[0]) && Dx * vdir[0] >= 0.0f) return false;
+		if (BT_GREATER(Dx, extents[0]) && Dx * vdir[0] >= btScalar(0.0)) return false;
 		btScalar Dy = vorigin[1] - center[1];
-		if (BT_GREATER(Dy, extents[1]) && Dy * vdir[1] >= 0.0f) return false;
+		if (BT_GREATER(Dy, extents[1]) && Dy * vdir[1] >= btScalar(0.0)) return false;
 		btScalar Dz = vorigin[2] - center[2];
-		if (BT_GREATER(Dz, extents[2]) && Dz * vdir[2] >= 0.0f) return false;
+		if (BT_GREATER(Dz, extents[2]) && Dz * vdir[2] >= btScalar(0.0)) return false;
 
 		btScalar f = vdir[1] * Dz - vdir[2] * Dy;
 		if (btFabs(f) > extents[1] * btFabs(vdir[2]) + extents[2] * btFabs(vdir[1])) return false;
@@ -469,7 +467,7 @@ public:
 
 	SIMD_FORCE_INLINE void projection_interval(const btVector3 &direction, btScalar &vmin, btScalar &vmax) const
 	{
-		btVector3 center = (m_max + m_min) * 0.5f;
+		btVector3 center = (m_max + m_min) * btScalar(0.5);
 		btVector3 extend = m_max - center;
 
 		btScalar _fOrigin = direction.dot(center);
@@ -618,7 +616,7 @@ public:
 	}
 };
 
-//! Compairison of transformation objects
+//! Comparison of transformation objects
 SIMD_FORCE_INLINE bool btCompareTransformsEqual(const btTransform &t1, const btTransform &t2)
 {
 	if (!(t1.getOrigin() == t2.getOrigin())) return false;

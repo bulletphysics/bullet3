@@ -17,6 +17,9 @@
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../Utils/b3BulletDefaultFileIO.h"
+
+#include "TinyRendererSetup.h"
+
 struct TinyRendererSetupInternalData
 {
 	TGAImage m_rgbColorBuffer;
@@ -65,7 +68,7 @@ struct TinyRendererSetupInternalData
 		{
 			m_transforms[i].setIdentity();
 			//btVector3	pos(0.f,-(2.5* numObjects * 0.5)+i*2.5f, 0.f);
-			btVector3 pos(0.f, +i * 2.5f, 0.f);
+			btVector3 pos(0.f, (float)+i * 2.5f, 0.f);
 			m_transforms[i].setIdentity();
 			m_transforms[i].setOrigin(pos);
 			btQuaternion orn;
@@ -127,7 +130,7 @@ struct TinyRendererSetup : public CommonExampleInterface
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -140,8 +143,8 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(), gui->getAppInterface()->m_window->getHeight());
 
-	const char* fileName = "textured_sphere_smooth.obj";
-	fileName = "cube.obj";
+	const char* fileName;// = "textured_sphere_smooth.obj";
+	// fileName = "cube.obj";
 	fileName = "torus/torus_with_plane.obj";
 
 	{
@@ -211,8 +214,8 @@ TinyRendererSetup::~TinyRendererSetup()
 	delete m_internalData;
 }
 
-const char* itemsanimate[] = {"Fixed", "Rotate"};
-void TinyRendererComboCallbackAnimate(int combobox, const char* item, void* userPointer)
+static const char* itemsanimate[] = {"Fixed", "Rotate"};
+static void TinyRendererComboCallbackAnimate(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);
@@ -228,9 +231,9 @@ void TinyRendererComboCallbackAnimate(int combobox, const char* item, void* user
 	cl->animateRenderer(index);
 }
 
-const char* items[] = {"Software", "OpenGL"};
+static const char* items[] = {"Software", "OpenGL"};
 
-void TinyRendererComboCallback(int combobox, const char* item, void* userPointer)
+static void TinyRendererComboCallback(int /*combobox*/, const char* item, void* userPointer)
 {
 	TinyRendererSetup* cl = (TinyRendererSetup*)userPointer;
 	b3Assert(cl);
@@ -303,7 +306,7 @@ void TinyRendererSetup::exitPhysics()
 {
 }
 
-void TinyRendererSetup::stepSimulation(float deltaTime)
+void TinyRendererSetup::stepSimulation(float /*deltaTime*/)
 {
 	m_internalData->updateTransforms();
 }
@@ -313,13 +316,13 @@ void TinyRendererSetup::renderScene()
 	m_internalData->updateTransforms();
 
 	btVector4 from(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1], m_internalData->m_lightPos[2], 1);
-	btVector4 toX(m_internalData->m_lightPos[0] + 0.1, m_internalData->m_lightPos[1], m_internalData->m_lightPos[2], 1);
-	btVector4 toY(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1] + 0.1, m_internalData->m_lightPos[2], 1);
-	btVector4 toZ(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1], m_internalData->m_lightPos[2] + 0.1, 1);
+	btVector4 toX(m_internalData->m_lightPos[0] + btScalar(0.1), m_internalData->m_lightPos[1], m_internalData->m_lightPos[2], 1);
+	btVector4 toY(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1] + btScalar(0.1), m_internalData->m_lightPos[2], 1);
+	btVector4 toZ(m_internalData->m_lightPos[0], m_internalData->m_lightPos[1], m_internalData->m_lightPos[2] + btScalar(0.1), 1);
 	btVector4 colorX(1, 0, 0, 1);
 	btVector4 colorY(0, 1, 0, 1);
 	btVector4 colorZ(0, 0, 1, 1);
-	int width = 2;
+	btScalar width = 2;
 	m_guiHelper->getRenderInterface()->drawLine(from, toX, colorX, width);
 	m_guiHelper->getRenderInterface()->drawLine(from, toY, colorY, width);
 	m_guiHelper->getRenderInterface()->drawLine(from, toZ, colorZ, width);
@@ -365,9 +368,9 @@ void TinyRendererSetup::renderScene()
 			const btTransform& tr = m_internalData->m_transforms[o];
 			tr.getOpenGLMatrix(modelMat2);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
 					m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i + 4 * j]);
 					m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i + 4 * j];
@@ -381,9 +384,9 @@ void TinyRendererSetup::renderScene()
 					m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
 
 					m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
-					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
-					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
-					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
+					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6f;
+					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35f;
+					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05f;
 				}
 			}
 			TinyRenderer::renderObjectDepth(*m_internalData->m_renderObjects[o]);
@@ -394,9 +397,9 @@ void TinyRendererSetup::renderScene()
 			const btTransform& tr = m_internalData->m_transforms[o];
 			tr.getOpenGLMatrix(modelMat2);
 
-			for (int i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (size_t j = 0; j < 4; j++)
 				{
 					m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i + 4 * j]);
 					m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i + 4 * j];
@@ -410,9 +413,9 @@ void TinyRendererSetup::renderScene()
 					m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
 
 					m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
-					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
-					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
-					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
+					m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6f;
+					m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35f;
+					m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05f;
 				}
 			}
 			TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);
@@ -421,30 +424,30 @@ void TinyRendererSetup::renderScene()
 		render->activateTexture(m_internalData->m_textureHandle);
 		render->updateTexture(m_internalData->m_textureHandle, m_internalData->m_rgbColorBuffer.buffer());
 		float color[4] = {1, 1, 1, 1};
-		m_app->drawTexturedRect(0, 0, m_app->m_window->getWidth(), m_app->m_window->getHeight(), color, 0, 0, 1, 1, true);
+		m_app->drawTexturedRect(0, 0, (float)m_app->m_window->getWidth(), (float)m_app->m_window->getHeight(), color, 0, 0, 1, 1, true);
 	}
 }
 
-void TinyRendererSetup::physicsDebugDraw(int debugDrawFlags)
+void TinyRendererSetup::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-bool TinyRendererSetup::mouseMoveCallback(float x, float y)
-{
-	return false;
-}
-
-bool TinyRendererSetup::mouseButtonCallback(int button, int state, float x, float y)
+bool TinyRendererSetup::mouseMoveCallback(float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-bool TinyRendererSetup::keyboardCallback(int key, int state)
+bool TinyRendererSetup::mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-void TinyRendererSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
+bool TinyRendererSetup::keyboardCallback(int /*key*/, int /*state*/)
+{
+	return false;
+}
+
+void TinyRendererSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& /*gfxBridge*/)
 {
 }
 

@@ -195,6 +195,13 @@ public:
 	~CProfileSample(void);
 };
 
-#define BT_PROFILE(name) CProfileSample __profile(name)
+
+#ifndef MACRO_CONCAT
+#	define MACRO_CONCAT(a, b) a##b
+#endif
+#ifndef CONCAT
+#	define CONCAT(a, b) MACRO_CONCAT(a, b)
+#endif
+#define BT_PROFILE(name) CProfileSample CONCAT(__profile,__COUNTER__)(name)
 
 #endif  //BT_QUICK_PROF_H

@@ -23,7 +23,7 @@ subject to the following restrictions:
 enum btMultiBodyLinkFlags
 {
 	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1,
-	BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION = 2,
+	BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION = 2
 };
 
 //both defines are now permanently enabled
@@ -186,9 +186,9 @@ struct btMultibodyLink
 		m_appliedConstraintForce.setValue(0, 0, 0);
 		m_appliedConstraintTorque.setValue(0, 0, 0);
 		//
-		m_jointPos[0] = m_jointPos[1] = m_jointPos[2] = m_jointPos[4] = m_jointPos[5] = m_jointPos[6] = 0.f;
-		m_jointPos[3] = 1.f;  //"quat.w"
-		m_jointTorque[0] = m_jointTorque[1] = m_jointTorque[2] = m_jointTorque[3] = m_jointTorque[4] = m_jointTorque[5] = 0.f;
+		m_jointPos[0] = m_jointPos[1] = m_jointPos[2] = m_jointPos[4] = m_jointPos[5] = m_jointPos[6] = btScalar(0.);
+		m_jointPos[3] = btScalar(1.);  //"quat.w"
+		m_jointTorque[0] = m_jointTorque[1] = m_jointTorque[2] = m_jointTorque[3] = m_jointTorque[4] = m_jointTorque[5] = btScalar(0.);
 		m_cachedWorldTransform.setIdentity();
 	}
 

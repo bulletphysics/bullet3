@@ -69,12 +69,12 @@ static bool UrdfFindMeshFile(
 	shorter.push_back("../../");
 	shorter.push_back("../");
 	shorter.push_back("./");
-	int cnt = urdf_path.size();
+	int cnt = (int)urdf_path.size();
 	for (int i = 0; i < cnt; ++i)
 	{
-		if (urdf_path[i] == '/' || urdf_path[i] == '\\')
+		if (urdf_path[(size_t)i] == '/' || urdf_path[(size_t)i] == '\\')
 		{
-			shorter.push_back(urdf_path.substr(0, i) + "/");
+			shorter.push_back(urdf_path.substr(0, (size_t)i) + "/");
 		}
 	}
 	shorter.push_back("");  // no prefix

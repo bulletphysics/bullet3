@@ -28,12 +28,12 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
 
-void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
+static void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 {
 	btRigidBody* groundBody = (btRigidBody*)world->getWorldUserInfo();
 	btTransform predictedTrans;
 	btVector3 linearVelocity(0, 0, 0);
-	btVector3 angularVelocity(0, 0.1, 0);
+	btVector3 angularVelocity(0, btScalar(0.1), 0);
 	btTransformUtil::integrateTransform(groundBody->getWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 #ifdef USE_MOTIONSTATE
 	groundBody->getMotionState()->setWorldTransform(predictedTrans);
@@ -85,7 +85,7 @@ void KinematicRigidBodyExample::initPhysics()
 
 	///create a few basic rigid bodies
 	btScalar halfExtentsX = 10.0;
-	btScalar halfExtentsY = 0.1;
+	btScalar halfExtentsY = btScalar(0.1);
 	btScalar halfExtentsZ = 10.0;
 
 	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10.), btScalar(0.1), btScalar(10.)));
@@ -99,7 +99,7 @@ void KinematicRigidBodyExample::initPhysics()
 	{
 		btScalar mass(0.);
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
+		// bool isDynamic = (mass != 0.f);
 
 		btVector3 localInertia(0, 0, 0);
 
@@ -122,22 +122,22 @@ void KinematicRigidBodyExample::initPhysics()
 	m_dynamicsWorld->setInternalTickCallback(kinematicPreTickCallback, m_groundBody, true);
 	{
 		int strideInBytes = 9 * sizeof(float);
-		int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+		int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 		int numIndices = sizeof(cube_indices) / sizeof(int);
 		btScalar textureScaling = 40.0;
 		btAlignedObjectArray<GfxVertexFormat1> verts;
 		verts.resize(numVertices);
 		for (int i = 0; i < numVertices; i++)
 		{
-			verts[i].x = halfExtentsX * cube_vertices_textured[i * 9];
-			verts[i].y = halfExtentsY * cube_vertices_textured[i * 9 + 1];
-			verts[i].z = halfExtentsZ * cube_vertices_textured[i * 9 + 2];
+			verts[i].x = (float)halfExtentsX * cube_vertices_textured[i * 9];
+			verts[i].y = (float)halfExtentsY * cube_vertices_textured[i * 9 + 1];
+			verts[i].z = (float)halfExtentsZ * cube_vertices_textured[i * 9 + 2];
 			verts[i].w = cube_vertices_textured[i * 9 + 3];
 			verts[i].nx = cube_vertices_textured[i * 9 + 4];
 			verts[i].ny = cube_vertices_textured[i * 9 + 5];
 			verts[i].nz = cube_vertices_textured[i * 9 + 6];
-			verts[i].u = cube_vertices_textured[i * 9 + 7] * textureScaling;
-			verts[i].v = cube_vertices_textured[i * 9 + 8] * textureScaling;
+			verts[i].u = cube_vertices_textured[i * 9 + 7] * (float)textureScaling;
+			verts[i].v = cube_vertices_textured[i * 9 + 8] * (float)textureScaling;
 		}
 
 		int red = 173;
@@ -159,9 +159,9 @@ void KinematicRigidBodyExample::initPhysics()
 
 				if (a == b)
 				{
-					rgbaTexture[(i + j * textureWidth) * 3 + 0] = red;
-					rgbaTexture[(i + j * textureWidth) * 3 + 1] = green;
-					rgbaTexture[(i + j * textureWidth) * 3 + 2] = blue;
+					rgbaTexture[(i + j * textureWidth) * 3 + 0] = (unsigned char)red;
+					rgbaTexture[(i + j * textureWidth) * 3 + 1] = (unsigned char)green;
+					rgbaTexture[(i + j * textureWidth) * 3 + 2] = (unsigned char)blue;
 				}
 			}
 		}
@@ -181,9 +181,9 @@ void KinematicRigidBodyExample::initPhysics()
 	if (1)
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
+		btBoxShape* colShape = createBoxShape(btVector3(btScalar(.1), btScalar(.1), btScalar(.1)));
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -212,7 +212,7 @@ void KinematicRigidBodyExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape);
+					createRigidBody((float)mass, startTransform, colShape);
 				}
 			}
 		}

@@ -146,40 +146,44 @@ static void insertleaf(btDbvt* pdbvt,
 	}
 	else
 	{
-		if (!root->isleaf())
+		btAssert(root);
+		if(root)
 		{
-			do
+			if (!root->isleaf())
 			{
-				root = root->childs[Select(leaf->volume,
-										   root->childs[0]->volume,
-										   root->childs[1]->volume)];
-			} while (!root->isleaf());
-		}
-		btDbvtNode* prev = root->parent;
-		btDbvtNode* node = createnode(pdbvt, prev, leaf->volume, root->volume, 0);
-		if (prev)
-		{
-			prev->childs[indexof(root)] = node;
-			node->childs[0] = root;
-			root->parent = node;
-			node->childs[1] = leaf;
-			leaf->parent = node;
-			do
+				do
+				{
+					root = root->childs[Select(leaf->volume,
+												root->childs[0]->volume,
+												root->childs[1]->volume)];
+				} while (!root->isleaf());
+			}
+			btDbvtNode* prev = root->parent;
+			btDbvtNode* node = createnode(pdbvt, prev, leaf->volume, root->volume, 0);
+			if (prev)
 			{
-				if (!prev->volume.Contain(node->volume))
-					Merge(prev->childs[0]->volume, prev->childs[1]->volume, prev->volume);
-				else
-					break;
-				node = prev;
-			} while (0 != (prev = node->parent));
-		}
-		else
-		{
-			node->childs[0] = root;
-			root->parent = node;
-			node->childs[1] = leaf;
-			leaf->parent = node;
-			pdbvt->m_root = node;
+				prev->childs[indexof(root)] = node;
+				node->childs[0] = root;
+				root->parent = node;
+				node->childs[1] = leaf;
+				leaf->parent = node;
+				do
+				{
+					if (!prev->volume.Contain(node->volume))
+						Merge(prev->childs[0]->volume, prev->childs[1]->volume, prev->volume);
+					else
+						break;
+					node = prev;
+				} while (0 != (prev = node->parent));
+			}
+			else
+			{
+				node->childs[0] = root;
+				root->parent = node;
+				node->childs[1] = leaf;
+				leaf->parent = node;
+				pdbvt->m_root = node;
+			}
 		}
 	}
 }

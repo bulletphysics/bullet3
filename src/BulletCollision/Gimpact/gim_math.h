@@ -51,7 +51,7 @@ email: projectileman@yahoo.com
 #define G_ROOT3 1.73205f
 #define G_ROOT2 1.41421f
 #define G_UINT_INFINITY 0xffffffff  //!< A very very high value
-#define G_REAL_INFINITY FLT_MAX
+#define G_REAL_INFINITY (GREAL)FLT_MAX
 #define G_SIGN_BITMASK 0x80000000
 #define G_EPSILON SIMD_EPSILON
 
@@ -107,28 +107,34 @@ enum GIM_SCALAR_TYPES
 		a = a + b;             \
 		b = a - b;             \
 		a = a - b;             \
-	}
+	} do{} while(0)
 
-#define GIM_INV_SQRT(va, isva)                         \
+#define GIM_INV_SQRT(va, isva)                       \
 	{                                                  \
-		if (va <= 0.0000001f)                          \
-		{                                              \
-			isva = G_REAL_INFINITY;                    \
-		}                                              \
-		else                                           \
-		{                                              \
-			GREAL _x = va * 0.5f;                      \
-			GUINT _y = 0x5f3759df - (GIM_IR(va) >> 1); \
-			isva = GIM_FR(_y);                         \
-			isva = isva * (1.5f - (_x * isva * isva)); \
-		}                                              \
-	}
+		const bool isFloat = sizeof(va)==sizeof(float);  \
+		if(!isFloat)                                     \
+			isva = GREAL(1.0 / sqrt(va));                         \
+		else                                             \
+		{                                                \
+			if (va <= GREAL(0.0000001))                          \
+			{                                              \
+				isva = G_REAL_INFINITY;                      \
+			}                                              \
+			else                                           \
+			{                                              \
+				GREAL _x = va * GREAL(0.5);                        \
+				GUINT _y = 0x5f3759df - (GIM_IR(va) >> 1);   \
+				isva = GIM_FR(_y);                           \
+				isva = isva * (GREAL(1.5) - (_x * isva * isva));   \
+			}                                              \
+		}\
+	} do{} while(0)
 
 #define GIM_SQRT(va, sva)      \
 	{                          \
 		GIM_INV_SQRT(va, sva); \
-		sva = 1.0f / sva;      \
-	}
+		sva = GREAL(1.0) / sva;      \
+	} do{} while(0)
 
 //! Computes 1.0f / sqrtf(x). Comes from Quake3. See http://www.magic-software.com/3DGEDInvSqrt.html
 inline GREAL gim_inv_sqrt(GREAL f)

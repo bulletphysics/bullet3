@@ -26,11 +26,11 @@ struct b3Contact4Data
 inline int b3Contact4Data_getNumPoints(const struct b3Contact4Data* contact)
 {
 	return (int)contact->m_worldNormalOnB.w;
-};
+}
 
 inline void b3Contact4Data_setNumPoints(struct b3Contact4Data* contact, int numPoints)
 {
 	contact->m_worldNormalOnB.w = (float)numPoints;
-};
+}
 
 #endif  //B3_CONTACT4DATA_H

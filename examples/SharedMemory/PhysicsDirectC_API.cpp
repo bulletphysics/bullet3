@@ -12,6 +12,7 @@ B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysicsDirect()
 	PhysicsDirect* direct = new PhysicsDirect(sdk, true);
 	bool connected;
 	connected = direct->connect();
+	(void)connected;
 	return (b3PhysicsClientHandle)direct;
 }
 

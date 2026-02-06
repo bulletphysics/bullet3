@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 
-bool gIntelLinuxglDrawBufferWorkaround = false;
+static bool gIntelLinuxglDrawBufferWorkaround = false;
 
 GLRenderToTexture::GLRenderToTexture()
 	: m_framebufferName(0)
@@ -24,7 +24,7 @@ GLRenderToTexture::GLRenderToTexture()
 #endif  //!defined(_WIN32) && !defined(__APPLE__)
 }
 
-void GLRenderToTexture::init(int width, int height, GLuint textureId, int renderTextureType)
+void GLRenderToTexture::init(int /*width*/, int /*height*/, GLuint textureId, int renderTextureType)
 {
 	m_renderTextureType = renderTextureType;
 
@@ -54,7 +54,7 @@ void GLRenderToTexture::init(int width, int height, GLuint textureId, int render
 		{
 			b3Assert(0);
 		}
-	};
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -92,7 +92,7 @@ bool GLRenderToTexture::enable()
 		{
 			b3Assert(0);
 		}
-	};
+	}
 
 	// Always check that our framebuffer is ok
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)

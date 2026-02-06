@@ -97,7 +97,6 @@ void RichLabel::SplitLabel(const Gwen::UnicodeString& text, Gwen::Font* pFont, c
 			x = 0;
 			y += lineheight;
 			break;
-			;
 		}
 
 		strNewString += lst[i];

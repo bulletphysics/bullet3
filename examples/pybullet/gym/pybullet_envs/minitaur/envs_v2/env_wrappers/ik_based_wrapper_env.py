@@ -23,7 +23,7 @@ class IKBasedWrapperEnv(object):
                gym_env,
                toe_indices=(3, 7, 11, 15),
                abduction_motor_ids=(0, 3, 6, 9)):
-    """Initialzes the wrapped env.
+    """Initializes the wrapped env.
 
     Args:
       gym_env: An instance of LocomotionGymEnv.
@@ -46,7 +46,7 @@ class IKBasedWrapperEnv(object):
     return self._toe_ids
 
   def _joint_angles_from_toe_positions_and_base_pose(self, ik_actions):
-    """Uses Inverse Kinematics to calculate jont angles.
+    """Uses Inverse Kinematics to calculate joint angles.
 
     Args:
       ik_actions: The action should be local (x, y, z) for each toe. action for
@@ -92,7 +92,7 @@ class IKBasedWrapperEnv(object):
       action: Numpy array. The input action from an NN agent.
 
     Returns:
-      The tuple containing the modified observation, the reward, the epsiode end
+      The tuple containing the modified observation, the reward, the episode end
       indicator.
 
     Raises:

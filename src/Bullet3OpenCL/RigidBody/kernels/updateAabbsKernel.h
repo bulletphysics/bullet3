@@ -17,7 +17,7 @@ static const char* updateAabbsKernelCL =
 	"//keep B3_LARGE_FLOAT*B3_LARGE_FLOAT < FLT_MAX\n"
 	"#define B3_LARGE_FLOAT 1e18f\n"
 	"#define B3_INFINITY 1e18f\n"
-	"#define b3Assert(a)\n"
+	"#define b3Assert(a) (void)(x)\n"
 	"#define b3ConstArray(a) __global const a*\n"
 	"#define b3AtomicInc atomic_inc\n"
 	"#define b3AtomicAdd atomic_add\n"

@@ -34,12 +34,13 @@ public:
 
 	virtual bool loadMJCF(const char* fileName, MJCFErrorLogger* logger, bool forceFixedBase = false);
 
-	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)
+	virtual bool loadURDF(const char* /*fileName*/, bool forceFixedBase = false)
 	{
+		(void)forceFixedBase;
 		return false;
 	}
 
-	virtual bool loadSDF(const char* fileName, bool forceFixedBase = false) { return false; }
+	virtual bool loadSDF(const char* /*fileName*/, bool forceFixedBase = false) { (void)forceFixedBase; return false; }
 
 	virtual const char* getPathPrefix();
 

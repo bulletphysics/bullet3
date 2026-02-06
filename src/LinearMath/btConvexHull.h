@@ -61,10 +61,10 @@ public:
 		mVcount = 0;
 		mVertices = 0;
 		mVertexStride = sizeof(btVector3);
-		mNormalEpsilon = 0.001f;
+		mNormalEpsilon = btScalar(0.001);
 		mMaxVertices = 4096;  // maximum number of points to be considered for a convex hull.
 		mMaxFaces = 4096;
-	};
+	}
 
 	HullDesc(HullFlag flag,
 			 unsigned int vcount,
@@ -147,7 +147,7 @@ class int4
 {
 public:
 	int x, y, z, w;
-	int4(){};
+	int4(){}
 	int4(int _x, int _y, int _z, int _w)
 	{
 		x = _x;
@@ -187,7 +187,7 @@ public:
 	btAlignedObjectArray<int> m_vertexIndexMapping;
 
 	HullError CreateConvexHull(const HullDesc& desc,  // describes the input request
-							   HullResult& result);   // contains the resulst
+							   HullResult& result);   // contains the results
 	HullError ReleaseResult(HullResult& result);      // release memory allocated for this result, we are done with it.
 
 private:

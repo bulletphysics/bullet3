@@ -131,7 +131,7 @@ TString *luaX_newstring(LexState *ls, const char *str, size_t l)
 	}
 	else
 	{                                   /* string already present */
-		ts = rawtsvalue(keyfromval(o)); /* re-use value previously stored */
+		ts = rawtsvalue(keyfromval(o)); /* reuse value previously stored */
 	}
 	L->top--; /* remove string from stack */
 	return ts;
