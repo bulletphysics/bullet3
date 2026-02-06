@@ -327,41 +327,99 @@ IF(MSVC)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6326") # Potential comparison of a constant with another constant
 	add_compile_options(/analyze)
 ELSE()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
+	IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
+	ELSE()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+	ENDIF()
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-to-pointer-cast") # hellovr, stb_image
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-long-long") # C++98 has no long long
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-variadic-macros") # C++98 variadic macros
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-field-initializers") # gtest, stb_image
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual") # exampleBrowser OpenGLGuiHelper and btDeformable*
 	IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized") # gtest
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes") # b3Int64 cl_long
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy") # GIMPACT
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing") # GIMPACT, btSoftBody, OpenCL
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow") # btAlignedObjectArray - placement new
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow") # btAlignedObjectArray - placement new & findResourcePath
+		# add_compile_options(-fanalyzer) # lots of null dereference - be very cautious!
 	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++98-compat-pedantic") # long long is incompatible with C++98
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++98-compat") # override keyword is incompatible with C++98
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-zero-as-null-pointer-constant") # 0, NULL or nullptr
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-user-provided-copy") # GIMPACT
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual") # exampleBrowser OpenGLGuiHelper and btDeformable*
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-user-provided-dtor")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-dtor")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-pointer-subtraction") # btSoftBody
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof") # hellovr
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c99-extensions") # btAssign128
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-statement-expression-from-macro-expansion") # ARM build
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-over-aligned") # GLInstancingRenderer - 32bit build
+
+		# -Weverything - with Clang 21
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-global-constructors")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-exit-time-destructors")
+				
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-old-style-cast")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unsafe-buffer-usage") # false positives
+		
+		SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wno-unused-local-typedef") # for extra semi uselessTypeDefTrailingSemicolon
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedef") # for extra semi uselessTypeDefTrailingSemicolon
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-deprecated-sync")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reserved-macro-identifier")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reserved-identifier")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-cast-qual")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-cast-align")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-float-equal")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shift-sign-overflow") # gtest
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-double-promotion")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-conversion")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-string-conversion") # btAssert
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-suggest-override")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-suggest-destructor-override")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-disabled-macro-expansion") # in system headers and stbi_image
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch-default")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-covered-switch-default")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch-enum")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-packed") # Enet
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-padded")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-alloca")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-weak-vtables")
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-variable-declarations")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-macros")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-template")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-member-function")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-used-but-marked-unused")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undefined-func-template")
+		# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze -Wno-unused-command-line-argument") # static analyzer
 	ENDIF()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-parameter")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-variable")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-function")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-label")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-local-typedefs")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-parameter")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-value")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
+
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 	IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-		#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 		SET(CMAKE_OBJC_FLAGS "${CMAKE_OBJC_FLAGS} -Wno-deprecated-declarations")
 		ADD_DEFINITIONS(-DGL_SILENCE_DEPRECATION)
 	ENDIF()
-	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xanalyzer -fanalyzer") # static analyzer
 ENDIF()
 
 IF (BULLET2_USE_TBB_MULTITHREADING)
