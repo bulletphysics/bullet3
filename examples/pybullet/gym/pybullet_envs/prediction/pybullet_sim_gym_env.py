@@ -21,7 +21,6 @@ from pybullet_envs.prediction import boxstack_pybullet_sim
 import os
 import pybullet_data
 
-from pkg_resources import parse_version
 
 
 class PyBulletSimGymEnv(gym.Env):
@@ -209,7 +208,7 @@ class PyBulletSimGymEnv(gym.Env):
     self._observation = self._example_sim.GetObservation()
     return self._observation
 
-  if parse_version(gym.__version__) < parse_version('0.9.6'):
+  if tuple(int(x) for x in gym.__version__.split('.')) < (0, 9, 6):
     _render = render
     _reset = reset
     _seed = seed

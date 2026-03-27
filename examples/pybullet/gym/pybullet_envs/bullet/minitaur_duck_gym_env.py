@@ -10,7 +10,6 @@ os.sys.path.insert(0, parentdir)
 
 import math
 import time
-from pkg_resources import parse_version
 
 import gym
 from gym import spaces
@@ -383,7 +382,7 @@ class MinitaurBulletDuckEnv(gym.Env):
           self.minitaur.GetObservationUpperBound())
     return observation
 
-  if parse_version(gym.__version__) < parse_version('0.9.6'):
+  if tuple(int(x) for x in gym.__version__.split('.')) < (0, 9, 6):
     _render = render
     _reset = reset
     _seed = seed
