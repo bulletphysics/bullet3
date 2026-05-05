@@ -51,6 +51,13 @@ IF(NOT WIN32)
 		IF(APPLE)
 			MESSAGE("Apple")
 			SET(OSDEF -D_DARWIN)
+			# Fix arm64 rayTest stack alignment:
+			# btDbvt::rayTest uses char tempmemory[] on the stack which may
+			# not be properly aligned for btDbvtNode* pointers on arm64.
+			# BT_DISABLE_STACK_TEMP_MEMORY uses heap-allocated
+			# btAlignedObjectArray::resize() instead.
+			ADD_DEFINITIONS(-DBT_DISABLE_STACK_TEMP_MEMORY)
+			MESSAGE(STATUS "Apple Silicon: disabling Bullet rayTest stack temp memory")
 		ELSE(APPLE)
 			MESSAGE("BSD?")
 			SET(OSDEF -D_BSD)
