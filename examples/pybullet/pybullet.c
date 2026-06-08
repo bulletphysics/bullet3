@@ -4069,14 +4069,10 @@ static PyObject* pybullet_getAABB(PyObject* self, PyObject* args, PyObject* keyw
 
 #ifdef PYBULLET_USE_NUMPY
 
-static PyObject* pybullet_getBasePositionAndOrientations(PyObject* self,
+static PyObject* pybullet_getTransformsBatch(PyObject* self,
 														PyObject* args, PyObject* keywds)
 {
 	PyObject* bodyUniqueIdsObj = NULL;
-	//double* basePositions = NULL;
-	//double* baseOrientations = NULL;
-	//PyObject* pylistPos;
-	//PyObject* pylistOrientation;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
@@ -4093,21 +4089,18 @@ static PyObject* pybullet_getBasePositionAndOrientations(PyObject* self,
 		return NULL;
 	}
 
-	PyArrayObject* arr = (PyArrayObject*)bodyUniqueIdsObj;
+	// PyArrayObject* arr = (PyArrayObject*)bodyUniqueIdsObj;
+
+	PyArrayObject* arr = PyArray_FROM_OTF(bodyUniqueIdsObj,
+                 NPY_INT32,
+                 NPY_ARRAY_IN_ARRAY);
+	if (!arr)
+    	return NULL;
 
 	int* data = (int*)PyArray_DATA(arr);
 
 	//malloc n basePositions and baseOrientations oder wie ?
 	int n = PyArray_SIZE(arr);
-
-	/*npy_intp dimsPos[2] = {n, 3};
-	npy_intp dimsRot[2] = {n, 4};
-
-	PyArrayObject* posArray = PyArray_SimpleNew(2, dimsPos, NPY_DOUBLE);
-	PyArrayObject* ornArray = PyArray_SimpleNew(2, dimsRot, NPY_DOUBLE);
-
-	double* basePositions = (double*)PyArray_DATA(posArray);
-	double* baseOrientations = (double*)PyArray_DATA(ornArray);*/
 
 	npy_intp dims[2] = {n, 8};
 	PyObject* outArray = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
@@ -4116,27 +4109,19 @@ static PyObject* pybullet_getBasePositionAndOrientations(PyObject* self,
 	for (int i = 0; i < n; i++)
 	{
 		int bodyUniqueId = data[i];
-
-		//double* pos = &basePositions[3*i];
-		//double* orn = &baseOrientations[4*i];
 		double* base = &out[i * 8];
 
 		if (!pybullet_internalGetBasePositionAndOrientation(
 				bodyUniqueId, base, base + 3, sm)) //pos, orn
 		{
 			PyErr_SetString(SpamError, "GetBasePositionAndOrientation failed");
+			Py_DECREF(outArray);
 			return NULL;
 		}
 		base[7] = bodyUniqueId;
 	}
-
-	/*{
-		PyObject* pylist;
-		pylist = PyTuple_New(2);
-		PyTuple_SetItem(pylist, 0, posArray);
-		PyTuple_SetItem(pylist, 1, ornArray);
-		return pylist;
-	}*/
+	
+	Py_DECREF(arr);
 	return outArray;
 }
 
@@ -12876,7 +12861,7 @@ static PyMethodDef SpamMethods[] = {
 
 #ifdef PYBULLET_USE_NUMPY
 
-	{"getBasePositionAndOrientations", (PyCFunction)pybullet_getBasePositionAndOrientations,
+	{"getTransformsBatch", (PyCFunction)pybullet_getTransformsBatch,
 	 METH_VARARGS | METH_KEYWORDS,
 	 "Get the world positions and orientations of all the bases of the objects. "
 	 "(x,y,z) position vectors and (x,y,z,w) quaternions orientation."},
