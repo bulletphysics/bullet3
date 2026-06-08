@@ -4089,9 +4089,7 @@ static PyObject* pybullet_getTransformsBatch(PyObject* self,
 		return NULL;
 	}
 
-	// PyArrayObject* arr = (PyArrayObject*)bodyUniqueIdsObj;
-
-	PyArrayObject* arr = PyArray_FROM_OTF(bodyUniqueIdsObj,
+	PyArrayObject* arr = (PyArrayObject*)PyArray_FROM_OTF(bodyUniqueIdsObj,
                  NPY_INT32,
                  NPY_ARRAY_IN_ARRAY);
 	if (!arr)
@@ -4120,7 +4118,7 @@ static PyObject* pybullet_getTransformsBatch(PyObject* self,
 		}
 		base[7] = bodyUniqueId;
 	}
-	
+
 	Py_DECREF(arr);
 	return outArray;
 }
