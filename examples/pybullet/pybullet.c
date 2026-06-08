@@ -4067,6 +4067,82 @@ static PyObject* pybullet_getAABB(PyObject* self, PyObject* args, PyObject* keyw
 	return NULL;
 }
 
+#ifdef PYBULLET_USE_NUMPY
+
+static PyObject* pybullet_getBasePositionAndOrientations(PyObject* self,
+														PyObject* args, PyObject* keywds)
+{
+	PyObject* bodyUniqueIdsObj = NULL;
+	//double* basePositions = NULL;
+	//double* baseOrientations = NULL;
+	//PyObject* pylistPos;
+	//PyObject* pylistOrientation;
+	b3PhysicsClientHandle sm = 0;
+
+	int physicsClientId = 0;
+	static char* kwlist[] = {"bodyUniqueIds", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &bodyUniqueIdsObj, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	PyArrayObject* arr = (PyArrayObject*)bodyUniqueIdsObj;
+
+	int* data = (int*)PyArray_DATA(arr);
+
+	//malloc n basePositions and baseOrientations oder wie ?
+	int n = PyArray_SIZE(arr);
+
+	/*npy_intp dimsPos[2] = {n, 3};
+	npy_intp dimsRot[2] = {n, 4};
+
+	PyArrayObject* posArray = PyArray_SimpleNew(2, dimsPos, NPY_DOUBLE);
+	PyArrayObject* ornArray = PyArray_SimpleNew(2, dimsRot, NPY_DOUBLE);
+
+	double* basePositions = (double*)PyArray_DATA(posArray);
+	double* baseOrientations = (double*)PyArray_DATA(ornArray);*/
+
+	npy_intp dims[2] = {n, 8};
+	PyObject* outArray = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+	double* out = (double*)PyArray_DATA((PyArrayObject*)outArray);
+
+	for (int i = 0; i < n; i++)
+	{
+		int bodyUniqueId = data[i];
+
+		//double* pos = &basePositions[3*i];
+		//double* orn = &baseOrientations[4*i];
+		double* base = &out[i * 8];
+
+		if (!pybullet_internalGetBasePositionAndOrientation(
+				bodyUniqueId, base, base + 3, sm)) //pos, orn
+		{
+			PyErr_SetString(SpamError, "GetBasePositionAndOrientation failed");
+			return NULL;
+		}
+		base[7] = bodyUniqueId;
+	}
+
+	/*{
+		PyObject* pylist;
+		pylist = PyTuple_New(2);
+		PyTuple_SetItem(pylist, 0, posArray);
+		PyTuple_SetItem(pylist, 1, ornArray);
+		return pylist;
+	}*/
+	return outArray;
+}
+
+#endif
+	
+
 // Get the positions (x,y,z) and orientation (x,y,z,w) in quaternion
 // values for the base link of your object
 // Object is retrieved based on body index, which is the order
@@ -10232,8 +10308,8 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 		{
 			PyObject* pyResultList;  // store 4 elements in this result: width,
 									 // height, rgbData, depth
-
-#ifdef PYBULLET_USE_NUMPY
+#if 0									 
+//#ifdef PYBULLET_USE_NUMPY
 			PyObject* pyRGB;
 			PyObject* pyDep;
 			PyObject* pySeg;
@@ -10660,8 +10736,8 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 		{
 			PyObject* pyResultList;  // store 4 elements in this result: width,
 									 // height, rgbData, depth
-
-#ifdef PYBULLET_USE_NUMPY
+#if 0
+// #ifdef PYBULLET_USE_NUMPY 
 			PyObject* pyRGB;
 			PyObject* pyDep;
 			PyObject* pySeg;
@@ -12797,6 +12873,15 @@ static PyMethodDef SpamMethods[] = {
 	 METH_VARARGS | METH_KEYWORDS,
 	 "Get the world position and orientation of the base of the object. "
 	 "(x,y,z) position vector and (x,y,z,w) quaternion orientation."},
+
+#ifdef PYBULLET_USE_NUMPY
+
+	{"getBasePositionAndOrientations", (PyCFunction)pybullet_getBasePositionAndOrientations,
+	 METH_VARARGS | METH_KEYWORDS,
+	 "Get the world positions and orientations of all the bases of the objects. "
+	 "(x,y,z) position vectors and (x,y,z,w) quaternions orientation."},
+
+#endif
 
 	{"getAABB", (PyCFunction)pybullet_getAABB,
 	 METH_VARARGS | METH_KEYWORDS,
