@@ -54,6 +54,12 @@
 //#define PYBULLET_USE_NUMPY
 #ifdef PYBULLET_USE_NUMPY
 #include <numpy/arrayobject.h>
+/* For NumPy 2.0+ compatibility: PyArray_DATA became a function expecting PyArrayObject* */
+#if defined(NPY_VERSION) && NPY_VERSION >= 0x02000000
+#define B3_PyArray_DATA(arr) PyArray_DATA((PyArrayObject*)(arr))
+#else
+#define B3_PyArray_DATA(arr) PyArray_DATA(arr)
+#endif
 //#include "C:/Python37/Lib/site-packages/numpy/core/include/numpy/arrayobject.h"
 #endif
 
@@ -7081,7 +7087,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 			int len = (PyArray_NDIM(rayFromPyArrayObj) == 2) ? PyArray_DIMS(rayFromPyArrayObj)[0] : 1;
 			if (len <= MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING)
 			{
-				b3RaycastBatchAddRays(sm, commandHandle, PyArray_DATA(rayFromPyArrayObj), PyArray_DATA(rayToPyArrayObj), len);
+				b3RaycastBatchAddRays(sm, commandHandle, B3_PyArray_DATA(rayFromPyArrayObj), B3_PyArray_DATA(rayToPyArrayObj), len);
 				raysAdded = 1;
 			}
 		}
@@ -10290,9 +10296,8 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 		if (statusType == CMD_CAMERA_IMAGE_COMPLETED)
 		{
 			PyObject* pyResultList;  // store 4 elements in this result: width,
-									 // height, rgbData, depth
-#if 0									 
-//#ifdef PYBULLET_USE_NUMPY
+									 // height, rgbData, depth									 
+#ifdef PYBULLET_USE_NUMPY
 			PyObject* pyRGB;
 			PyObject* pyDep;
 			PyObject* pySeg;
@@ -10316,11 +10321,11 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 				pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
 				pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
 
-				memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+				memcpy(B3_PyArray_DATA(pyRGB), imageData.m_rgbColorData,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
-				memcpy(PyArray_DATA(pyDep), imageData.m_depthValues,
+				memcpy(B3_PyArray_DATA(pyDep), imageData.m_depthValues,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth * sizeof(float));
-				memcpy(PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
+				memcpy(B3_PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth * sizeof(int));
 
 				PyTuple_SetItem(pyResultList, 2, pyRGB);
@@ -10719,8 +10724,7 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 		{
 			PyObject* pyResultList;  // store 4 elements in this result: width,
 									 // height, rgbData, depth
-#if 0
-// #ifdef PYBULLET_USE_NUMPY 
+#ifdef PYBULLET_USE_NUMPY 
 			PyObject* pyRGB;
 			PyObject* pyDep;
 			PyObject* pySeg;
@@ -10742,11 +10746,11 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 				pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
 				pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
 
-				memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+				memcpy(B3_PyArray_DATA(pyRGB), imageData.m_rgbColorData,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
-				memcpy(PyArray_DATA(pyDep), imageData.m_depthValues,
+				memcpy(B3_PyArray_DATA(pyDep), imageData.m_depthValues,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth);
-				memcpy(PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
+				memcpy(B3_PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth);
 
 				PyTuple_SetItem(pyResultList, 2, pyRGB);
