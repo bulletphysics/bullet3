@@ -35,7 +35,7 @@ year = {2016--2021}
 ## Requirements for Bullet Physics C++
 
 A C++ compiler for C++ 2003. The library is tested on Windows, Linux, Mac OSX, iOS, Android,
-but should likely work on any platform with C++ compiler. 
+but should likely work on any platform with C++ compiler.
 Some optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical demos and unit tests too.
 
 ## Contributors and Coding Style information
@@ -118,9 +118,9 @@ make
 Note that on Linux, you need to use cmake to build pybullet, since the compiler has issues of mixing shared and static libraries.
 
 **Mac OSX Xcode**
-	
+
 Click on build3/xcode4.command or in a terminal window execute
-```	
+```
 ./premake_osx xcode4
 ```
 ## Usage
@@ -130,7 +130,7 @@ You can just run it though a terminal/command prompt, or by clicking it.
 
 
 ```
-[--start_demo_name="Demo Name"]     Start with a selected demo  
+[--start_demo_name="Demo Name"]     Start with a selected demo
 [--mp4=moviename.mp4]               Create a mp4 movie of the window, requires ffmpeg installed
 [--mouse_move_multiplier=0.400000]  Set the mouse move sensitivity
 [--mouse_wheel_multiplier=0.01]     Set the mouse wheel sensitivity
