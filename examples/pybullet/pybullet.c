@@ -10253,9 +10253,9 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 				PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
 				PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
 
-				pyRGB = PyArray_SimpleNew(3, rgb_dims, NPY_UINT8);
-				pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
-				pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
+				pyRGB = PyArray_SimpleNew(3, (const npy_intp*)rgb_dims, NPY_UINT8);
+				pyDep = PyArray_SimpleNew(2, (const npy_intp*)dep_dims, NPY_FLOAT32);
+				pySeg = PyArray_SimpleNew(2, (const npy_intp*)seg_dims, NPY_INT32);
 
 				memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
@@ -10679,16 +10679,16 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 				npy_intp dep_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
 				npy_intp seg_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
 
-				pyRGB = PyArray_SimpleNew(3, rgb_dims, NPY_UINT8);
-				pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
-				pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
+				pyRGB = PyArray_SimpleNew(3, (const npy_intp*)rgb_dims, NPY_UINT8);
+				pyDep = PyArray_SimpleNew(2, (const npy_intp*)dep_dims, NPY_FLOAT32);
+				pySeg = PyArray_SimpleNew(2, (const npy_intp*)seg_dims, NPY_INT32);
 
 				memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
 					   imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
 				memcpy(PyArray_DATA(pyDep), imageData.m_depthValues,
-					   imageData.m_pixelHeight * imageData.m_pixelWidth);
+					   imageData.m_pixelHeight * imageData.m_pixelWidth * sizeof(float));
 				memcpy(PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
-					   imageData.m_pixelHeight * imageData.m_pixelWidth);
+					   imageData.m_pixelHeight * imageData.m_pixelWidth * sizeof(int));
 
 				PyTuple_SetItem(pyResultList, 2, pyRGB);
 				PyTuple_SetItem(pyResultList, 3, pyDep);
