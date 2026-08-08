@@ -1,5 +1,6 @@
 """Demo of pybullet_utils.robot_helper driving an R2D2 robot by joint name."""
 import math
+import os
 import time
 
 import pybullet
@@ -14,7 +15,8 @@ def main():
     import pybullet_data
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
   except ImportError:
-    pass
+    data_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..", "data")
+    p.setAdditionalSearchPath(data_path)
 
   p.setGravity(0, 0, -10)
   p.loadURDF("plane.urdf")
