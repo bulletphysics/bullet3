@@ -25,6 +25,7 @@ subject to the following restrictions:
 #include <gtest/gtest.h>
 
 #include "SphereSphereCollision.h"
+#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
@@ -32,6 +33,8 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btComputeGjkEpaPenetration.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa3.h"
 #include "BulletCollision/NarrowPhaseCollision/btMprPenetration.h"
+#include "LinearMath/btAabbUtil2.h"
+#include "LinearMath/btQuaternion.h"
 
 namespace {
 
@@ -252,6 +255,48 @@ TEST(BulletCollisionTest, GjkEpaSphereSphereRadiusNotFullMarginDistance)
 TEST(BulletCollisionTest, AnalyticSphereSphereDistance)
 {
 	testSphereSphereDistance(SSTM_ANALYTIC, 0.00001);
+}
+
+TEST(BulletCollisionTest, PolyhedralConvexAabbAddsMarginOnce)
+{
+	const btVector3 points[] = {
+		btVector3(-1, -2, -3),
+		btVector3(4, -2, -3),
+		btVector3(-1, 5, -3),
+		btVector3(-1, -2, 6),
+	};
+	btConvexHullShape shape(&points[0].getX(), 4, sizeof(btVector3));
+	const btScalar margin = btScalar(0.25);
+	shape.setMargin(margin);
+	shape.recalcLocalAabb();
+
+	btTransform transform;
+	transform.setIdentity();
+	btVector3 aabbMin;
+	btVector3 aabbMax;
+	shape.getAabb(transform, aabbMin, aabbMax);
+
+	const btVector3 expectedMin = points[0] - btVector3(margin, margin, margin);
+	const btVector3 expectedMax = btVector3(4, 5, 6) + btVector3(margin, margin, margin);
+	for (int i = 0; i < 3; ++i)
+	{
+		EXPECT_NEAR(expectedMin[i], aabbMin[i], SIMD_EPSILON);
+		EXPECT_NEAR(expectedMax[i], aabbMax[i], SIMD_EPSILON);
+	}
+
+	const btScalar updatedMargin = btScalar(0.5);
+	shape.setMargin(updatedMargin);
+	transform.setOrigin(btVector3(10, -4, 2));
+	transform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / btScalar(4)));
+	shape.getAabbNonVirtual(transform, aabbMin, aabbMax);
+	btVector3 expectedUpdatedMin;
+	btVector3 expectedUpdatedMax;
+	btTransformAabb(points[0], btVector3(4, 5, 6), updatedMargin, transform, expectedUpdatedMin, expectedUpdatedMax);
+	for (int i = 0; i < 3; ++i)
+	{
+		EXPECT_NEAR(expectedUpdatedMin[i], aabbMin[i], SIMD_EPSILON);
+		EXPECT_NEAR(expectedUpdatedMax[i], aabbMax[i], SIMD_EPSILON);
+	}
 }
 
 class TriangleCollector : public btTriangleCallback

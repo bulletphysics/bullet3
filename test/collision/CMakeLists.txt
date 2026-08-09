@@ -24,6 +24,7 @@ ENDIF()
 		../../src/BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h
 		../../src/BulletCollision/CollisionShapes/btSphereShape.cpp
 		../../src/BulletCollision/CollisionShapes/btMultiSphereShape.cpp
+		../../src/BulletCollision/CollisionShapes/btConvexHullShape.cpp
 		../../src/BulletCollision/CollisionShapes/btPolyhedralConvexShape.cpp
 		../../src/BulletCollision/CollisionShapes/btConcaveShape.cpp
 		../../src/BulletCollision/CollisionShapes/btConvexShape.cpp
