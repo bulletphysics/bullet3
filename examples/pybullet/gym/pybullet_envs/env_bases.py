@@ -5,7 +5,7 @@ import os
 
 from pybullet_utils import bullet_client
 
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 try:
   if os.environ["PYBULLET_EGL"]:

@@ -19,7 +19,7 @@ from . import minitaur
 import os
 import pybullet_data
 from . import minitaur_env_randomizer
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 NUM_SUBSTEPS = 5
 NUM_MOTORS = 8

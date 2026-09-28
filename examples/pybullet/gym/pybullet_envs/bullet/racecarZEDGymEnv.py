@@ -14,7 +14,7 @@ from pybullet_utils import bullet_client as bc
 from . import racecar
 import random
 import pybullet_data
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 RENDER_HEIGHT = 720
 RENDER_WIDTH = 960
