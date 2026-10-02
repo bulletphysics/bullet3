@@ -119,6 +119,7 @@ protected:
 	void deleteCachedInverseDynamicsBodies();
 	void deleteCachedInverseKinematicsBodies();
 	void deleteStateLoggers();
+	void removeUserConstraintsForBody(int bodyUniqueId, struct SharedMemoryStatus& serverCmd);
 
 public:
 	PhysicsServerCommandProcessor();
