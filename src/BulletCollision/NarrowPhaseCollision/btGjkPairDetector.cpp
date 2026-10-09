@@ -142,9 +142,7 @@ inline void btVec3Copy(btVector3 *v, const btVector3 *w)
 
 inline void ccdVec3Add(btVector3 *v, const btVector3 *w)
 {
-	v->m_floats[0] += w->m_floats[0];
-	v->m_floats[1] += w->m_floats[1];
-	v->m_floats[2] += w->m_floats[2];
+	*v += *w;
 }
 
 inline void ccdVec3Sub(btVector3 *v, const btVector3 *w)
@@ -172,16 +170,12 @@ inline btScalar ccdVec3Dist2(const btVector3 *a, const btVector3 *b)
 
 inline void btVec3Scale(btVector3 *d, btScalar k)
 {
-	d->m_floats[0] *= k;
-	d->m_floats[1] *= k;
-	d->m_floats[2] *= k;
+	*d *= k;
 }
 
 inline void btVec3Cross(btVector3 *d, const btVector3 *a, const btVector3 *b)
 {
-	d->m_floats[0] = (a->m_floats[1] * b->m_floats[2]) - (a->m_floats[2] * b->m_floats[1]);
-	d->m_floats[1] = (a->m_floats[2] * b->m_floats[0]) - (a->m_floats[0] * b->m_floats[2]);
-	d->m_floats[2] = (a->m_floats[0] * b->m_floats[1]) - (a->m_floats[1] * b->m_floats[0]);
+	*d = btCross(*a, *b);
 }
 
 inline void btTripleCross(const btVector3 *a, const btVector3 *b,
