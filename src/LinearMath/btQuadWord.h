@@ -37,6 +37,13 @@ protected:
 	union {
 		vec_float4 mVec128;
 		btScalar m_floats[4];
+		struct
+		{
+			btScalar X;
+			btScalar Y;
+			btScalar Z;
+			btScalar W;
+		};
 	};
 
 public:
@@ -52,6 +59,13 @@ protected:
 	union {
 		btSimdFloat4 mVec128;
 		btScalar m_floats[4];
+		struct
+		{
+			btScalar X;
+			btScalar Y;
+			btScalar Z;
+			btScalar W;
+		};
 	};
 
 public:
@@ -64,7 +78,16 @@ public:
 		mVec128 = v128;
 	}
 #else
-	btScalar m_floats[4];
+	union {
+		btScalar m_floats[4];
+		struct
+		{
+			btScalar X;
+			btScalar Y;
+			btScalar Z;
+			btScalar W;
+		};
+	};
 #endif  // BT_USE_SSE
 
 #endif  //__CELLOS_LV2__ __SPU__
