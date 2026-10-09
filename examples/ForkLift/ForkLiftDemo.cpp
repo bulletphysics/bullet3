@@ -198,7 +198,7 @@ float maxBreakingForce = 100.f;
 
 float gVehicleSteering = 0.f;
 float steeringIncrement = 0.04f;
-float steeringClamp = 0.3f;
+float steeringClamp = 0.6f;
 float wheelRadius = 0.5f;
 float wheelWidth = 0.4f;
 float wheelFriction = 1000;  //BT_LARGE_FLOAT;
@@ -650,6 +650,12 @@ void ForkLiftDemo::stepSimulation(float deltaTime)
 		m_vehicle->applyEngineForce(gEngineForce, wheelIndex);
 		m_vehicle->setBrake(gBreakingForce, wheelIndex);
 
+		gVehicleSteering += steeringIncrement;
+        if (gVehicleSteering > steeringClamp)
+            gVehicleSteering = steeringClamp;
+        if (gVehicleSteering < -steeringClamp)
+            gVehicleSteering = -steeringClamp;
+		
 		wheelIndex = 0;
 		m_vehicle->setSteeringValue(gVehicleSteering, wheelIndex);
 		wheelIndex = 1;
@@ -825,18 +831,14 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 				case B3G_LEFT_ARROW:
 				{
 					handled = true;
-					gVehicleSteering += steeringIncrement;
-					if (gVehicleSteering > steeringClamp)
-						gVehicleSteering = steeringClamp;
+					steeringIncrement = 0.01f;
 
 					break;
 				}
 				case B3G_RIGHT_ARROW:
 				{
 					handled = true;
-					gVehicleSteering -= steeringIncrement;
-					if (gVehicleSteering < -steeringClamp)
-						gVehicleSteering = -steeringClamp;
+					steeringIncrement = -0.01f;
 
 					break;
 				}
@@ -922,6 +924,7 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 			case B3G_LEFT_ARROW:
 			case B3G_RIGHT_ARROW:
 			{
+				steeringIncrement = 0.0f;
 				lockLiftHinge();
 				handled = true;
 				break;
