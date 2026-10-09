@@ -27,7 +27,7 @@ struct btVehicleRaycaster
 		btScalar m_distFraction;
 	};
 
-	virtual void* castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result) = 0;
+	virtual const void* castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result) = 0;
 };
 
 #endif  //BT_VEHICLE_RAYCASTER_H

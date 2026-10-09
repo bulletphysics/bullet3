@@ -212,7 +212,7 @@ public:
 	{
 	}
 
-	virtual void* castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result);
+	virtual const void* castRay(const btVector3& from, const btVector3& to, btVehicleRaycasterResult& result);
 };
 
 #endif  //BT_RAYCASTVEHICLE_H
