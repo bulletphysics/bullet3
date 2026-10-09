@@ -7,6 +7,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src
 #SUBDIRS( Solvers )
 
 SET(BulletSoftBody_SRCS
+	BulletSoftBodyPCH.cpp
 	btSoftBody.cpp
 	btSoftBodyConcaveCollisionAlgorithm.cpp
 	btSoftBodyHelpers.cpp
@@ -80,6 +81,12 @@ SET(BulletSoftBody_HDRS
 ADD_LIBRARY(BulletSoftBody  ${BulletSoftBody_SRCS} ${BulletSoftBody_HDRS})
 SET_TARGET_PROPERTIES(BulletSoftBody PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletSoftBody PROPERTIES SOVERSION ${BULLET_VERSION})
+
+# Enable precompiled headers (CMake 3.16+)
+IF(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+	TARGET_PRECOMPILE_HEADERS(BulletSoftBody PRIVATE BulletSoftBodyPCH.h)
+ENDIF()
+
 IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletSoftBody BulletDynamics)
 ENDIF (BUILD_SHARED_LIBS)

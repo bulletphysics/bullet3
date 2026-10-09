@@ -1,6 +1,7 @@
 INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/src  )
 
 SET(BulletCollision_SRCS
+	BulletCollisionPCH.cpp
 	BroadphaseCollision/btAxisSweep3.cpp
 	BroadphaseCollision/btBroadphaseProxy.cpp
 	BroadphaseCollision/btCollisionAlgorithm.cpp
@@ -256,6 +257,12 @@ SET(BulletCollision_HDRS
 ADD_LIBRARY(BulletCollision ${BulletCollision_SRCS} ${BulletCollision_HDRS})
 SET_TARGET_PROPERTIES(BulletCollision PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletCollision PROPERTIES SOVERSION ${BULLET_VERSION})
+
+# Enable precompiled headers (CMake 3.16+)
+IF(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+	TARGET_PRECOMPILE_HEADERS(BulletCollision PRIVATE BulletCollisionPCH.h)
+ENDIF()
+
 IF (BUILD_SHARED_LIBS)
   TARGET_LINK_LIBRARIES(BulletCollision LinearMath)
 ENDIF (BUILD_SHARED_LIBS)

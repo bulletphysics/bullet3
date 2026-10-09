@@ -3,6 +3,7 @@ INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/src  )
 
 
 SET(BulletDynamics_SRCS
+	BulletDynamicsPCH.cpp
 	Character/btKinematicCharacterController.cpp
 	ConstraintSolver/btConeTwistConstraint.cpp
 	ConstraintSolver/btContactConstraint.cpp
@@ -143,6 +144,12 @@ SET(BulletDynamics_HDRS
 ADD_LIBRARY(BulletDynamics ${BulletDynamics_SRCS} ${BulletDynamics_HDRS})
 SET_TARGET_PROPERTIES(BulletDynamics PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletDynamics PROPERTIES SOVERSION ${BULLET_VERSION})
+
+# Enable precompiled headers (CMake 3.16+)
+IF(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+	TARGET_PRECOMPILE_HEADERS(BulletDynamics PRIVATE BulletDynamicsPCH.h)
+ENDIF()
+
 IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletDynamics BulletCollision LinearMath)
 ENDIF (BUILD_SHARED_LIBS)

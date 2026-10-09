@@ -20,7 +20,16 @@ ADD_DEFINITIONS( -DGLEW_STATIC -DGWEN_COMPILE_STATIC -D_HAS_EXCEPTIONS=0 )
 FILE(GLOB gwen_SRCS "*.cpp" "Controls/*.cpp" "Controls/Dialog/*.cpp" "Controls/Dialogs/*.cpp" "Controls/Layout/*.cpp" "Controls/Property/*.cpp" "Input/*.cpp" "Platforms/*.cpp" "Renderers/*.cpp" "Skins/*.cpp")
 FILE(GLOB gwen_HDRS "*.h" "Controls/*.h" "Controls/Dialog/*.h" "Controls/Dialogs/*.h" "Controls/Layout/*.h" "Controls/Property/*.h" "Input/*.h" "Platforms/*.h" "Renderers/*.h" "Skins/*.h")
 
+# Add PCH source file
+SET(gwen_SRCS ${gwen_SRCS} GwenPCH.cpp)
+
 ADD_LIBRARY(gwen ${gwen_SRCS} ${gwen_HDRS})
+
+# Enable precompiled headers (CMake 3.16+)
+IF(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+	TARGET_PRECOMPILE_HEADERS(gwen PRIVATE GwenPCH.h)
+ENDIF()
+
 IF (BUILD_SHARED_LIBS)
 IF(WIN32 OR APPLE)
   target_link_libraries(gwen ${OPENGL_gl_LIBRARY})
