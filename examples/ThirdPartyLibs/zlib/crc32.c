@@ -306,7 +306,7 @@ unsigned len;
 
 /* ========================================================================= */
 #define DOBIG4                                                   \
-	c ^= *++buf4;                                                \
+	c ^= *buf4++;                                                \
 	c = crc_table[4][c & 0xff] ^ crc_table[5][(c >> 8) & 0xff] ^ \
 		crc_table[6][(c >> 16) & 0xff] ^ crc_table[7][c >> 24]
 #define DOBIG32 \
@@ -336,7 +336,6 @@ unsigned len;
 	}
 
 	buf4 = (const z_crc_t FAR *)(const void FAR *)buf;
-	buf4--;
 	while (len >= 32)
 	{
 		DOBIG32;
@@ -347,7 +346,6 @@ unsigned len;
 		DOBIG4;
 		len -= 4;
 	}
-	buf4++;
 	buf = (const unsigned char FAR *)buf4;
 
 	if (len) do
