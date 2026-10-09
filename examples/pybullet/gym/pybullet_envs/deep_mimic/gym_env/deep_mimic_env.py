@@ -18,7 +18,7 @@ import subprocess
 import pybullet as p2
 import pybullet_data
 from pybullet_utils import bullet_client as bc
-from pkg_resources import parse_version
+
 from pybullet_envs.deep_mimic.env.pybullet_deep_mimic_env import PyBulletDeepMimicEnv, InitializationStrategy
 from pybullet_utils.arg_parser import ArgParser
 from pybullet_utils.logger import Logger

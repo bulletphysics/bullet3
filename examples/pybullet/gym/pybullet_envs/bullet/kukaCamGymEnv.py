@@ -13,7 +13,6 @@ import pybullet as p
 from . import kuka
 import random
 import pybullet_data
-from pkg_resources import parse_version
 
 maxSteps = 1000
 
@@ -252,7 +251,7 @@ class KukaCamGymEnv(gym.Env):
     #print(reward)
     return reward
 
-  if parse_version(gym.__version__) < parse_version('0.9.6'):
+  if tuple(int(x) for x in gym.__version__.split('.')) < (0, 9, 6):
     _render = render
     _reset = reset
     _seed = seed
