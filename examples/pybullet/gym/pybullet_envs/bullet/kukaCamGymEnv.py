@@ -13,7 +13,7 @@ import pybullet as p
 from . import kuka
 import random
 import pybullet_data
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 maxSteps = 1000
 

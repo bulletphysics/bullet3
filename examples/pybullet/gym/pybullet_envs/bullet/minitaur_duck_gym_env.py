@@ -10,7 +10,7 @@ os.sys.path.insert(0, parentdir)
 
 import math
 import time
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 import gym
 from gym import spaces

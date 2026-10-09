@@ -10,7 +10,7 @@ import pybullet_data
 import pdb
 import distutils.dir_util
 import glob
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 import gym
 
 

@@ -22,7 +22,7 @@ from pybullet_envs.minitaur.envs import minitaur_logging
 from pybullet_envs.minitaur.envs import minitaur_logging_pb2
 from pybullet_envs.minitaur.envs import minitaur_rainbow_dash
 from pybullet_envs.minitaur.envs import motor
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 NUM_MOTORS = 8
 MOTOR_ANGLE_OBSERVATION_INDEX = 0
