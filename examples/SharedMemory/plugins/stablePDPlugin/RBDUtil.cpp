@@ -2,7 +2,7 @@
 #include <iostream>
 
 #define _USE_MATH_DEFINES
-#include "math.h"
+#include <math.h>
 void cRBDUtil::SolveInvDyna(const cRBDModel& model, const Eigen::VectorXd& acc, Eigen::VectorXd& out_tau)
 {
 	const Eigen::MatrixXd& joint_mat = model.GetJointMat();
