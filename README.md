@@ -8,7 +8,7 @@ This is the official C++ source code repository of the Bullet Physics SDK: real-
 ![PyBullet](https://pybullet.org/wordpress/wp-content/uploads/2019/03/cropped-pybullet.png)
 
 ## Issues ##
-The Issue tracker was flooded with support questions and is closed until it is cleaned up. Use the [PyBullet forums]([[http://pybullet.org](https://bulletphysics.github.io)]) to read the historic discussion forums.
+The Issue tracker was flooded with support questions and is closed until it is cleaned up. Use the [PyBullet forums](https://bulletphysics.github.io) to read the historic discussion forums.
 
 ## PyBullet ##
 It is highly recommended to use PyBullet Python bindings for improved support for robotics, reinforcement learning and VR. Use pip install pybullet and checkout the [PyBullet Quickstart Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3).
