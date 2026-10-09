@@ -13,10 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#if defined(_WIN32) || defined(__i386__)
-#define BT_USE_SSE_IN_API
-#endif
-
 #include "btMultiSphereShape.h"
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 #include "LinearMath/btQuaternion.h"
