@@ -111,6 +111,40 @@ SIMD_FORCE_INLINE int bt_plane_clip_polygon(
 	return clipped_count;
 }
 
+//! Check if plane does cut/touch polygon
+/*!
+*\param points must at least have one entry
+*\return if plane does cut plane
+*/
+SIMD_FORCE_INLINE bool bt_plane_cuts_polygone(
+	const btVector4 &plane,
+	btScalar margin,
+	int point_count,
+	const btVector3 *points)
+{ 
+	btScalar lastDist = bt_distance_point_plane(plane, points[0]);
+	//touch the plane
+	if (lastDist < margin + SIMD_EPSILON && -margin - SIMD_EPSILON < lastDist)
+		return true;
+
+	for (int _k = 1; _k < point_count; ++_k)
+	{
+		btScalar dist = bt_distance_point_plane(plane, points[_k]);
+		
+		//touch the plane
+		if (dist < margin + SIMD_EPSILON && -margin - SIMD_EPSILON < dist)
+			return true;
+
+		// different sign
+		if (dist * lastDist < 0)
+			return true;
+
+		lastDist = dist;
+	}
+
+	return false;
+}
+
 //! Clips a polygon by a plane
 /*!
 *\param clipped must be an array of 16 points.
