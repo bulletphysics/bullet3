@@ -305,6 +305,11 @@ IF(COMMAND cmake_policy)
    cmake_policy(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy)
 
+# Set preferred OpenGL implementation to the modern GLVND.
+# This ensures FindOpenGL will prefer GLVND (if available) over legacy GL libraries.
+IF (POLICY CMP0072)
+  cmake_policy(SET CMP0072 NEW)
+ENDIF ()
 
 # This is the shortcut to finding GLU, GLUT and OpenGL if they are properly installed on your system
 # This should be the case.
