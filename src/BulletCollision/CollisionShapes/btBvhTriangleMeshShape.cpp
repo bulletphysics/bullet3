@@ -382,22 +382,34 @@ const char* btBvhTriangleMeshShape::serialize(void* dataBuffer, btSerializer* se
 		void* chunk = serializer->findPointer(m_bvh);
 		if (chunk)
 		{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+			trimeshData->m_quantizedLongDoubleBvh = (btQuantizedBvhData*)chunk;
+			trimeshData->m_quantizedFloatBvh = 0;
+			trimeshData->m_quantizedDoubleBvh = 0;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 			trimeshData->m_quantizedDoubleBvh = (btQuantizedBvhData*)chunk;
 			trimeshData->m_quantizedFloatBvh = 0;
+			trimeshData->m_quantizedLongDoubleBvh = 0;
 #else
 			trimeshData->m_quantizedFloatBvh = (btQuantizedBvhData*)chunk;
 			trimeshData->m_quantizedDoubleBvh = 0;
+			trimeshData->m_quantizedLongDoubleBvh = 0;
 #endif  //BT_USE_DOUBLE_PRECISION
 		}
 		else
 		{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+			trimeshData->m_quantizedLongDoubleBvh = (btQuantizedBvhData*)serializer->getUniquePointer(m_bvh);
+			trimeshData->m_quantizedFloatBvh = 0;
+			trimeshData->m_quantizedDoubleBvh = 0;
+#elif defined(BT_USE_DOUBLE_PRECISION)
 			trimeshData->m_quantizedDoubleBvh = (btQuantizedBvhData*)serializer->getUniquePointer(m_bvh);
 			trimeshData->m_quantizedFloatBvh = 0;
+			trimeshData->m_quantizedLongDoubleBvh = 0;
 #else
 			trimeshData->m_quantizedFloatBvh = (btQuantizedBvhData*)serializer->getUniquePointer(m_bvh);
 			trimeshData->m_quantizedDoubleBvh = 0;
+			trimeshData->m_quantizedLongDoubleBvh = 0;
 #endif  //BT_USE_DOUBLE_PRECISION
 
 			int sz = m_bvh->calculateSerializeBufferSizeNew();

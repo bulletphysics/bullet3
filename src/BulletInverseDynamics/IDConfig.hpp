@@ -65,7 +65,9 @@ typedef btScalar idScalar;
 #define BT_ID_MAX(a, b) btMax(a, b)
 #define BT_ID_MIN(a, b) btMin(a, b)
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define BT_ID_USE_LONG_DOUBLE_PRECISION
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define BT_ID_USE_DOUBLE_PRECISION
 #endif
 

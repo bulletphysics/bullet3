@@ -97,6 +97,12 @@ public:
 	{
 		return compute(coords, true, stride, count, shrink, shrinkClamp);
 	}
+
+	// same as above, but long double precision
+	btScalar compute(const long double* coords, int stride, int count, btScalar shrink, btScalar shrinkClamp)
+	{
+		return compute(coords, true, stride, count, shrink, shrinkClamp);
+	}
 };
 
 #endif  //BT_CONVEX_HULL_COMPUTER_H

@@ -21,7 +21,10 @@ subject to the following restrictions:
 #include "btMultiBody.h"
 #include "LinearMath/btSerializer.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btMultiBodyLinkColliderData btMultiBodyLinkColliderLongDoubleData
+#define btMultiBodyLinkColliderDataName "btMultiBodyLinkColliderLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btMultiBodyLinkColliderData btMultiBodyLinkColliderDoubleData
 #define btMultiBodyLinkColliderDataName "btMultiBodyLinkColliderDoubleData"
 #else
@@ -167,6 +170,14 @@ struct	btMultiBodyLinkColliderDoubleData
 {
 	btCollisionObjectDoubleData m_colObjData;
 	btMultiBodyDoubleData		*m_multiBody;
+	int			m_link;
+	char		m_padding[4];
+};
+
+struct	btMultiBodyLinkColliderLongDoubleData
+{
+	btCollisionObjectLongDoubleData m_colObjData;
+	btMultiBodyLongDoubleData		*m_multiBody;
 	int			m_link;
 	char		m_padding[4];
 };

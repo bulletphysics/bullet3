@@ -37,7 +37,9 @@ const btSimdFloat4 ATTRIBUTE_ALIGNED16(v0100) = {0.0f, 1.0f, 0.0f, 0.0f};
 const btSimdFloat4 ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
 #endif
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btMatrix3x3Data btMatrix3x3LongDoubleData
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btMatrix3x3Data btMatrix3x3DoubleData
 #else
 #define btMatrix3x3Data btMatrix3x3FloatData
@@ -812,6 +814,8 @@ public:
 	void deSerializeFloat(const struct btMatrix3x3FloatData& dataIn);
 
 	void deSerializeDouble(const struct btMatrix3x3DoubleData& dataIn);
+
+	void deSerializeLongDouble(const struct btMatrix3x3LongDoubleData& dataIn);
 };
 
 SIMD_FORCE_INLINE btMatrix3x3&
@@ -1398,6 +1402,12 @@ struct btMatrix3x3DoubleData
 	btVector3DoubleData m_el[3];
 };
 
+///for serialization
+struct btMatrix3x3LongDoubleData
+{
+	btVector3LongDoubleData m_el[3];
+};
+
 SIMD_FORCE_INLINE void btMatrix3x3::serialize(struct btMatrix3x3Data& dataOut) const
 {
 	for (int i = 0; i < 3; i++)
@@ -1426,6 +1436,12 @@ SIMD_FORCE_INLINE void btMatrix3x3::deSerializeDouble(const struct btMatrix3x3Do
 {
 	for (int i = 0; i < 3; i++)
 		m_el[i].deSerializeDouble(dataIn.m_el[i]);
+}
+
+SIMD_FORCE_INLINE void btMatrix3x3::deSerializeLongDouble(const struct btMatrix3x3LongDoubleData& dataIn)
+{
+	for (int i = 0; i < 3; i++)
+		m_el[i].deSerializeLongDouble(dataIn.m_el[i]);
 }
 
 #endif  //BT_MATRIX3x3_H

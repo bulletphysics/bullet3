@@ -402,7 +402,9 @@ struct CommandLogger
 
 	void writeHeader(unsigned char* buffer) const
 	{
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+		memcpy(buffer, "BT3CMDld", 8);
+#elif defined(BT_USE_DOUBLE_PRECISION)
 		memcpy(buffer, "BT3CMDd", 7);
 #else
 		memcpy(buffer, "BT3CMDf", 7);

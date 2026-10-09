@@ -27,7 +27,10 @@ TODO:
 
 #include "LinearMath/btScalar.h"  //for BT_USE_DOUBLE_PRECISION
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btSliderConstraintData2 btSliderConstraintLongDoubleData
+#define btSliderConstraintDataName "btSliderConstraintLongDoubleData"
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btSliderConstraintData2 btSliderConstraintDoubleData
 #define btSliderConstraintDataName "btSliderConstraintDoubleData"
 #else
@@ -315,6 +318,22 @@ struct btSliderConstraintDoubleData
 
 	double m_angularUpperLimit;
 	double m_angularLowerLimit;
+
+	int m_useLinearReferenceFrameA;
+	int m_useOffsetForConstraintFrame;
+};
+
+struct btSliderConstraintLongDoubleData
+{
+	btTypedConstraintLongDoubleData m_typeConstraintData;
+	btTransformLongDoubleData m_rbAFrame;
+	btTransformLongDoubleData m_rbBFrame;
+
+	long double m_linearUpperLimit;
+	long double m_linearLowerLimit;
+
+	long double m_angularUpperLimit;
+	long double m_angularLowerLimit;
 
 	int m_useLinearReferenceFrameA;
 	int m_useOffsetForConstraintFrame;

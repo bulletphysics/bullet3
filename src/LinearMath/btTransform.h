@@ -17,7 +17,9 @@ subject to the following restrictions:
 
 #include "btMatrix3x3.h"
 
-#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_LONG_DOUBLE_PRECISION
+#define btTransformData btTransformLongDoubleData
+#elif defined(BT_USE_DOUBLE_PRECISION)
 #define btTransformData btTransformDoubleData
 #else
 #define btTransformData btTransformFloatData
@@ -207,6 +209,8 @@ public:
 
 	void deSerialize(const struct btTransformData& dataIn);
 
+	void deSerializeLongDouble(const struct btTransformLongDoubleData& dataIn);
+
 	void deSerializeDouble(const struct btTransformDoubleData& dataIn);
 
 	void deSerializeFloat(const struct btTransformFloatData& dataIn);
@@ -254,6 +258,12 @@ struct btTransformDoubleData
 	btVector3DoubleData m_origin;
 };
 
+struct btTransformLongDoubleData
+{
+	btMatrix3x3LongDoubleData m_basis;
+	btVector3LongDoubleData m_origin;
+};
+
 SIMD_FORCE_INLINE void btTransform::serialize(btTransformData& dataOut) const
 {
 	m_basis.serialize(dataOut.m_basis);
@@ -282,6 +292,12 @@ SIMD_FORCE_INLINE void btTransform::deSerializeDouble(const btTransformDoubleDat
 {
 	m_basis.deSerializeDouble(dataIn.m_basis);
 	m_origin.deSerializeDouble(dataIn.m_origin);
+}
+
+SIMD_FORCE_INLINE void btTransform::deSerializeLongDouble(const btTransformLongDoubleData& dataIn)
+{
+	m_basis.deSerializeLongDouble(dataIn.m_basis);
+	m_origin.deSerializeLongDouble(dataIn.m_origin);
 }
 
 #endif  //BT_TRANSFORM_H
