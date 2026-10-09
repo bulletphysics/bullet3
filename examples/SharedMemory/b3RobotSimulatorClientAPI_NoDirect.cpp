@@ -1638,6 +1638,9 @@ int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(const char* text, doubl
 	{
 		b3UserDebugTextSetOrientation(commandHandle, &args.m_textOrientation[0]);
 	}
+	if (args.m_replaceItemUniqueId >=0){
+		b3UserDebugItemSetReplaceItemUniqueId( commandHandle, args.m_replaceItemUniqueId);
+	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
@@ -1678,6 +1681,9 @@ int b3RobotSimulatorClientAPI_NoDirect::addUserDebugLine(double* fromXYZ, double
 	if (args.m_parentObjectUniqueId >= 0)
 	{
 		b3UserDebugItemSetParentObject(commandHandle, args.m_parentObjectUniqueId, args.m_parentLinkIndex);
+	}
+	if (args.m_replaceItemUniqueId >=0){
+		b3UserDebugItemSetReplaceItemUniqueId( commandHandle, args.m_replaceItemUniqueId);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
