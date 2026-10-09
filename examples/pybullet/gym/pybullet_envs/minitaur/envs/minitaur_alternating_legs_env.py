@@ -75,7 +75,7 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
       log_path: The path to write out logs. For the details of logging, refer to
         minitaur_logging.proto.
     """
-    # _swing_offset and _extension_offset is to mimick the bent legs.
+    # _swing_offset and _extension_offset is to mimic the bent legs.
     self._swing_offset = np.zeros(NUM_LEGS)
     self._extension_offset = np.zeros(NUM_LEGS)
     super(MinitaurAlternatingLegsEnv,
@@ -147,7 +147,7 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
     return signal
 
   def _transform_action_to_motor_command(self, action):
-    #  Add swing_offset and extension_offset to mimick the bent legs.
+    #  Add swing_offset and extension_offset to mimic the bent legs.
     action[0:4] += self._swing_offset
     action[4:8] += self._extension_offset
     action += self._signal(self.minitaur.GetTimeSinceReset())

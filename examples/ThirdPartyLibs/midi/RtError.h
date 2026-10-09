@@ -27,12 +27,12 @@ public:
 		UNSPECIFIED,       /*!< The default, unspecified error type. */
 		NO_DEVICES_FOUND,  /*!< No devices found on system. */
 		INVALID_DEVICE,    /*!< An invalid device ID was specified. */
-		MEMORY_ERROR,      /*!< An error occured during memory allocation. */
+		MEMORY_ERROR,      /*!< An error occurred during memory allocation. */
 		INVALID_PARAMETER, /*!< An invalid parameter was specified to a function. */
 		INVALID_USE,       /*!< The function was called incorrectly. */
-		DRIVER_ERROR,      /*!< A system driver error occured. */
-		SYSTEM_ERROR,      /*!< A system error occured. */
-		THREAD_ERROR       /*!< A thread error occured. */
+		DRIVER_ERROR,      /*!< A system driver error occurred. */
+		SYSTEM_ERROR,      /*!< A system error occurred. */
+		THREAD_ERROR       /*!< A thread error occurred. */
 	};
 
 	//! The constructor.

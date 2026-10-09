@@ -24,11 +24,9 @@ subject to the following restrictions:
 #include "Bullet3OpenCL/ParallelPrimitives/b3RadixSort32CL.h"
 #include "Bullet3OpenCL/ParallelPrimitives/b3PrefixScanCL.h"
 
-#include "Bullet3OpenCL/BroadphaseCollision/kernels/parallelLinearBvhKernels.h"
-
 #define b3Int64 cl_long
 
-///@brief GPU Parallel Linearized Bounding Volume Heirarchy(LBVH) that is reconstructed every frame
+///@brief GPU Parallel Linearized Bounding Volume Hierarchy(LBVH) that is reconstructed every frame
 ///@remarks
 ///See presentation in docs/b3GpuParallelLinearBvh.pdf for algorithm details.
 ///@par
@@ -111,7 +109,7 @@ public:
 	///If the number of overlapping pairs is < out_overlappingPairs.size(), out_overlappingPairs is resized.
 	void calculateOverlappingPairs(b3OpenCLArray<b3Int4>& out_overlappingPairs);
 
-	///@param out_numRigidRayPairs Array of length 1; contains the number of detected ray-rigid AABB intersections;
+	///@param out_numRayRigidPairs Array of length 1; contains the number of detected ray-rigid AABB intersections;
 	///this value may be greater than out_rayRigidPairs.size() if out_rayRigidPairs is not large enough.
 	///@param out_rayRigidPairs Contains an array of rays intersecting rigid AABBs; x == ray index, y == rigid body index.
 	///If the size of this array is insufficient to hold all ray-rigid AABB intersections, additional intersections are discarded.

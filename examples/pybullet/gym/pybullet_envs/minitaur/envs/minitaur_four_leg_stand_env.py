@@ -232,7 +232,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     return signal
 
   def _transform_action_to_motor_command(self, action):
-    # Add swing_offset and extension_offset to mimick the motor zero-calibration
+    # Add swing_offset and extension_offset to mimic the motor zero-calibration
     # errors.
     real_action = np.array([0.0] * 8)
     real_action[4:8] = action + self._extension_offset

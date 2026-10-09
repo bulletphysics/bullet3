@@ -34,14 +34,14 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	btMultiBody* groundBody = (btMultiBody*)world->getWorldUserInfo();
 	btTransform predictedTrans;
 	btVector3 linearVelocity(0, 0, 0);
-	btVector3 angularVelocity(0, 0.1, 0);
+	btVector3 angularVelocity(0, btScalar(0.1), 0);
 	btTransformUtil::integrateTransform(groundBody->getBaseWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 	groundBody->setBaseWorldTransform(predictedTrans);
 	groundBody->setBaseVel(linearVelocity);
 	groundBody->setBaseOmega(angularVelocity);
 
 	static float time = 0.0;
-	time += deltaTime;
+	time += (float)deltaTime;
 	double old_joint_pos = groundBody->getJointPos(0);
 	double joint_pos = 0.5 * sin(time * 3.0 - 0.3);
 	double joint_vel = (joint_pos - old_joint_pos) / deltaTime;
@@ -105,13 +105,13 @@ void KinematicMultiBodyExample::initPhysics()
 		btVector3 secondLevelInertiaDiag(0.f, 0.f, 0.f);
 		float secondLevelMass = 0.1f;
 
-		if (baseMass)
+		if (baseMass != 0.0f)
 		{
 			btCollisionShape* pTempBox = new btBoxShape(btVector3(10, 10, 10));
 			pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);
 			delete pTempBox;
 		}
-		if (secondLevelMass)
+		if (secondLevelMass != 0.0f)
 		{
 			btCollisionShape* pTempBox = new btBoxShape(btVector3(0.5, 0.5, 0.5));
 			pTempBox->calculateLocalInertia(secondLevelMass, secondLevelInertiaDiag);
@@ -152,8 +152,8 @@ void KinematicMultiBodyExample::initPhysics()
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
-		btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
+		// Reusing the same collision is better for memory usage and performance
+		btBoxShape* colShape = createBoxShape(btVector3(btScalar(.1), btScalar(.1), btScalar(.1)));
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -182,7 +182,7 @@ void KinematicMultiBodyExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape);
+					createRigidBody((float)mass, startTransform, colShape);
 				}
 			}
 		}

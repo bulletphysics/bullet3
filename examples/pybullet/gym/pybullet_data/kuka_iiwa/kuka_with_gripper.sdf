@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!--This file contains the SDF model of a KUKA iiwa robot with a wsg50 gripper.
-    It has been produced from the varients in //third_party/robotics/models.
+    It has been produced from the variants in //third_party/robotics/models.
     Note:  This file is temporary, and should be deleted once Bullet supports
     importing models in SDF.  Also, this file has been specialized for Bullet,
     because the mass of the base link has been set to 0, as needed by Bullet.

@@ -471,10 +471,10 @@ void Jacobian::CalcDeltaThetasSDLS()
 
 	// Calculate response vector dTheta that is the SDLS solution.
 	//	Delta target values are the dS values
-	int nRows = J.GetNumRows();
+	int nRows = (int)J.GetNumRows();
 	
 	int numEndEffectors = m_tree->GetNumEffector();
-	int nCols = J.GetNumColumns();
+	int nCols = (int)J.GetNumColumns();
 	dTheta.SetZero();
 
 	// Calculate the norms of the 3-vectors in the Jacobian
@@ -539,11 +539,11 @@ void Jacobian::CalcDeltaThetasSDLS()
 		double gamma = MaxAngleSDLS;
 		if (N < M)
 		{
-			gamma *= N / M;  // Scale back maximum permissable joint angle
+			gamma *= N / M;  // Scale back maximum permissible joint angle
 		}
 
 		// Calculate the dTheta from pure pseudoinverse considerations
-		double scale = alpha * wiInv;  // This times i-th column of V is the psuedoinverse response
+		double scale = alpha * wiInv;  // This times i-th column of V is the pseudoinverse response
 		dPreTheta.LoadScaled(V.GetColumnPtr(i), scale);
 		// Now rescale the dTheta values.
 		double max = dPreTheta.MaxAbs();
@@ -650,7 +650,7 @@ void Jacobian::CompareErrors(const Jacobian& j1, const Jacobian& j2, double* wei
 	const VectorRn& e2 = j2.errorArray;
 	double ret1 = 0.0;
 	double ret2 = 0.0;
-	int len = e1.GetLength();
+	int len = (int)e1.GetLength();
 	for (long i = 0; i < len; i++)
 	{
 		double v1 = e1[i];
@@ -680,7 +680,7 @@ void Jacobian::CountErrors(const Jacobian& j1, const Jacobian& j2, int* numBette
 	const VectorRn& e1 = j1.errorArray;
 	const VectorRn& e2 = j2.errorArray;
 	int b1 = 0, b2 = 0, tie = 0;
-	int len = e1.GetLength();
+	int len = (int)e1.GetLength();
 	for (long i = 0; i < len; i++)
 	{
 		double v1 = e1[i];
@@ -772,7 +772,7 @@ void Jacobian::CalcDeltaThetasSDLSrev2()
 	
 		double lambda = 1.0;
 		if ( N<P ) {
-			lambda -= N/P;				// Scale back maximum permissable joint angle
+			lambda -= N/P;				// Scale back maximum permissible joint angle
 		}
 		lambda *= lambda;
 		lambda *= DampingLambdaSDLS;

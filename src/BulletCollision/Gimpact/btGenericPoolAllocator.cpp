@@ -27,7 +27,7 @@ size_t btGenericMemoryPool::allocate_from_free_nodes(size_t num_elements)
 	size_t ptr = BT_UINT_MAX;
 
 	if (m_free_nodes_count == 0) return BT_UINT_MAX;
-	// find an avaliable free node with the correct size
+	// find an available free node with the correct size
 	size_t revindex = m_free_nodes_count;
 
 	while (revindex-- && ptr == BT_UINT_MAX)
@@ -244,7 +244,7 @@ public:
 };
 
 // global allocator
-GIM_STANDARD_ALLOCATOR g_main_allocator;
+static GIM_STANDARD_ALLOCATOR g_main_allocator;
 
 void *btPoolAlloc(size_t size)
 {

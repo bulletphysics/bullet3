@@ -81,7 +81,7 @@ btQuantizedBvhNode
 		unsigned int x = 0;
 		unsigned int y = (~(x & 0)) << (31 - MAX_NUM_PARTS_IN_BITS);
 		// Get only the lower bits where the triangle index is stored
-		return (m_escapeIndexOrTriangleIndex & ~(y));
+		return (int)((unsigned int)m_escapeIndexOrTriangleIndex & ~(y));
 	}
 	int getPartId() const
 	{
@@ -149,7 +149,7 @@ public:
 class btNodeOverlapCallback
 {
 public:
-	virtual ~btNodeOverlapCallback(){};
+	virtual ~btNodeOverlapCallback(){}
 
 	virtual void processNode(int subPart, int triangleIndex) = 0;
 };
@@ -181,7 +181,7 @@ protected:
 	btVector3 m_bvhAabbMax;
 	btVector3 m_bvhQuantization;
 
-	int m_bulletVersion;  //for serialization versioning. It could also be used to detect endianess.
+	int m_bulletVersion;  //for serialization versioning. It could also be used to detect endianness.
 
 	int m_curNodeIndex;
 	//quantization data
@@ -459,7 +459,7 @@ public:
 
 private:
 	// Special "copy" constructor that allows for in-place deserialization
-	// Prevents btVector3's default constructor from being called, but doesn't inialize much else
+	// Prevents btVector3's default constructor from being called, but doesn't initialize much else
 	// ownsMemory should most likely be false if deserializing, and if you are not, don't call this (it also changes the function signature, which we need)
 	btQuantizedBvh(btQuantizedBvh & other, bool ownsMemory);
 };

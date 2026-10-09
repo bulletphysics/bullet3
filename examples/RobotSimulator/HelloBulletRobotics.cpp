@@ -1,7 +1,7 @@
 
 #include "b3RobotSimulatorClientAPI_NoGUI.h"
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 	b3RobotSimulatorClientAPI_NoGUI* sim = new b3RobotSimulatorClientAPI_NoGUI();
 
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
 	//remove all existing objects (if any)
 	sim->resetSimulation();
-	sim->setGravity(btVector3(0, 0, -9.8));
+	sim->setGravity(btVector3(0, 0, btScalar(-9.8)));
 	sim->setNumSolverIterations(100);
 	b3RobotSimulatorSetPhysicsEngineParameters args;
 	sim->getPhysicsEngineParameters(args);

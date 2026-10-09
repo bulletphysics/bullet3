@@ -177,7 +177,7 @@ static const char* solveContactCL =
 	"float calcJacCoeff(const float4 linear0, const float4 linear1, const float4 angular0, const float4 angular1,\n"
 	"					float invMass0, const Matrix3x3* invInertia0, float invMass1, const Matrix3x3* invInertia1)\n"
 	"{\n"
-	"	//	linear0,1 are normlized\n"
+	"	//	linear0,1 are normalized\n"
 	"	float jmj0 = invMass0;//dot3F4(linear0, linear0)*invMass0;\n"
 	"	float jmj1 = dot3F4(mtMul3(angular0,*invInertia0), angular0);\n"
 	"	float jmj2 = invMass1;//dot3F4(linear1, linear1)*invMass1;\n"

@@ -81,7 +81,7 @@ static SIMD_FORCE_INLINE bool proximityTest(const btVector3& x1, const btVector3
 	btScalar w1 = (b1 * a22 - b2 * a12) / det;
 	btScalar w2 = (b2 * a11 - b1 * a12) / det;
 	btScalar w3 = 1 - w1 - w2;
-	btScalar delta = mrg / std::sqrt(0.5 * std::abs(x13.cross(x23).safeNorm()));
+	btScalar delta = mrg / (btScalar)std::sqrt(0.5 * std::abs(x13.cross(x23).safeNorm()));
 	bary = btVector3(w1, w2, w3);
 	for (int i = 0; i < 3; ++i)
 	{
@@ -220,24 +220,24 @@ static SIMD_FORCE_INLINE bool getSigns(bool type_c, const btScalar& k0, const bt
 	return false;
 }
 
-static SIMD_FORCE_INLINE void getBernsteinCoeff(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, btScalar& k0, btScalar& k1, btScalar& k2, btScalar& k3)
+static SIMD_FORCE_INLINE void getBernsteinCoeff(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& /*dt*/, btScalar& k0, btScalar& k1, btScalar& k2, btScalar& k3)
 {
 	const btVector3& n0 = face->m_n0;
 	const btVector3& n1 = face->m_n1;
 	btVector3 n_hat = n0 + n1 - face->m_vn;
 	btVector3 p0ma0 = node->m_x - face->m_n[0]->m_x;
 	btVector3 p1ma1 = node->m_q - face->m_n[0]->m_q;
-	k0 = (p0ma0).dot(n0) * 3.0;
+	k0 = (p0ma0).dot(n0) * btScalar(3.0);
 	k1 = (p0ma0).dot(n_hat) + (p1ma1).dot(n0);
 	k2 = (p1ma1).dot(n_hat) + (p0ma0).dot(n1);
-	k3 = (p1ma1).dot(n1) * 3.0;
+	k3 = (p1ma1).dot(n1) * btScalar(3.0);
 }
 
 static SIMD_FORCE_INLINE void polyDecomposition(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& j0, const btScalar& j1, const btScalar& j2, btScalar& u0, btScalar& u1, btScalar& v0, btScalar& v1)
 {
-	btScalar denom = 4.0 * (j1 - j2) * (j1 - j0) + (j2 - j0) * (j2 - j0);
-	u0 = (2.0 * (j1 - j2) * (3.0 * k1 - 2.0 * k0 - k3) - (j0 - j2) * (3.0 * k2 - 2.0 * k3 - k0)) / denom;
-	u1 = (2.0 * (j1 - j0) * (3.0 * k2 - 2.0 * k3 - k0) - (j2 - j0) * (3.0 * k1 - 2.0 * k0 - k3)) / denom;
+	btScalar denom = btScalar(4.0) * (j1 - j2) * (j1 - j0) + (j2 - j0) * (j2 - j0);
+	u0 = (btScalar(2.0) * (j1 - j2) * (btScalar(3.0) * k1 - btScalar(2.0) * k0 - k3) - (j0 - j2) * (btScalar(3.0) * k2 - btScalar(2.0) * k3 - k0)) / denom;
+	u1 = (btScalar(2.0) * (j1 - j0) * (btScalar(3.0) * k2 - btScalar(2.0) * k3 - k0) - (j2 - j0) * (btScalar(3.0) * k1 - btScalar(2.0) * k0 - k3)) / denom;
 	v0 = k0 - u0 * j0;
 	v1 = k3 - u1 * j2;
 }
@@ -245,13 +245,13 @@ static SIMD_FORCE_INLINE void polyDecomposition(const btScalar& k0, const btScal
 static SIMD_FORCE_INLINE bool rootFindingLemma(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3)
 {
 	btScalar u0, u1, v0, v1;
-	btScalar j0 = 3.0 * (k1 - k0);
-	btScalar j1 = 3.0 * (k2 - k1);
-	btScalar j2 = 3.0 * (k3 - k2);
+	btScalar j0 = btScalar(3.0) * (k1 - k0);
+	btScalar j1 = btScalar(3.0) * (k2 - k1);
+	btScalar j2 = btScalar(3.0) * (k3 - k2);
 	polyDecomposition(k0, k1, k2, k3, j0, j1, j2, u0, u1, v0, v1);
 	if (sameSign(v0, v1))
 	{
-		btScalar Ypa = j0 * (1.0 - v0) * (1.0 - v0) + 2.0 * j1 * v0 * (1.0 - v0) + j2 * v0 * v0;  // Y'(v0)
+		btScalar Ypa = j0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(2.0) * j1 * v0 * (btScalar(1.0) - v0) + j2 * v0 * v0;  // Y'(v0)
 		if (sameSign(Ypa, j0))
 		{
 			return (diffSign(k0, v1));
@@ -281,29 +281,29 @@ static SIMD_FORCE_INLINE void getJs(const btScalar& k0, const btScalar& k1, cons
 	btVector3 m1 = (b1 - p1).cross(c1 - p1);
 	btVector3 m_hat = m0 + m1 - dt * dt * (vb - vp).cross(vc - vp);
 	btScalar l0 = m0.dot(n0);
-	btScalar l1 = 0.25 * (m0.dot(n_hat) + m_hat.dot(n0));
+	btScalar l1 = btScalar(0.25) * (m0.dot(n_hat) + m_hat.dot(n0));
 	btScalar l2 = btScalar(1) / btScalar(6) * (m0.dot(n1) + m_hat.dot(n_hat) + m1.dot(n0));
-	btScalar l3 = 0.25 * (m_hat.dot(n1) + m1.dot(n_hat));
+	btScalar l3 = btScalar(0.25) * (m_hat.dot(n1) + m1.dot(n_hat));
 	btScalar l4 = m1.dot(n1);
 
-	btScalar k1p = 0.25 * k0 + 0.75 * k1;
-	btScalar k2p = 0.5 * k1 + 0.5 * k2;
-	btScalar k3p = 0.75 * k2 + 0.25 * k3;
+	btScalar k1p = btScalar(0.25) * k0 + btScalar(0.75) * k1;
+	btScalar k2p = btScalar(0.5) * k1 + btScalar(0.5) * k2;
+	btScalar k3p = btScalar(0.75) * k2 + btScalar(0.25) * k3;
 
-	btScalar s0 = (l1 * k0 - l0 * k1p) * 4.0;
-	btScalar s1 = (l2 * k0 - l0 * k2p) * 2.0;
+	btScalar s0 = (l1 * k0 - l0 * k1p) * btScalar(4.0);
+	btScalar s1 = (l2 * k0 - l0 * k2p) * btScalar(2.0);
 	btScalar s2 = (l3 * k0 - l0 * k3p) * btScalar(4) / btScalar(3);
 	btScalar s3 = l4 * k0 - l0 * k3;
 
-	j0 = (s1 * k0 - s0 * k1) * 3.0;
-	j1 = (s2 * k0 - s0 * k2) * 1.5;
+	j0 = (s1 * k0 - s0 * k1) * btScalar(3.0);
+	j1 = (s2 * k0 - s0 * k2) * btScalar(1.5);
 	j2 = (s3 * k0 - s0 * k3);
 }
 
 static SIMD_FORCE_INLINE bool signDetermination1Internal(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& u0, const btScalar& u1, const btScalar& v0, const btScalar& v1)
 {
-	btScalar Yu0 = k0 * (1.0 - u0) * (1.0 - u0) * (1.0 - u0) + 3.0 * k1 * u0 * (1.0 - u0) * (1.0 - u0) + 3.0 * k2 * u0 * u0 * (1.0 - u0) + k3 * u0 * u0 * u0;  // Y(u0)
-	btScalar Yv0 = k0 * (1.0 - v0) * (1.0 - v0) * (1.0 - v0) + 3.0 * k1 * v0 * (1.0 - v0) * (1.0 - v0) + 3.0 * k2 * v0 * v0 * (1.0 - v0) + k3 * v0 * v0 * v0;  // Y(v0)
+	btScalar Yu0 = k0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k1 * u0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k2 * u0 * u0 * (btScalar(1.0) - u0) + k3 * u0 * u0 * u0;  // Y(u0)
+	btScalar Yv0 = k0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k1 * v0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k2 * v0 * v0 * (btScalar(1.0) - v0) + k3 * v0 * v0 * v0;  // Y(v0)
 
 	btScalar sign_Ytp = (u0 > u1) ? Yu0 : -Yu0;
 	btScalar L = sameSign(sign_Ytp, k0) ? u1 : u0;
@@ -314,7 +314,7 @@ static SIMD_FORCE_INLINE bool signDetermination1Internal(const btScalar& k0, con
 
 static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& j0, const btScalar& j1, const btScalar& j2, const btScalar& u0, const btScalar& u1, const btScalar& v0, const btScalar& v1)
 {
-	btScalar Yu0 = k0 * (1.0 - u0) * (1.0 - u0) * (1.0 - u0) + 3.0 * k1 * u0 * (1.0 - u0) * (1.0 - u0) + 3.0 * k2 * u0 * u0 * (1.0 - u0) + k3 * u0 * u0 * u0;  // Y(u0)
+	btScalar Yu0 = k0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k1 * u0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(3.0) * k2 * u0 * u0 * (btScalar(1.0) - u0) + k3 * u0 * u0 * u0;  // Y(u0)
 	btScalar sign_Ytp = (u0 > u1) ? Yu0 : -Yu0, L1, L2;
 	if (diffSign(sign_Ytp, k0))
 	{
@@ -323,7 +323,7 @@ static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, con
 	}
 	else
 	{
-		btScalar Yp_u0 = j0 * (1.0 - u0) * (1.0 - u0) + 2.0 * j1 * (1.0 - u0) * u0 + j2 * u0 * u0;
+		btScalar Yp_u0 = j0 * (btScalar(1.0) - u0) * (btScalar(1.0) - u0) + btScalar(2.0) * j1 * (btScalar(1.0) - u0) * u0 + j2 * u0 * u0;
 		if (sameSign(Yp_u0, j0))
 		{
 			L1 = u1;
@@ -335,7 +335,7 @@ static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, con
 			L2 = u0;
 		}
 	}
-	btScalar Yv0 = k0 * (1.0 - v0) * (1.0 - v0) * (1.0 - v0) + 3.0 * k1 * v0 * (1.0 - v0) * (1.0 - v0) + 3.0 * k2 * v0 * v0 * (1.0 - v0) + k3 * v0 * v0 * v0;  // Y(uv0)
+	btScalar Yv0 = k0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k1 * v0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(3.0) * k2 * v0 * v0 * (btScalar(1.0) - v0) + k3 * v0 * v0 * v0;  // Y(uv0)
 	sign_Ytp = (v0 > v1) ? Yv0 : -Yv0;
 	btScalar K1, K2;
 	if (diffSign(sign_Ytp, k0))
@@ -345,7 +345,7 @@ static SIMD_FORCE_INLINE bool signDetermination2Internal(const btScalar& k0, con
 	}
 	else
 	{
-		btScalar Yp_v0 = j0 * (1.0 - v0) * (1.0 - v0) + 2.0 * j1 * (1.0 - v0) * v0 + j2 * v0 * v0;
+		btScalar Yp_v0 = j0 * (btScalar(1.0) - v0) * (btScalar(1.0) - v0) + btScalar(2.0) * j1 * (btScalar(1.0) - v0) * v0 + j2 * v0 * v0;
 		if (sameSign(Yp_v0, j0))
 		{
 			K1 = v1;
@@ -365,7 +365,7 @@ static SIMD_FORCE_INLINE bool signDetermination1(const btScalar& k0, const btSca
 	btScalar j0, j1, j2, u0, u1, v0, v1;
 	// p1
 	getJs(k0, k1, k2, k3, face->m_n[0], face->m_n[1], face->m_n[2], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		getSigns(true, k0, k1, k2, k3, j0, j2, lt0, lt1);
@@ -380,7 +380,7 @@ static SIMD_FORCE_INLINE bool signDetermination1(const btScalar& k0, const btSca
 	}
 	// p2
 	getJs(k0, k1, k2, k3, face->m_n[1], face->m_n[2], face->m_n[0], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		getSigns(true, k0, k1, k2, k3, j0, j2, lt0, lt1);
@@ -395,7 +395,7 @@ static SIMD_FORCE_INLINE bool signDetermination1(const btScalar& k0, const btSca
 	}
 	// p3
 	getJs(k0, k1, k2, k3, face->m_n[2], face->m_n[0], face->m_n[1], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		getSigns(true, k0, k1, k2, k3, j0, j2, lt0, lt1);
@@ -416,7 +416,7 @@ static SIMD_FORCE_INLINE bool signDetermination2(const btScalar& k0, const btSca
 	btScalar j0, j1, j2, u0, u1, v0, v1;
 	// p1
 	getJs(k0, k1, k2, k3, face->m_n[0], face->m_n[1], face->m_n[2], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		bool bt0 = true, bt1 = true;
@@ -436,7 +436,7 @@ static SIMD_FORCE_INLINE bool signDetermination2(const btScalar& k0, const btSca
 	}
 	// p2
 	getJs(k0, k1, k2, k3, face->m_n[1], face->m_n[2], face->m_n[0], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		bool bt0 = true, bt1 = true;
@@ -456,7 +456,7 @@ static SIMD_FORCE_INLINE bool signDetermination2(const btScalar& k0, const btSca
 	}
 	// p3
 	getJs(k0, k1, k2, k3, face->m_n[2], face->m_n[0], face->m_n[1], node, dt, j0, j1, j2);
-	if (nearZero(j0 + j2 - j1 * 2.0))
+	if (nearZero(j0 + j2 - j1 * btScalar(2.0)))
 	{
 		btScalar lt0, lt1;
 		bool bt0 = true, bt1 = true;
@@ -496,7 +496,7 @@ static SIMD_FORCE_INLINE bool coplanarAndInsideTest(const btScalar& k0, const bt
 		// inside test
 		return signDetermination1(k0, k1, k2, k3, face, node, dt);
 	}
-	return false;
+	// return false;
 }
 static SIMD_FORCE_INLINE bool conservativeCulling(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& mrg)
 {
@@ -516,12 +516,12 @@ static SIMD_FORCE_INLINE bool bernsteinVFTest(const btScalar& k0, const btScalar
 
 static SIMD_FORCE_INLINE void deCasteljau(const btScalar& k0, const btScalar& k1, const btScalar& k2, const btScalar& k3, const btScalar& t0, btScalar& k10, btScalar& k20, btScalar& k30, btScalar& k21, btScalar& k12)
 {
-	k10 = k0 * (1.0 - t0) + k1 * t0;
-	btScalar k11 = k1 * (1.0 - t0) + k2 * t0;
-	k12 = k2 * (1.0 - t0) + k3 * t0;
-	k20 = k10 * (1.0 - t0) + k11 * t0;
-	k21 = k11 * (1.0 - t0) + k12 * t0;
-	k30 = k20 * (1.0 - t0) + k21 * t0;
+	k10 = k0 * (btScalar(1.0) - t0) + k1 * t0;
+	btScalar k11 = k1 * (btScalar(1.0) - t0) + k2 * t0;
+	k12 = k2 * (btScalar(1.0) - t0) + k3 * t0;
+	k20 = k10 * (btScalar(1.0) - t0) + k11 * t0;
+	k21 = k11 * (btScalar(1.0) - t0) + k12 * t0;
+	k30 = k20 * (btScalar(1.0) - t0) + k21 * t0;
 }
 static SIMD_FORCE_INLINE bool bernsteinVFTest(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, const btScalar& mrg)
 {
@@ -530,14 +530,14 @@ static SIMD_FORCE_INLINE bool bernsteinVFTest(const btSoftBody::Face* face, cons
 	if (conservativeCulling(k0, k1, k2, k3, mrg))
 		return false;
 	return true;
-	if (diffSign(k2 - 2.0 * k1 + k0, k3 - 2.0 * k2 + k1))
-	{
-		btScalar k10, k20, k30, k21, k12;
-		btScalar t0 = (k2 - 2.0 * k1 + k0) / (k0 - 3.0 * k1 + 3.0 * k2 - k3);
-		deCasteljau(k0, k1, k2, k3, t0, k10, k20, k30, k21, k12);
-		return bernsteinVFTest(k0, k10, k20, k30, mrg, face, node, dt) || bernsteinVFTest(k30, k21, k12, k3, mrg, face, node, dt);
-	}
-	return coplanarAndInsideTest(k0, k1, k2, k3, face, node, dt);
+	// if (diffSign(k2 - 2.0 * k1 + k0, k3 - 2.0 * k2 + k1))
+	// {
+	// 	btScalar k10, k20, k30, k21, k12;
+	// 	btScalar t0 = (k2 - 2.0 * k1 + k0) / (k0 - 3.0 * k1 + 3.0 * k2 - k3);
+	// 	deCasteljau(k0, k1, k2, k3, t0, k10, k20, k30, k21, k12);
+	// 	return bernsteinVFTest(k0, k10, k20, k30, mrg, face, node, dt) || bernsteinVFTest(k30, k21, k12, k3, mrg, face, node, dt);
+	// }
+	// return coplanarAndInsideTest(k0, k1, k2, k3, face, node, dt);
 }
 
 static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, const btScalar& mrg, btVector3& bary)
@@ -611,10 +611,10 @@ static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Fac
 			continue;
 		if (root > dt + SIMD_EPSILON)
 			return false;
-		btVector3 x1 = face->m_n[0]->m_x + root * face->m_n[0]->m_v;
-		btVector3 x2 = face->m_n[1]->m_x + root * face->m_n[1]->m_v;
-		btVector3 x3 = face->m_n[2]->m_x + root * face->m_n[2]->m_v;
-		btVector3 x4 = node->m_x + root * node->m_v;
+		btVector3 x1 = face->m_n[0]->m_x + (btScalar)root * face->m_n[0]->m_v;
+		btVector3 x2 = face->m_n[1]->m_x + (btScalar)root * face->m_n[1]->m_v;
+		btVector3 x3 = face->m_n[2]->m_x + (btScalar)root * face->m_n[2]->m_v;
+		btVector3 x4 = node->m_x + (btScalar)root * node->m_v;
 		btVector3 normal = (x2 - x1).cross(x3 - x1);
 		normal.safeNormalize();
 		if (proximityTest(x1, x2, x3, x4, normal, mrg, bary))
@@ -626,7 +626,7 @@ static SIMD_FORCE_INLINE bool bernsteinCCD(const btSoftBody::Face* face, const b
 {
 	if (!bernsteinVFTest(face, node, dt, mrg))
 		return false;
-	if (!continuousCollisionDetection(face, node, dt, 1e-6, bary))
+	if (!continuousCollisionDetection(face, node, dt, btScalar(1e-6), bary))
 		return false;
 	return true;
 }
@@ -753,15 +753,15 @@ public:
 		return (localGetSupportingVertex(vec));
 	}
 	//notice that the vectors should be unit length
-	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* /*vectors*/, btVector3* /*supportVerticesOut*/, int /*numVectors*/) const
 	{
 	}
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3& inertia) const
+	virtual void calculateLocalInertia(btScalar /*mass*/, btVector3& /*inertia*/) const
 	{
 	}
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
+	virtual void getAabb(const btTransform& /*t*/, btVector3& /*aabbMin*/, btVector3& /*aabbMax*/) const
 	{
 	}
 
@@ -788,7 +788,7 @@ public:
 template <typename T>
 static inline void ZeroInitialize(T& value)
 {
-	memset(&value, 0, sizeof(T));
+	memset((void*)&value, 0, sizeof(T));
 }
 //
 template <typename T>
@@ -1115,19 +1115,19 @@ static inline bool rayIntersectsTriangle(const btVector3& origin, const btVector
 	btVector3 h = dir.cross(e2);
 	a = e1.dot(h);
 
-	if (a > -0.00001 && a < 0.00001)
+	if (a > btScalar(-0.00001) && a < btScalar(0.00001))
 		return (false);
 
 	f = btScalar(1) / a;
 	btVector3 s = origin - v0;
 	u = f * s.dot(h);
 
-	if (u < 0.0 || u > 1.0)
+	if (u < btScalar(0.0) || u > btScalar(1.0))
 		return (false);
 
 	btVector3 q = s.cross(e1);
 	v = f * dir.dot(q);
-	if (v < 0.0 || u + v > 1.0)
+	if (v < btScalar(0.0) || u + v > btScalar(1.0))
 		return (false);
 	// at this stage we can compute t to find out where
 	// the intersection point is on the line
@@ -1362,7 +1362,7 @@ struct btEigen
 				const btScalar w = (a[q][q] - a[p][p]) / (2 * a[p][q]);
 				const btScalar z = btFabs(w);
 				const btScalar t = w / (z * (btSqrt(1 + w * w) + z));
-				if (t == t) /* [WARNING] let hope that one does not get thrown aways by some compilers... */
+				if (t == t) /* [WARNING] let hope that one does not get thrown away by some compilers... */
 				{
 					const btScalar c = 1 / btSqrt(t * t + 1);
 					const btScalar s = c * t;
@@ -1411,7 +1411,7 @@ private:
 static inline int PolarDecompose(const btMatrix3x3& m, btMatrix3x3& q, btMatrix3x3& s)
 {
 	static const btPolarDecomposition polar;
-	return polar.decompose(m, q, s);
+	return (int)polar.decompose(m, q, s);
 }
 
 //
@@ -1584,8 +1584,8 @@ struct btSoftColliders
 			}
 			else
 			{
-				static int count = 0;
-				count++;
+				// static int count = 0;
+				// count++;
 				//printf("count=%d\n",count);
 			}
 		}
@@ -1882,7 +1882,7 @@ struct btSoftColliders
 			}
 
 			btVector3 o = node->m_x;
-			btVector3 p;
+			btVector3 p(btScalar(0),btScalar(0),btScalar(0));
 			btScalar d = SIMD_INFINITY;
 			ProjectOrigin(face->m_n[0]->m_x - o,
 						  face->m_n[1]->m_x - o,
@@ -2000,7 +2000,9 @@ struct btSoftColliders
 				}
 			}
 #endif
+#ifdef REPEL_NEIGHBOR
 			bool skip = false;
+#endif
 			for (int node_id = 0; node_id < 3; ++node_id)
 			{
 				btSoftBody::Node* node = f1->m_n[node_id];
@@ -2097,7 +2099,9 @@ struct btSoftColliders
 				}
 			}
 #endif
+#ifdef REPEL_NEIGHBOR
 			bool skip = false;
+#endif
 			for (int node_id = 0; node_id < 3; ++node_id)
 			{
 				btSoftBody::Node* node = f1->m_n[node_id];

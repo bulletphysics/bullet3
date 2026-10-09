@@ -539,7 +539,7 @@ static inline void mat4x4_from_quat(mat4x4 M, quat q)
 
 static inline void mat4x4o_mul_quat(mat4x4 R, mat4x4 M, quat q)
 {
-	/*  XXX: The way this is written only works for othogonal matrices. */
+	/*  XXX: The way this is written only works for orthogonal matrices. */
 	/* TODO: Take care of non-orthogonal case. */
 	quat_mul_vec3(R[0], q, M[0]);
 	quat_mul_vec3(R[1], q, M[1]);

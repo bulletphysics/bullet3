@@ -27,8 +27,8 @@ subject to the following restrictions:
 
 #include "btBoxCollision.h"
 
-#define PLANEDIREPSILON 0.0000001f
-#define PARALELENORMALS 0.000001f
+#define PLANEDIREPSILON btScalar(0.0000001)
+#define PARALELENORMALS btScalar(0.000001)
 
 #define BT_CLAMP(number, minval, maxval) (number < minval ? minval : (number > maxval ? maxval : number))
 
@@ -51,11 +51,11 @@ SIMD_FORCE_INLINE void bt_closest_point_on_segment(
 	btVector3 n = e2 - e1;
 	cp = v - e1;
 	btScalar _scalar = cp.dot(n) / n.dot(n);
-	if (_scalar < 0.0f)
+	if (_scalar < btScalar(0.0))
 	{
 		cp = e1;
 	}
-	else if (_scalar > 1.0f)
+	else if (_scalar > btScalar(1.0))
 	{
 		cp = e2;
 	}
@@ -90,7 +90,7 @@ SIMD_FORCE_INLINE int bt_line_plane_collision(
 	}
 
 	btScalar _dis = bt_distance_point_plane(plane, vPoint);
-	char returnvalue = _dis < 0.0f ? 2 : 1;
+	char returnvalue = _dis < btScalar(0.0) ? 2 : 1;
 	tparam = -_dis / _dotdir;
 
 	if (tparam < tmin)
@@ -138,8 +138,8 @@ SIMD_FORCE_INLINE void bt_segment_collision(
 		_M[2] = vA1.dot(AD);
 		_M[3] = vA2.dot(AD);
 		//mid points
-		N[0] = (_M[0] + _M[1]) * 0.5f;
-		N[1] = (_M[2] + _M[3]) * 0.5f;
+		N[0] = (_M[0] + _M[1]) * btScalar(0.5);
+		N[1] = (_M[2] + _M[3]) * btScalar(0.5);
 
 		if (N[0] < N[1])
 		{
@@ -190,7 +190,7 @@ SIMD_FORCE_INLINE void bt_segment_collision(
 	vPointB = vPointA - vB1;
 	tp = vPointB.dot(BD);
 	tp /= BD.dot(BD);
-	tp = BT_CLAMP(tp, 0.0f, 1.0f);
+	tp = BT_CLAMP(tp, btScalar(0.0), btScalar(1.0));
 
 	vPointB = tp * BD + vB1;
 }

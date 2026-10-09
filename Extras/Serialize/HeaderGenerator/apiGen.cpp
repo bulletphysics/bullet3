@@ -73,7 +73,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-bool dataTypeStandard(bString dataType)
+static bool dataTypeStandard(bString dataType)
 {
 	if (dataType == "char")
 		return true;
@@ -95,7 +95,7 @@ bool dataTypeStandard(bString dataType)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void writeTemplate(short *structData)
+static void writeTemplate(short *structData)
 {
 	bString type = mDNA->getType(structData[0]);
 	bString className = type;
@@ -259,6 +259,7 @@ int main(int argc, char **argv)
 		swap = (f.getFlags() & FD_ENDIAN_SWAP)!=0;
 	}
 #else
+	(void)argc; (void)argv;
 	isBulletFile = true;
 	bool swap = false;
 	char *memBuf = sBulletDNAstr;
@@ -285,25 +286,28 @@ int main(int argc, char **argv)
 	}
 
 	FILE *fpdna = fopen("dnaString.txt", "w");
-	char buf[1024];
-
-	for (int i = 0; i < len - sdnaPos; i++)
+	if(fpdna)
 	{
-		int dnaval = (memBuf + sdnaPos)[i];
+		char buf[1024];
 
-		if ((i % 32) == 0)
+		for (int i = 0; i < len - sdnaPos; i++)
 		{
-			sprintf(buf, "%d,\n", dnaval);
-		}
-		else
-		{
-			sprintf(buf, "%d,", dnaval);
+			int dnaval = (memBuf + sdnaPos)[i];
+
+			if ((i % 32) == 0)
+			{
+				sprintf(buf, "%d,\n", dnaval);
+			}
+			else
+			{
+				sprintf(buf, "%d,", dnaval);
+			}
+
+			fwrite(buf, strlen(buf), 1, fpdna);
 		}
 
-		fwrite(buf, strlen(buf), 1, fpdna);
+		fclose(fpdna);
 	}
-
-	fclose(fpdna);
 
 	mDNA = new bDNA();
 	//mDNA->initMemory();
@@ -332,13 +336,13 @@ int main(int argc, char **argv)
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-int _getArraySize(char *str)
+static int _getArraySize(char *str)
 {
 	int a, mul = 1;
 	char stri[100], *cp = 0;
 	int len = (int)strlen(str);
 
-	memcpy(stri, str, len + 1);
+	memcpy(stri, str, (size_t)len + 1);
 	for (a = 0; a < len; a++)
 	{
 		if (str[a] == '[')

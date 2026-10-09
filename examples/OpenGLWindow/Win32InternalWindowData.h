@@ -7,7 +7,7 @@
 struct InternalData2
 {
 	HWND m_hWnd;
-	;
+
 	int m_fullWindowWidth;  //includes borders etc
 	int m_fullWindowHeight;
 

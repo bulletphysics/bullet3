@@ -123,7 +123,7 @@ class LocomotionGymEnv(gym.Env):
                                              self._num_action_repeat)
 
     self._sim_time_step = gym_config.simulation_parameters.sim_time_step_s
-    # The sim step counter is an internal varialbe to count the number of
+    # The sim step counter is an internal variable to count the number of
     # pybullet stepSimulation() has been called since last reset.
     self._sim_step_counter = 0
 

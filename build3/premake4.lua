@@ -293,7 +293,7 @@
 	newoption
 	{
 		trigger = "lua",
-		description = "Enable Lua scipting support in Example Browser"
+		description = "Enable Lua scripting support in Example Browser"
 	}
 
 	newoption

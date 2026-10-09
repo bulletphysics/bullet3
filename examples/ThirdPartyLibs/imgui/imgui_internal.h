@@ -221,7 +221,7 @@ struct ImNewPlacementDummy
 {
 };
 inline void* operator new(size_t, ImNewPlacementDummy, void* ptr) { return ptr; }
-inline void operator delete(void*, ImNewPlacementDummy, void*) {}  // This is only required so we can use the symetrical new()
+inline void operator delete(void*, ImNewPlacementDummy, void*) {}  // This is only required so we can use the symmetrical new()
 #define IM_PLACEMENT_NEW(_PTR) new (ImNewPlacementDummy(), _PTR)
 #define IM_NEW(_TYPE) new (ImNewPlacementDummy(), ImGui::MemAlloc(sizeof(_TYPE))) _TYPE
 template <typename T>
@@ -590,7 +590,7 @@ struct ImGuiPopupRef
 	ImGuiWindow* Window;        // Resolved on BeginPopup() - may stay unresolved if user never calls OpenPopup()
 	ImGuiWindow* ParentWindow;  // Set on OpenPopup()
 	int OpenFrameCount;         // Set on OpenPopup()
-	ImGuiID OpenParentId;       // Set on OpenPopup(), we need this to differenciate multiple menu sets from each others (e.g. inside menu bar vs loose menu items)
+	ImGuiID OpenParentId;       // Set on OpenPopup(), we need this to differentiate multiple menu sets from each others (e.g. inside menu bar vs loose menu items)
 	ImVec2 OpenPopupPos;        // Set on OpenPopup(), preferred popup position (typically == OpenMousePos when using mouse)
 	ImVec2 OpenMousePos;        // Set on OpenPopup(), copy of mouse position at the time of opening popup
 };

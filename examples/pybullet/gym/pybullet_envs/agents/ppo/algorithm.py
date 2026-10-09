@@ -349,7 +349,7 @@ class PPOAlgorithm(object):
     """Compute the loss function for the value baseline.
 
     The value loss is the difference between empirical and approximated returns
-    over the collected episodes. Returns the loss tensor and a summary strin.
+    over the collected episodes. Returns the loss tensor and a summary string.
 
     Args:
       observ: Sequences of observations.

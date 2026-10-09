@@ -47,9 +47,9 @@ struct t_KeyData
 	bool LeftMouseDown;
 	bool RightMouseDown;
 
-} KeyData;
+} static KeyData;
 
-Gwen::Point MousePosition;
+static Gwen::Point MousePosition;
 
 static float g_fLastClickTime[MAX_MOUSE_BUTTONS];
 static Gwen::Point g_pntLastClickPos;
@@ -65,7 +65,7 @@ enum
 	ACT_MESSAGE
 };
 
-void UpdateHoveredControl(Controls::Base* pInCanvas)
+static void UpdateHoveredControl(Controls::Base* pInCanvas)
 {
 	Controls::Base* pHovered = pInCanvas->GetControlAt(MousePosition.x, MousePosition.y);
 
@@ -92,7 +92,7 @@ void UpdateHoveredControl(Controls::Base* pInCanvas)
 	}
 }
 
-void FindKeyboardFocus(Controls::Base* pControl)
+static void FindKeyboardFocus(Controls::Base* pControl)
 {
 	if (!pControl) return;
 	if (pControl->GetKeyboardInputEnabled())
@@ -196,7 +196,7 @@ bool Gwen::Input::OnMouseClicked(Controls::Base* pCanvas, int iMouseButton, bool
 	if (!Gwen::HoveredControl->Visible()) return false;
 	if (Gwen::HoveredControl == pCanvas) return false;
 
-	if (iMouseButton > MAX_MOUSE_BUTTONS)
+	if (iMouseButton >= MAX_MOUSE_BUTTONS)
 		return false;
 
 	if (iMouseButton == 0)
@@ -266,6 +266,8 @@ bool Gwen::Input::OnMouseClicked(Controls::Base* pCanvas, int iMouseButton, bool
 				Gwen::HoveredControl->OnMouseClickRight(MousePosition.x, MousePosition.y, bDown);
 			return true;
 		}
+		default:
+			break;
 	}
 
 	return false;

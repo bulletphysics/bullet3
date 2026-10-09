@@ -33,7 +33,7 @@ template<typename MatrixType, int UpLo> struct LLT_Traits;
   * \brief Standard Cholesky decomposition (LL^T) of a matrix and associated features
   *
   * \tparam _MatrixType the type of the matrix of which we are computing the LL^T Cholesky decomposition
-  * \tparam _UpLo the triangular part that will be used for the decompositon: Lower (default) or Upper.
+  * \tparam _UpLo the triangular part that will be used for the decomposition: Lower (default) or Upper.
   *               The other triangular part won't be read.
   *
   * This class performs a LL^T Cholesky decomposition of a symmetric, positive definite

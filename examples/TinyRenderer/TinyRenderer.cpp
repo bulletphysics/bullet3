@@ -51,14 +51,14 @@ struct DepthShader : public IShader
 	virtual Vec4f vertex(int iface, int nthvert)
 	{
 		Vec2f uv = m_model->uv(iface, nthvert);
-		varying_uv.set_col(nthvert, uv);
-		varying_nrm.set_col(nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
+		varying_uv.set_col((size_t)nthvert, uv);
+		varying_nrm.set_col((size_t)nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
 		Vec3f unScaledVert = m_model->vert(iface, nthvert);
 		Vec3f scaledVert = Vec3f(unScaledVert[0] * m_localScaling[0],
 								 unScaledVert[1] * m_localScaling[1],
 								 unScaledVert[2] * m_localScaling[2]);
 		Vec4f gl_Vertex = m_projectionMat * m_lightModelView * embed<4>(scaledVert);
-		varying_tri.set_col(nthvert, gl_Vertex);
+		varying_tri.set_col((size_t)nthvert, gl_Vertex);
 		return gl_Vertex;
 	}
 
@@ -102,7 +102,7 @@ struct Shader : public IShader
 	mat<3, 3, float> varying_nrm;  // normal per vertex to be interpolated by FS
 	mat<4, 3, float> world_tri;    // model triangle coordinates in the world space used for backface culling, written by VS
 
-	Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient = 0.6, float diffuse_coefficient = 0.35, float specular_coefficient = 0.05)
+	Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient = 0.6f, float diffuse_coefficient = 0.35f, float specular_coefficient = 0.05f)
 		: m_model(model),
 		  m_light_dir_local(light_dir_local),
 		  m_light_color(light_color),
@@ -133,18 +133,18 @@ struct Shader : public IShader
 	{
 		//B3_PROFILE("vertex");
 		Vec2f uv = m_model->uv(iface, nthvert);
-		varying_uv.set_col(nthvert, uv);
-		varying_nrm.set_col(nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
+		varying_uv.set_col((size_t)nthvert, uv);
+		varying_nrm.set_col((size_t)nthvert, proj<3>(m_invModelMat * embed<4>(m_model->normal(iface, nthvert), 0.f)));
 		Vec3f unScaledVert = m_model->vert(iface, nthvert);
 		Vec3f scaledVert = Vec3f(unScaledVert[0] * m_localScaling[0],
 								 unScaledVert[1] * m_localScaling[1],
 								 unScaledVert[2] * m_localScaling[2]);
 		Vec4f gl_Vertex = m_projectionModelViewMat * embed<4>(scaledVert);
-		varying_tri.set_col(nthvert, gl_Vertex);
+		varying_tri.set_col((size_t)nthvert, gl_Vertex);
 		Vec4f world_Vertex = m_modelMat * embed<4>(scaledVert);
-		world_tri.set_col(nthvert, world_Vertex);
+		world_tri.set_col((size_t)nthvert, world_Vertex);
 		Vec4f gl_VertexLightView = m_projectionLightViewMat * embed<4>(scaledVert);
-		varying_tri_light_view.set_col(nthvert, gl_VertexLightView);
+		varying_tri_light_view.set_col((size_t)nthvert, gl_VertexLightView);
 		return gl_Vertex;
 	}
 
@@ -161,7 +161,7 @@ struct Shader : public IShader
 		float shadow = 1.0;
 		if (m_shadowBuffer && idx >=0 && idx <m_shadowBuffer->size())
 		{
-			shadow = 0.8 + 0.2 * (m_shadowBuffer->at(idx) < -depth + 0.05);  // magic coeff to avoid z-fighting
+			shadow = 0.8f + 0.2f * (m_shadowBuffer->at(idx) < -depth + 0.05f);  // magic coeff to avoid z-fighting
 		}
 		Vec3f bn = (varying_nrm * bar).normalize();
 		Vec2f uv = varying_uv * bar;
@@ -172,20 +172,20 @@ struct Shader : public IShader
         float diffuse = b3Max(0.f, bn * m_light_dir_local);
 
         color = m_model->diffuse(uv);
-		color[0] *= m_colorRGBA[0];
-		color[1] *= m_colorRGBA[1];
-		color[2] *= m_colorRGBA[2];
-		color[3] *= m_colorRGBA[3];
+		color[0] *= (unsigned char)m_colorRGBA[0];
+		color[1] *= (unsigned char)m_colorRGBA[1];
+		color[2] *= (unsigned char)m_colorRGBA[2];
+		color[3] *= (unsigned char)m_colorRGBA[3];
 
 		for (int i = 0; i < 3; ++i)
 		{
 			int orgColor = 0;
-			float floatColor = (m_ambient_coefficient * color[i] + shadow * (m_diffuse_coefficient * diffuse + m_specular_coefficient * specular) * color[i] * m_light_color[i]);
+			float floatColor = (m_ambient_coefficient * color[i] + shadow * (m_diffuse_coefficient * diffuse + m_specular_coefficient * specular) * color[i] * m_light_color[(size_t)i]);
 			if (floatColor==floatColor)
 			{
 				orgColor=int(floatColor);
 			}
-			color[i] = b3Min(orgColor, 255);
+			color[i] = (unsigned char)b3Min(orgColor, 255);
 		}
 
 		return false;
@@ -210,9 +210,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 
 }
 
@@ -235,9 +235,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedObjectArray<float>& depthBuffer)
@@ -259,9 +259,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedObjectArray<float>& depthBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
@@ -282,9 +282,9 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1, 1, 1);
 	m_modelMatrix = Matrix::identity();
-	m_lightAmbientCoeff = 0.6;
-	m_lightDiffuseCoeff = 0.35;
-	m_lightSpecularCoeff = 0.05;
+	m_lightAmbientCoeff = 0.6f;
+	m_lightDiffuseCoeff = 0.35f;
+	m_lightSpecularCoeff = 0.05f;
 }
 
 void TinyRenderObjectData::loadModel(const char* fileName, CommonFileIOInterface* fileIO)
@@ -374,12 +374,12 @@ void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertic
 
 		for (int i = 0; i < numVertices; i++)
 		{
-			m_model->addVertex(vertices[i].x(),
-							   vertices[i].y(),
-							   vertices[i].z(),
-							   normals[i].x(),
-							   normals[i].y(),
-							   normals[i].z(),
+			m_model->addVertex((float)vertices[i].x(),
+							   (float)vertices[i].y(),
+							   (float)vertices[i].z(),
+							   (float)normals[i].x(),
+							   (float)normals[i].y(),
+							   (float)normals[i].z(),
 							   0.5, 0.5);
 		}
 		for (int i = 0; i < numIndices; i += 3)
@@ -408,7 +408,7 @@ void TinyRenderObjectData::createCube(float halfExtentsX, float halfExtentsY, fl
 	}
 
 	int strideInBytes = 9 * sizeof(float);
-	int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+	int numVertices = (int)(sizeof(cube_vertices_textured) / strideInBytes);
 	int numIndices = sizeof(cube_indices) / sizeof(int);
 
 	for (int i = 0; i < numVertices; i++)
@@ -435,15 +435,15 @@ TinyRenderObjectData::~TinyRenderObjectData()
 	delete m_model;
 }
 
-static bool equals(const Vec4f& vA, const Vec4f& vB)
+static bool equals(const Vec4f& /*vA*/, const Vec4f& /*vB*/)
 {
 	return false;
 }
 
 static void clipEdge(const mat<4, 3, float>& triangleIn, int vertexIndexA, int vertexIndexB, b3AlignedObjectArray<Vec4f>& vertices)
 {
-	Vec4f v0New = triangleIn.col(vertexIndexA);
-	Vec4f v1New = triangleIn.col(vertexIndexB);
+	Vec4f v0New = triangleIn.col((size_t)vertexIndexA);
+	Vec4f v1New = triangleIn.col((size_t)vertexIndexB);
 
 	bool v0Inside = v0New[3] > 0.f && v0New[2] > -v0New[3];
 	bool v1Inside = v1New[3] > 0.f && v1New[2] > -v1New[3];
@@ -455,7 +455,7 @@ static void clipEdge(const mat<4, 3, float>& triangleIn, int vertexIndexA, int v
 	{
 		float d0 = v0New[2] + v0New[3];
 		float d1 = v1New[2] + v1New[3];
-		float factor = 1.0 / (d1 - d0);
+		float factor = 1.0f / (d1 - d0);
 		Vec4f newVertex = (v0New * d1 - v1New * d0) * factor;
 		if (v0Inside)
 		{
@@ -527,8 +527,8 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	int width = renderData.m_rgbColorBuffer.get_width();
 	int height = renderData.m_rgbColorBuffer.get_height();
 
-	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0], renderData.m_lightDirWorld[1], renderData.m_lightDirWorld[2]);
-	Vec3f light_color = Vec3f(renderData.m_lightColor[0], renderData.m_lightColor[1], renderData.m_lightColor[2]);
+	Vec3f light_dir_local = Vec3f((float)renderData.m_lightDirWorld[0], (float)renderData.m_lightDirWorld[1], (float)renderData.m_lightDirWorld[2]);
+	Vec3f light_color = Vec3f((float)renderData.m_lightColor[0], (float)renderData.m_lightColor[1], (float)renderData.m_lightColor[2]);
 	float light_distance = renderData.m_lightDistance;
 	Model* model = renderData.m_model;
 	if (0 == model)
@@ -550,7 +550,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 		Matrix lightViewMatrix = lookat(light_dir_local * light_distance, Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 1.0));
 		Matrix lightModelViewMatrix = lightViewMatrix * renderData.m_modelMatrix;
 		Matrix modelViewMatrix = renderData.m_viewMatrix * renderData.m_modelMatrix;
-		Vec3f localScaling(renderData.m_localScaling[0], renderData.m_localScaling[1], renderData.m_localScaling[2]);
+		Vec3f localScaling((float)renderData.m_localScaling[0], (float)renderData.m_localScaling[1], (float)renderData.m_localScaling[2]);
 		Matrix viewMatrixInv = renderData.m_viewMatrix.invert();
 		btVector3 P(viewMatrixInv[0][3], viewMatrixInv[1][3], viewMatrixInv[2][3]);
 
@@ -605,7 +605,7 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
 	int width = renderData.m_rgbColorBuffer.get_width();
 	int height = renderData.m_rgbColorBuffer.get_height();
 
-	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0], renderData.m_lightDirWorld[1], renderData.m_lightDirWorld[2]);
+	Vec3f light_dir_local = Vec3f((float)renderData.m_lightDirWorld[0], (float)renderData.m_lightDirWorld[1], (float)renderData.m_lightDirWorld[2]);
 	float light_distance = renderData.m_lightDistance;
 	Model* model = renderData.m_model;
 	if (0 == model)
@@ -623,7 +623,7 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
 		Matrix lightViewMatrix = lookat(light_dir_local * light_distance, Vec3f(0.0, 0.0, 0.0), Vec3f(0.0, 0.0, 1.0));
 		Matrix lightModelViewMatrix = lightViewMatrix * renderData.m_modelMatrix;
 		Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
-		Vec3f localScaling(renderData.m_localScaling[0], renderData.m_localScaling[1], renderData.m_localScaling[2]);
+		Vec3f localScaling((float)renderData.m_localScaling[0], (float)renderData.m_localScaling[1], (float)renderData.m_localScaling[2]);
 
 		DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix, renderData.m_modelMatrix, localScaling, light_distance);
 		for (int i = 0; i < model->nfaces(); i++)

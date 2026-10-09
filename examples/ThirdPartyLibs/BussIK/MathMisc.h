@@ -57,7 +57,7 @@ const double OneTwelfth = 1.0 / 12.0;
 const double Root2 = sqrt(2.0);
 const double Root3 = sqrt(3.0);
 const double Root2Inv = 1.0 / Root2;  // sqrt(2)/2
-const double HalfRoot3 = sqrtf(3) / 2.0;
+const double HalfRoot3 = sqrt(3) / 2.0;
 
 const double LnTwo = log(2.0);
 const double LnTwoInv = 1.0 / log(2.0);
@@ -66,7 +66,7 @@ const double LnTwoInv = 1.0 / log(2.0);
 const double OnePlusEpsilon15 = 1.0 + 1.0e-15;
 const double OneMinusEpsilon15 = 1.0 - 1.0e-15;
 
-inline double ZeroValue(const double& x)
+inline double ZeroValue(const double& /*x*/)
 {
 	return 0.0;
 }

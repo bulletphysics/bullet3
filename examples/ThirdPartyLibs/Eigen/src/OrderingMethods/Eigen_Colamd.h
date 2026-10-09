@@ -1505,7 +1505,7 @@ static inline  void order_children
 
 	/* order this column */
 	Col [c].shared2.order = order++ ;
-	/* collaps tree */
+	/* collapse tree */
 	Col [c].shared1.parent = parent ;
 
 	/* get immediate parent of this column */

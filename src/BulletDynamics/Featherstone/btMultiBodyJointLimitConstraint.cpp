@@ -35,7 +35,7 @@ void btMultiBodyJointLimitConstraint::finalizeMultiDof()
 
 	allocateJacobiansMultiDof();
 
-	unsigned int offset = 6 + m_bodyA->getLink(m_linkA).m_dofOffset;
+	unsigned int offset = (unsigned int)(6 + m_bodyA->getLink(m_linkA).m_dofOffset);
 
 	// row 0: the lower bound
 	jacobianA(0)[offset] = 1;
@@ -115,7 +115,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		{
 			continue;
 		}
-		btScalar direction = row ? -1 : 1;
+		btScalar direction = row ? btScalar(-1) : btScalar(1);
 
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 		constraintRow.m_orgConstraint = this;
@@ -157,11 +157,11 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 				{
 					btAssert(0);
 				}
-			};
+			}
 		}
 
 		{
-			btScalar positionalError = 0.f;
+			btScalar positionalError = btScalar(0.f);
 			btScalar velocityError = -rel_vel;  // * damping;
 			btScalar erp = infoGlobal.m_erp2;
 			if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
@@ -184,7 +184,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 			{
 				//combine position and velocity into rhs
 				constraintRow.m_rhs = penetrationImpulse + velocityImpulse;
-				constraintRow.m_rhsPenetration = 0.f;
+				constraintRow.m_rhsPenetration = btScalar(0.f);
 			}
 			else
 			{

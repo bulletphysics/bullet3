@@ -7,7 +7,7 @@ namespace Bullet
 {
 class btMultiBodyDoubleData;
 class btMultiBodyFloatData;
-};  // namespace Bullet
+}  // namespace Bullet
 
 inline char* strDup(const char* const str)
 {

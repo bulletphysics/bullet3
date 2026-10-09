@@ -155,13 +155,13 @@ void MatrixRmn::SetSequence(const VectorRn& d, long startRow, long startCol, lon
 }
 
 // The matrix A is loaded, in into "this" matrix, based at (0,0).
-//  The size of "this" matrix must be large enough to accomodate A.
+//  The size of "this" matrix must be large enough to accommodate A.
 //	The rest of "this" matrix is left unchanged.  It is not filled with zeroes!
 
 void MatrixRmn::LoadAsSubmatrix(const MatrixRmn& A)
 {
 	assert(A.NumRows <= NumRows && A.NumCols <= NumCols);
-	int extraColStep = NumRows - A.NumRows;
+	int extraColStep = (int)(NumRows - A.NumRows);
 	double* to = x;
 	double* from = A.x;
 	for (long i = A.NumCols; i > 0; i--)
@@ -175,7 +175,7 @@ void MatrixRmn::LoadAsSubmatrix(const MatrixRmn& A)
 }
 
 // The matrix A is loaded, in transposed order into "this" matrix, based at (0,0).
-//  The size of "this" matrix must be large enough to accomodate A.
+//  The size of "this" matrix must be large enough to accommodate A.
 //	The rest of "this" matrix is left unchanged.  It is not filled with zeroes!
 void MatrixRmn::LoadAsSubmatrixTranspose(const MatrixRmn& A)
 {
@@ -211,7 +211,7 @@ void MatrixRmn::Multiply(const VectorRn& v, VectorRn& result) const
 	{
 		const double* in = v.GetPtr();
 		const double* m = rowPtr++;
-		*out = 0.0f;
+		*out = 0.0;
 		for (long i = NumCols; i > 0; i--)
 		{
 			*out += (*(in++)) * (*m);
@@ -232,7 +232,7 @@ void MatrixRmn::MultiplyTranspose(const VectorRn& v, VectorRn& result) const
 	for (long i = NumCols; i > 0; i--)
 	{
 		const double* in = v.GetPtr();
-		*out = 0.0f;
+		*out = 0.0;
 		for (long j = NumRows; j > 0; j--)
 		{
 			*out += (*(in++)) * (*(colPtr++));
@@ -393,7 +393,7 @@ void MatrixRmn::Solve(const VectorRn& b, VectorRn* xVec, MatrixRmn& AugMat) cons
 //		position for a lead variable.
 // The "NoFree" version operates on the assumption that no free variable will be found.
 // Algorithm uses row operations and row pivoting (only).
-// Augmented matrix is correctly accomodated.  Only the first square part participates
+// Augmented matrix is correctly accommodated.  Only the first square part participates
 //		in the main work of row operations.
 void MatrixRmn::ConvertToRefNoFree()
 {
@@ -430,7 +430,7 @@ void MatrixRmn::ConvertToRefNoFree()
 		if (rowPtr1 != rowPtr2)
 		{
 			double* to = rowPtr1;
-			for (long i = lenRowLeft; i > 0; i--)
+			for (long j = lenRowLeft; j > 0; j--)
 			{
 				double temp = *to;
 				*to = *rowPtr2;
@@ -523,7 +523,7 @@ void MatrixRmn::PostApplyGivens(double c, double s, long idx1, long idx2)
 
 // ********************************************************************************************
 // Singular value decomposition.
-// Return othogonal matrices U and V and diagonal matrix with diagonal w such that
+// Return orthogonal matrices U and V and diagonal matrix with diagonal w such that
 //     (this) = U * Diag(w) * V^T     (V^T is V-transpose.)
 // Diagonal entries have all non-zero entries before all zero entries, but are not
 //		necessarily sorted.  (Someday, I will write ComputedSortedSVD that handles
@@ -906,7 +906,7 @@ void MatrixRmn::ConvertBidiagToDiagonal(MatrixRmn& U, MatrixRmn& V, VectorRn& w,
 // We use Givens rotations to "chase" the non-zero entry across the row; when it reaches the last
 //	column, it is finally zeroed away.
 // wPtr points to the zero entry on the diagonal.  sdPtr points to the non-zero superdiagonal entry on the same row.
-void MatrixRmn::ClearRowWithDiagonalZero(long firstBidiagIdx, long lastBidiagIdx, MatrixRmn& U, double* wPtr, double* sdPtr, double eps)
+void MatrixRmn::ClearRowWithDiagonalZero(long firstBidiagIdx, long lastBidiagIdx, MatrixRmn& U, double* wPtr, double* sdPtr, double /*eps*/)
 {
 	double curSd = *sdPtr;  // Value being chased across the row
 	*sdPtr = 0.0;

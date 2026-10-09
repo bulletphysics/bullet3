@@ -45,12 +45,12 @@ typedef wchar_t UnicodeChar;  // Portability??
 
 struct GWEN_EXPORT Margin
 {
-	Margin(int left = 0, int top = 0, int right = 0, int bottom = 0)
+	Margin(int left_ = 0, int top_ = 0, int right_ = 0, int bottom_ = 0)
 	{
-		this->top = top;
-		this->bottom = bottom;
-		this->left = left;
-		this->right = right;
+		this->top = top_;
+		this->bottom = bottom_;
+		this->left = left_;
+		this->right = right_;
 	}
 
 	int top, bottom, left, right;
@@ -60,12 +60,12 @@ typedef Margin Padding;
 
 struct GWEN_EXPORT Rect
 {
-	Rect(int x = 0, int y = 0, int w = 0, int h = 0)
+	Rect(int x_ = 0, int y_ = 0, int w_ = 0, int h_ = 0)
 	{
-		this->x = x;
-		this->y = y;
-		this->w = w;
-		this->h = h;
+		this->x = x_;
+		this->y = y_;
+		this->w = w_;
+		this->h = h_;
 	}
 
 	int x, y, w, h;
@@ -73,10 +73,10 @@ struct GWEN_EXPORT Rect
 
 struct GWEN_EXPORT Point
 {
-	Point(int x = 0, int y = 0)
+	Point(int x_ = 0, int y_ = 0)
 	{
-		this->x = x;
-		this->y = y;
+		this->x = x_;
+		this->y = y_;
 	}
 
 	int x, y;
@@ -91,12 +91,12 @@ struct GWEN_EXPORT HSV
 
 struct GWEN_EXPORT Color
 {
-	Color(unsigned char r = 255, unsigned char g = 255, unsigned char b = 255, unsigned char a = 255)
+	Color(unsigned char r_ = 255, unsigned char g_ = 255, unsigned char b_ = 255, unsigned char a_ = 255)
 	{
-		this->r = r;
-		this->g = g;
-		this->b = b;
-		this->a = a;
+		this->r = r_;
+		this->g = g_;
+		this->b = b_;
+		this->a = a_;
 	}
 
 	void operator=(Color c)
@@ -125,37 +125,37 @@ struct GWEN_EXPORT Color
 
 	void operator*=(float f)
 	{
-		this->r *= f;
-		this->g *= f;
-		this->b *= f;
-		this->a *= f;
+		this->r *= (unsigned char)f;
+		this->g *= (unsigned char)f;
+		this->b *= (unsigned char)f;
+		this->a *= (unsigned char)f;
 	}
 
 	Color operator*(float f)
 	{
 		return Color(
-			(float)this->r * f,
-			(float)this->g * f,
-			(float)this->b * f,
-			(float)this->a * f);
+			(unsigned char)((float)this->r * f),
+			(unsigned char)((float)this->g * f),
+			(unsigned char)((float)this->b * f),
+			(unsigned char)((float)this->a * f));
 	}
 
 	Color operator-(Color c)
 	{
 		return Color(
-			this->r - c.r,
-			this->g - c.g,
-			this->b - c.b,
-			this->a - c.a);
+			(unsigned char)(this->r - c.r),
+			(unsigned char)(this->g - c.g),
+			(unsigned char)(this->b - c.b),
+			(unsigned char)(this->a - c.a));
 	}
 
 	Color operator+(Color c)
 	{
 		return Color(
-			this->r + c.r,
-			this->g + c.g,
-			this->b + c.b,
-			this->a + c.a);
+			(unsigned char)(this->r + c.r),
+			(unsigned char)(this->g + c.g),
+			(unsigned char)(this->b + c.b),
+			(unsigned char)(this->a + c.a));
 	}
 
 	bool operator==(const Color& c) const

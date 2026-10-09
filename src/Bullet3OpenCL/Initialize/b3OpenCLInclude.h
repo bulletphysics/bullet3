@@ -46,6 +46,6 @@ subject to the following restrictions:
 	{                                    \
 		printf("OCL Error : %d\n", (a)); \
 		assert((a) == (b));              \
-	}
+	} do{} while(0)
 
 #endif  //B3_OPENCL_INCLUDE_H

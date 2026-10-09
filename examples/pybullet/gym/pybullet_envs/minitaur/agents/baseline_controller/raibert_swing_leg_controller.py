@@ -62,7 +62,7 @@ def _gen_swing_foot_trajectory(input_phase: float, start_pos: Sequence[float],
     input_phase: the swing/stance phase value between [0, 1].
     start_pos: The foot's position at the beginning of swing cycle.
     end_pos: The foot's desired position at the end of swing cycle.
-    ease_up_phase: Time length for the initial ease up phase dueing swing cycle.
+    ease_up_phase: Time length for the initial ease up phase during swing cycle.
     ease_up_percent: Percentage of the swing cycle completed after
       ease_up_phase.
 
@@ -103,7 +103,7 @@ class RaibertSwingLegController(leg_controller.LegController):
   """Controls the swing leg position using Raibert's formula.
 
   For details, please refer to chapter 2 in "Legged robbots that balance" by
-  Marc Raibert. The key idea is to stablize the swing foot's location based on
+  Marc Raibert. The key idea is to stabilize the swing foot's location based on
   the CoM moving speed.
 
   """
@@ -134,7 +134,7 @@ class RaibertSwingLegController(leg_controller.LegController):
       foot_clearance: The foot clearance on the ground at the end of the swing
         cycle.
       local_hip_positions: Positions of the robot's hips in local frames.
-      ease_up_phase: Time length for the initial ease up phase dueing swing
+      ease_up_phase: Time length for the initial ease up phase during swing
         cycle.
       ease_up_percent: Percentage of the swing cycle completed after
         ease_up_phase.

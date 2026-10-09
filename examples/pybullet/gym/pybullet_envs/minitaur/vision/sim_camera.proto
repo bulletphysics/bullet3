@@ -15,7 +15,7 @@ message CameraIntrinsics {
   // TODO(tingnan): Add skew and distortion parameters.
 }
 
-// The Simulated camera configuratrion.
+// The Simulated camera configuration.
 message SimulatedCameraConfig {
   CameraIntrinsics camera_intrinsics = 1;
 

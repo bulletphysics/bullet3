@@ -256,7 +256,7 @@ public:
 
 	void setWorldToBaseRot(const btQuaternion &rot)
 	{
-		m_baseQuat = rot;  //m_baseQuat asumed to ba alias!?
+		m_baseQuat = rot;  //m_baseQuat assumed to ba alias!?
 		if(!isBaseKinematic())
 			m_baseQuat_interpolate = rot;
 	}
@@ -388,7 +388,7 @@ public:
 	//
 	// Note: the caller must provide three vectors which are used as
 	// temporary scratch space. The idea here is to reduce dynamic
-	// memory allocation: the same scratch vectors can be re-used
+	// memory allocation: the same scratch vectors can be reused
 	// again and again for different Multibodies, instead of each
 	// btMultiBody allocating (and then deallocating) their own
 	// individual scratch buffers. This gives a considerable speed
@@ -449,7 +449,7 @@ public:
         
         for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
         {
-            m_splitV[dof] = 0.f;
+            m_splitV[dof] = btScalar(0.);
         }
     }
 	void processDeltaVeeMultiDof2()
@@ -458,7 +458,7 @@ public:
 
 		for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
 		{
-			m_deltaV[dof] = 0.f;
+			m_deltaV[dof] = btScalar(0.);
 		}
 	}
 

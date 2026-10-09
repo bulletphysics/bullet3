@@ -3,7 +3,7 @@
 /*! \file gim_radixsort.h
 \author Francisco Leon Najera.
 Based on the work of Michael Herf : "fast floating-point radix sort"
-Avaliable on http://www.stereopsis.com/radix.html
+Available on http://www.stereopsis.com/radix.html
 */
 /*
 -----------------------------------------------------------------------------
@@ -223,9 +223,8 @@ void gim_radix_sort_array_tokens(
 
 /// Sorts array in place. For generic use
 /*!
-\param type Type of the array
-\param array
-\param element_count
+\param array the array to sort
+\param element_count number of element
 \param get_uintkey_macro Macro for extract the Integer value of the element. Similar to SIMPLE_GET_UINTKEY
 \param copy_elements_macro Macro for copy elements, similar to SIMPLE_COPY_ELEMENTS
 */
@@ -249,13 +248,13 @@ void gim_radix_sort(
 //! Failsafe Iterative binary search,
 /*!
 If the element is not found, it returns the nearest upper element position, may be the further position after the last element.
-\param _array
+\param _array the array to search
 \param _start_i the beginning of the array
 \param _end_i the ending  index of the array
 \param _search_key Value to find
 \param _comp_macro macro for comparing elements
-\param _found If true the value has found. Boolean
 \param _result_index the index of the found element, or if not found then it will get the index of the  closest bigger value
+\return _found If true the value has found. Boolean
 */
 template <class T, typename KEYCLASS, typename COMP_CLASS>
 bool gim_binary_search_ex(
@@ -293,7 +292,7 @@ bool gim_binary_search_ex(
 //! Failsafe Iterative binary search,Template version
 /*!
 If the element is not found, it returns the nearest upper element position, may be the further position after the last element.
-\param _array
+\param _array the array to search
 \param _start_i the beginning of the array
 \param _end_i the ending  index of the array
 \param _search_key Value to find
@@ -341,7 +340,7 @@ void gim_down_heap(T* pArr, GUINT k, GUINT n, COMP_CLASS CompareFunc)
 	/* k has child(s) */
 	while (k <= n / 2)
 	{
-		int child = 2 * k;
+		int child = (int)(2 * k);
 
 		if ((child < (int)n) && CompareFunc(pArr[child - 1], pArr[child]) < 0)
 		{
@@ -352,7 +351,7 @@ void gim_down_heap(T* pArr, GUINT k, GUINT n, COMP_CLASS CompareFunc)
 		{
 			/* move child up */
 			pArr[k - 1] = pArr[child - 1];
-			k = child;
+			k = (GUINT)child;
 		}
 		else
 		{

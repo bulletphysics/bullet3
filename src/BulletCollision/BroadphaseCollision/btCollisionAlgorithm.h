@@ -59,11 +59,11 @@ protected:
 	//	int	getDispatcherId();
 
 public:
-	btCollisionAlgorithm(){};
+	btCollisionAlgorithm(){}
 
 	btCollisionAlgorithm(const btCollisionAlgorithmConstructionInfo& ci);
 
-	virtual ~btCollisionAlgorithm(){};
+	virtual ~btCollisionAlgorithm(){}
 
 	virtual void processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut) = 0;
 

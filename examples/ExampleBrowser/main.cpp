@@ -26,7 +26,14 @@ static OpenGLExampleBrowser* sExampleBrowser = 0;
 #include <signal.h>
 #include <err.h>
 #include <unistd.h>
-static void cleanup(int signo)
+
+#if defined(__GNUC__)
+#define ANNOTATE_NORETURN __attribute((noreturn))
+#else
+#define ANNOTATE_NORETURN
+#endif
+
+static ANNOTATE_NORETURN void cleanup(int signo)
 {
 	if (!interrupted)
 	{  // this is the second time, we're hanging somewhere
@@ -41,8 +48,8 @@ static void cleanup(int signo)
 		b3Printf("no action");
 		exit(EXIT_FAILURE);
 	}
-	interrupted = true;
-	warnx("caught signal %d", signo);
+	// interrupted = true;
+	// warnx("caught signal %d", signo);
 }
 #endif  //_WIN32
 
@@ -53,7 +60,7 @@ int main(int argc, char* argv[])
 	memset(&action, 0x0, sizeof(action));
 	action.sa_handler = cleanup;
 	static const int signos[] = {SIGHUP, SIGINT, SIGQUIT, SIGABRT, SIGSEGV, SIGPIPE, SIGTERM};
-	for (int ii(0); ii < sizeof(signos) / sizeof(*signos); ++ii)
+	for (int ii(0); ii < (int)(sizeof(signos) / sizeof(*signos)); ++ii)
 	{
 		if (0 != sigaction(signos[ii], &action, NULL))
 		{
@@ -84,14 +91,14 @@ int main(int argc, char* argv[])
 		{
 			do
 			{
-				float deltaTimeInSeconds = clock.getTimeMicroseconds() / 1000000.f;
+				float deltaTimeInSeconds = (float)clock.getTimeMicroseconds() / 1000000.f;
 				if (deltaTimeInSeconds > 0.1)
 				{
-					deltaTimeInSeconds = 0.1;
+					deltaTimeInSeconds = 0.1f;
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs / 1e6))
 				{
-					b3Clock::usleep(gMinUpdateTimeMicroSecs / 10.);
+					b3Clock::usleep(int(gMinUpdateTimeMicroSecs / 10.));
 				}
 				else
 				{

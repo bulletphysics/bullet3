@@ -125,7 +125,7 @@ class ImageryClient(object):
     images_by_camera = {}
     for camera_frame in frame_collection.frames:
       camera_id = camera_frame.camera_id
-      # In case we received multiple frames, we apppend them in the order
+      # In case we received multiple frames, we append them in the order
       # received.
       if camera_id in images_by_camera:
         images_by_camera[camera_id].append(

@@ -24,7 +24,7 @@ enum EnumGraphicsSharedMemoryClientCommand
 	GFX_CMD_GET_CAMERA_INFO,
 	GFX_CMD_CHANGE_SCALING,
 	//don't go beyond this command!
-	GFX_CMD_MAX_CLIENT_COMMANDS,
+	GFX_CMD_MAX_CLIENT_COMMANDS
 };
 
 enum EnumGraphicsSharedMemoryServerStatus

@@ -117,7 +117,7 @@ class SparseVector
     }
 
     /** \returns a reference to the coefficient value at given index \a i
-      * This operation involes a log(rho*size) binary search. If the coefficient does not
+      * This operation involves a log(rho*size) binary search. If the coefficient does not
       * exist yet, then a sorted insertion into a sequential buffer is performed.
       *
       * This insertion might be very costly if the number of nonzeros above \a i is large.

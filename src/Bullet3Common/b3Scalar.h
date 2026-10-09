@@ -24,6 +24,20 @@ subject to the following restrictions:
 #include <stdlib.h>  //size_t for MSVC 6.0
 #include <float.h>
 
+#ifndef ANONYMOUS_STRUCTS
+#if defined(__GNUC__)
+#define ANONYMOUS_STRUCTS __extension__
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#endif
+#else // __GNUC__
+#if defined(_MSC_VER)
+#pragma warning(disable : 4201) // nonstandard extension used: nameless struct/union
+#endif // _MSC_VER
+#define ANONYMOUS_STRUCTS
+#endif // __GNUC__
+#endif // ANONYMOUS_STRUCTS
+
 //Original repository is at http://github.com/erwincoumans/bullet3
 #define B3_BULLET_VERSION 300
 
@@ -108,7 +122,7 @@ inline int b3GetVersion()
 #define b3Assert assert
 #endif  //_MSC_VER
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 //b3FullAssert is optional, slows down a lot
 #define b3FullAssert(x)
@@ -146,7 +160,7 @@ inline int b3GetVersion()
 #endif
 
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 //b3FullAssert is optional, slows down a lot
 #define b3FullAssert(x)
@@ -168,7 +182,7 @@ inline int b3GetVersion()
 #ifdef B3_DEBUG
 #define b3Assert assert
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 //b3FullAssert is optional, slows down a lot
 #define b3FullAssert(x)
@@ -231,7 +245,7 @@ inline int b3GetVersion()
 #define b3Assert assert
 #endif  //defined (__i386__) || defined (__x86_64__)
 #else   //defined(DEBUG) || defined (_DEBUG)
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif  //defined(DEBUG) || defined (_DEBUG)
 
 //b3FullAssert is optional, slows down a lot
@@ -256,7 +270,7 @@ inline int b3GetVersion()
 #if defined(DEBUG) || defined(_DEBUG)
 #define b3Assert assert
 #else
-#define b3Assert(x)
+#define b3Assert(x) (void)(x)
 #endif
 
 //b3FullAssert is optional, slows down a lot
@@ -350,7 +364,8 @@ typedef float32x4_t b3SimdFloat4;
 	B3_FORCE_INLINE void *operator new[](size_t sizeInBytes) { return b3AlignedAlloc(sizeInBytes, 16); } \
 	B3_FORCE_INLINE void operator delete[](void *ptr) { b3AlignedFree(ptr); }                            \
 	B3_FORCE_INLINE void *operator new[](size_t, void *ptr) { return ptr; }                              \
-	B3_FORCE_INLINE void operator delete[](void *, void *) {}
+	B3_FORCE_INLINE void operator delete[](void *, void *) {} \
+	typedef void* uselessTypeDefTrailingSemicolon
 
 #if defined(B3_USE_DOUBLE_PRECISION) || defined(B3_FORCE_DOUBLE_FUNCTIONS)
 
@@ -527,7 +542,7 @@ B3_FORCE_INLINE int b3Select(unsigned condition, int valueIfConditionNonZero, in
 {
 	unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
 	unsigned testEqz = ~testNz;
-	return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
+	return static_cast<int>(((unsigned)valueIfConditionNonZero & testNz) | ((unsigned)valueIfConditionZero & testEqz));
 }
 B3_FORCE_INLINE float b3Select(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {

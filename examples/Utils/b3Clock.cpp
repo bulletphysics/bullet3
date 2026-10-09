@@ -89,7 +89,7 @@ void b3Clock::reset(bool zeroReference)
 #ifdef __CELLOS_LV2__
 		m_data->mStartTime = 0;
 #else
-		m_data->mStartTime = (struct timeval){0};
+		m_data->mStartTime = timeval();
 #endif
 #endif
 	}
@@ -185,7 +185,7 @@ unsigned long long int b3Clock::getTimeMicroseconds()
 
 double b3Clock::getTimeInSeconds()
 {
-	return double(getTimeMicroseconds() / 1.e6);
+	return (double)getTimeMicroseconds() / 1.e6;
 }
 
 void b3Clock::usleep(int microSeconds)
@@ -200,7 +200,7 @@ void b3Clock::usleep(int microSeconds)
 		int millis = microSeconds / 1000;
 		if (millis < 1)
 			millis = 1;
-		Sleep(millis);
+		Sleep((DWORD)millis);
 	}
 #else
 	if (microSeconds > 0)

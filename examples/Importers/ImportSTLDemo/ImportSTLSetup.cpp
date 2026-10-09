@@ -21,10 +21,10 @@ public:
 	virtual void initPhysics();
 	virtual void resetCamera()
 	{
-		float dist = 3.5;
+		float dist = 3.5f;
 		float pitch = -28;
 		float yaw = -136;
-		float targetPos[3] = {0.47, 0, -0.64};
+		float targetPos[3] = {0.47f, 0, -0.64f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -36,7 +36,7 @@ ImportSTLSetup::ImportSTLSetup(struct GUIHelperInterface* helper, const char* fi
 	if (fileName)
 	{
 		m_fileName = fileName;
-		m_scaling = btVector3(0.01, 0.01, 0.01);
+		m_scaling = btVector3(btScalar(0.01), btScalar(0.01), btScalar(0.01));
 	}
 	else
 	{

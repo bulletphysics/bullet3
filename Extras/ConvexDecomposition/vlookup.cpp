@@ -4,7 +4,9 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef _MSC_VER
 #pragma warning(disable : 4786)
+#endif
 
 #include <vector>
 #include <map>
@@ -113,13 +115,13 @@ namespace Vlookup
 class VertexPosition
 {
 public:
-	VertexPosition(void){};
+	VertexPosition(void){}
 	VertexPosition(const float *p)
 	{
 		mPos[0] = p[0];
 		mPos[1] = p[1];
 		mPos[2] = p[2];
-	};
+	}
 
 	void Set(int index, const float *pos)
 	{
@@ -128,11 +130,11 @@ public:
 		mPos[0] = p[0];
 		mPos[1] = p[1];
 		mPos[2] = p[2];
-	};
+	}
 
-	float GetX(void) const { return mPos[0]; };
-	float GetY(void) const { return mPos[1]; };
-	float GetZ(void) const { return mPos[2]; };
+	float GetX(void) const { return mPos[0]; }
+	float GetY(void) const { return mPos[1]; }
+	float GetZ(void) const { return mPos[2]; }
 
 	float mPos[3];
 };
@@ -153,7 +155,7 @@ struct Tracker
 	{
 		mFind = match;
 		mList = list;
-	};
+	}
 };
 
 struct VertexID
@@ -178,7 +180,7 @@ private:
 	{
 		if (index.mID == -1) return index.mTracker->mFind;
 		VertexVector &vlist = *index.mTracker->mList;
-		return vlist[index.mID];
+		return vlist[(size_t)index.mID];
 	}
 };
 
@@ -202,31 +204,31 @@ public:
 		mVtxs.push_back(vtx);
 		mVertSet.insert(VertexID(idx, &mTracker));
 		return idx;
-	};
+	}
 
 	const float *GetPos(int idx) const
 	{
-		return mVtxs[idx].mPos;
+		return mVtxs[(size_t)idx].mPos;
 	}
 
 	const Type &Get(int idx) const
 	{
 		return mVtxs[idx];
-	};
+	}
 
 	unsigned int GetSize(void) const
 	{
 		return mVtxs.size();
-	};
+	}
 
 	void Clear(int reservesize)  // clear the vertice pool.
 	{
 		mVertSet.clear();
 		mVtxs.clear();
 		mVtxs.reserve(reservesize);
-	};
+	}
 
-	const VertexVector &GetVertexList(void) const { return mVtxs; };
+	const VertexVector &GetVertexList(void) const { return mVtxs; }
 
 	void Set(const Type &vtx)
 	{
@@ -235,13 +237,13 @@ public:
 
 	unsigned int GetVertexCount(void) const
 	{
-		return mVtxs.size();
-	};
+		return (unsigned int)mVtxs.size();
+	}
 
 	Type *getBuffer(void)
 	{
 		return &mVtxs[0];
-	};
+	}
 
 private:
 	VertexSet mVertSet;  // ordered list.
@@ -295,7 +297,7 @@ unsigned int Vl_getIndex(VertexLookup vlook, const float *pos)  // get index.
 {
 	VertexPool<VertexPosition> *vp = (VertexPool<VertexPosition> *)vlook;
 	VertexPosition p(pos);
-	return vp->getVertex(p);
+	return (unsigned int)vp->getVertex(p);
 }
 
 const float *Vl_getVertices(VertexLookup vlook)

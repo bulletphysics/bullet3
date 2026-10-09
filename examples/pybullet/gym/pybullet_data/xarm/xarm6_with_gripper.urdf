@@ -7,7 +7,7 @@
   <!-- <xacro:load_gripper attach_to="$(arg prefix)link6" /> -->
   <!--
   Author: Jason Peng <jason@ufactory.cc>
-  Contributers:
+  Contributors:
 -->
   <gazebo>
     <plugin filename="libgazebo_ros_control.so" name="gazebo_ros_control">

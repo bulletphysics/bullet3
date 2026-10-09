@@ -570,7 +570,7 @@ inline float trig_reduce_huge (float xf, int *quadrant)
   using Eigen::numext::uint64_t;
 
   const double pio2_62 = 3.4061215800865545e-19;    // pi/2 * 2^-62
-  const uint64_t zero_dot_five = uint64_t(1) << 61; // 0.5 in 2.62-bit fixed-point foramt
+  const uint64_t zero_dot_five = uint64_t(1) << 61; // 0.5 in 2.62-bit fixed-point format
 
   // 192 bits of 2/pi for Payne-Hanek reduction
   // Bits are introduced by packet of 8 to enable aligned reads.

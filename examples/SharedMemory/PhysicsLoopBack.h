@@ -19,7 +19,7 @@ public:
 
 	virtual ~PhysicsLoopBack();
 
-	// return true if connection succesfull, can also check 'isConnected'
+	// return true if connection successful, can also check 'isConnected'
 	virtual bool connect();
 
 	////todo: rename to 'disconnect'

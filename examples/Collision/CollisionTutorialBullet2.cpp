@@ -25,17 +25,19 @@ const int sPointCapacity = 10000;
 const int sNumCompounds = 10;
 const int sNumSpheres = 10;
 
-lwContactPoint pointsOut[sPointCapacity];
-int numNearCallbacks = 0;
+static lwContactPoint pointsOut[sPointCapacity];
+static int numNearCallbacks = 0;
+// clang-format off
 static btVector4 sColors[4] =
-	{
-		btVector4(1, 0.7, 0.7, 1),
-		btVector4(1, 1, 0.7, 1),
-		btVector4(0.7, 1, 0.7, 1),
-		btVector4(0.7, 1, 1, 1),
+{
+		btVector4(btScalar(1)  , btScalar(0.7), btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(1)  , btScalar(1)  , btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(0.7), btScalar(1)  , btScalar(0.7), btScalar(1)),
+		btVector4(btScalar(0.7), btScalar(1)  , btScalar(1)  , btScalar(1)),
 };
+// clang-format on
 
-void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
+static void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* /*userData*/, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
 {
 	numNearCallbacks++;
 	int remainingCapacity = sPointCapacity - gTotalPoints;
@@ -112,7 +114,7 @@ public:
 
 								for (int i = 0; i < sNumSpheres; i++)
 								{
-									btVector3 childPos(i * 1.5, 0, 0);
+									btVector3 childPos(btScalar(i * 1.5), 0, 0);
 									btQuaternion childOrn(0, 0, 0, 1);
 
 									btVector3 scaling(radius, radius, radius);
@@ -132,7 +134,7 @@ public:
 								}
 
 								{
-									btVector3 pos(j * sNumSpheres * 1.5, -2.4, 0);
+									btVector3 pos(btScalar(j * sNumSpheres * 1.5), btScalar(-2.4), btScalar(0));
 									btQuaternion orn(0, 0, 0, 1);
 									plCollisionObjectHandle colObjHandle = plCreateCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle, userPointer, -1, compoundShape, pos, orn);
 									if (m_tutorialIndex == TUT_SPHERE_PLANE_BULLET2)
@@ -186,10 +188,10 @@ public:
 				m_timeSeriesCanvas0 = new TimeSeriesCanvas(m_app->m_2dCanvasInterface, 512, 256, "Unknown");
 				m_timeSeriesCanvas0->setupTimeSeries(1, 60, 0);
 			}
-		};
+		}
 
 		{
-			int boxId = m_app->registerCubeShape(100, 0.01, 100);
+			int boxId = m_app->registerCubeShape(100.0f, 0.01f, 100.0f);
 			b3Vector3 pos = b3MakeVector3(0, -3.5, 0);
 			b3Quaternion orn(0, 0, 0, 1);
 			b3Vector4 color = b3MakeVector4(1, 1, 1, 1);
@@ -199,10 +201,11 @@ public:
 
 		{
 			int textureIndex = -1;
+			(void)textureIndex;
 
 			if (1)
 			{
-				int width, height, n;
+				int width=0, height=0, n;
 
 				const char* filename = "data/cube.png";
 				const unsigned char* image = 0;
@@ -221,6 +224,7 @@ public:
 				if (image)
 				{
 					textureIndex = m_app->m_renderer->registerTexture(image, width, height);
+					(void)textureIndex;
 				}
 			}
 		}
@@ -245,7 +249,7 @@ public:
 	{
 	}
 
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 #ifndef BT_NO_PROFILE
 		CProfileManager::Reset();
@@ -322,18 +326,18 @@ public:
 		}
 	}
 
-	virtual void physicsDebugDraw(int debugDrawFlags)
+	virtual void physicsDebugDraw(int /*debugDrawFlags*/)
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
-	{
-		return false;
-	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
+	{
+		return false;
+	}
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}

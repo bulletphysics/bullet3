@@ -23,7 +23,7 @@ int main() {
       all_tests_passed = false;
     }
 
- // Test all possibilites of fill bytes (none, one =, two ==)
+ // Test all possibilities of fill bytes (none, one =, two ==)
  // References calculated with: https://www.base64encode.org/
 
     std::string rest0_original = "abc";

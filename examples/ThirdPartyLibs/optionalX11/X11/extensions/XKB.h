@@ -141,7 +141,7 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 /*
      * Miscellaneous event details:
-     * - event detail masks for assorted events that don't reall
+     * - event detail masks for assorted events that don't really
      *   have any details.
      */
 #define XkbAllStateEventsMask XkbAllStateComponentsMask
@@ -682,7 +682,7 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #define XkbIM_UseAnyMods (XkbIM_UseAnyGroup | XkbIM_UseCompat)
 
 /*
-     * Compatibility Map Compontents:
+     * Compatibility Map Components:
      *  - Specifies the components to be allocated in XkbAllocCompatMap.
      */
 #define XkbSymInterpMask (1 << 0)

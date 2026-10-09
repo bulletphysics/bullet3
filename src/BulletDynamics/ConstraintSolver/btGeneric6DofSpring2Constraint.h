@@ -96,16 +96,16 @@ public:
 
 	btRotationalLimitMotor2()
 	{
-		m_loLimit = 1.0f;
-		m_hiLimit = -1.0f;
-		m_bounce = 0.0f;
-		m_stopERP = 0.2f;
-		m_stopCFM = 0.f;
-		m_motorERP = 0.9f;
-		m_motorCFM = 0.f;
+		m_loLimit = btScalar(1.0);
+		m_hiLimit = -btScalar(1.0);
+		m_bounce = btScalar(0.0);
+		m_stopERP = btScalar(0.2);
+		m_stopCFM = btScalar(0.);
+		m_motorERP = btScalar(0.9);
+		m_motorCFM = btScalar(0.);
 		m_enableMotor = false;
 		m_targetVelocity = 0;
-		m_maxMotorForce = 6.0f;
+		m_maxMotorForce = btScalar(6.0);
 		m_servoMotor = false;
 		m_servoTarget = 0;
 		m_enableSpring = false;
@@ -189,17 +189,17 @@ public:
 
 	btTranslationalLimitMotor2()
 	{
-		m_lowerLimit.setValue(0.f, 0.f, 0.f);
-		m_upperLimit.setValue(0.f, 0.f, 0.f);
-		m_bounce.setValue(0.f, 0.f, 0.f);
-		m_stopERP.setValue(0.2f, 0.2f, 0.2f);
-		m_stopCFM.setValue(0.f, 0.f, 0.f);
-		m_motorERP.setValue(0.9f, 0.9f, 0.9f);
-		m_motorCFM.setValue(0.f, 0.f, 0.f);
+		m_lowerLimit.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+		m_upperLimit.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+		m_bounce.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+		m_stopERP.setValue(btScalar(0.2), btScalar(0.2), btScalar(0.2));
+		m_stopCFM.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+		m_motorERP.setValue(btScalar(0.9), btScalar(0.9), btScalar(0.9));
+		m_motorCFM.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
 
-		m_currentLimitError.setValue(0.f, 0.f, 0.f);
-		m_currentLimitErrorHi.setValue(0.f, 0.f, 0.f);
-		m_currentLinearDiff.setValue(0.f, 0.f, 0.f);
+		m_currentLimitError.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+		m_currentLimitErrorHi.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+		m_currentLinearDiff.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
 
 		for (int i = 0; i < 3; i++)
 		{

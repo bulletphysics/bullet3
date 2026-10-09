@@ -3,7 +3,7 @@
 
 /*! \file gim_basic_geometry_operations.h
 *\author Francisco Leon Najera
-type independant geometry routines
+type independent geometry routines
 
 */
 /*
@@ -52,7 +52,7 @@ email: projectileman@yahoo.com
 		VEC_DIFF(_dif2, v3, v1);       \
 		VEC_CROSS(n, _dif1, _dif2);    \
 		VEC_NORMALIZE(n);              \
-	}
+	} do{} while(0)
 
 #define TRIANGLE_NORMAL_FAST(v1, v2, v3, n) \
 	{                                       \
@@ -60,21 +60,21 @@ email: projectileman@yahoo.com
 		VEC_DIFF(_dif1, v2, v1);            \
 		VEC_DIFF(_dif2, v3, v1);            \
 		VEC_CROSS(n, _dif1, _dif2);         \
-	}
+	} do{} while(0)
 
 /// plane is a vec4f
 #define TRIANGLE_PLANE(v1, v2, v3, plane)   \
 	{                                       \
 		TRIANGLE_NORMAL(v1, v2, v3, plane); \
 		plane[3] = VEC_DOT(v1, plane);      \
-	}
+	} do{} while(0)
 
 /// plane is a vec4f
 #define TRIANGLE_PLANE_FAST(v1, v2, v3, plane)   \
 	{                                            \
 		TRIANGLE_NORMAL_FAST(v1, v2, v3, plane); \
 		plane[3] = VEC_DOT(v1, plane);           \
-	}
+	} do{} while(0)
 
 /// Calc a plane from an edge an a normal. plane is a vec4f
 #define EDGE_PLANE(e1, e2, n, plane)   \
@@ -84,7 +84,7 @@ email: projectileman@yahoo.com
 		VEC_CROSS(plane, _dif, n);     \
 		VEC_NORMALIZE(plane);          \
 		plane[3] = VEC_DOT(e1, plane); \
-	}
+	} do{} while(0)
 
 #define DISTANCE_PLANE_POINT(plane, point) (VEC_DOT(plane, point) - plane[3])
 
@@ -94,7 +94,7 @@ email: projectileman@yahoo.com
 		_dis = DISTANCE_PLANE_POINT(plane, point);   \
 		VEC_SCALE(projected, -_dis, plane);          \
 		VEC_SUM(projected, projected, point);        \
-	}
+	} do{} while(0)
 
 //! Verifies if a point is in the plane hull
 template <typename CLASS_POINT, typename CLASS_PLANE>
@@ -105,7 +105,7 @@ SIMD_FORCE_INLINE bool POINT_IN_HULL(
 	for (GUINT _i = 0; _i < plane_count; ++_i)
 	{
 		_dis = DISTANCE_PLANE_POINT(planes[_i], point);
-		if (_dis > 0.0f) return false;
+		if (_dis > GREAL(0.0)) return false;
 	}
 	return true;
 }
@@ -227,6 +227,8 @@ SIMD_FORCE_INLINE eLINE_PLANE_INTERSECTION_TYPE PLANE_CLIP_SEGMENT_CLOSEST(
 		case G_COLLIDE_PLANE_S2:
 			VEC_COPY(clipped2, s2);
 			break;
+		default:
+			break;
 	}
 	return intersection_type;
 }
@@ -248,7 +250,7 @@ SIMD_FORCE_INLINE bool RAY_PLANE_COLLISION(
 {
 	GREAL _dis, _dotdir;
 	_dotdir = VEC_DOT(plane, vDir);
-	if (_dotdir < PLANEDIREPSILON)
+	if (_dotdir < (GREAL)PLANEDIREPSILON)
 	{
 		return false;
 	}
@@ -277,13 +279,13 @@ SIMD_FORCE_INLINE GUINT LINE_PLANE_COLLISION(
 {
 	GREAL _dis, _dotdir;
 	_dotdir = VEC_DOT(plane, vDir);
-	if (btFabs(_dotdir) < PLANEDIREPSILON)
+	if (btFabs(_dotdir) < (GREAL)PLANEDIREPSILON)
 	{
 		tparam = tmax;
 		return 0;
 	}
 	_dis = DISTANCE_PLANE_POINT(plane, vPoint);
-	char returnvalue = _dis < 0.0f ? 2 : 1;
+	char returnvalue = _dis < (GREAL)0.0f ? 2 : 1;
 	tparam = -_dis / _dotdir;
 
 	if (tparam < tmin)
@@ -299,7 +301,7 @@ SIMD_FORCE_INLINE GUINT LINE_PLANE_COLLISION(
 
 	VEC_SCALE(pout, tparam, vDir);
 	VEC_SUM(pout, vPoint, pout);
-	return returnvalue;
+	return (GUINT)returnvalue;
 }
 
 /*! \brief Returns the Ray on which 2 planes intersect if they do.
@@ -309,7 +311,7 @@ SIMD_FORCE_INLINE GUINT LINE_PLANE_COLLISION(
   \param p2 Plane 2
   \param p Contains the origin of the ray upon returning if planes intersect
   \param d Contains the direction of the ray upon returning if planes intersect
-  \return true if the planes intersect, 0 if paralell.
+  \return true if the planes intersect, 0 if parallel.
 
 */
 template <typename CLASS_POINT, typename CLASS_PLANE>
@@ -347,11 +349,11 @@ SIMD_FORCE_INLINE void CLOSEST_POINT_ON_SEGMENT(
 	VEC_DIFF(cp, v, e1);
 	GREAL _scalar = VEC_DOT(cp, _n);
 	_scalar /= VEC_DOT(_n, _n);
-	if (_scalar < 0.0f)
+	if (_scalar < (GREAL)0.0f)
 	{
 		VEC_COPY(cp, e1);
 	}
-	else if (_scalar > 1.0f)
+	else if (_scalar > (GREAL)1.0f)
 	{
 		VEC_COPY(cp, e2);
 	}
@@ -370,7 +372,7 @@ SIMD_FORCE_INLINE void CLOSEST_POINT_ON_SEGMENT(
 \param point2 Point of line 2
 \param t1 Result Parameter for line 1
 \param t2 Result Parameter for line 2
-\param dointersect  0  if the lines won't intersect, else 1
+\return dointersect  0  if the lines won't intersect, else 1
 
 */
 template <typename T, typename CLASS_POINT>
@@ -476,7 +478,7 @@ SIMD_FORCE_INLINE void SEGMENT_COLLISION(
 	VEC_DIFF(vPointB, vPointA, vB1);
 	_tp = VEC_DOT(vPointB, _BD);
 	_tp /= VEC_DOT(_BD, _BD);
-	_tp = GIM_CLAMP(_tp, 0.0f, 1.0f);
+	_tp = GIM_CLAMP(_tp, btScalar(0.0f), btScalar(1.0f));
 	VEC_SCALE(vPointB, _tp, _BD);
 	VEC_SUM(vPointB, vPointB, vB1);
 }
@@ -508,7 +510,7 @@ SIMD_FORCE_INLINE bool BOX_AXIS_INTERSECT(T pos, T dir, T bmin, T bmax, T &tfirs
 	return true;
 }
 
-//! Sorts 3 componets
+//! Sorts 3 components
 template <typename T>
 SIMD_FORCE_INLINE void SORT_3_INDICES(
 	const T *values,

@@ -141,7 +141,7 @@ inline void VectorRn::SetLength(long newLength)
 	{
 		delete[] x;
 		AllocLength = Max(newLength, AllocLength << 1);
-		x = new double[AllocLength];
+		x = new double[(size_t)AllocLength];
 	}
 	length = newLength;
 }

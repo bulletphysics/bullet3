@@ -161,7 +161,7 @@ public:
 	btConvexSeparatingDistanceUtil(btScalar boundingRadiusA, btScalar boundingRadiusB)
 		: m_boundingRadiusA(boundingRadiusA),
 		  m_boundingRadiusB(boundingRadiusB),
-		  m_separatingDistance(0.f)
+		  m_separatingDistance(btScalar(0.))
 	{
 	}
 
@@ -177,7 +177,7 @@ public:
 		btQuaternion toOrnA = transA.getRotation();
 		btQuaternion toOrnB = transB.getRotation();
 
-		if (m_separatingDistance > 0.f)
+		if (m_separatingDistance > btScalar(0.))
 		{
 			btVector3 linVelA, angVelA, linVelB, angVelB;
 			btTransformUtil::calculateVelocityQuaternion(m_posA, toPosA, m_ornA, toOrnA, btScalar(1.), linVelA, angVelA);
@@ -185,9 +185,9 @@ public:
 			btScalar maxAngularProjectedVelocity = angVelA.length() * m_boundingRadiusA + angVelB.length() * m_boundingRadiusB;
 			btVector3 relLinVel = (linVelB - linVelA);
 			btScalar relLinVelocLength = relLinVel.dot(m_separatingNormal);
-			if (relLinVelocLength < 0.f)
+			if (relLinVelocLength < btScalar(0.))
 			{
-				relLinVelocLength = 0.f;
+				relLinVelocLength = btScalar(0.);
 			}
 
 			btScalar projectedMotion = maxAngularProjectedVelocity + relLinVelocLength;
@@ -204,7 +204,7 @@ public:
 	{
 		m_separatingDistance = separatingDistance;
 
-		if (m_separatingDistance > 0.f)
+		if (m_separatingDistance > btScalar(0.))
 		{
 			m_separatingNormal = separatingVector;
 

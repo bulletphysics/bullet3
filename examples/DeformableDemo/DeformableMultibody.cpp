@@ -24,7 +24,6 @@
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
-#include "../SoftDemo/BunnyMesh.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
 
@@ -87,7 +86,7 @@ void DeformableMultibody::initPhysics()
 	///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -139,11 +138,11 @@ void DeformableMultibody::initPhysics()
         bool damping = true;
         bool gyro = false;
         int numLinks = 4;
-        bool spherical = false;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
+        bool spherical = false;  //set it to false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = true;
-        btVector3 linkHalfExtents(.4, 1, .4);
-        btVector3 baseHalfExtents(.4, 1, .4);
+        btVector3 linkHalfExtents(btScalar(.4), 1, btScalar(.4));
+        btVector3 baseHalfExtents(btScalar(.4), 1, btScalar(.4));
         
         btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(m_dynamicsWorld, numLinks, btVector3(0.f, 10.f,0.f), linkHalfExtents, baseHalfExtents, spherical, g_floatingBase);
         
@@ -192,7 +191,7 @@ void DeformableMultibody::initPhysics()
 //                                                         3,3,
                                                          1 + 2 + 4 + 8, true);
 
-        psb->getCollisionShape()->setMargin(0.025);
+        psb->getCollisionShape()->setMargin(btScalar(0.025));
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -262,7 +261,7 @@ void DeformableMultibody::exitPhysics()
 void DeformableMultibody::stepSimulation(float deltaTime)
 {
 //    getDeformableDynamicsWorld()->getMultiBodyDynamicsWorld()->stepSimulation(deltaTime);
-    m_dynamicsWorld->stepSimulation(deltaTime, 5, 1./250.);
+    m_dynamicsWorld->stepSimulation(deltaTime, 5, btScalar(1./250.));
 }
 
 
@@ -272,7 +271,7 @@ btMultiBody* DeformableMultibody::createFeatherstoneMultiBody_testMultiDof(btMul
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
     float baseMass = .1f;
     
-    if (baseMass)
+    if (baseMass != 0.0f)
     {
         btCollisionShape* pTempBox = new btBoxShape(btVector3(baseHalfExtents[0], baseHalfExtents[1], baseHalfExtents[2]));
         pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);
@@ -341,7 +340,7 @@ void DeformableMultibody::addColliders_testMultiDof(btMultiBody* pMultiBody, btM
         btScalar quat[4] = {-world_to_local[0].x(), -world_to_local[0].y(), -world_to_local[0].z(), world_to_local[0].w()};
         
         btCollisionShape* box = new btBoxShape(baseHalfExtents);
-        box->setMargin(0.01);
+        box->setMargin(btScalar(0.01));
         btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, -1);
         col->setCollisionShape(box);
         

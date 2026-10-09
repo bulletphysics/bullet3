@@ -78,7 +78,7 @@ const TestPartResult& TestPartResultArray::GetTestPartResult(int index) const
 		internal::posix::Abort();
 	}
 
-	return array_[index];
+	return array_[(size_t)index];
 }
 
 // Returns the number of TestPartResult objects in the array.

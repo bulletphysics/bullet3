@@ -93,7 +93,7 @@ public:
 		}
 	}
 
-	virtual ~btMultimaterialTriangleMeshShape()
+	virtual ~btMultimaterialTriangleMeshShape() BT_OVERRIDE
 	{
 		/*
         for(int i = 0; i < m_meshInterface->getNumSubParts(); i++)
@@ -106,7 +106,7 @@ public:
 */
 	}
 	//debugging
-	virtual const char *getName() const { return "MULTIMATERIALTRIANGLEMESH"; }
+	virtual const char *getName() const  BT_OVERRIDE{ return "MULTIMATERIALTRIANGLEMESH"; }
 
 	///Obtains the material for a specific triangle
 	const btMaterial *getMaterialProperties(int partID, int triIndex);

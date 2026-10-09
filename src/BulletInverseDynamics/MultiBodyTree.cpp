@@ -274,7 +274,7 @@ int MultiBodyTree::addBody(int body_index, int parent_index, JointType joint_typ
 					bt_id_error_message("axis of motion vector too short (%e)\n", length);
 					return -1;
 				}
-				body_axis_of_motion = (1.0 / length) * body_axis_of_motion;
+				body_axis_of_motion = (idScalar(1.0) / length) * body_axis_of_motion;
 			}
 			break;
 		case FIXED:

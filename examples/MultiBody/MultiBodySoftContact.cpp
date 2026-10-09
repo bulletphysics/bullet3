@@ -87,6 +87,7 @@ void MultiBodySoftContact::initPhysics()
 		btVector4 color = colors[curColor];
 		curColor++;
 		curColor &= 3;
+		(void)curColor;
 		m_guiHelper->createRigidBodyGraphicsObject(body, color);
 	}
 

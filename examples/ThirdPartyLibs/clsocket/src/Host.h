@@ -173,6 +173,8 @@ typedef long int int64;
 #define GETSOCKOPT(a, b, c, d, e) getsockopt(a, b, c, (char *)d, (int *)e)
 #define SETSOCKOPT(a, b, c, d, e) setsockopt(a, b, c, (char *)d, (int)e)
 #define GETHOSTBYNAME(a) gethostbyname(a)
+#define SOCKET_SIZE_TYPE size_t
+#define SOCKET_SIZE_TYPE_RECV_FROM int
 #endif
 
 #if defined(_LINUX) || defined(_DARWIN) || defined(_BSD)
@@ -196,7 +198,10 @@ typedef long int int64;
 #define GETSOCKOPT(a, b, c, d, e) getsockopt((int)a, (int)b, (int)c, (void *)d, (socklen_t *)e)
 #define SETSOCKOPT(a, b, c, d, e) setsockopt((int)a, (int)b, (int)c, (const void *)d, (int)e)
 #define GETHOSTBYNAME(a) gethostbyname(a)
+#define SOCKET_SIZE_TYPE int
+#define SOCKET_SIZE_TYPE_RECV_FROM size_t
 #endif
+#define SOCKET_FLAGS_TO_INT int
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */

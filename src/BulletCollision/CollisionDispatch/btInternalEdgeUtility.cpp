@@ -180,7 +180,7 @@ struct btConnectivityProcessor : public btTriangleCallback
 				}
 
 				btScalar angle2 = 0;
-				btScalar ang4 = 0.f;
+				btScalar ang4 = btScalar(0.f);
 
 				btVector3 calculatedEdge = edgeCrossA.cross(edgeCrossB);
 				btScalar len2 = calculatedEdge.length2();
@@ -191,8 +191,10 @@ struct btConnectivityProcessor : public btTriangleCallback
 
 				if (len2 < m_triangleInfoMap->m_planarEpsilon)
 				{
-					angle2 = 0.f;
-					ang4 = 0.f;
+					angle2 = btScalar(0.f);
+					ang4 = btScalar(0.f);
+					(void)angle2;
+					(void)ang4;
 				}
 				else
 				{
@@ -215,8 +217,8 @@ struct btConnectivityProcessor : public btTriangleCallback
 				{
 					case 1:
 					{
-						btVector3 edge = m_triangleVerticesA[0] - m_triangleVerticesA[1];
-						btQuaternion orn(edge, -correctedAngle);
+						btVector3 edgeL = m_triangleVerticesA[0] - m_triangleVerticesA[1];
+						btQuaternion orn(edgeL, -correctedAngle);
 						btVector3 computedNormalB = quatRotate(orn, normalA);
 						btScalar bla = computedNormalB.dot(normalB);
 						if (bla < 0)
@@ -239,8 +241,8 @@ struct btConnectivityProcessor : public btTriangleCallback
 					}
 					case 2:
 					{
-						btVector3 edge = m_triangleVerticesA[2] - m_triangleVerticesA[0];
-						btQuaternion orn(edge, -correctedAngle);
+						btVector3 edgeL = m_triangleVerticesA[2] - m_triangleVerticesA[0];
+						btQuaternion orn(edgeL, -correctedAngle);
 						btVector3 computedNormalB = quatRotate(orn, normalA);
 						if (computedNormalB.dot(normalB) < 0)
 						{
@@ -261,8 +263,8 @@ struct btConnectivityProcessor : public btTriangleCallback
 					}
 					case 3:
 					{
-						btVector3 edge = m_triangleVerticesA[1] - m_triangleVerticesA[2];
-						btQuaternion orn(edge, -correctedAngle);
+						btVector3 edgeL = m_triangleVerticesA[1] - m_triangleVerticesA[2];
+						btQuaternion orn(edgeL, -correctedAngle);
 						btVector3 computedNormalB = quatRotate(orn, normalA);
 						if (computedNormalB.dot(normalB) < 0)
 						{
@@ -281,6 +283,8 @@ struct btConnectivityProcessor : public btTriangleCallback
 							info->m_flags |= TRI_INFO_V1V2_CONVEX;
 						break;
 					}
+					default:
+						break;
 				}
 
 				break;
@@ -361,20 +365,20 @@ void btGenerateInternalEdgeInfo(btBvhTriangleMeshShape* trimeshShape, btTriangle
 
 			for (int j = 2; j >= 0; j--)
 			{
-				int graphicsindex;
+				int graphicsindex = 0;
                                 switch (indicestype) {
-                                        case PHY_INTEGER: graphicsindex = gfxbase[j]; break;
-                                        case PHY_SHORT: graphicsindex = ((unsigned short*)gfxbase)[j]; break;
-                                        case PHY_UCHAR: graphicsindex = ((unsigned char*)gfxbase)[j]; break;
+                                        case PHY_INTEGER: graphicsindex = (int)gfxbase[j]; break;
+                                        case PHY_SHORT: graphicsindex = (int)((unsigned short*)gfxbase)[j]; break;
+                                        case PHY_UCHAR: graphicsindex = (int)((unsigned char*)gfxbase)[j]; break;
                                         default: btAssert(0);
                                 }
 				if (type == PHY_FLOAT)
 				{
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
 					triangleVerts[j] = btVector3(
-						graphicsbase[0] * meshScaling.getX(),
-						graphicsbase[1] * meshScaling.getY(),
-						graphicsbase[2] * meshScaling.getZ());
+						(btScalar)graphicsbase[0] * meshScaling.getX(),
+						(btScalar)graphicsbase[1] * meshScaling.getY(),
+						(btScalar)graphicsbase[2] * meshScaling.getZ());
 				}
 				else
 				{
@@ -426,7 +430,7 @@ void btGenerateInternalEdgeInfo(btHeightfieldTerrainShape* heightfieldShape, btT
 
 // Given a point and a line segment (defined by two points), compute the closest point
 // in the line.  Cap the point at the endpoints of the line segment.
-void btNearestPointInLineSegment(const btVector3& point, const btVector3& line0, const btVector3& line1, btVector3& nearestPoint)
+static void btNearestPointInLineSegment(const btVector3& point, const btVector3& line0, const btVector3& line1, btVector3& nearestPoint)
 {
 	btVector3 lineDelta = line1 - line0;
 
@@ -449,7 +453,7 @@ void btNearestPointInLineSegment(const btVector3& point, const btVector3& line0,
 	}
 }
 
-bool btClampNormal(const btVector3& edge, const btVector3& tri_normal_org, const btVector3& localContactNormalOnB, btScalar correctedEdgeAngle, btVector3& clampedLocalNormal)
+static bool btClampNormal(const btVector3& edge, const btVector3& tri_normal_org, const btVector3& localContactNormalOnB, btScalar correctedEdgeAngle, btVector3& clampedLocalNormal)
 {
 	btVector3 tri_normal = tri_normal_org;
 	//we only have a local triangle normal, not a local contact normal -> only normal in world space...
@@ -483,7 +487,7 @@ bool btClampNormal(const btVector3& edge, const btVector3& tri_normal_org, const
 }
 
 /// Changes a btManifoldPoint collision normal to the normal from the mesh.
-void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, const btCollisionObjectWrapper* colObj1Wrap, int partId0, int index0, int normalAdjustFlags)
+void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, const btCollisionObjectWrapper* /*colObj1Wrap*/, int partId0, int index0, int normalAdjustFlags)
 {
 	//btAssert(colObj0->getCollisionShape()->getShapeType() == TRIANGLE_SHAPE_PROXYTYPE);
 	if (colObj0Wrap->getCollisionShape()->getShapeType() != TRIANGLE_SHAPE_PROXYTYPE)
@@ -543,7 +547,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	if (!info)
 		return;
 
-	btScalar frontFacing = (normalAdjustFlags & BT_TRIANGLE_CONVEX_BACKFACE_MODE) == 0 ? 1.f : -1.f;
+	btScalar frontFacing = (normalAdjustFlags & BT_TRIANGLE_CONVEX_BACKFACE_MODE) == 0 ? btScalar(1.f) : btScalar(-1.f);
 
 	const btTriangleShape* tri_shape = static_cast<const btTriangleShape*>(colObj0Wrap->getCollisionShape());
 	btVector3 v0, v1, v2;
@@ -570,7 +574,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	bool isNearEdge = false;
 
 	int numConcaveEdgeHits = 0;
-	int numConvexEdgeHits = 0;
+	int numConvexEdgeHits = 0; (void)numConvexEdgeHits;
 
 	btVector3 localContactNormalOnB = colObj0Wrap->getWorldTransform().getBasis().transpose() * cp.m_normalWorldOnB;
 	localContactNormalOnB.normalize();  //is this necessary?
@@ -582,9 +586,9 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	// Edge 0 -> 1
 	if (btFabs(info->m_edgeV0V1Angle) < triangleInfoMapPtr->m_maxEdgeAngleThreshold)
 	{
-		btVector3 nearest;
-		btNearestPointInLineSegment(cp.m_localPointB, v0, v1, nearest);
-		btScalar len = (contact - nearest).length();
+		btVector3 nearestL;
+		btNearestPointInLineSegment(cp.m_localPointB, v0, v1, nearestL);
+		btScalar len = (contact - nearestL).length();
 		//
 		if (len < disttobestedge)
 		{
@@ -595,9 +599,9 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	// Edge 1 -> 2
 	if (btFabs(info->m_edgeV1V2Angle) < triangleInfoMapPtr->m_maxEdgeAngleThreshold)
 	{
-		btVector3 nearest;
-		btNearestPointInLineSegment(cp.m_localPointB, v1, v2, nearest);
-		btScalar len = (contact - nearest).length();
+		btVector3 nearestL;
+		btNearestPointInLineSegment(cp.m_localPointB, v1, v2, nearestL);
+		btScalar len = (contact - nearestL).length();
 		//
 		if (len < disttobestedge)
 		{
@@ -608,19 +612,20 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	// Edge 2 -> 0
 	if (btFabs(info->m_edgeV2V0Angle) < triangleInfoMapPtr->m_maxEdgeAngleThreshold)
 	{
-		btVector3 nearest;
-		btNearestPointInLineSegment(cp.m_localPointB, v2, v0, nearest);
-		btScalar len = (contact - nearest).length();
+		btVector3 nearestL;
+		btNearestPointInLineSegment(cp.m_localPointB, v2, v0, nearestL);
+		btScalar len = (contact - nearestL).length();
 		//
 		if (len < disttobestedge)
 		{
 			bestedge = 2;
 			disttobestedge = len;
+			(void)disttobestedge;
 		}
 	}
 
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
-	btVector3 upfix = tri_normal * btVector3(0.1f, 0.1f, 0.1f);
+	btVector3 upfix = tri_normal * btVector3(btScalar(0.1f), btScalar(0.1f), btScalar(0.1f));
 	btDebugDrawLine(tr * v0 + upfix, tr * v1 + upfix, red);
 #endif
 	if (btFabs(info->m_edgeV0V1Angle) < triangleInfoMapPtr->m_maxEdgeAngleThreshold)
@@ -716,7 +721,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 #endif  //BT_INTERNAL_EDGE_DEBUG_DRAW
 
 				btVector3 edge(v1 - v2);
-
+				(void)isNearEdge;
 				isNearEdge = true;
 
 				if (info->m_edgeV1V2Angle == btScalar(0))
@@ -756,9 +761,9 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 					else
 					{
 						numConvexEdgeHits++;
-						btVector3 localContactNormalOnB = colObj0Wrap->getWorldTransform().getBasis().transpose() * cp.m_normalWorldOnB;
+						btVector3 localContactNormalOnBL = colObj0Wrap->getWorldTransform().getBasis().transpose() * cp.m_normalWorldOnB;
 						btVector3 clampedLocalNormal;
-						bool isClamped = btClampNormal(edge, swapFactor * tri_normal, localContactNormalOnB, info->m_edgeV1V2Angle, clampedLocalNormal);
+						bool isClamped = btClampNormal(edge, swapFactor * tri_normal, localContactNormalOnBL, info->m_edgeV1V2Angle, clampedLocalNormal);
 						if (isClamped)
 						{
 							if (((normalAdjustFlags & BT_TRIANGLE_CONVEX_DOUBLE_SIDED) != 0) || (clampedLocalNormal.dot(frontFacing * tri_normal) > 0))
@@ -839,9 +844,9 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 						numConvexEdgeHits++;
 						//				printf("hitting convex edge\n");
 
-						btVector3 localContactNormalOnB = colObj0Wrap->getWorldTransform().getBasis().transpose() * cp.m_normalWorldOnB;
+						btVector3 localContactNormalOnBL = colObj0Wrap->getWorldTransform().getBasis().transpose() * cp.m_normalWorldOnB;
 						btVector3 clampedLocalNormal;
-						bool isClamped = btClampNormal(edge, swapFactor * tri_normal, localContactNormalOnB, info->m_edgeV2V0Angle, clampedLocalNormal);
+						bool isClamped = btClampNormal(edge, swapFactor * tri_normal, localContactNormalOnBL, info->m_edgeV2V0Angle, clampedLocalNormal);
 						if (isClamped)
 						{
 							if (((normalAdjustFlags & BT_TRIANGLE_CONVEX_DOUBLE_SIDED) != 0) || (clampedLocalNormal.dot(frontFacing * tri_normal) > 0))

@@ -9,7 +9,7 @@ struct SDFAudioSource
 	enum
 	{
 		SDFAudioSourceValid = 1,
-		SDFAudioSourceLooping = 2,
+		SDFAudioSourceLooping = 2
 	};
 
 	int m_flags;  //repeat mode (0 = no repeat, 1 = loop forever)

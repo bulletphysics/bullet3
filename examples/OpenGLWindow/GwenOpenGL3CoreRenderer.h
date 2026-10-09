@@ -112,8 +112,8 @@ public:
 	}
 	virtual void Resize(int width, int height)
 	{
-		m_screenWidth = width;
-		m_screenHeight = height;
+		m_screenWidth = (float)width;
+		m_screenHeight = (float)height;
 	}
 
 	virtual void Begin()
@@ -163,20 +163,20 @@ public:
 		{
 			GLint view[4];
 			glGetIntegerv(GL_VIEWPORT, &view[0]);
-			rect.y = view[3] / m_retinaScale - (rect.y + rect.h);
+			rect.y = (int)((float)view[3] / m_retinaScale - (float)(rect.y + rect.h));
 		}
 
-		glScissor(m_retinaScale * rect.x * Scale(), m_retinaScale * rect.y * Scale(), m_retinaScale * rect.w * Scale(), m_retinaScale * rect.h * Scale());
+		glScissor(GLsizei(m_retinaScale * (float)rect.x * Scale()), GLsizei(m_retinaScale * (float)rect.y * Scale()), GLsizei(m_retinaScale * (float)rect.w * Scale()), GLsizei(m_retinaScale * (float)rect.h * Scale()));
 		glEnable(GL_SCISSOR_TEST);
 		//glDisable( GL_SCISSOR_TEST );
-	};
+	}
 
 	virtual void EndClip()
 	{
 		if (m_useTrueTypeFont)
 			sth_flush_draw(m_font);
 		glDisable(GL_SCISSOR_TEST);
-	};
+	}
 
 	virtual void SetDrawColor(Gwen::Color color)
 	{
@@ -190,15 +190,15 @@ public:
 		//		BT_PROFILE("GWEN_DrawFilledRect");
 		Translate(rect);
 
-		m_primitiveRenderer->drawRect(rect.x, rect.y + m_yOffset,
-									  rect.x + rect.w, rect.y + rect.h + m_yOffset, m_currentColor);
+		m_primitiveRenderer->drawRect((float)rect.x, (float)rect.y + m_yOffset,
+									  (float)(rect.x + rect.w), (float)(rect.y + rect.h) + m_yOffset, m_currentColor);
 
 		//		m_primitiveRenderer->drawTexturedRect2a(rect.x, rect.y+m_yOffset,
 		//		rect.x+rect.w, rect.y+rect.h+m_yOffset, m_currentColor,0,0,1,1);
 		//		m_yOffset+=rect.h+10;
 	}
 
-	void RenderText(Gwen::Font* pFont, Gwen::Point rasterPos, const Gwen::UnicodeString& text)
+	void RenderText(Gwen::Font* /*pFont*/, Gwen::Point rasterPos, const Gwen::UnicodeString& text)
 	{
 		//		BT_PROFILE("GWEN_RenderText");
 
@@ -229,8 +229,8 @@ public:
 			Translate(r);
 			sth_draw_text(m_font,
 						  1, m_fontScaling,
-						  r.x, r.y + yoffset,
-						  unicodeText, &dx, m_screenWidth, m_screenHeight, measureOnly, m_retinaScale);
+						  (float)r.x, (float)r.y + yoffset,
+						  unicodeText, &dx, (int)m_screenWidth, (int)m_screenHeight, measureOnly, m_retinaScale);
 		}
 		else
 		{
@@ -239,20 +239,20 @@ public:
 			//float color[]={0.2f,0.2,0.2f,1.f};
 
 			glBindTexture(GL_TEXTURE_2D, m_fontTextureId);
-			float width = r.x;
+			float width = (float)r.x;
 
 			while (unicodeText[pos])
 			{
 				int c = unicodeText[pos];
 				r.h = m_currentFont->m_CharHeight;
-				r.w = m_currentFont->m_CharWidth[c] + extraSpacing;
+				r.w = (int)((float)m_currentFont->m_CharWidth[c] + extraSpacing);
 				Gwen::Rect rect = r;
 				Translate(rect);
 
-				m_primitiveRenderer->drawTexturedRect2(rect.x, rect.y + m_yOffset, rect.x + rect.w, rect.y + rect.h + m_yOffset, m_currentColor, m_currentFont->m_CharU0[c], m_currentFont->m_CharV0[c], m_currentFont->m_CharU1[c], m_currentFont->m_CharV1[c]);
+				m_primitiveRenderer->drawTexturedRect2((float)rect.x, (float)rect.y + m_yOffset, (float)(rect.x + rect.w), (float)(rect.y + rect.h) + m_yOffset, m_currentColor, m_currentFont->m_CharU0[c], m_currentFont->m_CharV0[c], m_currentFont->m_CharU1[c], m_currentFont->m_CharV1[c]);
 
-				width += r.w;
-				r.x = width;
+				width += (float)r.w;
+				r.x = (int)width;
 				pos++;
 			}
 			{
@@ -261,7 +261,7 @@ public:
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
-	Gwen::Point MeasureText(Gwen::Font* pFont, const Gwen::UnicodeString& text)
+	Gwen::Point MeasureText(Gwen::Font* /*pFont*/, const Gwen::UnicodeString& text)
 	{
 		//		BT_PROFILE("GWEN_MeasureText");
 		Gwen::String str = Gwen::Utility::UnicodeToString(text);
@@ -277,20 +277,20 @@ public:
 		{
 			sth_draw_text(m_font,
 						  1, m_fontScaling,
-						  xpos, ypos,
-						  unicodeText, &dx, m_screenWidth, m_screenHeight, measureOnly);
+						  (float)xpos, (float)ypos,
+						  unicodeText, &dx, (int)m_screenWidth, (int)m_screenHeight, measureOnly);
 
 			Gwen::Point pt;
 
 			if (m_retinaScale == 2.0f)
 			{
-				pt.x = dx * Scale() / 2.f;
-				pt.y = m_fontScaling / 2 * Scale() + 1;
+				pt.x = (int)(dx * Scale() / 2.f);
+				pt.y = (int)(m_fontScaling / 2 * Scale() + 1);
 			}
 			else
 			{
-				pt.x = dx * Scale();
-				pt.y = m_fontScaling * Scale() + 1;
+				pt.x = (int)(dx * Scale());
+				pt.y = (int)(m_fontScaling * Scale() + 1);
 			}
 			return pt;
 		}
@@ -300,19 +300,19 @@ public:
 			int pos = 0;
 			while (unicodeText[pos])
 			{
-				width += m_currentFont->m_CharWidth[(int)unicodeText[pos]] + extraSpacing;
+				width += (float)m_currentFont->m_CharWidth[(int)unicodeText[pos]] + extraSpacing;
 				pos++;
 			}
 			Gwen::Point pt;
 			int fontHeight = m_currentFont->m_CharHeight;
 
-			pt.x = width * Scale();
-			pt.y = (fontHeight + 2) * Scale();
+			pt.x = (int)(width * Scale());
+			pt.y = (int)((float)(fontHeight + 2) * Scale());
 
 			return pt;
 		}
 
-		return Gwen::Renderer::Base::MeasureText(pFont, text);
+		// return Gwen::Renderer::Base::MeasureText(pFont, text);
 	}
 
 	virtual void LoadTexture(Gwen::Texture* pTexture)
@@ -328,6 +328,10 @@ public:
 
 	virtual void DrawTexturedRect(Gwen::Texture* pTexture, Gwen::Rect rect, float u1 = 0.0f, float v1 = 0.0f, float u2 = 1.0f, float v2 = 1.0f)
 	{
+		(void)u1;
+		(void)v1;
+		(void)u2;
+		(void)v2;
 		//		BT_PROFILE("DrawTexturedRect");
 		Translate(rect);
 
@@ -339,7 +343,7 @@ public:
 		//	return;
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texHandle);
+		glBindTexture(GL_TEXTURE_2D, (GLuint)texHandle);
 		//		glDisable(GL_DEPTH_TEST);
 
 		assert(glGetError() == GL_NO_ERROR);
@@ -364,7 +368,7 @@ public:
 		//add+=1./512.;//0.01;
 		float color[4] = {1, 1, 1, 1};
 
-		m_primitiveRenderer->drawTexturedRect(rect.x, rect.y + m_yOffset, rect.x + rect.w, rect.y + rect.h + m_yOffset, color, 0 + add, 0, 1 + add, 1, true);
+		m_primitiveRenderer->drawTexturedRect((float)rect.x, (float)rect.y + m_yOffset, (float)(rect.x + rect.w), (float)(rect.y + rect.h) + m_yOffset, color, 0 + add, 0, 1 + add, 1, true);
 
 		assert(glGetError() == GL_NO_ERROR);
 	}

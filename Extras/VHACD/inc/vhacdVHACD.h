@@ -38,7 +38,7 @@ public:
 	//! Constructor.
 	VHACD()
 	{
-#if USE_THREAD == 1 && _OPENMP
+#if USE_THREAD == 1 && defined(_OPENMP)
 		m_ompNumProcessors = 2 * omp_get_num_procs();
 		omp_set_num_threads(m_ompNumProcessors);
 #else   //USE_THREAD == 1 && _OPENMP
@@ -282,8 +282,8 @@ private:
 				params.m_logger->Log(msg.str().c_str());
 			}
 
-			double a = pow((double)(params.m_resolution) / n, 0.33);
-			size_t dim_next = (size_t)(m_dim * a + 0.5);
+			double a = pow((double)(params.m_resolution) / (double)n, 0.33);
+			size_t dim_next = (size_t)((double)m_dim * a + 0.5);
 			if (n < params.m_resolution && iteration < maxIteration && m_volume->GetNPrimitivesOnSurf() < params.m_resolution / 8 && m_dim != dim_next)
 			{
 				delete m_volume;
@@ -318,7 +318,7 @@ private:
 		Init();
 		if (params.m_oclAcceleration)
 		{
-			// build kernals
+			// build kernels
 		}
 		AlignMesh(points, stridePoints, nPoints, triangles, strideTriangles, nTriangles, params);
 		VoxelizeMesh(points, stridePoints, nPoints, triangles, strideTriangles, nTriangles, params);
@@ -328,7 +328,7 @@ private:
 		SimplifyConvexHulls(params);
 		if (params.m_oclAcceleration)
 		{
-			// Release kernals
+			// Release kernels
 		}
 		if (GetCancel())
 		{

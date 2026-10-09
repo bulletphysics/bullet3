@@ -125,11 +125,11 @@ bool btBulletWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFile2)
 		}
 	}
 
-	for (int i = 0; i < bulletFile2->m_dynamicsWorldInfo.size(); i++)
+	for (int j = 0; j < bulletFile2->m_dynamicsWorldInfo.size(); j++)
 	{
 		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 		{
-			btDynamicsWorldDoubleData* solverInfoData = (btDynamicsWorldDoubleData*)bulletFile2->m_dynamicsWorldInfo[i];
+			btDynamicsWorldDoubleData* solverInfoData = (btDynamicsWorldDoubleData*)bulletFile2->m_dynamicsWorldInfo[j];
 			btContactSolverInfo solverInfo;
 
 			btVector3 gravity;
@@ -166,7 +166,7 @@ bool btBulletWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFile2)
 		}
 		else
 		{
-			btDynamicsWorldFloatData* solverInfoData = (btDynamicsWorldFloatData*)bulletFile2->m_dynamicsWorldInfo[i];
+			btDynamicsWorldFloatData* solverInfoData = (btDynamicsWorldFloatData*)bulletFile2->m_dynamicsWorldInfo[j];
 			btContactSolverInfo solverInfo;
 
 			btVector3 gravity;

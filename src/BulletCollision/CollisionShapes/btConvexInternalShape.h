@@ -43,11 +43,11 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	virtual ~btConvexInternalShape()
+	virtual ~btConvexInternalShape() BT_OVERRIDE
 	{
 	}
 
-	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const;
+	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const BT_OVERRIDE;
 
 	const btVector3& getImplicitShapeDimensions() const
 	{
@@ -63,7 +63,7 @@ public:
 		m_implicitShapeDimensions = dimensions;
 	}
 
-	void setSafeMargin(btScalar minDimension, btScalar defaultMarginMultiplier = 0.1f)
+	void setSafeMargin(btScalar minDimension, btScalar defaultMarginMultiplier = btScalar(0.1))
 	{
 		btScalar safeMargin = defaultMarginMultiplier * minDimension;
 		if (safeMargin < getMargin())
@@ -71,7 +71,7 @@ public:
 			setMargin(safeMargin);
 		}
 	}
-	void setSafeMargin(const btVector3& halfExtents, btScalar defaultMarginMultiplier = 0.1f)
+	void setSafeMargin(const btVector3& halfExtents, btScalar defaultMarginMultiplier = btScalar(0.1))
 	{
 		//see http://code.google.com/p/bullet/issues/detail?id=349
 		//this margin check could could be added to other collision shapes too,
@@ -81,15 +81,15 @@ public:
 	}
 
 	///getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version
-	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const
+	void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE
 	{
 		getAabbSlow(t, aabbMin, aabbMax);
 	}
 
-	virtual void getAabbSlow(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
+	virtual void getAabbSlow(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE;
 
-	virtual void setLocalScaling(const btVector3& scaling);
-	virtual const btVector3& getLocalScaling() const
+	virtual void setLocalScaling(const btVector3& scaling) BT_OVERRIDE;
+	virtual const btVector3& getLocalScaling() const BT_OVERRIDE
 	{
 		return m_localScaling;
 	}
@@ -99,11 +99,11 @@ public:
 		return m_localScaling;
 	}
 
-	virtual void setMargin(btScalar margin)
+	virtual void setMargin(btScalar margin) BT_OVERRIDE
 	{
 		m_collisionMargin = margin;
 	}
-	virtual btScalar getMargin() const
+	virtual btScalar getMargin() const BT_OVERRIDE
 	{
 		return m_collisionMargin;
 	}
@@ -113,22 +113,22 @@ public:
 		return m_collisionMargin;
 	}
 
-	virtual int getNumPreferredPenetrationDirections() const
+	virtual int getNumPreferredPenetrationDirections() const BT_OVERRIDE
 	{
 		return 0;
 	}
 
-	virtual void getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const
+	virtual void getPreferredPenetrationDirection(int index, btVector3& penetrationVector) const BT_OVERRIDE
 	{
 		(void)penetrationVector;
 		(void)index;
 		btAssert(0);
 	}
 
-	virtual int calculateSerializeBufferSize() const;
+	virtual int calculateSerializeBufferSize() const BT_OVERRIDE;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const BT_OVERRIDE;
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
@@ -198,9 +198,9 @@ protected:
 	}
 
 public:
-	virtual void setLocalScaling(const btVector3& scaling);
+	virtual void setLocalScaling(const btVector3& scaling) BT_OVERRIDE;
 
-	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
+	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const BT_OVERRIDE;
 
 	void recalcLocalAabb();
 };

@@ -30,8 +30,8 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.001;
-static btScalar COLLIDING_VELOCITY = 0;
+static btScalar damping_beta = btScalar(0.001);
+// static btScalar COLLIDING_VELOCITY = 0;
 static int num_modes = 20;
 
 class FrictionSlope : public CommonDeformableBodyBase
@@ -48,7 +48,7 @@ public:
     void exitPhysics();
 
     // TODO: disable pick force, non-interactive for now.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 
@@ -84,14 +84,15 @@ public:
         groundTransform.setIdentity();
         // groundTransform.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_PI / 6.0));
         groundTransform.setOrigin(btVector3(0, 0, 0));
-        btScalar mass(1e6);
+        float mass(1e6);
         btRigidBody* ground = createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
         // ground->setFriction(1);
+        (void)ground;
     }
     
     void stepSimulation(float deltaTime)
     {
-      float internalTimeStep = 1. / 60.f;
+      float internalTimeStep = 1.f / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
@@ -123,7 +124,7 @@ public:
 
 namespace FrictionSlopeHelper 
 {
-    void groundMotion(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
+    static void groundMotion(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     {
         btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
 
@@ -151,6 +152,7 @@ namespace FrictionSlopeHelper
             current_angle = start_angle;
             turn_speed = 0;
         }
+        (void)turn_speed;
         
         btTransform groundTransform;
         groundTransform.setIdentity();
@@ -161,7 +163,7 @@ namespace FrictionSlopeHelper
         ground->setLinearVelocity(btVector3(0, 0, 0));
         ground->setAngularVelocity(btVector3(0, 0, 0));
     }
-};
+}
 
 void FrictionSlope::initPhysics()
 {
@@ -170,7 +172,7 @@ void FrictionSlope::initPhysics()
     ///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    ///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
@@ -197,7 +199,7 @@ void FrictionSlope::initPhysics()
                                             false);
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.01);
+        rsb->getCollisionShape()->setMargin(btScalar(0.01));
 
         btTransform init_transform;
         init_transform.setIdentity();
@@ -223,10 +225,10 @@ void FrictionSlope::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     getDeformableDynamicsWorld()->setSolverCallback(FrictionSlopeHelper::groundMotion);

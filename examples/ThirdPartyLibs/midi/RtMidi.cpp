@@ -1908,7 +1908,7 @@ void MidiOutAlsa ::openPort(unsigned int portNumber, const std::string portName)
 	if (snd_seq_port_subscribe_malloc(&data->subscription) < 0)
 	{
 		snd_seq_port_subscribe_free(data->subscription);
-		errorString_ = "MidiOutAlsa::openPort: error allocation port subscribtion.";
+		errorString_ = "MidiOutAlsa::openPort: error allocation port subscription.";
 		RtMidi::error(RtError::DRIVER_ERROR, errorString_);
 	}
 	snd_seq_port_subscribe_set_sender(data->subscription, &sender);
@@ -3022,12 +3022,12 @@ void CKsPin::Instantiate()
 {
 	if (!m_pKsPinConnect)
 	{
-		printf("CKsPin::Instanciate: abstract pin");
+		printf("CKsPin::Instantiate: abstract pin");
 		assert(0);
 	}
 	DWORD const dwResult = KsCreatePin(m_pFilter->m_handle, m_pKsPinConnect, GENERIC_WRITE | GENERIC_READ, &m_handle);
 	if (dwResult != ERROR_SUCCESS)
-		throw ComException("CKsMidiCapFilter::CreateRenderPin: Pin instanciation failed", HRESULT_FROM_WIN32(dwResult));
+		throw ComException("CKsMidiCapFilter::CreateRenderPin: Pin instantiation failed", HRESULT_FROM_WIN32(dwResult));
 }
 
 void CKsPin::WriteData(KSSTREAM_HEADER *pKSSTREAM_HEADER, OVERLAPPED *pOVERLAPPED)

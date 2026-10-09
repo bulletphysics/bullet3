@@ -35,7 +35,7 @@ subject to the following restrictions:
 //#else
 #define btSoftBodyData btSoftBodyFloatData
 #define btSoftBodyDataName "btSoftBodyFloatData"
-static const btScalar OVERLAP_REDUCTION_FACTOR = 0.1;
+static const btScalar OVERLAP_REDUCTION_FACTOR = btScalar(0.1);
 static unsigned long seed = 243703;
 //#endif //BT_USE_DOUBLE_PRECISION
 
@@ -60,7 +60,7 @@ struct btSoftBodyWorldInfo
 		: air_density((btScalar)1.2),
 		  water_density(0),
 		  water_offset(0),
-		  m_maxDisplacement(1000.f),  //avoid soft body from 'exploding' so use some upper threshold of maximum motion that a node can travel per frame
+		  m_maxDisplacement(btScalar(1000.f)),  //avoid soft body from 'exploding' so use some upper threshold of maximum motion that a node can travel per frame
 		  water_normal(0, 0, 0),
 		  m_broadphase(0),
 		  m_dispatcher(0),
@@ -125,12 +125,12 @@ public:
 	///eSolverPresets
 	struct eSolverPresets
 	{
-		enum _
+		enum _ /* explicit as otherwise END is assigned 1 also */
 		{
-			Positions,
-			Velocities,
+			Positions = 0,
+			Velocities = 1,
 			Default = Positions,
-			END
+			END = 3
 		};
 	};
 
@@ -176,8 +176,8 @@ public:
 			SDF_MDF = 0x0200,   /// GJK based Multibody vs. deformable face
 			SDF_RDN = 0x0400,   /// SDF based Rigid vs. deformable node
 			/* presets	*/
-			Default = SDF_RS,
-			END
+			END,
+			Default = SDF_RS /* moved after END - implicit assignment would otherwise assign END as Default+1 */
 		};
 	};
 
@@ -278,7 +278,7 @@ public:
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
 		int m_constrained;   // depth of penetration
-		int m_battach : 1;   // Attached
+		unsigned int m_battach : 1;   // Attached
 		int index;
 		btVector3 m_splitv;               // velocity associated with split impulse
 		btMatrix3x3 m_effectiveMass;      // effective mass in contact
@@ -291,7 +291,7 @@ public:
 		btVector3 m_c3;      // gradient
 		Node* m_n[2];        // Node pointers
 		btScalar m_rl;       // Rest length
-		int m_bbending : 1;  // Bending link
+		unsigned int m_bbending : 1;  // Bending link
 		btScalar m_c0;       // (ima+imb)*kLST
 		btScalar m_c1;       // rl^2
 		btScalar m_c2;       // |gradient|^2/c0
@@ -417,7 +417,7 @@ public:
 	{
 		Node* m_node;         // Node
 		Face* m_face;         // Face
-		btVector3 m_weights;  // Weigths
+		btVector3 m_weights;  // Weights
 		btVector3 m_normal;   // Normal
 		btScalar m_margin;    // Margin
 		btScalar m_friction;  // Friction
@@ -484,7 +484,7 @@ public:
 		bool m_containsAnchor;
 		bool m_collide;
 		int m_clusterIndex;
-		Cluster() : m_leaf(0), m_ndamping(0), m_ldamping(0), m_adamping(0), m_matching(0), m_maxSelfCollisionImpulse(100.f), m_selfCollisionImpulseFactor(0.01f), m_containsAnchor(false)
+		Cluster() : m_leaf(0), m_ndamping(0), m_ldamping(0), m_adamping(0), m_matching(0), m_maxSelfCollisionImpulse(btScalar(100.f)), m_selfCollisionImpulseFactor(btScalar(0.01f)), m_containsAnchor(false)
 		{
 		}
 	};
@@ -493,8 +493,8 @@ public:
 	{
 		btVector3 m_velocity;
 		btVector3 m_drift;
-		int m_asVelocity : 1;
-		int m_asDrift : 1;
+		unsigned int m_asVelocity : 1;
+		unsigned int m_asDrift : 1;
 		Impulse() : m_velocity(0, 0, 0), m_drift(0, 0, 0), m_asVelocity(0), m_asDrift(0) {}
 		Impulse operator-() const
 		{
@@ -891,7 +891,7 @@ public:
 	}
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library
-	virtual void setCollisionShape(btCollisionShape* collisionShape)
+	virtual void setCollisionShape(btCollisionShape* /*collisionShape*/)
 	{
 	}
 
@@ -1053,7 +1053,7 @@ public:
 	static void clusterDAImpulse(Cluster* cluster, const btVector3& impulse);
 	static void clusterAImpulse(Cluster* cluster, const Impulse& impulse);
 	static void clusterDCImpulse(Cluster* cluster, const btVector3& impulse);
-	/* Generate bending constraints based on distance in the adjency graph	*/
+	/* Generate bending constraints based on distance in the adjacency graph	*/
 	int generateBendingConstraints(int distance,
 								   Material* mat = 0);
 	/* Randomize constraints to reduce solver bias							*/
@@ -1069,7 +1069,7 @@ public:
 	///otherwise an approximation will be used (better performance)
 	int generateClusters(int k, int maxiterations = 8192);
 	/* Refine																*/
-	void refine(ImplicitFn* ifn, btScalar accurary, bool cut);
+	void refine(ImplicitFn* ifn, btScalar accuracy, bool cut);
 	/* CutLink																*/
 	bool cutLink(int node0, int node1, btScalar position);
 	bool cutLink(const Node* node0, const Node* node1, btScalar position);
@@ -1106,7 +1106,7 @@ public:
 	void setZeroVelocity();
 	bool wantsSleeping();
 
-	virtual btMatrix3x3 getImpulseFactor(int n_node)
+	virtual btMatrix3x3 getImpulseFactor(int /*n_node*/)
 	{
 		btMatrix3x3 tmp;
 		tmp.setIdentity();
@@ -1231,7 +1231,7 @@ public:
 			btSoftBody::Node* n = (btSoftBody::Node*)(node->data);
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)
 			vol;
-			btScalar pad = margin ? m_sst.radmrg : SAFE_EPSILON;  // use user defined margin or margin for floating point precision
+			btScalar pad = margin ? m_sst.radmrg : btScalar(SAFE_EPSILON);  // use user defined margin or margin for floating point precision
 			if (use_velocity)
 			{
 				btVector3 points[2] = {n->m_x, n->m_x + m_sst.sdt * n->m_v};
@@ -1268,7 +1268,7 @@ public:
 		if (node->isleaf())
 		{
 			btSoftBody::Face* f = (btSoftBody::Face*)(node->data);
-			btScalar pad = margin ? m_sst.radmrg : SAFE_EPSILON;  // use user defined margin or margin for floating point precision
+			btScalar pad = margin ? m_sst.radmrg : btScalar(SAFE_EPSILON);  // use user defined margin or margin for floating point precision
 			ATTRIBUTE_ALIGNED16(btDbvtVolume)
 			vol;
 			if (use_velocity)
@@ -1325,12 +1325,11 @@ public:
 			for (int i = 0; i < m_faceNodeContacts.size(); ++i)
 				indices[i] = i;
 #define NEXTRAND (seed = (1664525L * seed + 1013904223L) & 0xffffffff)
-			int i, ni;
-
-			for (i = 0, ni = indices.size(); i < ni; ++i)
+			for (int i = 0, ni = indices.size(); i < ni; ++i)
 			{
-				btSwap(indices[i], indices[NEXTRAND % ni]);
+				btSwap(indices[i], indices[(int)(NEXTRAND % ni)]);
 			}
+#undef NEXTRAND
 		}
 		for (int k = 0; k < m_faceNodeContacts.size(); ++k)
 		{
@@ -1356,16 +1355,16 @@ public:
 			if (applySpringForce)
 				I = -btMin(m_repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
 			if (vn < 0)
-				I += 0.5 * mass * vn;
+				I += btScalar(0.5) * mass * vn;
 			int face_penetration = 0, node_penetration = node->m_constrained;
 			for (int i = 0; i < 3; ++i)
 				face_penetration |= face->m_n[i]->m_constrained;
-			btScalar I_tilde = 2.0 * I / (1.0 + w.length2());
+			btScalar I_tilde = btScalar(2.0 * I / (1.0 + (double)w.length2()));
 
 			//             double the impulse if node or face is constrained.
 			if (face_penetration > 0 || node_penetration > 0)
 			{
-				I_tilde *= 2.0;
+				I_tilde *= btScalar(2.0);
 			}
 			if (face_penetration <= 0)
 			{
@@ -1384,12 +1383,12 @@ public:
 				btScalar delta_vn = -2 * I * node->m_im;
 				btScalar mu = c.m_friction;
 				btScalar vt_new = btMax(btScalar(1) - mu * delta_vn / (vt_norm + SIMD_EPSILON), btScalar(0)) * vt_norm;
-				I = 0.5 * mass * (vt_norm - vt_new);
+				I = btScalar(0.5) * mass * (vt_norm - vt_new);
 				vt.safeNormalize();
-				I_tilde = 2.0 * I / (1.0 + w.length2());
+				I_tilde = btScalar(2.0 * I / (1.0 + (double)w.length2()));
 				//                 double the impulse if node or face is constrained.
 				if (face_penetration > 0 || node_penetration > 0)
-					I_tilde *= 2.0;
+					I_tilde *= btScalar(2.0);
 				if (face_penetration <= 0)
 				{
 					for (int j = 0; j < 3; ++j)

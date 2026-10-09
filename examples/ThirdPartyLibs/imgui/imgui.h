@@ -237,7 +237,7 @@ IMGUI_API void PopStyleColor(int count = 1);
 IMGUI_API void PushStyleVar(ImGuiStyleVar idx, float val);
 IMGUI_API void PushStyleVar(ImGuiStyleVar idx, const ImVec2& val);
 IMGUI_API void PopStyleVar(int count = 1);
-IMGUI_API const ImVec4& GetStyleColorVec4(ImGuiCol idx);            // retrieve style color as stored in ImGuiStyle structure. use to feed back into PushStyleColor(), otherwhise use GetColorU32() to get style color + style alpha.
+IMGUI_API const ImVec4& GetStyleColorVec4(ImGuiCol idx);            // retrieve style color as stored in ImGuiStyle structure. use to feed back into PushStyleColor(), otherwise use GetColorU32() to get style color + style alpha.
 IMGUI_API ImFont* GetFont();                                        // get current font
 IMGUI_API float GetFontSize();                                      // get current font size (= height in pixels) of current font with current scale applied
 IMGUI_API ImVec2 GetFontTexUvWhitePixel();                          // get UV coordinate for a while pixel, useful to draw custom shapes via the ImDrawList API
@@ -557,7 +557,7 @@ enum ImGuiWindowFlags_
 	ImGuiWindowFlags_NoTitleBar = 1 << 0,         // Disable title-bar
 	ImGuiWindowFlags_NoResize = 1 << 1,           // Disable user resizing with the lower-right grip
 	ImGuiWindowFlags_NoMove = 1 << 2,             // Disable user moving the window
-	ImGuiWindowFlags_NoScrollbar = 1 << 3,        // Disable scrollbars (window can still scroll with mouse or programatically)
+	ImGuiWindowFlags_NoScrollbar = 1 << 3,        // Disable scrollbars (window can still scroll with mouse or programmatically)
 	ImGuiWindowFlags_NoScrollWithMouse = 1 << 4,  // Disable user vertically scrolling with mouse wheel. On child window, mouse wheel will be forwarded to the parent unless NoScrollbar is also set.
 	ImGuiWindowFlags_NoCollapse = 1 << 5,         // Disable user collapsing window by double-clicking on it
 	ImGuiWindowFlags_AlwaysAutoResize = 1 << 6,   // Resize every window to its content every frame
@@ -567,7 +567,7 @@ enum ImGuiWindowFlags_
 	ImGuiWindowFlags_MenuBar = 1 << 10,                    // Has a menu-bar
 	ImGuiWindowFlags_HorizontalScrollbar = 1 << 11,        // Allow horizontal scrollbar to appear (off by default). You may use SetNextWindowContentSize(ImVec2(width,0.0f)); prior to calling Begin() to specify width. Read code in imgui_demo in the "Horizontal Scrolling" section.
 	ImGuiWindowFlags_NoFocusOnAppearing = 1 << 12,         // Disable taking focus when transitioning from hidden to visible state
-	ImGuiWindowFlags_NoBringToFrontOnFocus = 1 << 13,      // Disable bringing window to front when taking focus (e.g. clicking on it or programatically giving it focus)
+	ImGuiWindowFlags_NoBringToFrontOnFocus = 1 << 13,      // Disable bringing window to front when taking focus (e.g. clicking on it or programmatically giving it focus)
 	ImGuiWindowFlags_AlwaysVerticalScrollbar = 1 << 14,    // Always show vertical scrollbar (even if ContentSize.y < Size.y)
 	ImGuiWindowFlags_AlwaysHorizontalScrollbar = 1 << 15,  // Always show horizontal scrollbar (even if ContentSize.x < Size.x)
 	ImGuiWindowFlags_AlwaysUseWindowPadding = 1 << 16,     // Ensure child windows without border uses style.WindowPadding (ignored by default for non-bordered child windows, because more convenient)
@@ -1543,7 +1543,7 @@ struct ImGuiPayload
 #define IM_COL32_BLACK IM_COL32(0, 0, 0, 255)        // Opaque black
 #define IM_COL32_BLACK_TRANS IM_COL32(0, 0, 0, 0)    // Transparent black = 0x00000000
 
-// ImColor() helper to implicity converts colors to either ImU32 (packed 4x1 byte) or ImVec4 (4x1 float)
+// ImColor() helper to implicitly converts colors to either ImU32 (packed 4x1 byte) or ImVec4 (4x1 float)
 // Prefer using IM_COL32() macros if you want a guaranteed compile-time ImU32 for usage with ImDrawList API.
 // **Avoid storing ImColor! Store either u32 of ImVec4. This is not a full-featured color class. MAY OBSOLETE.
 // **None of the ImGui API are using ImColor directly but you can use it as a convenience to pass colors in either ImU32 or ImVec4 formats. Explicitly cast to ImU32 or ImVec4 if needed.

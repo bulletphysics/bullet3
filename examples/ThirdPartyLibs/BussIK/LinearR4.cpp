@@ -394,7 +394,7 @@ void GetOrtho(int j, RotationMapR4& rotmat)
 // *********************************************************************
 
 // Rotate unit vector x in the direction of "dir": length of dir is rotation angle.
-//		x must be a unit vector.  dir must be perpindicular to x.
+//		x must be a unit vector.  dir must be perpendicular to x.
 VectorR4& VectorR4::RotateUnitInDirection(const VectorR4& dir)
 {
 	assert(this->Norm() < 1.0001 && this->Norm() > 0.9999 &&
@@ -461,7 +461,7 @@ RotationMapR4 RotateToMap(const VectorR4& fromVec, const VectorR4& toVec)
 //  Stream Output Routines										 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR4& u)
+std::ostream& operator<<(std::ostream& os, const VectorR4& u)
 {
 	return (os << "<" << u.x << "," << u.y << "," << u.z << "," << u.w << ">");
 }

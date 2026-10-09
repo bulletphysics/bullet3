@@ -67,7 +67,7 @@ void btTriangleRaycastCallback::processTriangle(btVector3* triangle, int partId,
 	const btScalar distance = (dist_a) / (proj_length);
 	// Now we have the intersection point on the plane, we'll see if it's inside the triangle
 	// Add an epsilon as a tolerance for the raycast,
-	// in case the ray hits exacly on the edge of the triangle.
+	// in case the ray hits exactly on the edge of the triangle.
 	// It must be scaled for the triangle size.
 
 	if (distance < m_hitFraction)
@@ -137,7 +137,7 @@ void btTriangleConvexcastCallback::processTriangle(btVector3* triangle, int part
 	btGjkEpaPenetrationDepthSolver gjkEpaPenetrationSolver;
 
 //#define  USE_SUBSIMPLEX_CONVEX_CAST 1
-//if you reenable USE_SUBSIMPLEX_CONVEX_CAST see commented out code below
+//if you re-enable USE_SUBSIMPLEX_CONVEX_CAST see commented out code below
 #ifdef USE_SUBSIMPLEX_CONVEX_CAST
 	btSubsimplexConvexCast convexCaster(m_convexShape, &triangleShape, &simplexSolver);
 #else

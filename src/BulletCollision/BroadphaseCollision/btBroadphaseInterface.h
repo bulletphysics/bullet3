@@ -19,6 +19,7 @@ subject to the following restrictions:
 struct btDispatcherInfo;
 class btDispatcher;
 #include "btBroadphaseProxy.h"
+#include "LinearMath/btOverride.h"
 
 class btOverlappingPairCache;
 
@@ -35,7 +36,7 @@ struct btBroadphaseRayCallback : public btBroadphaseAabbCallback
 	unsigned int m_signs[3];
 	btScalar m_lambda_max;
 
-	virtual ~btBroadphaseRayCallback() {}
+	virtual ~btBroadphaseRayCallback() BT_OVERRIDE {}
 
 protected:
 	btBroadphaseRayCallback() {}
@@ -70,8 +71,8 @@ public:
 	///will add some transform later
 	virtual void getBroadphaseAabb(btVector3& aabbMin, btVector3& aabbMax) const = 0;
 
-	///reset broadphase internal structures, to ensure determinism/reproducability
-	virtual void resetPool(btDispatcher* dispatcher) { (void)dispatcher; };
+	///reset broadphase internal structures, to ensure determinism/reproducibility
+	virtual void resetPool(btDispatcher* dispatcher) { (void)dispatcher; }
 
 	virtual void printStats() = 0;
 };

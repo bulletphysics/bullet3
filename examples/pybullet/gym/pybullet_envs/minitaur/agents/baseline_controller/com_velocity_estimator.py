@@ -40,7 +40,7 @@ class COMVelocityEstimator(state_estimator.StateEstimatorBase):
   def com_velocity_body_yaw_aligned_frame(self) -> Sequence[float]:
     """The base velocity projected in the body aligned inertial frame.
 
-    The body aligned frame is a intertia frame that coincides with the body
+    The body aligned frame is a inertia frame that coincides with the body
     frame, but has a zero relative velocity/angular velocity to the world frame.
 
     Returns:

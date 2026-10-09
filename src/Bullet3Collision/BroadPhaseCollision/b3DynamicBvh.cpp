@@ -37,7 +37,7 @@ static B3_DBVT_INLINE int b3IndexOf(const b3DbvtNode* node)
 static B3_DBVT_INLINE b3DbvtVolume b3Merge(const b3DbvtVolume& a,
 										   const b3DbvtVolume& b)
 {
-#if (B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE)
+#if defined(B3_DBVT_MERGE_IMPL) && defined(B3_DBVT_IMPL_SSE) && (B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE)
 	B3_ATTRIBUTE_ALIGNED16(char locals[sizeof(b3DbvtAabbMm)]);
 	b3DbvtVolume& res = *(b3DbvtVolume*)locals;
 #else
@@ -144,40 +144,44 @@ static void b3InsertLeaf(b3DynamicBvh* pdbvt,
 	}
 	else
 	{
-		if (!root->isleaf())
+		b3Assert(root);
+		if(root)
 		{
-			do
+			if (!root->isleaf())
 			{
-				root = root->childs[b3Select(leaf->volume,
-											 root->childs[0]->volume,
-											 root->childs[1]->volume)];
-			} while (!root->isleaf());
-		}
-		b3DbvtNode* prev = root->parent;
-		b3DbvtNode* node = b3CreateNode(pdbvt, prev, leaf->volume, root->volume, 0);
-		if (prev)
-		{
-			prev->childs[b3IndexOf(root)] = node;
-			node->childs[0] = root;
-			root->parent = node;
-			node->childs[1] = leaf;
-			leaf->parent = node;
-			do
+				do
+				{
+					root = root->childs[b3Select(leaf->volume,
+												root->childs[0]->volume,
+												root->childs[1]->volume)];
+				} while (!root->isleaf());
+			}
+			b3DbvtNode* prev = root->parent;
+			b3DbvtNode* node = b3CreateNode(pdbvt, prev, leaf->volume, root->volume, 0);
+			if (prev)
 			{
-				if (!prev->volume.Contain(node->volume))
-					b3Merge(prev->childs[0]->volume, prev->childs[1]->volume, prev->volume);
-				else
-					break;
-				node = prev;
-			} while (0 != (prev = node->parent));
-		}
-		else
-		{
-			node->childs[0] = root;
-			root->parent = node;
-			node->childs[1] = leaf;
-			leaf->parent = node;
-			pdbvt->m_root = node;
+				prev->childs[b3IndexOf(root)] = node;
+				node->childs[0] = root;
+				root->parent = node;
+				node->childs[1] = leaf;
+				leaf->parent = node;
+				do
+				{
+					if (!prev->volume.Contain(node->volume))
+						b3Merge(prev->childs[0]->volume, prev->childs[1]->volume, prev->volume);
+					else
+						break;
+					node = prev;
+				} while (0 != (prev = node->parent));
+			}
+			else
+			{
+				node->childs[0] = root;
+				root->parent = node;
+				node->childs[1] = leaf;
+				leaf->parent = node;
+				pdbvt->m_root = node;
+			}
 		}
 	}
 }
@@ -296,7 +300,7 @@ static int b3Split(b3DbvtNode** leaves,
 static b3DbvtVolume b3Bounds(b3DbvtNode** leaves,
 							 int count)
 {
-#if B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE
+#if defined(B3_DBVT_MERGE_IMPL) && defined(B3_DBVT_IMPL_SSE) && B3_DBVT_MERGE_IMPL == B3_DBVT_IMPL_SSE
 	B3_ATTRIBUTE_ALIGNED16(char locals[sizeof(b3DbvtVolume)]);
 	b3DbvtVolume& volume = *(b3DbvtVolume*)locals;
 	volume = leaves[0]->volume;

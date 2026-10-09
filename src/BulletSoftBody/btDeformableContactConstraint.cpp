@@ -16,12 +16,12 @@
 #include "btDeformableContactConstraint.h"
 /* ================   Deformable Node Anchor   =================== */
 btDeformableNodeAnchorConstraint::btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& a, const btContactSolverInfo& infoGlobal)
-	: m_anchor(&a), btDeformableContactConstraint(a.m_cti.m_normal, infoGlobal)
+	: btDeformableContactConstraint(a.m_cti.m_normal, infoGlobal), m_anchor(&a)
 {
 }
 
 btDeformableNodeAnchorConstraint::btDeformableNodeAnchorConstraint(const btDeformableNodeAnchorConstraint& other)
-	: m_anchor(other.m_anchor), btDeformableContactConstraint(other)
+	: btDeformableContactConstraint(other), m_anchor(other.m_anchor)
 {
 }
 
@@ -77,7 +77,7 @@ btVector3 btDeformableNodeAnchorConstraint::getVa() const
 	return va;
 }
 
-btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
+btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 {
 	const btSoftBody::sCti& cti = m_anchor->m_cti;
 	btVector3 va = getVa();
@@ -85,7 +85,7 @@ btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolver
 	btVector3 vr = (vb - va);
 	// + (m_anchor->m_node->m_x - cti.m_colObj->getWorldTransform() * m_anchor->m_local) * 10.0
 	const btScalar dn = btDot(vr, vr);
-	// dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
+	// dn is the normal component of velocity difference. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
 	btScalar residualSquare = dn * dn;
 	btVector3 impulse = m_anchor->m_c0 * vr;
 	// apply impulse to deformable nodes involved and change their velocities
@@ -133,7 +133,7 @@ void btDeformableNodeAnchorConstraint::applyImpulse(const btVector3& impulse)
 
 /* ================   Deformable vs. Rigid   =================== */
 btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c, const btContactSolverInfo& infoGlobal)
-	: m_contact(&c), btDeformableContactConstraint(c.m_cti.m_normal, infoGlobal)
+	: btDeformableContactConstraint(c.m_cti.m_normal, infoGlobal), m_contact(&c)
 {
 	m_total_normal_dv.setZero();
 	m_total_tangent_dv.setZero();
@@ -144,7 +144,7 @@ btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btS
 }
 
 btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btDeformableRigidContactConstraint& other)
-	: m_contact(other.m_contact), btDeformableContactConstraint(other), m_penetration(other.m_penetration), m_total_split_impulse(other.m_total_split_impulse), m_binding(other.m_binding)
+	: btDeformableContactConstraint(other), m_penetration(other.m_penetration), m_total_split_impulse(other.m_total_split_impulse), m_binding(other.m_binding), m_contact(other.m_contact)
 {
 	m_total_normal_dv = other.m_total_normal_dv;
 	m_total_tangent_dv = other.m_total_tangent_dv;
@@ -409,12 +409,12 @@ btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSo
 }
 /* ================   Node vs. Rigid   =================== */
 btDeformableNodeRigidContactConstraint::btDeformableNodeRigidContactConstraint(const btSoftBody::DeformableNodeRigidContact& contact, const btContactSolverInfo& infoGlobal)
-	: m_node(contact.m_node), btDeformableRigidContactConstraint(contact, infoGlobal)
+	: btDeformableRigidContactConstraint(contact, infoGlobal), m_node(contact.m_node)
 {
 }
 
 btDeformableNodeRigidContactConstraint::btDeformableNodeRigidContactConstraint(const btDeformableNodeRigidContactConstraint& other)
-	: m_node(other.m_node), btDeformableRigidContactConstraint(other)
+	: btDeformableRigidContactConstraint(other), m_node(other.m_node)
 {
 }
 
@@ -428,7 +428,7 @@ btVector3 btDeformableNodeRigidContactConstraint::getSplitVb() const
 	return m_node->m_splitv;
 }
 
-btVector3 btDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* node) const
+btVector3 btDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* /*node*/) const
 {
 	return m_total_normal_dv + m_total_tangent_dv;
 }
@@ -449,12 +449,12 @@ void btDeformableNodeRigidContactConstraint::applySplitImpulse(const btVector3& 
 
 /* ================   Face vs. Rigid   =================== */
 btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal, bool useStrainLimiting)
-	: m_face(contact.m_face), m_useStrainLimiting(useStrainLimiting), btDeformableRigidContactConstraint(contact, infoGlobal)
+	: btDeformableRigidContactConstraint(contact, infoGlobal), m_face(contact.m_face), m_useStrainLimiting(useStrainLimiting)
 {
 }
 
 btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btDeformableFaceRigidContactConstraint& other)
-	: m_face(other.m_face), m_useStrainLimiting(other.m_useStrainLimiting), btDeformableRigidContactConstraint(other)
+	: btDeformableRigidContactConstraint(other), m_face(other.m_face), m_useStrainLimiting(other.m_useStrainLimiting)
 {
 }
 
@@ -504,13 +504,13 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
 		v2 -= dv * contact->m_weights[2];
 	if (m_useStrainLimiting)
 	{
-		btScalar relaxation = 1. / btScalar(m_infoGlobal->m_numIterations);
+		btScalar relaxation = btScalar(1.) / btScalar(m_infoGlobal->m_numIterations);
 		btScalar m01 = (relaxation / (im0 + im1));
 		btScalar m02 = (relaxation / (im0 + im2));
 		btScalar m12 = (relaxation / (im1 + im2));
 #ifdef USE_STRAIN_RATE_LIMITING
 		// apply strain limiting to prevent the new velocity to change the current length of the edge by more than 1%.
-		btScalar p = 0.01;
+		btScalar p = btScalar(0.01);
 		btVector3& x0 = face->m_n[0]->m_x;
 		btVector3& x1 = face->m_n[1]->m_x;
 		btVector3& x2 = face->m_n[2]->m_x;
@@ -594,7 +594,7 @@ void btDeformableFaceRigidContactConstraint::applySplitImpulse(const btVector3& 
 
 /* ================   Face vs. Node   =================== */
 btDeformableFaceNodeContactConstraint::btDeformableFaceNodeContactConstraint(const btSoftBody::DeformableFaceNodeContact& contact, const btContactSolverInfo& infoGlobal)
-	: m_node(contact.m_node), m_face(contact.m_face), m_contact(&contact), btDeformableContactConstraint(contact.m_normal, infoGlobal)
+	: btDeformableContactConstraint(contact.m_normal, infoGlobal), m_node(contact.m_node), m_face(contact.m_face), m_contact(&contact)
 {
 	m_total_normal_dv.setZero();
 	m_total_tangent_dv.setZero();
@@ -614,7 +614,7 @@ btVector3 btDeformableFaceNodeContactConstraint::getVb() const
 
 btVector3 btDeformableFaceNodeContactConstraint::getDv(const btSoftBody::Node* n) const
 {
-	btVector3 dv = m_total_normal_dv + m_total_tangent_dv;
+	const btVector3& dv = m_total_normal_dv + m_total_tangent_dv;
 	if (n == m_node)
 		return dv;
 	const btSoftBody::DeformableFaceNodeContact* contact = getContact();
@@ -630,13 +630,13 @@ btVector3 btDeformableFaceNodeContactConstraint::getDv(const btSoftBody::Node* n
 	return dv * contact->m_weights[2];
 }
 
-btScalar btDeformableFaceNodeContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
+btScalar btDeformableFaceNodeContactConstraint::solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 {
 	btVector3 va = getVa();
 	btVector3 vb = getVb();
 	btVector3 vr = vb - va;
 	const btScalar dn = btDot(vr, m_contact->m_normal);
-	// dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
+	// dn is the normal component of velocity difference. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
 	btScalar residualSquare = dn * dn;
 	btVector3 impulse = m_contact->m_c0 * vr;
 	const btVector3 impulse_normal = m_contact->m_c0 * (m_contact->m_normal * dn);

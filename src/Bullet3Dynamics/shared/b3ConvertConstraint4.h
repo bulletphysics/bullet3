@@ -11,7 +11,7 @@ void b3PlaneSpace1(b3Float4ConstArg n, b3Float4* p, b3Float4* q)
 	{
 		// choose p in y-z plane
 		float a = n.y * n.y + n.z * n.z;
-		float k = 1.f / sqrt(a);
+		float k = 1.f / (float)sqrt(a);
 		p[0].x = 0;
 		p[0].y = -n.z * k;
 		p[0].z = n.y * k;
@@ -24,7 +24,7 @@ void b3PlaneSpace1(b3Float4ConstArg n, b3Float4* p, b3Float4* q)
 	{
 		// choose p in x-y plane
 		float a = n.x * n.x + n.y * n.y;
-		float k = 1.f / sqrt(a);
+		float k = 1.f / (float)sqrt(a);
 		p[0].x = -n.y * k;
 		p[0].y = n.x * k;
 		p[0].z = 0;
@@ -35,23 +35,23 @@ void b3PlaneSpace1(b3Float4ConstArg n, b3Float4* p, b3Float4* q)
 	}
 }
 
-void setLinearAndAngular(b3Float4ConstArg n, b3Float4ConstArg r0, b3Float4ConstArg r1, b3Float4* linear, b3Float4* angular0, b3Float4* angular1)
+static void setLinearAndAngular(b3Float4ConstArg n, b3Float4ConstArg r0, b3Float4ConstArg r1, b3Float4* linear, b3Float4* angular0, b3Float4* angular1)
 {
 	*linear = b3MakeFloat4(n.x, n.y, n.z, 0.f);
 	*angular0 = b3Cross3(r0, n);
 	*angular1 = -b3Cross3(r1, n);
 }
 
-float calcRelVel(b3Float4ConstArg l0, b3Float4ConstArg l1, b3Float4ConstArg a0, b3Float4ConstArg a1, b3Float4ConstArg linVel0,
+static float calcRelVel(b3Float4ConstArg l0, b3Float4ConstArg l1, b3Float4ConstArg a0, b3Float4ConstArg a1, b3Float4ConstArg linVel0,
 				 b3Float4ConstArg angVel0, b3Float4ConstArg linVel1, b3Float4ConstArg angVel1)
 {
 	return b3Dot3F4(l0, linVel0) + b3Dot3F4(a0, angVel0) + b3Dot3F4(l1, linVel1) + b3Dot3F4(a1, angVel1);
 }
 
-float calcJacCoeff(b3Float4ConstArg linear0, b3Float4ConstArg linear1, b3Float4ConstArg angular0, b3Float4ConstArg angular1,
+static float calcJacCoeff(b3Float4ConstArg /*linear0*/, b3Float4ConstArg /*linear1*/, b3Float4ConstArg angular0, b3Float4ConstArg angular1,
 				   float invMass0, const b3Mat3x3* invInertia0, float invMass1, const b3Mat3x3* invInertia1)
 {
-	//	linear0,1 are normlized
+	//	linear0,1 are normalized
 	float jmj0 = invMass0;  //b3Dot3F4(linear0, linear0)*invMass0;
 	float jmj1 = b3Dot3F4(mtMul3(angular0, *invInertia0), angular0);
 	float jmj2 = invMass1;  //b3Dot3F4(linear1, linear1)*invMass1;
@@ -59,13 +59,13 @@ float calcJacCoeff(b3Float4ConstArg linear0, b3Float4ConstArg linear1, b3Float4C
 	return -1.f / (jmj0 + jmj1 + jmj2 + jmj3);
 }
 
-void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4ConstArg angVelA, float invMassA, b3Mat3x3ConstArg invInertiaA,
+static void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4ConstArg angVelA, float invMassA, b3Mat3x3ConstArg invInertiaA,
 					b3Float4ConstArg posB, b3Float4ConstArg linVelB, b3Float4ConstArg angVelB, float invMassB, b3Mat3x3ConstArg invInertiaB,
 					__global struct b3Contact4Data* src, float dt, float positionDrift, float positionConstraintCoeff,
 					b3ContactConstraint4_t* dstC)
 {
-	dstC->m_bodyA = abs(src->m_bodyAPtrAndSignBit);
-	dstC->m_bodyB = abs(src->m_bodyBPtrAndSignBit);
+	dstC->m_bodyA = (unsigned int)abs(src->m_bodyAPtrAndSignBit);
+	dstC->m_bodyB = (unsigned int)abs(src->m_bodyBPtrAndSignBit);
 
 	float dtInv = 1.f / dt;
 	for (int ic = 0; ic < 4; ic++)
@@ -81,7 +81,7 @@ void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4Con
 		b3Float4 r0 = src->m_worldPosB[ic] - posA;
 		b3Float4 r1 = src->m_worldPosB[ic] - posB;
 
-		if (ic >= src->m_worldNormalOnB.w)  //npoints
+		if ((float)ic >= src->m_worldNormalOnB.w)  //npoints
 		{
 			dstC->m_jacCoeffInv[ic] = 0.f;
 			continue;
@@ -111,7 +111,7 @@ void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4Con
 	if (src->m_worldNormalOnB.w > 0)  //npoints
 	{                                 //	prepare friction
 		b3Float4 center = b3MakeFloat4(0.f, 0.f, 0.f, 0.f);
-		for (int i = 0; i < src->m_worldNormalOnB.w; i++)
+		for (int i = 0; (float)i < src->m_worldNormalOnB.w; i++)
 			center += src->m_worldPosB[i];
 		center /= (float)src->m_worldNormalOnB.w;
 
@@ -136,7 +136,7 @@ void setConstraint4(b3Float4ConstArg posA, b3Float4ConstArg linVelA, b3Float4Con
 
 	for (int i = 0; i < 4; i++)
 	{
-		if (i < src->m_worldNormalOnB.w)
+		if ((float)i < src->m_worldNormalOnB.w)
 		{
 			dstC->m_worldPos[i] = src->m_worldPosB[i];
 		}

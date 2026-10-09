@@ -28,7 +28,7 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 	m_mouseForce(0),
 	m_pickingForceElasticStiffness(100),
 	m_pickingForceDampingStiffness(0.0),
-	m_maxPickingForce(0.3)
+	m_maxPickingForce(btScalar(0.3))
 	{
 	}
 

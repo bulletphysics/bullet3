@@ -17,7 +17,7 @@ ABOUT:
 
    The PNG output is not optimal; it is 20-50% larger than the file
    written by a decent optimizing implementation. This library is designed
-   for source code compactness and simplicitly, not optimal image file size
+   for source code compactness and simplicity, not optimal image file size
    or run-time performance.
 
 USAGE:
@@ -53,6 +53,16 @@ USAGE:
 
 #ifndef INCLUDE_STB_IMAGE_WRITE_H
 #define INCLUDE_STB_IMAGE_WRITE_H
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
+#pragma warning(disable: 4456) // declaration of 'name' hides previous local declaration
+#endif
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -124,7 +134,9 @@ static void writefv(FILE *f, const char *fmt, va_list v)
 static void write3(FILE *f, unsigned char a, unsigned char b, unsigned char c)
 {
 	unsigned char arr[3];
-	arr[0] = a, arr[1] = b, arr[2] = c;
+	arr[0] = a;
+	arr[1] = b;
+	arr[2] = c;
 	fwrite(arr, 3, 1, f);
 }
 
@@ -138,9 +150,15 @@ static void write_pixels(FILE *f, int rgb_dir, int vdir, int x, int y, int comp,
 		return;
 
 	if (vdir < 0)
-		j_end = -1, j = y - 1;
+	{
+		j_end = -1;
+		j = y - 1;
+	}
 	else
-		j_end = y, j = 0;
+	{
+		j_end = y;
+		j = 0;
+	}
 
 	for (; j != j_end; j += vdir)
 	{
@@ -167,6 +185,8 @@ static void write_pixels(FILE *f, int rgb_dir, int vdir, int x, int y, int comp,
 					/* FALLTHROUGH */
 				case 3:
 					write3(f, d[1 - rgb_dir], d[1], d[1 + rgb_dir]);
+					break;
+				default:
 					break;
 			}
 			if (write_alpha > 0)
@@ -293,6 +313,7 @@ static unsigned int stbi__zhash(unsigned char *data)
 
 #define stbi__ZHASH 16384
 
+unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality); // prototype
 unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_len, int quality)
 {
 	static unsigned short lengthc[] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 259};
@@ -326,7 +347,11 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 			if (hlist[j] - data > i - 32768)
 			{  // if entry lies within window
 				int d = stbi__zlib_countm(hlist[j], data + i, data_len - i);
-				if (d >= best) best = d, bestloc = hlist[j];
+				if (d >= best)
+				{
+					best = d;
+					bestloc = hlist[j];
+				}
 			}
 		}
 		// when hash table entry is too long, delete half the entries
@@ -359,7 +384,7 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 
 		if (bestloc)
 		{
-			int d = data + i - bestloc;  // distance back
+			int d = (int)(data + i - bestloc);  // distance back
 			assert(d <= 32767 && best <= 258);
 			for (j = 0; best > lengthc[j + 1] - 1; ++j)
 				;
@@ -390,13 +415,21 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 
 	{
 		// compute adler32 on input
-		unsigned int i = 0, s1 = 1, s2 = 0, blocklen = data_len % 5552;
-		int j = 0;
-		while (j < data_len)
+		unsigned int ii = 0;
+		unsigned int s1 = 1;
+		unsigned int s2 = 0;
+		unsigned int blocklen = data_len % 5552;
+		int jj = 0;
+		while (jj < data_len)
 		{
-			for (i = 0; i < blocklen; ++i) s1 += data[j + i], s2 += s1;
-			s1 %= 65521, s2 %= 65521;
-			j += blocklen;
+			for (ii = 0; ii < blocklen; ++ii) 
+			{
+				s1 += data[jj + ii];
+				s2 += s1;
+			}
+			s1 %= 65521;
+			s2 %= 65521;
+			jj += blocklen;
 			blocklen = 5552;
 		}
 		stbi__sbpush(out, (unsigned char)(s2 >> 8));
@@ -410,6 +443,7 @@ unsigned char *stbi_zlib_compress(unsigned char *data, int data_len, int *out_le
 	return (unsigned char *)stbi__sbraw(out);
 }
 
+unsigned int stbi__crc32(unsigned char *buffer, int len); // prototype
 unsigned int stbi__crc32(unsigned char *buffer, int len)
 {
 	static unsigned int crc_table[256];
@@ -425,7 +459,7 @@ unsigned int stbi__crc32(unsigned char *buffer, int len)
 }
 
 #define stbi__wpng4(o, a, b, c, d) ((o)[0] = (unsigned char)(a), (o)[1] = (unsigned char)(b), (o)[2] = (unsigned char)(c), (o)[3] = (unsigned char)(d), (o) += 4)
-#define stbi__wp32(data, v) stbi__wpng4(data, (v) >> 24, (v) >> 16, (v) >> 8, (v));
+#define stbi__wp32(data, v) stbi__wpng4(data, (v) >> 24, (v) >> 16, (v) >> 8, (v))
 #define stbi__wptag(data, s) stbi__wpng4(data, s[0], s[1], s[2], s[3])
 
 static void stbi__wpcrc(unsigned char **data, int len)
@@ -442,6 +476,7 @@ static unsigned char stbi__paeth(int a, int b, int c)
 	return (unsigned char)c;
 }
 
+unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len); // prototype
 unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, int x, int y, int n, int *out_len)
 {
 	int ctype[5] = {-1, 0, 4, 2, 6};
@@ -497,6 +532,8 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
 						case 6:
 							line_buffer[i] = z[i];
 							break;
+						default:
+							break;
 					}
 				for (i = n; i < x * n; ++i)
 				{
@@ -522,6 +559,8 @@ unsigned char *stbi_write_png_to_mem(unsigned char *pixels, int stride_bytes, in
 							break;
 						case 6:
 							line_buffer[i] = z[i] - stbi__paeth(z[i - n], 0, 0);
+							break;
+						default:
 							break;
 					}
 				}
@@ -597,6 +636,13 @@ int stbi_write_png(char const *filename, int x, int y, int comp, const void *dat
 	return 1;
 }
 #endif  // STB_IMAGE_WRITE_IMPLEMENTATION
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 /* Revision history
 

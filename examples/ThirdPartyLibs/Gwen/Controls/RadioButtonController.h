@@ -21,7 +21,7 @@ class GWEN_EXPORT RadioButtonController : public Base
 public:
 	GWEN_CONTROL(RadioButtonController, Base);
 
-	virtual void Render(Skin::Base* /*skin*/){};
+	virtual void Render(Skin::Base* /*skin*/){}
 	virtual void OnRadioClicked(Base* pFromPanel);
 
 	virtual void OnChange();

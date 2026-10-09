@@ -61,7 +61,7 @@ public:
 		btInt64_t y;
 		btInt64_t z;
 
-		Point64(btInt64_t x, btInt64_t y, btInt64_t z) : x(x), y(y), z(z)
+		Point64(btInt64_t x_, btInt64_t y_, btInt64_t z_) : x(x_), y(y_), z(z_)
 		{
 		}
 
@@ -88,7 +88,7 @@ public:
 		{
 		}
 
-		Point32(btInt32_t x, btInt32_t y, btInt32_t z) : x(x), y(y), z(z), index(-1)
+		Point32(btInt32_t x_, btInt32_t y_, btInt32_t z_) : x(x_), y(y_), z(z_), index(-1)
 		{
 		}
 
@@ -148,15 +148,15 @@ public:
 		{
 		}
 
-		Int128(btUint64_t low, btUint64_t high) : low(low), high(high)
+		Int128(btUint64_t low_, btUint64_t high_) : low(low_), high(high_)
 		{
 		}
 
-		Int128(btUint64_t low) : low(low), high(0)
+		Int128(btUint64_t low_) : low(low_), high(0)
 		{
 		}
 
-		Int128(btInt64_t value) : low(value), high((value >= 0) ? 0 : (btUint64_t)-1LL)
+		Int128(btInt64_t value) : low((btUint64_t)value), high((value >= 0) ? 0 : (btUint64_t)-1LL)
 		{
 		}
 
@@ -326,7 +326,7 @@ public:
 
 		b3Scalar toScalar() const
 		{
-			return sign * ((m_denominator == 0) ? B3_INFINITY : (b3Scalar)m_numerator / m_denominator);
+			return (b3Scalar)sign * ((m_denominator == 0) ? B3_INFINITY : (b3Scalar)m_numerator / (b3Scalar)m_denominator);
 		}
 	};
 
@@ -360,26 +360,26 @@ public:
 			isInt64 = true;
 		}
 
-		Rational128(const Int128& numerator, const Int128& denominator)
+		Rational128(const Int128& numerator_, const Int128& denominator_)
 		{
-			sign = numerator.getSign();
+			sign = numerator_.getSign();
 			if (sign >= 0)
 			{
-				this->numerator = numerator;
+				this->numerator = numerator_;
 			}
 			else
 			{
-				this->numerator = -numerator;
+				this->numerator = -numerator_;
 			}
-			int dsign = denominator.getSign();
+			int dsign = denominator_.getSign();
 			if (dsign >= 0)
 			{
-				this->denominator = denominator;
+				this->denominator = denominator_;
 			}
 			else
 			{
 				sign = -sign;
-				this->denominator = -denominator;
+				this->denominator = -denominator_;
 			}
 			isInt64 = false;
 		}
@@ -390,7 +390,7 @@ public:
 
 		b3Scalar toScalar() const
 		{
-			return sign * ((denominator.getSign() == 0) ? B3_INFINITY : numerator.toScalar() / denominator.toScalar());
+			return (b3Scalar)sign * ((denominator.getSign() == 0) ? B3_INFINITY : numerator.toScalar() / denominator.toScalar());
 		}
 	};
 
@@ -406,7 +406,7 @@ public:
 		{
 		}
 
-		PointR128(Int128 x, Int128 y, Int128 z, Int128 denominator) : x(x), y(y), z(z), denominator(denominator)
+		PointR128(Int128 x_, Int128 y_, Int128 z_, Int128 denominator_) : x(x_), y(y_), z(z_), denominator(denominator_)
 		{
 		}
 
@@ -676,9 +676,9 @@ private:
 	public:
 		PoolArray<T>* next;
 
-		PoolArray(int size) : size(size), next(NULL)
+		PoolArray(int size_) : size(size_), next(NULL)
 		{
-			array = (T*)b3AlignedAlloc(sizeof(T) * size, 16);
+			array = (T*)b3AlignedAlloc(sizeof(T) * (size_t)size_, 16);
 		}
 
 		~PoolArray()
@@ -728,9 +728,9 @@ private:
 			freeObjects = NULL;
 		}
 
-		void setArraySize(int arraySize)
+		void setArraySize(int size)
 		{
-			this->arraySize = arraySize;
+			this->arraySize = size;
 		}
 
 		T* newObject()
@@ -753,7 +753,7 @@ private:
 			}
 			freeObjects = o->next;
 			return new (o) T();
-		};
+		}
 
 		void freeObject(T* object)
 		{
@@ -1283,7 +1283,7 @@ void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 				return;
 			}
 		}
-		// lint -fallthrough
+		// fallthrough
 		case 1:
 		{
 			Vertex* v = originalVertices[start];
@@ -1298,6 +1298,8 @@ void b3ConvexHullInternal::computeInternal(int start, int end, IntermediateHull&
 
 			return;
 		}
+		default:
+			break;
 	}
 
 	int split0 = start + n / 2;
@@ -1472,6 +1474,7 @@ void b3ConvexHullInternal::findEdgeForCoplanarFaces(Vertex* c0, Vertex* c1, Edge
 	Point32 et0 = start0 ? start0->target->point : c0->point;
 	Point32 et1 = start1 ? start1->target->point : c1->point;
 	Point32 s = c1->point - c0->point;
+	b3Assert(start0 || start1);
 	Point64 normal = ((start0 ? start0 : start1)->target->point - c0->point).cross(s);
 	btInt64_t dist = c0->point.dot(normal);
 	b3Assert(!start1 || (start1->target->point.dot(normal) == dist));
@@ -1779,6 +1782,7 @@ void b3ConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 			if (firstRun || ((cmp >= 0) ? !minCot1.isNegativeInfinity() : !minCot0.isNegativeInfinity()))
 			{
 				Edge* e = newEdgePair(c0, c1);
+				b3Assert(e);
 				if (pendingTail0)
 				{
 					pendingTail0->prev = e;
@@ -2191,7 +2195,7 @@ b3Scalar b3ConvexHullInternal::shrink(b3Scalar amount, b3Scalar clampAmount)
 	unsigned int seed = 243703;
 	for (int i = 0; i < faceCount; i++, seed = 1664525 * seed + 1013904223)
 	{
-		b3Swap(faces[i], faces[seed % faceCount]);
+		b3Swap(faces[i], faces[(int)(seed % (unsigned int)faceCount)]);
 	}
 
 	for (int i = 0; i < faceCount; i++)
@@ -2535,6 +2539,7 @@ bool b3ConvexHullInternal::shiftFace(Face* face, b3Scalar amount, b3AlignedObjec
 				stack.push_back(NULL);
 			}
 		}
+		b3Assert(faceEdge);
 		faceEdge->face = face;
 		faceEdge->reverse->face = intersection->face;
 

@@ -109,8 +109,8 @@ struct PhysicsDirectInternalData
 
 PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership)
 {
-	int sz = sizeof(SharedMemoryCommand);
-	int sz2 = sizeof(SharedMemoryStatus);
+	// int sz = sizeof(SharedMemoryCommand);
+	// int sz2 = sizeof(SharedMemoryStatus);
 
 	m_data = new PhysicsDirectInternalData;
 	m_data->m_commandProcessor = physSdk;
@@ -167,7 +167,7 @@ void PhysicsDirect::clearCachedBodies()
 	m_data->m_bodyJointMap.clear();
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool PhysicsDirect::connect()
 {
 	bool connected = m_data->m_commandProcessor->connect();
@@ -202,7 +202,7 @@ bool PhysicsDirect::connect()
 	return connected;
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool PhysicsDirect::connect(struct GUIHelperInterface* guiHelper)
 {
 	bool connected = m_data->m_commandProcessor->connect();
@@ -638,6 +638,7 @@ bool PhysicsDirect::processMeshData(const struct SharedMemoryCommand& orgCommand
 			const b3SendMeshDataArgs& args = serverCmd.m_sendMeshDataArgs;
 			int numTotalPixels = args.m_startingVertex +
 								 args.m_numVerticesCopied + args.m_numVerticesRemaining;
+			(void)numTotalPixels;
 
 			btVector3* verticesReceived =
 				(btVector3*)&m_data->m_bulletStreamDataServerToClient[0];
@@ -1251,7 +1252,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 				}
 			}
 			const int numIdentifiers = serverCmd.m_syncUserDataArgs.m_numUserDataIdentifiers;
-			int* identifiers = new int[numIdentifiers];
+			int* identifiers = new int[(size_t)numIdentifiers];
 			memcpy(identifiers, &m_data->m_bulletStreamDataServerToClient[0], numIdentifiers * sizeof(int));
 
 			for (int i = 0; i < numIdentifiers; i++)
@@ -1319,7 +1320,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			//b3Warning("Unknown server status type");
 		}
 
-	};
+	}
 }
 
 
@@ -1603,7 +1604,7 @@ bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointIn
 	return false;
 }
 
-void PhysicsDirect::setSharedMemoryKey(int key)
+void PhysicsDirect::setSharedMemoryKey(int /*key*/)
 {
 }
 

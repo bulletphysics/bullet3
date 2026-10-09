@@ -260,7 +260,7 @@ class HumanoidFlagrun(Humanoid):
     state = Humanoid.calc_state(self)
     if self.walk_target_dist < 1 or self.flag_timeout <= 0:
       self.flag_reposition()
-      state = Humanoid.calc_state(self)  # caclulate state again, against new flag pos
+      state = Humanoid.calc_state(self)  # caclculate state again, against new flag pos
       self.potential = self.calc_potential()  # avoid reward jump
     return state
 
@@ -327,7 +327,7 @@ class HumanoidFlagrunHarder(HumanoidFlagrun):
     # 2.0 alive bonus if z>0.8, potential is 200, leak gamma=0.99, (1-0.99)*200==2.0
     # 1.0 alive bonus on the ground z==0, potential is 100, leak (1-0.99)*100==1.0
     #
-    # Why robot whould stand up: to receive 100 points in potential field difference.
+    # Why robot would stand up: to receive 100 points in potential field difference.
     flag_running_progress = Humanoid.calc_potential(self)
 
     # This disables crawl.

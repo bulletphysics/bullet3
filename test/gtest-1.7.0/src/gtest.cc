@@ -379,7 +379,7 @@ void AssertHelper::operator=(const Message& message) const
 GTEST_API_ GTEST_DEFINE_STATIC_MUTEX_(g_linked_ptr_mutex);
 
 // Application pathname gotten in InitGoogleTest.
-std::string g_executable_path;
+static std::string g_executable_path;
 
 // Returns the current application's name, removing directory path if that
 // is present.
@@ -405,7 +405,7 @@ std::string UnitTestOptions::GetOutputFormat()
 	if (gtest_output_flag == NULL) return std::string("");
 
 	const char* const colon = strchr(gtest_output_flag, ':');
-	return (colon == NULL) ? std::string(gtest_output_flag) : std::string(gtest_output_flag, colon - gtest_output_flag);
+	return (colon == NULL) ? std::string(gtest_output_flag) : std::string(gtest_output_flag, (size_t)(colon - gtest_output_flag));
 }
 
 // Returns the name of the requested output file, or the default if none
@@ -487,7 +487,7 @@ bool UnitTestOptions::MatchesFilter(
 			return false;
 		}
 
-		// Skips the pattern separater (the ':' character).
+		// Skips the pattern separator (the ':' character).
 		cur_pattern++;
 	}
 }
@@ -641,7 +641,7 @@ extern const TypeId kTestTypeIdInGoogleTest = GetTestTypeId();
 // This predicate-formatter checks that 'results' contains a test part
 // failure of the given type and that the failure message contains the
 // given substring.
-AssertionResult HasOneFailure(const char* /* results_expr */,
+static AssertionResult HasOneFailure(const char* /* results_expr */,
 							  const char* /* type_expr */,
 							  const char* /* substr_expr */,
 							  const TestPartResultArray& results,
@@ -1475,7 +1475,7 @@ AssertionResult HRESULTFailureHelper(const char* expr,
 	char error_text[kBufSize] = {'\0'};
 	DWORD message_length = ::FormatMessageA(kFlags,
 											0,           // no source, we're asking system
-											hr,          // the error
+											(DWORD)hr,   // the error
 											0,           // no line width restrictions
 											error_text,  // output buffer
 											kBufSize,    // buf size
@@ -1561,7 +1561,7 @@ std::string CodePointToUtf8(UInt32 code_point)
 {
 	if (code_point > kMaxCodePoint4)
 	{
-		return "(Invalid Unicode 0x" + String::FormatHexInt(code_point) + ")";
+		return "(Invalid Unicode 0x" + String::FormatHexInt((int)code_point) + ")";
 	}
 
 	char str[5];  // Big enough for the largest valid code point.
@@ -1817,7 +1817,7 @@ std::string StringStreamToString(::std::stringstream* ss)
 	const char* const end = start + str.length();
 
 	std::string result;
-	result.reserve(2 * (end - start));
+	result.reserve((size_t)(2 * (end - start)));
 	for (const char* ch = start; ch != end; ++ch)
 	{
 		if (*ch == '\0')
@@ -1870,7 +1870,7 @@ const TestPartResult& TestResult::GetTestPartResult(int i) const
 {
 	if (i < 0 || i >= total_part_count())
 		internal::posix::Abort();
-	return test_part_results_.at(i);
+	return test_part_results_.at((size_t)i);
 }
 
 // Returns the i-th test property. i can range from 0 to
@@ -1880,7 +1880,7 @@ const TestProperty& TestResult::GetTestProperty(int i) const
 {
 	if (i < 0 || i >= test_property_count())
 		internal::posix::Abort();
-	return test_properties_.at(i);
+	return test_properties_.at((size_t)i);
 }
 
 // Clears the test part results.
@@ -1995,7 +1995,7 @@ static std::string FormatWordList(const std::vector<std::string>& words)
 	return word_list.GetString();
 }
 
-bool ValidateTestPropertyName(const std::string& property_name,
+static bool ValidateTestPropertyName(const std::string& property_name,
 							  const std::vector<std::string>& reserved_names)
 {
 	if (std::find(reserved_names.begin(), reserved_names.end(), property_name) !=
@@ -2652,7 +2652,7 @@ TestCase::~TestCase()
 const TestInfo* TestCase::GetTestInfo(int i) const
 {
 	const int index = GetElementOr(test_indices_, i, -1);
-	return index < 0 ? NULL : test_info_list_[index];
+	return index < 0 ? NULL : test_info_list_[(size_t)index];
 }
 
 // Returns the i-th test among all the tests. i can range from 0 to
@@ -2660,7 +2660,7 @@ const TestInfo* TestCase::GetTestInfo(int i) const
 TestInfo* TestCase::GetMutableTestInfo(int i)
 {
 	const int index = GetElementOr(test_indices_, i, -1);
-	return index < 0 ? NULL : test_info_list_[index];
+	return index < 0 ? NULL : test_info_list_[(size_t)index];
 }
 
 // Adds a test to this test case.  Will delete the test upon
@@ -2818,7 +2818,7 @@ enum GTestColor
 #if GTEST_OS_WINDOWS && !GTEST_OS_WINDOWS_MOBILE
 
 // Returns the character attribute for the given color.
-WORD GetColorAttribute(GTestColor color)
+static WORD GetColorAttribute(GTestColor color)
 {
 	switch (color)
 	{
@@ -2837,7 +2837,7 @@ WORD GetColorAttribute(GTestColor color)
 
 // Returns the ANSI color code for the given color.  COLOR_DEFAULT is
 // an invalid input.
-const char* GetAnsiColorCode(GTestColor color)
+static const char* GetAnsiColorCode(GTestColor color)
 {
 	switch (color)
 	{
@@ -2849,7 +2849,7 @@ const char* GetAnsiColorCode(GTestColor color)
 			return "3";
 		default:
 			return NULL;
-	};
+	}
 }
 
 #endif  // GTEST_OS_WINDOWS && !GTEST_OS_WINDOWS_MOBILE
@@ -2893,7 +2893,7 @@ bool ShouldUseColor(bool stdout_is_tty)
 // cannot simply emit special characters and have the terminal change colors.
 // This routine must actually emit the characters rather than return a string
 // that would be colored when printed, as can be done on Linux.
-void ColoredPrintf(GTestColor color, const char* fmt, ...)
+static void ColoredPrintf(GTestColor color, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -2927,7 +2927,7 @@ void ColoredPrintf(GTestColor color, const char* fmt, ...)
 	// printed but has not yet reached the console.
 	fflush(stdout);
 	SetConsoleTextAttribute(stdout_handle,
-							GetColorAttribute(color) | FOREGROUND_INTENSITY);
+							(WORD)(GetColorAttribute(color) | FOREGROUND_INTENSITY));
 	vprintf(fmt, args);
 
 	fflush(stdout);
@@ -2946,7 +2946,7 @@ void ColoredPrintf(GTestColor color, const char* fmt, ...)
 static const char kTypeParamLabel[] = "TypeParam";
 static const char kValueParamLabel[] = "GetParam()";
 
-void PrintFullTestCommentIfPresent(const TestInfo& test_info)
+static void PrintFullTestCommentIfPresent(const TestInfo& test_info)
 {
 	const char* const type_param = test_info.type_param();
 	const char* const value_param = test_info.value_param();
@@ -3265,7 +3265,7 @@ TestEventListener* TestEventRepeater::Release(TestEventListener* listener)
 	{
 		if (listeners_[i] == listener)
 		{
-			listeners_.erase(listeners_.begin() + i);
+			listeners_.erase(listeners_.begin() + (ptrdiff_t)i);
 			return listener;
 		}
 	}
@@ -3295,7 +3295,7 @@ TestEventListener* TestEventRepeater::Release(TestEventListener* listener)
 		{                                                                      \
 			for (int i = static_cast<int>(listeners_.size()) - 1; i >= 0; i--) \
 			{                                                                  \
-				listeners_[i]->Name(parameter);                                \
+				listeners_[(size_t)i]->Name(parameter);                                \
 			}                                                                  \
 		}                                                                      \
 	}
@@ -3334,7 +3334,7 @@ void TestEventRepeater::OnTestIterationEnd(const UnitTest& unit_test,
 	{
 		for (int i = static_cast<int>(listeners_.size()) - 1; i >= 0; i--)
 		{
-			listeners_[i]->OnTestIterationEnd(unit_test, iteration);
+			listeners_[(size_t)i]->OnTestIterationEnd(unit_test, iteration);
 		}
 	}
 }
@@ -3561,7 +3561,7 @@ std::string XmlUnitTestResultPrinter::RemoveInvalidXmlCharacters(
 std::string FormatTimeInMillisAsSeconds(TimeInMillis ms)
 {
 	::std::stringstream ss;
-	ss << ms / 1000.0;
+	ss << (double)ms / 1000.0;
 	return ss.str();
 }
 
@@ -3573,7 +3573,7 @@ std::string FormatEpochTimeInMillisAsIso8601(TimeInMillis ms)
 	time_t seconds = static_cast<time_t>(ms / 1000);
 #ifdef _MSC_VER
 #pragma warning(push)                                          // Saves the current warning state.
-#pragma warning(disable : 4996)                                // Temporarily disables warning 4996 \
+#pragma warning(disable : 4996)                                // Temporarily disables warning 4996
 															   // (function or variable may be unsafe).
 	const struct tm* const time_struct = localtime(&seconds);  // NOLINT
 #pragma warning(pop)                                           // Restores the warning state again.
@@ -4205,7 +4205,7 @@ void UnitTest::AddTestPartResult(
 		for (int i = static_cast<int>(impl_->gtest_trace_stack().size());
 			 i > 0; --i)
 		{
-			const internal::TraceInfo& trace = impl_->gtest_trace_stack()[i - 1];
+			const internal::TraceInfo& trace = impl_->gtest_trace_stack()[(size_t)(i - 1)];
 			msg << "\n"
 				<< internal::FormatFileLocation(trace.file, trace.line)
 				<< " " << trace.message;
@@ -4428,7 +4428,7 @@ UnitTestImpl::UnitTestImpl(UnitTest* parent)
 	: parent_(parent),
 #ifdef _MSC_VER
 #pragma warning(push)            // Saves the current warning state.
-#pragma warning(disable : 4355)  // Temporarily disables warning 4355 \
+#pragma warning(disable : 4355)  // Temporarily disables warning 4355
 								 // (using this in initializer).
 	  default_global_test_part_result_reporter_(this),
 	  default_per_thread_test_part_result_reporter_(this),
@@ -4753,7 +4753,7 @@ bool UnitTestImpl::RunAllTests()
 		// Shuffles test cases and tests if requested.
 		if (has_tests_to_run && GTEST_FLAG(shuffle))
 		{
-			random()->Reseed(random_seed_);
+			random()->Reseed((testing::internal::UInt32)random_seed_);
 			// This should be done before calling OnTestIterationStart(),
 			// such that a test event listener can see the actual test order
 			// in the event.
@@ -5188,7 +5188,7 @@ bool SkipPrefix(const char* prefix, const char** pstr)
 // part can be omitted.
 //
 // Returns the value of the flag, or NULL if the parsing failed.
-const char* ParseFlagValue(const char* str,
+static const char* ParseFlagValue(const char* str,
 						   const char* flag,
 						   bool def_optional)
 {
@@ -5228,7 +5228,7 @@ const char* ParseFlagValue(const char* str,
 //
 // On success, stores the value of the flag in *value, and returns
 // true.  On failure, returns false without changing *value.
-bool ParseBoolFlag(const char* str, const char* flag, bool* value)
+static bool ParseBoolFlag(const char* str, const char* flag, bool* value)
 {
 	// Gets the value of the flag as a string.
 	const char* const value_str = ParseFlagValue(str, flag, true);
@@ -5264,7 +5264,7 @@ bool ParseInt32Flag(const char* str, const char* flag, Int32* value)
 //
 // On success, stores the value of the flag in *value, and returns
 // true.  On failure, returns false without changing *value.
-bool ParseStringFlag(const char* str, const char* flag, std::string* value)
+static bool ParseStringFlag(const char* str, const char* flag, std::string* value)
 {
 	// Gets the value of the flag as a string.
 	const char* const value_str = ParseFlagValue(str, flag, false);

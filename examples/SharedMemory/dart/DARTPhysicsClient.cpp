@@ -156,7 +156,7 @@ void DARTPhysicsClient::resetData()
 	m_data->m_userConstraintInfoMap.clear();
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool DARTPhysicsClient::connect()
 {
 	bool connected = m_data->m_commandProcessor->connect();
@@ -191,7 +191,7 @@ bool DARTPhysicsClient::connect()
 	return connected;
 }
 
-// return true if connection succesfull, can also check 'isConnected'
+// return true if connection successful, can also check 'isConnected'
 bool DARTPhysicsClient::connect(struct GUIHelperInterface* guiHelper)
 {
 	bool connected = m_data->m_commandProcessor->connect();

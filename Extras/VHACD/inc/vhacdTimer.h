@@ -21,7 +21,7 @@
 #define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
 #endif
 #include <windows.h>
-#elif __MACH__
+#elif defined(__MACH__)
 #include <mach/clock.h>
 #include <mach/mach.h>
 #else
@@ -40,8 +40,8 @@ public:
 		m_start.QuadPart = 0;
 		m_stop.QuadPart = 0;
 		QueryPerformanceFrequency(&m_freq);
-	};
-	~Timer(void){};
+	}
+	~Timer(void){}
 	void Tic()
 	{
 		QueryPerformanceCounter(&m_start);
@@ -54,7 +54,7 @@ public:
 	{
 		LARGE_INTEGER delta;
 		delta.QuadPart = m_stop.QuadPart - m_start.QuadPart;
-		return (1000.0 * delta.QuadPart) / (double)m_freq.QuadPart;
+		return (1000.0 * (double)delta.QuadPart) / (double)m_freq.QuadPart;
 	}
 
 private:
@@ -63,7 +63,7 @@ private:
 	LARGE_INTEGER m_freq;
 };
 
-#elif __MACH__
+#elif defined(__MACH__)
 class Timer
 {
 public:
@@ -71,11 +71,11 @@ public:
 	{
 		memset(this, 0, sizeof(Timer));
 		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &m_cclock);
-	};
+	}
 	~Timer(void)
 	{
 		mach_port_deallocate(mach_task_self(), m_cclock);
-	};
+	}
 	void Tic()
 	{
 		clock_get_time(m_cclock, &m_start);
@@ -101,8 +101,8 @@ public:
 	Timer(void)
 	{
 		memset(this, 0, sizeof(Timer));
-	};
-	~Timer(void){};
+	}
+	~Timer(void){}
 	void Tic()
 	{
 		clock_gettime(CLOCK_REALTIME, &m_start);
@@ -113,7 +113,7 @@ public:
 	}
 	double GetElapsedTime()  // in ms
 	{
-		return 1000.0 * (m_stop.tv_sec - m_start.tv_sec + (1.0E-9) * (m_stop.tv_nsec - m_start.tv_nsec));
+		return 1000.0 * ((double)(m_stop.tv_sec - m_start.tv_sec) + (1.0E-9) * (double)(m_stop.tv_nsec - m_start.tv_nsec));
 	}
 
 private:

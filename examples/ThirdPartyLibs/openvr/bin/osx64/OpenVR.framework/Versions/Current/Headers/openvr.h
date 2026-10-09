@@ -1278,7 +1278,7 @@ public:
 	 * [macOS Only]
 	 *  Returns an id<MTLDevice> that should be used by the application.
 	 */
-	virtual void GetOutputDevice(uint64_t *pnDevice, ETextureType textureType, VkInstance_T *pInstance = nullptr) = 0;
+	virtual void GetOutputDevice(uint64_t *pnDevice, ETextureType textureType, VkInstance_T *pInstance = NULL) = 0;
 
 	// ------------------------------------
 	// Display Mode methods
@@ -1640,13 +1640,13 @@ public:
 	// ---------------  Application properties  --------------- //
 
 	/** Returns a value for an application property. The required buffer size to fit this value will be returned. */
-	virtual uint32_t GetApplicationPropertyString(const char *pchAppKey, EVRApplicationProperty eProperty, VR_OUT_STRING() char *pchPropertyValueBuffer, uint32_t unPropertyValueBufferLen, EVRApplicationError *peError = nullptr) = 0;
+	virtual uint32_t GetApplicationPropertyString(const char *pchAppKey, EVRApplicationProperty eProperty, VR_OUT_STRING() char *pchPropertyValueBuffer, uint32_t unPropertyValueBufferLen, EVRApplicationError *peError = NULL) = 0;
 
 	/** Returns a bool value for an application property. Returns false in all error cases. */
-	virtual bool GetApplicationPropertyBool(const char *pchAppKey, EVRApplicationProperty eProperty, EVRApplicationError *peError = nullptr) = 0;
+	virtual bool GetApplicationPropertyBool(const char *pchAppKey, EVRApplicationProperty eProperty, EVRApplicationError *peError = NULL) = 0;
 
 	/** Returns a uint64 value for an application property. Returns 0 in all error cases. */
-	virtual uint64_t GetApplicationPropertyUint64(const char *pchAppKey, EVRApplicationProperty eProperty, EVRApplicationError *peError = nullptr) = 0;
+	virtual uint64_t GetApplicationPropertyUint64(const char *pchAppKey, EVRApplicationProperty eProperty, EVRApplicationError *peError = NULL) = 0;
 
 	/** Sets the application auto-launch flag. This is only valid for applications which return true for VRApplicationProperty_IsDashboardOverlay_Bool. */
 	virtual EVRApplicationError SetApplicationAutoLaunch(const char *pchAppKey, bool bAutoLaunch) = 0;
@@ -1733,22 +1733,22 @@ public:
 	virtual const char *GetSettingsErrorNameFromEnum(EVRSettingsError eError) = 0;
 
 	// Returns true if file sync occurred (force or settings dirty)
-	virtual bool Sync(bool bForce = false, EVRSettingsError *peError = nullptr) = 0;
+	virtual bool Sync(bool bForce = false, EVRSettingsError *peError = NULL) = 0;
 
-	virtual void SetBool(const char *pchSection, const char *pchSettingsKey, bool bValue, EVRSettingsError *peError = nullptr) = 0;
-	virtual void SetInt32(const char *pchSection, const char *pchSettingsKey, int32_t nValue, EVRSettingsError *peError = nullptr) = 0;
-	virtual void SetFloat(const char *pchSection, const char *pchSettingsKey, float flValue, EVRSettingsError *peError = nullptr) = 0;
-	virtual void SetString(const char *pchSection, const char *pchSettingsKey, const char *pchValue, EVRSettingsError *peError = nullptr) = 0;
+	virtual void SetBool(const char *pchSection, const char *pchSettingsKey, bool bValue, EVRSettingsError *peError = NULL) = 0;
+	virtual void SetInt32(const char *pchSection, const char *pchSettingsKey, int32_t nValue, EVRSettingsError *peError = NULL) = 0;
+	virtual void SetFloat(const char *pchSection, const char *pchSettingsKey, float flValue, EVRSettingsError *peError = NULL) = 0;
+	virtual void SetString(const char *pchSection, const char *pchSettingsKey, const char *pchValue, EVRSettingsError *peError = NULL) = 0;
 
 	// Users of the system need to provide a proper default in default.vrsettings in the resources/settings/ directory
 	// of either the runtime or the driver_xxx directory. Otherwise the default will be false, 0, 0.0 or ""
-	virtual bool GetBool(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
-	virtual int32_t GetInt32(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
-	virtual float GetFloat(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
-	virtual void GetString(const char *pchSection, const char *pchSettingsKey, VR_OUT_STRING() char *pchValue, uint32_t unValueLen, EVRSettingsError *peError = nullptr) = 0;
+	virtual bool GetBool(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
+	virtual int32_t GetInt32(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
+	virtual float GetFloat(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
+	virtual void GetString(const char *pchSection, const char *pchSettingsKey, VR_OUT_STRING() char *pchValue, uint32_t unValueLen, EVRSettingsError *peError = NULL) = 0;
 
-	virtual void RemoveSection(const char *pchSection, EVRSettingsError *peError = nullptr) = 0;
-	virtual void RemoveKeyInSection(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
+	virtual void RemoveSection(const char *pchSection, EVRSettingsError *peError = NULL) = 0;
+	virtual void RemoveKeyInSection(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -2386,7 +2386,7 @@ namespace vr
 struct NotificationBitmap_t
 {
 	NotificationBitmap_t()
-		: m_pImageData(nullptr), m_nWidth(0), m_nHeight(0), m_nBytesPerPixel(0){};
+		: m_pImageData(NULL), m_nWidth(0), m_nHeight(0), m_nBytesPerPixel(0){};
 
 	void *m_pImageData;
 	int32_t m_nWidth;
@@ -2940,7 +2940,7 @@ public:
 	// ---------------------------------------------
 
 	/** Show the message overlay. This will block and return you a result. **/
-	virtual VRMessageOverlayResponse ShowMessageOverlay(const char *pchText, const char *pchCaption, const char *pchButton0Text, const char *pchButton1Text = nullptr, const char *pchButton2Text = nullptr, const char *pchButton3Text = nullptr) = 0;
+	virtual VRMessageOverlayResponse ShowMessageOverlay(const char *pchText, const char *pchCaption, const char *pchButton0Text, const char *pchButton1Text = NULL, const char *pchButton2Text = NULL, const char *pchButton3Text = NULL) = 0;
 
 	/** If the calling process owns the overlay and it's open, this will close it. **/
 	virtual void CloseMessageOverlay() = 0;
@@ -3256,7 +3256,7 @@ public:
 	 *  is the VR screenshot in the correct format. They should be
 	 *  in the same aspect ratio.  Formats per type:
 	 *  VRScreenshotType_Mono: the VR filename is ignored (can be
-	 *  nullptr), this is a normal flat single shot.
+	 *  NULL), this is a normal flat single shot.
 	 *  VRScreenshotType_Stereo:  The VR image should be a
 	 *  side-by-side with the left eye image on the left.
 	 *  VRScreenshotType_Cubemap: The VR image should be six square
@@ -3387,7 +3387,7 @@ namespace vr
 	*
 	* pStartupInfo is reserved for future use.
 	*/
-inline IVRSystem *VR_Init(EVRInitError *peError, EVRApplicationType eApplicationType, const char *pStartupInfo = nullptr);
+inline IVRSystem *VR_Init(EVRInitError *peError, EVRApplicationType eApplicationType, const char *pStartupInfo = NULL);
 
 /** unloads vrclient.dll. Any interface pointers from the interface are
 	* invalid after this point */
@@ -3466,7 +3466,7 @@ public:
 	IVRSystem *VRSystem()
 	{
 		CheckClear();
-		if (m_pVRSystem == nullptr)
+		if (m_pVRSystem == NULL)
 		{
 			EVRInitError eError;
 			m_pVRSystem = (IVRSystem *)VR_GetGenericInterface(IVRSystem_Version, &eError);
@@ -3476,7 +3476,7 @@ public:
 	IVRChaperone *VRChaperone()
 	{
 		CheckClear();
-		if (m_pVRChaperone == nullptr)
+		if (m_pVRChaperone == NULL)
 		{
 			EVRInitError eError;
 			m_pVRChaperone = (IVRChaperone *)VR_GetGenericInterface(IVRChaperone_Version, &eError);
@@ -3487,7 +3487,7 @@ public:
 	IVRChaperoneSetup *VRChaperoneSetup()
 	{
 		CheckClear();
-		if (m_pVRChaperoneSetup == nullptr)
+		if (m_pVRChaperoneSetup == NULL)
 		{
 			EVRInitError eError;
 			m_pVRChaperoneSetup = (IVRChaperoneSetup *)VR_GetGenericInterface(IVRChaperoneSetup_Version, &eError);
@@ -3498,7 +3498,7 @@ public:
 	IVRCompositor *VRCompositor()
 	{
 		CheckClear();
-		if (m_pVRCompositor == nullptr)
+		if (m_pVRCompositor == NULL)
 		{
 			EVRInitError eError;
 			m_pVRCompositor = (IVRCompositor *)VR_GetGenericInterface(IVRCompositor_Version, &eError);
@@ -3509,7 +3509,7 @@ public:
 	IVROverlay *VROverlay()
 	{
 		CheckClear();
-		if (m_pVROverlay == nullptr)
+		if (m_pVROverlay == NULL)
 		{
 			EVRInitError eError;
 			m_pVROverlay = (IVROverlay *)VR_GetGenericInterface(IVROverlay_Version, &eError);
@@ -3520,7 +3520,7 @@ public:
 	IVRResources *VRResources()
 	{
 		CheckClear();
-		if (m_pVRResources == nullptr)
+		if (m_pVRResources == NULL)
 		{
 			EVRInitError eError;
 			m_pVRResources = (IVRResources *)VR_GetGenericInterface(IVRResources_Version, &eError);
@@ -3531,7 +3531,7 @@ public:
 	IVRScreenshots *VRScreenshots()
 	{
 		CheckClear();
-		if (m_pVRScreenshots == nullptr)
+		if (m_pVRScreenshots == NULL)
 		{
 			EVRInitError eError;
 			m_pVRScreenshots = (IVRScreenshots *)VR_GetGenericInterface(IVRScreenshots_Version, &eError);
@@ -3542,7 +3542,7 @@ public:
 	IVRRenderModels *VRRenderModels()
 	{
 		CheckClear();
-		if (m_pVRRenderModels == nullptr)
+		if (m_pVRRenderModels == NULL)
 		{
 			EVRInitError eError;
 			m_pVRRenderModels = (IVRRenderModels *)VR_GetGenericInterface(IVRRenderModels_Version, &eError);
@@ -3553,7 +3553,7 @@ public:
 	IVRExtendedDisplay *VRExtendedDisplay()
 	{
 		CheckClear();
-		if (m_pVRExtendedDisplay == nullptr)
+		if (m_pVRExtendedDisplay == NULL)
 		{
 			EVRInitError eError;
 			m_pVRExtendedDisplay = (IVRExtendedDisplay *)VR_GetGenericInterface(IVRExtendedDisplay_Version, &eError);
@@ -3564,7 +3564,7 @@ public:
 	IVRSettings *VRSettings()
 	{
 		CheckClear();
-		if (m_pVRSettings == nullptr)
+		if (m_pVRSettings == NULL)
 		{
 			EVRInitError eError;
 			m_pVRSettings = (IVRSettings *)VR_GetGenericInterface(IVRSettings_Version, &eError);
@@ -3575,7 +3575,7 @@ public:
 	IVRApplications *VRApplications()
 	{
 		CheckClear();
-		if (m_pVRApplications == nullptr)
+		if (m_pVRApplications == NULL)
 		{
 			EVRInitError eError;
 			m_pVRApplications = (IVRApplications *)VR_GetGenericInterface(IVRApplications_Version, &eError);
@@ -3586,7 +3586,7 @@ public:
 	IVRTrackedCamera *VRTrackedCamera()
 	{
 		CheckClear();
-		if (m_pVRTrackedCamera == nullptr)
+		if (m_pVRTrackedCamera == NULL)
 		{
 			EVRInitError eError;
 			m_pVRTrackedCamera = (IVRTrackedCamera *)VR_GetGenericInterface(IVRTrackedCamera_Version, &eError);
@@ -3643,19 +3643,19 @@ inline IVRDriverManager *VR_CALLTYPE VRDriverManager() { return OpenVRInternal_M
 
 inline void COpenVRContext::Clear()
 {
-	m_pVRSystem = nullptr;
-	m_pVRChaperone = nullptr;
-	m_pVRChaperoneSetup = nullptr;
-	m_pVRCompositor = nullptr;
-	m_pVROverlay = nullptr;
-	m_pVRRenderModels = nullptr;
-	m_pVRExtendedDisplay = nullptr;
-	m_pVRSettings = nullptr;
-	m_pVRApplications = nullptr;
-	m_pVRTrackedCamera = nullptr;
-	m_pVRResources = nullptr;
-	m_pVRScreenshots = nullptr;
-	m_pVRDriverManager = nullptr;
+	m_pVRSystem = NULL;
+	m_pVRChaperone = NULL;
+	m_pVRChaperoneSetup = NULL;
+	m_pVRCompositor = NULL;
+	m_pVROverlay = NULL;
+	m_pVRRenderModels = NULL;
+	m_pVRExtendedDisplay = NULL;
+	m_pVRSettings = NULL;
+	m_pVRApplications = NULL;
+	m_pVRTrackedCamera = NULL;
+	m_pVRResources = NULL;
+	m_pVRScreenshots = NULL;
+	m_pVRDriverManager = NULL;
 }
 
 VR_INTERFACE uint32_t VR_CALLTYPE VR_InitInternal2(EVRInitError *peError, EVRApplicationType eApplicationType, const char *pStartupInfo);
@@ -3664,7 +3664,7 @@ VR_INTERFACE void VR_CALLTYPE VR_ShutdownInternal();
 /** Finds the active installation of vrclient.dll and initializes it */
 inline IVRSystem *VR_Init(EVRInitError *peError, EVRApplicationType eApplicationType, const char *pStartupInfo)
 {
-	IVRSystem *pVRSystem = nullptr;
+	IVRSystem *pVRSystem = NULL;
 
 	EVRInitError eError;
 	VRToken() = VR_InitInternal2(&eError, eApplicationType, pStartupInfo);

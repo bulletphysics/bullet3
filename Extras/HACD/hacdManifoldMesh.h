@@ -50,8 +50,8 @@ public:
 	DPoint(Real dist = 0, bool computed = false, bool distOnly = false)
 		: m_dist(dist),
 		  m_computed(computed),
-		  m_distOnly(distOnly){};
-	~DPoint(){};
+		  m_distOnly(distOnly){}
+	~DPoint(){}
 
 private:
 	Real m_dist;

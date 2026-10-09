@@ -29,7 +29,7 @@ namespace internal {
 *    some (optional) processing of the outcome, e.g., division by n for mean.
 *
 * For the vectorized path let's observe that the packet-size and outer-unrolling
-* are both decided by the assignement logic. So all we have to do is to decide
+* are both decided by the assignment logic. So all we have to do is to decide
 * on the inner unrolling.
 *
 * For the unrolling, we can reuse "internal::redux_vec_unroller" from Redux.h,
@@ -87,7 +87,7 @@ struct packetwise_redux_impl<Func, Evaluator, CompleteUnrolling>
   }
 };
 
-/* Add a specialization of redux_vec_unroller for size==0 at compiletime.
+/* Add a specialization of redux_vec_unroller for size==0 at compile time.
  * This specialization is not required for general reductions, which is
  * why it is defined here.
  */

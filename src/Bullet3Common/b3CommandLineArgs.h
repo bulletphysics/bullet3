@@ -68,7 +68,7 @@ public:
 
 	int ParsedArgc()
 	{
-		return pairs.size();
+		return (int)pairs.size();
 	}
 };
 

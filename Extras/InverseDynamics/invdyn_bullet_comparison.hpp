@@ -21,8 +21,7 @@ class MultiBodyTree;
 /// @param u vector of generalized speeds (matches id_tree)
 /// @param gravity gravitational acceleration in world frame
 /// @param dot_u vector of generalized accelerations (matches id_tree)
-/// @param gravity gravitational acceleration in world frame
-/// @param base_fixed set base joint to fixed or
+/// @param verbose report verbosely
 /// @param pos_error is set to the maximum of the euclidean norm of position+rotation errors of all
 ///        center of gravity positions and link frames
 /// @param acc_error is set to the square root of the sum of squared differences of generalized

@@ -48,7 +48,7 @@ enum btPoint2PointFlags
 	BT_P2P_FLAGS_CFM = 2
 };
 
-/// point to point constraint between two rigidbodies each with a pivotpoint that descibes the 'ballsocket' location in local space
+/// point to point constraint between two rigidbodies each with a pivotpoint that describes the 'ballsocket' location in local space
 ATTRIBUTE_ALIGNED16(class)
 btPoint2PointConstraint : public btTypedConstraint
 {

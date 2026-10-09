@@ -1,5 +1,5 @@
 /*! \file btGImpactShape.h
-\author Francisco Len N�jera
+\author Francisco León Nájera
 */
 /*
 This source file is part of GIMPACT Library.
@@ -102,13 +102,13 @@ public:
 		m_shapeType = GIMPACT_SHAPE_PROXYTYPE;
 		m_localAABB.invalidate();
 		m_needs_update = true;
-		localScaling.setValue(1.f, 1.f, 1.f);
+		localScaling.setValue(btScalar(1.0), btScalar(1.0), btScalar(1.0));
 	}
 
 	//! performs refit operation
 	/*!
 	Updates the entire Box set of this shape.
-	\pre postUpdate() must be called for attemps to calculating the box set, else this function
+	\pre postUpdate() must be called for attempts to calculating the box set, else this function
 		will does nothing.
 	\post if m_needs_update == true, then it calls calcLocalAABB();
 	*/
@@ -119,7 +119,7 @@ public:
 		m_needs_update = false;
 	}
 
-	//! If the Bounding box is not updated, then this class attemps to calculate it.
+	//! If the Bounding box is not updated, then this class attempts to calculate it.
 	/*!
     \post Calls updateBound() for update the box set.
     */
@@ -527,8 +527,8 @@ public:
 		{
 			m_meshInterface = NULL;
 			m_part = 0;
-			m_margin = 0.01f;
-			m_scale = btVector3(1.f, 1.f, 1.f);
+			m_margin = btScalar(0.01);
+			m_scale = btVector3(btScalar(1.0), btScalar(1.0), btScalar(1.0));
 			m_lock_count = 0;
 			vertexbase = 0;
 			numverts = 0;
@@ -560,7 +560,7 @@ public:
 			m_meshInterface = meshInterface;
 			m_part = part;
 			m_scale = m_meshInterface->getScaling();
-			m_margin = 0.1f;
+			m_margin = btScalar(0.1);
 			m_lock_count = 0;
 			vertexbase = 0;
 			numverts = 0;
@@ -644,17 +644,17 @@ public:
 		{
 			if (type == PHY_DOUBLE)
 			{
-				double* dvertices = (double*)(vertexbase + vertex_index * stride);
-				vertex[0] = btScalar(dvertices[0] * m_scale[0]);
-				vertex[1] = btScalar(dvertices[1] * m_scale[1]);
-				vertex[2] = btScalar(dvertices[2] * m_scale[2]);
+				double* dvertices = (double*)(vertexbase + vertex_index * (unsigned int)stride);
+				vertex[0] = btScalar(dvertices[0]) * m_scale[0];
+				vertex[1] = btScalar(dvertices[1]) * m_scale[1];
+				vertex[2] = btScalar(dvertices[2]) * m_scale[2];
 			}
 			else
 			{
-				float* svertices = (float*)(vertexbase + vertex_index * stride);
-				vertex[0] = svertices[0] * m_scale[0];
-				vertex[1] = svertices[1] * m_scale[1];
-				vertex[2] = svertices[2] * m_scale[2];
+				float* svertices = (float*)(vertexbase + vertex_index * (unsigned int)stride);
+				vertex[0] = btScalar(svertices[0]) * m_scale[0];
+				vertex[1] = btScalar(svertices[1]) * m_scale[1];
+				vertex[2] = btScalar(svertices[2]) * m_scale[2];
 			}
 		}
 
@@ -805,7 +805,7 @@ public:
 
 	SIMD_FORCE_INLINE void getVertex(int vertex_index, btVector3& vertex) const
 	{
-		m_primitive_manager.get_vertex(vertex_index, vertex);
+		m_primitive_manager.get_vertex((unsigned int)vertex_index, vertex);
 	}
 
 	SIMD_FORCE_INLINE void setMargin(btScalar margin)

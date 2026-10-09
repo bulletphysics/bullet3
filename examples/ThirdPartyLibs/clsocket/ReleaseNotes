@@ -255,7 +255,7 @@ I. New Features
 	SetSendWindowSize() - Sent the TCP window size for send.
 	SetReceiveWindowSize() - Set the TCP windows size for receive.
 	GetSendWindowSize() - Get the TCP window size for send.
-	GetReceiveWindowSize() - Get the TCP window size fo receive.
+	GetReceiveWindowSize() - Get the TCP window size for receive.
 	Select(int sec, int usec) - Overloaded function to specify timeout
                                     value of select.
 
@@ -267,7 +267,7 @@ III. Bug Fixes
 
  Reported Bugs
  -------------
- #33 - Add SendVector mehtod to class
+ #33 - Add SendVector method to class
  #41 - Sockets library MUST be signal safe 	
  #51 - Add support to set TCP windows size
  #52 - Select closes socket if timeout occurs 
@@ -412,7 +412,7 @@ III. Bug Fixes
  Reported Bugs
  -------------
  #27 - Finish adding stats code to CSocket class.
- #30 - ConnectTCP() does not return correct error for inavlid IP Address.
+ #30 - ConnectTCP() does not return correct error for invalid IP Address.
 
  Unreported Bugs
  ---------------

@@ -31,7 +31,7 @@ u_factor = 1.5
 u_lower_limit =  tension_force
 u_upper_limit=9000
 
-"""Data aquisition, timing and history"""
+"""Data acquisition, timing and history"""
 time_steps = 2000
 history = np.array( [[1000,-1000,0]] )
 time_history = np.array([[0]])
@@ -80,7 +80,7 @@ for i in range(nJoints):
 last_tendon_link_2 = jointNameToId['tendon1_13_tendon1_14']
 Base_pulley_2 = jointNameToId['Base_pulley1']
 """_____________________________________________________________________________________________________________________________"""
-"""Creating new contraints (joints), with the information obtained in the previous step"""
+"""Creating new constraints (joints), with the information obtained in the previous step"""
 
 pulley_1_tendon_magenta = p.createConstraint(base_1, Base_pulley_1, pendulum, last_tendon_link_1, p.JOINT_FIXED, [0, 0, 1], [0, 0, 0], [-.56, 0, 0])
 tendon_white_cart = p.createConstraint(base_2, last_tendon_link_2, pendulum, cart, p.JOINT_FIXED, [0, 0, 1], [0, 0, 0], [0,-.55, 0])

@@ -117,21 +117,21 @@ public:
 
 	virtual void specialKeyboardUp(int key, int x, int y);
 
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
 
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
 
-	virtual bool keyboardCallback(int key, int state);
+	virtual bool keyboardCallback(int /*key*/, int /*state*/);
 
 	virtual void renderScene();
 
-	virtual void physicsDebugDraw(int debugFlags);
+	virtual void physicsDebugDraw(int /*debugFlags*/);
 
 	void initPhysics();
 	void exitPhysics();
@@ -141,7 +141,7 @@ public:
 		float dist = 8;
 		float pitch = -32;
 		float yaw = -45;
-		float targetPos[3] = {-0.33, -0.72, 4.5};
+		float targetPos[3] = {-0.33f, -0.72f, 4.5f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -155,10 +155,10 @@ public:
 	*/
 };
 
-btScalar maxMotorImpulse = 4000.f;
+static btScalar maxMotorImpulse = 4000.f;
 
 //the sequential impulse solver has difficulties dealing with large mass ratios (differences), between loadMass and the fork parts
-btScalar loadMass = 350.f;  //
+static btScalar loadMass = 350.f;  //
 //btScalar loadMass = 10.f;//this should work fine for the SI solver
 
 #ifndef M_PI
@@ -173,13 +173,13 @@ btScalar loadMass = 350.f;  //
 #define M_PI_4 0.785398163397448309616
 #endif
 
-int rightIndex = 0;
-int upIndex = 1;
-int forwardIndex = 2;
-btVector3 wheelDirectionCS0(0, -1, 0);
-btVector3 wheelAxleCS(-1, 0, 0);
+static int rightIndex = 0;
+static int upIndex = 1;
+static int forwardIndex = 2;
+static btVector3 wheelDirectionCS0(0, -1, 0);
+static btVector3 wheelAxleCS(-1, 0, 0);
 
-bool useMCLPSolver = true;
+static bool useMCLPSolver = true;
 
 #include <stdio.h>  //printf debugging
 
@@ -188,26 +188,26 @@ bool useMCLPSolver = true;
 ///btRaycastVehicle is the interface for the constraint that implements the raycast vehicle
 ///notice that for higher-quality slow-moving vehicles, another approach might be better
 ///implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
-float gEngineForce = 0.f;
+static float gEngineForce = 0.f;
 
-float defaultBreakingForce = 10.f;
-float gBreakingForce = 100.f;
+static float defaultBreakingForce = 10.f;
+static float gBreakingForce = 100.f;
 
-float maxEngineForce = 1000.f;  //this should be engine/velocity dependent
-float maxBreakingForce = 100.f;
+static float maxEngineForce = 1000.f;  //this should be engine/velocity dependent
+static float maxBreakingForce = 100.f;
 
-float gVehicleSteering = 0.f;
-float steeringIncrement = 0.04f;
-float steeringClamp = 0.3f;
-float wheelRadius = 0.5f;
-float wheelWidth = 0.4f;
-float wheelFriction = 1000;  //BT_LARGE_FLOAT;
-float suspensionStiffness = 20.f;
-float suspensionDamping = 2.3f;
-float suspensionCompression = 4.4f;
-float rollInfluence = 0.1f;  //1.0f;
+static float gVehicleSteering = 0.f;
+static float steeringIncrement = 0.04f;
+static float steeringClamp = 0.3f;
+static float wheelRadius = 0.5f;
+static float wheelWidth = 0.4f;
+static float wheelFriction = 1000;  //BT_LARGE_FLOAT;
+static float suspensionStiffness = 20.f;
+static float suspensionDamping = 2.3f;
+static float suspensionCompression = 4.4f;
+static float rollInfluence = 0.1f;  //1.0f;
 
-btScalar suspensionRestLength(0.6);
+static btScalar suspensionRestLength = btScalar(0.6);
 
 #define CUBE_HALF_EXTENTS 1
 
@@ -342,7 +342,7 @@ void ForkLiftDemo::initPhysics()
 	{
 		m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 128;  //for direct solver, it is better to solve multiple objects together, small batches have high overhead
 	}
-	m_dynamicsWorld->getSolverInfo().m_globalCfm = 0.00001;
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(0.00001);
 
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
@@ -409,10 +409,10 @@ void ForkLiftDemo::initPhysics()
 		btTransform localA, localB;
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
-		localA.setOrigin(btVector3(0.0, 1.0, 3.05));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
-		localB.setOrigin(btVector3(0.0, -1.5, -0.05));
+		localA.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
+		localA.setOrigin(btVector3(0.0, 1.0, btScalar(3.05)));
+		localB.getBasis().setEulerZYX(0, btScalar(M_PI_2), 0);
+		localB.setOrigin(btVector3(0.0, -1.5, btScalar(-0.05)));
 		m_liftHinge = new btHingeConstraint(*m_carChassis, *m_liftBody, localA, localB);
 		//		m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
 		m_liftHinge->setLimit(0.0f, 0.0f);
@@ -446,10 +446,10 @@ void ForkLiftDemo::initPhysics()
 
 		localA.setIdentity();
 		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, 0, M_PI_2);
+		localA.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
 		localA.setOrigin(btVector3(0.0f, -1.9f, 0.05f));
-		localB.getBasis().setEulerZYX(0, 0, M_PI_2);
-		localB.setOrigin(btVector3(0.0, 0.0, -0.1));
+		localB.getBasis().setEulerZYX(0, 0, btScalar(M_PI_2));
+		localB.setOrigin(btVector3(0.0, 0.0, -0.1f));
 		m_forkSlider = new btSliderConstraint(*m_liftBody, *m_forkBody, localA, localB, true);
 		m_forkSlider->setLowerLinLimit(0.1f);
 		m_forkSlider->setUpperLinLimit(0.1f);
@@ -499,26 +499,26 @@ void ForkLiftDemo::initPhysics()
 		//choose coordinate system
 		m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
 
-		btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3 * wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
+		btVector3 connectionPointCS0(btScalar(CUBE_HALF_EXTENTS - (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(2 * CUBE_HALF_EXTENTS - wheelRadius));
 
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth), connectionHeight, 2 * CUBE_HALF_EXTENTS - wheelRadius);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(btScalar(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(2 * CUBE_HALF_EXTENTS - wheelRadius));
 
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(btScalar(-CUBE_HALF_EXTENTS + (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(-2 * CUBE_HALF_EXTENTS + wheelRadius));
 		isFrontWheel = false;
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-		connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3 * wheelWidth), connectionHeight, -2 * CUBE_HALF_EXTENTS + wheelRadius);
-		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
+		connectionPointCS0 = btVector3(btScalar(CUBE_HALF_EXTENTS - (0.3 * wheelWidth)), btScalar(connectionHeight), btScalar(-2 * CUBE_HALF_EXTENTS + wheelRadius));
+		m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, btScalar(wheelRadius), m_tuning, isFrontWheel);
 
 		for (int i = 0; i < m_vehicle->getNumWheels(); i++)
 		{
 			btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
-			wheel.m_suspensionStiffness = suspensionStiffness;
-			wheel.m_wheelsDampingRelaxation = suspensionDamping;
-			wheel.m_wheelsDampingCompression = suspensionCompression;
-			wheel.m_frictionSlip = wheelFriction;
-			wheel.m_rollInfluence = rollInfluence;
+			wheel.m_suspensionStiffness = (btScalar)suspensionStiffness;
+			wheel.m_wheelsDampingRelaxation = (btScalar)suspensionDamping;
+			wheel.m_wheelsDampingCompression = (btScalar)suspensionCompression;
+			wheel.m_frictionSlip = (btScalar)wheelFriction;
+			wheel.m_rollInfluence = (btScalar)rollInfluence;
 		}
 	}
 
@@ -665,6 +665,7 @@ void ForkLiftDemo::stepSimulation(float deltaTime)
 
 		int numSimSteps;
 		numSimSteps = m_dynamicsWorld->stepSimulation(dt, maxSimSubSteps);
+		(void)numSimSteps;
 
 		if (m_dynamicsWorld->getConstraintSolver()->getSolverType() == BT_MLCP_SOLVER)
 		{
@@ -784,15 +785,15 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 			{
 				case B3G_LEFT_ARROW:
 				{
-					m_liftHinge->setLimit(-M_PI / 16.0f, M_PI / 8.0f);
-					m_liftHinge->enableAngularMotor(true, -0.1, maxMotorImpulse);
+					m_liftHinge->setLimit(btScalar(-M_PI / 16.0f), btScalar(M_PI / 8.0f));
+					m_liftHinge->enableAngularMotor(true, -0.1f, maxMotorImpulse);
 					handled = true;
 					break;
 				}
 				case B3G_RIGHT_ARROW:
 				{
-					m_liftHinge->setLimit(-M_PI / 16.0f, M_PI / 8.0f);
-					m_liftHinge->enableAngularMotor(true, 0.1, maxMotorImpulse);
+					m_liftHinge->setLimit(btScalar(-M_PI / 16.0f), btScalar(M_PI / 8.0f));
+					m_liftHinge->enableAngularMotor(true, 0.1f, maxMotorImpulse);
 					handled = true;
 					break;
 				}
@@ -816,6 +817,8 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					break;
 				}
+				default:
+					break;
 			}
 		}
 		else
@@ -860,7 +863,7 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*)m_dynamicsWorld;
 					world->setLatencyMotionStateInterpolation(!world->getLatencyMotionStateInterpolation());
-					printf("world latencyMotionStateInterpolation = %d\n", world->getLatencyMotionStateInterpolation());
+					printf("world latencyMotionStateInterpolation = %u\n", world->getLatencyMotionStateInterpolation());
 					break;
 				}
 				case B3G_F6:
@@ -868,7 +871,7 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 					handled = true;
 					//switch solver (needs demo restart)
 					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+					printf("switching to useMLCPSolver = %u\n", useMCLPSolver);
 
 					delete m_constraintSolver;
 					if (useMCLPSolver)
@@ -934,14 +937,14 @@ bool ForkLiftDemo::keyboardCallback(int key, int state)
 	return handled;
 }
 
-void ForkLiftDemo::specialKeyboardUp(int key, int x, int y)
+void ForkLiftDemo::specialKeyboardUp(int /*key*/, int /*x*/, int /*y*/)
 {
 #if 0
 
 #endif
 }
 
-void ForkLiftDemo::specialKeyboard(int key, int x, int y)
+void ForkLiftDemo::specialKeyboard(int /*key*/, int /*x*/, int /*y*/)
 {
 #if 0
 	if (key==GLUT_KEY_END)
@@ -1129,7 +1132,7 @@ btRigidBody* ForkLiftDemo::localCreateRigidBody(btScalar mass, const btTransform
 	bool isDynamic = (mass != 0.f);
 
 	btVector3 localInertia(0, 0, 0);
-	if (isDynamic)
+	if (isDynamic && shape)
 		shape->calculateLocalInertia(mass, localInertia);
 
 		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects

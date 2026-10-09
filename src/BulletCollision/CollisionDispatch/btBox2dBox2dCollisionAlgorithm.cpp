@@ -50,7 +50,7 @@ btBox2dBox2dCollisionAlgorithm::~btBox2dBox2dCollisionAlgorithm()
 void b2CollidePolygons(btManifoldResult* manifold, const btBox2dShape* polyA, const btTransform& xfA, const btBox2dShape* polyB, const btTransform& xfB);
 
 //#include <stdio.h>
-void btBox2dBox2dCollisionAlgorithm::processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
+void btBox2dBox2dCollisionAlgorithm::processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* resultOut)
 {
 	if (!m_manifoldPtr)
 		return;
@@ -72,7 +72,7 @@ void btBox2dBox2dCollisionAlgorithm::processCollision(const btCollisionObjectWra
 btScalar btBox2dBox2dCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* /*body0*/, btCollisionObject* /*body1*/, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* /*resultOut*/)
 {
 	//not yet
-	return 1.f;
+	return btScalar(1.f);
 }
 
 struct ClipVertex
@@ -87,9 +87,9 @@ struct ClipVertex
 #define b2Mul(a, b) (a) * (b)
 #define b2MulT(a, b) (a).transpose() * (b)
 #define b2Cross(a, b) (a).cross(b)
-#define btCrossS(a, s) btVector3(s* a.getY(), -s* a.getX(), 0.f)
+#define btCrossS(a, s) btVector3(s* a.getY(), -s* a.getX(), btScalar(0.f))
 
-int b2_maxManifoldPoints = 2;
+static int b2_maxManifoldPoints = 2;
 
 static int ClipSegmentToLine(ClipVertex vOut[2], ClipVertex vIn[2],
 							 const btVector3& normal, btScalar offset)
@@ -102,16 +102,16 @@ static int ClipSegmentToLine(ClipVertex vOut[2], ClipVertex vIn[2],
 	btScalar distance1 = b2Dot(normal, vIn[1].v) - offset;
 
 	// If the points are behind the plane
-	if (distance0 <= 0.0f) vOut[numOut++] = vIn[0];
-	if (distance1 <= 0.0f) vOut[numOut++] = vIn[1];
+	if (distance0 <= btScalar(0.0f)) vOut[numOut++] = vIn[0];
+	if (distance1 <= btScalar(0.0f)) vOut[numOut++] = vIn[1];
 
 	// If the points are on different sides of the plane
-	if (distance0 * distance1 < 0.0f)
+	if (distance0 * distance1 < btScalar(0.0f))
 	{
 		// Find intersection point of edge and plane
 		btScalar interp = distance0 / (distance0 - distance1);
 		vOut[numOut].v = vIn[0].v + interp * (vIn[1].v - vIn[0].v);
-		if (distance0 > 0.0f)
+		if (distance0 > btScalar(0.0f))
 		{
 			vOut[numOut].id = vIn[0].id;
 		}
@@ -174,7 +174,7 @@ static btScalar FindMaxSeparation(int* edgeIndex,
 
 	// Get the separation for the edge normal.
 	btScalar s = EdgeSeparation(poly1, xf1, edge, poly2, xf2);
-	if (s > 0.0f)
+	if (s > btScalar(0.0f))
 	{
 		return s;
 	}
@@ -182,7 +182,7 @@ static btScalar FindMaxSeparation(int* edgeIndex,
 	// Check the separation for the previous edge normal.
 	int prevEdge = edge - 1 >= 0 ? edge - 1 : count1 - 1;
 	btScalar sPrev = EdgeSeparation(poly1, xf1, prevEdge, poly2, xf2);
-	if (sPrev > 0.0f)
+	if (sPrev > btScalar(0.0f))
 	{
 		return sPrev;
 	}
@@ -190,7 +190,7 @@ static btScalar FindMaxSeparation(int* edgeIndex,
 	// Check the separation for the next edge normal.
 	int nextEdge = edge + 1 < count1 ? edge + 1 : 0;
 	btScalar sNext = EdgeSeparation(poly1, xf1, nextEdge, poly2, xf2);
-	if (sNext > 0.0f)
+	if (sNext > btScalar(0.0f))
 	{
 		return sNext;
 	}
@@ -226,7 +226,7 @@ static btScalar FindMaxSeparation(int* edgeIndex,
 			edge = bestEdge + 1 < count1 ? bestEdge + 1 : 0;
 
 		s = EdgeSeparation(poly1, xf1, edge, poly2, xf2);
-		if (s > 0.0f)
+		if (s > btScalar(0.0f))
 		{
 			return s;
 		}
@@ -302,12 +302,12 @@ void b2CollidePolygons(btManifoldResult* manifold,
 {
 	int edgeA = 0;
 	btScalar separationA = FindMaxSeparation(&edgeA, polyA, xfA, polyB, xfB);
-	if (separationA > 0.0f)
+	if (separationA > btScalar(0.0f))
 		return;
 
 	int edgeB = 0;
 	btScalar separationB = FindMaxSeparation(&edgeB, polyB, xfB, polyA, xfA);
-	if (separationB > 0.0f)
+	if (separationB > btScalar(0.0f))
 		return;
 
 	const btBox2dShape* poly1;  // reference poly
@@ -315,8 +315,8 @@ void b2CollidePolygons(btManifoldResult* manifold,
 	btTransform xf1, xf2;
 	int edge1;  // reference edge
 	unsigned char flip;
-	const btScalar k_relativeTol = 0.98f;
-	const btScalar k_absoluteTol = 0.001f;
+	const btScalar k_relativeTol = btScalar(0.98f);
+	const btScalar k_absoluteTol = btScalar(0.001f);
 
 	// TODO_ERIN use "radius" of poly for absolute tolerance.
 	if (separationB > k_relativeTol * separationA + k_absoluteTol)
@@ -350,7 +350,7 @@ void b2CollidePolygons(btManifoldResult* manifold,
 	//btVector3 dv = v12 - v11;
 	btVector3 sideNormal = b2Mul(xf1.getBasis(), v12 - v11);
 	sideNormal.normalize();
-	btVector3 frontNormal = btCrossS(sideNormal, 1.0f);
+	btVector3 frontNormal = btCrossS(sideNormal, btScalar(1.0f));
 
 	v11 = b2Mul(xf1, v11);
 	v12 = b2Mul(xf1, v12);
@@ -387,12 +387,12 @@ void b2CollidePolygons(btManifoldResult* manifold,
 	// Now clipPoints2 contains the clipped points.
 	btVector3 manifoldNormal = flip ? -frontNormal : frontNormal;
 
-	int pointCount = 0;
+	// int pointCount = 0;
 	for (int i = 0; i < b2_maxManifoldPoints; ++i)
 	{
 		btScalar separation = b2Dot(frontNormal, clipPoints2[i].v) - frontOffset;
 
-		if (separation <= 0.0f)
+		if (separation <= btScalar(0.0f))
 		{
 			//b2ManifoldPoint* cp = manifold->points + pointCount;
 			//btScalar separation = separation;
@@ -403,7 +403,7 @@ void b2CollidePolygons(btManifoldResult* manifold,
 
 			//			cp->id = clipPoints2[i].id;
 			//			cp->id.features.flip = flip;
-			++pointCount;
+			// ++pointCount;
 		}
 	}
 

@@ -44,7 +44,7 @@ extern "C"
 	/*********************
      *    Guard Heap     *
      *********************/
-	// return buffer containing count objects of size size, with guard pages in betweeen.
+	// return buffer containing count objects of size size, with guard pages in between.
 	// The stride between one object and the next is given by objectStride.
 	// objectStride may be NULL. Objects so created are freed with GuardFree
 	void *GuardCalloc(size_t count, size_t size, size_t *objectStride);

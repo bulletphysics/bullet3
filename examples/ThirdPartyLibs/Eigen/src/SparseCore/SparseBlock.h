@@ -467,7 +467,7 @@ template<typename ArgType, int BlockRows, int BlockCols, bool InnerPanel>
 class unary_evaluator<Block<ArgType,BlockRows,BlockCols,InnerPanel>, IteratorBased>::InnerVectorInnerIterator
  : public EvalIterator
 {
-  // NOTE MSVC fails to compile if we don't explicitely "import" IsRowMajor from unary_evaluator
+  // NOTE MSVC fails to compile if we don't explicitly "import" IsRowMajor from unary_evaluator
   //      because the base class EvalIterator has a private IsRowMajor enum too. (bug #1786)
   // NOTE We cannot call it IsRowMajor because it would shadow unary_evaluator::IsRowMajor
   enum { XprIsRowMajor = unary_evaluator::IsRowMajor };

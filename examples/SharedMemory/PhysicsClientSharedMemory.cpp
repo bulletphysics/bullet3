@@ -325,7 +325,7 @@ void PhysicsClientSharedMemory::setSharedMemoryInterface(class SharedMemoryInter
 		}
 		m_data->m_ownsSharedMemory = false;
 		m_data->m_sharedMemory = sharedMem;
-	};
+	}
 }
 
 void PhysicsClientSharedMemory::disconnectSharedMemory()
@@ -459,7 +459,7 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
 }
 
 template <typename T, typename U>
-void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool verboseOutput)
+void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool /*verboseOutput*/)
 {
 	b3JointInfo info;
 	info.m_jointName[0] = 0;
@@ -477,12 +477,12 @@ void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool
 		//info.m_linkName = strDup(con->m_typeConstraintData.m_name);
 	}
 
-	btVector3 linearLowerLimit(con->m_linearLowerLimit.m_floats[0], con->m_linearLowerLimit.m_floats[1], con->m_linearLowerLimit.m_floats[2]);
-	btVector3 linearUpperLimit(con->m_linearUpperLimit.m_floats[0], con->m_linearUpperLimit.m_floats[1], con->m_linearUpperLimit.m_floats[2]);
-	btVector3 angularLowerLimit(con->m_angularLowerLimit.m_floats[0], con->m_angularLowerLimit.m_floats[1], con->m_angularLowerLimit.m_floats[2]);
-	btVector3 angularUpperLimit(con->m_angularUpperLimit.m_floats[0], con->m_angularUpperLimit.m_floats[1], con->m_angularUpperLimit.m_floats[2]);
+	btVector3 linearLowerLimit((btScalar)con->m_linearLowerLimit.m_floats[0], (btScalar)con->m_linearLowerLimit.m_floats[1], (btScalar)con->m_linearLowerLimit.m_floats[2]);
+	btVector3 linearUpperLimit((btScalar)con->m_linearUpperLimit.m_floats[0], (btScalar)con->m_linearUpperLimit.m_floats[1], (btScalar)con->m_linearUpperLimit.m_floats[2]);
+	btVector3 angularLowerLimit((btScalar)con->m_angularLowerLimit.m_floats[0], (btScalar)con->m_angularLowerLimit.m_floats[1], (btScalar)con->m_angularLowerLimit.m_floats[2]);
+	btVector3 angularUpperLimit((btScalar)con->m_angularUpperLimit.m_floats[0], (btScalar)con->m_angularUpperLimit.m_floats[1], (btScalar)con->m_angularUpperLimit.m_floats[2]);
 
-	//very simple, rudimentary extraction of constaint type, from limits
+	//very simple, rudimentary extraction of constraint type, from limits
 	info.m_jointType = eFixedType;
 	info.m_jointDamping = 0;      //mb->m_links[link].m_jointDamping;
 	info.m_jointFriction = 0;     //mb->m_links[link].m_jointFriction;
@@ -523,7 +523,7 @@ void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool
 		info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
 	}
 	bodyJoints->m_jointInfo.push_back(info);
-};
+}
 
 const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 {
@@ -887,43 +887,52 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 					int numU = command.m_sendActualStateArgs.m_numDegreeOfFreedomU;
 					b3Printf("size Q = %d, size U = %d\n", numQ, numU);
 					char msg[1024];
+					#define customMin(a,b) (a < b ? a : b)
+					#define currPos(buf) (buf + customMin(1000,strlen(buf)))
+					#if defined(_MSC_VER)
+						#define printfVariant _snprintf
+					#else
+						#define printfVariant snprintf
+					#endif
 					{
-						sprintf(msg, "Q=[");
+						printfVariant(msg,1024, "Q=[");
 
 						for (int i = 0; i < numQ; i++)
 						{
 							if (i < numQ - 1)
 							{
-								sprintf(msg, "%s%f,", msg,
+								printfVariant(currPos(msg),1024, "%f,",
 									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 							else
 							{
-								sprintf(msg, "%s%f", msg,
+								printfVariant(currPos(msg),1024, "%f",
 									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 						}
-						sprintf(msg, "%s]", msg);
+						printfVariant(currPos(msg),1024, "]");
 					}
 					b3Printf(msg);
 
-					sprintf(msg, "U=[");
+					printfVariant(currPos(msg),1024, "U=[");
 
 					for (int i = 0; i < numU; i++)
 					{
 						if (i < numU - 1)
 						{
-							sprintf(msg, "%s%f,", msg,
+							printfVariant(currPos(msg),1024, "%f,",
 								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 						else
 						{
-							sprintf(msg, "%s%f", msg,
+							printfVariant(currPos(msg),1024, "%f",
 								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 					}
-					sprintf(msg, "%s]", msg);
-
+					printfVariant(currPos(msg),1024, "]");
+					#undef printfVariant
+					#undef customMin
+					#undef currPos
 					b3Printf(msg);
 					b3Printf("\n");
 				}
@@ -1314,11 +1323,11 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			case CMD_STATE_LOGGING_START_COMPLETED:
 			{
 				break;
-			};
+			}
 			case CMD_STATE_LOGGING_COMPLETED:
 			{
 				break;
-			};
+			}
 
 			case CMD_STATE_LOGGING_FAILED:
 			{
@@ -1560,7 +1569,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				b3Error("Unknown server status %d\n", serverCmd.m_type);
 				btAssert(0);
 			}
-		};
+		}
 
 		m_data->m_testBlock1->m_numProcessedServerCommands++;
 		// we don't have more than 1 command outstanding (in total, either server or client)
@@ -2227,4 +2236,3 @@ void PhysicsClientSharedMemory::popProfileTiming()
 		delete sample;
 	}
 }
-

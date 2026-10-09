@@ -99,7 +99,7 @@ def create_camera_image(pybullet_client,
     egl_render: Whether to use EGL to render the images.
 
   Returns:
-    A tuple containing the image resolution and the array for the sythesized RGB
+    A tuple containing the image resolution and the array for the synthesized RGB
     camera image.
   """
 

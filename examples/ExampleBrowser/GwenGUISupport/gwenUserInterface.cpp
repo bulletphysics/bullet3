@@ -5,7 +5,7 @@
 #include "Gwen/Controls/ColorPicker.h"
 //#include "Gwen/Controls/HSVColorPicker.h"
 
-class MyGraphWindow* graphWindow = 0;
+static class MyGraphWindow* graphWindow = 0;
 
 GwenUserInterface::GwenUserInterface()
 {
@@ -23,14 +23,14 @@ public:
 	MyMenuItems() : Gwen::Controls::Base(0), m_fileOpenCallback(0)
 	{
 	}
-	void myQuitApp(Gwen::Controls::Base* pControl)
+	void myQuitApp(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_quitCallback)
 		{
 			(*m_quitCallback)();
 		}
 	}
-	void fileOpen(Gwen::Controls::Base* pControl)
+	void fileOpen(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_fileOpenCallback)
 		{
@@ -167,7 +167,7 @@ void GwenUserInterface::setExampleDescription(const char* message)
 	int wrapLen = int(wrapmessage.length());
 	for (int endPos = 0; endPos <= wrapLen; endPos++)
 	{
-		std::string sub = wrapmessage.substr(startPos, (endPos - startPos));
+		std::string sub = wrapmessage.substr((size_t)startPos, (size_t)(endPos - startPos));
 		Gwen::Point pt = m_data->pRenderer->MeasureText(m_data->pCanvas->GetSkin()->GetDefaultFont(), sub);
 
 		if (pt.x <= fixedWidth)
@@ -233,7 +233,7 @@ void GwenUserInterface::registerQuitCallback(b3QuitCallback callback)
 	m_data->m_menuItems->m_quitCallback = callback;
 }
 
-void GwenUserInterface::init(int width, int height, Gwen::Renderer::Base* renderer, float retinaScale)
+void GwenUserInterface::init(int width, int height, Gwen::Renderer::Base* renderer, float /*retinaScale*/)
 {
 	m_data->m_curYposition = 20;
 	//m_data->m_primRenderer = new GLPrimitiveRenderer(width,height);
@@ -482,10 +482,10 @@ bool GwenUserInterface::mouseMoveCallback(float x, float y)
 		if (!isInitialized)
 		{
 			isInitialized = true;
-			m_lastmousepos[0] = x + 1;
-			m_lastmousepos[1] = y + 1;
+			m_lastmousepos[0] = (int)(x + 1);
+			m_lastmousepos[1] = (int)(y + 1);
 		}
-		handled = m_data->pCanvas->InputMouseMoved(x, y, m_lastmousepos[0], m_lastmousepos[1]);
+		handled = m_data->pCanvas->InputMouseMoved((int)x, (int)y, m_lastmousepos[0], m_lastmousepos[1]);
 	}
 	return handled;
 }
@@ -558,7 +558,7 @@ bool GwenUserInterface::keyboardCallback(int bulletKey, int state)
 			default:
 			{
 			}
-		};
+		}
 
 		if (gwenKey >= 0)
 		{
@@ -581,11 +581,11 @@ bool GwenUserInterface::mouseButtonCallback(int button, int state, float x, floa
 	bool handled = false;
 	if (m_data->pCanvas)
 	{
-		handled = m_data->pCanvas->InputMouseMoved(x, y, x, y);
+		handled = m_data->pCanvas->InputMouseMoved((int)x, (int)y, (int)x, (int)y);
 
 		if (button >= 0)
 		{
-			handled = m_data->pCanvas->InputMouseButton(button, (bool)state);
+			handled = m_data->pCanvas->InputMouseButton(button, state != 0);
 			if (handled)
 			{
 				//if (!state)

@@ -464,7 +464,8 @@ float nanf(const char *);
 #endif
 
 #if defined(CL_NAMED_STRUCT_SUPPORTED) && defined(_MSC_VER)
-#define __extension__ __pragma(warning(suppress : 4201))
+#pragma warning(disable: 4201)
+#define __extension__
 #endif
 
 	/* Define cl_vector types */
@@ -2696,7 +2697,7 @@ float nanf(const char *);
 	int clewInit(const char *);
 
 	//! \brief Exit clew and unload OpenCL dynamic library
-	void clewExit();
+	void clewExit(void);
 
 	//! \brief Convert an OpenCL error code to its string equivalent
 	const char *clewErrorString(cl_int error);

@@ -66,11 +66,11 @@ public:
 	// add all damping forces
 	virtual void addScaledDampingForce(btScalar scale, TVStack& force) = 0;
 
-	virtual void addScaledHessian(btScalar scale) {}
+	virtual void addScaledHessian(btScalar /*scale*/) {}
 
 	virtual btDeformableLagrangianForceType getForceType() = 0;
 
-	virtual void reinitialize(bool nodeUpdated)
+	virtual void reinitialize(bool /*nodeUpdated*/)
 	{
 	}
 
@@ -127,7 +127,7 @@ public:
 			btSoftBody* psb = m_softBodies[i];
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-				psb->m_nodes[j].m_q += btVector3(randomDouble(-.1, .1), randomDouble(-.1, .1), randomDouble(-.1, .1));
+				psb->m_nodes[j].m_q += btVector3((btScalar)randomDouble(-.1, .1), (btScalar)randomDouble(-.1, .1), (btScalar)randomDouble(-.1, .1));
 			}
 			psb->updateDeformation();
 		}
@@ -160,9 +160,9 @@ public:
 		// populate dx with random vectors
 		for (int i = 0; i < dx.size(); ++i)
 		{
-			dx[i].setX(randomDouble(-1, 1));
-			dx[i].setY(randomDouble(-1, 1));
-			dx[i].setZ(randomDouble(-1, 1));
+			dx[i].setX((btScalar)randomDouble(-1, 1));
+			dx[i].setY((btScalar)randomDouble(-1, 1));
+			dx[i].setZ((btScalar)randomDouble(-1, 1));
 		}
 
 		btAlignedObjectArray<double> errors;
@@ -237,7 +237,7 @@ public:
 			btSoftBody* psb = m_softBodies[i];
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-				psb->m_nodes[j].m_q += btVector3(randomDouble(-.1, .1), randomDouble(-.1, .1), randomDouble(-.1, .1));
+				psb->m_nodes[j].m_q += btVector3((btScalar)randomDouble(-.1, .1), (btScalar)randomDouble(-.1, .1), (btScalar)randomDouble(-.1, .1));
 			}
 			psb->updateDeformation();
 		}
@@ -269,9 +269,9 @@ public:
 		// populate dx with random vectors
 		for (int i = 0; i < dx.size(); ++i)
 		{
-			dx[i].setX(randomDouble(-1, 1));
-			dx[i].setY(randomDouble(-1, 1));
-			dx[i].setZ(randomDouble(-1, 1));
+			dx[i].setX((btScalar)randomDouble(-1, 1));
+			dx[i].setY((btScalar)randomDouble(-1, 1));
+			dx[i].setZ((btScalar)randomDouble(-1, 1));
 		}
 
 		btAlignedObjectArray<double> errors;
@@ -341,7 +341,7 @@ public:
 				btVector3 error_vector = f1[i] - f2[i] - 2 * df[i];
 				error += error_vector.length2();
 			}
-			error = btSqrt(error);
+			error = btSqrt((btScalar)error);
 			errors.push_back(error);
 			std::cout << "Iteration = " << it << ", error = " << error << std::endl;
 		}
@@ -352,13 +352,13 @@ public:
 	}
 
 	//
-	virtual double totalElasticEnergy(btScalar dt)
+	virtual double totalElasticEnergy(btScalar /*dt*/)
 	{
 		return 0;
 	}
 
 	//
-	virtual double totalDampingEnergy(btScalar dt)
+	virtual double totalDampingEnergy(btScalar /*dt*/)
 	{
 		return 0;
 	}

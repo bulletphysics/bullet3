@@ -449,7 +449,7 @@ void enet_peer_timeout(ENetPeer *peer, enet_uint32 timeoutLimit, enet_uint32 tim
     @param peer peer to disconnect
     @param data data describing the disconnection
     @remarks No ENET_EVENT_DISCONNECT event will be generated. The foreign peer is not
-    guarenteed to receive the disconnect notification, and is reset immediately upon
+    guaranteed to receive the disconnect notification, and is reset immediately upon
     return from this function.
 */
 void enet_peer_disconnect_now(ENetPeer *peer, enet_uint32 data)

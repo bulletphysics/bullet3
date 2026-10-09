@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "../../Importers/ImportObjDemo/LoadMeshFromObj.h"
 #include "../../Importers/ImportSTLDemo/LoadMeshFromSTL.h"
 #include "../../Importers/ImportColladaDemo/LoadMeshFromCollada.h"
-//#include "BulletCollision/CollisionShapes/btShapeHull.h"  //to create a tesselation of a generic btConvexShape
+//#include "BulletCollision/CollisionShapes/btShapeHull.h"  //to create a tessellation of a generic btConvexShape
 #include "../../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../../CommonInterfaces/CommonFileIOInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
@@ -248,7 +248,7 @@ bool PhysXURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
 	}
 
 	PhysXErrorLogger loggie;
-	//todo: quick test to see if we can re-use the URDF parser for SDF or not
+	//todo: quick test to see if we can reuse the URDF parser for SDF or not
 	m_data->m_urdfParser.setParseSDF(true);
 	bool result = false;
 	if (xml_string.length())
@@ -1071,7 +1071,7 @@ void PhysXURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visua
 		}
 	}
 
-	//if we have a convex, tesselate into localVertices/localIndices
+	//if we have a convex, tessellate into localVertices/localIndices
 	if ((glmesh == 0) && convexColShape)
 	{
 		BT_PROFILE("convexColShape");

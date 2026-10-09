@@ -40,13 +40,13 @@ struct btDispatcherInfo
 		  m_dispatchFunc(DISPATCH_DISCRETE),
 		  m_timeOfImpact(btScalar(1.)),
 		  m_useContinuous(true),
-		  m_debugDraw(0),
+		  m_debugDraw(NULL),
 		  m_enableSatConvex(false),
 		  m_enableSPU(true),
 		  m_useEpa(true),
 		  m_allowedCcdPenetration(btScalar(0.04)),
 		  m_useConvexConservativeDistanceUtil(false),
-		  m_convexConservativeDistanceThreshold(0.0f),
+		  m_convexConservativeDistanceThreshold(btScalar(0.0)),
 		  m_deterministicOverlappingPairs(false)
 	{
 	}

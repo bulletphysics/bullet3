@@ -30,7 +30,7 @@ def _convert_to_np_array(inputs: Union[float, Tuple[float], np.ndarray], dim):
 
   Raises:
     ValueError: If the inputs is an array whose dimension does not match the
-    provied dimension.
+    provided dimension.
   """
   outputs = None
   if isinstance(inputs, (tuple, np.ndarray)):
@@ -80,7 +80,7 @@ class HybridMotorModel(object):
         control mode, the PD formula is used to track a desired position and a
         zero desired velocity. In TORQUE control mode, we assume a pass through
         of the provided torques. In HYBRID control mode, the users need to
-        provie (desired_position, position_gain, desired_velocity,
+        provide (desired_position, position_gain, desired_velocity,
         velocity_gain, feedfoward_torque) for each motor.
       kp: The default position gains for motors.
       kd: The default velocity gains for motors.

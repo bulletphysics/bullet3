@@ -64,7 +64,7 @@ struct GL3TexLoader : public MyTextureLoader
 			pTexture->m_intData = *texIdPtr;
 		}
 	}
-	virtual void FreeTexture(Gwen::Texture* pTexture)
+	virtual void FreeTexture(Gwen::Texture* /*pTexture*/)
 	{
 	}
 };
@@ -105,8 +105,8 @@ static MyProfileWindow* s_profWindow = 0;
 static SharedMemoryInterface* sSharedMem = 0;
 
 #define DEMO_SELECTION_COMBOBOX 13
-const char* startFileName = "0_Bullet3Demo.txt";
-char staticPngFileName[1024];
+static const char* startFileName = "0_Bullet3Demo.txt";
+static char staticPngFileName[1024];
 //static GwenUserInterface* gui  = 0;
 static GwenUserInterface* gui2 = 0;
 static int sCurrentDemoIndex = -1;
@@ -114,47 +114,47 @@ static int sCurrentHightlighted = 0;
 static CommonExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 static float gFixedTimeStep = 0;
-bool gAllowRetina = true;
-bool gDisableDemoSelection = false;
-int gRenderDevice = -1;
-int gWindowBackend = 0;
+static bool gAllowRetina = true;
+static bool gDisableDemoSelection = false;
+static int gRenderDevice = -1;
+static int gWindowBackend = 0;
 static class ExampleEntries* gAllExamples = 0;
-bool sUseOpenGL2 = false;
+static bool sUseOpenGL2 = false;
 #ifndef USE_OPENGL3
 extern bool useShadowMap;
 #endif
 
-bool visualWireframe = false;
+static bool visualWireframe = false;
 static bool renderVisualGeometry = true;
 static bool renderGrid = true;
 static bool gEnableRenderLoop = true;
 
-bool renderGui = true;
+static bool renderGui = true;
 static bool enable_experimental_opencl = false;
 
 static bool gEnableDefaultKeyboardShortcuts = true;
 static bool gEnableDefaultMousePicking = true;
 
-int gDebugDrawFlags = 0;
+static int gDebugDrawFlags = 0;
 static bool pauseSimulation = false;
 static bool singleStepSimulation = false;
-int midiBaseIndex = 176;
+static int midiBaseIndex = 176;
 extern bool gDisableDeactivation;
 
 int gSharedMemoryKey = -1;
 
 ///some quick test variable for the OpenCL examples
 
-int gPreferredOpenCLDeviceIndex = -1;
-int gPreferredOpenCLPlatformIndex = -1;
-int gGpuArraySizeX = 45;
-int gGpuArraySizeY = 55;
-int gGpuArraySizeZ = 45;
+static int gPreferredOpenCLDeviceIndex = -1;
+static int gPreferredOpenCLPlatformIndex = -1;
+static int gGpuArraySizeX = 45;
+static int gGpuArraySizeY = 55;
+static int gGpuArraySizeZ = 45;
 
 //#include <float.h>
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
 
-void deleteDemo()
+static void deleteDemo()
 {
 	if (sCurrentDemo)
 	{
@@ -169,12 +169,12 @@ void deleteDemo()
 	}
 }
 
-const char* gPngFileName = 0;
-int gPngSkipFrames = 0;
+static const char* gPngFileName = 0;
+static int gPngSkipFrames = 0;
 
-b3KeyboardCallback prevKeyboardCallback = 0;
+static b3KeyboardCallback prevKeyboardCallback = 0;
 
-void MyKeyboardCallback(int key, int state)
+static void MyKeyboardCallback(int key, int state)
 {
 	//b3Printf("key=%d, state=%d", key, state);
 	bool handled = false;
@@ -189,6 +189,7 @@ void MyKeyboardCallback(int key, int state)
 	if (!handled && sCurrentDemo)
 	{
 		handled = sCurrentDemo->keyboardCallback(key, state);
+		(void)handled;
 	}
 
 	//checkout: is it desired to ignore keys, if the demo already handles them?
@@ -305,7 +306,7 @@ void MyKeyboardCallback(int key, int state)
 		prevKeyboardCallback(key, state);
 }
 
-b3MouseMoveCallback prevMouseMoveCallback = 0;
+static b3MouseMoveCallback prevMouseMoveCallback = 0;
 static void MyMouseMoveCallback(float x, float y)
 {
 	bool handled = false;
@@ -323,7 +324,7 @@ static void MyMouseMoveCallback(float x, float y)
 	}
 }
 
-b3MouseButtonCallback prevMouseButtonCallback = 0;
+static b3MouseButtonCallback prevMouseButtonCallback = 0;
 
 static void MyMouseButtonCallback(int button, int state, float x, float y)
 {
@@ -363,7 +364,7 @@ void OpenGLExampleBrowser::registerFileImporter(const char* extension, CommonExa
 }
 #include "../SharedMemory/SharedMemoryPublic.h"
 
-void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
+static void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 {
 	if (flag == COV_ENABLE_Y_AXIS_UP)
 	{
@@ -424,7 +425,7 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 	}
 }
 
-void openFileDemo(const char* filename)
+static void openFileDemo(const char* filename)
 {
 	deleteDemo();
 
@@ -454,7 +455,7 @@ void openFileDemo(const char* filename)
 	}
 }
 
-void selectDemo(int demoIndex)
+static void selectDemo(int demoIndex)
 {
 	bool resetCamera = (sCurrentDemoIndex != demoIndex);
 	sCurrentDemoIndex = demoIndex;
@@ -504,9 +505,9 @@ void selectDemo(int demoIndex)
 
 #include <stdio.h>
 
-static void saveCurrentSettings(int currentEntry, const char* startFileName)
+static void saveCurrentSettings(int /*currentEntry*/, const char* startFileNameL)
 {
-	FILE* f = fopen(startFileName, "w");
+	FILE* f = fopen(startFileNameL, "w");
 	if (f)
 	{
 		fprintf(f, "--start_demo_name=%s\n", gAllExamples->getExampleName(sCurrentDemoIndex));
@@ -534,12 +535,12 @@ static void saveCurrentSettings(int currentEntry, const char* startFileName)
 
 		fclose(f);
 	}
-};
+}
 
-static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& args)
+static void loadCurrentSettings(const char* startFileNameL, b3CommandLineArgs& args)
 {
 	//int currentEntry= 0;
-	FILE* f = fopen(startFileName, "r");
+	FILE* f = fopen(startFileNameL, "r");
 	if (f)
 	{
 		char oneline[1024];
@@ -554,9 +555,9 @@ static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& ar
 		}
 		fclose(f);
 	}
-};
+}
 
-void MyComboBoxCallback(int comboId, const char* item)
+static void MyComboBoxCallback(int comboId, const char* item)
 {
 	//printf("comboId = %d, item = %s\n",comboId, item);
 	if (comboId == DEMO_SELECTION_COMBOBOX)
@@ -577,7 +578,7 @@ void MyComboBoxCallback(int comboId, const char* item)
 //in case of multi-threading, don't submit messages while the GUI is rendering (causing crashes)
 static bool gBlockGuiMessages = false;
 
-void MyGuiPrintf(const char* msg)
+static void MyGuiPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n", msg);
 	if (!gDisableDemoSelection && !gBlockGuiMessages)
@@ -587,7 +588,7 @@ void MyGuiPrintf(const char* msg)
 	}
 }
 
-void MyStatusBarPrintf(const char* msg)
+static void MyStatusBarPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n", msg);
 	if (!gDisableDemoSelection && !gBlockGuiMessages)
@@ -597,7 +598,7 @@ void MyStatusBarPrintf(const char* msg)
 	}
 }
 
-void MyStatusBarError(const char* msg)
+static void MyStatusBarError(const char* msg)
 {
 	printf("Warning: %s\n", msg);
 	if (!gDisableDemoSelection && !gBlockGuiMessages)
@@ -648,7 +649,7 @@ struct MyMenuItemHander : public Gwen::Event::Handler
 			saveCurrentSettings(sCurrentDemoIndex, startFileName);
 		}
 	}
-	void onButtonC(Gwen::Controls::Base* pControl)
+	void onButtonC(Gwen::Controls::Base* /*pControl*/)
 	{
 		/*Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
 		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
@@ -659,7 +660,7 @@ struct MyMenuItemHander : public Gwen::Event::Handler
 		printf("onButtonC ! %s\n", ha);
 		*/
 	}
-	void onButtonD(Gwen::Controls::Base* pControl)
+	void onButtonD(Gwen::Controls::Base* /*pControl*/)
 	{
 		/*		Gwen::Controls::Label* label = (Gwen::Controls::Label*) pControl;
 		Gwen::UnicodeString la = label->GetText();// node->GetButton()->GetName();// GetText();
@@ -675,30 +676,30 @@ struct MyMenuItemHander : public Gwen::Event::Handler
 		}
 	}
 
-	void onButtonE(Gwen::Controls::Base* pControl)
+	void onButtonE(Gwen::Controls::Base* /*pControl*/)
 	{
 		//	printf("select %d\n",m_buttonId);
 		sCurrentHightlighted = m_buttonId;
 		gui2->setExampleDescription(gAllExamples->getExampleDescription(sCurrentHightlighted));
 	}
 
-	void onButtonF(Gwen::Controls::Base* pControl)
+	void onButtonF(Gwen::Controls::Base* /*pControl*/)
 	{
 		//printf("selection changed!\n");
 	}
 
-	void onButtonG(Gwen::Controls::Base* pControl)
+	void onButtonG(Gwen::Controls::Base* /*pControl*/)
 	{
 		//printf("onButtonG !\n");
 	}
 };
 
-void quitCallback()
+static void quitCallback()
 {
 	s_window->setRequestExit();
 }
 
-void fileOpenCallback()
+static void fileOpenCallback()
 {
 	char filename[1024];
 	int len = s_window->fileOpenDialog(filename, 1024);
@@ -762,7 +763,7 @@ struct QuickCanvas : public Common2dCanvasInterface
 	}
 	virtual void destroyCanvas(int canvasId)
 	{
-		btAssert(canvasId >= 0);
+		btAssert(canvasId >= 0 && canvasId < 5);
 		delete m_gt[canvasId];
 		m_gt[canvasId] = 0;
 		destroyTextureWindow(m_gw[canvasId]);
@@ -1004,7 +1005,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 		else
 		{
 			sth_stash* fontstash = simpleApp->getFontStash();
-			m_internalData->m_gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer, fontstash, width, height, s_window->getRetinaScale(), myTexLoader);
+			m_internalData->m_gwenRenderer = new GwenOpenGL3CoreRenderer(simpleApp->m_primRenderer, fontstash, (float)width, (float)height, s_window->getRetinaScale(), myTexLoader);
 		}
 #endif
 
@@ -1314,7 +1315,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			B3_PROFILE("updateOpenGL");
 			if (sUseOpenGL2)
 			{
-				saveOpenGLState(s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale(), s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale());
+				saveOpenGLState(int((float)s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale()), int((float)s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale()));
 			}
 
 			if (m_internalData->m_gui)

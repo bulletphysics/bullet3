@@ -71,7 +71,7 @@ public:
 		DBG_MAX_DEBUG_DRAW_MODE
 	};
 
-	virtual ~btIDebugDraw(){};
+	virtual ~btIDebugDraw(){}
 
 	virtual DefaultColors getDefaultColors() const
 	{
@@ -98,7 +98,7 @@ public:
 		btScalar maxTh = SIMD_HALF_PI;
 		btScalar minPs = -SIMD_HALF_PI;
 		btScalar maxPs = SIMD_HALF_PI;
-		btScalar stepDegrees = 30.f;
+		btScalar stepDegrees = btScalar(30.f);
 		drawSpherePatch(center, up, axis, radius, minTh, maxTh, minPs, maxPs, color, stepDegrees, false);
 		drawSpherePatch(center, up, -axis, radius, minTh, maxTh, minPs, maxPs, color, stepDegrees, false);
 	}
@@ -134,11 +134,11 @@ public:
 
 	virtual void drawAabb(const btVector3& from, const btVector3& to, const btVector3& color)
 	{
-		btVector3 halfExtents = (to - from) * 0.5f;
-		btVector3 center = (to + from) * 0.5f;
+		btVector3 halfExtents = (to - from) * btScalar(0.5f);
+		btVector3 center = (to + from) * btScalar(0.5f);
 		int i, j;
 
-		btVector3 edgecoord(1.f, 1.f, 1.f), pa, pb;
+		btVector3 edgecoord(btScalar(1.f), btScalar(1.f), btScalar(1.f)), pa, pb;
 		for (i = 0; i < 4; i++)
 		{
 			for (j = 0; j < 3; j++)
@@ -148,16 +148,16 @@ public:
 				pa += center;
 
 				int othercoord = j % 3;
-				edgecoord[othercoord] *= -1.f;
+				edgecoord[othercoord] *= btScalar(-1.f);
 				pb = btVector3(edgecoord[0] * halfExtents[0], edgecoord[1] * halfExtents[1],
 							   edgecoord[2] * halfExtents[2]);
 				pb += center;
 
 				drawLine(pa, pb, color);
 			}
-			edgecoord = btVector3(-1.f, -1.f, -1.f);
+			edgecoord = btVector3(btScalar(-1.f), btScalar(-1.f), btScalar(-1.f));
 			if (i < 3)
-				edgecoord[i] *= -1.f;
+				edgecoord[i] *= btScalar(-1.f);
 		}
 	}
 	virtual void drawTransform(const btTransform& transform, btScalar orthoLen)
@@ -336,10 +336,10 @@ public:
 	{
 		int stepDegrees = 30;
 
-		btVector3 capStart(0.f, 0.f, 0.f);
+		btVector3 capStart(btScalar(0.f), btScalar(0.f), btScalar(0.f));
 		capStart[upAxis] = -halfHeight;
 
-		btVector3 capEnd(0.f, 0.f, 0.f);
+		btVector3 capEnd(btScalar(0.f), btScalar(0.f), btScalar(0.f));
 		capEnd[upAxis] = halfHeight;
 
 		// Draw the ends
@@ -391,9 +391,9 @@ public:
 		btVector3 offsetHeight(0, 0, 0);
 		offsetHeight[upAxis] = halfHeight;
 		int stepDegrees = 30;
-		btVector3 capStart(0.f, 0.f, 0.f);
+		btVector3 capStart(btScalar(0.f), btScalar(0.f), btScalar(0.f));
 		capStart[upAxis] = -halfHeight;
-		btVector3 capEnd(0.f, 0.f, 0.f);
+		btVector3 capEnd(btScalar(0.f), btScalar(0.f), btScalar(0.f));
 		capEnd[upAxis] = halfHeight;
 
 		for (int i = 0; i < 360; i += stepDegrees)
@@ -424,7 +424,7 @@ public:
 		btVector3 offset2Radius(0, 0, 0);
 		offset2Radius[(upAxis + 2) % 3] = radius;
 
-		btVector3 capEnd(0.f, 0.f, 0.f);
+		btVector3 capEnd(btScalar(0.f), btScalar(0.f), btScalar(0.f));
 		capEnd[upAxis] = -halfHeight;
 
 		for (int i = 0; i < 360; i += stepDegrees)
@@ -452,7 +452,7 @@ public:
 		btVector3 planeOrigin = planeNormal * planeConst;
 		btVector3 vec0, vec1;
 		btPlaneSpace1(planeNormal, vec0, vec1);
-		btScalar vecLen = 100.f;
+		btScalar vecLen = btScalar(100.f);
 		btVector3 pt0 = planeOrigin + vec0 * vecLen;
 		btVector3 pt1 = planeOrigin - vec0 * vecLen;
 		btVector3 pt2 = planeOrigin + vec1 * vecLen;

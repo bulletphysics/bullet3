@@ -177,7 +177,7 @@ class DepthUVToFootPlacementWrapper(object):
       alpha = np.clip(alpha * 1.1, 0, 1)
       toe_positions_over_time = copy.deepcopy(
           toe_positions) - alpha * support_polygon_center
-      # Use initial toe height to maintain the overal base height.
+      # Use initial toe height to maintain the overall base height.
       for j in range(len(toe_positions_over_time)):
         toe_positions_over_time[j][2] = self._initial_local_toe_positions[j][2]
       joint_pose = np.array(

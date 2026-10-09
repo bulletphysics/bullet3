@@ -239,7 +239,7 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         self.desiredPose = {}
         for i in range(self._n_clips):
             self.desiredPose[i] = self._humanoid.convertActionToPose(action, i)
-            # we need the target root positon and orientation to be zero, to be compatible with deep mimic
+            # we need the target root position and orientation to be zero, to be compatible with deep mimic
             self.desiredPose[i][0] = 0
             self.desiredPose[i][1] = 0
             self.desiredPose[i][2] = 0

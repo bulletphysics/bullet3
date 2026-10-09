@@ -60,7 +60,7 @@ typedef b3AlignedObjectArray<b3IndexedMesh> IndexedMeshArray;
 
 ///The b3TriangleIndexVertexArray allows to access multiple triangle meshes, by indexing into existing triangle/index arrays.
 ///Additional meshes can be added using addIndexedMesh
-///No duplcate is made of the vertex/index data, it only indexes into external vertex/index arrays.
+///No duplicate is made of the vertex/index data, it only indexes into external vertex/index arrays.
 ///So keep those arrays around during the lifetime of this b3TriangleIndexVertexArray.
 B3_ATTRIBUTE_ALIGNED16(class)
 b3TriangleIndexVertexArray : public b3StridingMeshInterface

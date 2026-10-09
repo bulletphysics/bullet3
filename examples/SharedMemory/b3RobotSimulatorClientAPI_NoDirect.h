@@ -207,7 +207,7 @@ enum b3RobotSimulatorInverseKinematicsFlags
 	B3_HAS_IK_TARGET_ORIENTATION = 1,
 	B3_HAS_NULL_SPACE_VELOCITY = 2,
 	B3_HAS_JOINT_DAMPING = 4,
-	B3_HAS_CURRENT_POSITIONS = 8,
+	B3_HAS_CURRENT_POSITIONS = 8
 };
 
 struct b3RobotSimulatorInverseKinematicArgs

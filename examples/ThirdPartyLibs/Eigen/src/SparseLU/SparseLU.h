@@ -495,7 +495,7 @@ class SparseLU : public SparseSolverBase<SparseLU<_MatrixType,_OrderingType> >, 
 
 
 
-// Functions needed by the anaysis phase
+// Functions needed by the analysis phase
 /** 
   * Compute the column permutation to minimize the fill-in
   * 

@@ -438,7 +438,7 @@ class Minitaur(object):
   def GetBaseRollPitchYaw(self):
     """Get minitaur's base orientation in euler angle in the world frame.
 
-    This function mimicks the noisy sensor reading and adds latency.
+    This function mimics the noisy sensor reading and adds latency.
     Returns:
       A tuple (roll, pitch, yaw) of the base in world frame polluted by noise
       and latency.
@@ -466,7 +466,7 @@ class Minitaur(object):
   def GetMotorAngles(self):
     """Gets the eight motor angles.
 
-    This function mimicks the noisy sensor reading and adds latency. The motor
+    This function mimics the noisy sensor reading and adds latency. The motor
     angles that are delayed, noise polluted, and mapped to [-pi, pi].
 
     Returns:
@@ -492,7 +492,7 @@ class Minitaur(object):
   def GetMotorVelocities(self):
     """Get the velocity of all eight motors.
 
-    This function mimicks the noisy sensor reading and adds latency.
+    This function mimics the noisy sensor reading and adds latency.
     Returns:
       Velocities of all eight motors polluted by noise and latency.
     """
@@ -519,7 +519,7 @@ class Minitaur(object):
   def GetMotorTorques(self):
     """Get the amount of torque the motors are exerting.
 
-    This function mimicks the noisy sensor reading and adds latency.
+    This function mimics the noisy sensor reading and adds latency.
     Returns:
       Motor torques of all eight motors polluted by noise and latency.
     """
@@ -539,7 +539,7 @@ class Minitaur(object):
   def GetBaseOrientation(self):
     """Get the orientation of minitaur's base, represented as quaternion.
 
-    This function mimicks the noisy sensor reading and adds latency.
+    This function mimics the noisy sensor reading and adds latency.
     Returns:
       The orientation of minitaur's base polluted by noise and latency.
     """
@@ -557,7 +557,7 @@ class Minitaur(object):
   def GetBaseRollPitchYawRate(self):
     """Get the rate of orientation change of the minitaur's base in euler angle.
 
-    This function mimicks the noisy sensor reading and adds latency.
+    This function mimics the noisy sensor reading and adds latency.
     Returns:
       rate of (roll, pitch, yaw) change of the minitaur's base polluted by noise
       and latency.

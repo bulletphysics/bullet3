@@ -4,6 +4,10 @@ cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 SET(MSVC_INCREMENTAL_DEFAULT ON)
 
+if(TOOLCHAIN_ROOT)
+	include(MinGW64.cmake)
+endif()
+
 PROJECT(BULLET_PHYSICS)
 FILE (STRINGS "VERSION" BULLET_VERSION)
 
@@ -182,7 +186,7 @@ IF(MSVC)
 		SET(CMAKE_CXX_FLAGS "/GR- ${CMAKE_CXX_FLAGS}")
 	ENDIF(USE_MSVC_DISABLE_RTTI)
 
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4267")
+	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4267")
 ENDIF(MSVC)
 
 
@@ -269,11 +273,160 @@ IF (BULLET2_USE_OPEN_MP_MULTITHREADING)
     ENDIF (MSVC)
 ENDIF (BULLET2_USE_OPEN_MP_MULTITHREADING)
 
+set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+IF(MSVC)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4005") # macro redefined
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4061") # enumerator 'value' in switch of enum 'type' is not handled explicitly
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4191") # unsafe conversion of function pointers
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4263 /wd4264 /wd4266") # virtual function override with same name and different arguments
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4316") # 'object': object allocated on the heap may not be aligned n
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4464") # relative include paths
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4505") # unreferenced function with internal linkage has been removed
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4512 /wd4514 /wd4623 /wd4625 /wd4626 /wd5026 /wd5027") # implicitly deleted constructor, destructor, assignment operators
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4548") # expression before comma has no effect; expected expression with side-effect
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4668") # 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4710 /wd4711 /wd4714") # not inlined
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4820") # 'bytes' bytes padding added after construct 'member_name'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4826") # Conversion from 'type1' to 'type2' is sign-extended. The may cause unexprected runtime behavior
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996") # tr1 namespace deprecated
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5039") # function': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5045") # Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5267") # definition of implicit copy constructor for 'class' is deprecated because it has a user-provided assignment operator
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6101") # Returning uninitialized memory 'var' - Windows SDK headers ws2tcpip
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6262") # Function uses 'amount' bytes of stack. Consider moving some data to heap
+	# Enet:
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5287") # operands are different enum types
+	SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /wd5287") # operands are different enum types
+	SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   /wd4146") # unary minus operator applied to unsigned type, result still unsigned
+	# Eigen:
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5266") # 'const' qualifier on return type has no effect
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6255") # '_alloca' indicates failure by raising a stack overflow exception. Consider using _malloca
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6294") # Ill-defined for-loop. Loop body not executed
+	# STB:
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6246") # Local declaration of 'var' hides declaration of the same name in outer scope.
+	# Analyzer - most are checked with asserts in debug builds
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6001") # Using uninitialized memory 'var'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6385") # Reading invalid data from 'var'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6386") # Buffer overrun while writing to 'var'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6387") # 'var' could be '0'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6239") # (<non-zero constant> && <expression>) always evaluates to the result of <expression>
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6031") # Return value ignored: 'func'
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6011") # Dereferencing NULL pointer 'var'.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd28182") # Dereferencing NULL pointer 'var'.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd28301") # No annotations for first declaration of 'func' - Windows SDK headers winnt
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.10) # from MSVC 2017
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus,preprocessor /permissive-")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14") # earliest c++ standard explicitly supported
+	endif()
+	# static analyzer: 
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /analyze:stacksize 65736") # static analyzer
+	# gtest:
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6326") # Potential comparison of a constant with another constant
+	add_compile_options(/analyze)
+ELSE()
+	IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
+	ELSE()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+	ENDIF()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-to-pointer-cast") # hellovr, stb_image
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-long-long") # C++98 has no long long
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-variadic-macros") # C++98 variadic macros
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-field-initializers") # gtest, stb_image
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual") # exampleBrowser OpenGLGuiHelper and btDeformable*
+	IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized") # gtest
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes") # b3Int64 cl_long
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy") # GIMPACT
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing") # GIMPACT, btSoftBody, OpenCL
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow") # btAlignedObjectArray - placement new & findResourcePath
+		# add_compile_options(-fanalyzer) # lots of null dereference - be very cautious!
+	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++98-compat-pedantic") # long long is incompatible with C++98
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++98-compat") # override keyword is incompatible with C++98
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-zero-as-null-pointer-constant") # 0, NULL or nullptr
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-user-provided-copy") # GIMPACT
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-user-provided-dtor")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy-with-dtor")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-pointer-subtraction") # btSoftBody
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c99-extensions") # btAssign128
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-statement-expression-from-macro-expansion") # ARM build
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-over-aligned") # GLInstancingRenderer - 32bit build
+
+		# -Weverything - with Clang 21
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-global-constructors")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-exit-time-destructors")
+				
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-old-style-cast")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unsafe-buffer-usage") # false positives
+		
+		SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wno-unused-local-typedef") # for extra semi uselessTypeDefTrailingSemicolon
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedef") # for extra semi uselessTypeDefTrailingSemicolon
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-unknown-command")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-documentation-deprecated-sync")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reserved-macro-identifier")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reserved-identifier")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-cast-qual")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-cast-align")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-float-equal")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-shift-sign-overflow") # gtest
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-double-promotion")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-conversion")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-string-conversion") # btAssert
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-suggest-override")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-suggest-destructor-override")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-disabled-macro-expansion") # in system headers and stbi_image
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch-default")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-covered-switch-default")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch-enum")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
+		
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-packed") # Enet
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-padded")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-alloca")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-weak-vtables")
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-variable-declarations")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-macros")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-template")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-member-function")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-used-but-marked-unused")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undefined-func-template")
+		# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze -Wno-unused-command-line-argument") # static analyzer
+	ENDIF()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-parameter")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-but-set-variable")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-label")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-local-typedefs")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-parameter")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-value")
+
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
+	IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+		SET(CMAKE_OBJC_FLAGS "${CMAKE_OBJC_FLAGS} -Wno-deprecated-declarations")
+		ADD_DEFINITIONS(-DGL_SILENCE_DEPRECATION)
+	ENDIF()
+ENDIF()
+
 IF (BULLET2_USE_TBB_MULTITHREADING)
     SET (BULLET2_TBB_INCLUDE_DIR "not found" CACHE PATH "Directory for Intel TBB includes.")
     SET (BULLET2_TBB_LIB_DIR "not found" CACHE PATH "Directory for Intel TBB libraries.")
-    find_library(TBB_LIBRARY tbb PATHS ${BULLET2_TBB_LIB_DIR})
-    find_library(TBBMALLOC_LIBRARY tbbmalloc PATHS ${BULLET2_TBB_LIB_DIR})
+    find_library(TBB_LIBRARY tbb REQUIRED PATHS ${BULLET2_TBB_LIB_DIR})
+    find_library(TBBMALLOC_LIBRARY tbbmalloc REQUIRED PATHS ${BULLET2_TBB_LIB_DIR})
     ADD_DEFINITIONS("-DBT_USE_TBB=1")
     INCLUDE_DIRECTORIES( ${BULLET2_TBB_INCLUDE_DIR} )
     LINK_LIBRARIES( ${TBB_LIBRARY} ${TBBMALLOC_LIBRARY} )
@@ -324,7 +477,7 @@ ENDIF (OPENGL_FOUND)
 
 
 IF (APPLE)
-  FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+  FIND_LIBRARY(COCOA_LIBRARY Cocoa REQUIRED)
 ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)

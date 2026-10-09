@@ -130,7 +130,7 @@ FilePath FilePath::RemoveExtension(const char* extension) const
 	return *this;
 }
 
-// Returns a pointer to the last occurence of a valid path separator in
+// Returns a pointer to the last occurrence of a valid path separator in
 // the FilePath. On Windows, for example, both '/' and '\' are valid path
 // separators. Returns NULL if no path separator was found.
 const char* FilePath::FindLastPathSeparator() const
@@ -172,7 +172,7 @@ FilePath FilePath::RemoveFileName() const
 	std::string dir;
 	if (last_sep)
 	{
-		dir = std::string(c_str(), last_sep + 1 - c_str());
+		dir = std::string(c_str(), (size_t)(last_sep + 1 - c_str()));
 	}
 	else
 	{

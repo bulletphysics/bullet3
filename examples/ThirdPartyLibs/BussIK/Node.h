@@ -72,7 +72,7 @@ public:
 
 	double GetMinTheta() const { return minTheta; }
 	double GetMaxTheta() const { return maxTheta; }
-	double GetRestAngle() const { return restAngle; };
+	double GetRestAngle() const { return restAngle; }
 	void SetTheta(double newTheta) { theta = newTheta; }
 	void ComputeS(void);
 	void ComputeW(void);

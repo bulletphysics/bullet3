@@ -29,24 +29,24 @@ public:
 	// normal of the contact
 	btVector3 m_normal;
 
-	btDeformableContactConstraint(const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(false), m_normal(normal), m_infoGlobal(&infoGlobal)
+	btDeformableContactConstraint(const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(false), m_infoGlobal(&infoGlobal), m_normal(normal)
 	{
 	}
 
-	btDeformableContactConstraint(bool isStatic, const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(isStatic), m_normal(normal), m_infoGlobal(&infoGlobal)
+	btDeformableContactConstraint(bool isStatic, const btVector3& normal, const btContactSolverInfo& infoGlobal) : m_static(isStatic), m_infoGlobal(&infoGlobal), m_normal(normal)
 	{
 	}
 
 	btDeformableContactConstraint() : m_static(false) {}
 
 	btDeformableContactConstraint(const btDeformableContactConstraint& other)
-		: m_static(other.m_static), m_normal(other.m_normal), m_infoGlobal(other.m_infoGlobal)
+		: m_static(other.m_static), m_infoGlobal(other.m_infoGlobal), m_normal(other.m_normal)
 	{
 	}
 
 	virtual ~btDeformableContactConstraint() {}
 
-	// solve the constraint with inelastic impulse and return the error, which is the square of normal component of velocity diffrerence
+	// solve the constraint with inelastic impulse and return the error, which is the square of normal component of velocity difference
 	// the constraint is solved by calculating the impulse between object A and B in the contact and apply the impulse to both objects involved in the contact
 	virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal) = 0;
 
@@ -73,18 +73,18 @@ class btDeformableStaticConstraint : public btDeformableContactConstraint
 public:
 	btSoftBody::Node* m_node;
 
-	btDeformableStaticConstraint(btSoftBody::Node* node, const btContactSolverInfo& infoGlobal) : m_node(node), btDeformableContactConstraint(false, btVector3(0, 0, 0), infoGlobal)
+	btDeformableStaticConstraint(btSoftBody::Node* node, const btContactSolverInfo& infoGlobal) : btDeformableContactConstraint(false, btVector3(0, 0, 0), infoGlobal), m_node(node)
 	{
 	}
 	btDeformableStaticConstraint() {}
 	btDeformableStaticConstraint(const btDeformableStaticConstraint& other)
-		: m_node(other.m_node), btDeformableContactConstraint(other)
+		: btDeformableContactConstraint(other), m_node(other.m_node)
 	{
 	}
 
 	virtual ~btDeformableStaticConstraint() {}
 
-	virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal)
+	virtual btScalar solveConstraint(const btContactSolverInfo& /*infoGlobal*/)
 	{
 		return 0;
 	}
@@ -99,13 +99,13 @@ public:
 		return btVector3(0, 0, 0);
 	}
 
-	virtual btVector3 getDv(const btSoftBody::Node* n) const
+	virtual btVector3 getDv(const btSoftBody::Node* /*n*/) const
 	{
 		return btVector3(0, 0, 0);
 	}
 
-	virtual void applyImpulse(const btVector3& impulse) {}
-	virtual void setPenetrationScale(btScalar scale) {}
+	virtual void applyImpulse(const btVector3& /*impulse*/) {}
+	virtual void setPenetrationScale(btScalar /*scale*/) {}
 };
 
 //
@@ -127,13 +127,13 @@ public:
 	virtual btVector3 getVa() const;
 	// get the velocity of the deformable node in contact
 	virtual btVector3 getVb() const;
-	virtual btVector3 getDv(const btSoftBody::Node* n) const
+	virtual btVector3 getDv(const btSoftBody::Node* /*n*/) const
 	{
 		return btVector3(0, 0, 0);
 	}
 	virtual void applyImpulse(const btVector3& impulse);
 
-	virtual void setPenetrationScale(btScalar scale) {}
+	virtual void setPenetrationScale(btScalar /*scale*/) {}
 };
 
 //
@@ -279,6 +279,6 @@ public:
 
 	virtual void applyImpulse(const btVector3& impulse);
 
-	virtual void setPenetrationScale(btScalar scale) {}
+	virtual void setPenetrationScale(btScalar /*scale*/) {}
 };
 #endif /* BT_DEFORMABLE_CONTACT_CONSTRAINT_H */

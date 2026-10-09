@@ -34,7 +34,7 @@ struct CompoundBoxesExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -58,13 +58,13 @@ void CompoundBoxesExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 		btBoxShape* cube = createBoxShape(btVector3(0.5, 0.5, 0.5));
 		m_collisionShapes.push_back(cube);
 
@@ -91,12 +91,12 @@ void CompoundBoxesExample::initPhysics()
 		btVector3 inertia;
 		compoundShape->calculatePrincipalAxisTransform(masses, principal, inertia);
 
-		// new compund shape to store
+		// new compound shape to store
 		btCompoundShape* compound2 = new btCompoundShape();
 		m_collisionShapes.push_back(compound2);
 #if 0
-		// less efficient way to add the entire compund shape 
-		// to a new compund shape as a child
+		// less efficient way to add the entire compound shape 
+		// to a new compound shape as a child
 		compound2->addChildShape(principal.inverse(), compoundShape);
 #else
 		// recompute the shift to make sure the compound shape is re-aligned

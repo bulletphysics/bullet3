@@ -58,7 +58,7 @@ b3Float4 b3Cross3(b3Float4ConstArg v0, b3Float4ConstArg v1)
 
 inline bool b3IsAlmostZero(b3Float4ConstArg v)
 {
-	if (b3Fabs(v.x) > 1e-6 || b3Fabs(v.y) > 1e-6 || b3Fabs(v.z) > 1e-6)
+	if (b3Fabs(v.x) > b3Scalar(1e-6) || b3Fabs(v.y) > b3Scalar(1e-6) || b3Fabs(v.z) > b3Scalar(1e-6))
 		return false;
 	return true;
 }

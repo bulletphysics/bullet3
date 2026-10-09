@@ -24,7 +24,7 @@ Required:
   * [catkin_pkg](http://pypi.python.org/pypi/catkin_pkg/) - Runtime Python library for catkin
 
 Optional (for tests): 
-* [Boost](http://www.boost.org/) - Boost C++ librairies
+* [Boost](http://www.boost.org/) - Boost C++ libraries
 
 Optional (for documentation):
 * [Doxygen](http://www.doxygen.org/) - Documentation generation tool

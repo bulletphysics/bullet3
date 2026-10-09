@@ -70,7 +70,7 @@ public:
     void exitPhysics();
 
     // disable pick force. non-interactive example.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 
@@ -88,7 +88,7 @@ public:
       btReducedDeformableBody* rsb = static_cast<btReducedDeformableBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
 
       sim_time += deltaTime;
-      int n_mode = floor(visualize_mode);
+      int n_mode = (int)floor(visualize_mode);
       btScalar scale = sin(sqrt(rsb->m_eigenvalues[n_mode]) * sim_time / frequency_scale);
       getDeformedShape(rsb, n_mode, scale);
     //   btVector3 mass_weighted_column_sum = computeMassWeightedColumnSum(rsb, visualize_mode);
@@ -120,7 +120,7 @@ void ModeVisualizer::initPhysics()
     ///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    ///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
@@ -145,7 +145,7 @@ void ModeVisualizer::initPhysics()
                                           false);
 
       getDeformableDynamicsWorld()->addSoftBody(rsb);
-      rsb->getCollisionShape()->setMargin(0.1);
+      rsb->getCollisionShape()->setMargin(btScalar(0.1));
 
       btTransform init_transform;
       init_transform.setIdentity();
@@ -160,7 +160,7 @@ void ModeVisualizer::initPhysics()
     {
       SliderParams slider("Visualize Mode", &visualize_mode);
       slider.m_minVal = 0;
-      slider.m_maxVal = num_modes - 1;
+      slider.m_maxVal = float(num_modes - 1);
       if (m_guiHelper->getParameterInterface())
           m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }

@@ -78,7 +78,7 @@ public:
 	virtual ~PhysicsClientExample();
 
 	virtual void initPhysics();
-	void selectComboBox(int comboIndex, const char* name)
+	void selectComboBox(int /*comboIndex*/, const char* name)
 	{
 		if (m_guiHelper && m_guiHelper->getParameterInterface())
 		{
@@ -94,10 +94,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 3.45;
-		float pitch = -16.2;
+		float dist = 3.45f;
+		float pitch = -16.2f;
 		float yaw = 287;
-		float targetPos[3] = {2.05, 0.02, 0.53};  //-3,2.8,-2.5};
+		float targetPos[3] = {2.05f, 0.02f, 0.53f};  //-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -115,7 +115,7 @@ public:
 
 	void prepareAndSubmitCommand(int commandId);
 
-	virtual void exitPhysics(){};
+	virtual void exitPhysics(){}
 	virtual void renderScene()
 	{
 		if (m_options == eCLIENTEXAMPLE_SERVER)
@@ -130,7 +130,7 @@ public:
 
 		int lineWidth = 1;
 
-		if (1)
+		if (/* DISABLES CODE */ (1))
 		{
 			btAlignedObjectArray<btVector3FloatData> points;
 			points.resize(numLines * 2);
@@ -145,22 +145,22 @@ public:
 				points[i * 2 + 1].m_floats[0] = debugLines.m_linesTo[i * 3 + 0];
 				points[i * 2 + 1].m_floats[1] = debugLines.m_linesTo[i * 3 + 1];
 				points[i * 2 + 1].m_floats[2] = debugLines.m_linesTo[i * 3 + 2];
-				indices[i * 2] = i * 2;
-				indices[i * 2 + 1] = i * 2 + 1;
+				indices[i * 2] = (unsigned int)(i * 2);
+				indices[i * 2 + 1] = (unsigned int)(i * 2 + 1);
 			}
 
-			float color[4] = {0.2, 0.2, 1, 1};
+			float color[4] = {0.2f, 0.2f, 1, 1};
 
 			if (points.size() && indices.size())
 			{
-				m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], color, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), lineWidth);
+				m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], color, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), (float)lineWidth);
 			}
 		}
 		else
 		{
 			for (int i = 0; i < numLines; i++)
 			{
-				m_guiHelper->getRenderInterface()->drawLine(debugLines.m_linesFrom, debugLines.m_linesTo, debugLines.m_linesColor, lineWidth);
+				m_guiHelper->getRenderInterface()->drawLine(debugLines.m_linesFrom, debugLines.m_linesTo, debugLines.m_linesColor, (float)lineWidth);
 			}
 		}
 	}
@@ -174,6 +174,7 @@ public:
 			int uIndex = m_motorTargetPositions[i].m_uIndex;
 			static int serial = 0;
 			serial++;
+			(void)serial;
 			//  b3Printf("# motors = %d, cmd[%d] qIndex = %d, uIndex = %d, targetPos = %f", m_numMotors, serial, qIndex,uIndex,targetPos);
 
 			b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
@@ -191,9 +192,9 @@ public:
 			m_physicsServer.physicsDebugDraw(debugFlags);
 		}
 	}
-	virtual bool mouseMoveCallback(float x, float y) { return false; };
-	virtual bool mouseButtonCallback(int button, int state, float x, float y) { return false; }
-	virtual bool keyboardCallback(int key, int state) { return false; }
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/) { return false; }
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/) { return false; }
+	virtual bool keyboardCallback(int /*key*/, int /*state*/) { return false; }
 
 	virtual void setSharedMemoryKey(int key)
 	{
@@ -201,7 +202,7 @@ public:
 	}
 };
 
-void MyComboBoxCallback(int combobox, const char* item, void* userPointer)
+static void MyComboBoxCallback(int combobox, const char* item, void* userPointer)
 {
 	//b3Printf("Item selected %s", item);
 
@@ -213,7 +214,7 @@ void MyComboBoxCallback(int combobox, const char* item, void* userPointer)
 	}
 }
 
-void MyCallback(int buttonId, bool buttonState, void* userPtr)
+static void MyCallback(int buttonId, bool buttonState, void* userPtr)
 {
 	PhysicsClientExample* cl = (PhysicsClientExample*)userPtr;
 	b3Assert(cl);
@@ -271,11 +272,11 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix, projectionMatrix);
 			b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth, camVisualizerHeight);
 			float lightPos[3];
-			lightPos[0] = m_lightPos[0];
-			lightPos[1] = m_lightPos[1];
-			lightPos[2] = m_lightPos[2];
+			lightPos[0] = (float)m_lightPos[0];
+			lightPos[1] = (float)m_lightPos[1];
+			lightPos[2] = (float)m_lightPos[2];
 			b3RequestCameraImageSetLightDirection(commandHandle, lightPos);
-			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, m_specularCoeff);
+			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, (float)m_specularCoeff);
 			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 			break;
 		}
@@ -319,7 +320,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			}
 
 			break;
-		};
+		}
 
 		case CMD_INIT_POSE:
 		{
@@ -350,7 +351,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
 					default:
 						orn.setValue(0, 0, 0, 1);
-				};
+				}
 
 				b3CreatePoseCommandSetBaseOrientation(commandHandle, orn[0], orn[1], orn[2], orn[3]);
 				b3CreatePoseCommandSetBasePosition(commandHandle, pos[0], pos[1], pos[2]);
@@ -501,7 +502,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			int objectUniqueId = 0;
 			int linkIndex = -1;
 			int shapeIndex = -1;
-			int textureIndex = -2;
+			// int textureIndex = -2;
 			double rgbaColor[4] = {0.0, 1.0, 0.0, 1.0};
 			b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape2(m_physicsClientHandle, objectUniqueId, linkIndex, shapeIndex);
 			b3UpdateVisualShapeRGBAColor(commandHandle, rgbaColor);
@@ -514,7 +515,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			b3Error("Unknown buttonId");
 			btAssert(0);
 		}
-	};
+	}
 }
 
 struct Bullet2CommandProcessorCreation3 : public CommandProcessorCreationInterface
@@ -633,7 +634,7 @@ void PhysicsClientExample::createButtons()
 			comboParams.m_userPointer = this;
 			//todo: get the real object name
 
-			const char** blarray = new const char*[m_bodyUniqueIds.size()];
+			const char** blarray = new const char*[(size_t)m_bodyUniqueIds.size()];
 
 			for (int i = 0; i < m_bodyUniqueIds.size(); i++)
 			{
@@ -642,7 +643,7 @@ void PhysicsClientExample::createButtons()
 				blarray[i] = bla;
 				comboParams.m_items = blarray;  //{&bla};
 			}
-			m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
+			if(m_guiHelper) m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
 		}
 
 		if (m_physicsClientHandle && m_selectedBody >= 0)
@@ -734,7 +735,7 @@ void PhysicsClientExample::initPhysics()
 	m_lightPos[2] = 1.0;
 
 	{
-		m_canvas = m_guiHelper->get2dCanvasInterface();
+		m_canvas = m_guiHelper ? m_guiHelper->get2dCanvasInterface() : NULL;
 		if (m_canvas)
 		{
 			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data", camVisualizerWidth, camVisualizerHeight, 8, 55);
@@ -787,7 +788,7 @@ void PhysicsClientExample::initPhysics()
 	}
 }
 
-void PhysicsClientExample::stepSimulation(float deltaTime)
+void PhysicsClientExample::stepSimulation(float /*deltaTime*/)
 {
 	if (m_options == eCLIENTEXAMPLE_SERVER)
 	{
@@ -881,15 +882,15 @@ void PhysicsClientExample::stepSimulation(float deltaTime)
 
 									if (maxDepthValue != minDepthValue)
 									{
-										rgb = (depthValue - minDepthValue) * (255. / (btFabs(maxDepthValue - minDepthValue)));
+										rgb = int((depthValue - minDepthValue) * (255. / (btFabs(maxDepthValue - minDepthValue))));
 										if (rgb < 0 || rgb > 255)
 										{
 											//printf("rgb=%d\n",rgb);
 										}
 									}
 									m_canvas->setPixel(m_canvasDepthIndex, i, j,
-													   rgb,
-													   rgb,
+													   (unsigned char)rgb,
+													   (unsigned char)rgb,
 													   255, 255);  //alpha set to 255
 								}
 								else
@@ -915,9 +916,9 @@ void PhysicsClientExample::stepSimulation(float deltaTime)
 
 									btVector4 rgb = palette[(obIndex + linkIndex) & 3];
 									m_canvas->setPixel(m_canvasSegMaskIndex, i, j,
-													   rgb.x(),
-													   rgb.y(),
-													   rgb.z(), 255);  //alpha set to 255
+													   (unsigned char)rgb.x(),
+													   (unsigned char)rgb.y(),
+													   (unsigned char)rgb.z(), 255);  //alpha set to 255
 								}
 								else
 								{

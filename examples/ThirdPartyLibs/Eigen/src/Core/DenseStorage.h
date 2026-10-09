@@ -449,7 +449,7 @@ template<typename T, int _Options> class DenseStorage<T, Dynamic, Dynamic, Dynam
       , m_rows(std::move(other.m_rows))
       , m_cols(std::move(other.m_cols))
     {
-      other.m_data = nullptr;
+      other.m_data = NULL;
       other.m_rows = 0;
       other.m_cols = 0;
     }
@@ -531,7 +531,7 @@ template<typename T, int _Rows, int _Options> class DenseStorage<T, Dynamic, _Ro
       : m_data(std::move(other.m_data))
       , m_cols(std::move(other.m_cols))
     {
-      other.m_data = nullptr;
+      other.m_data = NULL;
       other.m_cols = 0;
     }
     EIGEN_DEVICE_FUNC
@@ -607,7 +607,7 @@ template<typename T, int _Cols, int _Options> class DenseStorage<T, Dynamic, Dyn
       : m_data(std::move(other.m_data))
       , m_rows(std::move(other.m_rows))
     {
-      other.m_data = nullptr;
+      other.m_data = NULL;
       other.m_rows = 0;
     }
     EIGEN_DEVICE_FUNC

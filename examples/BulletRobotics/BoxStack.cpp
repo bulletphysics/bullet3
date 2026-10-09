@@ -29,6 +29,7 @@ public:
 		  m_options(options)
 	{
 		m_app->setUpAxis(2);
+		(void)m_options;
 	}
 
 	virtual ~BoxStackExample()
@@ -57,7 +58,7 @@ public:
 		int mass = 1;
 		for (int i = 0; i < 8; i++)
 		{
-			args.m_startPosition.setValue(0, 0, i * .06);
+			args.m_startPosition.setValue(0, 0, btScalar(i * .06));
 			int boxIdx = m_robotSim.loadURDF("cube_small.urdf", args);
 			dynamicsArgs.m_mass = mass;
 			m_robotSim.changeDynamics(boxIdx, -1, dynamicsArgs);
@@ -72,7 +73,7 @@ public:
 	{
 		m_robotSim.disconnect();
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_robotSim.stepSimulation();
 	}
@@ -89,7 +90,7 @@ public:
 	{
 		return m_robotSim.mouseButtonCallback(button, state, x, y);
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -99,7 +100,7 @@ public:
 		float dist = 1.5;
 		float pitch = -10;
 		float yaw = 18;
-		float targetPos[3] = {-0.2, 0.8, 0.3};
+		float targetPos[3] = {-0.2f, 0.8f, 0.3f};
 
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 

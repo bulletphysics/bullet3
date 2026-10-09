@@ -27,7 +27,7 @@ enum
 {
 	INTERNAL_SHIFT_MODIFIER = 1,
 	INTERNAL_ALT_MODIFIER = 2,
-	INTERNAL_CONTROL_MODIFIER = 4,
+	INTERNAL_CONTROL_MODIFIER = 4
 };
 
 void Win32Window::pumpMessage()
@@ -50,10 +50,10 @@ void Win32Window::pumpMessage()
 		}
 
 		//			gDemoApplication->displayCallback();
-	};
+	}
 }
 
-int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
+static int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 {
 	int keycode = -1;
 	if (virtualKeyCode >= 'A' && virtualKeyCode <= 'Z')
@@ -76,12 +76,12 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 		{
 			keycode = B3G_RETURN;
 			break;
-		};
+		}
 		case VK_ESCAPE:
 		{
 			keycode = B3G_ESCAPE;
 			break;
-		};
+		}
 		case VK_F1:
 		{
 			keycode = B3G_F1;
@@ -211,12 +211,12 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 		{
 			//keycode = MapVirtualKey( virtualKeyCode, MAPVK_VK_TO_CHAR ) & 0x0000FFFF;
 		}
-	};
+	}
 
 	return keycode;
 }
 
-int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
+static int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 {
 	int keycode = 0xffffffff;
 
@@ -243,26 +243,26 @@ bool Win32Window::isModifierKeyPressed(int key)
 		{
 			isPressed = ((sData->m_internalKeyModifierFlags & INTERNAL_ALT_MODIFIER) != 0);
 			break;
-		};
+		}
 		case B3G_SHIFT:
 		{
 			isPressed = ((sData->m_internalKeyModifierFlags & INTERNAL_SHIFT_MODIFIER) != 0);
 			break;
-		};
+		}
 		case B3G_CONTROL:
 		{
 			isPressed = ((sData->m_internalKeyModifierFlags & INTERNAL_CONTROL_MODIFIER) != 0);
 			break;
-		};
+		}
 
 		default:
 		{
 		}
-	};
+	}
 	return isPressed;  //m_internalKeyModifierFlags
 }
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//printf("msg = %d\n", message);
 	switch (message)
@@ -293,24 +293,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_SYSKEYUP:
 		case WM_KEYUP:
 		{
-			int keycode = getSpecialKeyFromVirtualKeycode(wParam);
+			int keycode = getSpecialKeyFromVirtualKeycode((int)wParam);
 			switch (keycode)
 			{
 				case B3G_ALT:
 				{
 					sData->m_internalKeyModifierFlags &= ~INTERNAL_ALT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_SHIFT:
 				{
 					sData->m_internalKeyModifierFlags &= ~INTERNAL_SHIFT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_CONTROL:
 				{
 					sData->m_internalKeyModifierFlags &= ~INTERNAL_CONTROL_MODIFIER;
 					break;
-				};
+				}
+				default:
+					break;
 			}
 
 			if (keycode >= 0 && sData && sData->m_keyboardCallback)
@@ -339,24 +341,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
-			int keycode = getSpecialKeyFromVirtualKeycode(wParam);
+			int keycode = getSpecialKeyFromVirtualKeycode((int)wParam);
 			switch (keycode)
 			{
 				case B3G_ALT:
 				{
 					sData->m_internalKeyModifierFlags |= INTERNAL_ALT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_SHIFT:
 				{
 					sData->m_internalKeyModifierFlags |= INTERNAL_SHIFT_MODIFIER;
 					break;
-				};
+				}
 				case B3G_CONTROL:
 				{
 					sData->m_internalKeyModifierFlags |= INTERNAL_CONTROL_MODIFIER;
 					break;
-				};
+				}
+				default:
+					break;
 			}
 			if (keycode >= 0 && sData && sData->m_keyboardCallback && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
@@ -377,7 +381,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseXpos = xPos;
 				sData->m_mouseYpos = yPos;
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(1, 0, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(1, 0, (float)xPos, (float)yPos);
 			}
 			break;
 		}
@@ -391,7 +395,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseXpos = xPos;
 				sData->m_mouseYpos = yPos;
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(1, 1, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(1, 1, (float)xPos, (float)yPos);
 			}
 			break;
 		}
@@ -407,7 +411,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseYpos = yPos;
 
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(0, 0, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(0, 0, (float)xPos, (float)yPos);
 			}
 			//	gDemoApplication->mouseFunc(0,1,xPos,yPos);
 			break;
@@ -423,7 +427,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				sData->m_mouseYpos = yPos;
 
 				if (sData && sData->m_mouseButtonCallback)
-					(*sData->m_mouseButtonCallback)(0, 1, xPos, yPos);
+					(*sData->m_mouseButtonCallback)(0, 1, (float)xPos, (float)yPos);
 			}
 			break;
 		}
@@ -431,24 +435,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case 0x020e:  //WM_MOUSEWHEEL_LEFT_RIGHT
 		{
 			int zDelta = (short)HIWORD(wParam);
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			//m_cameraDistance -= zDelta*0.01;
 			if (sData && sData->m_wheelCallback)
 				(*sData->m_wheelCallback)(-float(zDelta) * 0.05f, 0);
 			return 1;
-			break;
 		}
 		case 0x020A:  //WM_MOUSEWHEEL:
 		{
 			int zDelta = (short)HIWORD(wParam);
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			//m_cameraDistance -= zDelta*0.01;
 			if (sData && sData->m_wheelCallback)
 				(*sData->m_wheelCallback)(0, float(zDelta) * 0.05f);
 			return 1;
-			break;
 		}
 
 		case WM_MOUSEMOVE:
@@ -459,36 +461,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			sData->m_mouseYpos = yPos;
 
 			if (sData && sData->m_mouseMoveCallback)
-				(*sData->m_mouseMoveCallback)(xPos, yPos);
+				(*sData->m_mouseMoveCallback)((float)xPos, (float)yPos);
 
 			break;
 		}
 		case WM_RBUTTONUP:
 		{
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			sData->m_mouseRButton = 1;
 
 			if (sData && sData->m_mouseButtonCallback)
-				(*sData->m_mouseButtonCallback)(2, 0, sData->m_mouseXpos, sData->m_mouseYpos);
+				(*sData->m_mouseButtonCallback)(2, 0, (float)sData->m_mouseXpos, (float)sData->m_mouseYpos);
 
 			//gDemoApplication->mouseFunc(2,1,xPos,yPos);
 			break;
 		}
 		case WM_RBUTTONDOWN:
 		{
-			int xPos = LOWORD(lParam);
-			int yPos = HIWORD(lParam);
+			// int xPos = LOWORD(lParam);
+			// int yPos = HIWORD(lParam);
 			sData->m_mouseRButton = 0;
 			if (sData && sData->m_mouseButtonCallback)
-				(*sData->m_mouseButtonCallback)(2, 1, sData->m_mouseXpos, sData->m_mouseYpos);
+				(*sData->m_mouseButtonCallback)(2, 1, (float)sData->m_mouseXpos, (float)sData->m_mouseYpos);
 
 			break;
 		}
 		case WM_QUIT:
 		{
 			return 0;
-			break;
 		}
 		case WM_SIZE:  // Size Action Has Taken Place
 
@@ -513,20 +514,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (sData->m_resizeCallback)
 					{
 						glViewport(0, 0, sData->m_openglViewportWidth, sData->m_openglViewportHeight);
-						(*sData->m_resizeCallback)(sData->m_openglViewportWidth, sData->m_openglViewportHeight);
+						(*sData->m_resizeCallback)((float)sData->m_openglViewportWidth, (float)sData->m_openglViewportHeight);
 					}
 					//if (sOpenGLInitialized)
 					//{
 					//	//gDemoApplication->reshape(sWidth,sHeight);
 					//}
 					return 0;  // Return
+				default:
+					break;
 			}
 			break;
 
 		default:
 		{
 		}
-	};
+	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
@@ -659,15 +662,15 @@ void Win32Window::createWindow(const b3gWindowConstructionInfo& ci)
 		dm.dmSize = sizeof(dm);
 		// use default values from current setting
 		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm);
-		m_data->m_oldScreenWidth = dm.dmPelsWidth;
-		m_data->m_oldHeight = dm.dmPelsHeight;
-		m_data->m_oldBitsPerPel = dm.dmBitsPerPel;
+		m_data->m_oldScreenWidth = (int)dm.dmPelsWidth;
+		m_data->m_oldHeight = (int)dm.dmPelsHeight;
+		m_data->m_oldBitsPerPel = (int)dm.dmBitsPerPel;
 
-		dm.dmPelsWidth = oglViewportWidth;
-		dm.dmPelsHeight = oglViewportHeight;
+		dm.dmPelsWidth = (DWORD)oglViewportWidth;
+		dm.dmPelsHeight = (DWORD)oglViewportHeight;
 		if (colorBitsPerPixel)
 		{
-			dm.dmBitsPerPel = colorBitsPerPixel;
+			dm.dmBitsPerPel = (DWORD)colorBitsPerPixel;
 		}
 		dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
 
@@ -675,7 +678,7 @@ void Win32Window::createWindow(const b3gWindowConstructionInfo& ci)
 		if (res != DISP_CHANGE_SUCCESSFUL)
 		{  // try again without forcing display frequency
 			dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-			res = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+			/*res =*/ ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
 		}
 	}
 }
@@ -693,32 +696,32 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 
 	if (fullscreen && !m_data->m_oldScreenWidth)
 	{
-		m_data->m_oldScreenWidth = dm.dmPelsWidth;
-		m_data->m_oldHeight = dm.dmPelsHeight;
-		m_data->m_oldBitsPerPel = dm.dmBitsPerPel;
+		m_data->m_oldScreenWidth = (int)dm.dmPelsWidth;
+		m_data->m_oldHeight = (int)dm.dmPelsHeight;
+		m_data->m_oldBitsPerPel = (int)dm.dmBitsPerPel;
 
 		if (width && height)
 		{
-			dm.dmPelsWidth = width;
-			dm.dmPelsHeight = height;
+			dm.dmPelsWidth = (DWORD)width;
+			dm.dmPelsHeight = (DWORD)height;
 		}
 		else
 		{
-			dm.dmPelsWidth = m_data->m_fullWindowWidth;
-			dm.dmPelsHeight = m_data->m_fullWindowHeight;
+			dm.dmPelsWidth = (DWORD)m_data->m_fullWindowWidth;
+			dm.dmPelsHeight = (DWORD)m_data->m_fullWindowHeight;
 		}
 		if (colorBitsPerPixel)
 		{
-			dm.dmBitsPerPel = colorBitsPerPixel;
+			dm.dmBitsPerPel = (DWORD)colorBitsPerPixel;
 		}
 	}
 	else
 	{
 		if (m_data->m_oldScreenWidth)
 		{
-			dm.dmPelsWidth = m_data->m_oldScreenWidth;
-			dm.dmPelsHeight = m_data->m_oldHeight;
-			dm.dmBitsPerPel = m_data->m_oldBitsPerPel;
+			dm.dmPelsWidth = (DWORD)m_data->m_oldScreenWidth;
+			dm.dmPelsHeight = (DWORD)m_data->m_oldHeight;
+			dm.dmBitsPerPel = (DWORD)m_data->m_oldBitsPerPel;
 		}
 	}
 
@@ -728,10 +731,10 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 		if (!res)
 		{
 			dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-			res = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+			/*res =*/ ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
 		}
 
-		DWORD style = WS_POPUP;
+		LONG style = WS_POPUP;
 		SetWindowLong(m_data->m_hWnd, GWL_STYLE, style);
 
 		MoveWindow(m_data->m_hWnd, 0, 0, m_data->m_fullWindowWidth, m_data->m_fullWindowHeight, TRUE);
@@ -741,9 +744,9 @@ void Win32Window::switchFullScreen(bool fullscreen, int width, int height, int c
 	}
 	else
 	{
-		res = ChangeDisplaySettings(&dm, 0);
+		/*res =*/ ChangeDisplaySettings(&dm, 0);
 
-		DWORD style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX;
+		LONG style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX;
 		SetWindowLong(m_data->m_hWnd, GWL_STYLE, style);
 
 		SetWindowPos(m_data->m_hWnd, NULL, 0, 0, (int)width, (int)height,
@@ -770,7 +773,7 @@ Win32Window::~Win32Window()
 	delete m_data;
 }
 
-void Win32Window::setRenderCallback(b3RenderCallback renderCallback)
+void Win32Window::setRenderCallback(b3RenderCallback /*renderCallback*/)
 {
 }
 
@@ -815,7 +818,7 @@ float Win32Window::getTimeInSeconds()
 	return 0.f;
 }
 
-void Win32Window::setDebugMessage(int x, int y, const char* message)
+void Win32Window::setDebugMessage(int /*x*/, int /*y*/, const char* /*message*/)
 {
 }
 
@@ -847,7 +850,7 @@ void Win32Window::setResizeCallback(b3ResizeCallback resizeCallback)
 {
 	m_data->m_resizeCallback = resizeCallback;
 	if (m_data->m_resizeCallback)
-		(*m_data->m_resizeCallback)(m_data->m_openglViewportWidth, m_data->m_openglViewportHeight);
+		(*m_data->m_resizeCallback)((float)m_data->m_openglViewportWidth, (float)m_data->m_openglViewportHeight);
 }
 
 void Win32Window::setKeyboardCallback(b3KeyboardCallback keyboardCallback)

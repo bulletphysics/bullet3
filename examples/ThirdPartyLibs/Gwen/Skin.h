@@ -127,6 +127,6 @@ protected:
 	Gwen::Font m_DefaultFont;
 	Gwen::Renderer::Base* m_Render;
 };
-};  // namespace Skin
+}  // namespace Skin
 }  // namespace Gwen
 #endif

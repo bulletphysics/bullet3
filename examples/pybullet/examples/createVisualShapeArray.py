@@ -54,7 +54,7 @@ shift1 = [0, 0.1, 0]
 shift2 = [0, 0, 0]
 
 meshScale = [0.1, 0.1, 0.1]
-#the visual shape and collision shape can be re-used by all createMultiBody instances (instancing)
+#the visual shape and collision shape can be reuse by all createMultiBody instances (instancing)
 visualShapeId = p.createVisualShapeArray(shapeTypes=[p.GEOM_MESH, p.GEOM_BOX],
                                          halfExtents=[[0, 0, 0], [0.1, 0.1, 0.1]],
                                          fileNames=["duck.obj", ""],

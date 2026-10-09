@@ -31,7 +31,7 @@ from . import tools
 
 
 def define_simulation_graph(batch_env, algo_cls, config):
-  """Define the algortihm and environment interaction.
+  """Define the algorithm and environment interaction.
 
   Args:
     batch_env: In-graph environments object.

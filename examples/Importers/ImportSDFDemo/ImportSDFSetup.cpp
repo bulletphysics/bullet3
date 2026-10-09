@@ -41,10 +41,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 3.5;
+		float dist = 3.5f;
 		float pitch = -28;
 		float yaw = -136;
-		float targetPos[3] = {0.47, 0, -0.64};
+		float targetPos[3] = {0.47f, 0, -0.64f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -102,14 +102,15 @@ ImportSDFSetup::ImportSDFSetup(struct GUIHelperInterface* helper, int option, co
 		{
 			int result;
 			//warning: we don't avoid string buffer overflow in this basic example in fscanf
-			char fileName[1024];
+			char filename[1024];
+			filename[1023] = '\0';
 			do
 			{
-				result = fscanf(f, "%s", fileName);
-				b3Printf("sdf_files.txt entry %s", fileName);
+				result = fscanf(f, "%s", filename);
+				b3Printf("sdf_files.txt entry %s", filename);
 				if (result == 1)
 				{
-					gFileNameArray.push_back(fileName);
+					gFileNameArray.push_back(filename);
 				}
 			} while (result == 1);
 
@@ -158,7 +159,7 @@ void ImportSDFSetup::initPhysics()
 		btIDebugDraw::DBG_DrawConstraints + btIDebugDraw::DBG_DrawContactPoints + btIDebugDraw::DBG_DrawAabb);  //+btIDebugDraw::DBG_DrawConstraintLimits);
 
 	btVector3 gravity(0, 0, 0);
-	gravity[upAxis] = -9.8;
+	gravity[upAxis] = btScalar(-9.8);
 
 	m_dynamicsWorld->setGravity(gravity);
 
@@ -268,7 +269,7 @@ void ImportSDFSetup::initPhysics()
 		}
 
 		///this extra stepSimulation call makes sure that all the btMultibody transforms are properly propagates.
-		m_dynamicsWorld->stepSimulation(1. / 240., 0);  // 1., 10, 1. / 240.);
+		m_dynamicsWorld->stepSimulation(btScalar(1. / 240.), 0);  // 1., 10, 1. / 240.);
 	}
 }
 
@@ -291,7 +292,7 @@ void ImportSDFSetup::stepSimulation(float deltaTime)
 		}
 
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		m_dynamicsWorld->stepSimulation(deltaTime, 10, 1. / 240.);
+		m_dynamicsWorld->stepSimulation(deltaTime, 10, btScalar(1. / 240.));
 	}
 }
 

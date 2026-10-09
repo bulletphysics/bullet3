@@ -183,7 +183,7 @@ ELSE(WIN32)
 	FIND_PACKAGE(Threads)
 	LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} ${DL} )
 			 IF(APPLE)
-			        FIND_LIBRARY(COCOA NAMES Cocoa)
+			        FIND_LIBRARY(COCOA NAMES Cocoa REQUIRED)
               MESSAGE(${COCOA})
               LINK_LIBRARIES(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
@@ -262,7 +262,7 @@ LINK_LIBRARIES(
 				ELSE(WIN32)
 
 					set_source_files_properties(../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp ../StandaloneMain/hellovr_opengl_main.cpp  PROPERTIES COMPILE_FLAGS "-x objective-c++")
-    					find_library(FOUNDATION_FRAMEWORK Foundation)
+    					find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
     					mark_as_advanced(FOUNDATION_FRAMEWORK)
     					set(EXTRA_LIBS ${EXTRA_LIBS} ${FOUNDATION_FRAMEWORK})
 

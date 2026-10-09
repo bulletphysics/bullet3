@@ -100,7 +100,6 @@ public:
 
 	B3_FORCE_INLINE T at(size_t n) const
 	{
-		b3Assert(n >= 0);
 		b3Assert(n < size());
 		T elem;
 		copyToHostPointer(&elem, 1, n, true);
@@ -231,7 +230,7 @@ public:
 
 	void copyFromHost(const b3AlignedObjectArray<T>& srcArray, bool waitForCompletion = true)
 	{
-		size_t newSize = srcArray.size();
+		size_t newSize = (size_t)srcArray.size();
 
 		bool copyOldContents = false;
 		resize(newSize, copyOldContents);
@@ -261,7 +260,7 @@ public:
 
 	void copyToHost(b3AlignedObjectArray<T>& destArray, bool waitForCompletion = true) const
 	{
-		destArray.resize(this->size());
+		destArray.resize((int)this->size());
 		if (size())
 			copyToHostPointer(&destArray[0], size(), 0, waitForCompletion);
 	}

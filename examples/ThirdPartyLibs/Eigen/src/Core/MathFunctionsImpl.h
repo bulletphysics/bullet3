@@ -21,7 +21,7 @@ namespace internal {
     outside of which tanh(x) = +/-1 in single precision. The input is clamped
     to the range [-c, c]. The value c is chosen as the smallest value where
     the approximation evaluates to exactly 1. In the reange [-0.0004, 0.0004]
-    the approxmation tanh(x) ~= x is used for better accuracy as x tends to zero.
+    the approximation tanh(x) ~= x is used for better accuracy as x tends to zero.
 
     This implementation works on both scalars and packets.
 */

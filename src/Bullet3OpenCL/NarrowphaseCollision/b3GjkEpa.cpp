@@ -247,6 +247,8 @@ struct b3GJK
 										   cs.c[3]->w,
 										   weights, mask);
 					break;
+				default:
+					break;
 			}
 			if (sqdist >= 0)
 			{ /* Valid	*/
@@ -351,6 +353,8 @@ struct b3GJK
 							   m_simplex->c[2]->w - m_simplex->c[3]->w)) > 0)
 					return (true);
 			}
+			break;
+			default:
 			break;
 		}
 		return (false);
@@ -805,14 +809,17 @@ struct b3EPA
 	sFace* findbest()
 	{
 		sFace* minf = m_hull.root;
-		b3Scalar mind = minf->d * minf->d;
-		for (sFace* f = minf->l[1]; f; f = f->l[1])
+		if(minf)
 		{
-			const b3Scalar sqd = f->d * f->d;
-			if (sqd < mind)
+			b3Scalar mind = minf->d * minf->d;
+			for (sFace* f = minf->l[1]; f; f = f->l[1])
 			{
-				minf = f;
-				mind = sqd;
+				const b3Scalar sqd = f->d * f->d;
+				if (sqd < mind)
+				{
+					minf = f;
+					mind = sqd;
+				}
 			}
 		}
 		return (minf);
@@ -859,8 +866,8 @@ struct b3EPA
 //
 static void Initialize(const b3Transform& transA, const b3Transform& transB,
 					   const b3ConvexPolyhedronData* hullA, const b3ConvexPolyhedronData* hullB,
-					   const b3AlignedObjectArray<b3Vector3>& verticesA,
-					   const b3AlignedObjectArray<b3Vector3>& verticesB,
+					   const b3AlignedObjectArray<b3Vector3>& /*verticesA*/,
+					   const b3AlignedObjectArray<b3Vector3>& /*verticesB*/,
 					   b3GjkEpaSolver2::sResults& results,
 					   tShape& shape,
 					   bool withmargins)

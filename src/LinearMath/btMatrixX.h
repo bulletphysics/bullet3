@@ -213,9 +213,9 @@ struct btMatrixX
 
 	void addElem(int row, int col, T val)
 	{
-		if (val)
+		if (val != (T)0)
 		{
-			if (m_storage[col + row * m_cols] == 0.f)
+			if (m_storage[col + row * m_cols] == btScalar(0.f))
 			{
 				setElem(row, col, val);
 			}
@@ -242,13 +242,13 @@ struct btMatrixX
 
 	void copyLowerToUpperTriangle()
 	{
-		int count = 0;
+		// int count = 0;
 		for (int row = 0; row < rows(); row++)
 		{
 			for (int col = 0; col < row; col++)
 			{
 				setElem(col, row, (*this)(row, col));
-				count++;
+				// count++;
 			}
 		}
 		//printf("copyLowerToUpperTriangle copied %d elements out of %dx%d=%d\n", count,rows(),cols(),cols()*rows());
@@ -306,7 +306,7 @@ struct btMatrixX
 			m_rowNonZeroElements1[i].resize(0);
 			for (int j = 0; j < cols(); j++)
 			{
-				if ((*this)(i, j) != 0.f)
+				if ((*this)(i, j) != btScalar(0.f))
 				{
 					m_rowNonZeroElements1[i].push_back(j);
 				}
@@ -322,7 +322,7 @@ struct btMatrixX
 			for (int j = 0; j < m_rows; j++)
 			{
 				T v = (*this)(j, i);
-				if (v)
+				if (v != (T)0)
 				{
 					tr.setElem(i, j, v);
 				}
@@ -351,14 +351,14 @@ struct btMatrixX
 							for (int k = 0; k < c; k++)
 							{
 								T w = (*this)(i, k);
-								if (other(k, j) != 0.f)
+								if (other(k, j) != btScalar(0.f))
 								{
 									dotProd += w * other(k, j);
 								}
 							}
 						}
 					}
-					if (dotProd)
+					if (dotProd != (T)0)
 						res.setElem(i, j, dotProd);
 				}
 			}

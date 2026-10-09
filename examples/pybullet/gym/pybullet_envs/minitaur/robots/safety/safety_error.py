@@ -7,5 +7,5 @@ class SafetyError(Exception):
 
 
 class OutOfBoundError(SafetyError):
-  """Rasied when values like motor position or velocity is out of bound."""
+  """Raised when values like motor position or velocity is out of bound."""
   pass

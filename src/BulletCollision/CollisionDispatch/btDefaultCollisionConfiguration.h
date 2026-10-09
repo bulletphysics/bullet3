@@ -17,6 +17,8 @@ subject to the following restrictions:
 #define BT_DEFAULT_COLLISION_CONFIGURATION
 
 #include "btCollisionConfiguration.h"
+#include "LinearMath/btOverride.h"
+#include <cstddef>
 class btVoronoiSimplexSolver;
 class btConvexPenetrationDepthSolver;
 
@@ -30,8 +32,8 @@ struct btDefaultCollisionConstructionInfo
 	int m_useEpaPenetrationAlgorithm;
 
 	btDefaultCollisionConstructionInfo()
-		: m_persistentManifoldPool(0),
-		  m_collisionAlgorithmPool(0),
+		: m_persistentManifoldPool(NULL),
+		  m_collisionAlgorithmPool(NULL),
 		  m_defaultMaxPersistentManifoldPoolSize(4096),
 		  m_defaultMaxCollisionAlgorithmPoolSize(4096),
 		  m_customCollisionAlgorithmMaxElementSize(0),
@@ -79,22 +81,22 @@ protected:
 public:
 	btDefaultCollisionConfiguration(const btDefaultCollisionConstructionInfo& constructionInfo = btDefaultCollisionConstructionInfo());
 
-	virtual ~btDefaultCollisionConfiguration();
+	virtual ~btDefaultCollisionConfiguration() BT_OVERRIDE;
 
 	///memory pools
-	virtual btPoolAllocator* getPersistentManifoldPool()
+	virtual btPoolAllocator* getPersistentManifoldPool() BT_OVERRIDE
 	{
 		return m_persistentManifoldPool;
 	}
 
-	virtual btPoolAllocator* getCollisionAlgorithmPool()
+	virtual btPoolAllocator* getCollisionAlgorithmPool() BT_OVERRIDE
 	{
 		return m_collisionAlgorithmPool;
 	}
 
-	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0, int proxyType1);
+	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0, int proxyType1) BT_OVERRIDE;
 
-	virtual btCollisionAlgorithmCreateFunc* getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1);
+	virtual btCollisionAlgorithmCreateFunc* getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1) BT_OVERRIDE;
 
 	///Use this method to allow to generate multiple contact points between at once, between two objects using the generic convex-convex algorithm.
 	///By default, this feature is disabled for best performance.

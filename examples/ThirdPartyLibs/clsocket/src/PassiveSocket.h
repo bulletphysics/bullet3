@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
-/* Socket.h - Passive Socket Decleration.                                    */
+/* Socket.h - Passive Socket Declaration.                                    */
 /*                                                                           */
 /* Author : Mark Carrier (mark@carrierlabs.com)                              */
 /*                                                                           */
@@ -59,7 +59,7 @@ public:
 	virtual ~CPassiveSocket()
 	{
 		Close();
-	};
+	}
 
 	/// Extracts the first connection request on the queue of pending
 	/// connections and creates a newly connected socket.  Used with

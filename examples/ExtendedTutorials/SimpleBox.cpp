@@ -34,7 +34,7 @@ struct SimpleBoxExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -58,13 +58,13 @@ void SimpleBoxExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 		btBoxShape* colShape = createBoxShape(btVector3(1, 1, 1));
 
 		m_collisionShapes.push_back(colShape);
@@ -86,7 +86,7 @@ void SimpleBoxExample::initPhysics()
 			btScalar(0),
 			btScalar(20),
 			btScalar(0)));
-		createRigidBody(mass, startTransform, colShape);
+		createRigidBody((float)mass, startTransform, colShape);
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

@@ -123,7 +123,7 @@ int btRotationalLimitMotor::testLimitValue(btScalar test_value)
 		else if (m_currentLimitError < -SIMD_PI)
 			m_currentLimitError += SIMD_2_PI;
 		return 2;
-	};
+	}
 
 	m_currentLimit = 0;  //Free from violation
 	return 0;
@@ -225,7 +225,7 @@ int btTranslationalLimitMotor::testLimitValue(int limitIndex, btScalar test_valu
 		m_currentLimit[limitIndex] = 1;  //High limit violation
 		m_currentLimitError[limitIndex] = test_value - hiLimit;
 		return 1;
-	};
+	}
 
 	m_currentLimit[limitIndex] = 0;  //Free from violation
 	m_currentLimitError[limitIndex] = btScalar(0.f);
@@ -560,7 +560,7 @@ int btGeneric6DofConstraint::setLinearLimits(btConstraintInfo2* info, int row, c
 	for (int i = 0; i < 3; i++)
 	{
 		if (m_linearLimits.needApplyForce(i))
-		{  // re-use rotational motor code
+		{  // reuse rotational motor code
 			limot.m_bounce = btScalar(0.f);
 			limot.m_currentLimit = m_linearLimits.m_currentLimit[i];
 			limot.m_currentPosition = m_linearLimits.m_currentLinearDiff[i];

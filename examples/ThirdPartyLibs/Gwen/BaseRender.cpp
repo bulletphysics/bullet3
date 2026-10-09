@@ -48,7 +48,7 @@ void Base::DrawLinedRect(Gwen::Rect rect)
 
 	DrawFilledRect(Gwen::Rect(rect.x, rect.y, 1, rect.h));
 	DrawFilledRect(Gwen::Rect(rect.x + rect.w - 1, rect.y, 1, rect.h));
-};
+}
 
 void Base::DrawPixel(int x, int y)
 {
@@ -89,16 +89,16 @@ void Base::Translate(int& x, int& y)
 	x += m_RenderOffset.x;
 	y += m_RenderOffset.y;
 
-	x = std::ceil(((float)x) * m_fScale);
-	y = std::ceil(((float)y) * m_fScale);
+	x = (int)std::ceil(((float)x) * m_fScale);
+	y = (int)std::ceil(((float)y) * m_fScale);
 }
 
 void Base::Translate(Gwen::Rect& rect)
 {
 	Translate(rect.x, rect.y);
 
-	rect.w = std::ceil(((float)rect.w) * m_fScale);
-	rect.h = std::ceil(((float)rect.h) * m_fScale);
+	rect.w = (int)std::ceil(((float)rect.w) * m_fScale);
+	rect.h = (int)std::ceil(((float)rect.h) * m_fScale);
 }
 
 void Gwen::Renderer::Base::SetClipRegion(Gwen::Rect rect)
@@ -165,13 +165,13 @@ void Base::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeStr
 {
 	float fSize = pFont->size * Scale();
 
-	for (float i = 0; i < text.length(); i++)
+	for (float i = 0; i < (float)text.length(); i++)
 	{
-		wchar_t chr = text[i];
+		wchar_t chr = text[(size_t)i];
 
 		if (chr == ' ') continue;
 
-		Gwen::Rect r(pos.x + i * fSize * 0.4, pos.y, fSize * 0.4 - 1, fSize);
+		Gwen::Rect r(int((float)pos.x + i * fSize * 0.4f), pos.y, int(fSize * 0.4f - 1), (int)fSize);
 
 		/*
 					This isn't important, it's just me messing around changing the
@@ -183,8 +183,8 @@ void Base::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeStr
 		}
 		else if (chr >= 'a' && chr <= 'z')
 		{
-			r.y += fSize * 0.5f;
-			r.h -= fSize * 0.4f;
+			r.y += int(fSize * 0.5f);
+			r.h -= int(fSize * 0.4f);
 		}
 		else if (chr == '.' || chr == ',')
 		{
@@ -210,8 +210,8 @@ void Base::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeStr
 Gwen::Point Base::MeasureText(Gwen::Font* pFont, const Gwen::UnicodeString& text)
 {
 	Gwen::Point p;
-	p.x = pFont->size * Scale() * (float)text.length() * 0.4;
-	p.y = pFont->size * Scale();
+	p.x = int(pFont->size * Scale() * (float)text.length() * 0.4f);
+	p.y = int(pFont->size * Scale());
 
 	return p;
 }

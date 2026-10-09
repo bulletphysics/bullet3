@@ -48,12 +48,12 @@ public:
 	}
 	inline void push_pair(GUINT index1, GUINT index2)
 	{
-		push_back(GIM_PAIR(index1, index2));
+		push_back(GIM_PAIR((GINT)index1, (GINT)index2));
 	}
 
 	inline void push_pair_inv(GUINT index1, GUINT index2)
 	{
-		push_back(GIM_PAIR(index2, index1));
+		push_back(GIM_PAIR((GINT)index2, (GINT)index1));
 	}
 };
 
@@ -61,7 +61,7 @@ public:
 /*!
 This class is a wrapper for primitive collections.
 This tells relevant info for the Bounding Box set classes, which take care of space classification.
-This class can manage Compound shapes and trimeshes, and if it is managing trimesh then the  Hierarchy Bounding Box classes will take advantage of primitive Vs Box overlapping tests for getting optimal results and less Per Box compairisons.
+This class can manage Compound shapes and trimeshes, and if it is managing trimesh then the  Hierarchy Bounding Box classes will take advantage of primitive Vs Box overlapping tests for getting optimal results and less Per Box comparisons.
 */
 class GIM_PRIMITIVE_MANAGER_PROTOTYPE
 {
@@ -253,7 +253,7 @@ public:
 	//! node manager prototype functions
 	///@{
 
-	//! this attemps to refit the box set.
+	//! this attempts to refit the box set.
 	SIMD_FORCE_INLINE void update()
 	{
 		refit();

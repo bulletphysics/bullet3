@@ -170,17 +170,17 @@ public:
 
 	/** @brief Multiply by the target matrix on the right
 	*  @param m Rotation matrix to be applied 
-	* Equivilant to this = this * m */
+	* Equivalent to this = this * m */
 	btMatrix3x3& operator*=(const btMatrix3x3& m);
 
 	/** @brief Adds by the target matrix on the right
 	*  @param m matrix to be applied 
-	* Equivilant to this = this + m */
+	* Equivalent to this = this + m */
 	btMatrix3x3& operator+=(const btMatrix3x3& m);
 
 	/** @brief Substractss by the target matrix on the right
 	*  @param m matrix to be applied 
-	* Equivilant to this = this - m */
+	* Equivalent to this = this - m */
 	btMatrix3x3& operator-=(const btMatrix3x3& m);
 
 	/** @brief Set from the rotational part of a 4x4 OpenGL matrix
@@ -333,7 +333,7 @@ public:
 #endif
 	}
     
-    /**@brief Set the matrix to the identity */
+    /**@brief Set the matrix to zero */
     void setZero()
     {
 #if (defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)) || defined(BT_USE_NEON)
@@ -543,7 +543,7 @@ public:
 			else
 				roll += SIMD_PI;
 		}
-	};
+	}
 
 	/**@brief Get the matrix represented as euler angles around ZYX
 	* @param yaw Yaw around Z axis
@@ -654,7 +654,7 @@ public:
 		btScalar det = btDot(col1, btCross(col2, col3));
 		if (btFabs(det) > SIMD_EPSILON)
 		{
-			det = 1.0f / det;
+			det = btScalar(1.0) / det;
 		}
 		btVector3 x;
 		x[0] = det * btDot(b, btCross(col2, col3));
@@ -685,7 +685,7 @@ public:
 	///symmetric matrix S:
 	///A = R*S.
 	///note that R can include both rotation and scaling.
-	SIMD_FORCE_INLINE void extractRotation(btQuaternion & q, btScalar tolerance = 1.0e-9, int maxIter = 100)
+	SIMD_FORCE_INLINE void extractRotation(btQuaternion & q, btScalar tolerance = btScalar(1.0e-9), int maxIter = 100)
 	{
 		int iter = 0;
 		btScalar w;
@@ -708,7 +708,7 @@ public:
 	* @param rot stores the rotation from the coordinate system in which the matrix is diagonal to the original
 	* coordinate system, i.e., old_this = rot * new_this * rot^T.
 	* @param threshold See iteration
-	* @param iteration The iteration stops when all off-diagonal elements are less than the threshold multiplied
+	* @param maxSteps The iteration stops when all off-diagonal elements are less than the threshold multiplied
 	* by the sum of the absolute values of the diagonal, or when maxSteps have been executed.
 	*
 	* Note that this matrix is assumed to be symmetric.
@@ -794,8 +794,8 @@ public:
 	/**@brief Calculate the matrix cofactor 
 	* @param r1 The first row to use for calculating the cofactor
 	* @param c1 The first column to use for calculating the cofactor
-	* @param r1 The second row to use for calculating the cofactor
-	* @param c1 The second column to use for calculating the cofactor
+	* @param r2 The second row to use for calculating the cofactor
+	* @param c2 The second column to use for calculating the cofactor
 	* See http://en.wikipedia.org/wiki/Cofactor_(linear_algebra) for more details
 	*/
 	btScalar cofac(int r1, int c1, int r2, int c2) const

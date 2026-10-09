@@ -42,7 +42,6 @@ subject to the following restrictions:
 #include <assert.h>
 #include <iostream>
 #include "LinearR3.h"
-using namespace std;
 
 class VectorR4;       // R4 Vector
 class LinearMapR4;    // 4x4 real matrix
@@ -249,7 +248,7 @@ public:
 
 inline VectorR4 operator*(const Matrix4x4&, const VectorR4&);
 
-ostream& operator<<(ostream& os, const Matrix4x4& A);
+std::ostream& operator<<(std::ostream& os, const Matrix4x4& A);
 
 // *****************************************
 // LinearMapR4 class                       *
@@ -312,12 +311,12 @@ public:
 	inline RotationMapR4& operator*=(const RotationMapR4&);  // Matrix product
 
 	inline RotationMapR4 Transpose() const;
-	inline RotationMapR4 Inverse() const { return Transpose(); };  // Returns the transpose
+	inline RotationMapR4 Inverse() const { return Transpose(); }  // Returns the transpose
 	inline RotationMapR4& Invert()
 	{
 		MakeTranspose();
 		return *this;
-	};                                              // Transposes it.
+	}                                              // Transposes it.
 	inline VectorR4 Invert(const VectorR4&) const;  // Returns solution
 };
 
@@ -356,13 +355,13 @@ inline VectorR4 ProjectToUnit(const VectorR4& u, const VectorR4& v)
 	return (u ^ v) * v;
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 inline VectorR4 ProjectPerpUnit(const VectorR4& u, const VectorR4& v)
 {
 	return (u - ((u ^ v) * v));
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 //    This one is more stable when u and v are nearly equal.
 inline VectorR4 ProjectPerpUnitDiff(const VectorR4& u, const VectorR4& v)
 {
@@ -413,7 +412,7 @@ RotationMapR4 RotateToMap(const VectorR4& fromVec, const VectorR4& toVec);
 // * Stream Output Routines	(Prototypes)						 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR4& u);
+std::ostream& operator<<(std::ostream& os, const VectorR4& u);
 
 // *****************************************************
 // * VectorR4 class - inlined functions				   *
@@ -430,10 +429,10 @@ inline VectorR4& VectorR4::Load(const double* v)
 
 inline VectorR4& VectorR4::Load(const float* v)
 {
-	x = *v;
-	y = *(v + 1);
-	z = *(v + 2);
-	w = *(v + 3);
+	x = (double)*v;
+	y = (double)*(v + 1);
+	z = (double)*(v + 2);
+	w = (double)*(v + 3);
 	return *this;
 }
 

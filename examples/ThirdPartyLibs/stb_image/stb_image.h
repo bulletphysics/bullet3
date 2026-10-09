@@ -189,6 +189,11 @@
 #define _CRT_SECURE_NO_WARNINGS  // suppress bogus warnings about fopen()
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4365) // conversion from 'type1' to 'type2, signed/unsigned mismatch
+#endif
+
 #include <stdio.h>
 #endif
 
@@ -318,6 +323,10 @@ extern "C"
 
 #ifdef __cplusplus
 }
+#endif
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
 #endif
 
 //

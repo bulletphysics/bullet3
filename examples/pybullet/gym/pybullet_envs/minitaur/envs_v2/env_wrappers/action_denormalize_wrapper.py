@@ -35,7 +35,7 @@ class ActionDenormalizeWrapper(object):
       action: Numpy array between [-1.0, 1.0].
 
     Returns:
-      The tuple containing the observation, the reward, and the epsiode
+      The tuple containing the observation, the reward, and the episode
         end indicator.
     """
     return self._gym_env.step(_denomralize(self._gym_env, action))

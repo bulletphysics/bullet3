@@ -17,7 +17,7 @@ SimpleCameraInternalData
 		  m_yaw(20),
 		  m_pitch(0),
 		  m_aspect(1),
-		  m_frustumZNear(0.01),
+		  m_frustumZNear(0.01f),
 		  m_frustumZFar(1000),
 		  m_enableVR(false)
 	{
@@ -233,7 +233,7 @@ void SimpleCamera::update()
 			//b3Assert(0);
 			return;
 		}
-	};
+	}
 
 	b3Vector3 eyePos = b3MakeVector3(0, 0, 0);
 	eyePos[forwardAxis] = -m_data->m_cameraDistance;
@@ -298,16 +298,16 @@ void SimpleCamera::getCameraViewMatrix(float viewMatrix[16]) const
 
 void SimpleCamera::getCameraTargetPosition(double pos[3]) const
 {
-	pos[0] = m_data->m_cameraTargetPosition[0];
-	pos[1] = m_data->m_cameraTargetPosition[1];
-	pos[2] = m_data->m_cameraTargetPosition[2];
+	pos[0] = (double)m_data->m_cameraTargetPosition[0];
+	pos[1] = (double)m_data->m_cameraTargetPosition[1];
+	pos[2] = (double)m_data->m_cameraTargetPosition[2];
 }
 
 void SimpleCamera::getCameraPosition(double pos[3]) const
 {
-	pos[0] = m_data->m_cameraPosition[0];
-	pos[1] = m_data->m_cameraPosition[1];
-	pos[2] = m_data->m_cameraPosition[2];
+	pos[0] = (double)m_data->m_cameraPosition[0];
+	pos[1] = (double)m_data->m_cameraPosition[1];
+	pos[2] = (double)m_data->m_cameraPosition[2];
 }
 
 void SimpleCamera::getCameraTargetPosition(float pos[3]) const

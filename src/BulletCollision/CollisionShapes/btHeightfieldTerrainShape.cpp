@@ -107,7 +107,7 @@ void btHeightfieldTerrainShape::initialize(
 	// btAssert(heightScale) -- do we care?  Trust caller here
 	btAssert(minHeight <= maxHeight);                                    // && "bad min/max height");
 	btAssert(upAxis >= 0 && upAxis < 3);                                 // && "bad upAxis--should be in range [0,2]");
-	btAssert(hdt != PHY_UCHAR || hdt != PHY_FLOAT || hdt != PHY_DOUBLE || hdt != PHY_SHORT);  // && "Bad height data type enum");
+	btAssert(hdt == PHY_UCHAR || hdt == PHY_FLOAT || hdt == PHY_DOUBLE || hdt == PHY_SHORT);  // && "Bad height data type enum");
 
 	// initialize member variables
 	m_shapeType = TERRAIN_SHAPE_PROXYTYPE;
@@ -145,7 +145,7 @@ void btHeightfieldTerrainShape::initialize(
 			m_localAabbMin.setValue(0, m_minHeight, 0);
 			m_localAabbMax.setValue(m_width, m_maxHeight, m_length);
 			break;
-		};
+		}
 		case 2:
 		{
 			m_localAabbMin.setValue(0, 0, m_minHeight);
@@ -202,7 +202,7 @@ btHeightfieldTerrainShape::getRawHeightFieldValue(int x, int y) const
 
 		case PHY_DOUBLE:
 		{
-			val = m_heightfieldDataDouble[(y * m_heightStickWidth) + x];
+			val = (btScalar)m_heightfieldDataDouble[(y * m_heightStickWidth) + x];
 			break;
 		}
 
@@ -245,23 +245,23 @@ void btHeightfieldTerrainShape::getVertex(int x, int y, btVector3& vertex) const
 		{
 			vertex.setValue(
 				height - m_localOrigin.getX(),
-				(-m_width / btScalar(2.0)) + x,
-				(-m_length / btScalar(2.0)) + y);
+				(-m_width / btScalar(2.0)) + (btScalar)x,
+				(-m_length / btScalar(2.0)) + (btScalar)y);
 			break;
 		}
 		case 1:
 		{
 			vertex.setValue(
-				(-m_width / btScalar(2.0)) + x,
+				(-m_width / btScalar(2.0)) + (btScalar)x,
 				height - m_localOrigin.getY(),
-				(-m_length / btScalar(2.0)) + y);
+				(-m_length / btScalar(2.0)) + (btScalar)y);
 			break;
-		};
+		}
 		case 2:
 		{
 			vertex.setValue(
-				(-m_width / btScalar(2.0)) + x,
-				(-m_length / btScalar(2.0)) + y,
+				(-m_width / btScalar(2.0)) + (btScalar)x,
+				(-m_length / btScalar(2.0)) + (btScalar)y,
 				height - m_localOrigin.getZ());
 			break;
 		}
@@ -391,7 +391,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 			if (quantizedAabbMax[2] < endJ)
 				endJ = quantizedAabbMax[2];
 			break;
-		};
+		}
 		case 2:
 		{
 			if (quantizedAabbMin[0] > startX)
@@ -558,11 +558,11 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 	{
 		if (xiStep == 1)
 		{
-			paramCrossX = (ceil(beginPos[indices[0]]) - beginPos[indices[0]]) * paramDeltaX;
+			paramCrossX = (btScalar)(ceil(beginPos[indices[0]]) - beginPos[indices[0]]) * paramDeltaX;
 		}
 		else
 		{
-			paramCrossX = (beginPos[indices[0]] - floor(beginPos[indices[0]])) * paramDeltaX;
+			paramCrossX = (btScalar)(beginPos[indices[0]] - floor(beginPos[indices[0]])) * paramDeltaX;
 		}
 	}
 	else
@@ -575,11 +575,11 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 	{
 		if (ziStep == 1)
 		{
-			paramCrossZ = (ceil(beginPos[indices[2]]) - beginPos[indices[2]]) * paramDeltaZ;
+			paramCrossZ = (btScalar)(ceil(beginPos[indices[2]]) - beginPos[indices[2]]) * paramDeltaZ;
 		}
 		else
 		{
-			paramCrossZ = (beginPos[indices[2]] - floor(beginPos[indices[2]])) * paramDeltaZ;
+			paramCrossZ = (btScalar)(beginPos[indices[2]] - floor(beginPos[indices[2]])) * paramDeltaZ;
 		}
 	}
 	else
@@ -742,7 +742,7 @@ struct ProcessVBoundsAction
 
 		if (rs.maxDistanceFlat > 0.0001)
 		{
-			btScalar flatTo3d = chunkSize * rs.maxDistance3d / rs.maxDistanceFlat;
+			btScalar flatTo3d = (btScalar)chunkSize * rs.maxDistance3d / rs.maxDistanceFlat;
 			btScalar enterParam3d = rs.prevParam * flatTo3d;
 			btScalar exitParam3d = rs.param * flatTo3d;
 			enterPos = rayBegin + rayDir * enterParam3d;
@@ -824,7 +824,7 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 	{
 		btVector3 rayDiff = endPos - beginPos;
 		btScalar flatDistance2 = rayDiff[indices[0]] * rayDiff[indices[0]] + rayDiff[indices[2]] * rayDiff[indices[2]];
-		if (flatDistance2 < m_vboundsChunkSize * m_vboundsChunkSize)
+		if (flatDistance2 < (btScalar)(m_vboundsChunkSize * m_vboundsChunkSize))
 		{
 			// Don't use chunks, the ray is too short in the plane
 			gridRaycast(processTriangles, beginPos, endPos, &indices[0]);
@@ -840,7 +840,7 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 		processVBounds.processTriangles = processTriangles;
 		processVBounds.chunkSize = m_vboundsChunkSize;
 		// The ray is long, run raycast on a higher-level grid
-		gridRaycast(processVBounds, beginPos / m_vboundsChunkSize, endPos / m_vboundsChunkSize, indices);
+		gridRaycast(processVBounds, beginPos / (btScalar)m_vboundsChunkSize, endPos / (btScalar)m_vboundsChunkSize, indices);
 	}
 }
 

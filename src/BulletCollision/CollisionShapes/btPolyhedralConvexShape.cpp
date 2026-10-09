@@ -129,7 +129,7 @@ bool btPolyhedralConvexShape::initializePolyhedralFeatures(int shiftVerticesByMa
 			combinedFace.m_indices.push_back(v1);
 			edge = edge->getNextEdgeOfFace();
 			prevVertex = v1;
-			int v01 = edge->getSourceVertex();
+			//int v01 = edge->getSourceVertex();
 			v1 = edge->getTargetVertex();
 		}
 

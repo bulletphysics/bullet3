@@ -81,8 +81,8 @@ static const char* bracketNames[] = {
 	"motor_back_leftL_bracket_joint",
 };
 
-static btVector3 KNEE_CONSTRAINT_POINT_LONG = btVector3(0, 0.0045, 0.088);
-static btVector3 KNEE_CONSTRAINT_POINT_SHORT = btVector3(0, 0.0045, 0.100);
+static btVector3 KNEE_CONSTRAINT_POINT_LONG = btVector3(0, btScalar(0.0045), btScalar(0.088));
+static btVector3 KNEE_CONSTRAINT_POINT_SHORT = btVector3(0, btScalar(0.0045), btScalar(0.100));
 #elif defined(MINITAUR_RAINBOWDASH_V0)
 static const char* minitaurURDF = "quadruped/minitaur_rainbow_dash.urdf";
 

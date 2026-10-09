@@ -25,23 +25,24 @@ subject to the following restrictions:
 #include "LinearR3.h"
 #include "MathMisc.h"
 #include "Node.h"
+using namespace std;
 
 extern int RotAxesOn;
 
-Node::Node(const VectorR3& attach, const VectorR3& v, double size, Purpose purpose, double minTheta, double maxTheta, double restAngle)
+Node::Node(const VectorR3& attach_, const VectorR3& v_, double size_, Purpose purpose_, double minTheta_, double maxTheta_, double restAngle_)
 {
 	Node::freezed = false;
-	Node::size = size;
-	Node::purpose = purpose;
+	Node::size = size_;
+	Node::purpose = purpose_;
 	seqNumJoint = -1;
 	seqNumEffector = -1;
-	Node::attach = attach;  // Global attachment point when joints are at zero angle
+	Node::attach = attach_;  // Global attachment point when joints are at zero angle
 	r.Set(0.0, 0.0, 0.0);   // r will be updated when this node is inserted into tree
-	Node::v = v;            // Rotation axis when joints at zero angles
+	Node::v = v_;            // Rotation axis when joints at zero angles
 	theta = 0.0;
-	Node::minTheta = minTheta;
-	Node::maxTheta = maxTheta;
-	Node::restAngle = restAngle;
+	Node::minTheta = minTheta_;
+	Node::maxTheta = maxTheta_;
+	Node::restAngle = restAngle_;
 	left = right = realparent = 0;
 }
 
@@ -49,14 +50,14 @@ Node::Node(const VectorR3& attach, const VectorR3& v, double size, Purpose purpo
 void Node::ComputeS(void)
 {
 	Node* y = this->realparent;
-	Node* w = this;
+	Node* t = this;
 	s = r;  // Initialize to local (relative) position
 	while (y)
 	{
 		s.Rotate(y->theta, y->v);
 		y = y->realparent;
-		w = w->realparent;
-		s += w->r;
+		t = t->realparent;
+		s += t->r;
 	}
 }
 

@@ -105,7 +105,7 @@ class TranspositionsBase
     inline Transpose<TranspositionsBase> inverse() const
     { return Transpose<TranspositionsBase>(derived()); }
 
-    /** \returns the tranpose transformation */
+    /** \returns the transpose transformation */
     inline Transpose<TranspositionsBase> transpose() const
     { return Transpose<TranspositionsBase>(derived()); }
 

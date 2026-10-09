@@ -2,7 +2,7 @@
 //b3ReadWavFile is implemented based on code from the STK toolkit
 //See https://github.com/thestk/stk
 //Some improvement: the ticking data (b3WavTicker) is separate from wav file,
-//This makes it possoble to play a single wav multiple times at the same time
+//This makes it possible to play a single wav multiple times at the same time
 
 #include "b3ReadWavFile.h"
 #include "b3SwapUtils.h"

@@ -62,7 +62,7 @@ It's mostly a bunch of personal notes, probably incomplete. Feel free to query i
  - input text: add ImGuiInputTextFlags_EnterToApply? (off #218)
  - input text: easier ways to update buffer (from source char*) while owned. preserve some sort of cursor position for multi-line text.
  - input text: add discard flag (e.g. ImGuiInputTextFlags_DiscardActiveBuffer) or make it easier to clear active focus for text replacement during edition (#725)
- - input text: display bug when clicking a drag/slider after an input text in a different window has all-selected text (order dependant). actually a very old bug but no one appears to have noticed it.
+ - input text: display bug when clicking a drag/slider after an input text in a different window has all-selected text (order dependent). actually a very old bug but no one appears to have noticed it.
  - input text multi-line: don't directly call AddText() which does an unnecessary vertex reserve for character count prior to clipping. and/or more line-based clipping to AddText(). and/or reorganize TextUnformatted/RenderText for more efficiency for large text (e.g TextUnformatted could clip and log separately, etc).
  - input text multi-line: support for cut/paste without selection (cut/paste the current line)
  - input text multi-line: line numbers? status bar? (follow up on #200)
@@ -72,7 +72,7 @@ It's mostly a bunch of personal notes, probably incomplete. Feel free to query i
  - input number: optional range min/max for Input*() functions
  - input number: holding [-]/[+] buttons could increase the step speed non-linearly (or user-controlled)
  - input number: use mouse wheel to step up/down
- - input number: applying arithmetics ops (+,-,*,/) messes up with text edit undo stack.
+ - input number: applying arithmetic ops (+,-,*,/) messes up with text edit undo stack.
 
  - layout: helper or a way to express ImGui::SameLine(ImGui::GetCursorStartPos().x + ImGui::CalcItemWidth() + ImGui::GetStyle().ItemInnerSpacing.x); in a simpler manner.
  - layout: generalization of the above: a concept equivalent to word processor ruler tab stop ~ mini columns (position in X, no clipping implied) (vaguely relate to #267, #395, also what is used internally for menu items)
@@ -81,7 +81,7 @@ It's mostly a bunch of personal notes, probably incomplete. Feel free to query i
  - layout: more generic alignment state (left/right/centered) for single items?
  - layout: clean up the InputFloatN/SliderFloatN/ColorEdit4 layout code. item width should include frame padding.
  - layout: BeginGroup() needs a border option. (~#1496)
- - layout: vertical alignement of mixed height items (e.g. buttons) within a same line (#1284)
+ - layout: vertical alignment of mixed height items (e.g. buttons) within a same line (#1284)
  
  - columns: sizing policy (e.g. for each column: fixed size, %, fill, distribute default size among fills) (#513, #125)
  - columns: add a conditional parameter to SetColumnOffset() (#513, #125)
@@ -126,7 +126,7 @@ It's mostly a bunch of personal notes, probably incomplete. Feel free to query i
  - image button: not taking an explicit id is odd.
  - slider: allow using the [-]/[+] buttons used by InputFloat()/InputInt()
  - slider: initial absolute click is imprecise. change to relative movement slider (same as scrollbar).
- - slider: add dragging-based widgets to edit values with mouse (on 2 axises), saving screen real-estate.
+ - slider: add dragging-based widgets to edit values with mouse (on 2 axes), saving screen real-estate.
  - slider: tint background based on value (e.g. v_min -> v_max, or use 0.0f either side of the sign)
  - slider: precision dragging
  - slider: step option (#1183)

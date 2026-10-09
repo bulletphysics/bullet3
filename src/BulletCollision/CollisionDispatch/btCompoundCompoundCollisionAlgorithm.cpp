@@ -55,7 +55,7 @@ btCompoundCompoundCollisionAlgorithm::~btCompoundCompoundCollisionAlgorithm()
 	btAlignedFree(m_childCollisionAlgorithmCache);
 }
 
-void btCompoundCompoundCollisionAlgorithm::getAllContactManifolds(btManifoldArray& manifoldArray)
+void btCompoundCompoundCollisionAlgorithm::getAllContactManifolds(btManifoldArray& manifoldArrayL)
 {
 	int i;
 	btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
@@ -63,7 +63,7 @@ void btCompoundCompoundCollisionAlgorithm::getAllContactManifolds(btManifoldArra
 	{
 		if (pairs[i].m_userPointer)
 		{
-			((btCollisionAlgorithm*)pairs[i].m_userPointer)->getAllContactManifolds(manifoldArray);
+			((btCollisionAlgorithm*)pairs[i].m_userPointer)->getAllContactManifolds(manifoldArrayL);
 		}
 	}
 }
@@ -216,7 +216,7 @@ static DBVT_INLINE bool MyIntersect(const btDbvtAabbMm& a,
 									const btDbvtAabbMm& b, const btTransform& xform, btScalar distanceThreshold)
 {
 	btVector3 newmin, newmax;
-	btTransformAabb(b.Mins(), b.Maxs(), 0.f, xform, newmin, newmax);
+	btTransformAabb(b.Mins(), b.Maxs(), btScalar(0.f), xform, newmin, newmax);
 	newmin -= btVector3(distanceThreshold, distanceThreshold, distanceThreshold);
 	newmax += btVector3(distanceThreshold, distanceThreshold, distanceThreshold);
 	btDbvtAabbMm newb = btDbvtAabbMm::FromMM(newmin, newmax);
@@ -231,7 +231,7 @@ static inline void MycollideTT(const btDbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = btDbvt::DOUBLE_STACKSIZE - 4;
+		int threshold = btDbvt::DOUBLE_STACKSIZE - 4;
 		btAlignedObjectArray<btDbvt::sStkNN> stkStack;
 #ifdef USE_LOCAL_STACK
 		ATTRIBUTE_ALIGNED16(btDbvt::sStkNN localStack[btDbvt::DOUBLE_STACKSIZE]);
@@ -245,10 +245,10 @@ static inline void MycollideTT(const btDbvtNode* root0,
 			btDbvt::sStkNN p = stkStack[--depth];
 			if (MyIntersect(p.a->volume, p.b->volume, xform, distanceThreshold))
 			{
-				if (depth > treshold)
+				if (depth > threshold)
 				{
 					stkStack.resize(stkStack.size() * 2);
-					treshold = stkStack.size() - 4;
+					threshold = stkStack.size() - 4;
 				}
 				if (p.a->isinternal())
 				{
@@ -313,10 +313,10 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 	///so we should add a 'refreshManifolds' in the btCollisionAlgorithm
 	{
 		int i;
-		btManifoldArray manifoldArray;
+		btManifoldArray manifoldArrayL;
 #ifdef USE_LOCAL_STACK
 		btPersistentManifold localManifolds[4];
-		manifoldArray.initializeFromBuffer(&localManifolds, 0, 4);
+		manifoldArrayL.initializeFromBuffer(&localManifolds, 0, 4);
 #endif
 		btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
 		for (i = 0; i < pairs.size(); i++)
@@ -324,17 +324,17 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 			if (pairs[i].m_userPointer)
 			{
 				btCollisionAlgorithm* algo = (btCollisionAlgorithm*)pairs[i].m_userPointer;
-				algo->getAllContactManifolds(manifoldArray);
-				for (int m = 0; m < manifoldArray.size(); m++)
+				algo->getAllContactManifolds(manifoldArrayL);
+				for (int m = 0; m < manifoldArrayL.size(); m++)
 				{
-					if (manifoldArray[m]->getNumContacts())
+					if (manifoldArrayL[m]->getNumContacts())
 					{
-						resultOut->setPersistentManifold(manifoldArray[m]);
+						resultOut->setPersistentManifold(manifoldArrayL[m]);
 						resultOut->refreshContactPoints();
 						resultOut->setPersistentManifold(0);
 					}
 				}
-				manifoldArray.resize(0);
+				manifoldArrayL.resize(0);
 			}
 		}
 	}
@@ -355,7 +355,7 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 		btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
 
 		int i;
-		btManifoldArray manifoldArray;
+		btManifoldArray manifoldArrayL;
 
 		btVector3 aabbMin0, aabbMax0, aabbMin1, aabbMax1;
 
@@ -398,16 +398,16 @@ void btCompoundCompoundCollisionAlgorithm::processCollision(const btCollisionObj
 				}
 			}
 		}
-		for (int i = 0; i < m_removePairs.size(); i++)
+		for (int j = 0; j < m_removePairs.size(); j++)
 		{
-			m_childCollisionAlgorithmCache->removeOverlappingPair(m_removePairs[i].m_indexA, m_removePairs[i].m_indexB);
+			m_childCollisionAlgorithmCache->removeOverlappingPair(m_removePairs[j].m_indexA, m_removePairs[j].m_indexB);
 		}
 		m_removePairs.clear();
 	}
 }
 
-btScalar btCompoundCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0, btCollisionObject* body1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
+btScalar btCompoundCompoundCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* /*body0*/, btCollisionObject* /*body1*/, const btDispatcherInfo& /*dispatchInfo*/, btManifoldResult* /*resultOut*/)
 {
 	btAssert(0);
-	return 0.f;
+	return btScalar(0.f);
 }

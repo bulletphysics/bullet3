@@ -20,11 +20,11 @@ public:
 
 	virtual void getInfo2(b3ConstraintInfo2 * info, const b3RigidBodyData* bodies);
 
-	virtual void setParam(int num, b3Scalar value, int axis = -1)
+	virtual void setParam(int /*num*/, b3Scalar /*value*/, int /*axis = -1*/)
 	{
 		b3Assert(0);
 	}
-	virtual b3Scalar getParam(int num, int axis = -1) const
+	virtual b3Scalar getParam(int /*num*/, int /*axis = -1*/) const
 	{
 		b3Assert(0);
 		return 0.f;

@@ -13,7 +13,7 @@
 
 static Gwen::UnicodeString gs_ClipboardEmulator;
 
-void Gwen::Platform::SetCursor(unsigned char iCursor)
+void Gwen::Platform::SetCursor(unsigned char /*iCursor*/)
 {
 	// No platform independent way to do this
 }
@@ -35,7 +35,7 @@ float Gwen::Platform::GetTimeInSeconds()
 	return fSeconds;
 }
 
-bool Gwen::Platform::FileOpen(const String& Name, const String& StartPath, const String& Extension, Gwen::Event::Handler* pHandler, Event::Handler::FunctionStr fnCallback)
+bool Gwen::Platform::FileOpen(const String& /*Name*/, const String& /*StartPath*/, const String& /*Extension*/, Gwen::Event::Handler* /*pHandler*/, Event::Handler::FunctionStr /*fnCallback*/)
 {
 	// No platform independent way to do this.
 	// Ideally you would open a system dialog here
@@ -43,7 +43,7 @@ bool Gwen::Platform::FileOpen(const String& Name, const String& StartPath, const
 	return false;
 }
 
-bool Gwen::Platform::FileSave(const String& Name, const String& StartPath, const String& Extension, Gwen::Event::Handler* pHandler, Gwen::Event::Handler::FunctionStr fnCallback)
+bool Gwen::Platform::FileSave(const String& /*Name*/, const String& /*StartPath*/, const String& /*Extension*/, Gwen::Event::Handler* /*pHandler*/, Gwen::Event::Handler::FunctionStr /*fnCallback*/)
 {
 	// No platform independent way to do this.
 	// Ideally you would open a system dialog here

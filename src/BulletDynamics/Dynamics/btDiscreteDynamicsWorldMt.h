@@ -38,7 +38,7 @@ public:
 	// pass in fully constructed solvers (destructor will delete them)
 	btConstraintSolverPoolMt(btConstraintSolver** solvers, int numSolvers);
 
-	virtual ~btConstraintSolverPoolMt();
+	virtual ~btConstraintSolverPoolMt() BT_OVERRIDE;
 
 	///solve a group of constraints
 	virtual btScalar solveGroup(btCollisionObject** bodies,
@@ -123,7 +123,7 @@ public:
 							  btConstraintSolverPoolMt * solverPool,        // Note this should be a solver-pool for multi-threading
 							  btConstraintSolver * constraintSolverMt,      // single multi-threaded solver for large islands (or NULL)
 							  btCollisionConfiguration * collisionConfiguration);
-	virtual ~btDiscreteDynamicsWorldMt();
+	virtual ~btDiscreteDynamicsWorldMt() BT_OVERRIDE;
 
 	virtual int stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep) BT_OVERRIDE;
 };

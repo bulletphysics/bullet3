@@ -71,8 +71,8 @@ public:
 		//b3Assert(!((_x==1.f) && (_y==0.f) && (_z==0.f) && (_w==0.f)));
 	}
 	/**@brief Axis angle Constructor
-   * @param axis The axis which the rotation is around
-   * @param angle The magnitude of the rotation around the angle (Radians) */
+   * @param _axis The axis which the rotation is around
+   * @param _angle The magnitude of the rotation around the angle (Radians) */
 	b3Quaternion(const b3Vector3& _axis, const b3Scalar& _angle)
 	{
 		setRotation(_axis, _angle);
@@ -90,8 +90,8 @@ public:
 #endif
 	}
 	/**@brief Set the rotation using axis angle notation 
-   * @param axis The axis around which to rotate
-   * @param angle The magnitude of the rotation in Radians */
+   * @param axis1 The axis around which to rotate
+   * @param _angle The magnitude of the rotation in Radians */
 	void setRotation(const b3Vector3& axis1, const b3Scalar& _angle)
 	{
 		b3Vector3 axis = axis1;
@@ -132,9 +132,9 @@ public:
 	}
 
 	/**@brief Set the quaternion using euler angles 
-   * @param yaw Angle around Z
-   * @param pitch Angle around Y
-   * @param roll Angle around X */
+   * @param yawZ Angle around Z
+   * @param pitchY Angle around Y
+   * @param rollX Angle around X */
 	void setEulerZYX(const b3Scalar& yawZ, const b3Scalar& pitchY, const b3Scalar& rollX)
 	{
 		b3Scalar halfYaw = b3Scalar(yawZ) * b3Scalar(0.5);
@@ -154,9 +154,9 @@ public:
 	}
 
 	/**@brief Get the euler angles from this quaternion
-	   * @param yaw Angle around Z
-	   * @param pitch Angle around Y
-	   * @param roll Angle around X */
+	   * @param yawZ Angle around Z
+	   * @param pitchY Angle around Y
+	   * @param rollX Angle around X */
 	void getEulerZYX(b3Scalar& yawZ, b3Scalar& pitchY, b3Scalar& rollX) const
 	{
 		b3Scalar squ;
@@ -229,7 +229,7 @@ public:
 
 	/**@brief Multiply this quaternion by q on the right
    * @param q The other quaternion 
-   * Equivilant to this = this * q */
+   * Equivalent to this = this * q */
 	b3Quaternion& operator*=(const b3Quaternion& q)
 	{
 #if defined(B3_USE_SSE_IN_API) && defined(B3_USE_SSE)
@@ -841,7 +841,7 @@ b3Inverse(const b3Quaternion& q)
 	return q.inverse();
 }
 
-/**@brief Return the result of spherical linear interpolation betwen two quaternions 
+/**@brief Return the result of spherical linear interpolation between two quaternions 
  * @param q1 The first quaternion
  * @param q2 The second quaternion 
  * @param t The ration between q1 and q2.  t = 0 return q1, t=1 returns q2 
@@ -884,7 +884,7 @@ b3ShortestArcQuat(const b3Vector3& v0, const b3Vector3& v1)  // Game Programming
 	b3Vector3 c = v0.cross(v1);
 	b3Scalar d = v0.dot(v1);
 
-	if (d < -1.0 + B3_EPSILON)
+	if (d < b3Scalar(-1.0) + B3_EPSILON)
 	{
 		b3Vector3 n, unused;
 		b3PlaneSpace1(v0, n, unused);

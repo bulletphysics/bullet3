@@ -206,7 +206,7 @@ RtAudio ::RtAudio(RtAudio::Api api)
 	// It should not be possible to get here because the preprocessor
 	// definition __RTAUDIO_DUMMY__ is automatically defined if no
 	// API-specific definitions are passed to the compiler. But just in
-	// case something weird happens, we'll thow an error.
+	// case something weird happens, we'll throw an error.
 	std::string errorText = "\nRtAudio: no compiled API support found ... critical error!!\n\n";
 	throw(RtAudioError(errorText, RtAudioError::UNSPECIFIED));
 }
@@ -2979,14 +2979,14 @@ static long asioMessages(long selector, long value, void *message, double *opt);
 
 RtApiAsio ::RtApiAsio()
 {
-	// ASIO cannot run on a multi-threaded appartment. You can call
-	// CoInitialize beforehand, but it must be for appartment threading
+	// ASIO cannot run on a multi-threaded apartment. You can call
+	// CoInitialize beforehand, but it must be for apartment threading
 	// (in which case, CoInitilialize will return S_FALSE here).
 	coInitialized_ = false;
 	HRESULT hr = CoInitialize(NULL);
 	if (FAILED(hr))
 	{
-		errorText_ = "RtApiAsio::ASIO requires a single-threaded appartment. Call CoInitializeEx(0,COINIT_APARTMENTTHREADED)";
+		errorText_ = "RtApiAsio::ASIO requires a single-threaded apartment. Call CoInitializeEx(0,COINIT_APARTMENTTHREADED)";
 		error(RtAudioError::WARNING);
 	}
 	coInitialized_ = true;
@@ -3477,7 +3477,7 @@ bool RtApiAsio ::probeDeviceOpen(unsigned int device, StreamMode mode, unsigned 
 	{
 		// Standard method failed. This can happen with strict/misbehaving drivers that return valid buffer size ranges
 		// but only accept the preferred buffer size as parameter for ASIOCreateBuffers. eg. Creatives ASIO driver
-		// in that case, let's be naïve and try that instead
+		// in that case, let's be naï¿½ve and try that instead
 		*bufferSize = preferSize;
 		stream_.bufferSize = *bufferSize;
 		result = ASIOCreateBuffers(handle->bufferInfos, nChannels, stream_.bufferSize, &asioCallbacks);
@@ -6944,7 +6944,7 @@ void RtApiDs ::callbackEvent()
 			// e.g. Crystal Drivers: the capture buffer starts up 5700 to 9600
 			// bytes later than the write buffer.
 
-			// Stub: a serious risk of having a pre-emptive scheduling round
+			// Stub: a serious risk of having a preemptive scheduling round
 			// take place between the two GetCurrentPosition calls... but I'm
 			// really not sure how to solve the problem.  Temporarily boost to
 			// Realtime priority, maybe; but I'm not sure what priority the
@@ -7197,7 +7197,7 @@ void RtApiDs ::callbackEvent()
 			{
 				if (duplexPrerollBytes <= 0)
 				{
-					// Pre-roll time over. Be more agressive.
+					// Pre-roll time over. Be more aggressive.
 					int adjustment = endRead - safeReadPointer;
 
 					handle->xrun[1] = true;
@@ -8743,7 +8743,7 @@ void RtApiAlsa ::callbackEvent()
 
 		if (result < (int)stream_.bufferSize)
 		{
-			// Either an error or overrun occured.
+			// Either an error or overrun occurred.
 			if (result == -EPIPE)
 			{
 				snd_pcm_state_t state = snd_pcm_state(handle[1]);
@@ -8822,7 +8822,7 @@ tryOutput:
 
 		if (result < (int)stream_.bufferSize)
 		{
-			// Either an error or underrun occured.
+			// Either an error or underrun occurred.
 			if (result == -EPIPE)
 			{
 				snd_pcm_state_t state = snd_pcm_state(handle[0]);

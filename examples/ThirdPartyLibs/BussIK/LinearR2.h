@@ -28,7 +28,7 @@ subject to the following restrictions:
 //
 //    A.1. VectorR2: a column vector of length 2
 //
-//	  A.2. VectorHgR2 - homogenous vector for R2 (a 3-Vector)
+//	  A.2. VectorHgR2 - homogeneous vector for R2 (a 3-Vector)
 //
 // B. Matrix Classes
 //
@@ -44,7 +44,6 @@ subject to the following restrictions:
 #include <assert.h>
 #include <iostream>
 #include "MathMisc.h"
-using namespace std;
 
 class VectorR2;  // R2 Vector
 class VectorHgR2;
@@ -233,7 +232,7 @@ public:
 inline double NormalizeError(const Matrix2x2&);
 inline VectorR2 operator*(const Matrix2x2&, const VectorR2&);
 
-ostream& operator<<(ostream& os, const Matrix2x2& A);
+std::ostream& operator<<(std::ostream& os, const Matrix2x2& A);
 
 // *****************************************
 // LinearMapR2 class                       *
@@ -290,12 +289,12 @@ public:
 	inline RotationMapR2& operator*=(const RotationMapR2&);  // Matrix product
 
 	inline RotationMapR2 Transpose() const;
-	inline RotationMapR2 Inverse() const { return Transpose(); };  // Returns the transpose
+	inline RotationMapR2 Inverse() const { return Transpose(); }  // Returns the transpose
 	inline RotationMapR2& Invert()
 	{
 		MakeTranspose();
 		return *this;
-	};                                              // Transposes it.
+	}                                              // Transposes it.
 	inline VectorR2 Invert(const VectorR2&) const;  // Returns solution
 };
 
@@ -339,7 +338,7 @@ inline RotationMapR2 RotateToMap(const VectorR2& fromVec, const VectorR2& toVec)
 // * Stream Output Routines	(Prototypes)						 *
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ostream& operator<<(ostream& os, const VectorR2& u);
+std::ostream& operator<<(std::ostream& os, const VectorR2& u);
 
 // *****************************************************
 // * VectorR2 class - inlined functions				   *
@@ -354,8 +353,8 @@ inline VectorR2& VectorR2::Load(const double* v)
 
 inline VectorR2& VectorR2::Load(const float* v)
 {
-	x = *v;
-	y = *(v + 1);
+	x = (double)*v;
+	y = (double)*(v + 1);
 	return *this;
 }
 
@@ -957,13 +956,13 @@ inline VectorR2 ProjectToUnit(const VectorR2& u, const VectorR2& v)
 	return (u ^ v) * v;
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 inline VectorR2 ProjectPerpUnit(const VectorR2& u, const VectorR2& v)
 {
 	return (u - ((u ^ v) * v));
 }
 
-// Returns the projection of u onto the plane perpindicular to the unit vector v
+// Returns the projection of u onto the plane perpendicular to the unit vector v
 //    This one is more stable when u and v are nearly equal.
 inline VectorR2 ProjectPerpUnitDiff(const VectorR2& u, const VectorR2& v)
 {
@@ -1005,7 +1004,7 @@ inline LinearMapR2 VectorProjectMap(const VectorR2& u)
 }
 
 // PlaneProjectMap returns map projecting onto a given plane.
-//		The plane is the plane orthognal to u.
+//		The plane is the plane orthogonal to u.
 //		u must be a unit vector (otherwise the returned map is
 //		garbage).
 inline LinearMapR2 PerpProjectMap(const VectorR2& u)

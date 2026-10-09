@@ -36,7 +36,7 @@ public:
 	virtual void endRendering();
 
 	virtual float getRetinaScale() const { return 1.f; }
-	virtual void setAllowRetina(bool /*allowRetina*/){};
+	virtual void setAllowRetina(bool /*allowRetina*/){}
 
 	virtual void runMainLoop();
 	virtual float getTimeInSeconds();

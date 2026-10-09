@@ -289,19 +289,21 @@ void b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface, int 
 			//triangles->getLockedReadOnlyVertexIndexBase(vertexBase,numVerts,
 
 			unsigned int* gfxbase = (unsigned int*)(indexbase + nodeTriangleIndex * indexstride);
+			b3Assert(gfxbase);
 
 			for (int j = 2; j >= 0; j--)
 			{
-				int graphicsindex;
+				int graphicsindex=0;
                                 switch (indicestype) {
-                                        case PHY_INTEGER: graphicsindex = gfxbase[j]; break;
-                                        case PHY_SHORT: graphicsindex = ((unsigned short*)gfxbase)[j]; break;
-                                        case PHY_UCHAR: graphicsindex = ((unsigned char*)gfxbase)[j]; break;
+                                        case PHY_INTEGER: graphicsindex = (int)gfxbase[j]; break;
+                                        case PHY_SHORT: graphicsindex = (int)((unsigned short*)gfxbase)[j]; break;
+                                        case PHY_UCHAR: graphicsindex = (int)((unsigned char*)gfxbase)[j]; break;
                                         default: b3Assert(0);
                                 }
 				if (type == PHY_FLOAT)
 				{
 					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
+					b3Assert(graphicsbase);
 					triangleVerts[j] = b3MakeVector3(
 						graphicsbase[0] * meshScaling.getX(),
 						graphicsbase[1] * meshScaling.getY(),
@@ -310,6 +312,7 @@ void b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface, int 
 				else
 				{
 					double* graphicsbase = (double*)(vertexbase + graphicsindex * stride);
+					b3Assert(graphicsbase);
 					triangleVerts[j] = b3MakeVector3(b3Scalar(graphicsbase[0] * meshScaling.getX()), b3Scalar(graphicsbase[1] * meshScaling.getY()), b3Scalar(graphicsbase[2] * meshScaling.getZ()));
 				}
 			}
@@ -335,15 +338,15 @@ void b3OptimizedBvh::updateBvhNodes(b3StridingMeshInterface* meshInterface, int 
 			b3QuantizedBvhNode* rightChildNode = leftChildNode->isLeafNode() ? &m_quantizedContiguousNodes[i + 2] : &m_quantizedContiguousNodes[i + 1 + leftChildNode->getEscapeIndex()];
 
 			{
-				for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
 				{
-					curNode.m_quantizedAabbMin[i] = leftChildNode->m_quantizedAabbMin[i];
-					if (curNode.m_quantizedAabbMin[i] > rightChildNode->m_quantizedAabbMin[i])
-						curNode.m_quantizedAabbMin[i] = rightChildNode->m_quantizedAabbMin[i];
+					curNode.m_quantizedAabbMin[j] = leftChildNode->m_quantizedAabbMin[j];
+					if (curNode.m_quantizedAabbMin[j] > rightChildNode->m_quantizedAabbMin[j])
+						curNode.m_quantizedAabbMin[j] = rightChildNode->m_quantizedAabbMin[j];
 
-					curNode.m_quantizedAabbMax[i] = leftChildNode->m_quantizedAabbMax[i];
-					if (curNode.m_quantizedAabbMax[i] < rightChildNode->m_quantizedAabbMax[i])
-						curNode.m_quantizedAabbMax[i] = rightChildNode->m_quantizedAabbMax[i];
+					curNode.m_quantizedAabbMax[j] = leftChildNode->m_quantizedAabbMax[j];
+					if (curNode.m_quantizedAabbMax[j] < rightChildNode->m_quantizedAabbMax[j])
+						curNode.m_quantizedAabbMax[j] = rightChildNode->m_quantizedAabbMax[j];
 				}
 			}
 		}

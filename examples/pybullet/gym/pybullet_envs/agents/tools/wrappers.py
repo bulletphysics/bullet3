@@ -299,7 +299,7 @@ class LimitDuration(object):
 
 
 class ExternalProcess(object):
-  """Step environment in a separate process for lock free paralellism."""
+  """Step environment in a separate process for lock free parallelism."""
 
   # Message types for communication via the pipe.
   _ACCESS = 1
@@ -309,7 +309,7 @@ class ExternalProcess(object):
   _CLOSE = 5
 
   def __init__(self, constructor):
-    """Step environment in a separate process for lock free paralellism.
+    """Step environment in a separate process for lock free parallelism.
 
     The environment will be created in the external process by calling the
     specified callable. This can be an environment class, or a function
@@ -420,7 +420,7 @@ class ExternalProcess(object):
 
     Raises:
       Exception: An exception was raised inside the worker process.
-      KeyError: The reveived message is of an unknown type.
+      KeyError: The received message is of an unknown type.
 
     Returns:
       Payload object of the message.

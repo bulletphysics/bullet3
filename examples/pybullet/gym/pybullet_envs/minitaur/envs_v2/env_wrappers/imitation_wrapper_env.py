@@ -14,7 +14,7 @@ class ImitationWrapperEnv(object):
   """An env using for training policy with motion imitation."""
 
   def __init__(self, gym_env):
-    """Initialzes the wrapped env.
+    """Initializes the wrapped env.
 
     Args:
       gym_env: An instance of LocomotionGymEnv.
@@ -35,7 +35,7 @@ class ImitationWrapperEnv(object):
       action: Numpy array. The input action from an NN agent.
 
     Returns:
-      The tuple containing the modified observation, the reward, the epsiode end
+      The tuple containing the modified observation, the reward, the episode end
       indicator.
 
     Raises:

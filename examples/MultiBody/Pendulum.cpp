@@ -16,6 +16,8 @@ subject to the following restrictions:
 ///Original author: Erwin Coumans, January 2016
 ///Compare the simulation of a pendulum with
 
+#include "Pendulum.h"
+
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
 #include "pendulum_gold.h"
@@ -24,7 +26,7 @@ subject to the following restrictions:
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
-static btScalar radius(0.05);
+static btScalar radius = btScalar(0.05);
 
 struct Pendulum : public CommonMultiBodyBase
 {
@@ -76,8 +78,8 @@ void Pendulum::initPhysics()
 		int numLinks = 1;
 		bool canSleep = false;
 		bool selfCollide = false;
-		btVector3 linkHalfExtents(0.05, 0.5, 0.1);
-		btVector3 baseHalfExtents(0.05, 0.5, 0.1);
+		btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.5), btScalar(0.1));
+		btVector3 baseHalfExtents(btScalar(0.05), btScalar(0.5), btScalar(0.1));
 
 		btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
 		float baseMass = 0.f;
@@ -133,7 +135,7 @@ void Pendulum::initPhysics()
 			pMultiBody->setLinearDamping(0.1f);
 			pMultiBody->setAngularDamping(0.9f);
 		}
-		m_dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+		m_dynamicsWorld->setGravity(btVector3(0, btScalar(-9.81), 0));
 
 		for (int i = 0; i < pMultiBody->getNumLinks(); ++i)
 		{
@@ -163,7 +165,8 @@ void Pendulum::stepSimulation(float deltaTime)
 {
 	m_multiBody->addJointTorque(0, 20.0);
 #ifdef USE_GTEST
-	m_dynamicsWorld->stepSimulation(1. / 1000.0, 0);
+	m_dynamicsWorld->stepSimulation(btScalar(1. / 1000.0), 0);
+	(void)deltaTime;
 #else
 	m_dynamicsWorld->stepSimulation(deltaTime);
 #endif
@@ -183,10 +186,10 @@ TEST(BulletDynamicsTest, pendulum)
 	DummyGUIHelper noGfx;
 	Pendulum* setup = new Pendulum(&noGfx);
 	setup->initPhysics();
-	int numGoldValues = sizeof(sPendulumGold) / sizeof(float);
+	int numGoldValues = sizeof(sPendulumGold) / sizeof(btScalar);
 	for (int i = 0; i < 2000; i++)
 	{
-		setup->stepSimulation(0.001);
+		setup->stepSimulation(0.001f);
 		int index = i * 2 + 1;
 		ASSERT_LE(index, numGoldValues);
 		ASSERT_NEAR(setup->m_multiBody->getJointPos(0), sPendulumGold[index], 0.005);
@@ -197,7 +200,7 @@ TEST(BulletDynamicsTest, pendulum)
 
 int main(int argc, char** argv)
 {
-#if _MSC_VER
+#ifdef _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//void *testWhetherMemoryLeakDetectionWorks = malloc(1);
 #endif

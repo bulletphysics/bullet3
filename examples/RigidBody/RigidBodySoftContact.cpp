@@ -43,7 +43,7 @@ struct RigidBodySoftContact : public CommonRigidBodyBase
 		float dist = 3;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -58,7 +58,7 @@ void RigidBodySoftContact::initPhysics()
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 		m_broadphase = new btDbvtBroadphase();
@@ -96,7 +96,7 @@ void RigidBodySoftContact::initPhysics()
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 
 	{
-		btScalar mass(0.);
+		float mass(0.);
 		btRigidBody* body = createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 
 		body->setContactStiffnessAndDamping(300, 10);
@@ -104,7 +104,7 @@ void RigidBodySoftContact::initPhysics()
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 
 		//btBoxShape* colShape = createBoxShape(btVector3(1,1,1));
 
@@ -140,8 +140,9 @@ void RigidBodySoftContact::initPhysics()
 						btScalar(2.0 * j)));
 
 					btRigidBody* body;
-					body = createRigidBody(mass, startTransform, colShape);
+					body = createRigidBody((float)mass, startTransform, colShape);
 					//body->setAngularVelocity(btVector3(1,1,1));
+					(void)body;
 				}
 			}
 		}

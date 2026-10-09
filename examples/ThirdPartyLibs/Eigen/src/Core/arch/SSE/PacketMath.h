@@ -366,7 +366,7 @@ template<> EIGEN_STRONG_INLINE Packet16b pmul<Packet16b>(const Packet16b& a, con
 template<> EIGEN_STRONG_INLINE Packet4f pdiv<Packet4f>(const Packet4f& a, const Packet4f& b) { return _mm_div_ps(a,b); }
 template<> EIGEN_STRONG_INLINE Packet2d pdiv<Packet2d>(const Packet2d& a, const Packet2d& b) { return _mm_div_pd(a,b); }
 
-// for some weird raisons, it has to be overloaded for packet of integers
+// for some weird reasons, it has to be overloaded for packet of integers
 template<> EIGEN_STRONG_INLINE Packet4i pmadd(const Packet4i& a, const Packet4i& b, const Packet4i& c) { return padd(pmul(a,b), c); }
 #ifdef EIGEN_VECTORIZE_FMA
 template<> EIGEN_STRONG_INLINE Packet4f pmadd(const Packet4f& a, const Packet4f& b, const Packet4f& c) { return _mm_fmadd_ps(a,b,c); }
@@ -560,7 +560,7 @@ EIGEN_STRONG_INLINE Packet pminmax_propagate_nan(const Packet& a, const Packet& 
   return pselect<Packet>(not_nan_mask_a, m, a);
 }
 
-// Add specializations for min/max with prescribed NaN progation.
+// Add specializations for min/max with prescribed NaN propagation.
 template<>
 EIGEN_STRONG_INLINE Packet4f pmin<PropagateNumbers, Packet4f>(const Packet4f& a, const Packet4f& b) {
   return pminmax_propagate_numbers(a, b, pmin<Packet4f>);
@@ -621,7 +621,7 @@ template<> EIGEN_STRONG_INLINE Packet4i pabs(const Packet4i& a)
 #ifdef EIGEN_VECTORIZE_SSE4_1
 template<> EIGEN_STRONG_INLINE Packet4f pround<Packet4f>(const Packet4f& a)
 {
-  // Unfortunatly _mm_round_ps doesn't have a rounding mode to implement numext::round.
+  // Unfortunately _mm_round_ps doesn't have a rounding mode to implement numext::round.
   const Packet4f mask = pset1frombits<Packet4f>(0x80000000u);
   const Packet4f prev0dot5 = pset1frombits<Packet4f>(0x3EFFFFFFu);
   return _mm_round_ps(padd(por(pand(a, mask), prev0dot5), a), _MM_FROUND_TO_ZERO);

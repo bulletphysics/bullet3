@@ -100,7 +100,7 @@ struct RaytracerInternalData
 		for (int i = 0; i < numObjects; i++)
 		{
 			m_transforms[i].setIdentity();
-			btVector3 pos(0.f, 0.f, -(2.5 * numObjects * 0.5) + i * 2.5f);
+			btVector3 pos(0, 0, btScalar(-(2.5 * numObjects * 0.5) + (float)i * 2.5f));
 			m_transforms[i].setIdentity();
 			m_transforms[i].setOrigin(pos);
 			btQuaternion orn;
@@ -153,19 +153,19 @@ void RaytracerPhysicsSetup::initPhysics()
 }
 
 ///worldRaytest performs a ray versus all objects in a collision world, returning true is a hit is found (filling in worldNormal and worldHitPoint)
-bool RaytracerPhysicsSetup::worldRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& worldHitPoint)
+bool RaytracerPhysicsSetup::worldRaytest(const btVector3& /*rayFrom*/, const btVector3& /*rayTo*/, btVector3& /*worldNormal*/, btVector3& /*worldHitPoint*/)
 {
 	return false;
 }
 
 ///singleObjectRaytest performs a ray versus one collision shape, returning true is a hit is found (filling in worldNormal and worldHitPoint)
-bool RaytracerPhysicsSetup::singleObjectRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& worldHitPoint)
+bool RaytracerPhysicsSetup::singleObjectRaytest(const btVector3& /*rayFrom*/, const btVector3& /*rayTo*/, btVector3& /*worldNormal*/, btVector3& /*worldHitPoint*/)
 {
 	return false;
 }
 
 ///lowlevelRaytest performs a ray versus convex shape, returning true is a hit is found (filling in worldNormal and worldHitPoint)
-bool RaytracerPhysicsSetup::lowlevelRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& worldHitPoint)
+bool RaytracerPhysicsSetup::lowlevelRaytest(const btVector3& rayFrom, const btVector3& rayTo, btVector3& worldNormal, btVector3& /*worldHitPoint*/)
 {
 	btScalar closestHitResults = 1.f;
 
@@ -226,7 +226,7 @@ void RaytracerPhysicsSetup::exitPhysics()
 	}
 }
 
-void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
+void RaytracerPhysicsSetup::stepSimulation(float /*deltaTime*/)
 {
 	m_internalData->updateTransforms();
 
@@ -236,7 +236,7 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 
 	float tanFov = (top - bottom) * 0.5f / nearPlane;
 
-	float fov = 2.0 * atanf(tanFov);
+	float fov = 2.0f * atanf(tanFov);
 
 	btVector3 cameraPosition(5, 0, 0);
 	btVector3 cameraTargetPosition(0, 0, 0);
@@ -281,8 +281,8 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 		{
 			btVector4 rgba(0, 0, 0, 0);
 			btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
-			rayTo += x * dHor;
-			rayTo -= y * dVert;
+			rayTo += btScalar(x) * dHor;
+			rayTo -= btScalar(y) * dVert;
 			btVector3 worldNormal(0, 0, 0);
 			btVector3 worldPoint(0, 0, 0);
 
@@ -306,16 +306,16 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 
 			if (hasHit)
 			{
-				float lightVec0 = worldNormal.dot(btVector3(0, -1, -1));  //0.4f,-1.f,-0.4f));
-				float lightVec1 = worldNormal.dot(btVector3(-1, 0, -1));  //-0.4f,-1.f,-0.4f));
+				float lightVec0 = (float)worldNormal.dot(btVector3(0, -1, -1));  //0.4f,-1.f,-0.4f));
+				float lightVec1 = (float)worldNormal.dot(btVector3(-1, 0, -1));  //-0.4f,-1.f,-0.4f));
 
 				rgba = btVector4(lightVec0, lightVec1, 0, 1.f);
 				rgba.setMin(btVector3(1, 1, 1));
-				rgba.setMax(btVector3(0.2, 0.2, 0.2));
+				rgba.setMax(btVector3(btScalar(0.2), btScalar(0.2), btScalar(0.2)));
 				rgba[3] = 1.f;
-				unsigned char red = rgba[0] * 255;
-				unsigned char green = rgba[1] * 255;
-				unsigned char blue = rgba[2] * 255;
+				unsigned char red = (unsigned char)(rgba[0] * 255);
+				unsigned char green = (unsigned char)(rgba[1] * 255);
+				unsigned char blue = (unsigned char)(rgba[2] * 255);
 				unsigned char alpha = 255;
 				m_internalData->m_canvas->setPixel(m_internalData->m_canvasIndex, x, y, red, green, blue, alpha);
 			}
@@ -323,7 +323,7 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 			{
 				//	btVector4 rgba = raytracePicture->getPixel(x,y);
 			}
-			if (!rgba.length2())
+			if (rgba.length2() == btScalar(0))
 			{
 				m_internalData->m_canvas->setPixel(m_internalData->m_canvasIndex, x, y, 255, 0, 0, 255);
 			}
@@ -332,26 +332,26 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 	m_internalData->m_canvas->refreshImageData(m_internalData->m_canvasIndex);
 }
 
-void RaytracerPhysicsSetup::physicsDebugDraw(int debugDrawFlags)
+void RaytracerPhysicsSetup::physicsDebugDraw(int /*debugDrawFlags*/)
 {
 }
 
-bool RaytracerPhysicsSetup::mouseMoveCallback(float x, float y)
-{
-	return false;
-}
-
-bool RaytracerPhysicsSetup::mouseButtonCallback(int button, int state, float x, float y)
+bool RaytracerPhysicsSetup::mouseMoveCallback(float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-bool RaytracerPhysicsSetup::keyboardCallback(int key, int state)
+bool RaytracerPhysicsSetup::mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 {
 	return false;
 }
 
-void RaytracerPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& gfxBridge)
+bool RaytracerPhysicsSetup::keyboardCallback(int /*key*/, int /*state*/)
+{
+	return false;
+}
+
+void RaytracerPhysicsSetup::syncPhysicsToGraphics(GraphicsPhysicsBridge& /*gfxBridge*/)
 {
 }
 

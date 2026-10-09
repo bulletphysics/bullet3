@@ -128,7 +128,7 @@ class IMUBasedCOMVelocityEstimator(state_estimator.StateEstimatorBase):
   def com_velocity_body_yaw_aligned_frame(self) -> Sequence[float]:
     """The base velocity projected in the body yaw aligned inertial frame.
 
-    The body yaw aligned frame is a intertia frame where the z axis coincides
+    The body yaw aligned frame is a inertia frame where the z axis coincides
     with the yaw of the robot base and the x and y axis coincides with the world
     frame. It has a zero relative velocity/angular velocity
     to the world frame.

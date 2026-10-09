@@ -554,7 +554,7 @@ class MPCLocomotionWrapper(object):
     the ground earlier than expected. This is a common practice similar
     to the MIT cheetah and Marc Raibert's original controllers. After the
     designated swing motion finishes, we also command the foot to go down
-    for a short ditance (0.03m). This is to mitigate issues when the swing
+    for a short distance (0.03m). This is to mitigate issues when the swing
     finishes before it touches the ground.
 
     Args:

@@ -172,16 +172,16 @@ long _maxdot_large(const float *vv, const float *vec, unsigned long count, float
 
 			// find first occurrence of that max
 			size_t test;
-			for (index = 0; 0 == (test = _mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], max))); index++)  // local_count must be a multiple of 4
+			for (index = 0; 0 == (test = (size_t)_mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], max))); index++)  // local_count must be a multiple of 4
 			{
 			}
 			// record where it is.
-			maxIndex = 4 * index + segment + indexTable[test];
+			maxIndex = (long)(4 * index + segment + indexTable[test]);
 		}
 	}
 
 	// account for work we've already done
-	count -= segment;
+	count -= (unsigned long)segment;
 
 	// Deal with the last < STACK_ARRAY_COUNT vectors
 	max = dotMax;
@@ -356,7 +356,7 @@ long _maxdot_large(const float *vv, const float *vec, unsigned long count, float
 	// process the last few points
 	if (count & 3)
 	{
-		float4 v0, v1, v2, x, y, z;
+		float4 v0, v1, v2, x = {}, y = {}, z = {};
 		switch (count & 3)
 		{
 			case 3:
@@ -422,12 +422,12 @@ long _maxdot_large(const float *vv, const float *vec, unsigned long count, float
 
 		dotMax = max;
 
-		// scan for the first occurence of max in the array
+		// scan for the first occurrence of max in the array
 		size_t test;
-		for (index = 0; 0 == (test = _mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], max))); index++)  // local_count must be a multiple of 4
+		for (index = 0; 0 == (test = (size_t)_mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], max))); index++)  // local_count must be a multiple of 4
 		{
 		}
-		maxIndex = 4 * index + segment + indexTable[test];
+		maxIndex = (long)(4 * index + segment + indexTable[test]);
 	}
 
 	_mm_store_ss(dotResult, dotMax);
@@ -565,16 +565,16 @@ long _mindot_large(const float *vv, const float *vec, unsigned long count, float
 
 			// find first occurrence of that min
 			size_t test;
-			for (index = 0; 0 == (test = _mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], min))); index++)  // local_count must be a multiple of 4
+			for (index = 0; 0 == (test = (size_t)_mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], min))); index++)  // local_count must be a multiple of 4
 			{
 			}
 			// record where it is.
-			minIndex = 4 * index + segment + indexTable[test];
+			minIndex = (long)(4 * index + segment + indexTable[test]);
 		}
 	}
 
 	// account for work we've already done
-	count -= segment;
+	count -= (unsigned long)segment;
 
 	// Deal with the last < STACK_ARRAY_COUNT vectors
 	min = dotmin;
@@ -750,7 +750,7 @@ long _mindot_large(const float *vv, const float *vec, unsigned long count, float
 	// process the last few points
 	if (count & 3)
 	{
-		float4 v0, v1, v2, x, y, z;
+		float4 v0, v1, v2, x = {}, y = {}, z = {};
 		switch (count & 3)
 		{
 			case 3:
@@ -816,12 +816,12 @@ long _mindot_large(const float *vv, const float *vec, unsigned long count, float
 
 		dotmin = min;
 
-		// scan for the first occurence of min in the array
+		// scan for the first occurrence of min in the array
 		size_t test;
-		for (index = 0; 0 == (test = _mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], min))); index++)  // local_count must be a multiple of 4
+		for (index = 0; 0 == (test = (size_t)_mm_movemask_ps(_mm_cmpeq_ps(stack_array[index], min))); index++)  // local_count must be a multiple of 4
 		{
 		}
-		minIndex = 4 * index + segment + indexTable[test];
+		minIndex = (long)(4 * index + segment + indexTable[test]);
 	}
 
 	_mm_store_ss(dotResult, dotmin);

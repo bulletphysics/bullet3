@@ -79,7 +79,7 @@ public:
 	double x, y, z, w;
 
 public:
-	Quaternion() : x(0.0), y(0.0), z(0.0), w(1.0){};
+	Quaternion() : x(0.0), y(0.0), z(0.0), w(1.0){}
 	Quaternion(double, double, double, double);
 
 	inline Quaternion& Set(double xx, double yy, double zz, double ww);

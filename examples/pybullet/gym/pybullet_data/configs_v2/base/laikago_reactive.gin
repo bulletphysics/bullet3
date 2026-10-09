@@ -41,7 +41,7 @@ laikago_v2.Laikago.motor_control_mode = %robot_config.MotorControlMode.POSITION
 hybrid_motor_model.HybridMotorModel.kp = 220
 hybrid_motor_model.HybridMotorModel.kd = (0.3, 2.0, 2.0, 0.3, 2.0, 2.0, 0.3, 2.0, 2.0, 0.3, 2.0, 2.0)
 
-# This will make sure the hybrid motor model does not throw error during reset, when the timestamp is alwasy zero.
+# This will make sure the hybrid motor model does not throw error during reset, when the timestamp is always zero.
 time_ordered_buffer.TimeOrderedBuffer.error_on_duplicate_timestamp = False
 time_ordered_buffer.TimeOrderedBuffer.replace_value_on_duplicate_timestamp = True
 

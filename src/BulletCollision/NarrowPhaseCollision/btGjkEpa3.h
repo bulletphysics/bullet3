@@ -35,7 +35,7 @@ struct btGjkEpaSolver3
 	{
 		enum eStatus
 		{
-			Separated,   /* Shapes doesnt penetrate												*/
+			Separated,   /* Shapes doesn't penetrate											*/
 			Penetrating, /* Shapes are penetrating												*/
 			GJK_Failed,  /* GJK phase fail, no big issue, shapes are probably just 'touching'	*/
 			EPA_Failed   /* EPA phase fail, bigger problem, need to save parameters, and debug	*/
@@ -266,6 +266,8 @@ struct GJK
 										   cs.c[3]->w,
 										   weights, mask);
 					break;
+				default:
+					break;
 			}
 			if (sqdist >= 0)
 			{ /* Valid	*/
@@ -371,6 +373,8 @@ struct GJK
 					return (true);
 			}
 			break;
+			default:
+			break;
 		}
 		return (false);
 	}
@@ -441,7 +445,7 @@ struct GJK
 		if (l > GJK_SIMPLEX3_EPS)
 		{
 			btScalar mindist = -1;
-			btScalar subw[2] = {0.f, 0.f};
+			btScalar subw[2] = {btScalar(0.f), btScalar(0.f)};
 			U subm(0);
 			for (U i = 0; i < 3; ++i)
 			{
@@ -488,7 +492,7 @@ struct GJK
 		if (ng && (btFabs(vl) > GJK_SIMPLEX4_EPS))
 		{
 			btScalar mindist = -1;
-			btScalar subw[3] = {0.f, 0.f, 0.f};
+			btScalar subw[3] = {btScalar(0.f), btScalar(0.f), btScalar(0.f)};
 			U subm(0);
 			for (U i = 0; i < 3; ++i)
 			{
@@ -900,6 +904,7 @@ bool btGjkEpaSolver3_Distance(const btConvexTemplate& a, const btConvexTemplate&
 							  btGjkEpaSolver3::sResults& results)
 {
 	MinkowskiDiff<btConvexTemplate> shape(a, b);
+	shape.m_enableMargin = false;
 	Initialize(a, b, results, shape);
 	GJK<btConvexTemplate> gjk(a, b);
 	eGjkStatus gjk_status = gjk.Evaluate(shape, guess);

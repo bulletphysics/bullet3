@@ -62,7 +62,7 @@ namespace ConvexDecomposition
 class FaceTri
 {
 public:
-	FaceTri(void){};
+	FaceTri(void){}
 	FaceTri(const float *vertices, unsigned int i1, unsigned int i2, unsigned int i3)
 	{
 		mP1.Set(&vertices[i1 * 3]);
@@ -76,7 +76,7 @@ public:
 	Vector3d mNormal;
 };
 
-void addTri(VertexLookup vl, UintVector &list, const Vector3d &p1, const Vector3d &p2, const Vector3d &p3)
+static void addTri(VertexLookup vl, UintVector &list, const Vector3d &p1, const Vector3d &p2, const Vector3d &p3)
 {
 	unsigned int i1 = Vl_getIndex(vl, p1.Ptr());
 	unsigned int i2 = Vl_getIndex(vl, p2.Ptr());
@@ -198,7 +198,7 @@ void calcConvexDecomposition(unsigned int vcount,
 	showmesh = true;
 #endif
 
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		showmesh = true;
 		for (float x = -1; x < 1; x += 0.10f)
@@ -312,17 +312,19 @@ void calcConvexDecomposition(unsigned int vcount,
 					}
 
 					break;
+				default:
+					break;
 			}
 		}
 
 		// ok... here we recursively call
 		if (ifront.size())
 		{
-			unsigned int vcount = Vl_getVcount(vfront);
-			const float *vertices = Vl_getVertices(vfront);
-			unsigned int tcount = ifront.size() / 3;
+			unsigned int vertCount = Vl_getVcount(vfront);
+			const float *verts = Vl_getVertices(vfront);
+			unsigned int triCount = (unsigned int)(ifront.size() / 3);
 
-			calcConvexDecomposition(vcount, vertices, tcount, &ifront[0], callback, masterVolume, depth + 1);
+			calcConvexDecomposition(vertCount, verts, triCount, &ifront[0], callback, masterVolume, depth + 1);
 		}
 
 		ifront.clear();
@@ -331,11 +333,11 @@ void calcConvexDecomposition(unsigned int vcount,
 
 		if (iback.size())
 		{
-			unsigned int vcount = Vl_getVcount(vback);
-			const float *vertices = Vl_getVertices(vback);
-			unsigned int tcount = iback.size() / 3;
+			unsigned int vertCount = Vl_getVcount(vback);
+			const float *verts = Vl_getVertices(vback);
+			unsigned int triCount = (unsigned int)(iback.size() / 3);
 
-			calcConvexDecomposition(vcount, vertices, tcount, &iback[0], callback, masterVolume, depth + 1);
+			calcConvexDecomposition(vertCount, verts, triCount, &iback[0], callback, masterVolume, depth + 1);
 		}
 
 		iback.clear();

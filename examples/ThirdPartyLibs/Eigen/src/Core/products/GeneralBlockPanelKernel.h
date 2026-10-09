@@ -795,7 +795,7 @@ public:
   typedef typename conditional<Vectorizable,ScalarPacket,Scalar>::type ResPacket;
   typedef typename conditional<Vectorizable,DoublePacketType,Scalar>::type AccPacket;
 
-  // this actualy holds 8 packets!
+  // this actually holds 8 packets!
   typedef QuadPacket<RhsPacket> RhsPacketx4;
   
   EIGEN_STRONG_INLINE void initAcc(Scalar& p) { p = Scalar(0); }
@@ -1235,7 +1235,7 @@ struct lhs_process_one_packet
         traits.initAcc(C3);
         // To improve instruction pipelining, let's double the accumulation registers:
         //  even k will accumulate in C*, while odd k will accumulate in D*.
-        // This trick is crutial to get good performance with FMA, otherwise it is 
+        // This trick is crucial to get good performance with FMA, otherwise it is 
         // actually faster to perform separated MUL+ADD because of a naturally
         // better instruction-level parallelism.
         AccPacket D0, D1, D2, D3;
@@ -2620,7 +2620,7 @@ inline std::ptrdiff_t l2CacheSize()
   return l2;
 }
 
-/** \returns the currently set level 3 cpu cache size (in bytes) used to estimate the ideal blocking size paramete\
+/** \returns the currently set level 3 cpu cache size (in bytes) used to estimate the ideal blocking size parameter\
 rs.                                                                                                                
 * \sa setCpuCacheSize */
 inline std::ptrdiff_t l3CacheSize()

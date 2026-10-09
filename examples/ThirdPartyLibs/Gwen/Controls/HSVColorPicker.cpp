@@ -102,19 +102,19 @@ void HSVColorPicker::NumericTyped(Gwen::Controls::Base* control)
 
 	if (box->GetName().find("Red") != Gwen::String::npos)
 	{
-		newColor.r = textValue;
+		newColor.r = (unsigned char)textValue;
 	}
 	else if (box->GetName().find("Green") != Gwen::String::npos)
 	{
-		newColor.g = textValue;
+		newColor.g = (unsigned char)textValue;
 	}
 	else if (box->GetName().find("Blue") != Gwen::String::npos)
 	{
-		newColor.b = textValue;
+		newColor.b = (unsigned char)textValue;
 	}
 	else if (box->GetName().find("Alpha") != Gwen::String::npos)
 	{
-		newColor.a = textValue;
+		newColor.a = (unsigned char)textValue;
 	}
 
 	SetColor(newColor);

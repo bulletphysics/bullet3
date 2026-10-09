@@ -26,7 +26,7 @@ public:
 	Model();
 	void setColorRGBA(const float rgba[4])
 	{
-		for (int i = 0; i < 4; i++)
+		for (size_t i = 0; i < 4; i++)
 			m_colorRGBA[i] = rgba[i];
 	}
 
@@ -46,7 +46,7 @@ public:
 	int nverts();
 	int nnormals()
 	{
-		return norms_.size();
+		return (int)norms_.size();
 	}
 	int nfaces();
 	

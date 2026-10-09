@@ -109,7 +109,7 @@ struct b3DbvtTreeCollider : b3DynamicBvh::ICollide
 		{
 			b3DbvtProxy* pa = (b3DbvtProxy*)na->data;
 			b3DbvtProxy* pb = (b3DbvtProxy*)nb->data;
-#if B3_DBVT_BP_SORTPAIRS
+#ifdef B3_DBVT_BP_SORTPAIRS
 			if (pa->m_uniqueId > pb->m_uniqueId)
 				b3Swap(pa, pb);
 #endif
@@ -574,7 +574,7 @@ void b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 				b3DbvtProxy* pb = &m_proxies[p.y];
 				if (!b3Intersect(pa->leaf->volume, pb->leaf->volume))
 				{
-#if B3_DBVT_BP_SORTPAIRS
+#ifdef B3_DBVT_BP_SORTPAIRS
 					if (pa->m_uniqueId > pb->m_uniqueId)
 						b3Swap(pa, pb);
 #endif
@@ -594,7 +594,7 @@ void b3DynamicBvhBroadphase::collide(b3Dispatcher* dispatcher)
 	m_needcleanup = false;
 	if (m_updates_call > 0)
 	{
-		m_updates_ratio = m_updates_done / (b3Scalar)m_updates_call;
+		m_updates_ratio = (b3Scalar)m_updates_done / (b3Scalar)m_updates_call;
 	}
 	else
 	{
@@ -643,7 +643,7 @@ void b3DynamicBvhBroadphase::getBroadphaseAabb(b3Vector3& aabbMin, b3Vector3& aa
 	aabbMax = bounds.Maxs();
 }
 
-void b3DynamicBvhBroadphase::resetPool(b3Dispatcher* dispatcher)
+void b3DynamicBvhBroadphase::resetPool(b3Dispatcher* /*dispatcher*/)
 {
 	int totalObjects = m_sets[0].m_leaves + m_sets[1].m_leaves;
 	if (!totalObjects)

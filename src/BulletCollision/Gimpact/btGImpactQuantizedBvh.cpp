@@ -41,7 +41,7 @@ void bt_end_gim02_q_tree_time()
 	g_q_count_traversing++;
 }
 
-//! Gets the average time in miliseconds of tree collisions
+//! Gets the average time in milliseconds of tree collisions
 float btGImpactQuantizedBvh::getAverageTreeCollisionTime()
 {
 	if (g_q_count_traversing == 0) return 0;
@@ -65,7 +65,7 @@ float btGImpactQuantizedBvh::getAverageTreeCollisionTime()
 void btQuantizedBvhTree::calc_quantization(
 	GIM_BVH_DATA_ARRAY& primitive_boxes, btScalar boundMargin)
 {
-	//calc globa box
+	//calc global box
 	btAABB global_bound;
 	global_bound.invalidate();
 

@@ -75,7 +75,7 @@ struct GIM_TRIANGLE_CONTACT_DATA
 											   GREAL margin, const btVector3 *points, GUINT point_count, DISTANCE_FUNC distance_func)
 	{
 		m_point_count = 0;
-		m_penetration_depth = -1000.0f;
+		m_penetration_depth = GREAL(-1000.0f);
 
 		GUINT point_indices[MAX_TRI_CLIPPING];
 
@@ -85,7 +85,7 @@ struct GIM_TRIANGLE_CONTACT_DATA
 		{
 			GREAL _dist = -distance_func(plane, points[_k]) + margin;
 
-			if (_dist >= 0.0f)
+			if (_dist >= GREAL(0.0f))
 			{
 				if (_dist > m_penetration_depth)
 				{
@@ -123,7 +123,7 @@ public:
 	btScalar m_margin;
 	btVector3 m_vertices[3];
 
-	GIM_TRIANGLE() : m_margin(0.1f)
+	GIM_TRIANGLE() : m_margin(GREAL(0.1f))
 	{
 	}
 
@@ -140,7 +140,6 @@ public:
 	SIMD_FORCE_INLINE void get_plane(btVector4 &plane) const
 	{
 		TRIANGLE_PLANE(m_vertices[0], m_vertices[1], m_vertices[2], plane);
-		;
 	}
 
 	SIMD_FORCE_INLINE void apply_transform(const btTransform &trans)
@@ -247,7 +246,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 		btVector3 _axe1 = m_vertices[1] - m_vertices[0];
 		btVector3 _axe2 = m_vertices[2] - m_vertices[0];
 		btVector3 _vecproj = point - m_vertices[0];
-		GUINT _i1 = (tri_plane.closestAxis() + 1) % 3;
+		GUINT _i1 = (GUINT)(tri_plane.closestAxis() + 1) % 3;
 		GUINT _i2 = (_i1 + 1) % 3;
 		if (btFabs(_axe2[_i2]) < G_EPSILON)
 		{
@@ -276,7 +275,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 			{
 				return false;
 			}
-			else if (sumuv - 1.0f > G_EPSILON)
+			else if (sumuv - GREAL(1.0f) > G_EPSILON)
 			{
 				return false;
 			}
@@ -294,19 +293,19 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 		btVector4 edge_plane;
 		this->get_edge_plane(0, tri_normal, edge_plane);
 		GREAL dist = DISTANCE_PLANE_POINT(edge_plane, point);
-		if (dist - m_margin > 0.0f) return false;  // outside plane
+		if (dist - m_margin > GREAL(0.0f)) return false;  // outside plane
 
 		this->get_edge_plane(1, tri_normal, edge_plane);
 		dist = DISTANCE_PLANE_POINT(edge_plane, point);
-		if (dist - m_margin > 0.0f) return false;  // outside plane
+		if (dist - m_margin > GREAL(0.0f)) return false;  // outside plane
 
 		this->get_edge_plane(2, tri_normal, edge_plane);
 		dist = DISTANCE_PLANE_POINT(edge_plane, point);
-		if (dist - m_margin > 0.0f) return false;  // outside plane
+		if (dist - m_margin > GREAL(0.0f)) return false;  // outside plane
 		return true;
 	}
 
-	//! Bidireccional ray collision
+	//! Bidirectional ray collision
 	SIMD_FORCE_INLINE bool ray_collision(
 		const btVector3 &vPoint,
 		const btVector3 &vDir, btVector3 &pout, btVector3 &triangle_normal,
@@ -338,7 +337,7 @@ if 0.0<= u+v <=1.0 then they are inside of triangle
 		return true;
 	}
 
-	//! one direccion ray collision
+	//! one direction ray collision
 	SIMD_FORCE_INLINE bool ray_collision_front_side(
 		const btVector3 &vPoint,
 		const btVector3 &vDir, btVector3 &pout, btVector3 &triangle_normal,

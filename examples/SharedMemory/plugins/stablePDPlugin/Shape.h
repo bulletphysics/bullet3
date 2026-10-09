@@ -13,7 +13,7 @@ public:
 		eShapeSphere,
 		eShapeCylinder,
 		eShapePlane,
-		eShapeMax,
+		eShapeMax
 	};
 
 	static bool ParseShape(const std::string& str, cShape::eShape& out_shape);

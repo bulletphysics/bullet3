@@ -51,7 +51,7 @@ public:
 
 	struct IslandCallback
 	{
-		virtual ~IslandCallback(){};
+		virtual ~IslandCallback(){}
 
 		virtual void processIsland(btCollisionObject** bodies, int numBodies, class btPersistentManifold** manifolds, int numManifolds, int islandId) = 0;
 	};

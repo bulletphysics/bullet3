@@ -75,7 +75,7 @@ def generate_default_swing_trajectory(phase, init_pose, end_pose):
   # swing.
   phi = 0.1
 
-  # We convert the extension back into the cartesion space. In this way we can
+  # We convert the extension back into the cartesian space. In this way we can
   # guarantee a lift-up trajectory. The ankle to hip distance is easier to
   # compute than a full forward-kinematics.
   min_ankle_dist = minitaur_raibert_controller_utils.extension_to_ankle_dist(

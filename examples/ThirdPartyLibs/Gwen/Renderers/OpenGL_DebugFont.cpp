@@ -22,35 +22,35 @@
 #include "FontData.h"
 
 //saved OpenGL settings
-GLfloat m_PrevLineWidth;
-GLint m_PrevTexEnv;
-GLint m_PrevPolygonMode[2];
-GLint m_MaxClipPlanes;
-GLint m_PrevTexture;
-GLint m_PrevArrayBufferARB;
-GLint m_PrevElementArrayBufferARB;
-GLboolean m_PrevVertexProgramARB;
-GLboolean m_PrevFragmentProgramARB;
-GLuint m_PrevProgramObjectARB;
-GLboolean m_PrevTexture3D;
-GLboolean m_PrevActiveTexture1D[32];
-GLboolean m_PrevActiveTexture2D[32];
-GLboolean m_PrevActiveTexture3D[32];
-GLint m_PrevActiveTextureARB;
-bool m_SupportTexRect;
-GLboolean m_PrevTexRectARB;
-GLint m_PrevBlendEquation;
-GLint m_PrevBlendEquationRGB;
-GLint m_PrevBlendEquationAlpha;
-GLint m_PrevBlendSrcRGB;
-GLint m_PrevBlendDstRGB;
-GLint m_PrevBlendSrcAlpha;
-GLint m_PrevBlendDstAlpha;
-GLint m_ViewportInit[4];
-GLfloat m_ProjMatrixInit[16];
-GLboolean m_texGenS;
-GLboolean m_texGenT;
-GLboolean m_texGenR;
+static GLfloat m_PrevLineWidth;
+static GLint m_PrevTexEnv;
+static GLint m_PrevPolygonMode[2];
+static GLint m_MaxClipPlanes;
+static GLint m_PrevTexture;
+static GLint m_PrevArrayBufferARB;
+static GLint m_PrevElementArrayBufferARB;
+static GLboolean m_PrevVertexProgramARB;
+static GLboolean m_PrevFragmentProgramARB;
+static GLuint m_PrevProgramObjectARB;
+static GLboolean m_PrevTexture3D;
+static GLboolean m_PrevActiveTexture1D[32];
+static GLboolean m_PrevActiveTexture2D[32];
+static GLboolean m_PrevActiveTexture3D[32];
+static GLint m_PrevActiveTextureARB;
+static bool m_SupportTexRect;
+static GLboolean m_PrevTexRectARB;
+static GLint m_PrevBlendEquation;
+static GLint m_PrevBlendEquationRGB;
+static GLint m_PrevBlendEquationAlpha;
+static GLint m_PrevBlendSrcRGB;
+static GLint m_PrevBlendDstRGB;
+static GLint m_PrevBlendSrcAlpha;
+static GLint m_PrevBlendDstAlpha;
+static GLint m_ViewportInit[4];
+static GLfloat m_ProjMatrixInit[16];
+static GLboolean m_texGenS;
+static GLboolean m_texGenT;
+static GLboolean m_texGenR;
 
 void restoreOpenGLState()
 {
@@ -292,19 +292,19 @@ void OpenGL_DebugFont::StartClip()
 	{
 		GLint view[4];
 		glGetIntegerv(GL_VIEWPORT, &view[0]);
-		rect.y = view[3] / retinaScale - (rect.y + rect.h);
+		rect.y = int((float)view[3] / retinaScale - (float)(rect.y + rect.h));
 	}
 
-	glScissor(retinaScale * rect.x * Scale(), retinaScale * rect.y * Scale(), retinaScale * rect.w * Scale(), retinaScale * rect.h * Scale());
+	glScissor(int(retinaScale * (float)rect.x * Scale()), int(retinaScale * (float)rect.y * Scale()), int(retinaScale * (float)rect.w * Scale()), int(retinaScale * (float)rect.h * Scale()));
 	glEnable(GL_SCISSOR_TEST);
 	//glDisable( GL_SCISSOR_TEST );
-};
+}
 
 void OpenGL_DebugFont::EndClip()
 {
 	Flush();
 	glDisable(GL_SCISSOR_TEST);
-};
+}
 
 void OpenGL_DebugFont::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text)
 {
@@ -319,9 +319,9 @@ void OpenGL_DebugFont::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen
 	for (int i = 0; i < (int)text.length(); i++)
 	{
 		//	wchar_t chr = text[i];
-		char ch = converted_string[i];
+		char ch = converted_string[(size_t)i];
 		float curSpacing = sGwenDebugFontSpacing[(int)ch] * m_fLetterSpacing * fSize * m_fFontScale[0];
-		Gwen::Rect r(pos.x + yOffset, pos.y - fSize * 0.2f, (fSize * m_fFontScale[0]), fSize * m_fFontScale[1]);
+		Gwen::Rect r(int((float)pos.x + yOffset), int((float)pos.y - fSize * 0.2f), int(fSize * m_fFontScale[0]), int(fSize * m_fFontScale[1]));
 
 		if (m_pFontTexture)
 		{
@@ -329,8 +329,8 @@ void OpenGL_DebugFont::RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen
 
 			if (ch >= 0)
 			{
-				float cx = (ch % 16) / 16.0;
-				float cy = (ch / 16) / 16.0;
+				float cx = (float)(ch % 16) / 16.0f;
+				float cy = (float)(ch / 16) / 16.0f;
 				uv_texcoords[0] = cx;
 				uv_texcoords[1] = cy;
 				uv_texcoords[4] = float(cx + 1.0f / 16.0f);
@@ -390,12 +390,12 @@ Gwen::Point OpenGL_DebugFont::MeasureText(Gwen::Font* pFont, const Gwen::Unicode
 
 	for (int i = 0; i < (int)text.length(); i++)
 	{
-		char ch = converted_string[i];
+		char ch = converted_string[(size_t)i];
 		spacing += sGwenDebugFontSpacing[(int)ch];
 	}
 
-	p.x = spacing * m_fLetterSpacing * fSize * m_fFontScale[0];
-	p.y = pFont->size * Scale() * m_fFontScale[1];
+	p.x = int(spacing * m_fLetterSpacing * fSize * m_fFontScale[0]);
+	p.y = int(pFont->size * Scale() * m_fFontScale[1]);
 	return p;
 }
 

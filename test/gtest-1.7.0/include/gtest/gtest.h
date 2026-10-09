@@ -55,6 +55,10 @@
 #include <ostream>
 #include <vector>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
+#endif
 #include "gtest/internal/gtest-internal.h"
 #include "gtest/internal/gtest-string.h"
 #include "gtest/gtest-death-test.h"
@@ -1297,7 +1301,7 @@ private:
 	internal::UnitTestImpl* impl() { return impl_; }
 	const internal::UnitTestImpl* impl() const { return impl_; }
 
-	// These classes and funcions are friends as they need to access private
+	// These classes and functions are friends as they need to access private
 	// members of UnitTest.
 	friend class Test;
 	friend class internal::AssertHelper;
@@ -1494,11 +1498,13 @@ AssertionResult CmpHelperEQ(const char* expected_expression,
 {
 #ifdef _MSC_VER
 #pragma warning(push)            // Saves the current warning state.
-#pragma warning(disable : 4389)  // Temporarily disables warning on \
+#pragma warning(disable : 4389)  // Temporarily disables warning on
 								 // signed/unsigned mismatch.
+#pragma warning(disable : 4805)  // 'operation' : unsafe mix of type 'type' and type 'type' in operation
+#pragma warning(disable : 5219)  // implicit conversion
 #endif
 
-	if (expected == actual)
+	if ((int)expected == actual)
 	{
 		return AssertionSuccess();
 	}
@@ -1802,7 +1808,7 @@ public:
 private:
 	// We put our data in a struct so that the size of the AssertHelper class can
 	// be as small as possible.  This is important because gcc is incapable of
-	// re-using stack space even for temporary variables, so every EXPECT_EQ
+	// reusing stack space even for temporary variables, so every EXPECT_EQ
 	// reserves stack space for another AssertHelper.
 	struct AssertHelperData
 	{
@@ -2360,5 +2366,9 @@ inline int RUN_ALL_TESTS()
 {
 	return ::testing::UnitTest::GetInstance()->Run();
 }
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 #endif  // GTEST_INCLUDE_GTEST_GTEST_H_

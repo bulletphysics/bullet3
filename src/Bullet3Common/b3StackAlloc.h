@@ -95,7 +95,7 @@ public:
 		if (block == current)
 		{
 			current = block->previous;
-			usedsize = (unsigned int)((block->address - data) - sizeof(b3Block));
+			usedsize = (unsigned int)((size_t)(block->address - data) - sizeof(b3Block));
 		}
 	}
 

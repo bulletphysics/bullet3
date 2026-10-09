@@ -15,7 +15,7 @@
 #include "Bullet3Common/b3Logging.h"
 class InProcessPhysicsClientSharedMemoryMainThread : public PhysicsClientSharedMemory
 {
-	btInProcessExampleBrowserMainThreadInternalData* m_data;
+	btInProcessExampleBrowserMainThreadInternalData* m_dataInProcess;
 	b3Clock m_clock;
 
 public:
@@ -23,6 +23,7 @@ public:
 	{
 		int newargc = argc + 3;
 		char** newargv = (char**)malloc(sizeof(void*) * newargc);
+		btAssert(newargv);
 		char* t0 = (char*)"--unused";
 		newargv[0] = t0;
 		for (int i = 0; i < argc; i++)
@@ -30,8 +31,8 @@ public:
 		newargv[argc + 1] = (char*)"--logtostderr";
 		newargv[argc + 2] = (char*)"--start_demo_name=Physics Server";
 
-		m_data = btCreateInProcessExampleBrowserMainThread(newargc, newargv, useInProcessMemory);
-		SharedMemoryInterface* shMem = btGetSharedMemoryInterfaceMainThread(m_data);
+		m_dataInProcess = btCreateInProcessExampleBrowserMainThread(newargc, newargv, useInProcessMemory);
+		SharedMemoryInterface* shMem = btGetSharedMemoryInterfaceMainThread(m_dataInProcess);
 
 		setSharedMemoryInterface(shMem);
 	}
@@ -39,14 +40,14 @@ public:
 	virtual ~InProcessPhysicsClientSharedMemoryMainThread()
 	{
 		setSharedMemoryInterface(0);
-		btShutDownExampleBrowserMainThread(m_data);
+		btShutDownExampleBrowserMainThread(m_dataInProcess);
 	}
 
 	// return non-null if there is a status, nullptr otherwise
 	virtual const struct SharedMemoryStatus* processServerStatus()
 	{
 		{
-			if (btIsExampleBrowserMainThreadTerminated(m_data))
+			if (btIsExampleBrowserMainThreadTerminated(m_dataInProcess))
 			{
 				PhysicsClientSharedMemory::disconnectSharedMemory();
 			}
@@ -57,7 +58,7 @@ public:
 			{
 				B3_PROFILE("m_clock.reset()");
 
-				btUpdateInProcessExampleBrowserMainThread(m_data);
+				btUpdateInProcessExampleBrowserMainThread(m_dataInProcess);
 				m_clock.reset();
 			}
 		}
@@ -100,7 +101,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMain
 
 class InProcessPhysicsClientSharedMemory : public PhysicsClientSharedMemory
 {
-	btInProcessExampleBrowserInternalData* m_data;
+	btInProcessExampleBrowserInternalData* m_dataInProcess;
 	char** m_newargv;
 
 public:
@@ -108,6 +109,7 @@ public:
 	{
 		int newargc = argc + 2;
 		m_newargv = (char**)malloc(sizeof(void*) * newargc);
+		btAssert(m_newargv);
 		char* t0 = (char*)"--unused";
 		m_newargv[0] = t0;
 
@@ -116,15 +118,15 @@ public:
 
 		char* t1 = (char*)"--start_demo_name=Physics Server";
 		m_newargv[argc + 1] = t1;
-		m_data = btCreateInProcessExampleBrowser(newargc, m_newargv, useInProcessMemory);
-		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data);
+		m_dataInProcess = btCreateInProcessExampleBrowser(newargc, m_newargv, useInProcessMemory);
+		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_dataInProcess);
 		setSharedMemoryInterface(shMem);
 	}
 
 	virtual ~InProcessPhysicsClientSharedMemory()
 	{
 		setSharedMemoryInterface(0);
-		btShutDownExampleBrowser(m_data);
+		btShutDownExampleBrowser(m_dataInProcess);
 		free(m_newargv);
 	}
 };
@@ -200,7 +202,7 @@ public:
 
 		double dt = double(dtMicro) / 1000000.;
 
-		m_physicsServerExample->stepSimulation(dt);
+		m_physicsServerExample->stepSimulation((float)dt);
 		{
 			b3Clock::usleep(0);
 		}
@@ -289,7 +291,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 
 	cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
-	//backward compatiblity
+	//backward compatibility
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
@@ -310,7 +312,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 
 	cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
-	//backward compatiblity
+	//backward compatibility
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
@@ -329,14 +331,14 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 
 	//cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
-	//backward compatiblity
+	//backward compatibility
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
 
 
 
-//backward compatiblity
+//backward compatibility
 B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect2(void* guiHelperPtr)
 {
 	return b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect3(guiHelperPtr, SHARED_MEMORY_KEY);
@@ -363,6 +365,7 @@ public:
 	{
 		int newargc = 3;
 		m_newargv = (char**)malloc(sizeof(void*) * newargc);
+		btAssert(m_newargv);
 		char* t0 = (char*)"--unused";
 		m_newargv[0] = t0;
 
@@ -420,12 +423,13 @@ public:
 
 	virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
 	{
-		switch (command.m_type)
-		{
-		default:
-		{
-		}
-		}
+		(void)command;
+		// switch (command.m_type)
+		// {
+		// default:
+		// {
+		// }
+		// }
 		return true;
 	}
 
@@ -508,12 +512,13 @@ public:
 
 	virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
 	{
-		switch (command.m_type)
-		{
-		default:
-		{
-		}
-		}
+		(void)command;
+		// switch (command.m_type)
+		// {
+		// default:
+		// {
+		// }
+		// }
 		return true;
 	}
 

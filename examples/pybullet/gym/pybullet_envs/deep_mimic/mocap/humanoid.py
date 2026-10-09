@@ -422,7 +422,7 @@ class Humanoid(object):
                    self._pybullet_client)
 
   def ApplyPose(self, pose, initializeBase, initializeVelocities, humanoid, bc):
-    #todo: get tunable parametes from a json file or from URDF (kd, maxForce)
+    #todo: get tunable parameters from a json file or from URDF (kd, maxForce)
     if (initializeBase):
       bc.changeVisualShape(humanoid, 2, rgbaColor=[1, 0, 0, 1])
       basePos = [

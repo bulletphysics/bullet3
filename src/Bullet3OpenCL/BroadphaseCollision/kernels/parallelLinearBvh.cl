@@ -278,7 +278,7 @@ int rayIntersectsAabb(b3Vector3 rayOrigin, b3Scalar rayLength, b3Vector3 rayNorm
 	
 	int4 isNegative = isless( rayNormalizedDirection, ((b3Vector3){0.0f, 0.0f, 0.0f, 0.0f}) );	//isless(x,y) returns (x < y)
 	
-	//When using vector types, the select() function checks the most signficant bit, 
+	//When using vector types, the select() function checks the most significant bit, 
 	//but isless() sets the least significant bit.
 	isNegative <<= 31;
 

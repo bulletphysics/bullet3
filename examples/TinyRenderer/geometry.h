@@ -40,7 +40,7 @@ struct vec<2, T>
 	vec() : x(T()), y(T()) {}
 	vec(T X, T Y) : x(X), y(Y) {}
 	template <class U>
-	vec<2, T>(const vec<2, U>& v);
+	vec(const vec<2, U>& v);
 	T& operator[](const size_t i)
 	{
 		assert(i < 2);
@@ -63,7 +63,7 @@ struct vec<3, T>
 	vec() : x(T()), y(T()), z(T()) {}
 	vec(T X, T Y, T Z) : x(X), y(Y), z(Z) {}
 	template <class U>
-	vec<3, T>(const vec<3, U>& v);
+	vec(const vec<3, U>& v);
 	T& operator[](const size_t i)
 	{
 		assert(i < 3);
@@ -244,7 +244,7 @@ public:
 
 	T cofactor(size_t row, size_t col) const
 	{
-		return get_minor(row, col).det() * ((row + col) % 2 ? -1 : 1);
+		return (T)get_minor(row, col).det() * (T)(((row + col) % 2) ? -1 : 1);
 	}
 
 	mat<DimRows, DimCols, T> adjugate() const

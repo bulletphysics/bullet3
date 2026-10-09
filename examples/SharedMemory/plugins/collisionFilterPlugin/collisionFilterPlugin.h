@@ -17,7 +17,7 @@ extern "C"
 	B3_SHARED_API struct b3PluginCollisionInterface* getCollisionInterface_collisionFilterPlugin(struct b3PluginContext* context);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif  //#define COLLISION_FILTER_PLUGIN_H

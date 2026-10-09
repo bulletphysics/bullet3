@@ -106,7 +106,7 @@ void SparseLUImpl<Scalar,StorageIndex>::pruneL(const Index jcol, const IndexVect
           else 
           {
             // kmin below pivrow (not yet pivoted), and kmax
-            // above pivrow: interchange the two suscripts
+            // above pivrow: interchange the two subscripts
             std::swap(glu.lsub(kmin), glu.lsub(kmax)); 
             
             // If the supernode has only one column, then we 

@@ -56,18 +56,18 @@ B3_SHARED_API int preTickPluginCallback_pdControlPlugin(struct b3PluginContext* 
 	{
 		const MyPDControl& pdControl = obj->m_controllers[i];
 
-		int dof1 = 0;
+		// int dof1 = 0;
 		b3JointSensorState actualState;
 		if (obj->m_api.getJointState(pdControl.m_objectUniqueId, pdControl.m_linkIndex, &actualState))
 		{
 			if (pdControl.m_maxForce > 0)
 			{
 				//compute torque
-				btScalar qActual = actualState.m_jointPosition;
-				btScalar qdActual = actualState.m_jointVelocity;
+				btScalar qActual = (btScalar)actualState.m_jointPosition;
+				btScalar qdActual = (btScalar)actualState.m_jointVelocity;
 
 				btScalar positionError = (pdControl.m_desiredPosition - qActual);
-				double desiredVelocity = 0;
+				// double desiredVelocity = 0;
 				btScalar velocityError = (pdControl.m_desiredVelocity - qdActual);
 
 				btScalar force = pdControl.m_kp * positionError + pdControl.m_kd * velocityError;
@@ -95,7 +95,7 @@ B3_SHARED_API int executePluginCommand_pdControlPlugin(struct b3PluginContext* c
 		return -1;
 	}
 
-	int numObj = obj->m_api.getNumBodies();
+	// int numObj = obj->m_api.getNumBodies();
 	//printf("numObj = %d\n", numObj);
 
 	//protocol:
@@ -113,11 +113,11 @@ B3_SHARED_API int executePluginCommand_pdControlPlugin(struct b3PluginContext* c
 			if (arguments->m_numFloats < 5)
 				return -1;
 			MyPDControl controller;
-			controller.m_desiredPosition = arguments->m_floats[0];
-			controller.m_desiredVelocity = arguments->m_floats[1];
-			controller.m_kd = arguments->m_floats[2];
-			controller.m_kp = arguments->m_floats[3];
-			controller.m_maxForce = arguments->m_floats[4];
+			controller.m_desiredPosition = (btScalar)arguments->m_floats[0];
+			controller.m_desiredVelocity = (btScalar)arguments->m_floats[1];
+			controller.m_kd = (btScalar)arguments->m_floats[2];
+			controller.m_kp = (btScalar)arguments->m_floats[3];
+			controller.m_maxForce = (btScalar)arguments->m_floats[4];
 			controller.m_objectUniqueId = arguments->m_ints[1];
 			controller.m_linkIndex = arguments->m_ints[2];
 			int foundIndex = -1;

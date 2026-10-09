@@ -37,7 +37,7 @@ def hand_tuned_agent(observation, timestamp):
 
   # The following gains are hand-tuned. These gains are
   # designed according to traditional robotics techniques. These are linear
-  # feedback balance conroller. The idea is that when the base is tilting,
+  # feedback balance controller. The idea is that when the base is tilting,
   # the legs in the air should swing more towards the falling direction to catch
   # up falling. At the same time, the legs in the air should extend more to
   # touch ground earlier.

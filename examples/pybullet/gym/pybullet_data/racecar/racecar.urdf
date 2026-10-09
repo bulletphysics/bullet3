@@ -46,7 +46,7 @@
     <parent link="chassis"/>
     <child link="chassis_inertia"/>
   </joint>
-  <!-- Add the left rear wheel with its joints and tranmissions -->
+  <!-- Add the left rear wheel with its joints and transmissions -->
   <link name="left_rear_wheel">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.0225"/>
@@ -86,7 +86,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the right rear wheel with its joints and tranmissions -->
+  <!-- Add the right rear wheel with its joints and transmissions -->
   <link name="right_rear_wheel">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.0225"/>
@@ -124,7 +124,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the left steering hinge with its joints and tranmissions -->
+  <!-- Add the left steering hinge with its joints and transmissions -->
   <link name="left_steering_hinge">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -156,7 +156,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the right steering hinge with its joints and tranmissions -->
+  <!-- Add the right steering hinge with its joints and transmissions -->
   <link name="right_steering_hinge">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -188,7 +188,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the left front wheel with its joints and tranmissions -->
+  <!-- Add the left front wheel with its joints and transmissions -->
   <link name="left_front_wheel">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.0225"/>
@@ -226,7 +226,7 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
-  <!-- Add the left front wheel with its joints and tranmissions -->
+  <!-- Add the left front wheel with its joints and transmissions -->
   <link name="right_front_wheel">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.0225"/>

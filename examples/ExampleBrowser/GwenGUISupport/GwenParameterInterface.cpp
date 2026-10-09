@@ -21,7 +21,7 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 	{
 	}
 
-	void onButtonPress(Gwen::Controls::Base* pControl)
+	void onButtonPress(Gwen::Controls::Base* /*pControl*/)
 	{
 		if (m_callback)
 		{
@@ -68,7 +68,7 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 
 		if (m_callback)
 		{
-			(*m_callback)(v, m_userPointer);
+			(*m_callback)((float)v, m_userPointer);
 		}
 	}
 
@@ -83,13 +83,14 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		{
 			printf("?\n");
 		}
-		m_pSlider->SetValue(v, true);
+		m_pSlider->SetValue((float)v, true);
 		(*m_targetValue) = v;
 		float val = float(v);  //todo: specialize on template type
 		if (m_showValue)
 		{
-			char txt[1024];
+			char txt[1033];
 			safe_printf(txt, sizeof(txt), "%s : %.3f", m_variableName, val);
+			txt[1032] = '\0';
 			m_label->SetText(txt);
 		}
 	}
@@ -121,7 +122,7 @@ GwenParameterInterface::~GwenParameterInterface()
 
 void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
 {
-	int sliderCapped = sliderValue + 4;
+	int sliderCapped = int(sliderValue + 4);
 	sliderCapped /= 8;
 	sliderCapped *= 8;
 
@@ -133,7 +134,7 @@ void GwenParameterInterface::setSliderValue(int sliderIndex, double sliderValue)
 		float mappedValue = m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin() +
 							(m_paramInternalData->m_sliders[sliderIndex]->GetRangeMax() -
 							 m_paramInternalData->m_sliders[sliderIndex]->GetRangeMin()) *
-								sliderCapped / 128.f;
+								(float)sliderCapped / 128.f;
 		printf("mappedValue = %f\n", mappedValue);
 		m_paramInternalData->m_sliders[sliderIndex]->SetValue(mappedValue);
 	}
@@ -233,7 +234,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 		pSlider->SetNotchCount(16);  //float(params.m_maxVal-params.m_minVal)/100.f);
 		pSlider->SetClampToNotches(params.m_clampToNotches);
 	}
-	pSlider->SetValue(*params.m_paramValuePointer);  //dimensions[i] );
+	pSlider->SetValue((float)*params.m_paramValuePointer);  //dimensions[i] );
 	char labelName[1024];
 	safe_printf(labelName, sizeof(labelName), "%s", params.m_name);  //axisNames[0]);
 	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName, label, pSlider, params.m_paramValuePointer, params.m_callback, params.m_userPointer);
@@ -251,7 +252,7 @@ void GwenParameterInterface::syncParameters()
 	for (int i = 0; i < m_paramInternalData->m_sliderEventHandlers.size(); i++)
 	{
 		MySliderEventHandler<btScalar>* handler = m_paramInternalData->m_sliderEventHandlers[i];
-		handler->m_pSlider->SetValue(*handler->m_targetValue, true);
+		handler->m_pSlider->SetValue((float)*handler->m_targetValue, true);
 	}
 }
 

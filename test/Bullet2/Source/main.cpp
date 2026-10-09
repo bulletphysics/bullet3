@@ -67,7 +67,7 @@ const char *gArch =
 
 int main(int argc, const char *argv[])
 {
-	// Enable just one test programatically (instead of command-line param)
+	// Enable just one test programmatically (instead of command-line param)
 	// TestNode *node = (TestNode*) malloc( sizeof( TestNode ) );
 	// node->name = "btDbvt";
 	// node->next = 0;

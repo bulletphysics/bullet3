@@ -205,11 +205,11 @@ void Base::Position(int pos, int xpadding, int ypadding)
 
 	if (pos & Pos::Left) x = padding.left + xpadding;
 	if (pos & Pos::Right) x = w - Width() - padding.right - xpadding;
-	if (pos & Pos::CenterH) x = padding.left + xpadding + (w - Width() - padding.left - padding.right) * 0.5;
+	if (pos & Pos::CenterH) x = padding.left + xpadding + int((w - Width() - padding.left - padding.right) * 0.5);
 
 	if (pos & Pos::Top) y = padding.top + ypadding;
 	if (pos & Pos::Bottom) y = h - Height() - padding.bottom - ypadding;
-	if (pos & Pos::CenterV) y = padding.top + ypadding + (h - Height() - padding.bottom - padding.top) * 0.5;
+	if (pos & Pos::CenterV) y = padding.top + ypadding + int((h - Height() - padding.bottom - padding.top) * 0.5);
 
 	SetPos(x, y);
 }
@@ -321,7 +321,7 @@ int Base::NumChildren()
 {
 	// Include m_InnerPanel's children here?
 
-	return Children.size();
+	return (int)Children.size();
 }
 
 void Base::OnChildAdded(Base* /*pChild*/)
@@ -713,12 +713,12 @@ void Base::RecurseLayout(Skin::Base* skin)
 	rBounds.y += m_Padding.top;
 	rBounds.h -= m_Padding.top + m_Padding.bottom;
 
-	int sz = Children.size();
+	int sz = (int)Children.size();
 	if (sz > 100)
 	{
 		//		printf("!\n");
 	}
-	int curChild = 0;
+	int curChild = 0; (void)curChild;
 	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
 	{
 		Base* pChild = *iter;

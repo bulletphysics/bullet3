@@ -28,7 +28,7 @@ public:
 
 	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 
-	//warning: some quick test to load SDF: we 'activate' a model, so we can re-use URDF code path
+	//warning: some quick test to load SDF: we 'activate' a model, so we can reuse URDF code path
 	virtual bool loadSDF(const char* fileName, bool forceFixedBase = false);
 	virtual int getNumModels() const;
 	virtual void activateModel(int modelIndex);

@@ -41,7 +41,7 @@ const double BASEMAXDIST = 0.02;
 const double MAXDIST = 0.08;  // optimal value for double Y shape : 0.08
 #endif
 const double DELTA = 0.4;
-const long double LAMBDA = 2.0;  // only for DLS. optimal : 0.24
+const long double LAMBDA = 2.0L;  // only for DLS. optimal : 0.24
 const double NEARZERO = 0.0000000001;
 
 enum UpdateMode

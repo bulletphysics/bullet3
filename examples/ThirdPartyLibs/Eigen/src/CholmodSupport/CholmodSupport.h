@@ -405,7 +405,7 @@ class CholmodBase : public SparseSolverBase<Derived>
       Scalar *x = static_cast<Scalar*>(m_cholmodFactor->x);
       if (m_cholmodFactor->is_super)
       {
-        // Supernodal factorization stored as a packed list of dense column-major blocs,
+        // Supernodal factorization stored as a packed list of dense column-major blocks,
         // as described by the following structure:
 
         // super[k] == index of the first column of the j-th super node

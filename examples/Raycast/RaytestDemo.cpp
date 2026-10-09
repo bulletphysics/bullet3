@@ -50,7 +50,7 @@ public:
 		float dist = 18;
 		float pitch = -30;
 		float yaw = 129;
-		float targetPos[3] = {-4.6, -4.7, -5.75};
+		float targetPos[3] = {-4.6f, -4.7f, -5.75f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -62,7 +62,7 @@ void RaytestDemo::castRays()
 	//add some simple animation
 	//if (!m_idle)
 	{
-		up += 0.01 * dir;
+		up += 0.01f * dir;
 
 		if (btFabs(up) > 2)
 		{
@@ -101,15 +101,15 @@ void RaytestDemo::castRays()
 			for (int i = 0; i < allResults.m_hitFractions.size(); i++)
 			{
 				btVector3 p = from.lerp(to, allResults.m_hitFractions[i]);
-				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
+				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, btScalar(0.1), red);
 				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + allResults.m_hitNormalWorld[i], red);
 			}
 		}
 
 		///first hit
 		{
-			btVector3 from(-30, 1.2, 0);
-			btVector3 to(30, 1.2, 0);
+			btVector3 from(-30, btScalar(1.2), 0);
+			btVector3 to(30, btScalar(1.2), 0);
 			m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 1, 1));
 
 			btCollisionWorld::ClosestRayResultCallback closestResults(from, to);
@@ -120,7 +120,7 @@ void RaytestDemo::castRays()
 			if (closestResults.hasHit())
 			{
 				btVector3 p = from.lerp(to, closestResults.m_closestHitFraction);
-				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, blue);
+				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, btScalar(0.1), blue);
 				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + closestResults.m_hitNormalWorld, blue);
 			}
 		}
@@ -141,7 +141,7 @@ void RaytestDemo::initPhysics()
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -208,8 +208,8 @@ void RaytestDemo::initPhysics()
 			trimesh,
 			new btConvexHullShape(&convexPoints[0].getX(), sizeof(convexPoints) / sizeof(btVector3), sizeof(btVector3)),
 			new btSphereShape(1),
-			new btCapsuleShape(0.2, 1),
-			new btCylinderShape(btVector3(0.2, 1, 0.2)),
+			new btCapsuleShape(btScalar(0.2), 1),
+			new btCylinderShape(btVector3(btScalar(0.2), 1, btScalar(0.2))),
 			new btBoxShape(btVector3(1, 1, 1))};
 
 		for (int i = 0; i < NUM_SHAPES; i++)
@@ -218,12 +218,12 @@ void RaytestDemo::initPhysics()
 		for (int i = 0; i < 6; i++)
 		{
 			//create a few dynamic rigidbodies
-			// Re-using the same collision is better for memory usage and performance
+			// Reusing the same collision is better for memory usage and performance
 
 			/// Create Dynamic Objects
 			btTransform startTransform;
 			startTransform.setIdentity();
-			startTransform.setOrigin(btVector3((i - 3) * 5, 1, 0));
+			startTransform.setOrigin(btVector3(btScalar((i - 3) * 5), 1, 0));
 
 			btScalar mass(1.f);
 
@@ -241,8 +241,8 @@ void RaytestDemo::initPhysics()
 			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, 0, colShape, localInertia);
 			rbInfo.m_startWorldTransform = startTransform;
 			btRigidBody* body = new btRigidBody(rbInfo);
-			body->setRollingFriction(0.03);
-			body->setSpinningFriction(0.03);
+			body->setRollingFriction(btScalar(0.03));
+			body->setSpinningFriction(btScalar(0.03));
 			body->setFriction(1);
 			body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(), btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 

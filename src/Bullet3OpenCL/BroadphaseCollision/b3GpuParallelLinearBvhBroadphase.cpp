@@ -23,7 +23,7 @@ b3GpuParallelLinearBvhBroadphase::b3GpuParallelLinearBvhBroadphase(cl_context co
 {
 }
 
-void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int collisionFilterGroup, int collisionFilterMask)
+void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int /*collisionFilterGroup*/, int /*collisionFilterMask*/)
 {
 	int newAabbIndex = m_aabbsCpu.size();
 
@@ -38,7 +38,7 @@ void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, con
 
 	m_aabbsCpu.push_back(aabb);
 }
-void b3GpuParallelLinearBvhBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int collisionFilterGroup, int collisionFilterMask)
+void b3GpuParallelLinearBvhBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, int /*collisionFilterGroup*/, int /*collisionFilterMask*/)
 {
 	int newAabbIndex = m_aabbsCpu.size();
 
@@ -60,10 +60,10 @@ void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairs(int maxPairs)
 	m_plbvh.build(m_aabbsGpu, m_smallAabbsMappingGpu, m_largeAabbsMappingGpu);
 
 	//
-	m_overlappingPairsGpu.resize(maxPairs);
+	m_overlappingPairsGpu.resize((size_t)maxPairs);
 	m_plbvh.calculateOverlappingPairs(m_overlappingPairsGpu);
 }
-void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairsHost(int maxPairs)
+void b3GpuParallelLinearBvhBroadphase::calculateOverlappingPairsHost(int /*maxPairs*/)
 {
 	b3Assert(0);  //CPU version not implemented
 }

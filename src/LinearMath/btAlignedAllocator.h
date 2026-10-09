@@ -86,10 +86,10 @@ public:
 
 	pointer address(reference ref) const { return &ref; }
 	const_pointer address(const_reference ref) const { return &ref; }
-	pointer allocate(size_type n, const_pointer* hint = 0)
+	pointer allocate(size_type n, const_pointer* hint = NULL)
 	{
 		(void)hint;
-		return reinterpret_cast<pointer>(btAlignedAlloc(sizeof(value_type) * n, Alignment));
+		return reinterpret_cast<pointer>(btAlignedAlloc(sizeof(value_type) * (size_t)n, (int)Alignment));
 	}
 	void construct(pointer ptr, const value_type& value) { new (ptr) value_type(value); }
 	void deallocate(pointer ptr)

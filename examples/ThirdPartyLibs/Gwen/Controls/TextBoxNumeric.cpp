@@ -68,6 +68,6 @@ bool TextBoxNumeric::IsTextAllowed(const Gwen::UnicodeString& str, int iPos)
 
 float TextBoxNumeric::GetFloatFromText()
 {
-	double temp = GwenUtil_WideStringToFloat(GetText().c_str());
+	float temp = GwenUtil_WideStringToFloat(GetText().c_str());
 	return temp;
 }

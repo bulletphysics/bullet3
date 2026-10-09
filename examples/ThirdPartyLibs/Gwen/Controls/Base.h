@@ -30,7 +30,7 @@ namespace ControlsInternal
 class ColorDisplay;
 class Resizer;
 
-};  // namespace ControlsInternal
+}  // namespace ControlsInternal
 
 namespace Pos
 {
@@ -44,7 +44,7 @@ enum
 	CenterV = (1 << 5),
 	CenterH = (1 << 6),
 	Fill = (1 << 7),
-	Center = CenterV | CenterH,
+	Center = CenterV | CenterH
 };
 }
 
@@ -60,7 +60,7 @@ class Canvas;
 namespace Layout
 {
 class TableRow;
-};
+}
 
 class GWEN_EXPORT Base : public Event::Handler
 {
@@ -231,8 +231,8 @@ public:
 
 protected:
 	virtual void Render(Gwen::Skin::Base* skin);
-	virtual void RenderUnder(Gwen::Skin::Base* /*skin*/){};
-	virtual void RenderOver(Gwen::Skin::Base* /*skin*/){};
+	virtual void RenderUnder(Gwen::Skin::Base* /*skin*/){}
+	virtual void RenderOver(Gwen::Skin::Base* /*skin*/){}
 	virtual void RenderFocus(Gwen::Skin::Base* /*skin*/);
 
 public:
@@ -262,10 +262,10 @@ protected:
 public:
 	virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
 	virtual bool OnMouseWheeled(int iDelta);
-	virtual void OnMouseClickLeft(int /*x*/, int /*y*/, bool /*bDown*/){};
+	virtual void OnMouseClickLeft(int /*x*/, int /*y*/, bool /*bDown*/){}
 	virtual void OnMouseClickRight(int /*x*/, int /*y*/, bool /*bDown*/) {}
-	virtual void OnMouseDoubleClickLeft(int x, int y) { OnMouseClickLeft(x, y, true); };
-	virtual void OnMouseDoubleClickRight(int x, int y) { OnMouseClickRight(x, y, true); };
+	virtual void OnMouseDoubleClickLeft(int x, int y) { OnMouseClickLeft(x, y, true); }
+	virtual void OnMouseDoubleClickRight(int x, int y) { OnMouseClickRight(x, y, true); }
 	virtual void OnLostKeyboardFocus() {}
 	virtual void OnKeyboardFocus() {}
 
@@ -352,7 +352,7 @@ public:
 
 	//Accelerator functionality
 	void DefaultAccel(Gwen::Controls::Base* /*pCtrl*/) { AcceleratePressed(); }
-	virtual void AcceleratePressed(){};
+	virtual void AcceleratePressed(){}
 	virtual bool AccelOnlyFocus() { return false; }
 	virtual bool HandleAccelerator(Gwen::UnicodeString& accelerator);
 
@@ -378,7 +378,7 @@ public:
 	Gwen::Event::Caller onHoverEnter;
 	Gwen::Event::Caller onHoverLeave;
 
-	// Childrens List
+	// Children List
 
 	Base::List Children;
 
@@ -436,7 +436,7 @@ public:
 protected:
 	virtual void RecurseLayout(Skin::Base* skin);
 	virtual void Layout(Skin::Base* skin);
-	virtual void PostLayout(Skin::Base* /*skin*/){};
+	virtual void PostLayout(Skin::Base* /*skin*/){}
 
 	bool m_bNeedsLayout;
 	bool m_bCacheTextureDirty;
@@ -452,7 +452,7 @@ public:
 	virtual bool DragAndDrop_ShouldStartDrag() { return true; }
 	virtual void DragAndDrop_StartDragging(Gwen::DragAndDrop::Package* pPackage, int x, int y);
 	virtual Gwen::DragAndDrop::Package* DragAndDrop_GetPackage(int x, int y);
-	virtual void DragAndDrop_EndDragging(bool /*bSuccess*/, int /*x*/, int /*y*/){};
+	virtual void DragAndDrop_EndDragging(bool /*bSuccess*/, int /*x*/, int /*y*/){}
 
 protected:
 	DragAndDrop::Package* m_DragAndDrop_Package;
@@ -461,7 +461,7 @@ public:
 	// Receiver
 	virtual void DragAndDrop_HoverEnter(Gwen::DragAndDrop::Package* /*pPackage*/, int /*x*/, int /*y*/) {}
 	virtual void DragAndDrop_HoverLeave(Gwen::DragAndDrop::Package* /*pPackage*/) {}
-	virtual void DragAndDrop_Hover(Gwen::DragAndDrop::Package* /*pPackage*/, int /*x*/, int /*y*/){};
+	virtual void DragAndDrop_Hover(Gwen::DragAndDrop::Package* /*pPackage*/, int /*x*/, int /*y*/){}
 	virtual bool DragAndDrop_HandleDrop(Gwen::DragAndDrop::Package* pPackage, int x, int y);
 	virtual bool DragAndDrop_CanAcceptPackage(Gwen::DragAndDrop::Package* /*pPackage*/) { return false; }
 
@@ -498,7 +498,7 @@ public:
 public:                                  \
 	typedef BaseName BaseClass;          \
 	typedef ThisName ThisClass;          \
-	GWEN_IMPLEMENT_CAST(ThisName);       \
+	GWEN_IMPLEMENT_CAST(ThisName)        \
 	ThisName(Gwen::Controls::Base* pParent)
 
 #define GWEN_CONTROL_INLINE(ThisName, BaseName) \

@@ -23,7 +23,7 @@ class btDynamicsWorld;
 namespace tinyxml2
 {
 class XMLNode;
-};
+}
 
 struct btConvexInternalShapeData;
 struct btCollisionShapeData;

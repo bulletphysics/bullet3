@@ -89,7 +89,7 @@ public:
 		m_frameInB = frameInB;
 	}
 
-	virtual void debugDraw(class btIDebugDraw* drawer)
+	virtual void debugDraw(class btIDebugDraw* /*drawer*/)
 	{
 		//todo(erwincoumans)
 	}

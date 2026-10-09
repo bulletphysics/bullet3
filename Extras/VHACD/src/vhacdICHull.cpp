@@ -113,15 +113,15 @@ ICHullError ICHull::Process()
 			if (!GetMesh().CheckConsistancy())
 			{
 				size_t nV = m_mesh.GetNVertices();
-				CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+				CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 				for (size_t v = 0; v < nV; ++v)
 				{
-					if (vertices.GetData().m_name == sc_dummyIndex)
+					if (verts.GetData().m_name == sc_dummyIndex)
 					{
-						vertices.Delete();
+						verts.Delete();
 						break;
 					}
-					vertices.Next();
+					verts.Next();
 				}
 				return ICHullErrorInconsistent;
 			}
@@ -166,17 +166,17 @@ ICHullError ICHull::Process()
 			m_mesh.m_edges.Next();
 		}
 		size_t nV = m_mesh.GetNVertices();
-		CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+		CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 		for (size_t v = 0; v < nV; ++v)
 		{
-			if (vertices.GetData().m_name == sc_dummyIndex)
+			if (verts.GetData().m_name == sc_dummyIndex)
 			{
-				vertices.Delete();
+				verts.Delete();
 			}
 			else
 			{
-				vertices.GetData().m_tag = false;
-				vertices.Next();
+				verts.GetData().m_tag = false;
+				verts.Next();
 			}
 		}
 		CleanEdges();
@@ -257,15 +257,15 @@ ICHullError ICHull::Process(const unsigned int nPointsCH,
 			if (!GetMesh().CheckConsistancy())
 			{
 				size_t nV = m_mesh.GetNVertices();
-				CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+				CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 				for (size_t v = 0; v < nV; ++v)
 				{
-					if (vertices.GetData().m_name == sc_dummyIndex)
+					if (verts.GetData().m_name == sc_dummyIndex)
 					{
-						vertices.Delete();
+						verts.Delete();
 						break;
 					}
-					vertices.Next();
+					verts.Next();
 				}
 				return ICHullErrorInconsistent;
 			}
@@ -316,17 +316,17 @@ ICHullError ICHull::Process(const unsigned int nPointsCH,
 			m_mesh.m_edges.Next();
 		}
 		size_t nV = m_mesh.GetNVertices();
-		CircularList<TMMVertex>& vertices = m_mesh.GetVertices();
+		CircularList<TMMVertex>& verts = m_mesh.GetVertices();
 		for (size_t v = 0; v < nV; ++v)
 		{
-			if (vertices.GetData().m_name == sc_dummyIndex)
+			if (verts.GetData().m_name == sc_dummyIndex)
 			{
-				vertices.Delete();
+				verts.Delete();
 			}
 			else
 			{
-				vertices.GetData().m_tag = false;
-				vertices.Next();
+				verts.GetData().m_tag = false;
+				verts.Next();
 			}
 		}
 		CleanEdges();
@@ -464,7 +464,7 @@ CircularListElement<TMMTriangle>* ICHull::MakeFace(CircularListElement<TMMVertex
 		e1 = m_mesh.AddEdge();
 		e2 = m_mesh.AddEdge();
 	}
-	else  // otherwise re-use existing edges (in reverse order)
+	else  // otherwise reuse existing edges (in reverse order)
 	{
 		e0 = fold->GetData().m_edges[2];
 		e1 = fold->GetData().m_edges[1];
@@ -495,7 +495,8 @@ CircularListElement<TMMTriangle>* ICHull::MakeConeFace(CircularListElement<TMMEd
 	CircularListElement<TMMEdge>* newEdges[2];
 	for (int i = 0; i < 2; ++i)
 	{
-		if (!(newEdges[i] = e->GetData().m_vertices[i]->GetData().m_duplicate))
+		newEdges[i] = e->GetData().m_vertices[i]->GetData().m_duplicate;
+		if (!newEdges[i])
 		{  // if the edge doesn't exits add it and mark the vertex as duplicated
 			newEdges[i] = m_mesh.AddEdge();
 			newEdges[i]->GetData().m_vertices[0] = e->GetData().m_vertices[i];
@@ -686,7 +687,7 @@ bool ICHull::CleanEdges()
 			e->GetData().m_newFace = 0;
 		}
 	}
-	// delete edges maked for deletion
+	// delete edges marked for deletion
 	CircularList<TMMEdge>& edges = m_mesh.GetEdges();
 	const size_t ne_delete = m_edgesToDelete.Size();
 	for (size_t i = 0; i < ne_delete; ++i)

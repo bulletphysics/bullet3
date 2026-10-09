@@ -48,7 +48,7 @@ public:
 	friend mat33 operator/(const mat33& a, const idScalar& s);
 };
 
-inline mat33 operator/(const mat33& a, const idScalar& s) { return a * (1.0 / s); }
+inline mat33 operator/(const mat33& a, const idScalar& s) { return a * (btScalar(1.0) / s); }
 
 inline mat33 operator*(const idScalar& s, const mat33& a) { return a * s; }
 
@@ -89,7 +89,7 @@ inline vecx operator+(const vecx& a, const vecx& b)
 	// TODO: error handling for a.size() != b.size()??
 	if (a.size() != b.size())
 	{
-		bt_id_error_message("size missmatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
+		bt_id_error_message("size mismatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
 		abort();
 	}
 	for (int i = 0; i < a.size(); i++)
@@ -106,7 +106,7 @@ inline vecx operator-(const vecx& a, const vecx& b)
 	// TODO: error handling for a.size() != b.size()??
 	if (a.size() != b.size())
 	{
-		bt_id_error_message("size missmatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
+		bt_id_error_message("size mismatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
 		abort();
 	}
 	for (int i = 0; i < a.size(); i++)
@@ -131,19 +131,18 @@ class mat3x : public matxx
 {
 public:
 	mat3x() {}
-	mat3x(const mat3x& rhs)
+	mat3x(const mat3x& rhs) : matxx(rhs.rows(), rhs.cols())
 	{
-		matxx::resize(rhs.rows(), rhs.cols());
 		*this = rhs;
 	}
-	mat3x(int rows, int cols) : matxx(3, cols)
+	mat3x(int /*rows*/, int cols) : matxx(3, cols)
 	{
 	}
 	void operator=(const mat3x& rhs)
 	{
 		if (m_cols != rhs.m_cols)
 		{
-			bt_id_error_message("size missmatch, cols= %d but rhs.cols= %d\n", cols(), rhs.cols());
+			bt_id_error_message("size mismatch, cols= %d but rhs.cols= %d\n", cols(), rhs.cols());
 			abort();
 		}
 		for (int i = 0; i < rows(); i++)
@@ -165,7 +164,7 @@ inline vec3 operator*(const mat3x& a, const vecx& b)
 	vec3 result;
 	if (a.cols() != b.size())
 	{
-		bt_id_error_message("size missmatch. a.cols()= %d, b.size()= %d\n", a.cols(), b.size());
+		bt_id_error_message("size mismatch. a.cols()= %d, b.size()= %d\n", a.cols(), b.size());
 		abort();
 	}
 	result(0) = 0.0;

@@ -113,7 +113,7 @@ void btClock::reset()
 {
 #ifdef BT_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
-	m_data->mStartTick = GetTickCount64();
+	m_data->mStartTick = (LONGLONG)GetTickCount64();
 #else
 #ifdef __CELLOS_LV2__
 
@@ -242,7 +242,7 @@ unsigned long long int btClock::getTimeNanoseconds()
 		}
 		conversion = info.numer / info.denom;
 	}
-	return (ticks * conversion);
+	return (ticks * (uint64_t)conversion);
 
 #else  //__APPLE__
 
@@ -253,7 +253,7 @@ unsigned long long int btClock::getTimeNanoseconds()
 #else
 	struct timeval currentTime;
 	gettimeofday(&currentTime, 0);
-	return (currentTime.tv_sec - m_data->mStartTime.tv_sec) * 1e9 +
+	return (currentTime.tv_sec - m_data->mStartTime.tv_sec) * (unsigned long long)1e9 +
 		   (currentTime.tv_usec - m_data->mStartTime.tv_usec) * 1000;
 #endif  //BT_LINUX_REALTIME
 
@@ -695,18 +695,18 @@ void CProfileManager::dumpAll()
 }
 
 
-void btEnterProfileZoneDefault(const char* name)
+static void btEnterProfileZoneDefault(const char* name)
 {
 }
-void btLeaveProfileZoneDefault()
+static void btLeaveProfileZoneDefault()
 {
 }
 
 #else
-void btEnterProfileZoneDefault(const char* name)
+static void btEnterProfileZoneDefault(const char* /*name*/)
 {
 }
-void btLeaveProfileZoneDefault()
+static void btLeaveProfileZoneDefault()
 {
 }
 #endif  //BT_NO_PROFILE
@@ -715,7 +715,7 @@ void btLeaveProfileZoneDefault()
 // clang-format off
 #if defined(_WIN32) && (defined(__MINGW32__) || defined(__MINGW64__))
   #define BT_HAVE_TLS 1
-#elif __APPLE__ && !TARGET_OS_IPHONE
+#elif defined(__APPLE__) && !TARGET_OS_IPHONE
   // TODO: Modern versions of iOS support TLS now with updated version checking.
   #define BT_HAVE_TLS 1
 #elif __linux__
@@ -725,7 +725,7 @@ void btLeaveProfileZoneDefault()
   #define BT_HAVE_TLS 1
 #endif
 
-// __thread is broken on Andorid clang until r12b. See
+// __thread is broken on Android clang until r12b. See
 // https://github.com/android-ndk/ndk/issues/8
 #if defined(__ANDROID__) && defined(__clang__)
   #if __has_include(<android/ndk-version.h>)
@@ -740,14 +740,14 @@ void btLeaveProfileZoneDefault()
 
 unsigned int btQuickprofGetCurrentThreadIndex2()
 {
-	const unsigned int kNullIndex = ~0U;
-
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 	return btGetCurrentThreadIndex();
 #else
 #if defined(BT_HAVE_TLS)
+	const unsigned int kNullIndex = ~0U;
 	static __thread unsigned int sThreadIndex = kNullIndex;
 #elif defined(_WIN32)
+	const unsigned int kNullIndex = ~0U;
 	__declspec(thread) static unsigned int sThreadIndex = kNullIndex;
 #else
 	unsigned int sThreadIndex = 0;
@@ -758,7 +758,7 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 
 	if (sThreadIndex == kNullIndex)
 	{
-		sThreadIndex = gThreadCounter++;
+		sThreadIndex = (unsigned int)gThreadCounter++;
 	}
 	return sThreadIndex;
 #endif  //BT_THREADSAFE
@@ -767,11 +767,11 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 static btEnterProfileZoneFunc* bts_enterFunc = btEnterProfileZoneDefault;
 static btLeaveProfileZoneFunc* bts_leaveFunc = btLeaveProfileZoneDefault;
 
-void btEnterProfileZone(const char* name)
+static void btEnterProfileZone(const char* name)
 {
 	(bts_enterFunc)(name);
 }
-void btLeaveProfileZone()
+static void btLeaveProfileZone()
 {
 	(bts_leaveFunc)();
 }

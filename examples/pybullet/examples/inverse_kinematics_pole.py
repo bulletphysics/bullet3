@@ -17,7 +17,7 @@ p.resetBasePositionAndOrientation(sawyerId, [0, 0, 0], [0, 0, 0, 1])
 
 sawyerEndEffectorIndex = 3
 numJoints = p.getNumJoints(sawyerId)
-#joint damping coefficents
+#joint damping coefficients
 jd = [0.1, 0.1, 0.1, 0.1]
 
 p.setGravity(0, 0, 0)

@@ -13,8 +13,8 @@ namespace Gwen
 namespace Renderer
 {
 class Base;
-};
-};  // namespace Gwen
+}
+}  // namespace Gwen
 class GwenUserInterface
 {
 	GwenInternalData* m_data;

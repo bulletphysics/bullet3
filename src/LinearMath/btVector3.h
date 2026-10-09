@@ -119,9 +119,9 @@ public:
 	}
 
 	/**@brief Constructor from scalars 
-   * @param x X value
-   * @param y Y value 
-   * @param z Z value 
+   * @param _x X value
+   * @param _y Y value 
+   * @param _z Z value 
    */
 	SIMD_FORCE_INLINE btVector3(const btScalar& _x, const btScalar& _y, const btScalar& _z)
 	{
@@ -155,7 +155,7 @@ public:
 #endif  // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
 
 	/**@brief Add a vector to this one 
- * @param The vector to add to this one */
+ * @param v The vector to add to this one */
 	SIMD_FORCE_INLINE btVector3& operator+=(const btVector3& v)
 	{
 #if defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)
@@ -171,7 +171,7 @@ public:
 	}
 
 	/**@brief Subtract a vector from this one
-   * @param The vector to subtract */
+   * @param v The vector to subtract */
 	SIMD_FORCE_INLINE btVector3& operator-=(const btVector3& v)
 	{
 #if defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)
@@ -276,11 +276,11 @@ public:
 	}
 
 	/**@brief Return the distance squared between the ends of this and another vector
-   * This is symantically treating the vector like a point */
+   * This is semantically treating the vector like a point */
 	SIMD_FORCE_INLINE btScalar distance2(const btVector3& v) const;
 
 	/**@brief Return the distance between the ends of this and another vector
-   * This is symantically treating the vector like a point */
+   * This is semantically treating the vector like a point */
 	SIMD_FORCE_INLINE btScalar distance(const btVector3& v) const;
 
 	SIMD_FORCE_INLINE btVector3& safeNormalize()
@@ -564,13 +564,13 @@ public:
 	/**@brief Return the z value */
 	SIMD_FORCE_INLINE const btScalar& getZ() const { return m_floats[2]; }
 	/**@brief Set the x value */
-	SIMD_FORCE_INLINE void setX(btScalar _x) { m_floats[0] = _x; };
+	SIMD_FORCE_INLINE void setX(btScalar _x) { m_floats[0] = _x; }
 	/**@brief Set the y value */
-	SIMD_FORCE_INLINE void setY(btScalar _y) { m_floats[1] = _y; };
+	SIMD_FORCE_INLINE void setY(btScalar _y) { m_floats[1] = _y; }
 	/**@brief Set the z value */
-	SIMD_FORCE_INLINE void setZ(btScalar _z) { m_floats[2] = _z; };
+	SIMD_FORCE_INLINE void setZ(btScalar _z) { m_floats[2] = _z; }
 	/**@brief Set the w value */
-	SIMD_FORCE_INLINE void setW(btScalar _w) { m_floats[3] = _w; };
+	SIMD_FORCE_INLINE void setW(btScalar _w) { m_floats[3] = _w; }
 	/**@brief Return the x value */
 	SIMD_FORCE_INLINE const btScalar& x() const { return m_floats[0]; }
 	/**@brief Return the y value */
@@ -749,7 +749,7 @@ public:
 	}
 };
 
-/**@brief Return the sum of two vectors (Point symantics)*/
+/**@brief Return the sum of two vectors (Point semantics)*/
 SIMD_FORCE_INLINE btVector3
 operator+(const btVector3& v1, const btVector3& v2)
 {
@@ -955,7 +955,7 @@ SIMD_FORCE_INLINE btVector3 btVector3::normalized() const
 
 SIMD_FORCE_INLINE btVector3 btVector3::rotate(const btVector3& wAxis, const btScalar _angle) const
 {
-	// wAxis must be a unit lenght vector
+	// wAxis must be a unit length vector
 
 #if defined BT_USE_SIMD_VECTOR3 && defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE)
 
@@ -1026,7 +1026,7 @@ SIMD_FORCE_INLINE long btVector3::maxDot(const btVector3* array, long array_coun
 		return ptIndex;
 	}
 #if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined(BT_USE_NEON)
-	return _maxdot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return _maxdot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif
 }
 
@@ -1066,7 +1066,7 @@ SIMD_FORCE_INLINE long btVector3::minDot(const btVector3* array, long array_coun
 		return ptIndex;
 	}
 #if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined(BT_USE_NEON)
-	return _mindot_large((float*)array, (float*)&m_floats[0], array_count, &dotOut);
+	return _mindot_large((float*)array, (float*)&m_floats[0], (unsigned long)array_count, &dotOut);
 #endif  //BT_USE_SIMD_VECTOR3
 }
 
@@ -1190,10 +1190,10 @@ public:
 		}
 */
 	/**@brief Set the values 
-   * @param x Value of x
-   * @param y Value of y
-   * @param z Value of z
-   * @param w Value of w
+   * @param _x Value of x
+   * @param _y Value of y
+   * @param _z Value of z
+   * @param _w Value of w
    */
 	SIMD_FORCE_INLINE void setValue(const btScalar& _x, const btScalar& _y, const btScalar& _z, const btScalar& _w)
 	{

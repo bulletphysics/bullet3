@@ -30,7 +30,7 @@ enum EnumSphereLevelOfDetail
 	SPHERE_LOD_POINT_SPRITE = 0,
 	SPHERE_LOD_LOW,
 	SPHERE_LOD_MEDIUM,
-	SPHERE_LOD_HIGH,
+	SPHERE_LOD_HIGH
 
 };
 struct CommonGraphicsApp
@@ -39,7 +39,7 @@ struct CommonGraphicsApp
 	{
 		eDrawText3D_OrtogonalFaceCamera = 1,
 		eDrawText3D_TrueType = 2,
-		eDrawText3D_TrackObject = 4,
+		eDrawText3D_TrackObject = 4
 	};
 	class CommonWindowInterface* m_window;
 	struct CommonRenderInterface* m_renderer;
@@ -70,19 +70,19 @@ struct CommonGraphicsApp
 		m_mouseYpos(0.f),
 		m_mouseInitialized(false)
 	{
-		m_backgroundColorRGB[0] = 0.7;
-		m_backgroundColorRGB[1] = 0.7;
-		m_backgroundColorRGB[2] = 0.8;
+		m_backgroundColorRGB[0] = 0.7f;
+		m_backgroundColorRGB[1] = 0.7f;
+		m_backgroundColorRGB[2] = 0.8f;
 	}
 	virtual ~CommonGraphicsApp()
 	{
 	}
 
-	virtual void dumpNextFrameToPng(const char* pngFilename) {}
-	virtual void dumpFramesToVideo(const char* mp4Filename) {}
+	virtual void dumpNextFrameToPng(const char* /*pngFilename*/) {}
+	virtual void dumpFramesToVideo(const char* /*mp4Filename*/) {}
 
-	virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes) {}
-	virtual void setViewport(int width, int height) {}
+	virtual void getScreenPixels(unsigned char* /*rgbaBuffer*/, int /*bufferSizeInBytes*/, float* /*depthBuffer*/, int /*depthBufferSizeInBytes*/) {}
+	virtual void setViewport(int /*width*/, int /*height*/) {}
 
 	virtual void getBackgroundColor(float* red, float* green, float* blue) const
 	{
@@ -93,7 +93,7 @@ struct CommonGraphicsApp
 		if (blue)
 			*blue = m_backgroundColorRGB[2];
 	}
-	virtual void setMp4Fps(int fps) {}
+	virtual void setMp4Fps(int /*fps*/) {}
 	virtual void setBackgroundColor(float red, float green, float blue)
 	{
 		m_backgroundColorRGB[0] = red;
@@ -205,12 +205,12 @@ struct CommonGraphicsApp
 
 				if (m_middleMouseButton)
 				{
-					cameraTargetPosition += cameraUp * yDelta *m_mouseMoveMultiplier* 0.01;
+					cameraTargetPosition += cameraUp * yDelta *m_mouseMoveMultiplier* 0.01f;
 
 					b3Vector3 fwd = cameraTargetPosition - cameraPosition;
 					b3Vector3 side = cameraUp.cross(fwd);
 					side.normalize();
-					cameraTargetPosition += side * xDelta *m_mouseMoveMultiplier* 0.01;
+					cameraTargetPosition += side * xDelta *m_mouseMoveMultiplier* 0.01f;
 				}
 				if (m_rightMouseButton)
 				{

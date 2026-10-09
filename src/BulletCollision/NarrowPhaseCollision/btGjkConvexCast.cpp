@@ -118,7 +118,7 @@ bool btGjkConvexCast::calcTimeOfImpact(
 			{
 				return false;
 				//n.setValue(0,0,0);
-				break;
+				//break;
 			}
 			lastLambda = lambda;
 

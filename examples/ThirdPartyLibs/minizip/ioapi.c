@@ -270,10 +270,10 @@ void fill_fopen64_filefunc(zlib_filefunc64_def* pzlib_filefunc_def)
 
 
 #ifndef ZOFF_T
-#define ZOFF_T uLong /* bw compability is default */
+#define ZOFF_T uLong /* bw compatibility is default */
 #endif
 #ifndef ZPOS_T
-#define ZPOS_T long /* bw compability is default */
+#define ZPOS_T long /* bw compatibility is default */
 #endif
 
 #if defined(_INC_WINDOWS) || defined(_WINDOWS_H)
@@ -366,7 +366,7 @@ uLong size;
     MEMFILE* handle = (MEMFILE*)stream;
     /* It's possible for this function to be called with an invalid position.
      * Additionally, unzip.h minizip uses an unsigned long for the
-     * uncompressed size field, but everwhere else uses a signed long. For
+     * uncompressed size field, but everywhere else uses a signed long. For
      * safety, we check here that the handle position is not more than the max
      * size of a 32-bit signed int.
      */

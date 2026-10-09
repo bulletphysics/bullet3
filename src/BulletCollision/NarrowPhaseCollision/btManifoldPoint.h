@@ -43,7 +43,7 @@ enum btContactPointFlags
 	BT_CONTACT_FLAG_HAS_CONTACT_CFM = 2,
 	BT_CONTACT_FLAG_HAS_CONTACT_ERP = 4,
 	BT_CONTACT_FLAG_CONTACT_STIFFNESS_DAMPING = 8,
-	BT_CONTACT_FLAG_FRICTION_ANCHOR = 16,
+	BT_CONTACT_FLAG_FRICTION_ANCHOR = 16
 };
 
 /// ManifoldContactPoint collects and maintains persistent contactpoints.
@@ -52,17 +52,17 @@ class btManifoldPoint
 {
 public:
 	btManifoldPoint()
-		: m_userPersistentData(0),
+		: m_userPersistentData(NULL),
 		  m_contactPointFlags(0),
-		  m_appliedImpulse(0.f),
-		  m_prevRHS(0.f),
-		  m_appliedImpulseLateral1(0.f),
-		  m_appliedImpulseLateral2(0.f),
-		  m_contactMotion1(0.f),
-		  m_contactMotion2(0.f),
-		  m_contactCFM(0.f),
-		  m_contactERP(0.f),
-		  m_frictionCFM(0.f),
+		  m_appliedImpulse(btScalar(0.)),
+		  m_prevRHS(btScalar(0.)),
+		  m_appliedImpulseLateral1(btScalar(0.)),
+		  m_appliedImpulseLateral2(btScalar(0.)),
+		  m_contactMotion1(btScalar(0.)),
+		  m_contactMotion2(btScalar(0.)),
+		  m_contactCFM(btScalar(0.)),
+		  m_contactERP(btScalar(0.)),
+		  m_frictionCFM(btScalar(0.)),
 		  m_lifeTime(0)
 	{
 	}
@@ -83,17 +83,17 @@ public:
 										 m_partId1(-1),
 										 m_index0(-1),
 										 m_index1(-1),
-										 m_userPersistentData(0),
+										 m_userPersistentData(NULL),
 										 m_contactPointFlags(0),
-										 m_appliedImpulse(0.f),
-										 m_prevRHS(0.f),
-										 m_appliedImpulseLateral1(0.f),
-										 m_appliedImpulseLateral2(0.f),
-										 m_contactMotion1(0.f),
-										 m_contactMotion2(0.f),
-										 m_contactCFM(0.f),
-										 m_contactERP(0.f),
-										 m_frictionCFM(0.f),
+										 m_appliedImpulse(btScalar(0.)),
+										 m_prevRHS(btScalar(0.)),
+										 m_appliedImpulseLateral1(btScalar(0.)),
+										 m_appliedImpulseLateral2(btScalar(0.)),
+										 m_contactMotion1(btScalar(0.)),
+										 m_contactMotion2(btScalar(0.)),
+										 m_contactCFM(btScalar(0.)),
+										 m_contactERP(btScalar(0.)),
+										 m_frictionCFM(btScalar(0.)),
 										 m_lifeTime(0),
 										 m_lateralFrictionDir1(0,0,0),
 										 m_lateralFrictionDir2(0,0,0)

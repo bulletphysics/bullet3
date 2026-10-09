@@ -171,7 +171,7 @@ struct b3DynamicBvhBroadphase
 	virtual void getBroadphaseAabb(b3Vector3& aabbMin, b3Vector3& aabbMax) const;
 	virtual void printStats();
 
-	///reset broadphase internal structures, to ensure determinism/reproducability
+	///reset broadphase internal structures, to ensure determinism/reproducibility
 	virtual void resetPool(b3Dispatcher* dispatcher);
 
 	void performDeferredRemoval(b3Dispatcher* dispatcher);

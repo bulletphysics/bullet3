@@ -17,7 +17,7 @@ extern "C"
 	B3_SHARED_API struct UrdfRenderingInterface* getRenderInterface_tinyRendererPlugin(struct b3PluginContext* context);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif  //#define TEST_PLUGIN_H

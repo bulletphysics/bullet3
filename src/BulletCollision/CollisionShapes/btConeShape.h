@@ -35,9 +35,9 @@ public:
 
 	btConeShape(btScalar radius, btScalar height);
 
-	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const;
-	virtual btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const;
-	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const;
+	virtual btVector3 localGetSupportingVertex(const btVector3& vec) const BT_OVERRIDE;
+	virtual btVector3 localGetSupportingVertexWithoutMargin(const btVector3& vec) const BT_OVERRIDE;
+	virtual void batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors, btVector3* supportVerticesOut, int numVectors) const BT_OVERRIDE;
 
 	btScalar getRadius() const { return m_radius; }
 	btScalar getHeight() const { return m_height; }
@@ -51,7 +51,7 @@ public:
 		m_height = height;
 	}
 
-	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const
+	virtual void calculateLocalInertia(btScalar mass, btVector3 & inertia) const BT_OVERRIDE
 	{
 		btTransform identity;
 		identity.setIdentity();
@@ -77,7 +77,7 @@ public:
 		//		inertia.z() = scaledmass * (x2+y2);
 	}
 
-	virtual const char* getName() const
+	virtual const char* getName() const BT_OVERRIDE
 	{
 		return "Cone";
 	}
@@ -90,17 +90,17 @@ public:
 		return m_coneIndices[1];
 	}
 
-	virtual btVector3 getAnisotropicRollingFrictionDirection() const
+	virtual btVector3 getAnisotropicRollingFrictionDirection() const BT_OVERRIDE
 	{
 		return btVector3(0, 1, 0);
 	}
 
-	virtual void setLocalScaling(const btVector3& scaling);
+	virtual void setLocalScaling(const btVector3& scaling) BT_OVERRIDE;
 
-	virtual int calculateSerializeBufferSize() const;
+	virtual int calculateSerializeBufferSize() const BT_OVERRIDE;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
-	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const BT_OVERRIDE;
 };
 
 ///btConeShape implements a Cone shape, around the X axis
@@ -109,13 +109,13 @@ class btConeShapeX : public btConeShape
 public:
 	btConeShapeX(btScalar radius, btScalar height);
 
-	virtual btVector3 getAnisotropicRollingFrictionDirection() const
+	virtual btVector3 getAnisotropicRollingFrictionDirection() const BT_OVERRIDE
 	{
 		return btVector3(1, 0, 0);
 	}
 
 	//debugging
-	virtual const char* getName() const
+	virtual const char* getName() const BT_OVERRIDE
 	{
 		return "ConeX";
 	}
@@ -127,13 +127,13 @@ class btConeShapeZ : public btConeShape
 public:
 	btConeShapeZ(btScalar radius, btScalar height);
 
-	virtual btVector3 getAnisotropicRollingFrictionDirection() const
+	virtual btVector3 getAnisotropicRollingFrictionDirection() const BT_OVERRIDE
 	{
 		return btVector3(0, 0, 1);
 	}
 
 	//debugging
-	virtual const char* getName() const
+	virtual const char* getName() const BT_OVERRIDE
 	{
 		return "ConeZ";
 	}

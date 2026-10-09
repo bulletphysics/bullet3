@@ -11,7 +11,7 @@ using namespace Gwen;
 using namespace Gwen::Controls;
 
 //Find a place to put these...
-Color HSVToColor(float h, float s, float v)
+static Color HSVToColor(float h, float s, float v)
 {
 	if (h < 0.0f) h += 360.0f;
 	if (h > 360.0f) h -= 360.0f;
@@ -21,70 +21,73 @@ Color HSVToColor(float h, float s, float v)
 
 	float r, g, b;
 
-	if (!h && !s)
+	if (h == 0.0f && s == 0.0f)
 	{
 		r = g = b = v;
+		(void)r;
+		(void)g;
+		(void)b;
 	}
 	double min, max, delta, hue;
 
-	max = v;
-	delta = (max * s) / 255.0;
+	max = (double)v;
+	delta = (max * (double)s) / 255.0;
 	min = max - delta;
 
-	hue = h;
+	hue = (double)h;
 	if (h > 300 || h <= 60)
 	{
-		r = (int)max;
+		r = (float)(int)max;
 		if (h > 300)
 		{
-			g = (int)min;
+			g = (float)(int)min;
 			hue = (hue - 360.0) / 60.0;
-			b = (int)((hue * delta - min) * -1);
+			b = (float)(int)((hue * delta - min) * -1);
 		}
 		else
 		{
-			b = (int)min;
+			b = (float)(int)min;
 			hue = hue / 60.0;
-			g = (int)(hue * delta + min);
+			g = (float)(int)(hue * delta + min);
 		}
 	}
 	else if (h > 60 && h < 180)
 	{
-		g = (int)max;
+		g = (float)(int)max;
 		if (h < 120)
 		{
-			b = (int)min;
+			b = (float)(int)min;
 			hue = (hue / 60.0 - 2.0) * delta;
-			r = (int)(min - hue);
+			r = (float)(int)(min - hue);
 		}
 		else
 		{
-			r = (int)min;
+			r = (float)(int)min;
 			hue = (hue / 60 - 2.0) * delta;
-			b = (int)(min + hue);
+			b = (float)(int)(min + hue);
 		}
 	}
 	else
 	{
-		b = (int)max;
+		b = (float)(int)max;
 		if (h < 240)
 		{
-			r = (int)min;
+			r = (float)(int)min;
 			hue = (hue / 60.0 - 4.0) * delta;
-			g = (int)(min - hue);
+			g = (float)(int)(min - hue);
 		}
 		else
 		{
-			g = (int)min;
+			g = (float)(int)min;
 			hue = (hue / 60 - 4.0) * delta;
-			r = (int)(min + hue);
+			r = (float)(int)(min + hue);
 		}
 	}
 
-	return Color(r, g, b, 255);
+	return Color((unsigned char)r, (unsigned char)g, (unsigned char)b, 255);
 }
 
-HSV RGBtoHSV(int r, int g, int b)
+static HSV RGBtoHSV(int r, int g, int b)
 {
 	double min, max, delta, temp;
 	min = GwenUtil_Min(r, GwenUtil_Min(g, b));
@@ -92,15 +95,15 @@ HSV RGBtoHSV(int r, int g, int b)
 	delta = max - min;
 
 	HSV hsv;
-	hsv.v = (int)max;
-	if (!delta)
+	hsv.v = (float)(int)max;
+	if (delta == 0.0)
 	{
 		hsv.h = hsv.s = 0;
 	}
 	else
 	{
 		temp = delta / max;
-		hsv.s = (int)(temp * 255);
+		hsv.s = (float)(int)(temp * 255);
 
 		if (r == (int)max)
 		{
@@ -123,7 +126,7 @@ HSV RGBtoHSV(int r, int g, int b)
 		{
 			temp = 0;
 		}
-		hsv.h = (int)temp;
+		hsv.h = (float)(int)temp;
 	}
 
 	hsv.s /= 255.0f;
@@ -141,13 +144,13 @@ GWEN_CONTROL_CONSTRUCTOR(ColorLerpBox)
 }
 
 //Find a place to put this? color member?
-Gwen::Color LerpColor(Gwen::Color& toColor, Gwen::Color& fromColor, float amount)
+static Gwen::Color LerpColor(Gwen::Color& toColor, Gwen::Color& fromColor, float amount)
 {
 	Gwen::Color colorDelta = toColor - fromColor;
 
-	colorDelta.r *= amount;
-	colorDelta.g *= amount;
-	colorDelta.b *= amount;
+	colorDelta.r *= (unsigned char)amount;
+	colorDelta.g *= (unsigned char)amount;
+	colorDelta.b *= (unsigned char)amount;
 
 	Gwen::Color newColor = fromColor + colorDelta;
 	return newColor;
@@ -161,11 +164,11 @@ Gwen::Color ColorLerpBox::GetSelectedColor()
 void ColorLerpBox::SetColor(Gwen::Color color, bool onlyHue)
 {
 	HSV hsv = RGBtoHSV(color.r, color.g, color.b);
-	m_Hue = hsv.h;
+	m_Hue = (int)hsv.h;
 	if (!onlyHue)
 	{
-		cursorPos.x = hsv.s * Width();
-		cursorPos.y = (1 - hsv.v) * Height();
+		cursorPos.x = int(hsv.s * (float)Width());
+		cursorPos.y = int((1 - hsv.v) * (float)Height());
 	}
 
 	onSelectionChanged.Call(this);
@@ -207,7 +210,7 @@ Gwen::Color ColorLerpBox::GetColorAtPos(int x, int y)
 	float xPercent = ((float)x / (float)Width());
 	float yPercent = 1 - ((float)y / (float)Height());
 
-	Gwen::Color result = HSVToColor(m_Hue, xPercent, yPercent);
+	Gwen::Color result = HSVToColor((float)m_Hue, xPercent, yPercent);
 
 	result.a = 255;
 
@@ -306,7 +309,7 @@ void ColorSlider::SetColor(Gwen::Color color)
 {
 	HSV hsv = RGBtoHSV(color.r, color.g, color.b);
 
-	m_iSelectedDist = hsv.h / 360 * Height();
+	m_iSelectedDist = int(hsv.h / 360 * (float)Height());
 
 	onSelectionChanged.Call(this);
 }

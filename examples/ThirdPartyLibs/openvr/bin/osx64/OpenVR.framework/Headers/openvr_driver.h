@@ -1323,22 +1323,22 @@ public:
 	virtual const char *GetSettingsErrorNameFromEnum(EVRSettingsError eError) = 0;
 
 	// Returns true if file sync occurred (force or settings dirty)
-	virtual bool Sync(bool bForce = false, EVRSettingsError *peError = nullptr) = 0;
+	virtual bool Sync(bool bForce = false, EVRSettingsError *peError = NULL) = 0;
 
-	virtual void SetBool(const char *pchSection, const char *pchSettingsKey, bool bValue, EVRSettingsError *peError = nullptr) = 0;
-	virtual void SetInt32(const char *pchSection, const char *pchSettingsKey, int32_t nValue, EVRSettingsError *peError = nullptr) = 0;
-	virtual void SetFloat(const char *pchSection, const char *pchSettingsKey, float flValue, EVRSettingsError *peError = nullptr) = 0;
-	virtual void SetString(const char *pchSection, const char *pchSettingsKey, const char *pchValue, EVRSettingsError *peError = nullptr) = 0;
+	virtual void SetBool(const char *pchSection, const char *pchSettingsKey, bool bValue, EVRSettingsError *peError = NULL) = 0;
+	virtual void SetInt32(const char *pchSection, const char *pchSettingsKey, int32_t nValue, EVRSettingsError *peError = NULL) = 0;
+	virtual void SetFloat(const char *pchSection, const char *pchSettingsKey, float flValue, EVRSettingsError *peError = NULL) = 0;
+	virtual void SetString(const char *pchSection, const char *pchSettingsKey, const char *pchValue, EVRSettingsError *peError = NULL) = 0;
 
 	// Users of the system need to provide a proper default in default.vrsettings in the resources/settings/ directory
 	// of either the runtime or the driver_xxx directory. Otherwise the default will be false, 0, 0.0 or ""
-	virtual bool GetBool(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
-	virtual int32_t GetInt32(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
-	virtual float GetFloat(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
-	virtual void GetString(const char *pchSection, const char *pchSettingsKey, VR_OUT_STRING() char *pchValue, uint32_t unValueLen, EVRSettingsError *peError = nullptr) = 0;
+	virtual bool GetBool(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
+	virtual int32_t GetInt32(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
+	virtual float GetFloat(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
+	virtual void GetString(const char *pchSection, const char *pchSettingsKey, VR_OUT_STRING() char *pchValue, uint32_t unValueLen, EVRSettingsError *peError = NULL) = 0;
 
-	virtual void RemoveSection(const char *pchSection, EVRSettingsError *peError = nullptr) = 0;
-	virtual void RemoveKeyInSection(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = nullptr) = 0;
+	virtual void RemoveSection(const char *pchSection, EVRSettingsError *peError = NULL) = 0;
+	virtual void RemoveKeyInSection(const char *pchSection, const char *pchSettingsKey, EVRSettingsError *peError = NULL) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -1792,7 +1792,7 @@ class IVRDriverContext
 public:
 	/** Returns the requested interface. If the interface was not available it will return NULL and fill
 	* out the error. */
-	virtual void *GetGenericInterface(const char *pchInterfaceVersion, EVRInitError *peError = nullptr) = 0;
+	virtual void *GetGenericInterface(const char *pchInterfaceVersion, EVRInitError *peError = NULL) = 0;
 
 	/** Returns the property container handle for this driver */
 	virtual DriverHandle_t GetDriverHandle() = 0;
@@ -1928,7 +1928,7 @@ public:
 
 	/** Returns a string property as a std::string. If the device index is not valid or the property is not a string type this function will
 	* return an empty string. */
-	std::string GetStringProperty(vr::PropertyContainerHandle_t ulContainer, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *peError = nullptr);
+	std::string GetStringProperty(vr::PropertyContainerHandle_t ulContainer, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *peError = NULL);
 
 	/** Sets a scaler property. The new value will be returned on any subsequent call to get this property in any process. */
 	ETrackedPropertyError SetBoolProperty(PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, bool bNewValue);
@@ -2389,7 +2389,7 @@ static const char *const k_InterfaceVersions[] =
 		IVRVirtualDisplay_Version,
 		IVRDriverManager_Version,
 		IVRResources_Version,
-		nullptr};
+		NULL};
 
 inline IVRDriverContext *&VRDriverContext()
 {
@@ -2400,7 +2400,7 @@ inline IVRDriverContext *&VRDriverContext()
 class COpenVRDriverContext
 {
 public:
-	COpenVRDriverContext() : m_propertyHelpers(nullptr), m_hiddenAreaHelpers(nullptr) { Clear(); }
+	COpenVRDriverContext() : m_propertyHelpers(NULL), m_hiddenAreaHelpers(NULL) { Clear(); }
 	void Clear();
 
 	EVRInitError InitServer();
@@ -2408,7 +2408,7 @@ public:
 
 	IVRSettings *VRSettings()
 	{
-		if (m_pVRSettings == nullptr)
+		if (m_pVRSettings == NULL)
 		{
 			EVRInitError eError;
 			m_pVRSettings = (IVRSettings *)VRDriverContext()->GetGenericInterface(IVRSettings_Version, &eError);
@@ -2418,7 +2418,7 @@ public:
 
 	IVRProperties *VRPropertiesRaw()
 	{
-		if (m_pVRProperties == nullptr)
+		if (m_pVRProperties == NULL)
 		{
 			EVRInitError eError;
 			m_pVRProperties = (IVRProperties *)VRDriverContext()->GetGenericInterface(IVRProperties_Version, &eError);
@@ -2442,7 +2442,7 @@ public:
 
 	IVRServerDriverHost *VRServerDriverHost()
 	{
-		if (m_pVRServerDriverHost == nullptr)
+		if (m_pVRServerDriverHost == NULL)
 		{
 			EVRInitError eError;
 			m_pVRServerDriverHost = (IVRServerDriverHost *)VRDriverContext()->GetGenericInterface(IVRServerDriverHost_Version, &eError);
@@ -2452,7 +2452,7 @@ public:
 
 	IVRWatchdogHost *VRWatchdogHost()
 	{
-		if (m_pVRWatchdogHost == nullptr)
+		if (m_pVRWatchdogHost == NULL)
 		{
 			EVRInitError eError;
 			m_pVRWatchdogHost = (IVRWatchdogHost *)VRDriverContext()->GetGenericInterface(IVRWatchdogHost_Version, &eError);
@@ -2462,7 +2462,7 @@ public:
 
 	IVRDriverLog *VRDriverLog()
 	{
-		if (m_pVRDriverLog == nullptr)
+		if (m_pVRDriverLog == NULL)
 		{
 			EVRInitError eError;
 			m_pVRDriverLog = (IVRDriverLog *)VRDriverContext()->GetGenericInterface(IVRDriverLog_Version, &eError);
@@ -2527,13 +2527,13 @@ inline IVRResources *VR_CALLTYPE VRResources() { return OpenVRInternal_ModuleSer
 
 inline void COpenVRDriverContext::Clear()
 {
-	m_pVRSettings = nullptr;
-	m_pVRProperties = nullptr;
-	m_pVRServerDriverHost = nullptr;
-	m_pVRDriverLog = nullptr;
-	m_pVRWatchdogHost = nullptr;
-	m_pVRDriverManager = nullptr;
-	m_pVRResources = nullptr;
+	m_pVRSettings = NULL;
+	m_pVRProperties = NULL;
+	m_pVRServerDriverHost = NULL;
+	m_pVRDriverLog = NULL;
+	m_pVRWatchdogHost = NULL;
+	m_pVRDriverManager = NULL;
+	m_pVRResources = NULL;
 }
 
 inline EVRInitError COpenVRDriverContext::InitServer()
@@ -2566,7 +2566,7 @@ inline EVRInitError InitWatchdogDriverContext(IVRDriverContext *pContext)
 
 inline void CleanupDriverContext()
 {
-	VRDriverContext() = nullptr;
+	VRDriverContext() = NULL;
 	OpenVRInternal_ModuleServerDriverContext().Clear();
 }
 

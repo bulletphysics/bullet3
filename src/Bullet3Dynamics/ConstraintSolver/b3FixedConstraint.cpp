@@ -16,7 +16,7 @@ b3FixedConstraint::~b3FixedConstraint()
 {
 }
 
-void b3FixedConstraint::getInfo1(b3ConstraintInfo1* info, const b3RigidBodyData* bodies)
+void b3FixedConstraint::getInfo1(b3ConstraintInfo1* info, const b3RigidBodyData* /*bodies*/)
 {
 	info->m_numConstraintRows = 6;
 	info->nub = 6;

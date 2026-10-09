@@ -87,7 +87,7 @@ class Laikago(minitaur.Minitaur):
     else:
       self._enable_clip_motor_commands = False
 
-    # The follwing parameters are fixed for the Laikago robot.
+    # The following parameters are fixed for the Laikago robot.
     kwargs["num_motors"] = NUM_MOTORS
     kwargs["dofs_per_leg"] = DOFS_PER_LEG
     kwargs["motor_direction"] = JOINT_DIRECTIONS
@@ -286,7 +286,7 @@ class Laikago(minitaur.Minitaur):
       Clipped motor commands.
     """
 
-    # clamp the motor command by the joint limit, in case weired things happens
+    # clamp the motor command by the joint limit, in case weird things happens
     max_angle_change = MAX_MOTOR_ANGLE_CHANGE_PER_STEP
     current_motor_angles = self.GetMotorAngles()
     motor_commands = np.clip(motor_commands,

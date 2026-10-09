@@ -13,7 +13,9 @@
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <algorithm>
 #include <assert.h>
 #include <fstream>
@@ -37,7 +39,7 @@
 using namespace VHACD;
 using namespace std;
 
-bool replace(std::string& str, const std::string& from, const std::string& to)
+static bool replace(std::string& str, const std::string& from, const std::string& to)
 {
 	size_t start_pos = str.find(from);
 	if (start_pos == std::string::npos)
@@ -50,21 +52,21 @@ class MyCallback : public IVHACD::IUserCallback
 {
 public:
 	MyCallback(void) {}
-	~MyCallback(){};
+	~MyCallback(){}
 	void Update(const double overallProgress, const double stageProgress, const double operationProgress,
 				const char* const stage, const char* const operation)
 	{
 		cout << setfill(' ') << setw(3) << (int)(overallProgress + 0.5) << "% "
 			 << "[ " << stage << " " << setfill(' ') << setw(3) << (int)(stageProgress + 0.5) << "% ] "
 			 << operation << " " << setfill(' ') << setw(3) << (int)(operationProgress + 0.5) << "%" << endl;
-	};
+	}
 };
 class MyLogger : public IVHACD::IUserLogger
 {
 public:
 	MyLogger(void) {}
 	MyLogger(const string& fileName) { OpenFile(fileName); }
-	~MyLogger(){};
+	~MyLogger(){}
 	void Log(const char* const msg)
 	{
 		if (m_file.is_open())
@@ -103,7 +105,7 @@ struct Material
 		m_emissiveColor[2] = 0.0f;
 		m_shininess = 0.4f;
 		m_transparency = 0.5f;
-	};
+	}
 };
 struct Parameters
 {
@@ -138,7 +140,7 @@ void ComputeRandomColor(Material& mat);
 void Usage(const Parameters& params);
 void ParseParameters(int argc, char* argv[], Parameters& params);
 
-int main_vhacd2(Parameters& params)
+static int main_vhacd2(Parameters& params)
 {
 	MyCallback myCallback;
 	MyLogger myLogger(params.m_fileNameLog);
@@ -236,7 +238,7 @@ int main_vhacd2(Parameters& params)
 			{
 				interfaceVHACD->GetConvexHull(p, ch);
 
-				SaveOBJ(foutCH, ch.m_points, ch.m_triangles, ch.m_nPoints, ch.m_nTriangles, mat, myLogger, p, vertexOffset);
+				SaveOBJ(foutCH, ch.m_points, ch.m_triangles, ch.m_nPoints, ch.m_nTriangles, mat, myLogger, (int)p, vertexOffset);
 				vertexOffset += ch.m_nPoints;
 				msg.str("");
 				msg << "\t CH[" << setfill('0') << setw(5) << p << "] " << ch.m_nPoints << " V, " << ch.m_nTriangles << " T" << endl;
@@ -270,6 +272,7 @@ int main_vhacd2(Parameters& params)
 	return 0;
 }
 
+int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut, const std::string& fileNameLog, VHACD::IVHACD::Parameters& paramsVHACD); // prototype
 int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut, const std::string& fileNameLog, VHACD::IVHACD::Parameters& paramsVHACD)
 {
 	Parameters params;
@@ -280,7 +283,7 @@ int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut
 	return main_vhacd2(params);
 }
 
-int main_vhacd(int argc, char* argv[])
+static int main_vhacd(int argc, char* argv[])
 {
 	// --input camel.off --output camel_acd.obj --log log.txt --resolution 1000000 --depth 20 --concavity 0.0025 --planeDownsampling 4 --convexhullDownsampling 4 --alpha 0.05 --beta 0.05 --gamma 0.00125 --pca 0 --mode 0 --maxNumVerticesPerCH 256 --minVolumePerCH 0.0001 --convexhullApproximation 1 --oclDeviceID 2
 	// set parameters
@@ -359,7 +362,7 @@ void ParseParameters(int argc, char* argv[], Parameters& params)
 		else if (!strcmp(argv[i], "--resolution"))
 		{
 			if (++i < argc)
-				params.m_paramsVHACD.m_resolution = atoi(argv[i]);
+				params.m_paramsVHACD.m_resolution = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--depth"))
 		{
@@ -409,7 +412,7 @@ void ParseParameters(int argc, char* argv[], Parameters& params)
 		else if (!strcmp(argv[i], "--maxNumVerticesPerCH"))
 		{
 			if (++i < argc)
-				params.m_paramsVHACD.m_maxNumVerticesPerCH = atoi(argv[i]);
+				params.m_paramsVHACD.m_maxNumVerticesPerCH = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--minVolumePerCH"))
 		{
@@ -429,12 +432,12 @@ void ParseParameters(int argc, char* argv[], Parameters& params)
 		else if (!strcmp(argv[i], "--oclPlatformID"))
 		{
 			if (++i < argc)
-				params.m_oclPlatformID = atoi(argv[i]);
+				params.m_oclPlatformID = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--oclDeviceID"))
 		{
 			if (++i < argc)
-				params.m_oclDeviceID = atoi(argv[i]);
+				params.m_oclDeviceID = (unsigned int)atoi(argv[i]);
 		}
 		else if (!strcmp(argv[i], "--help"))
 		{
@@ -456,7 +459,8 @@ void GetFileExtension(const string& fileName, string& fileExtension)
 	else
 	{
 		fileExtension = fileName.substr(lastDotPosition, fileName.size());
-		transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), ::toupper);
+		for(size_t i=0;i<fileExtension.size();i++)
+			fileExtension[i] = (char)::toupper(fileExtension[i]);
 	}
 }
 void ComputeRandomColor(Material& mat)
@@ -464,9 +468,9 @@ void ComputeRandomColor(Material& mat)
 	mat.m_diffuseColor[0] = mat.m_diffuseColor[1] = mat.m_diffuseColor[2] = 0.0f;
 	while (mat.m_diffuseColor[0] == mat.m_diffuseColor[1] || mat.m_diffuseColor[2] == mat.m_diffuseColor[1] || mat.m_diffuseColor[2] == mat.m_diffuseColor[0])
 	{
-		mat.m_diffuseColor[0] = (rand() % 100) / 100.0f;
-		mat.m_diffuseColor[1] = (rand() % 100) / 100.0f;
-		mat.m_diffuseColor[2] = (rand() % 100) / 100.0f;
+		mat.m_diffuseColor[0] = (float)(rand() % 100) / 100.0f;
+		mat.m_diffuseColor[1] = (float)(rand() % 100) / 100.0f;
+		mat.m_diffuseColor[2] = (float)(rand() % 100) / 100.0f;
 	}
 }
 bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangles, IVHACD::IUserLogger& logger)
@@ -476,7 +480,9 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 	{
 		const string strOFF("OFF");
 		char temp[1024];
-		fscanf(fid, "%s", temp);
+		temp[1023] = '\0';
+		int len = fscanf(fid, "%s", temp);
+		(void)len;
 		if (string(temp) != strOFF)
 		{
 			logger.Log("Loading error: format not recognized \n");
@@ -488,30 +494,32 @@ bool LoadOFF(const string& fileName, vector<float>& points, vector<int>& triangl
 			int nv = 0;
 			int nf = 0;
 			int ne = 0;
-			fscanf(fid, "%i", &nv);
-			fscanf(fid, "%i", &nf);
-			fscanf(fid, "%i", &ne);
-			points.resize(nv * 3);
-			triangles.resize(nf * 3);
+			len = fscanf(fid, "%i", &nv); (void)len;
+			len = fscanf(fid, "%i", &nf); (void)len;
+			len = fscanf(fid, "%i", &ne); (void)len;
+			points.resize((size_t)nv * 3);
+			triangles.resize((size_t)nf * 3);
 			const int np = nv * 3;
 			for (int p = 0; p < np; p++)
 			{
-				fscanf(fid, "%f", &(points[p]));
+				len = fscanf(fid, "%f", &(points[(size_t)p])); (void)len;
 			}
 			int s;
 			for (int t = 0, r = 0; t < nf; ++t)
 			{
-				fscanf(fid, "%i", &s);
+				len = fscanf(fid, "%i", &s); (void)len;
 				if (s == 3)
 				{
-					fscanf(fid, "%i", &(triangles[r++]));
-					fscanf(fid, "%i", &(triangles[r++]));
-					fscanf(fid, "%i", &(triangles[r++]));
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++])); (void)len;
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++])); (void)len;
+					len = fscanf(fid, "%i", &(triangles[(size_t)r++])); (void)len;
 				}
 				else  // Fix me: support only triangular meshes
 				{
 					for (int h = 0; h < s; ++h)
-						fscanf(fid, "%i", &s);
+					{
+						len = fscanf(fid, "%i", &s); (void)len;
+					}
 				}
 			}
 			fclose(fid);
@@ -640,7 +648,7 @@ bool SaveOFF(const string& fileName, const float* const& points, const int* cons
 }
 
 bool SaveOBJ(ofstream& fout, const double* const& points, const int* const& triangles, const unsigned int& nPoints,
-			 const unsigned int& nTriangles, const Material& material, IVHACD::IUserLogger& logger, int convexPart, int vertexOffset)
+			 const unsigned int& nTriangles, const Material& /*material*/, IVHACD::IUserLogger& logger, int convexPart, int vertexOffset)
 {
 	if (fout.is_open())
 	{

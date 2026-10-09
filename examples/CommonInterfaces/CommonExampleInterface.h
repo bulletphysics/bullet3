@@ -48,17 +48,17 @@ public:
 	virtual void renderScene() = 0;
 	virtual void physicsDebugDraw(int debugFlags) = 0;  //for now we reuse the flags in Bullet/src/LinearMath/btIDebugDraw.h
 	//reset camera is only called when switching demo. this way you can restart (initPhysics) and watch in a specific location easier
-	virtual void resetCamera(){};
+	virtual void resetCamera(){}
 	virtual bool mouseMoveCallback(float x, float y) = 0;
 	virtual bool mouseButtonCallback(int button, int state, float x, float y) = 0;
 	virtual bool keyboardCallback(int key, int state) = 0;
 
-	virtual void vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis, float auxAnalogAxes[10]) {}
-	virtual void vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]) {}
-	virtual void vrHMDMoveCallback(int controllerId, float pos[4], float orientation[4]) {}
-	virtual void vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orientation[4]) {}
+	virtual void vrControllerMoveCallback(int /*controllerId*/, float /*pos*/[4], float /*orientation*/[4], float /*analogAxis*/, float /*auxAnalogAxes*/[10]) {}
+	virtual void vrControllerButtonCallback(int /*controllerId*/, int /*button*/, int /*state*/, float /*pos*/[4], float /*orientation*/[4]) {}
+	virtual void vrHMDMoveCallback(int /*controllerId*/, float /*pos*/[4], float /*orientation*/[4]) {}
+	virtual void vrGenericTrackerMoveCallback(int /*controllerId*/, float /*pos*/[4], float /*orientation*/[4]) {}
 
-	virtual void processCommandLineArgs(int argc, char* argv[]){};
+	virtual void processCommandLineArgs(int /*argc*/, char* /*argv*/[]){}
 };
 
 class ExampleEntries

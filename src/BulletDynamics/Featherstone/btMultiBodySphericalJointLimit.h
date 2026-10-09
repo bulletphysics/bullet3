@@ -69,14 +69,14 @@ public:
 		m_use_multi_dof_params = true;
 	}
 
-	virtual void setPositionTarget(const btQuaternion& posTarget, btScalar kp =1.f)
+	virtual void setPositionTarget(const btQuaternion& posTarget, btScalar kp =btScalar(1.f))
 	{
 		m_desiredPosition = posTarget;
 		m_kp = btVector3(kp, kp, kp);
 		m_use_multi_dof_params = false;
 	}
 
-	virtual void setPositionTargetMultiDof(const btQuaternion& posTarget, const btVector3& kp = btVector3(1.f, 1.f, 1.f))
+	virtual void setPositionTargetMultiDof(const btQuaternion& posTarget, const btVector3& kp = btVector3(btScalar(1.f), btScalar(1.f), btScalar(1.f)))
 	{
 		m_desiredPosition = posTarget;
 		m_kp = kp;

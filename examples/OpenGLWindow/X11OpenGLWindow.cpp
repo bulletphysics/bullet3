@@ -226,129 +226,129 @@ struct InternalData2
 
 		bool missingFunc = false;
 
-		missingFunc = ((m_x11_XFree = (PFNXFREE)dlsym(m_x11_library, "XFree")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XFree = dlsym(m_x11_library, "XFree")) == NULL) | missingFunc;
 		assert(!missingFunc);
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XFree in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XSetErrorHandler = (PFNXSETERRORHANDLER)dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XSetErrorHandler = dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XSetErrorHandler = (PFNXSETERRORHANDLER)dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XSetErrorHandler = dlsym(m_x11_library, "XSetErrorHandler")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XSetErrorHandler in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XSync = (PFNXSYNC)dlsym(m_x11_library, "XSync")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XSync = dlsym(m_x11_library, "XSync")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XSync in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XOpenDisplay = (PFNXOPENDISPLAY)dlsym(m_x11_library, "XOpenDisplay")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XOpenDisplay = dlsym(m_x11_library, "XOpenDisplay")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XOpenDisplay in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XCreateColormap = (PFNXCREATECOLORMAP)dlsym(m_x11_library, "XCreateColormap")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XCreateColormap = dlsym(m_x11_library, "XCreateColormap")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XCreateColormap in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XCreateWindow = (PFNXCREATEWINDOW)dlsym(m_x11_library, "XCreateWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XCreateWindow = dlsym(m_x11_library, "XCreateWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XCreateWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XMapWindow = (PFNXMAPWINDOW)dlsym(m_x11_library, "XMapWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XMapWindow = dlsym(m_x11_library, "XMapWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XMapWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XStoreName = (PFNXSTORENAME)dlsym(m_x11_library, "XStoreName")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XStoreName = dlsym(m_x11_library, "XStoreName")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XStoreName in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XCloseDisplay = (PFNXCLOSEDISPLAY)dlsym(m_x11_library, "XCloseDisplay")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XCloseDisplay = dlsym(m_x11_library, "XCloseDisplay")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XCloseDisplay in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XDestroyWindow = (PFNXDESTROYWINDOW)dlsym(m_x11_library, "XDestroyWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XDestroyWindow = dlsym(m_x11_library, "XDestroyWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XDestroyWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XRaiseWindow = (PFNXRAISEWINDOW)dlsym(m_x11_library, "XRaiseWindow")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XRaiseWindow = dlsym(m_x11_library, "XRaiseWindow")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XRaiseWindow in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
 
-		missingFunc = ((m_x11_XGetKeyboardMapping = (PFNXGETKEYBOARDMAPPING)dlsym(m_x11_library, "XGetKeyboardMapping")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XGetKeyboardMapping = dlsym(m_x11_library, "XGetKeyboardMapping")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XGetKeyboardMapping in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XKeycodeToKeysym = (PFNXKEYCODETOKEYSYM)dlsym(m_x11_library, "XKeycodeToKeysym")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XKeycodeToKeysym = dlsym(m_x11_library, "XKeycodeToKeysym")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XKeycodeToKeysym in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XConvertCase = (PFNXCONVERTCASE)dlsym(m_x11_library, "XConvertCase")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XConvertCase = dlsym(m_x11_library, "XConvertCase")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XConvertCase in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XPending = (PFNXPENDING)dlsym(m_x11_library, "XPending")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XPending = dlsym(m_x11_library, "XPending")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XPending in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XNextEvent = (PFNXNEXTEVENT)dlsym(m_x11_library, "XNextEvent")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XNextEvent = dlsym(m_x11_library, "XNextEvent")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XNextEvent in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XEventsQueued = (PFNXEVENTSQUEUED)dlsym(m_x11_library, "XEventsQueued")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XEventsQueued = dlsym(m_x11_library, "XEventsQueued")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XEventsQueued in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XPeekEvent = (PFNXPEEKEVENT)dlsym(m_x11_library, "XPeekEvent")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XPeekEvent = dlsym(m_x11_library, "XPeekEvent")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XPeekEvent in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XLookupKeysym = (PFNXLOOKUPKEYSYM)dlsym(m_x11_library, "XLookupKeysym")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XLookupKeysym = dlsym(m_x11_library, "XLookupKeysym")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XLookupKeysym in %s, exiting!\n", X11_LIBRARY);
 			exit(EXIT_FAILURE);
 		}
-		missingFunc = ((m_x11_XGetWindowAttributes = (PFNXGETWINDOWATTRIBUTES)dlsym(m_x11_library, "XGetWindowAttributes")) == NULL) | missingFunc;
+		missingFunc = ((*(void**)&m_x11_XGetWindowAttributes = dlsym(m_x11_library, "XGetWindowAttributes")) == NULL) | missingFunc;
 		if (missingFunc)
 		{
 			fprintf(stderr, "Error: missing func XGetWindowAttributes in %s, exiting!\n", X11_LIBRARY);
@@ -407,7 +407,7 @@ static bool isExtensionSupported(const char* extList, const char* extension)
 }
 
 static bool ctxErrorOccurred = false;
-static int ctxErrorHandler(Display* dpy, XErrorEvent* ev)
+static int ctxErrorHandler(Display* /*dpy*/, XErrorEvent* /*ev*/)
 {
 	ctxErrorOccurred = true;
 	return 0;
@@ -441,8 +441,8 @@ void X11OpenGLWindow::enableOpenGL()
 		// NOTE: It is not necessary to create or make current to a context before
 		// calling glXGetProcAddressARB, unless we dynamically load OpenGL/GLX/X11
 
-		glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
-		glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
+		glXCreateContextAttribsARBProc fn_createCtxAttribs = 0;
+		*(__GLXextFuncPtr*)&glXCreateContextAttribsARB = 
 			glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
 
 		GLXContext ctx = 0;
@@ -460,7 +460,7 @@ void X11OpenGLWindow::enableOpenGL()
 		// Check for the GLX_ARB_create_context extension string and the function.
 		// If either is not present, use GLX 1.3 context creation method.
 		if (!isExtensionSupported(glxExts, "GLX_ARB_create_context") ||
-			!glXCreateContextAttribsARB)
+			!fn_createCtxAttribs)
 		{
 			printf(
 				"glXCreateContextAttribsARB() not found"
@@ -487,7 +487,7 @@ void X11OpenGLWindow::enableOpenGL()
       };
 */
 			printf("Creating context\n");
-			ctx = glXCreateContextAttribsARB(m_data->m_dpy, m_data->m_bestFbc, 0,
+			ctx = fn_createCtxAttribs(m_data->m_dpy, m_data->m_bestFbc, 0,
 											 True, context_attribs);
 
 			// Sync to ensure any errors generated are processed.
@@ -510,7 +510,7 @@ void X11OpenGLWindow::enableOpenGL()
 				printf(
 					"Failed to create GL 3.3 context"
 					" ... using old-style GLX context\n");
-				ctx = glXCreateContextAttribsARB(m_data->m_dpy, m_data->m_bestFbc, 0,
+				ctx = fn_createCtxAttribs(m_data->m_dpy, m_data->m_bestFbc, 0,
 												 True, context_attribs);
 			}
 		}
@@ -683,7 +683,6 @@ void X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		m_data->m_swa.background_pixmap = None;
 		m_data->m_swa.border_pixel = 0;
 		m_data->m_swa.event_mask = ExposureMask | KeyReleaseMask | KeyPressMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
-		;
 		m_data->m_root = RootWindow(m_data->m_dpy, m_data->m_vi->screen);
 
 		m_data->m_win = MyXCreateWindow(m_data->m_dpy, m_data->m_root,
@@ -747,7 +746,7 @@ int X11OpenGLWindow::getAsciiCodeFromVirtualKeycode(int keycode)
 
 	int keysyms_per_keycode_return;
 	KeySym* keysym = MyXGetKeyboardMapping(m_data->m_dpy,
-										   keycode,
+										   (unsigned char)keycode,
 										   1,
 										   &keysyms_per_keycode_return);
 
@@ -841,22 +840,22 @@ bool X11OpenGLWindow::isModifierKeyPressed(int key)
 		{
 			isPressed = ((m_data->m_modifierFlags & MY_X11_ALT_KEY) != 0);
 			break;
-		};
+		}
 		case B3G_SHIFT:
 		{
 			isPressed = ((m_data->m_modifierFlags & MY_X11_SHIFT_KEY) != 0);
 			break;
-		};
+		}
 		case B3G_CONTROL:
 		{
 			isPressed = ((m_data->m_modifierFlags & MY_X11_CONTROL_KEY) != 0);
 			break;
-		};
+		}
 
 		default:
 		{
 		}
-	};
+	}
 	return isPressed;
 }
 
@@ -889,7 +888,7 @@ void X11OpenGLWindow::pumpMessage()
 					default:
 					{
 					}
-				};
+				}
 				if (m_data->m_keyboardCallback)
 				{
 					int state = 1;
@@ -918,7 +917,7 @@ void X11OpenGLWindow::pumpMessage()
 					default:
 					{
 					}
-				};
+				}
 
 				if (m_data->m_keyboardCallback)
 				{
@@ -954,6 +953,7 @@ void X11OpenGLWindow::pumpMessage()
 			case ButtonRelease:
 				buttonState = 0;
 				//continue with ButtonPress code
+			// fallthrough
 			case ButtonPress:
 			{
 				//                printf("!");
@@ -1002,7 +1002,7 @@ void X11OpenGLWindow::pumpMessage()
 				{
 					//                      printf("xpos = %d, ypos = %d\n",xpos,ypos);
 
-					(*m_data->m_mouseButtonCallback)(button, buttonState, xpos, ypos);
+					(*m_data->m_mouseButtonCallback)(button, buttonState, (float)xpos, (float)ypos);
 				}
 				break;
 			}
@@ -1014,7 +1014,7 @@ void X11OpenGLWindow::pumpMessage()
 				{
 					int xpos = m_data->m_xev.xmotion.x;
 					int ypos = m_data->m_xev.xmotion.y;
-					(*m_data->m_mouseMoveCallback)(xpos, ypos);
+					(*m_data->m_mouseMoveCallback)((float)xpos, (float)ypos);
 				}
 				break;
 			}
@@ -1027,7 +1027,7 @@ void X11OpenGLWindow::pumpMessage()
 
 				if (m_data->m_resizeCallback)
 				{
-					(*m_data->m_resizeCallback)(m_data->m_xev.xconfigure.width, m_data->m_xev.xconfigure.height);
+					(*m_data->m_resizeCallback)((float)m_data->m_xev.xconfigure.width, (float)m_data->m_xev.xconfigure.height);
 				}
 				break;
 			}
@@ -1049,7 +1049,7 @@ void X11OpenGLWindow::pumpMessage()
 			{
 				//XRRUpdateConfiguration( &event );
 			}
-		};
+		}
 	}
 }
 
@@ -1095,7 +1095,7 @@ void X11OpenGLWindow::setRequestExit()
 	m_requestedExit = true;
 }
 
-void X11OpenGLWindow::setRenderCallback(b3RenderCallback renderCallback)
+void X11OpenGLWindow::setRenderCallback(b3RenderCallback /*renderCallback*/)
 {
 }
 
@@ -1123,7 +1123,7 @@ void X11OpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
 {
 	if (resizeCallback && m_data->m_glWidth > 0 && m_data->m_glHeight > 0)
 	{
-		resizeCallback(m_data->m_glWidth, m_data->m_glHeight);
+		resizeCallback((float)m_data->m_glWidth, (float)m_data->m_glHeight);
 	}
 	m_data->m_resizeCallback = resizeCallback;
 }
@@ -1178,7 +1178,7 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 	{
 		while (fgets(filename, maxNameLength - 1, output) != NULL)
 		{
-			len = strlen(filename);
+			len = (int)strlen(filename);
 			if (len > 0)
 			{
 				filename[len - 1] = 0;

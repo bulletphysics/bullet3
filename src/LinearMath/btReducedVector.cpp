@@ -11,11 +11,10 @@
 // returns the projection of this onto other
 btReducedVector btReducedVector::proj(const btReducedVector& other) const
 {
-    btReducedVector ret(m_sz);
     btScalar other_length2 = other.length2();
     if (other_length2 < SIMD_EPSILON)
     {
-        return ret;
+        return btReducedVector(m_sz);
     }
     return other*(this->dot(other))/other_length2;
 }

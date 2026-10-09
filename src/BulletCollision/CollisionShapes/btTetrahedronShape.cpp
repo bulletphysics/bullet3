@@ -101,6 +101,8 @@ int btBU_Simplex1to4::getNumEdges() const
 			return 3;
 		case 4:
 			return 6;
+		default:
+			break;
 	}
 
 	return 0;
@@ -128,6 +130,8 @@ void btBU_Simplex1to4::getEdge(int i, btVector3& pa, btVector3& pb) const
 				case 2:
 					pa = m_vertices[2];
 					pb = m_vertices[0];
+					break;
+				default:
 					break;
 			}
 			break;
@@ -158,7 +162,11 @@ void btBU_Simplex1to4::getEdge(int i, btVector3& pa, btVector3& pb) const
 					pa = m_vertices[2];
 					pb = m_vertices[3];
 					break;
+				default:
+					break;
 			}
+		default:
+			break;
 	}
 }
 

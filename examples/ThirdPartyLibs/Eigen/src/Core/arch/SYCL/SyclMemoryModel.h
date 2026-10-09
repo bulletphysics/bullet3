@@ -166,13 +166,13 @@ class PointerMapper {
   /**
    * Obtain the insertion point in the pointer map for
    * a pointer of the given size.
-   * \param requiredSize Size attemted to reclaim
+   * \param requiredSize Size attempted to reclaim
    */
   typename pointerMap_t::iterator get_insertion_point(size_t requiredSize) {
     typename pointerMap_t::iterator retVal;
     bool reuse = false;
     if (!m_freeList.empty()) {
-      // try to re-use an existing block
+      // try to reuse an existing block
       for (auto freeElem : m_freeList) {
         if (freeElem->second.m_size >= requiredSize) {
           retVal = freeElem;
@@ -483,7 +483,7 @@ class PointerMapper {
    */
   pointerMap_t m_pointerMap;
 
-  /* List of free nodes available for re-using
+  /* List of free nodes available for reusing
    */
   std::set<typename pointerMap_t::iterator, SortBySize> m_freeList;
 

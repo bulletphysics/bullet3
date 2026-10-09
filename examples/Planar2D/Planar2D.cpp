@@ -57,17 +57,6 @@ class GL_DialogDynamicsWorld;
 
 class Planar2D : public CommonRigidBodyBase
 {
-	//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
-
-	btBroadphaseInterface* m_broadphase;
-
-	btCollisionDispatcher* m_dispatcher;
-
-	btConstraintSolver* m_solver;
-
-	btDefaultCollisionConfiguration* m_collisionConfiguration;
-
 	btConvex2dConvex2dAlgorithm::CreateFunc* m_convexAlgo2d;
 	btVoronoiSimplexSolver* m_simplexSolver;
 	btMinkowskiPenetrationDepthSolver* m_pdSolver;
@@ -92,7 +81,7 @@ public:
 		float dist = 9;
 		float pitch = -11;
 		float yaw = 539;
-		float targetPos[3] = {8.6, 10.5, -20.6};
+		float targetPos[3] = {8.6f, 10.5f, -20.6f};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -105,7 +94,7 @@ void Planar2D::initPhysics()
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_simplexSolver = new btVoronoiSimplexSolver();
@@ -165,7 +154,7 @@ void Planar2D::initPhysics()
 
 	{
 		//create a few dynamic rigidbodies
-		// Re-using the same collision is better for memory usage and performance
+		// Reusing the same collision is better for memory usage and performance
 
 		btScalar u = btScalar(1 * SCALING - 0.04);
 		btVector3 points[3] = {btVector3(0, u, 0), btVector3(-u, -u, 0), btVector3(u, -u, 0)};

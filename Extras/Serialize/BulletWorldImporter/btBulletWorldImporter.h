@@ -24,7 +24,7 @@ namespace bParse
 {
 class btBulletFile;
 
-};
+}
 
 ///The btBulletWorldImporter is a starting point to import .bullet files.
 ///note that not all data is converted yet. You are expected to override or modify this class.

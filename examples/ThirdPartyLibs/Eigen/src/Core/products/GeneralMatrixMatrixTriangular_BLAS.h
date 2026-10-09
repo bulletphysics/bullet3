@@ -133,7 +133,7 @@ EIGEN_BLAS_RANKUPDATE_R(double, double, dsyrk_)
 EIGEN_BLAS_RANKUPDATE_R(float,  float,  ssyrk_)
 #endif
 
-// TODO hanlde complex cases
+// TODO handle complex cases
 // EIGEN_BLAS_RANKUPDATE_C(dcomplex, double, double, zherk_)
 // EIGEN_BLAS_RANKUPDATE_C(scomplex, float,  float, cherk_)
 

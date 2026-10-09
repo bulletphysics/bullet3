@@ -64,7 +64,7 @@ public:
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		float targetPos[3] = {0, 0.46f, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
@@ -159,7 +159,7 @@ public:
 		// legs
 		for (i = 0; i < NUM_LEGS; i++)
 		{
-			float fAngle = 2 * M_PI * i / NUM_LEGS;
+			float fAngle = float(2 * M_PI * i / NUM_LEGS);
 			float fSin = std::sin(fAngle);
 			float fCos = std::cos(fAngle);
 
@@ -170,7 +170,7 @@ public:
 			// thigh
 			btVector3 vToBone = (vBoneOrigin - vRoot).normalize();
 			btVector3 vAxis = vToBone.cross(vUp);
-			transform.setRotation(btQuaternion(vAxis, M_PI_2));
+			transform.setRotation(btQuaternion(vAxis, btScalar(M_PI_2)));
 			m_bodies[1 + 2 * i] = localCreateRigidBody(btScalar(1.), offset * transform, m_shapes[1 + 2 * i]);
 
 			// shin
@@ -182,9 +182,9 @@ public:
 		// Setup some damping on the m_bodies
 		for (i = 0; i < BODYPART_COUNT; ++i)
 		{
-			m_bodies[i]->setDamping(0.05, 0.85);
-			m_bodies[i]->setDeactivationTime(0.8);
-			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
+			m_bodies[i]->setDamping(0.05f, 0.85f);
+			m_bodies[i]->setDeactivationTime(0.8f);
+			//m_bodies[i]->setSleepingThresholds(1.6f, 2.5f);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
 		}
 
@@ -198,7 +198,7 @@ public:
 
 		for (i = 0; i < NUM_LEGS; i++)
 		{
-			float fAngle = 2 * M_PI * i / NUM_LEGS;
+			float fAngle = float(2 * M_PI * i / NUM_LEGS);
 			float fSin = std::sin(fAngle);
 			float fCos = std::cos(fAngle);
 
@@ -259,7 +259,7 @@ public:
 	btTypedConstraint** GetJoints() { return &m_joints[0]; }
 };
 
-void motorPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
+static void motorPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
 {
 	MotorDemo* motorDemo = (MotorDemo*)world->getWorldUserInfo();
 
@@ -321,13 +321,13 @@ void MotorDemo::spawnTestRig(const btVector3& startOffset, bool bFixed)
 	m_rigs.push_back(rig);
 }
 
-void PreStep()
+static void PreStep()
 {
 }
 
 void MotorDemo::setMotorTargets(btScalar deltaTime)
 {
-	float ms = deltaTime * 1000000.;
+	float ms = float(deltaTime * 1000000.);
 	float minFPS = 1000000.f / 60.f;
 	if (ms > minFPS)
 		ms = minFPS;
@@ -344,8 +344,8 @@ void MotorDemo::setMotorTargets(btScalar deltaTime)
 			btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_rigs[r]->GetJoints()[i]);
 			btScalar fCurAngle = hingeC->getHingeAngle();
 
-			btScalar fTargetPercent = (int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
-			btScalar fTargetAngle = 0.5 * (1 + sin(2 * M_PI * fTargetPercent));
+			btScalar fTargetPercent = (float)(int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
+			btScalar fTargetAngle = btScalar(0.5 * (1 + sin(2 * M_PI * fTargetPercent)));
 			btScalar fTargetLimitAngle = hingeC->getLowerLimit() + fTargetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
 			btScalar fAngleError = fTargetLimitAngle - fCurAngle;
 			btScalar fDesiredAngularVel = 1000000.f * fAngleError / ms;

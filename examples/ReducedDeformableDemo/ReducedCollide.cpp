@@ -52,7 +52,7 @@ public:
 	void addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
 
     // TODO: disable pick force, non-interactive for now.
-    bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
+    bool pickBody(const btVector3& /*rayFromWorld*/, const btVector3& /*rayToWorld*/) {
         return false;
     } 
 
@@ -151,7 +151,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      float internalTimeStep = 1. / 60.f;
+      float internalTimeStep = 1.f / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
@@ -171,7 +171,7 @@ public:
             for (int p = 0; p < rsb->m_contactNodesList.size(); ++p)
             {
                 int index = rsb->m_contactNodesList[p];
-                deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[index].m_x, 0.2, btVector3(0, 1, 0));
+                deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[index].m_x, btScalar(0.2), btVector3(0, 1, 0));
             }
         }
     }
@@ -184,7 +184,7 @@ void ReducedCollide::initPhysics()
     ///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    ///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
@@ -198,7 +198,7 @@ void ReducedCollide::initPhysics()
 
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
     m_dynamicsWorld->setGravity(gravity);
-	m_dynamicsWorld->getSolverInfo().m_globalCfm = 1e-3;
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-3);
     m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_RANDMIZE_ORDER;
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
@@ -214,7 +214,7 @@ void ReducedCollide::initPhysics()
                                             false);
                                             
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->getCollisionShape()->setMargin(0.1);
+        rsb->getCollisionShape()->setMargin(btScalar(0.1));
         // rsb->scale(btVector3(0.5, 0.5, 0.5));
 
         rsb->setStiffnessScale(100);
@@ -306,10 +306,10 @@ void ReducedCollide::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(false);
     getDeformableDynamicsWorld()->getSolverInfo().m_friction = 1;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.2;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0.2;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = btScalar(0.2);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = btScalar(0.2);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = btScalar(1e-3);
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = false;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -394,7 +394,7 @@ btMultiBody* ReducedCollide::createFeatherstoneMultiBody_testMultiDof(btMultiBod
 	btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
 	float baseMass = 10;
 
-	if (baseMass)
+	if (baseMass != 0.0f)
 	{
 		btCollisionShape* pTempBox = new btBoxShape(btVector3(baseHalfExtents[0], baseHalfExtents[1], baseHalfExtents[2]));
 		pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);

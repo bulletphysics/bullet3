@@ -9,7 +9,7 @@ static bool readLine(FILE* file, btAlignedObjectArray<char>& line)
 	int c = 0;
 	for (c = fgetc(file); (c != EOF && c != '\n'); c = fgetc(file))
 	{
-		line.push_back(c);
+		line.push_back((char)c);
 	}
 	line.push_back(0);
 	return (c == EOF);
@@ -41,14 +41,14 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 		{
 			printf("Num Fields = %d\n", structNames.size());
 		}
-		btAssert(structTypes.size() == structNames.size());
-		if (structTypes.size() != structNames.size())
+		btAssert((int)structTypes.size() == structNames.size());
+		if ((int)structTypes.size() != structNames.size())
 		{
 			retVal = eCorruptHeader;
 		}
 		int numStructsRead = 0;
 
-		if (structTypes.size() == structNames.size())
+		if ((int)structTypes.size() == structNames.size())
 		{
 			while (!eof)
 			{
@@ -57,6 +57,7 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 				if (s != 1)
 				{
 					eof = true;
+					(void)eof;
 					retVal = eInvalidAABBAlignCheck;
 					break;
 				}
@@ -76,19 +77,19 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 
 				for (int i = 0; i < structNames.size(); i++)
 				{
-					switch (structTypes[i])
+					switch (structTypes[(size_t)i])
 					{
 						case 'I':
 						{
-							size_t s = fread(blaat, sizeof(int), 1, f);
-							if (s != 1)
+							size_t n = fread(blaat, sizeof(int), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								retVal = eCorruptValue;
 								break;
 							}
 							int v = (int)*(unsigned int*)blaat;
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{
@@ -100,15 +101,15 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 						}
 						case 'i':
 						{
-							size_t s = fread(blaat, sizeof(int), 1, f);
-							if (s != 1)
+							size_t n = fread(blaat, sizeof(int), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								retVal = eCorruptValue;
 								break;
 							}
 							int v = *(int*)blaat;
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{
@@ -121,14 +122,14 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 						case 'f':
 						{
 							float v;
-							size_t s = fread(&v, sizeof(float), 1, f);
-							if (s != 1)
+							size_t n = fread(&v, sizeof(float), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								break;
 							}
 
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{
@@ -141,13 +142,13 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 						case 'B':
 						{
 							char v;
-							size_t s = fread(&v, sizeof(char), 1, f);
-							if (s != 1)
+							size_t n = fread(&v, sizeof(char), 1, f);
+							if (n != 1)
 							{
 								eof = true;
 								break;
 							}
-							if (s == 1)
+							if (n == 1)
 							{
 								if (verbose)
 								{
@@ -201,17 +202,17 @@ FILE* createMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::stri
 	{
 		for (int i = 0; i < structNames.size(); i++)
 		{
-			int len = strlen(structNames[i].c_str());
-			fwrite(structNames[i].c_str(), len, 1, f);
+			int len = (int)strlen(structNames[i].c_str());
+			fwrite(structNames[i].c_str(), (size_t)len, 1, f);
 			if (i < structNames.size() - 1)
 			{
 				fwrite(",", 1, 1, f);
 			}
 		}
 		int sz = sizeof("\n");
-		fwrite("\n", sz - 1, 1, f);
+		fwrite("\n", (size_t)sz - 1, 1, f);
 		fwrite(structTypes.c_str(), strlen(structTypes.c_str()), 1, f);
-		fwrite("\n", sz - 1, 1, f);
+		fwrite("\n", (size_t)sz - 1, 1, f);
 	}
 
 	return f;
@@ -223,11 +224,11 @@ void appendMinitaurLogData(FILE* f, std::string& structTypes, const MinitaurLogR
 	{
 		unsigned char buf[2] = {0xaa, 0xbb};
 		fwrite(buf, 2, 1, f);
-		if (structTypes.length() == logData.m_values.size())
+		if ((int)structTypes.length() == logData.m_values.size())
 		{
 			for (int i = 0; i < logData.m_values.size(); i++)
 			{
-				switch (structTypes[i])
+				switch (structTypes[(size_t)i])
 				{
 					case 'i':
 					case 'I':

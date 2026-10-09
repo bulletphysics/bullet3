@@ -289,8 +289,6 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 		case RO_ZYX:
 			matrixToEulerZYX(relative_frame, m_calculatedAxisAngleDiff);
 			break;
-		default:
-			btAssert(false);
 	}
 	// in euler angle mode we do not actually constrain the angular velocity
 	// along the axes axis[0] and axis[2] (although we do use axis[1]) :
@@ -400,7 +398,7 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			break;
 		}
 		default:
-			btAssert(false);
+			break;
 	}
 
 	m_calculatedAxis[0].normalize();
@@ -494,7 +492,7 @@ int btGeneric6DofSpring2Constraint::setLinearLimits(btConstraintInfo2* info, int
 	for (int i = 0; i < 3; i++)
 	{
 		if (m_linearLimits.m_currentLimit[i] || m_linearLimits.m_enableMotor[i] || m_linearLimits.m_enableSpring[i])
-		{  // re-use rotational motor code
+		{  // reuse rotational motor code
 			limot.m_bounce = m_linearLimits.m_bounce[i];
 			limot.m_currentLimit = m_linearLimits.m_currentLimit[i];
 			limot.m_currentPosition = m_linearLimits.m_currentLinearDiff[i];
@@ -582,7 +580,7 @@ int btGeneric6DofSpring2Constraint::setAngularLimits(btConstraintInfo2* info, in
 			cIdx[2] = 0;
 			break;
 		default:
-			btAssert(false);
+			break;
 	}
 
 	for (int ii = 0; ii < 3; ii++)
@@ -634,7 +632,7 @@ void btGeneric6DofSpring2Constraint::calculateLinearInfo()
 	}
 }
 
-void btGeneric6DofSpring2Constraint::calculateJacobi(btRotationalLimitMotor2* limot, const btTransform& transA, const btTransform& transB, btConstraintInfo2* info, int srow, btVector3& ax1, int rotational, int rotAllowed)
+void btGeneric6DofSpring2Constraint::calculateJacobi(btRotationalLimitMotor2* /*limot*/, const btTransform& transA, const btTransform& transB, btConstraintInfo2* info, int srow, btVector3& ax1, int rotational, int rotAllowed)
 {
 	btScalar* J1 = rotational ? info->m_J1angularAxis : info->m_J1linearAxis;
 	btScalar* J2 = rotational ? info->m_J2angularAxis : info->m_J2linearAxis;
@@ -680,7 +678,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		btScalar vel = rotational ? angVelA.dot(ax1) - angVelB.dot(ax1) : linVelA.dot(ax1) - linVelB.dot(ax1);
 
 		calculateJacobi(limot, transA, transB, info, srow, ax1, rotational, rotAllowed);
-		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (btScalar)(rotational ? -1 : 1);
 		if (rotational)
 		{
 			if (info->m_constraintError[srow] - vel * limot->m_stopERP > 0)
@@ -704,7 +702,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		++count;
 
 		calculateJacobi(limot, transA, transB, info, srow, ax1, rotational, rotAllowed);
-		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitErrorHi * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitErrorHi * (btScalar)(rotational ? -1 : 1);
 		if (rotational)
 		{
 			if (info->m_constraintError[srow] - vel * limot->m_stopERP < 0)
@@ -730,7 +728,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 	else if (limot->m_currentLimit == 3)
 	{
 		calculateJacobi(limot, transA, transB, info, srow, ax1, rotational, rotAllowed);
-		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = info->fps * limot->m_stopERP * limot->m_currentLimitError * (btScalar)(rotational ? -1 : 1);
 		info->m_lowerLimit[srow] = -SIMD_INFINITY;
 		info->m_upperLimit[srow] = SIMD_INFINITY;
 		info->cfm[srow] = limot->m_stopCFM;
@@ -797,7 +795,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		{
 			mot_fact = 0;
 		}
-		info->m_constraintError[srow] = mot_fact * targetvelocity * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = mot_fact * targetvelocity * (btScalar)(rotational ? -1 : 1);
 		info->m_lowerLimit[srow] = -limot->m_maxMotorForce / info->fps;
 		info->m_upperLimit[srow] = limot->m_maxMotorForce / info->fps;
 		info->cfm[srow] = limot->m_motorCFM;
@@ -839,8 +837,8 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		{
 			btScalar rrA = (m_calculatedTransformA.getOrigin() - transA.getOrigin()).length2();
 			btScalar rrB = (m_calculatedTransformB.getOrigin() - transB.getOrigin()).length2();
-			if (m_rbA.getInvMass()) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
-			if (m_rbB.getInvMass()) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
+			if (m_rbA.getInvMass() != btScalar(0)) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
+			if (m_rbB.getInvMass() != btScalar(0)) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
 		}
 		btScalar m;
 		if (m_rbA.getInvMass() == 0) m = mB; else
@@ -859,7 +857,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			kd = m / dt;
 		}
 		btScalar fs = ks * error * dt;
-		btScalar fd = -kd * (vel) * (rotational ? -1 : 1) * dt;
+		btScalar fd = -kd * (vel) * (btScalar)(rotational ? -1 : 1) * dt;
 		btScalar f = (fs + fd);
 
 		// after the spring force affecting the body(es) the new velocity will be
@@ -877,9 +875,9 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		// and the answer is not, because in practice during the solving the current velocity is subtracted from the m_constraintError
 		// so the sign of the force that is really matters
 		if (m_flags & BT_6DOF_FLAGS_USE_INFINITE_ERROR)
-			info->m_constraintError[srow] = (rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
+			info->m_constraintError[srow] = (btScalar)(rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
 		else
-			info->m_constraintError[srow] = vel + f / m * (rotational ? -1 : 1);
+			info->m_constraintError[srow] = vel + f / m * (btScalar)(rotational ? -1 : 1);
 
 		btScalar minf = f < fd ? f : fd;
 		btScalar maxf = f < fd ? fd : f;
@@ -896,6 +894,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 
 		info->cfm[srow] = cfm;
 		srow += info->rowskip;
+		(void)srow;
 		++count;
 	}
 

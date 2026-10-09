@@ -54,7 +54,7 @@ void btSolve2LinearConstraint::resolveUnilateralPairConstraint(
 
 	btAssert(len < SIMD_EPSILON);
 
-	//this jacobian entry could be re-used for all iterations
+	//this jacobian entry could be reused for all iterations
 	btJacobianEntry jacA(world2A, world2B, rel_posA1, rel_posA2, normalA, invInertiaADiag, invMassA,
 						 invInertiaBDiag, invMassB);
 	btJacobianEntry jacB(world2A, world2B, rel_posB1, rel_posB2, normalB, invInertiaADiag, invMassA,
@@ -133,7 +133,7 @@ void btSolve2LinearConstraint::resolveBilateralPairConstraint(
 
 	btAssert(len < SIMD_EPSILON);
 
-	//this jacobian entry could be re-used for all iterations
+	//this jacobian entry could be reused for all iterations
 	btJacobianEntry jacA(world2A, world2B, rel_posA1, rel_posA2, normalA, invInertiaADiag, invMassA,
 						 invInertiaBDiag, invMassB);
 	btJacobianEntry jacB(world2A, world2B, rel_posB1, rel_posB2, normalB, invInertiaADiag, invMassA,

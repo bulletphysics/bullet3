@@ -51,20 +51,20 @@ public:
     void stepSimulation(float deltaTime)
     {
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1.f / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
-    void Ctor_RbUpStack(int count)
+    void Ctor_RbUpStack(int /*count*/)
     {
-        float mass = 0.2;
+        float mass = 0.2f;
         
         btCollisionShape* shape[] = {
             new btBoxShape(btVector3(1, 1, 1)),
         };
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0, 0.7, 0));
+        startTransform.setOrigin(btVector3(0, btScalar(0.7), 0));
         createRigidBody(mass, startTransform, shape[0]);
     }
     
@@ -92,7 +92,7 @@ void SplitImpulse::initPhysics()
 	///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
@@ -160,7 +160,7 @@ void SplitImpulse::initPhysics()
 //                                                          0, true);
 
         
-        psb->getCollisionShape()->setMargin(0.015);
+        psb->getCollisionShape()->setMargin(btScalar(0.015));
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

@@ -36,7 +36,7 @@ void ProgressBar::SetValue(float val)
 
 	if (m_bAutoLabel)
 	{
-		int displayVal = m_fProgress * 100;
+		int displayVal = int(m_fProgress * 100);
 		SetText(Utility::ToString(displayVal) + "%");
 	}
 }

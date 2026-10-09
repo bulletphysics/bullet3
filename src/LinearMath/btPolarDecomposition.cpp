@@ -55,7 +55,7 @@ unsigned int btPolarDecomposition::decompose(const btMatrix3x3& a, btMatrix3x3& 
 		if (btFuzzyZero(h_norm) || btFuzzyZero(u_norm))
 			break;
 
-		const btScalar gamma = btPow(h_norm / u_norm, 0.25f);
+		const btScalar gamma = btPow(h_norm / u_norm, btScalar(0.25));
 		const btScalar inv_gamma = btScalar(1.0) / gamma;
 
 		// Determine the delta to 'u'

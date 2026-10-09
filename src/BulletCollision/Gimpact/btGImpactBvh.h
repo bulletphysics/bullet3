@@ -144,7 +144,7 @@ public:
 /*!
 This class is a wrapper for primitive collections.
 This tells relevant info for the Bounding Box set classes, which take care of space classification.
-This class can manage Compound shapes and trimeshes, and if it is managing trimesh then the  Hierarchy Bounding Box classes will take advantage of primitive Vs Box overlapping tests for getting optimal results and less Per Box compairisons.
+This class can manage Compound shapes and trimeshes, and if it is managing trimesh then the  Hierarchy Bounding Box classes will take advantage of primitive Vs Box overlapping tests for getting optimal results and less Per Box comparisons.
 */
 class btPrimitiveManagerBase
 {
@@ -207,7 +207,7 @@ public:
 	//! node manager prototype functions
 	///@{
 
-	//! this attemps to refit the box set.
+	//! this attempts to refit the box set.
 	SIMD_FORCE_INLINE void update()
 	{
 		refit();

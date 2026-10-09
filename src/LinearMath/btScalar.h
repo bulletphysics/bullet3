@@ -48,7 +48,7 @@ inline int btIsDoublePrecision()
 // warning LNK4221: no public symbols found; archive member will be inaccessible
 //
 // This warning occurs on PC and XBOX when a file compiles out completely
-// has no externally visible symbols which may be dependant on configuration
+// has no externally visible symbols which may be dependent on configuration
 // #defines and options.
 //
 // see more https://stackoverflow.com/questions/1822887/what-is-the-best-way-to-eliminate-ms-visual-c-linker-warning-warning-lnk422
@@ -150,7 +150,7 @@ inline int btIsDoublePrecision()
 			#define btAssert assert
 		#endif//_MSC_VER
 	#else
-		#define btAssert(x)
+		#define btAssert(x) (void)(x)
 	#endif
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
@@ -178,7 +178,7 @@ inline int btIsDoublePrecision()
 			#endif
 	
 		#else//BT_DEBUG
-				#define btAssert(x)
+				#define btAssert(x) (void)(x)
 		#endif//BT_DEBUG
 		//btFullAssert is optional, slows down a lot
 		#define btFullAssert(x)
@@ -200,7 +200,7 @@ inline int btIsDoublePrecision()
 	#ifdef BT_DEBUG
 			#define btAssert assert
 	#else
-			#define btAssert(x)
+			#define btAssert(x) (void)(x)
 	#endif
 			//btFullAssert is optional, slows down a lot
 			#define btFullAssert(x)
@@ -267,7 +267,7 @@ inline int btIsDoublePrecision()
 					#define btAssert assert
 				#endif//defined (__i386__) || defined (__x86_64__)
 				#else//defined(DEBUG) || defined (_DEBUG)
-					#define btAssert(x)
+					#define btAssert(x) (void)(x)
 				#endif//defined(DEBUG) || defined (_DEBUG)
 
 				//btFullAssert is optional, slows down a lot
@@ -292,7 +292,7 @@ inline int btIsDoublePrecision()
 				#if defined(DEBUG) || defined (_DEBUG)
 					#define btAssert assert
 				#else
-					#define btAssert(x)
+					#define btAssert(x) (void)(x)
 				#endif
 
 				//btFullAssert is optional, slows down a lot
@@ -430,7 +430,8 @@ inline int btIsDoublePrecision()
 	SIMD_FORCE_INLINE void *operator new[](size_t sizeInBytes) { return btAlignedAlloc(sizeInBytes, 16); } \
 	SIMD_FORCE_INLINE void operator delete[](void *ptr) { btAlignedFree(ptr); }                            \
 	SIMD_FORCE_INLINE void *operator new[](size_t, void *ptr) { return ptr; }                              \
-	SIMD_FORCE_INLINE void operator delete[](void *, void *) {}
+	SIMD_FORCE_INLINE void operator delete[](void *, void *) {} \
+	typedef void* uselessTypeDefTrailingSemicolon
 
 #if defined(BT_USE_DOUBLE_PRECISION) || defined(BT_FORCE_DOUBLE_FUNCTIONS)
 
@@ -529,7 +530,7 @@ inline int btIsDoublePrecision()
 #define SIMD_RADS_PER_DEG (SIMD_2_PI / btScalar(360.0))
 #define SIMD_DEGS_PER_RAD (btScalar(360.0) / SIMD_2_PI)
 #define SIMDSQRT12 btScalar(0.7071067811865475244008443621048490)
-#define btRecipSqrt(x) ((btScalar)(btScalar(1.0) / btSqrt(btScalar(x)))) /* reciprocal square root */
+#define btRecipSqrt(x) (x!=BT_ZERO ? (btScalar)(btScalar(1.0) / btSqrt(btScalar(x))) : SIMD_INFINITY) /* reciprocal square root */
 #define btRecip(x) (btScalar(1.0) / btScalar(x))
 
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -552,11 +553,11 @@ inline int btIsDoublePrecision()
 
 SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x)
 {
-	btScalar coeff_1 = SIMD_PI / 4.0f;
-	btScalar coeff_2 = 3.0f * coeff_1;
+	btScalar coeff_1 = SIMD_PI / btScalar(4.0);
+	btScalar coeff_2 = btScalar(3.0) * coeff_1;
 	btScalar abs_y = btFabs(y);
 	btScalar angle;
-	if (x >= 0.0f)
+	if (x >= btScalar(0.0))
 	{
 		btScalar r = (x - abs_y) / (x + abs_y);
 		angle = coeff_1 - coeff_1 * r;
@@ -566,7 +567,7 @@ SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x)
 		btScalar r = (x + abs_y) / (abs_y - x);
 		angle = coeff_2 - coeff_1 * r;
 	}
-	return (y < 0.0f) ? -angle : angle;
+	return (y < btScalar(0.0)) ? -angle : angle;
 }
 
 SIMD_FORCE_INLINE bool btFuzzyZero(btScalar x) { return btFabs(x) < SIMD_EPSILON; }
@@ -628,7 +629,7 @@ SIMD_FORCE_INLINE int btSelect(unsigned condition, int valueIfConditionNonZero, 
 {
 	unsigned testNz = (unsigned)(((int)condition | -(int)condition) >> 31);
 	unsigned testEqz = ~testNz;
-	return static_cast<int>((valueIfConditionNonZero & testNz) | (valueIfConditionZero & testEqz));
+	return static_cast<int>(((unsigned)valueIfConditionNonZero & testNz) | ((unsigned)valueIfConditionZero & testEqz));
 }
 SIMD_FORCE_INLINE float btSelect(unsigned condition, float valueIfConditionNonZero, float valueIfConditionZero)
 {
@@ -739,7 +740,7 @@ template <typename T>
 SIMD_FORCE_INLINE void btSetZero(T *a, int n)
 {
 	T *acurr = a;
-	size_t ncurr = n;
+	size_t ncurr = (size_t)n;
 	while (ncurr > 0)
 	{
 		*(acurr++) = 0;

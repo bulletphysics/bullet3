@@ -46,7 +46,7 @@ public:
         m_vecs.clear();
     }
     
-    btReducedVector(int sz, const btAlignedObjectArray<int>& indices, const btAlignedObjectArray<btVector3>& vecs): m_sz(sz), m_indices(indices), m_vecs(vecs)
+    btReducedVector(int sz, const btAlignedObjectArray<int>& indices, const btAlignedObjectArray<btVector3>& vecs): m_indices(indices), m_vecs(vecs), m_sz(sz)
     {
     }
     
@@ -296,7 +296,7 @@ SIMD_FORCE_INLINE btReducedVector operator*(btScalar s, const btReducedVector& v
 
 SIMD_FORCE_INLINE btReducedVector operator/(const btReducedVector& v, btScalar s)
 {
-	return v * (1.0/s);
+	return v * (btScalar(1.0)/s);
 }
 
 SIMD_FORCE_INLINE btReducedVector& operator/=(btReducedVector& v, btScalar s)

@@ -14,15 +14,16 @@ subject to the following restrictions:
 
 #include "btThreads.h"
 #include "btQuickprof.h"
+#include "LinearMath/btOverride.h"
 #include <algorithm>  // for min and max
 
-#if BT_USE_OPENMP && BT_THREADSAFE
+#if defined(BT_USE_OPENMP) && BT_THREADSAFE
 
 #include <omp.h>
 
 #endif  // #if BT_USE_OPENMP && BT_THREADSAFE
 
-#if BT_USE_PPL && BT_THREADSAFE
+#if defined(BT_USE_PPL) && BT_THREADSAFE
 
 // use Microsoft Parallel Patterns Library (installed with Visual Studio 2010 and later)
 #include <ppl.h>  // if you get a compile error here, check whether your version of Visual Studio includes PPL
@@ -31,7 +32,7 @@ subject to the following restrictions:
 
 #endif  // #if BT_USE_PPL && BT_THREADSAFE
 
-#if BT_USE_TBB && BT_THREADSAFE
+#if defined(BT_USE_TBB) && BT_THREADSAFE
 
 // use Intel Threading Building Blocks for thread management
 #define __TBB_NO_IMPLICIT_LINKAGE 1
@@ -42,7 +43,7 @@ subject to the following restrictions:
 
 #endif  // #if BT_USE_TBB && BT_THREADSAFE
 
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 //
 // Lightweight spin-mutex based on atomics
 // Using ordinary system-provided mutexes like Windows critical sections was noticeably slower
@@ -74,7 +75,7 @@ subject to the following restrictions:
 
 #endif
 
-#if USE_CPP11_ATOMICS
+#if defined(USE_CPP11_ATOMICS)
 
 #include <atomic>
 #include <thread>
@@ -103,7 +104,7 @@ void btSpinMutex::unlock()
 	std::atomic_store_explicit(aDest, int(0), std::memory_order_release);
 }
 
-#elif USE_MSVC_INTRINSICS
+#elif defined(USE_MSVC_INTRINSICS)
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -133,7 +134,7 @@ void btSpinMutex::unlock()
 	_InterlockedExchange(aDest, 0);
 }
 
-#elif USE_GCC_BUILTIN_ATOMICS
+#elif defined(USE_GCC_BUILTIN_ATOMICS)
 
 #define THREAD_LOCAL_STATIC static __thread
 
@@ -190,7 +191,7 @@ void btSpinMutex::unlock()
 
 #endif  //#else //#elif USE_MSVC_INTRINSICS
 
-#else  //#if BT_THREADSAFE
+#else  //#ifdef BT_THREADSAFE
 
 // These should not be called ever
 void btSpinMutex::lock()
@@ -211,7 +212,7 @@ bool btSpinMutex::tryLock()
 
 #define THREAD_LOCAL_STATIC static
 
-#endif  // #else //#if BT_THREADSAFE
+#endif  // #else //#ifdef BT_THREADSAFE
 
 struct ThreadsafeCounter
 {
@@ -263,7 +264,7 @@ static ThreadsafeCounter gThreadCounter;
 // We allocate thread-indexes as needed with a sequential global thread counter.
 //
 // Our simple thread-counting scheme falls apart if the task scheduler destroys some threads but
-// continues to re-use other threads and the application repeatedly resizes the thread pool of the
+// continues to reuse other threads and the application repeatedly resizes the thread pool of the
 // task scheduler.
 // In order to prevent the thread-counter from exceeding the global max (BT_MAX_THREAD_COUNT), we
 // wrap the thread counter back to 1. This should only happen if the worker threads have all been
@@ -364,14 +365,14 @@ void btITaskScheduler::deactivate()
 	}
 }
 
-void btPushThreadsAreRunning()
+static void btPushThreadsAreRunning()
 {
 	gThreadsRunningCounterMutex.lock();
 	gThreadsRunningCounter++;
 	gThreadsRunningCounterMutex.unlock();
 }
 
-void btPopThreadsAreRunning()
+static void btPopThreadsAreRunning()
 {
 	gThreadsRunningCounterMutex.lock();
 	gThreadsRunningCounter--;
@@ -385,7 +386,7 @@ bool btThreadsAreRunning()
 
 void btSetTaskScheduler(btITaskScheduler* ts)
 {
-	int threadId = btGetCurrentThreadIndex();  // make sure we call this on main thread at least once before any workers run
+	int threadId = (int)btGetCurrentThreadIndex();  // make sure we call this on main thread at least once before any workers run
 	if (threadId != 0)
 	{
 		btAssert(!"btSetTaskScheduler must be called from the main thread!");
@@ -411,7 +412,7 @@ btITaskScheduler* btGetTaskScheduler()
 
 void btParallelFor(int iBegin, int iEnd, int grainSize, const btIParallelForBody& body)
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 
 #if BT_DETECT_BAD_THREAD_INDEX
 	if (!btThreadsAreRunning())
@@ -427,18 +428,18 @@ void btParallelFor(int iBegin, int iEnd, int grainSize, const btIParallelForBody
 	btAssert(gBtTaskScheduler != NULL);  // call btSetTaskScheduler() with a valid task scheduler first!
 	gBtTaskScheduler->parallelFor(iBegin, iEnd, grainSize, body);
 
-#else  // #if BT_THREADSAFE
-
+#else  // #ifdef BT_THREADSAFE
+	(void)grainSize;
 	// non-parallel version of btParallelFor
 	btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
 	body.forLoop(iBegin, iEnd);
 
-#endif  // #if BT_THREADSAFE
+#endif  // #ifdef BT_THREADSAFE
 }
 
 btScalar btParallelSum(int iBegin, int iEnd, int grainSize, const btIParallelSumBody& body)
 {
-#if BT_THREADSAFE
+#ifdef BT_THREADSAFE
 
 #if BT_DETECT_BAD_THREAD_INDEX
 	if (!btThreadsAreRunning())
@@ -454,13 +455,13 @@ btScalar btParallelSum(int iBegin, int iEnd, int grainSize, const btIParallelSum
 	btAssert(gBtTaskScheduler != NULL);  // call btSetTaskScheduler() with a valid task scheduler first!
 	return gBtTaskScheduler->parallelSum(iBegin, iEnd, grainSize, body);
 
-#else  // #if BT_THREADSAFE
-
+#else  // #ifdef BT_THREADSAFE
+	(void)grainSize;
 	// non-parallel version of btParallelSum
 	btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
 	return body.sumLoop(iBegin, iEnd);
 
-#endif  //#else // #if BT_THREADSAFE
+#endif  //#else // #ifdef BT_THREADSAFE
 }
 
 ///
@@ -473,20 +474,20 @@ public:
 	btTaskSchedulerSequential() : btITaskScheduler("Sequential") {}
 	virtual int getMaxNumThreads() const BT_OVERRIDE { return 1; }
 	virtual int getNumThreads() const BT_OVERRIDE { return 1; }
-	virtual void setNumThreads(int numThreads) BT_OVERRIDE {}
-	virtual void parallelFor(int iBegin, int iEnd, int grainSize, const btIParallelForBody& body) BT_OVERRIDE
+	virtual void setNumThreads(int /*numThreads*/) BT_OVERRIDE {}
+	virtual void parallelFor(int iBegin, int iEnd, int /*grainSize*/, const btIParallelForBody& body) BT_OVERRIDE
 	{
 		BT_PROFILE("parallelFor_sequential");
 		body.forLoop(iBegin, iEnd);
 	}
-	virtual btScalar parallelSum(int iBegin, int iEnd, int grainSize, const btIParallelSumBody& body) BT_OVERRIDE
+	virtual btScalar parallelSum(int iBegin, int iEnd, int /*grainSize*/, const btIParallelSumBody& body) BT_OVERRIDE
 	{
 		BT_PROFILE("parallelSum_sequential");
 		return body.sumLoop(iBegin, iEnd);
 	}
 };
 
-#if BT_USE_OPENMP && BT_THREADSAFE
+#if defined(BT_USE_OPENMP) && BT_THREADSAFE
 ///
 /// btTaskSchedulerOpenMP -- wrapper around OpenMP task scheduler
 ///
@@ -551,7 +552,7 @@ public:
 };
 #endif  // #if BT_USE_OPENMP && BT_THREADSAFE
 
-#if BT_USE_TBB && BT_THREADSAFE
+#if defined(BT_USE_TBB) && BT_THREADSAFE
 ///
 /// btTaskSchedulerTBB -- wrapper around Intel Threaded Building Blocks task scheduler
 ///
@@ -646,7 +647,7 @@ public:
 };
 #endif  // #if BT_USE_TBB && BT_THREADSAFE
 
-#if BT_USE_PPL && BT_THREADSAFE
+#if defined(BT_USE_PPL) && BT_THREADSAFE
 ///
 /// btTaskSchedulerPPL -- wrapper around Microsoft Parallel Patterns Lib task scheduler
 ///
@@ -761,7 +762,7 @@ btITaskScheduler* btGetSequentialTaskScheduler()
 // create an OpenMP task scheduler (if available, otherwise returns null)
 btITaskScheduler* btGetOpenMPTaskScheduler()
 {
-#if BT_USE_OPENMP && BT_THREADSAFE
+#if defined(BT_USE_OPENMP) && BT_THREADSAFE
 	static btTaskSchedulerOpenMP sTaskScheduler;
 	return &sTaskScheduler;
 #else
@@ -772,7 +773,7 @@ btITaskScheduler* btGetOpenMPTaskScheduler()
 // create an Intel TBB task scheduler (if available, otherwise returns null)
 btITaskScheduler* btGetTBBTaskScheduler()
 {
-#if BT_USE_TBB && BT_THREADSAFE
+#if defined(BT_USE_TBB) && BT_THREADSAFE
 	static btTaskSchedulerTBB sTaskScheduler;
 	return &sTaskScheduler;
 #else
@@ -783,7 +784,7 @@ btITaskScheduler* btGetTBBTaskScheduler()
 // create a PPL task scheduler (if available, otherwise returns null)
 btITaskScheduler* btGetPPLTaskScheduler()
 {
-#if BT_USE_PPL && BT_THREADSAFE
+#if defined(BT_USE_PPL) && BT_THREADSAFE
 	static btTaskSchedulerPPL sTaskScheduler;
 	return &sTaskScheduler;
 #else

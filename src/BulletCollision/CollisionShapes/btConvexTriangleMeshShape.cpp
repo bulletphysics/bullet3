@@ -229,7 +229,7 @@ void btConvexTriangleMeshShape::calculatePrincipalAxisTransform(btTransform& pri
 		btVector3 center;
 
 	public:
-		InertiaCallback(btVector3& center) : sum(0, 0, 0, 0, 0, 0, 0, 0, 0), center(center)
+		InertiaCallback(btVector3& center_) : sum(0, 0, 0, 0, 0, 0, 0, 0, 0), center(center_)
 		{
 		}
 

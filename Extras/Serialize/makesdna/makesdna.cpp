@@ -56,7 +56,7 @@ extern "C"
 
 #if defined(_WIN32) && !defined(FREE_WINDOWS)
 
-	/* The __intXX are built-in types of the visual complier! So we don't
+	/* The __intXX are built-in types of the visual compiler! So we don't
  * need to include anything else here. */
 
 	typedef signed __int8 int8_t;
@@ -111,7 +111,7 @@ typedef intptr_t btintptr_t;
 #include <stdio.h>
 
 //#include "DNA_sdna_types.h"
-// include files for automatic dependancies
+// include files for automatic dependencies
 #include "DNA_rigidbody.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btQuaternion.h"
@@ -159,7 +159,7 @@ typedef intptr_t btintptr_t;
 
 /* Included the path relative from /source/blender/ here, so we can move     */
 /* headers around with more freedom.                                         */
-char *includefiles[] = {
+const char *includefiles[] = {
 
 	// if you add files here, please add them at the end
 	// of makesdna.c (this file) as well
@@ -204,10 +204,10 @@ char *includefiles[] = {
 	// empty string to indicate end of includefiles
 	""};
 
-void *malloc_and_setzero(int numbytes)
+static void *malloc_and_setzero(int numbytes)
 {
-	char *buf = (char *)malloc(numbytes);
-	memset(buf, 0, numbytes);
+	char *buf = (char *)malloc((size_t)numbytes);
+	memset(buf, 0, (size_t)numbytes);
 	return buf;
 }
 
@@ -215,11 +215,11 @@ int maxdata = 500000, maxnr = 50000;
 int nr_names = 0;
 int nr_types = 0;
 int nr_structs = 0;
-char **names, *namedata;      /* at adress names[a] is string a */
-char **types, *typedata;      /* at adress types[a] is string a */
+char **names, *namedata;      /* at address names[a] is string a */
+char **types, *typedata;      /* at address types[a] is string a */
 short *typelens;              /* at typelens[a] is de length of type a */
 short *alphalens;             /* contains sizes as they are calculated on the DEC Alpha (64 bits) */
-short **structs, *structdata; /* at sp= structs[a] is the first adress of a struct definition
+short **structs, *structdata; /* at sp= structs[a] is the first address of a struct definition
 								   sp[0] is type number
 								   sp[1] is amount of elements
 								   sp[2] sp[3] is typenr,  namenr (etc) */
@@ -240,7 +240,7 @@ int additional_slen_offset;
 /**
  * Add type <str> to struct indexed by <len>, if it was not yet found.
  */
-int add_type(char *str, int len);
+int add_type(const char *str, int len);
 
 /**
  * Add variable <str> to 
@@ -267,7 +267,7 @@ int convert_include(char *filename);
 /**
  * Determine how many bytes are needed for an array.
  */
-int arraysize(char *astr, int len);
+int arraysize(const char *astr, int len);
 
 /**
  * Determine how many bytes are needed for each struct.
@@ -280,7 +280,7 @@ static int calculate_structlens(int);
 void dna_write(FILE *file, void *pntr, int size);
 
 /**
- * Report all structures found so far, and print their lenghts.
+ * Report all structures found so far, and print their lengths.
  */
 void printStructLenghts(void);
 
@@ -290,7 +290,7 @@ void printStructLenghts(void);
 
 /* ************************* MAKEN DNA ********************** */
 
-int add_type(char *str, int len)
+int add_type(const char *str, int len)
 {
 	int nr;
 	char *cp;
@@ -304,8 +304,8 @@ int add_type(char *str, int len)
 		{
 			if (len)
 			{
-				typelens[nr] = len;
-				alphalens[nr] = len;
+				typelens[nr] = (short)len;
+				alphalens[nr] = (short)len;
 			}
 			return nr;
 		}
@@ -320,14 +320,13 @@ int add_type(char *str, int len)
 	}
 	strcpy(cp, str);
 	types[nr_types] = cp;
-	typelens[nr_types] = len;
-	alphalens[nr_types] = len;
+	typelens[nr_types] = (short)len;
+	alphalens[nr_types] = (short)len;
 
 	if (nr_types >= maxnr)
 	{
 		printf("too many types\n");
 		return nr_types - 1;
-		;
 	}
 	nr_types++;
 
@@ -351,7 +350,7 @@ int add_name(char *str)
 
 	additional_slen_offset = 0;
 
-	if ((str[0] == 0) /*  || (str[1]==0) */) return -1;
+	if (str[0] == 0 /*  || (str[1]==0) */) return -1;
 
 	if (str[0] == '(' && str[1] == '*')
 	{
@@ -398,7 +397,7 @@ int add_name(char *str)
 		else if (str[j] == ')')
 		{
 			if (debugSDNA > 3) printf("offsetting for brace\n");
-			; /* don't get extra offset */
+			/* don't get extra offset */
 		}
 		else
 		{
@@ -493,7 +492,7 @@ short *add_struct(int namecode)
 	}
 
 	sp = structs[nr_structs];
-	sp[0] = namecode;
+	sp[0] = (short)namecode;
 
 	if (nr_structs >= maxnr)
 	{
@@ -511,7 +510,7 @@ int preprocess_include(char *maindata, int len)
 	char *cp, *temp, *md;
 
 	temp = (char *)malloc_and_setzero(len);
-	memcpy(temp, maindata, len);
+	memcpy(temp, maindata, (size_t)len);
 
 	// remove all c++ comments
 	/* replace all enters/tabs/etc with spaces */
@@ -528,7 +527,7 @@ int preprocess_include(char *maindata, int len)
 		{
 			comment = 0;
 		}
-		if (comment || *cp < 32 || *cp > 128) *cp = 32;
+		if (comment || *cp < 32) *cp = 32;
 		cp++;
 	}
 
@@ -587,7 +586,7 @@ static void *read_file_data(char *filename, int *len_r)
 	}
 
 	fseek(fp, 0L, SEEK_END);
-	*len_r = ftell(fp);
+	*len_r = (int)ftell(fp);
 	fseek(fp, 0L, SEEK_SET);
 
 	data = malloc_and_setzero(*len_r);
@@ -598,7 +597,7 @@ static void *read_file_data(char *filename, int *len_r)
 		return NULL;
 	}
 
-	if (fread(data, *len_r, 1, fp) != 1)
+	if (fread(data, (size_t)*len_r, 1, fp) != 1)
 	{
 		*len_r = -1;
 		free(data);
@@ -620,7 +619,7 @@ const char *skipStructTypes[] =
 		"btTriangleInfo",
 		""};
 
-int skipStruct(const char *structType)
+static int skipStruct(const char *structType)
 {
 	int i = 0;
 	while (strlen(skipStructTypes[i]))
@@ -736,8 +735,8 @@ int convert_include(char *filename)
 
 											name = add_name(md1);
 											slen += additional_slen_offset;
-											sp[0] = type;
-											sp[1] = name;
+											sp[0] = (short)type;
+											sp[1] = (short)name;
 
 											if ((debugSDNA > 1) && (names[name] != 0)) printf("%s |", names[name]);
 
@@ -751,8 +750,8 @@ int convert_include(char *filename)
 										name = add_name(md1);
 										slen += additional_slen_offset;
 
-										sp[0] = type;
-										sp[1] = name;
+										sp[0] = (short)type;
+										sp[1] = (short)name;
 										if ((debugSDNA > 1) && (names[name] != 0)) printf("%s ||", names[name]);
 
 										structpoin[1]++;
@@ -780,12 +779,12 @@ int convert_include(char *filename)
 	return 0;
 }
 
-int arraysize(char *astr, int len)
+int arraysize(const char *astr, int len)
 {
 	int a, mul = 1;
 	char str[100], *cp = 0;
 
-	memcpy(str, astr, len + 1);
+	memcpy(str, astr, (size_t)len + 1);
 
 	for (a = 0; a < len; a++)
 	{
@@ -845,7 +844,8 @@ static int calculate_structlens(int firststruct)
 						if (cp[namelen - 1] == ']') mul = arraysize(cp, namelen);
 
 						/* 4-8 aligned/ */
-						if (sizeof(void *) == 4)
+						const bool is32bitSystem = sizeof(void *) == 4;
+						if (is32bitSystem)
 						{
 							if (len % 4)
 							{
@@ -868,7 +868,7 @@ static int calculate_structlens(int firststruct)
 							dna_error = 1;
 						}
 
-						len += sizeof(void *) * mul;
+						len += sizeof(void *) * (size_t)mul;
 						alphalen += 8 * mul;
 					}
 					else if (typelens[type])
@@ -880,7 +880,8 @@ static int calculate_structlens(int firststruct)
 						/* struct alignment */
 						if (type >= firststruct)
 						{
-							if (sizeof(void *) == 8 && (len % 8))
+							const bool is64bitSystem = sizeof(void *) == 8;
+							if (is64bitSystem && (len % 8))
 							{
 								printf("Align struct error: %s %s\n", types[structtype], cp);
 								dna_error = 1;
@@ -916,8 +917,8 @@ static int calculate_structlens(int firststruct)
 				}
 				else
 				{
-					typelens[structtype] = len;
-					alphalens[structtype] = alphalen;
+					typelens[structtype] = (short)len;
+					alphalens[structtype] = (short)alphalen;
 					// two ways to detect if a struct contains a pointer:
 					// has_pointer is set or alphalen != len
 					if (has_pointer || alphalen != len)
@@ -970,7 +971,7 @@ static int calculate_structlens(int firststruct)
 			structpoin = structs[a];
 			structtype = structpoin[0];
 
-			/* length unkown yet */
+			/* length unknown yet */
 			if (typelens[structtype] == 0)
 			{
 				printf("  %s\n", types[structtype]);
@@ -1005,13 +1006,13 @@ void dna_write(FILE *file, void *pntr, int size)
 
 void printStructLenghts(void)
 {
-	int a, unknown = nr_structs, lastunknown, structtype;
+	int a, unknown = nr_structs, /*lastunknown,*/ structtype;
 	short *structpoin;
 	printf("\n\n*** All detected structs:\n");
 
 	while (unknown)
 	{
-		lastunknown = unknown;
+		/* lastunknown = unknown; */
 		unknown = 0;
 
 		/* check all structs... */
@@ -1026,7 +1027,7 @@ void printStructLenghts(void)
 	printf("*** End of list\n");
 }
 
-int make_structDNA(char *baseDirectory, FILE *file)
+static int make_structDNA(char *baseDirectory, FILE *file)
 {
 	int len, i;
 	short *sp;
@@ -1041,17 +1042,17 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		printf("Running makesdna at debug level %d\n", debugSDNA);
 	}
 
-	/* the longest known struct is 50k, so we assume 100k is sufficent! */
+	/* the longest known struct is 50k, so we assume 100k is sufficient! */
 	namedata = (char *)malloc_and_setzero(maxdata);
 	typedata = (char *)malloc_and_setzero(maxdata);
 	structdata = (short *)malloc_and_setzero(maxdata);
 
 	/* a maximum of 5000 variables, must be sufficient? */
-	names = (char **)malloc_and_setzero(sizeof(char *) * maxnr);
-	types = (char **)malloc_and_setzero(sizeof(char *) * maxnr);
-	typelens = (short *)malloc_and_setzero(sizeof(short) * maxnr);
-	alphalens = (short *)malloc_and_setzero(sizeof(short) * maxnr);
-	structs = (short **)malloc_and_setzero(sizeof(short) * maxnr);
+	names = (char **)malloc_and_setzero(int(sizeof(char *) * (size_t)maxnr));
+	types = (char **)malloc_and_setzero(int(sizeof(char *) * (size_t)maxnr));
+	typelens = (short *)malloc_and_setzero(int(sizeof(short) * (size_t)maxnr));
+	alphalens = (short *)malloc_and_setzero(int(sizeof(short) * (size_t)maxnr));
+	structs = (short **)malloc_and_setzero(int(sizeof(short) * (size_t)maxnr));
 
 	/* insertion of all known types */
 	/* watch it: uint is not allowed! use in structs an unsigned int */
@@ -1146,7 +1147,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calculate size of datablock with strings */
 		cp = names[nr_names - 1];
 		cp += strlen(names[nr_names - 1]) + 1; /* +1: null-terminator */
-		len = (btintptr_t)(cp - (char *)names[0]);
+		len = (int)(cp - (char *)names[0]);
 		len = (len + 3) & ~3;
 		dna_write(file, names[0], len);
 
@@ -1159,7 +1160,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calculate datablock size */
 		cp = types[nr_types - 1];
 		cp += strlen(types[nr_types - 1]) + 1; /* +1: null-terminator */
-		len = (btintptr_t)(cp - (char *)types[0]);
+		len = (int)(cp - (char *)types[0]);
 		len = (len + 3) & ~3;
 
 		dna_write(file, types[0], len);
@@ -1181,13 +1182,13 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calc datablock size */
 		sp = structs[nr_structs - 1];
 		sp += 2 + 2 * (sp[1]);
-		len = (btintptr_t)((char *)sp - (char *)structs[0]);
+		len = (int)((char *)sp - (char *)structs[0]);
 		len = (len + 3) & ~3;
 
 		dna_write(file, structs[0], len);
 
 		/* a simple dna padding test */
-		if (0)
+		if (/* DISABLES CODE */ (0))
 		{
 			FILE *fp;
 			int a;
@@ -1315,7 +1316,8 @@ int main(int argc, char **argv)
 				strcpy(baseDirectory, BASE_HEADER);
 			}
 
-			if (sizeof(void *) == 8)
+			const bool is64bitSystem = sizeof(void *) == 8;
+			if (is64bitSystem)
 			{
 				fprintf(file, "char sBulletDNAstr64[]= {\n");
 			}
@@ -1334,7 +1336,7 @@ int main(int argc, char **argv)
 			else
 			{
 				fprintf(file, "};\n");
-				if (sizeof(void *) == 8)
+				if (is64bitSystem)
 				{
 					fprintf(file, "int sBulletDNAlen64= sizeof(sBulletDNAstr64);\n");
 				}

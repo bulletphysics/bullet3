@@ -511,7 +511,7 @@ class QuadrupedBase(robot_base.RobotBase):
     frame, and this force will not be the total contact force due to the sensor
     limitation.
 
-    For simulated robots, we wll always report the force in the base frame.
+    For simulated robots, we will always report the force in the base frame.
 
     Returns:
       A list of foot contact forces.

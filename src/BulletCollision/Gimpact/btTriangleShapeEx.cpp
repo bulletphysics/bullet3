@@ -27,7 +27,7 @@ void GIM_TRIANGLE_CONTACT::merge_points(const btVector4& plane,
 										btScalar margin, const btVector3* points, int point_count)
 {
 	m_point_count = 0;
-	m_penetration_depth = -1000.0f;
+	m_penetration_depth = btScalar(-1000.0f);
 
 	int point_indices[MAX_TRI_CLIPPING];
 
@@ -37,7 +37,7 @@ void GIM_TRIANGLE_CONTACT::merge_points(const btVector4& plane,
 	{
 		btScalar _dist = -bt_distance_point_plane(plane, points[_k]) + margin;
 
-		if (_dist >= 0.0f)
+		if (_dist >= btScalar(0.0f))
 		{
 			if (_dist > m_penetration_depth)
 			{
@@ -70,7 +70,7 @@ bool btPrimitiveTriangle::overlap_test_conservative(const btPrimitiveTriangle& o
 
 	btScalar dis2 = bt_distance_point_plane(m_plane, other.m_vertices[2]) - total_margin;
 
-	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
+	if (dis0 > btScalar(0.0f) && dis1 > btScalar(0.0f) && dis2 > btScalar(0.0f)) return false;
 
 	// classify points on this triangle
 	dis0 = bt_distance_point_plane(other.m_plane, m_vertices[0]) - total_margin;
@@ -79,7 +79,7 @@ bool btPrimitiveTriangle::overlap_test_conservative(const btPrimitiveTriangle& o
 
 	dis2 = bt_distance_point_plane(other.m_plane, m_vertices[2]) - total_margin;
 
-	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
+	if (dis0 > btScalar(0.0f) && dis1 > btScalar(0.0f) && dis2 > btScalar(0.0f)) return false;
 
 	return true;
 }
@@ -141,7 +141,7 @@ bool btPrimitiveTriangle::find_triangle_collision_clip_method(btPrimitiveTriangl
 	contacts1.merge_points(contacts1.m_separating_normal, margin, clipped_points, clipped_count);
 	if (contacts1.m_point_count == 0) return false;  // too far
 	//Normal pointing to this triangle
-	contacts1.m_separating_normal *= -1.f;
+	contacts1.m_separating_normal *= btScalar(-1.f);
 
 	//Clip tri1 by tri2 edges
 	GIM_TRIANGLE_CONTACT contacts2;
@@ -188,7 +188,7 @@ bool btTriangleShapeEx::overlap_test_conservative(const btTriangleShapeEx& other
 
 	btScalar dis2 = bt_distance_point_plane(plane0, other.m_vertices1[2]) - total_margin;
 
-	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
+	if (dis0 > btScalar(0.0f) && dis1 > btScalar(0.0f) && dis2 > btScalar(0.0f)) return false;
 
 	// classify points on this triangle
 	dis0 = bt_distance_point_plane(plane1, m_vertices1[0]) - total_margin;
@@ -197,7 +197,7 @@ bool btTriangleShapeEx::overlap_test_conservative(const btTriangleShapeEx& other
 
 	dis2 = bt_distance_point_plane(plane1, m_vertices1[2]) - total_margin;
 
-	if (dis0 > 0.0f && dis1 > 0.0f && dis2 > 0.0f) return false;
+	if (dis0 > btScalar(0.0f) && dis1 > btScalar(0.0f) && dis2 > btScalar(0.0f)) return false;
 
 	return true;
 }

@@ -181,7 +181,7 @@ struct btDbvtNode
 {
 	btDbvtVolume volume;
 	btDbvtNode* parent;
-	DBVT_INLINE bool isleaf() const { return (childs[1] == 0); }
+	DBVT_INLINE bool isleaf() const { return (childs[1] == NULL); }
 	DBVT_INLINE bool isinternal() const { return (!isleaf()); }
 	union {
 		btDbvtNode* childs[2];
@@ -196,7 +196,7 @@ struct btDbvntNode
     btDbvtVolume volume;
     btVector3 normal;
     btScalar angle;
-    DBVT_INLINE bool isleaf() const { return (childs[1] == 0); }
+    DBVT_INLINE bool isleaf() const { return (childs[1] == NULL); }
     DBVT_INLINE bool isinternal() const { return (!isleaf()); }
     btDbvntNode* childs[2];
     void* data;
@@ -207,8 +207,8 @@ struct btDbvntNode
     , angle(0)
     , data(n->data)
     {
-        childs[0] = 0;
-        childs[1] = 0;
+        childs[0] = NULL;
+        childs[1] = NULL;
     }
     
     ~btDbvntNode()
@@ -239,7 +239,7 @@ struct btDbvt
 	{
 		const btDbvtNode* node;
 		int mask;
-		sStkNP(const btDbvtNode* n, unsigned m) : node(n), mask(m) {}
+		sStkNP(const btDbvtNode* n, unsigned m) : node(n), mask((int)m) {}
 	};
 	struct sStkNPS
 	{
@@ -247,7 +247,7 @@ struct btDbvt
 		int mask;
 		btScalar value;
 		sStkNPS() {}
-		sStkNPS(const btDbvtNode* n, unsigned m, btScalar v) : node(n), mask(m), value(v) {}
+		sStkNPS(const btDbvtNode* n, unsigned m, btScalar v) : node(n), mask((int)m), value(v) {}
 	};
 	struct sStkCLN
 	{
@@ -311,9 +311,9 @@ struct btDbvt
 	btDbvt();
 	~btDbvt();
 	void clear();
-	bool empty() const { return (0 == m_root); }
+	bool empty() const { return (NULL == m_root); }
 	void optimizeBottomUp();
-	void optimizeTopDown(int bu_treshold = 128);
+	void optimizeTopDown(int bu_threshold = 128);
 	void optimizeIncremental(int passes);
 	btDbvtNode* insert(const btDbvtVolume& box, void* data);
 	void update(btDbvtNode* leaf, int lookahead = -1);
@@ -323,7 +323,7 @@ struct btDbvt
 	bool update(btDbvtNode* leaf, btDbvtVolume& volume, btScalar margin);
 	void remove(btDbvtNode* leaf);
 	void write(IWriter* iwriter) const;
-	void clone(btDbvt& dest, IClone* iclone = 0) const;
+	void clone(btDbvt& dest, IClone* iclone = NULL) const;
 	static int maxdepth(const btDbvtNode* node);
 	static int countLeaves(const btDbvtNode* node);
 	static void extractLeaves(const btDbvtNode* node, btAlignedObjectArray<const btDbvtNode*>& leaves);
@@ -583,6 +583,8 @@ DBVT_INLINE int btDbvtAabbMm::Classify(const btVector3& n, btScalar o, int s) co
 			px = btVector3(mx.x(), mx.y(), mx.z());
 			pi = btVector3(mi.x(), mi.y(), mi.z());
 			break;
+		default:
+			break;
 	}
 	if ((btDot(n, px) + o) < 0) return (-1);
 	if ((btDot(n, pi) + o) >= 0) return (+1);
@@ -827,17 +829,17 @@ inline void btDbvt::collideTT(const btDbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 4;
+		int threshold = DOUBLE_STACKSIZE - 4;
 		btAlignedObjectArray<sStkNN> stkStack;
 		stkStack.resize(DOUBLE_STACKSIZE);
 		stkStack[0] = sStkNN(root0, root1);
 		do
 		{
 			sStkNN p = stkStack[--depth];
-			if (depth > treshold)
+			if (depth > threshold)
 			{
 				stkStack.resize(stkStack.size() * 2);
-				treshold = stkStack.size() - 4;
+				threshold = stkStack.size() - 4;
 			}
 			if (p.a == p.b)
 			{
@@ -891,17 +893,17 @@ inline void btDbvt::selfCollideT(const btDbvntNode* root,
     if (root)
     {
         int depth = 1;
-        int treshold = DOUBLE_STACKSIZE - 4;
+        int threshold = DOUBLE_STACKSIZE - 4;
         btAlignedObjectArray<sStknNN> stkStack;
         stkStack.resize(DOUBLE_STACKSIZE);
         stkStack[0] = sStknNN(root, root);
         do
         {
             sStknNN p = stkStack[--depth];
-            if (depth > treshold)
+            if (depth > threshold)
             {
                 stkStack.resize(stkStack.size() * 2);
-                treshold = stkStack.size() - 4;
+                threshold = stkStack.size() - 4;
             }
             if (p.a == p.b)
             {
@@ -912,7 +914,7 @@ inline void btDbvt::selfCollideT(const btDbvntNode* root,
                     stkStack[depth++] = sStknNN(p.a->childs[0], p.a->childs[1]);
                 }
             }
-            else if (Intersect(p.a->volume, p.b->volume))
+            else if (p.a && p.b && Intersect(p.a->volume, p.b->volume))
             {
                 if (p.a->isinternal())
                 {
@@ -955,17 +957,17 @@ inline void btDbvt::selfCollideTT(const btDbvtNode* root,
     if (root)
     {
         int depth = 1;
-        int treshold = DOUBLE_STACKSIZE - 4;
+        int threshold = DOUBLE_STACKSIZE - 4;
         btAlignedObjectArray<sStkNN> stkStack;
         stkStack.resize(DOUBLE_STACKSIZE);
         stkStack[0] = sStkNN(root, root);
         do
         {
             sStkNN p = stkStack[--depth];
-            if (depth > treshold)
+            if (depth > threshold)
             {
                 stkStack.resize(stkStack.size() * 2);
-                treshold = stkStack.size() - 4;
+                threshold = stkStack.size() - 4;
             }
             if (p.a == p.b)
             {
@@ -1020,17 +1022,17 @@ inline void btDbvt::collideTTpersistentStack(const btDbvtNode* root0,
 	if (root0 && root1)
 	{
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 4;
+		int threshold = DOUBLE_STACKSIZE - 4;
 
 		m_stkStack.resize(DOUBLE_STACKSIZE);
 		m_stkStack[0] = sStkNN(root0, root1);
 		do
 		{
 			sStkNN p = m_stkStack[--depth];
-			if (depth > treshold)
+			if (depth > threshold)
 			{
 				m_stkStack.resize(m_stkStack.size() * 2);
-				treshold = m_stkStack.size() - 4;
+				threshold = m_stkStack.size() - 4;
 			}
 			if (p.a == p.b)
 			{
@@ -1087,7 +1089,7 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 		if(root0&&root1)
 		{
 			int								depth=1;
-			int								treshold=DOUBLE_STACKSIZE-4;
+			int								threshold=DOUBLE_STACKSIZE-4;
 			btAlignedObjectArray<sStkNN>	stkStack;
 			stkStack.resize(DOUBLE_STACKSIZE);
 			stkStack[0]=sStkNN(root0,root1);
@@ -1095,10 +1097,10 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 				sStkNN	p=stkStack[--depth];
 				if(Intersect(p.a->volume,p.b->volume,xform))
 				{
-					if(depth>treshold)
+					if(depth>threshold)
 					{
 						stkStack.resize(stkStack.size()*2);
-						treshold=stkStack.size()-4;
+						threshold=stkStack.size()-4;
 					}
 					if(p.a->isinternal())
 					{
@@ -1238,7 +1240,7 @@ inline void btDbvt::rayTestInternal(const btDbvtNode* root,
 		btVector3 resultNormal;
 
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 2;
+		int threshold = DOUBLE_STACKSIZE - 2;
 		stack.resize(DOUBLE_STACKSIZE);
 		stack[0] = root;
 		btVector3 bounds[2];
@@ -1247,17 +1249,17 @@ inline void btDbvt::rayTestInternal(const btDbvtNode* root,
 			const btDbvtNode* node = stack[--depth];
 			bounds[0] = node->volume.Mins() - aabbMax;
 			bounds[1] = node->volume.Maxs() - aabbMin;
-			btScalar tmin = 1.f, lambda_min = 0.f;
+			btScalar tmin = btScalar(1.), lambda_min = btScalar(0.);
 			unsigned int result1 = false;
-			result1 = btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
+			result1 = (unsigned int)btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
 			if (result1)
 			{
 				if (node->isinternal())
 				{
-					if (depth > treshold)
+					if (depth > threshold)
 					{
 						stack.resize(stack.size() * 2);
-						treshold = stack.size() - 2;
+						threshold = stack.size() - 2;
 					}
 					stack[depth++] = node->childs[0];
 					stack[depth++] = node->childs[1];
@@ -1289,7 +1291,7 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 		rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
 		rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
 		rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
-		unsigned int signs[3] = {rayDirectionInverse[0] < 0.0, rayDirectionInverse[1] < 0.0, rayDirectionInverse[2] < 0.0};
+		unsigned int signs[3] = {(unsigned int)(rayDirectionInverse[0] < btScalar(0.0)), (unsigned int)(rayDirectionInverse[1] < btScalar(0.0)), (unsigned int)(rayDirectionInverse[2] < btScalar(0.0))};
 
 		btScalar lambda_max = rayDir.dot(rayTo - rayFrom);
 
@@ -1298,7 +1300,7 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 		btAlignedObjectArray<const btDbvtNode*> stack;
 
 		int depth = 1;
-		int treshold = DOUBLE_STACKSIZE - 2;
+		int threshold = DOUBLE_STACKSIZE - 2;
 
 		char tempmemory[DOUBLE_STACKSIZE * sizeof(const btDbvtNode*)];
 #ifndef BT_DISABLE_STACK_TEMP_MEMORY
@@ -1315,11 +1317,11 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 			bounds[0] = node->volume.Mins();
 			bounds[1] = node->volume.Maxs();
 
-			btScalar tmin = 1.f, lambda_min = 0.f;
-			unsigned int result1 = btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
+			btScalar tmin = btScalar(1.), lambda_min = btScalar(0.);
+			unsigned int result1 = (unsigned int)btRayAabb2(rayFrom, rayDirectionInverse, signs, bounds, tmin, lambda_min, lambda_max);
 
 #ifdef COMPARE_BTRAY_AABB2
-			btScalar param = 1.f;
+			btScalar param = btScalar(1.);
 			bool result2 = btRayAabb(rayFrom, rayTo, node->volume.Mins(), node->volume.Maxs(), param, resultNormal);
 			btAssert(result1 == result2);
 #endif  //TEST_BTRAY_AABB2
@@ -1328,10 +1330,10 @@ inline void btDbvt::rayTest(const btDbvtNode* root,
 			{
 				if (node->isinternal())
 				{
-					if (depth > treshold)
+					if (depth > threshold)
 					{
 						stack.resize(stack.size() * 2);
-						treshold = stack.size() - 2;
+						threshold = stack.size() - 2;
 					}
 					stack[depth++] = node->childs[0];
 					stack[depth++] = node->childs[1];
@@ -1386,6 +1388,8 @@ inline void btDbvt::collideKDOP(const btDbvtNode* root,
 						case +1:
 							se.mask |= j;
 							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -1393,8 +1397,8 @@ inline void btDbvt::collideKDOP(const btDbvtNode* root,
 			{
 				if ((se.mask != inside) && (se.node->isinternal()))
 				{
-					stack.push_back(sStkNP(se.node->childs[0], se.mask));
-					stack.push_back(sStkNP(se.node->childs[1], se.mask));
+					stack.push_back(sStkNP(se.node->childs[0], (unsigned)se.mask));
+					stack.push_back(sStkNP(se.node->childs[1], (unsigned)se.mask));
 				}
 				else
 				{
@@ -1459,6 +1463,8 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 							case +1:
 								se.mask |= j;
 								break;
+							default:
+								break;
 						}
 					}
 				}
@@ -1469,8 +1475,8 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 				if (se.node->isinternal())
 				{
 					const btDbvtNode* pns[] = {se.node->childs[0], se.node->childs[1]};
-					sStkNPS nes[] = {sStkNPS(pns[0], se.mask, pns[0]->volume.ProjectMinimum(sortaxis, srtsgns)),
-									 sStkNPS(pns[1], se.mask, pns[1]->volume.ProjectMinimum(sortaxis, srtsgns))};
+					sStkNPS nes[] = {sStkNPS(pns[0], (unsigned)se.mask, pns[0]->volume.ProjectMinimum(sortaxis, srtsgns)),
+									 sStkNPS(pns[1], (unsigned)se.mask, pns[1]->volume.ProjectMinimum(sortaxis, srtsgns))};
 					const int q = nes[0].value < nes[1].value ? 1 : 0;
 					int j = stack.size();
 					if (fsort && (j > 0))
@@ -1485,7 +1491,7 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 						{
 							int num_items_to_move = stack.size() - 1 - j;
 							if (num_items_to_move > 0)
-								memmove(&stack[j + 1], &stack[j], sizeof(int) * num_items_to_move);
+								memmove(&stack[j + 1], &stack[j], sizeof(int) * (size_t)num_items_to_move);
 						}
 #else
 						for (int k = stack.size() - 1; k > j; --k)
@@ -1501,7 +1507,7 @@ inline void btDbvt::collideOCL(const btDbvtNode* root,
 						{
 							int num_items_to_move = stack.size() - 1 - j;
 							if (num_items_to_move > 0)
-								memmove(&stack[j + 1], &stack[j], sizeof(int) * num_items_to_move);
+								memmove(&stack[j + 1], &stack[j], sizeof(int) * (size_t)num_items_to_move);
 						}
 #else
 						for (int k = stack.size() - 1; k > j; --k)

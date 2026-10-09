@@ -148,7 +148,7 @@ const unsigned int LvalueBit = 0x20;
   * Means that the underlying array of coefficients can be directly accessed as a plain strided array. The memory layout
   * of the array of coefficients must be exactly the natural one suggested by rows(), cols(),
   * outerStride(), innerStride(), and the RowMajorBit. This rules out expressions such as Diagonal, whose coefficients,
-  * though referencable, do not have such a regular memory layout.
+  * though referenceable, do not have such a regular memory layout.
   *
   * See the comment on LvalueBit for an explanation of how LvalueBit and DirectAccessBit are mutually orthogonal.
   */

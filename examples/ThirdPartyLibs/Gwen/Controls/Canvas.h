@@ -27,7 +27,7 @@ public:
 	// For additional initialization
 	// (which is sometimes not appropriate in the constructor)
 	//
-	virtual void Initialize(){};
+	virtual void Initialize(){}
 
 	//
 	// You should call this to render your canvas.
@@ -95,7 +95,6 @@ private:
 	friend class Controls::Base;
 	void PreDelete(Controls::Base*);
 
-	bool m_bDrawBackground;
 	Gwen::Color m_BackgroundColor;
 };
 }  // namespace Controls

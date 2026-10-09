@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	virtual void addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation)
+	virtual void addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool /*isEntity*/, const btVector3& /*entityTargetLocation*/)
 	{
 		///perhaps we can do something special with entities (isEntity)
 		///like adding a collision Triggering (as example)
@@ -162,15 +162,16 @@ void BspDemo::initPhysics(const char* bspfilename)
 	{
 		BspLoader bspLoader;
 		int size = 0;
-		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
+		if (fseek(file, 0, SEEK_END) || (size = (int)ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
 		{ /* File operations denied? ok, just close and return failure */
 			printf("Error: cannot get filesize from %s\n", bspfilename);
 		}
 		else
 		{
 			//how to detect file size?
-			memoryBuffer = malloc(size + 1);
-			fread(memoryBuffer, 1, size, file);
+			memoryBuffer = malloc((size_t)size + 1);
+			int len = memoryBuffer ? (int)fread(memoryBuffer, 1, (size_t)size, file) : 0;
+			(void)len;
 			bspLoader.loadBSPFile(memoryBuffer);
 
 			BspToBulletConverter bsp2bullet(this);
@@ -186,12 +187,12 @@ void BspDemo::initPhysics(const char* bspfilename)
 }
 
 //some code that de-mangles the windows filename passed in as argument
-char cleaned_filename[512];
-char* getLastFileName()
+static char cleaned_filename[512];
+static char* getLastFileName()
 {
 	return cleaned_filename;
 }
-char* makeExeToBspFilename(const char* lpCmdLine)
+static char* makeExeToBspFilename(const char* lpCmdLine)
 {
 	// We might get a windows-style path on the command line, this can mess up the DOM which expects
 	// all paths to be URI's.  This block of code does some conversion to try and make the input

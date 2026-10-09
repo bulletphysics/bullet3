@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	virtual void physicsDebugDraw(int debugDrawMode)
+	virtual void physicsDebugDraw(int /*debugDrawMode*/)
 	{
 	}
 	virtual void initPhysics()
@@ -103,17 +103,17 @@ public:
 			b3RobotSimulatorLoadFileResults results;
 			{
 				args.m_startPosition.setValue(0, 0, 2.5);
-				args.m_startOrientation.setEulerZYX(0, 0.2, 0);
+				args.m_startOrientation.setEulerZYX(0, b3Scalar(0.2), 0);
 				m_r2d2Index = m_robotSim.loadURDF("cube_soft.urdf", args);
 			}
 			{
 				args.m_startPosition.setValue(0, 2, 2.5);
-				args.m_startOrientation.setEulerZYX(0, 0.2, 0);
+				args.m_startOrientation.setEulerZYX(0, b3Scalar(0.2), 0);
 				m_robotSim.loadURDF("cube_no_friction.urdf", args);
 			}
 			{
 				args.m_startPosition.setValue(0, 0, 0);
-				args.m_startOrientation.setEulerZYX(0, 0.2, 0);
+				args.m_startOrientation.setEulerZYX(0, b3Scalar(0.2), 0);
 				args.m_forceOverrideFixedBase = true;
 				m_robotSim.loadURDF("plane.urdf", args);
 			}
@@ -139,7 +139,7 @@ public:
 			}
 			{
 				args.m_startPosition.setValue(0, 0, 0);
-				args.m_startOrientation.setEulerZYX(0, 0.2, 0);
+				args.m_startOrientation.setEulerZYX(0, b3Scalar(0.2), 0);
 				args.m_useMultiBody = true;
 				args.m_forceOverrideFixedBase = true;
 				m_robotSim.loadURDF("plane.urdf", args);
@@ -152,7 +152,7 @@ public:
 	{
 		m_robotSim.disconnect();
 	}
-	virtual void stepSimulation(float deltaTime)
+	virtual void stepSimulation(float /*deltaTime*/)
 	{
 		m_robotSim.stepSimulation();
 	}
@@ -166,15 +166,15 @@ public:
 	virtual void physicsDebugDraw()
 	{
 	}
-	virtual bool mouseMoveCallback(float x, float y)
+	virtual bool mouseMoveCallback(float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int /*button*/, int /*state*/, float /*x*/, float /*y*/)
 	{
 		return false;
 	}
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int /*key*/, int /*state*/)
 	{
 		return false;
 	}
@@ -184,7 +184,7 @@ public:
 		float dist = 3;
 		float pitch = -30;
 		float yaw = -75;
-		float targetPos[3] = {-0.2, 0.8, 0.3};
+		float targetPos[3] = {-0.2f, 0.8f, 0.3f};
 		if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);

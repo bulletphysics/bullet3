@@ -13,7 +13,7 @@ b3PrefixScanFloat4CL::b3PrefixScanFloat4CL(cl_context ctx, cl_device_id device, 
 	cl_int pErrNum;
 	char* additionalMacros = 0;
 
-	m_workBuffer = new b3OpenCLArray<b3Vector3>(ctx, queue, size);
+	m_workBuffer = new b3OpenCLArray<b3Vector3>(ctx, queue, (size_t)size);
 	cl_program scanProg = b3OpenCLUtils::compileCLProgramFromString(ctx, device, scanKernelSource, &pErrNum, additionalMacros, B3_PREFIXSCAN_FLOAT4_PROG_PATH);
 	b3Assert(scanProg);
 
@@ -37,7 +37,7 @@ template <class T>
 T b3NextPowerOf2(T n)
 {
 	n -= 1;
-	for (int i = 0; i < sizeof(T) * 8; i++)
+	for (unsigned int i = 0; i < sizeof(T) * 8; i++)
 		n = n | (n >> i);
 	return n + 1;
 }
@@ -45,14 +45,14 @@ T b3NextPowerOf2(T n)
 void b3PrefixScanFloat4CL::execute(b3OpenCLArray<b3Vector3>& src, b3OpenCLArray<b3Vector3>& dst, int n, b3Vector3* sum)
 {
 	//	b3Assert( data->m_option == EXCLUSIVE );
-	const unsigned int numBlocks = (const unsigned int)((n + BLOCK_SIZE * 2 - 1) / (BLOCK_SIZE * 2));
+	const unsigned int numBlocks = (unsigned int)((n + BLOCK_SIZE * 2 - 1) / (BLOCK_SIZE * 2));
 
 	dst.resize(src.size());
 	m_workBuffer->resize(src.size());
 
 	b3Int4 constBuffer;
 	constBuffer.x = n;
-	constBuffer.y = numBlocks;
+	constBuffer.y = (int)numBlocks;
 	constBuffer.z = (int)b3NextPowerOf2(numBlocks);
 
 	b3OpenCLArray<b3Vector3>* srcNative = &src;
@@ -64,7 +64,7 @@ void b3PrefixScanFloat4CL::execute(b3OpenCLArray<b3Vector3>& src, b3OpenCLArray<
 		b3LauncherCL launcher(m_commandQueue, m_localScanKernel, "m_localScanKernel");
 		launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
 		launcher.setConst(constBuffer);
-		launcher.launch1D(numBlocks * BLOCK_SIZE, BLOCK_SIZE);
+		launcher.launch1D((int)(numBlocks * BLOCK_SIZE), BLOCK_SIZE);
 	}
 
 	{
@@ -82,13 +82,13 @@ void b3PrefixScanFloat4CL::execute(b3OpenCLArray<b3Vector3>& src, b3OpenCLArray<
 		b3LauncherCL launcher(m_commandQueue, m_propagationKernel, "m_propagationKernel");
 		launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
 		launcher.setConst(constBuffer);
-		launcher.launch1D((numBlocks - 1) * BLOCK_SIZE, BLOCK_SIZE);
+		launcher.launch1D((int)((numBlocks - 1) * BLOCK_SIZE), BLOCK_SIZE);
 	}
 
 	if (sum)
 	{
 		clFinish(m_commandQueue);
-		dstNative->copyToHostPointer(sum, 1, n - 1, true);
+		dstNative->copyToHostPointer(sum, 1, (size_t)(n - 1), true);
 	}
 }
 

@@ -14,7 +14,7 @@ p.resetBasePositionAndOrientation(kukaId, [0, 0, 0], [0, 0, 0, 1])
 kukaEndEffectorIndex = 6
 numJoints = p.getNumJoints(kukaId)
 
-#Joint damping coefficents. Using large values for the joints that we don't want to move.
+#Joint damping coefficients. Using large values for the joints that we don't want to move.
 jd = [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.5]
 #jd=[0.5,0.5,0.5,0.5,0.5,0.5,0.5]
 
