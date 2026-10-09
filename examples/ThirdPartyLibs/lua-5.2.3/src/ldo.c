@@ -225,7 +225,7 @@ static int stackinuse(lua_State *L)
 void luaD_shrinkstack(lua_State *L)
 {
 	int inuse = stackinuse(L);
-	int goodsize = inuse + (inuse / 8) + 2 * EXTRA_STACK;
+	int goodsize = inuse + BASIC_STACK_SIZE;
 	if (goodsize > LUAI_MAXSTACK) goodsize = LUAI_MAXSTACK;
 	if (inuse > LUAI_MAXSTACK ||  /* handling stack overflow? */
 		goodsize >= L->stacksize) /* would grow instead of shrink? */
