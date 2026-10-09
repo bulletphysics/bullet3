@@ -84,7 +84,7 @@ protected:
 
 	char* duplicateName(const char* name);
 
-	btCollisionShape* convertCollisionShape(btCollisionShapeData* shapeData);
+	btCollisionShape* convertCollisionShape(btCollisionShapeData* shapeData, bool isDouble = false);
 
 public:
 	btCollisionWorldImporter(btCollisionWorld* world);

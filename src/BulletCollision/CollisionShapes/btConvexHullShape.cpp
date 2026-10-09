@@ -170,19 +170,12 @@ bool btConvexHullShape::isInside(const btVector3&, btScalar) const
 ///fills the dataBuffer and returns the struct name (and 0 on failure)
 const char* btConvexHullShape::serialize(void* dataBuffer, btSerializer* serializer) const
 {
-	//int szc = sizeof(btConvexHullShapeData);
 	btConvexHullShapeData* shapeData = (btConvexHullShapeData*)dataBuffer;
 	btConvexInternalShape::serialize(&shapeData->m_convexInternalShapeData, serializer);
 
 	int numElem = m_unscaledPoints.size();
 	shapeData->m_numUnscaledPoints = numElem;
-#ifdef BT_USE_DOUBLE_PRECISION
-	shapeData->m_unscaledPointsFloatPtr = 0;
-	shapeData->m_unscaledPointsDoublePtr = numElem ? (btVector3Data*)serializer->getUniquePointer((void*)&m_unscaledPoints[0]) : 0;
-#else
-	shapeData->m_unscaledPointsFloatPtr = numElem ? (btVector3Data*)serializer->getUniquePointer((void*)&m_unscaledPoints[0]) : 0;
-	shapeData->m_unscaledPointsDoublePtr = 0;
-#endif
+	shapeData->m_unscaledPointsPtr = numElem ? (btVector3Data*)serializer->getUniquePointer((void*)&m_unscaledPoints[0]):  0;
 
 	if (numElem)
 	{
@@ -201,7 +194,7 @@ const char* btConvexHullShape::serialize(void* dataBuffer, btSerializer* seriali
 	// Fill padding with zeros to appease msan.
 	memset(shapeData->m_padding3, 0, sizeof(shapeData->m_padding3));
 
-	return "btConvexHullShapeData";
+	return btConvexHullShapeDataName;
 }
 
 void btConvexHullShape::project(const btTransform& trans, const btVector3& dir, btScalar& minProj, btScalar& maxProj, btVector3& witnesPtMin, btVector3& witnesPtMax) const

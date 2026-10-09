@@ -234,23 +234,21 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(XMLNode* pParent)
 	SET_VECTOR4_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_localScaling)
 	SET_VECTOR4_VALUE(xmlConvexInt, &convexHullData->m_convexInternalShapeData, m_implicitShapeDimensions)
 
-	//convexHullData->m_unscaledPointsFloatPtr
 	//#define SET_POINTER_VALUE(xmlnode, targetdata, argname, pointertype)
 
 	{
-		XMLNode* node = pParent->FirstChildElement("m_unscaledPointsFloatPtr");
+		XMLNode* node = pParent->FirstChildElement("m_unscaledPointsPtr");
 		btAssert(node);
 		if (node)
 		{
 			const char* txt = (node)->ToElement()->GetText();
 			MyLocalCaster cast;
 			cast.m_int = (int)atof(txt);
-			(*convexHullData).m_unscaledPointsFloatPtr = (btVector3FloatData*)cast.m_ptr;
+			(*convexHullData).m_unscaledPointsPtr= (btVector3Data*) cast.m_ptr;
 		}
 	}
 
-	SET_POINTER_VALUE(pParent, *convexHullData, m_unscaledPointsFloatPtr, btVector3FloatData*);
-	SET_POINTER_VALUE(pParent, *convexHullData, m_unscaledPointsDoublePtr, btVector3DoubleData*);
+	SET_POINTER_VALUE(pParent,*convexHullData,m_unscaledPointsPtr,btVector3Data*);
 	SET_INT_VALUE(pParent, convexHullData, m_numUnscaledPoints);
 
 	m_collisionShapeData.push_back((btCollisionShapeData*)convexHullData);
@@ -609,15 +607,15 @@ void btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 		{
 			btConvexHullShapeData* convexData = (btConvexHullShapeData*)shapeData;
-			btVector3FloatData** ptrptr = (btVector3FloatData**)m_pointerLookup.find((void*)convexData->m_unscaledPointsFloatPtr);
+			btVector3Data** ptrptr = (btVector3Data**)m_pointerLookup.find((void*)convexData->m_unscaledPointsPtr);
 			btAssert(ptrptr);
 			if (ptrptr)
 			{
-				convexData->m_unscaledPointsFloatPtr = *ptrptr;
+				convexData->m_unscaledPointsPtr = *ptrptr;
 			}
 			else
 			{
-				convexData->m_unscaledPointsFloatPtr = 0;
+				convexData->m_unscaledPointsPtr = 0;
 			}
 			break;
 		}
