@@ -3562,7 +3562,7 @@ void btSoftBody::updateDeformation()
 					  Dot4(q2, t.m_P_inv[0]), Dot4(q2, t.m_P_inv[1]), Dot4(q2, t.m_P_inv[2]),
 					  Dot4(q3, t.m_P_inv[0]), Dot4(q3, t.m_P_inv[1]), Dot4(q3, t.m_P_inv[2]));
 		q.setRotation(btVector3(0, 0, 1), 0);
-		B.extractRotation(q, 0.01);  // precision of the rotation is not very important for visual correctness.
+		B.getRotation(q);
 		btMatrix3x3 Q(q);
 		s.m_corotation = Q;
 	}
