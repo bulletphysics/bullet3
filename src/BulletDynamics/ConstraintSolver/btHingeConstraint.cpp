@@ -171,7 +171,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, btRigidBody& rbB,
 }
 
 btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFrame, bool useReferenceFrameA)
-	: btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_rbAFrame(rbAFrame), m_rbBFrame(rbAFrame),
+	: btTypedConstraint(HINGE_CONSTRAINT_TYPE, rbA), m_rbAFrame(rbAFrame),
 #ifdef _BT_USE_CENTER_LIMIT_
 	  m_limit(),
 #endif
@@ -187,8 +187,7 @@ btHingeConstraint::btHingeConstraint(btRigidBody& rbA, const btTransform& rbAFra
 	  m_stopERP(0)
 {
 	///not providing rigidbody B means implicitly using worldspace for body B
-
-	m_rbBFrame.getOrigin() = m_rbA.getCenterOfMassTransform()(m_rbAFrame.getOrigin());
+	m_rbBFrame = m_rbA.getCenterOfMassTransform() * m_rbAFrame;
 #ifndef _BT_USE_CENTER_LIMIT_
 	//start with free
 	m_lowerLimit = btScalar(1.0f);
