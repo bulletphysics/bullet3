@@ -175,6 +175,10 @@ public:
 
 	void performGeometricCollisions(btScalar timeStep);
 
+	void serializeSoftBodies(btSerializer* serializer); 
+
+	void serialize(btSerializer* serializer);
+
 	struct btDeformableSingleRayCallback : public btBroadphaseRayCallback
 	{
 		btVector3 m_rayFromWorld;
