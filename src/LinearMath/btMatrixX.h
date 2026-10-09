@@ -242,13 +242,13 @@ struct btMatrixX
 
 	void copyLowerToUpperTriangle()
 	{
-		int count = 0;
+		// int count = 0;
 		for (int row = 0; row < rows(); row++)
 		{
 			for (int col = 0; col < row; col++)
 			{
 				setElem(col, row, (*this)(row, col));
-				count++;
+				// count++;
 			}
 		}
 		//printf("copyLowerToUpperTriangle copied %d elements out of %dx%d=%d\n", count,rows(),cols(),cols()*rows());
