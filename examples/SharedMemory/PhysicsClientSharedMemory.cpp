@@ -1744,7 +1744,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			for (int i = 0; i < serverCmd.m_removeObjectArgs.m_numUserConstraints; i++)
 			{
 				int key = serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[i];
-				m_data->m_userConstraintInfoMap.remove(key);
+				if (key >= 0)
+				{
+					m_data->m_userConstraintInfoMap.remove(key);
+				}
 			}
 		}
 

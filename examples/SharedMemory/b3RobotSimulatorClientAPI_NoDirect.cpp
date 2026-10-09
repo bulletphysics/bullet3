@@ -1429,7 +1429,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::removeBody(int bodyUniqueId)
 		}
 		else
 		{
-			b3Warning("getDynamicsInfo did not complete");
+			b3Warning("removeBody did not complete");
 			return false;
 		}
 	}

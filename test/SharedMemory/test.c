@@ -284,6 +284,26 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 
 			{
 				b3SharedMemoryStatusHandle statusHandle;
+				int statusType;
+				int bodyIndicesOut[10];
+				int numBodies;
+				b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(sm, sdfFileName);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+				statusType = b3GetStatusType(statusHandle);
+				ASSERT_EQ(statusType, CMD_SDF_LOADING_COMPLETED);
+				numBodies = b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, 10);
+				if (numBodies > 0)
+				{
+					int testBody = bodyIndicesOut[0];
+					b3SharedMemoryCommandHandle removeCmd = b3InitRemoveBodyCommand(sm, testBody);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, removeCmd);
+					statusType = b3GetStatusType(statusHandle);
+					ASSERT_EQ(statusType, CMD_REMOVE_BODY_COMPLETED);
+				}
+			}
+
+			{
+				b3SharedMemoryStatusHandle statusHandle;
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
 				ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
 			}

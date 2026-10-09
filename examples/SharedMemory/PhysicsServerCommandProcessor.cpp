@@ -12736,6 +12736,117 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 	return hasStatus;
 }
 
+void PhysicsServerCommandProcessor::removeUserConstraintsForBody(int bodyUniqueId, struct SharedMemoryStatus& serverCmd)
+{
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+	if (!bodyHandle)
+	{
+		return;
+	}
+
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
+	if (bodyHandle->m_multiBody)
+	{
+		for (int i = m_data->m_dynamicsWorld->getNumMultiBodyConstraints() - 1; i >= 0; i--)
+		{
+			btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(i);
+			if ((mbc->getMultiBodyA() == bodyHandle->m_multiBody) || (mbc->getMultiBodyB() == bodyHandle->m_multiBody))
+			{
+				m_data->m_dynamicsWorld->removeMultiBodyConstraint(mbc);
+				for (int c = m_data->m_userConstraints.size() - 1; c >= 0; c--)
+				{
+					InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.getAtIndex(c);
+					int userConstraintKey = m_data->m_userConstraints.getKeyAtIndex(c).getUid1();
+					if (userConstraintPtr->m_mbConstraint == mbc)
+					{
+						m_data->m_userConstraints.remove(userConstraintKey);
+						if (serverCmd.m_removeObjectArgs.m_numUserConstraints < MAX_SDF_BODIES)
+						{
+							serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[serverCmd.m_removeObjectArgs.m_numUserConstraints++] = userConstraintKey;
+						}
+					}
+				}
+				delete mbc;
+			}
+		}
+	}
+#endif
+
+	if (bodyHandle->m_rigidBody)
+	{
+		for (int i = m_data->m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
+		{
+			btTypedConstraint* constraint = m_data->m_dynamicsWorld->getConstraint(i);
+			if ((&constraint->getRigidBodyA() == bodyHandle->m_rigidBody) || (&constraint->getRigidBodyB() == bodyHandle->m_rigidBody))
+			{
+				m_data->m_dynamicsWorld->removeConstraint(constraint);
+				for (int c = m_data->m_userConstraints.size() - 1; c >= 0; c--)
+				{
+					InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.getAtIndex(c);
+					int userConstraintKey = m_data->m_userConstraints.getKeyAtIndex(c).getUid1();
+					if (userConstraintPtr->m_rbConstraint == constraint)
+					{
+						m_data->m_userConstraints.remove(userConstraintKey);
+						if (serverCmd.m_removeObjectArgs.m_numUserConstraints < MAX_SDF_BODIES)
+						{
+							serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[serverCmd.m_removeObjectArgs.m_numUserConstraints++] = userConstraintKey;
+						}
+					}
+				}
+				delete constraint;
+			}
+		}
+	}
+
+	for (int c = m_data->m_userConstraints.size() - 1; c >= 0; c--)
+	{
+		InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.getAtIndex(c);
+		int userConstraintKey = m_data->m_userConstraints.getKeyAtIndex(c).getUid1();
+
+		if (userConstraintPtr->m_userConstraintData.m_parentBodyIndex == bodyUniqueId ||
+		    userConstraintPtr->m_userConstraintData.m_childBodyIndex == bodyUniqueId ||
+		    userConstraintPtr->m_sbHandle == bodyUniqueId)
+		{
+			if (userConstraintPtr->m_rbConstraint)
+			{
+				m_data->m_dynamicsWorld->removeConstraint(userConstraintPtr->m_rbConstraint);
+				delete userConstraintPtr->m_rbConstraint;
+				userConstraintPtr->m_rbConstraint = 0;
+			}
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
+			if (userConstraintPtr->m_mbConstraint)
+			{
+				m_data->m_dynamicsWorld->removeMultiBodyConstraint(userConstraintPtr->m_mbConstraint);
+				delete userConstraintPtr->m_mbConstraint;
+				userConstraintPtr->m_mbConstraint = 0;
+			}
+#endif
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+			if (userConstraintPtr->m_sbHandle >= 0)
+			{
+				InternalBodyHandle* sbodyHandle = m_data->m_bodyHandles.getHandle(userConstraintPtr->m_sbHandle);
+				if (sbodyHandle && sbodyHandle->m_softBody)
+				{
+					if (userConstraintPtr->m_sbNodeMass >= 0)
+					{
+						sbodyHandle->m_softBody->setMass(userConstraintPtr->m_sbNodeIndex, userConstraintPtr->m_sbNodeMass);
+					}
+					else
+					{
+						sbodyHandle->m_softBody->removeAnchor(userConstraintPtr->m_sbNodeIndex);
+					}
+				}
+			}
+#endif
+			m_data->m_userConstraints.remove(userConstraintKey);
+			if (serverCmd.m_removeObjectArgs.m_numUserConstraints < MAX_SDF_BODIES)
+			{
+				serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[serverCmd.m_removeObjectArgs.m_numUserConstraints++] = userConstraintKey;
+			}
+		}
+	}
+}
+
 bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -12753,6 +12864,8 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 		if (bodyHandle)
 		{
+			removeUserConstraintsForBody(bodyUniqueId, serverCmd);
+
 #ifndef USE_DISCRETE_DYNAMICS_WORLD
 			if (bodyHandle->m_multiBody)
 			{
@@ -12762,31 +12875,6 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				{
 					//memory will be deleted in the code that follows
 					m_data->m_pickingMultiBodyPoint2Point = 0;
-				}
-
-				//also remove user constraints...
-				for (int i = m_data->m_dynamicsWorld->getNumMultiBodyConstraints() - 1; i >= 0; i--)
-				{
-					btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(i);
-					if ((mbc->getMultiBodyA() == bodyHandle->m_multiBody) || (mbc->getMultiBodyB() == bodyHandle->m_multiBody))
-					{
-						m_data->m_dynamicsWorld->removeMultiBodyConstraint(mbc);
-
-						//also remove user constraint and submit it as removed
-						for (int c = m_data->m_userConstraints.size() - 1; c >= 0; c--)
-						{
-							InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.getAtIndex(c);
-							int userConstraintKey = m_data->m_userConstraints.getKeyAtIndex(c).getUid1();
-
-							if (userConstraintPtr->m_mbConstraint == mbc)
-							{
-								m_data->m_userConstraints.remove(userConstraintKey);
-								serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[serverCmd.m_removeObjectArgs.m_numUserConstraints++] = userConstraintKey;
-							}
-						}
-
-						delete mbc;
-					}
 				}
 
 				if (bodyHandle->m_multiBody->getBaseCollider())
@@ -12838,7 +12926,6 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 					m_data->m_pickedBody = 0;
 				}
 
-				//todo: clear all other remaining data...
 				m_data->m_dynamicsWorld->removeRigidBody(bodyHandle->m_rigidBody);
 				int graphicsInstance = bodyHandle->m_rigidBody->getUserIndex2();
 				m_data->m_guiHelper->removeGraphicsInstance(graphicsInstance);
@@ -12868,6 +12955,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 
 				int graphicsInstance = psb->getUserIndex2();
 				m_data->m_guiHelper->removeGraphicsInstance(graphicsInstance);
+
 				delete psb;
 				psb = 0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
