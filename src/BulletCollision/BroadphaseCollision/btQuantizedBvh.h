@@ -408,6 +408,7 @@ public:
 			(btScalar)(vecIn[1]) / (m_bvhQuantization.getY()),
 			(btScalar)(vecIn[2]) / (m_bvhQuantization.getZ()));
 		vecOut += m_bvhAabbMin;
+		vecOut.setMax(m_bvhAabbMax);
 		return vecOut;
 	}
 
