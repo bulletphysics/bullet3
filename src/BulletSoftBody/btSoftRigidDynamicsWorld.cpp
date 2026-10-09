@@ -298,6 +298,7 @@ void btSoftRigidDynamicsWorld::rayTestSingle(const btTransform& rayFromTrans, co
 					}
 
 					btCollisionWorld::LocalRayResult rayResult(collisionObject,
+															   collisionShape,
 															   &shapeInfo,
 															   normal,
 															   softResult.fraction);
