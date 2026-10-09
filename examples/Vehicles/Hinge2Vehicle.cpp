@@ -133,7 +133,7 @@ static btScalar maxMotorImpulse = 4000.f;
 static btVector3 wheelDirectionCS0(0, -1, 0);
 static btVector3 wheelAxleCS(-1, 0, 0);
 
-static bool useMCLPSolver = false;  //true;
+static bool useMLCPSolver = false;  //true;
 
 #include <stdio.h>  //printf debugging
 
@@ -262,7 +262,7 @@ void Hinge2Vehicle::initPhysics()
 	btVector3 worldMin(-1000, -1000, -1000);
 	btVector3 worldMax(1000, 1000, 1000);
 	m_broadphase = new btAxisSweep3(worldMin, worldMax);
-	if (useMCLPSolver)
+	if (useMLCPSolver)
 	{
 		btDantzigSolver* mlcp = new btDantzigSolver();
 		//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
@@ -274,7 +274,7 @@ void Hinge2Vehicle::initPhysics()
 		m_solver = new btSequentialImpulseConstraintSolver();
 	}
 	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
-	if (useMCLPSolver)
+	if (useMLCPSolver)
 	{
 		m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 1;  //for direct solver it is better to have a small A matrix
 	}
@@ -545,11 +545,11 @@ bool Hinge2Vehicle::keyboardCallback(int key, int state)
 				{
 					handled = true;
 					//switch solver (needs demo restart)
-					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
+					useMLCPSolver = !useMLCPSolver;
+					printf("switching to useMLCPSolver = %d\n", useMLCPSolver);
 
 					delete m_solver;
-					if (useMCLPSolver)
+					if (useMLCPSolver)
 					{
 						btDantzigSolver* mlcp = new btDantzigSolver();
 						//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
