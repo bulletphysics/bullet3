@@ -86,12 +86,27 @@ class HumanoidPoseInterpolator(object):
 
   def ComputeAngVelRel(self, ornStart, ornEnd, deltaTime, bullet_client):
     ornStartConjugate = [-ornStart[0], -ornStart[1], -ornStart[2], ornStart[3]]
-    pos_diff, q_diff = bullet_client.multiplyTransforms([0, 0, 0], ornStartConjugate, [0, 0, 0],
-                                                        ornEnd)
-    axis, angle = bullet_client.getAxisAngleFromQuaternion(q_diff)
-    angVel = [(axis[0] * angle) / deltaTime, (axis[1] * angle) / deltaTime,
-              (axis[2] * angle) / deltaTime]
-    return angVel
+    # Let native SLERP select the endpoint hemisphere, including half-turn ties.
+    endpoint = bullet_client.getQuaternionSlerp(ornStart, ornEnd, 1.)
+    startLength = math.hypot(math.hypot(ornStart[0], ornStart[1]),
+                             math.hypot(ornStart[2], ornStart[3]))
+    endLength = math.hypot(math.hypot(endpoint[0], endpoint[1]),
+                           math.hypot(endpoint[2], endpoint[3]))
+    # Unit endpoints have their geometric midpoint in the direction of their sum.
+    midpoint = [
+        float(start) / startLength + float(end) / endLength
+        for start, end in zip(ornStart, endpoint)
+    ]
+    difference = bullet_client.getDifferenceQuaternion(ornStart, midpoint)
+    length = math.sqrt(sum(component * component for component in difference[:3]))
+    if length == 0:
+      return [0.0 / deltaTime] * 3
+    # Twice the midpoint's rotation gives the full constant-velocity SLERP arc.
+    angle = 4 * math.atan2(length, difference[3])
+    worldRotation = [component * angle / length for component in difference[:3]]
+    bodyRotation, _ = bullet_client.multiplyTransforms([0, 0, 0], ornStartConjugate, worldRotation,
+                                                       [0, 0, 0, 1])
+    return [component / deltaTime for component in bodyRotation]
 
   def NormalizeVector(self, vec):
     length2 = orn[0] * orn[0] + orn[1] * orn[1] + orn[2] * orn[2]
