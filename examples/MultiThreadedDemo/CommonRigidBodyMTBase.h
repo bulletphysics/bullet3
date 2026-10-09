@@ -103,7 +103,9 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 			int i;
 			for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
 			{
-				m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
+				btTypedConstraint* constraint = m_dynamicsWorld->getConstraint(i);
+		    		m_dynamicsWorld->removeConstraint(constraint);
+		    		delete constraint;
 			}
 			for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 			{

@@ -27,6 +27,8 @@ btMLCPSolver::btMLCPSolver(btMLCPSolverInterface* solver)
 
 btMLCPSolver::~btMLCPSolver()
 {
+  delete m_solver;
+  m_solver = NULL;
 }
 
 bool gUseMatrixMultiply = false;
