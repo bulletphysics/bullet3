@@ -1406,22 +1406,27 @@ void EGLRendererVisualShapeConverter::changeInstanceFlags(int bodyUniqueId, int 
 
 void EGLRendererVisualShapeConverter::changeShapeTexture(int bodyUniqueId, int linkIndex, int shapeIndex, int textureUniqueId)
 {
-	btAssert(textureUniqueId < m_data->m_textures.size());
-	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())
+	int innerTextureId = -1;
+	if (textureUniqueId >= 0)
 	{
-		for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
+		if (textureUniqueId >= m_data->m_textures.size())
 		{
-			EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
-			if (ptrptr && *ptrptr)
+			return;
+		}
+		innerTextureId = m_data->m_textures[textureUniqueId].m_innerTexUid;
+	}
+
+	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
+	{
+		EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
+		{
+			EGLRendererObjectArray* visuals = *ptrptr;
+			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{
-				EGLRendererObjectArray* visuals = *ptrptr;
-				if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
+				for (int i = 0; i < visuals->m_graphicsInstanceIds.size(); i++)
 				{
-					for (int i = 0; i < visuals->m_graphicsInstanceIds.size(); i++)
-					{
-						m_data->m_instancingRenderer->replaceTexture(visuals->m_graphicsInstanceIds[i], textureUniqueId);
-					}
-					
+					m_data->m_instancingRenderer->replaceTexture(visuals->m_graphicsInstanceIds[i], innerTextureId);
 				}
 			}
 		}
