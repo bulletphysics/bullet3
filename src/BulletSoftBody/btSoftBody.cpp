@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "BulletCollision/CollisionShapes/btTriangleShape.h"
+#include "Eigen/Dense"
 #include <iostream>
 //
 static inline btDbvtNode* buildTreeBottomUp(btAlignedObjectArray<btDbvtNode*>& leafNodes, btAlignedObjectArray<btAlignedObjectArray<int> >& adj)
@@ -1041,6 +1042,34 @@ btVector3 btSoftBody::getLinearVelocity()
 	}
 	btScalar total_mass = getTotalMass();
 	return total_mass == 0 ? total_momentum : total_momentum / total_mass;
+}
+
+btVector3 btSoftBody::getAngularVelocity()
+{
+	// Some hacks needed here to convert between Bullet vectors/matrices and Eigen
+	// Needed to use Eigen for the .inverse() function -- btMatrix3x3 seems to be specific to rotation matrices
+	btVector3 total_momentum = btVector3(0, 0, 0);
+	btVector3 com = getCenterOfMass();
+	Eigen::Matrix3d total_inertia; 
+	btVector3 v_com = getLinearVelocity(); // Center of mass velocity
+	for (int i = 0; i < m_nodes.size(); ++i)
+	{	
+		btScalar mass = m_nodes[i].m_im == 0 ? 0 : 1.0 / m_nodes[i].m_im;
+		btVector3 r = m_nodes[i].m_x - com; 
+		btVector3 v_rel = m_nodes[i].m_v - v_com; // Velocity of particle wrt COM
+		// Contribution of a particle to the overall inertia tensor
+		// This can be found by expanding out the equation L = sum(ri x mi * vi)
+		Eigen::Matrix3d inertia;
+		inertia << mass * (pow(r[1], 2) + pow(r[2], 2)), -mass * r[0] * r[1], -mass * r[0] * r[2], 
+				-mass * r[1] * r[0], mass * (pow(r[2], 2) + pow(r[0], 2)), -mass * r[1] * r[2], 
+				-mass * r[2] * r[0], -mass * r[2] * r[1], mass * (pow(r[0], 2) + pow(r[1], 2));
+		total_inertia += inertia; 
+		total_momentum += mass * r.cross(v_rel);
+	}
+	Eigen::Vector3d eigen_momentum(total_momentum[0], total_momentum[1], total_momentum[2]);
+	Eigen::Vector3d ang_vel; 
+	ang_vel = total_inertia.inverse() * eigen_momentum;
+	return btVector3(ang_vel[0], ang_vel[1], ang_vel[2]);
 }
 
 //
