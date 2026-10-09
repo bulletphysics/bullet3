@@ -1092,6 +1092,11 @@ public:
 		mVec128 = rhs.mVec128;
 	}
 
+	SIMD_FORCE_INLINE btVector4(const btVector4& rhs)
+	{
+		mVec128 = rhs.mVec128;
+	}
+
 	SIMD_FORCE_INLINE btVector4&
 	operator=(const btVector4& v)
 	{
