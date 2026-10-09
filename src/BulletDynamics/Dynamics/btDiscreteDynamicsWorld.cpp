@@ -41,6 +41,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 
 #include "BulletDynamics/Dynamics/btActionInterface.h"
+#include "LinearMath/btHashMap.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btMotionState.h"
 
@@ -75,6 +76,24 @@ public:
 	}
 };
 
+/// Stores the start index and length of an island's constraints in
+/// m_sortedConstraints.
+class btConstraintIsland
+{
+public:
+	btConstraintIsland(int start, int length)
+		: m_start(start), m_length(length)
+	{
+	}
+
+	SIMD_FORCE_INLINE int getStartIndex() const { return m_start; }
+	SIMD_FORCE_INLINE int getNumConstraints() const { return m_length; }
+
+private:
+	int m_start;
+	int m_length;
+};
+
 struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCallback
 {
 	btContactSolverInfo* m_solverInfo;
@@ -83,6 +102,7 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 	int m_numConstraints;
 	btIDebugDraw* m_debugDrawer;
 	btDispatcher* m_dispatcher;
+	btHashMap<btHashInt, btConstraintIsland> m_constraintIslands;
 
 	btAlignedObjectArray<btCollisionObject*> m_bodies;
 	btAlignedObjectArray<btPersistentManifold*> m_manifolds;
@@ -118,6 +138,36 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 		m_bodies.resize(0);
 		m_manifolds.resize(0);
 		m_constraints.resize(0);
+
+		m_constraintIslands.clear();
+
+		if (numConstraints)
+		{
+			int current_island_id = btGetConstraintIslandId(m_sortedConstraints[0]);
+			int island_start = 0;
+			int island_id;
+
+			// Record where each island is in m_sortedConstraints.
+			for (int i = 0; i < m_numConstraints; ++i)
+			{
+				island_id = btGetConstraintIslandId(m_sortedConstraints[i]);
+				if (island_id != current_island_id)
+				{
+					m_constraintIslands.insert(
+						current_island_id,
+						btConstraintIsland(island_start, i - island_start));
+
+					current_island_id = island_id;
+					island_start = i;
+				}
+			}
+
+			// Finish recording the final island.
+			m_constraintIslands.insert(
+				current_island_id,
+				btConstraintIsland(island_start,
+								   m_numConstraints - island_start));
+		}
 	}
 
 	virtual void processIsland(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifolds, int numManifolds, int islandId)
@@ -134,22 +184,11 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 			int numCurConstraints = 0;
 			int i;
 
-			//find the first constraint for this island
-			for (i = 0; i < m_numConstraints; i++)
+			const btConstraintIsland* island = m_constraintIslands.find(islandId);
+			if (island)
 			{
-				if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
-				{
-					startConstraint = &m_sortedConstraints[i];
-					break;
-				}
-			}
-			//count the number of constraints in this island
-			for (; i < m_numConstraints; i++)
-			{
-				if (btGetConstraintIslandId(m_sortedConstraints[i]) == islandId)
-				{
-					numCurConstraints++;
-				}
+				startConstraint = &m_sortedConstraints[island->getStartIndex()];
+				numCurConstraints = island->getNumConstraints();
 			}
 
 			if (m_solverInfo->m_minimumSolverBatchSize <= 1)
