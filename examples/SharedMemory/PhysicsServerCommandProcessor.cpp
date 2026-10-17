@@ -12881,6 +12881,30 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				m_data->m_userDataHandles.freeHandle(userDataHandle);
 			}
 			m_data->m_bodyHandles.freeHandle(bodyUniqueId);
+
+			for (int s = 0; s < m_data->m_saveWorldBodyData.size(); s++)
+			{
+				SaveWorldObjectData& sd = m_data->m_saveWorldBodyData[s];
+				int bIndex = sd.m_bodyUniqueIds.findLinearSearch(bodyUniqueId);
+				if (bIndex < sd.m_bodyUniqueIds.size())
+				{
+					for (int r = bIndex; r < sd.m_bodyUniqueIds.size() - 1; r++)
+					{
+						sd.m_bodyUniqueIds[r] = sd.m_bodyUniqueIds[r + 1];
+					}
+					sd.m_bodyUniqueIds.pop_back();
+
+					if (sd.m_bodyUniqueIds.size() == 0)
+					{
+						for (int r = s; r < m_data->m_saveWorldBodyData.size() - 1; r++)
+						{
+							m_data->m_saveWorldBodyData[r] = m_data->m_saveWorldBodyData[r + 1];
+						}
+						m_data->m_saveWorldBodyData.pop_back();
+					}
+					break;
+				}
+			}
 		}
 	}
 
