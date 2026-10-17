@@ -2026,6 +2026,35 @@ struct PhysicsServerCommandProcessorInternalData
 
 		return tree;
 	}
+
+	void deleteCachedInverseDynamicsBody(btMultiBody* multiBody)
+	{
+		btInverseDynamics::MultiBodyTree** tree = m_inverseDynamicsBodies.find(multiBody);
+		if (tree)
+		{
+			delete *tree;
+			m_inverseDynamicsBodies.remove(multiBody);
+		}
+#ifdef STATIC_LINK_SPD_PLUGIN
+		cRBDModel** rbdModel = m_rbdModels.find(multiBody);
+		if (rbdModel)
+		{
+			delete *rbdModel;
+			m_rbdModels.remove(multiBody);
+		}
+#endif
+	}
+
+	void deleteCachedBodyData(btMultiBody* multiBody)
+	{
+		deleteCachedInverseDynamicsBody(multiBody);
+		IKTrajectoryHelper** ikHelper = m_inverseKinematicsHelpers.find(multiBody);
+		if (ikHelper)
+		{
+			delete *ikHelper;
+			m_inverseKinematicsHelpers.remove(multiBody);
+		}
+	}
 };
 
 void PhysicsServerCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiHelper)
@@ -10679,6 +10708,11 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 		if (body && body->m_multiBody)
 		{
 			btMultiBody* mb = body->m_multiBody;
+			if (clientCmd.m_updateFlags &
+				(CHANGE_DYNAMICS_INFO_SET_MASS | CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL))
+			{
+				m_data->deleteCachedInverseDynamicsBody(mb);
+			}
 
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
 			{
@@ -12819,6 +12853,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				m_data->m_dynamicsWorld->removeMultiBody(bodyHandle->m_multiBody);
 				numCollisionObjects = m_data->m_dynamicsWorld->getNumCollisionObjects();
 
+				m_data->deleteCachedBodyData(bodyHandle->m_multiBody);
 				delete bodyHandle->m_multiBody;
 				bodyHandle->m_multiBody = 0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;

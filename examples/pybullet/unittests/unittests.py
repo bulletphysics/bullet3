@@ -44,6 +44,67 @@ class TestPybulletMethods(unittest.TestCase):
     self.assertLess(vel[1][2], 1e-10)
     p.disconnect()
 
+  def test_inverse_dynamics_cache_invalidation(self):
+    import pybullet as p
+
+    p.connect(p.DIRECT)
+    p.setGravity(0, 0, -10)
+
+    def create_body(link_mass):
+      return p.createMultiBody(
+          baseMass=0.0,
+          baseCollisionShapeIndex=-1,
+          basePosition=[0, 0, 0],
+          linkMasses=[link_mass],
+          linkCollisionShapeIndices=[-1],
+          linkVisualShapeIndices=[-1],
+          linkPositions=[[0, 0, 1]],
+          linkOrientations=[[0, 0, 0, 1]],
+          linkInertialFramePositions=[[1, 0, 0]],
+          linkInertialFrameOrientations=[[0, 0, 0, 1]],
+          linkParentIndices=[0],
+          linkJointTypes=[p.JOINT_REVOLUTE],
+          linkJointAxis=[[0, 1, 0]],
+      )
+
+    # Baseline 10 kg oracle
+    body_oracle = create_body(10.0)
+    expected_inv = p.calculateInverseDynamics(body_oracle, [0.0], [0.0], [1.0])
+    expected_mass_mat = p.calculateMassMatrix(body_oracle, [0.0])
+    p.removeBody(body_oracle)
+
+    self.assertAlmostEqual(expected_inv[0], -90.0, places=4)
+    self.assertAlmostEqual(expected_mass_mat[0][0], 10.0, places=4)
+
+    # 1. Test changeDynamics invalidates inverse dynamics & mass matrix cache
+    body_mutate = create_body(1.0)
+    inv_before = p.calculateInverseDynamics(body_mutate, [0.0], [0.0], [1.0])
+    mass_before = p.calculateMassMatrix(body_mutate, [0.0])
+    self.assertAlmostEqual(inv_before[0], -9.0, places=4)
+    self.assertAlmostEqual(mass_before[0][0], 1.0, places=4)
+
+    p.changeDynamics(body_mutate, 0, mass=10.0)
+    inv_after = p.calculateInverseDynamics(body_mutate, [0.0], [0.0], [1.0])
+    mass_after = p.calculateMassMatrix(body_mutate, [0.0])
+    self.assertAlmostEqual(inv_after[0], expected_inv[0], places=4)
+    self.assertAlmostEqual(mass_after[0][0], expected_mass_mat[0][0], places=4)
+    p.removeBody(body_mutate)
+
+    # 2. Test removeBody purges cached tree so recycled body does not use stale cache
+    old_body = create_body(1.0)
+    p.calculateInverseDynamics(old_body, [0.0], [0.0], [1.0])
+    p.calculateMassMatrix(old_body, [0.0])
+    p.removeBody(old_body)
+
+    replacement_body = create_body(10.0)
+    inv_replacement = p.calculateInverseDynamics(replacement_body, [0.0], [0.0], [1.0])
+    mass_replacement = p.calculateMassMatrix(replacement_body, [0.0])
+    self.assertAlmostEqual(inv_replacement[0], expected_inv[0], places=4)
+    self.assertAlmostEqual(mass_replacement[0][0], expected_mass_mat[0][0], places=4)
+    p.removeBody(replacement_body)
+
+    p.disconnect()
+
 
 class TestPybulletJacobian(unittest.TestCase):
 
