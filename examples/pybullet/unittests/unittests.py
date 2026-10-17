@@ -44,6 +44,40 @@ class TestPybulletMethods(unittest.TestCase):
     self.assertLess(vel[1][2], 1e-10)
     p.disconnect()
 
+  def test_save_world_removed_body_reuse(self):
+    import pybullet as p
+    import pybullet_data
+    import os
+    import tempfile
+
+    p.connect(p.DIRECT)
+    p.setAdditionalSearchPath(pybullet_data.getDataPath())
+
+    # Load initial body (cube.urdf)
+    cube_id = p.loadURDF("cube.urdf", [0, 0, 0])
+    # Remove the body, returning its handle to the free pool
+    p.removeBody(cube_id)
+
+    # Load replacement body which reuses the body ID
+    sphere_id = p.loadURDF("sphere2.urdf", [5, 0, 0])
+    self.assertEqual(sphere_id, cube_id)
+
+    with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+      tmp_filename = f.name
+
+    try:
+      p.saveWorld(tmp_filename)
+      with open(tmp_filename, "r") as f:
+        content = f.read()
+
+      # The removed object must not be resurrected in the saved world
+      self.assertNotIn("cube.urdf", content)
+      self.assertIn("sphere2.urdf", content)
+    finally:
+      if os.path.exists(tmp_filename):
+        os.remove(tmp_filename)
+      p.disconnect()
+
 
 class TestPybulletJacobian(unittest.TestCase):
 
