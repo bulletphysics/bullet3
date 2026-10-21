@@ -407,10 +407,15 @@ void btSimulationIslandManagerMt::addBodiesToIslands(btCollisionWorld* collision
 void btSimulationIslandManagerMt::addManifoldsToIslands(btDispatcher* dispatcher)
 {
 	// walk all the manifolds, activating bodies touched by kinematic objects, and add each manifold to its Island
+	///Broadphase overlaps can leave empty manifolds; these must not wake sleeping bodies.
 	int maxNumManifolds = dispatcher->getNumManifolds();
 	for (int i = 0; i < maxNumManifolds; i++)
 	{
 		btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
+		if (manifold->getNumContacts() == 0)
+		{
+			continue;
+		}
 
 		const btCollisionObject* colObj0 = static_cast<const btCollisionObject*>(manifold->getBody0());
 		const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());
@@ -637,9 +642,14 @@ void btSimulationIslandManagerMt::buildAndProcessIslands(btDispatcher* dispatche
 		btPersistentManifold** manifolds = dispatcher->getInternalManifoldPointer();
 		int maxNumManifolds = dispatcher->getNumManifolds();
 
+		///Apply the same contact requirement when all bodies share one solver call.
 		for (int i = 0; i < maxNumManifolds; i++)
 		{
 			btPersistentManifold* manifold = manifolds[i];
+			if (manifold->getNumContacts() == 0)
+			{
+				continue;
+			}
 
 			const btCollisionObject* colObj0 = static_cast<const btCollisionObject*>(manifold->getBody0());
 			const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());

@@ -18,8 +18,12 @@ ADD_EXECUTABLE(Test_btKinematicCharacterController test_btKinematicCharacterCont
 
 ADD_TEST(Test_btKinematicCharacterController_PASS Test_btKinematicCharacterController)
 
+ADD_EXECUTABLE(Test_btSimulationIslandManager test_btSimulationIslandManager.cpp)
+
+ADD_TEST(Test_btSimulationIslandManager_PASS Test_btSimulationIslandManager)
+
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
-			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController PROPERTIES  DEBUG_POSTFIX "_Debug")
-			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
-			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
+			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController Test_btSimulationIslandManager PROPERTIES  DEBUG_POSTFIX "_Debug")
+			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController Test_btSimulationIslandManager PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
+			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController Test_btSimulationIslandManager PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
