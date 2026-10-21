@@ -37,8 +37,27 @@ void btSimulationIslandManager::initUnionFind(int n)
 	m_unionFind.reset(n);
 }
 
-void btSimulationIslandManager::findUnions(btDispatcher* /* dispatcher */, btCollisionWorld* colWorld)
+void btSimulationIslandManager::findUnions(btDispatcher* dispatcher, btCollisionWorld* colWorld)
 {
+	///Merge rigid-body pairs only when the narrowphase has generated contacts.
+	///Padded broadphase bounds can overlap even when the bodies never touch.
+	const int numManifolds = dispatcher->getNumManifolds();
+	for (int i = 0; i < numManifolds; i++)
+	{
+		const btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
+		const btCollisionObject* colObj0 = manifold->getBody0();
+		const btCollisionObject* colObj1 = manifold->getBody1();
+		if (manifold->getNumContacts() &&
+			colObj0->getInternalType() == btCollisionObject::CO_RIGID_BODY &&
+			colObj1->getInternalType() == btCollisionObject::CO_RIGID_BODY &&
+			colObj0->mergesSimulationIslands() && colObj1->mergesSimulationIslands())
+		{
+			m_unionFind.unite(colObj0->getIslandTag(), colObj1->getIslandTag());
+		}
+	}
+
+	///Keep broadphase unions for other object types, such as soft bodies, whose
+	///contacts may be handled outside the dispatcher's persistent manifolds.
 	{
 		btOverlappingPairCache* pairCachePtr = colWorld->getPairCache();
 		const int numOverlappingPairs = pairCachePtr->getNumOverlappingPairs();
@@ -55,6 +74,11 @@ void btSimulationIslandManager::findUnions(btDispatcher* /* dispatcher */, btCol
 				if (((colObj0) && ((colObj0)->mergesSimulationIslands())) &&
 					((colObj1) && ((colObj1)->mergesSimulationIslands())))
 				{
+					if (colObj0->getInternalType() == btCollisionObject::CO_RIGID_BODY &&
+						colObj1->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+					{
+						continue;
+					}
 					m_unionFind.unite((colObj0)->getIslandTag(),
 									  (colObj1)->getIslandTag());
 				}
@@ -304,10 +328,10 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 	for (i = 0; i < maxNumManifolds; i++)
 	{
 		btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
-		if (collisionWorld->getDispatchInfo().m_deterministicOverlappingPairs)
+		///An empty manifold must not wake a body through a nearby kinematic object.
+		if (manifold->getNumContacts() == 0)
 		{
-			if (manifold->getNumContacts() == 0)
-				continue;
+			continue;
 		}
 
 		const btCollisionObject* colObj0 = static_cast<const btCollisionObject*>(manifold->getBody0());
