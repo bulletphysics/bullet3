@@ -24,9 +24,12 @@ int gTotalBytesAlignedAllocs = 0;  //detect memory leaks
 
 static void *btAllocDefault(size_t size)
 {
-  char* data = (char*) malloc(size);
-  memset(data,0,size);//keep msan happy
-  return data;
+	char *data = (char *)malloc(size);
+	if (data)
+	{
+		memset(data, 0, size);  //keep msan happy
+	}
+	return data;
 }
 
 static void btFreeDefault(void *ptr)
@@ -71,13 +74,13 @@ static inline void *btAlignedAllocDefault(size_t size, int alignment)
 	{
 		ret = btAlignPointer(real + sizeof(void *), alignment);
 		*((void **)(ret)-1) = (void *)(real);
+		//keep msan happy
+		memset((char *)ret, 0, size);
 	}
 	else
 	{
 		ret = (void *)(real);
 	}
-  //keep msan happy
-  memset((char*) ret, 0, size);
 	return (ret);
 }
 
@@ -165,14 +168,14 @@ void *btAlignedAllocInternal(size_t size, int alignment, int line, const char *f
 	//		printf("big alloc!%d\n", size);
 	//	}
 
-	gTotalBytesAlignedAllocs += size;
-	gNumAlignedAllocs++;
-
 	int sz4prt = 4 * sizeof(void *);
 
 	real = (char *)sAllocFunc(size + sz4prt + (alignment - 1));
 	if (real)
 	{
+		gTotalBytesAlignedAllocs += size;
+		gNumAlignedAllocs++;
+
 		ret = (void *)btAlignPointer(real + sz4prt, alignment);
 		btDebugPtrMagic p;
 		p.vptr = ret;
@@ -186,6 +189,9 @@ void *btAlignedAllocInternal(size_t size, int alignment, int line, const char *f
 		allocations_id[mynumallocs] = allocId;
 		allocations_bytes[mynumallocs] = size;
 		mynumallocs++;
+
+		int *ptr = (int *)ret;
+		*ptr = 12;
 	}
 	else
 	{
@@ -195,8 +201,6 @@ void *btAlignedAllocInternal(size_t size, int alignment, int line, const char *f
 	printf("allocation %d at address %x, from %s,line %d, size %d (total allocated = %d)\n", allocId, real, filename, line, size, gTotalBytesAlignedAllocs);
 	allocId++;
 
-	int *ptr = (int *)ret;
-	*ptr = 12;
 	return (ret);
 }
 

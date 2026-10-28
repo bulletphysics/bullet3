@@ -21,8 +21,11 @@ subject to the following restrictions:
 ///Also the GJK, EPA and MPR should be improved, both quality and performance
 
 #include <vector>
+#include <stdint.h>
 
 #include <gtest/gtest.h>
+
+#include "LinearMath/btAlignedAllocator.h"
 
 #include "SphereSphereCollision.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
@@ -292,6 +295,80 @@ TEST(BulletCollisionTest, Heightfield_ProcessAllTriangles_FiltersByUpAxis)
 	triangles.clear();
 	shape.processAllTriangles(&collector, btVector3(0, 0, 0), btVector3(20, 20, 5));
 	EXPECT_EQ(triangles.size(), 0);
+}
+
+static void* failingAlloc(size_t)
+{
+	return 0;
+}
+
+static void noopFree(void*)
+{
+}
+
+static void* failingAlignedAlloc(size_t, int)
+{
+	return 0;
+}
+
+static void noopAlignedFree(void*)
+{
+}
+
+TEST(BulletAlignedAllocatorTest, CustomAllocFailureReturnsNullWithoutCrash)
+{
+	btAlignedAllocSetCustom(failingAlloc, noopFree);
+	void* ptr = btAlignedAlloc(16, 16);
+	EXPECT_EQ(ptr, (void*)0);
+
+	// Restore default allocator
+	btAlignedAllocSetCustom(0, 0);
+
+	// Verify default allocation succeeds after restoration
+	ptr = btAlignedAlloc(16, 16);
+	EXPECT_NE(ptr, (void*)0);
+	EXPECT_EQ((uintptr_t)ptr % 16, 0u);
+	btAlignedFree(ptr);
+}
+
+TEST(BulletAlignedAllocatorTest, CustomAlignedAllocFailureReturnsNullWithoutCrash)
+{
+	btAlignedAllocSetCustomAligned(failingAlignedAlloc, noopAlignedFree);
+	void* ptr = btAlignedAlloc(32, 16);
+	EXPECT_EQ(ptr, (void*)0);
+
+	// Restore default allocator
+	btAlignedAllocSetCustomAligned(0, 0);
+
+	ptr = btAlignedAlloc(32, 16);
+	EXPECT_NE(ptr, (void*)0);
+	EXPECT_EQ((uintptr_t)ptr % 16, 0u);
+	btAlignedFree(ptr);
+}
+
+TEST(BulletAlignedAllocatorTest, DefaultAllocZeroInitializedAndAligned)
+{
+	const int alignments[] = {16, 32, 64};
+	const size_t sizes[] = {1, 16, 64, 128};
+	for (size_t a = 0; a < sizeof(alignments) / sizeof(alignments[0]); ++a)
+	{
+		int align = alignments[a];
+		for (size_t s = 0; s < sizeof(sizes) / sizeof(sizes[0]); ++s)
+		{
+			size_t sz = sizes[s];
+			void* ptr = btAlignedAlloc(sz, align);
+			ASSERT_NE(ptr, (void*)0);
+			EXPECT_EQ((uintptr_t)ptr % align, 0u);
+			const char* bytes = (const char*)ptr;
+			for (size_t i = 0; i < sz; ++i)
+			{
+				EXPECT_EQ(bytes[i], 0);
+			}
+			btAlignedFree(ptr);
+		}
+	}
+	// btAlignedFree on null must be a safe no-op
+	btAlignedFree(0);
 }
 
 }  // namespace
