@@ -591,6 +591,9 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 	if (mFlags & FD_ENDIAN_SWAP)
 		swap(head, dataChunk, ignoreEndianFlag);
 
+	if (dataChunk.dna_nr < 0 || dataChunk.dna_nr >= mFileDNA->getNumStructs())
+		return 0;
+
 	if (!mFileDNA->flagEqual(dataChunk.dna_nr))
 	{
 		// Ouch! need to rebuild the struct
@@ -599,6 +602,7 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 		int oldLen, curLen, reverseOld;
 
 		oldStruct = mFileDNA->getStruct(dataChunk.dna_nr);
+		if (!oldStruct) return 0;
 		oldType = mFileDNA->getType(oldStruct[0]);
 
 		oldLen = mFileDNA->getLength(oldStruct[0]);
@@ -612,8 +616,10 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 			if ((strcmp(oldType, "b3ShortIntIndexData") == 0))
 			{
 				int allocLen = 2;
-				char *dataAlloc = new char[(dataChunk.nr * allocLen) + 1];
-				memset(dataAlloc, 0, (dataChunk.nr * allocLen) + 1);
+				long long totalSize = (long long)dataChunk.nr * allocLen;
+				if (totalSize <= 0 || totalSize > (1 << 30)) return 0;
+				char *dataAlloc = new char[(int)totalSize + 1];
+				memset(dataAlloc, 0, (int)totalSize + 1);
 				short *dest = (short *)dataAlloc;
 				const short *src = (short *)head;
 				for (int i = 0; i < dataChunk.nr; i++)
@@ -650,8 +656,10 @@ char *bFile::readStruct(char *head, bChunkInd &dataChunk)
 				// numBlocks * length
 
 				int allocLen = (curLen);
-				char *dataAlloc = new char[(dataChunk.nr * allocLen) + 1];
-				memset(dataAlloc, 0, (dataChunk.nr * allocLen));
+				long long totalSize = (long long)dataChunk.nr * allocLen;
+				if (totalSize <= 0 || totalSize > (1 << 30)) return 0;
+				char *dataAlloc = new char[(int)totalSize + 1];
+				memset(dataAlloc, 0, (int)totalSize);
 
 				// track allocated
 				addDataBlock(dataAlloc);
