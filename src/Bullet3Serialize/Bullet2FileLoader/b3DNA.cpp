@@ -61,14 +61,16 @@ char *bDNA::getType(int ind)
 // ----------------------------------------------------- //
 short *bDNA::getStruct(int ind)
 {
-	assert(ind <= (int)mStructs.size());
+	if (ind < 0 || ind >= (int)mStructs.size())
+		return 0;
 	return mStructs[ind];
 }
 
 // ----------------------------------------------------- //
 short bDNA::getLength(int ind)
 {
-	assert(ind <= (int)mTlens.size());
+	if (ind < 0 || ind >= (int)mTlens.size())
+		return 0;
 	return mTlens[ind];
 }
 
@@ -102,14 +104,16 @@ int bDNA::getNumStructs()
 // ----------------------------------------------------- //
 bool bDNA::flagNotEqual(int dna_nr)
 {
-	assert(dna_nr <= (int)mCMPFlags.size());
+	if (dna_nr < 0 || dna_nr >= (int)mCMPFlags.size())
+		return false;
 	return mCMPFlags[dna_nr] == FDF_STRUCT_NEQU;
 }
 
 // ----------------------------------------------------- //
 bool bDNA::flagEqual(int dna_nr)
 {
-	assert(dna_nr <= (int)mCMPFlags.size());
+	if (dna_nr < 0 || dna_nr >= (int)mCMPFlags.size())
+		return false;
 	int flag = mCMPFlags[dna_nr];
 	return flag == FDF_STRUCT_EQU;
 }
@@ -347,8 +351,11 @@ void bDNA::init(char *data, int len, bool swap)
 	short *shtPtr = 0;
 	char *cp = 0;
 	int dataLen = 0;
+	char *dataEnd = data + len;
 	//long nr=0;
 	intPtr = (int *)data;
+
+	if (len < 12) return;
 
 	/*
 		SDNA (4 bytes) (magic number)
@@ -366,6 +373,7 @@ void bDNA::init(char *data, int len, bool swap)
 	}
 
 	// Parse names
+	if ((char *)(intPtr + 1) > dataEnd) return;
 	if (swap)
 	{
 		*intPtr = ChunkUtils::swapInt(*intPtr);
@@ -377,12 +385,14 @@ void bDNA::init(char *data, int len, bool swap)
 	int i;
 	for (i = 0; i < dataLen; i++)
 	{
+		if (cp >= dataEnd) return;
 		bNameInfo info;
 		info.m_name = cp;
 		info.m_isPointer = (info.m_name[0] == '*') || (info.m_name[1] == '*');
 		name_is_array(info.m_name, &info.m_dim0, &info.m_dim1);
 		m_Names.push_back(info);
-		while (*cp) cp++;
+		while (cp < dataEnd && *cp) cp++;
+		if (cp >= dataEnd) return;
 		cp++;
 	}
 
@@ -396,6 +406,7 @@ void bDNA::init(char *data, int len, bool swap)
 	*/
 
 	intPtr = (int *)cp;
+	if ((char *)(intPtr + 2) > dataEnd) return;
 	assert(strncmp(cp, "TYPE", 4) == 0);
 	intPtr++;
 
@@ -409,8 +420,10 @@ void bDNA::init(char *data, int len, bool swap)
 	cp = (char *)intPtr;
 	for (i = 0; i < dataLen; i++)
 	{
+		if (cp >= dataEnd) return;
 		mTypes.push_back(cp);
-		while (*cp) cp++;
+		while (cp < dataEnd && *cp) cp++;
+		if (cp >= dataEnd) return;
 		cp++;
 	}
 
@@ -424,12 +437,14 @@ void bDNA::init(char *data, int len, bool swap)
 
 	// Parse type lens
 	intPtr = (int *)cp;
+	if ((char *)(intPtr + 1) > dataEnd) return;
 	assert(strncmp(cp, "TLEN", 4) == 0);
 	intPtr++;
 
 	dataLen = (int)mTypes.size();
 
 	shtPtr = (short *)intPtr;
+	if ((char *)(shtPtr + dataLen) > dataEnd) return;
 	for (i = 0; i < dataLen; i++, shtPtr++)
 	{
 		if (swap)
@@ -452,6 +467,7 @@ void bDNA::init(char *data, int len, bool swap)
 
 	intPtr = (int *)shtPtr;
 	cp = (char *)intPtr;
+	if ((char *)(intPtr + 2) > dataEnd) return;
 	assert(strncmp(cp, "STRC", 4) == 0);
 	intPtr++;
 
@@ -465,6 +481,7 @@ void bDNA::init(char *data, int len, bool swap)
 	shtPtr = (short *)intPtr;
 	for (i = 0; i < dataLen; i++)
 	{
+		if ((char *)(shtPtr + 2) > dataEnd) return;
 		mStructs.push_back(shtPtr);
 		if (swap)
 		{
@@ -474,6 +491,7 @@ void bDNA::init(char *data, int len, bool swap)
 			int len = shtPtr[1];
 			shtPtr += 2;
 
+			if ((char *)(shtPtr + len * 2) > dataEnd) return;
 			for (int a = 0; a < len; a++, shtPtr += 2)
 			{
 				shtPtr[0] = ChunkUtils::swapShort(shtPtr[0]);
@@ -481,7 +499,11 @@ void bDNA::init(char *data, int len, bool swap)
 			}
 		}
 		else
-			shtPtr += (2 * shtPtr[1]) + 2;
+		{
+			int numElems = shtPtr[1];
+			if ((char *)(shtPtr + 2 + numElems * 2) > dataEnd) return;
+			shtPtr += (2 * numElems) + 2;
+		}
 	}
 
 	// build reverse lookups
