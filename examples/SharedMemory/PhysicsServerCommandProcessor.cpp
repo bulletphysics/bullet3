@@ -1604,6 +1604,10 @@ struct SaveStateData
 {
 	bParse::btBulletFile* m_bulletFile;
 	btSerializer* m_serializer;
+	//collider shape types of each multibody slot (base collider, then link colliders)
+	//in the world when the state was saved, used to validate a later restoreState:
+	//removed bodies free their slots for reuse, so a slot may hold an unrelated body
+	btAlignedObjectArray<btAlignedObjectArray<int> > m_multibodyColliderShapeTypes;
 };
 
 struct PhysicsServerCommandProcessorInternalData
@@ -14798,6 +14802,22 @@ bool PhysicsServerCommandProcessor::processSaveStateCommand(const struct SharedM
 		SaveStateData sd;
 		sd.m_bulletFile = bulletFile;
 		sd.m_serializer = ser;
+		{
+			int numMultibodies = m_data->m_dynamicsWorld->getNumMultibodies();
+			sd.m_multibodyColliderShapeTypes.resize(numMultibodies);
+			for (int mb = 0; mb < numMultibodies; mb++)
+			{
+				const btMultiBody* body = m_data->m_dynamicsWorld->getMultiBody(mb);
+				btAlignedObjectArray<int>& shapeTypes = sd.m_multibodyColliderShapeTypes[mb];
+				const btCollisionObject* baseCollider = body->getBaseCollider();
+				shapeTypes.push_back((baseCollider && baseCollider->getCollisionShape()) ? baseCollider->getCollisionShape()->getShapeType() : -1);
+				for (int link = 0; link < body->getNumLinks(); link++)
+				{
+					const btMultiBodyLinkCollider* linkCollider = body->getLink(link).m_collider;
+					shapeTypes.push_back((linkCollider && linkCollider->getCollisionShape()) ? linkCollider->getCollisionShape()->getShapeType() : -1);
+				}
+			}
+		}
 		if (reuseStateId >= 0)
 		{
 			serverCmd.m_saveStateResultArgs.m_stateId = reuseStateId;
@@ -14852,10 +14872,46 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 	{
 		if (clientCmd.m_loadStateArguments.m_stateId < m_data->m_savedStates.size())
 		{
-			bParse::btBulletFile* bulletFile = m_data->m_savedStates[clientCmd.m_loadStateArguments.m_stateId].m_bulletFile;
+			const SaveStateData& savedState = m_data->m_savedStates[clientCmd.m_loadStateArguments.m_stateId];
+			bParse::btBulletFile* bulletFile = savedState.m_bulletFile;
 			if (bulletFile)
 			{
-				ok = importer->convertAllObjects(bulletFile);
+				//the restore replaces multibody state slot by slot, so the existing world must
+				//still hold the same kind of body in each slot; a removed body frees its slot
+				//for reuse, and without this check the restore would silently overwrite an
+				//unrelated body (object count and link count alone cannot detect that)
+				int numMultibodies = m_data->m_dynamicsWorld->getNumMultibodies();
+				bool shapeMismatch = (savedState.m_multibodyColliderShapeTypes.size() != numMultibodies);
+				for (int mb = 0; mb < numMultibodies && !shapeMismatch; mb++)
+				{
+					const btMultiBody* body = m_data->m_dynamicsWorld->getMultiBody(mb);
+					const btAlignedObjectArray<int>& shapeTypes = savedState.m_multibodyColliderShapeTypes[mb];
+					const btCollisionObject* baseCollider = body->getBaseCollider();
+					int baseShapeType = (baseCollider && baseCollider->getCollisionShape()) ? baseCollider->getCollisionShape()->getShapeType() : -1;
+					if (shapeTypes.size() != body->getNumLinks() + 1 || shapeTypes[0] != baseShapeType)
+					{
+						shapeMismatch = true;
+						break;
+					}
+					for (int link = 0; link < body->getNumLinks(); link++)
+					{
+						const btMultiBodyLinkCollider* linkCollider = body->getLink(link).m_collider;
+						int linkShapeType = (linkCollider && linkCollider->getCollisionShape()) ? linkCollider->getCollisionShape()->getShapeType() : -1;
+						if (shapeTypes[link + 1] != linkShapeType)
+						{
+							shapeMismatch = true;
+							break;
+						}
+					}
+				}
+				if (shapeMismatch)
+				{
+					b3Warning("restoreState failed: the existing world does not match the saved state; bodies were removed and their slots reused since the state was saved.\n");
+				}
+				else
+				{
+					ok = importer->convertAllObjects(bulletFile);
+				}
 			}
 		}
 	}

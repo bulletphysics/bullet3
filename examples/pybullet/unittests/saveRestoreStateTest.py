@@ -132,6 +132,34 @@ class TestPybulletSaveRestoreMethods(unittest.TestCase):
 #while (p.getConnectionInfo()["isConnected"]):
 #	time.sleep(1)
 
+  def testRestoreStateAfterRemoveBodyAndSlotReuse(self):
+    #saveState/restoreState must not silently overwrite a body that was loaded
+    #into a slot freed by removeBody since the state was saved
+    p.resetSimulation()
+    cube = p.loadURDF("cube.urdf", [0, 0, 0])
+    stateId = p.saveState()
+    p.removeBody(cube)
+    #the freed body slot is reused by this load
+    sphere = p.loadURDF("sphere2.urdf", [5, 0, 0])
+    with self.assertRaises(p.error):
+      p.restoreState(stateId)
+    #the world must be left untouched
+    self.assertEqual(p.getNumBodies(), 1)
+    pos, orn = p.getBasePositionAndOrientation(sphere)
+    self.assertEqual(pos, (5, 0, 0))
+    p.removeState(stateId)
+
+    #a restore right after saving still works when the world did not change
+    p.resetSimulation()
+    cube = p.loadURDF("cube.urdf", [0, 0, 0])
+    stateId = p.saveState()
+    for i in range(10):
+      p.stepSimulation()
+    p.restoreState(stateId)
+    self.assertEqual(p.getNumBodies(), 1)
+    p.removeState(stateId)
+
+
 if __name__ == '__main__':
   p.connect(p.DIRECT)
   unittest.main()
