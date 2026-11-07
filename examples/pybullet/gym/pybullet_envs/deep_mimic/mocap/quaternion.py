@@ -28,4 +28,4 @@ def qinverse(q, inplace=False):
   else:
     w = q[..., :1]
     xyz = q[..., 1:]
-    return np.hstack((w, -xyz))
+    return np.concatenate((w, -xyz), axis=-1)
