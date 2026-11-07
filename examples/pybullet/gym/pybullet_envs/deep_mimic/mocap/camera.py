@@ -17,12 +17,12 @@ def image_coordinates(X, w, h):
 
 def world_to_camera(X, R, t):
   Rt = qinverse(R)
-  Q = np.tile(Rt, (*X.shape[:-1], 1))
+  Q = np.broadcast_to(Rt, X.shape[:-1] + (4,))
   V = X - t
   return qrot(Q, V)
 
 
 def camera_to_world(X, R, t):
-  Q = np.tile(R, (*X.shape[:-1], 1))
+  Q = np.broadcast_to(R, X.shape[:-1] + (4,))
   V = X
   return qrot(Q, V) + t

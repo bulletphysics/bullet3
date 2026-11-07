@@ -36,26 +36,21 @@ class Skeleton:
       while self._parents[i] in joints_to_remove:
         self._parents[i] = self._parents[self._parents[i]]
 
-    index_offsets = np.zeros(len(self._parents), dtype=int)
-    new_parents = []
-    for i, parent in enumerate(self._parents):
-      if i not in joints_to_remove:
-        new_parents.append(parent - index_offsets[parent])
-      else:
-        index_offsets[i:] += 1
-    self._parents = np.array(new_parents)
+    new_indices = {old: new for new, old in enumerate(valid_joints)}
+    self._parents = np.array([new_indices.get(self._parents[i], -1) for i in valid_joints],
+                             dtype=int)
 
     if self._joints_left is not None:
       new_joints_left = []
       for joint in self._joints_left:
         if joint in valid_joints:
-          new_joints_left.append(joint - index_offsets[joint])
+          new_joints_left.append(new_indices[joint])
       self._joints_left = new_joints_left
     if self._joints_right is not None:
       new_joints_right = []
       for joint in self._joints_right:
         if joint in valid_joints:
-          new_joints_right.append(joint - index_offsets[joint])
+          new_joints_right.append(new_indices[joint])
       self._joints_right = new_joints_right
 
     self._compute_metadata()
