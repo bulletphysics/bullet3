@@ -21,6 +21,7 @@ class BulletClient(object):
         `pybullet.DIRECT` creates a headless simulation,
         `pybullet.SHARED_MEMORY` connects to an existing simulation.
     """
+    self._client = -1
     self._shapes = {}
     self._pid = os.getpid()
     if connection_mode is None:
@@ -43,11 +44,14 @@ class BulletClient(object):
       except pybullet.error:
         pass
 
+  def disconnect(self):
+    """Disconnect this client and release its id after a successful call."""
+    pybullet.disconnect(physicsClientId=self._client)
+    self._client = -1
+
   def __getattr__(self, name):
     """Inject the client id into Bullet functions."""
     attribute = getattr(pybullet, name)
     if inspect.isbuiltin(attribute):
       attribute = functools.partial(attribute, physicsClientId=self._client)
-    if name=="disconnect":
-      self._client = -1 
     return attribute
