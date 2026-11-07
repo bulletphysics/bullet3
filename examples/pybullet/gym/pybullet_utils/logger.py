@@ -37,7 +37,8 @@ class Logger:
     self.log_headers = []
     self.log_current_row = {}
     if self.output_file is not None:
-      self.output_file = open(output_path, 'w')
+      self.output_file.seek(0)
+      self.output_file.truncate()
     return
 
   def configure_output_file(self, filename=None):
@@ -51,11 +52,14 @@ class Logger:
     output_path = filename or "output/log_%i.txt" % int(time.time())
 
     out_dir = os.path.dirname(output_path)
-    if not os.path.exists(out_dir) and MPIUtil.is_root_proc():
+    if out_dir and not os.path.exists(out_dir) and MPIUtil.is_root_proc():
       os.makedirs(out_dir)
 
     if (MPIUtil.is_root_proc()):
-      self.output_file = open(output_path, 'w')
+      output_file = open(output_path, 'w')
+      if self.output_file is not None:
+        self.output_file.close()
+      self.output_file = output_file
       assert osp.exists(output_path)
       atexit.register(self.output_file.close)
 
