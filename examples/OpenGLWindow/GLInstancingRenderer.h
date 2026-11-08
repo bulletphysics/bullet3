@@ -125,6 +125,8 @@ public:
 	virtual void setShadowMapIntensity(double shadowMapIntensity);
 	virtual void setShadowMapWorldSize(float worldSize);
 	void setLightSpecularIntensity(const float lightSpecularIntensity[3]);
+	// Enable explicit lighting without changing the legacy default appearance.
+	void setLightParameters(const float lightColor[3], float ambientCoeff, float diffuseCoeff, float specularCoeff);
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
 	virtual void setProjectiveTexture(bool useProjectiveTexture);
 	virtual void setBackgroundColor(const double rgbBackground[3]);

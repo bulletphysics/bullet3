@@ -12,6 +12,9 @@ in Vert
 } vert;
 
 uniform sampler2D Diffuse;
+uniform vec3 lightColor;
+uniform vec3 lightCoefficients;
+uniform bool useLightParameters;
 uniform sampler2DShadow shadowMap;
 uniform mat4 ViewMatrixInverse;
 
@@ -73,5 +76,12 @@ void main(void)
 	intensity = (1.0-shadowmapIntensity)*intensity  + shadowmapIntensity*intensity*visibility;
 	
 	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient+specularReflection*visibility;
+	if (useLightParameters)
+	{
+		float diffuse = max(dot(normalDir, lightDir), 0.0);
+		cf = vec3(lightCoefficients.x) + lightColor *
+			(lightCoefficients.y * diffuse * (1.0-shadowmapIntensity + shadowmapIntensity*visibility) +
+			 lightCoefficients.z * specularReflection * visibility);
+	}
 	color  = vec4(ct * cf, fragment.color.w);
 }

@@ -7,6 +7,9 @@ in Fragment
 } fragment;
 
 uniform sampler2D Diffuse;
+uniform vec3 lightColor;
+uniform vec3 lightCoefficients;
+uniform bool useLightParameters;
 uniform mat4 ViewMatrixInverse;
 uniform mat4 TextureMVP;
 
@@ -65,5 +68,12 @@ void main(void)
 	intensity = 0.7*intensity  + 0.3*intensity*visibility;
 	
 	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient+specularReflection*visibility;
+	if (useLightParameters)
+	{
+		float diffuse = max(dot(normalDir, lightDir), 0.0);
+		cf = vec3(lightCoefficients.x) + lightColor *
+			(lightCoefficients.y * diffuse * visibility +
+			 lightCoefficients.z * specularReflection * visibility);
+	}
 	color  = vec4(ct * cf, fragment.color.w);
 }
