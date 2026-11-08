@@ -1570,6 +1570,13 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			{
 				m_data->m_instancingRenderer->setLightPosition(m_data->m_lightDirection);
 			}
+			if (m_data->m_hasLightColor || m_data->m_hasLightAmbientCoeff ||
+				m_data->m_hasLightDiffuseCoeff || m_data->m_hasLightSpecularCoeff)
+			{
+				const float lightColor[] = {float(m_data->m_lightColor[0]), float(m_data->m_lightColor[1]), float(m_data->m_lightColor[2])};
+				m_data->m_instancingRenderer->setLightParameters(lightColor, m_data->m_lightAmbientCoeff,
+					m_data->m_lightDiffuseCoeff, m_data->m_lightSpecularCoeff);
+			}
 			m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
 			m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
 

@@ -57,6 +57,7 @@ vec4 quatRotate ( in vec4 p, in vec4 q )
 }
 
 out vec3 lightDir,normal,ambient;
+out vec3 worldPosition;
 
 void main(void)
 {
@@ -69,6 +70,7 @@ void main(void)
 	lightDir = lightDirIn;
 	
 	vec4 localcoord = quatRotate3( position.xyz*instance_scale_obUid.xyz,q);
+	worldPosition = (instance_position+localcoord).xyz;
 	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix *(instance_position+localcoord);
 
 	gl_Position = vertexPos;

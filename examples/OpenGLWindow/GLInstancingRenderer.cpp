@@ -231,6 +231,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
+	b3Vector3 m_lightColor;
+	b3Vector3 m_lightCoefficients;
+	bool m_useLightParameters;
 	float m_shadowmapIntensity;
 	GLuint m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle> m_textureHandles;
@@ -260,6 +263,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		
 		m_lightPos = b3MakeVector3(-50, 30, 40);
 		m_lightSpecularIntensity.setValue(1, 1, 1);
+		m_lightColor.setValue(1, 1, 1);
+		m_lightCoefficients.setValue(0.6, 0.35, 0.05);
+		m_useLightParameters = false;
 		m_shadowmapIntensity = 0.3;
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
@@ -298,6 +304,28 @@ static GLuint createShadowMapInstancingShader;    // The shadow instancing rende
 static GLuint projectiveTextureInstancingShader;  // The projective texture instancing renderer
 static GLuint segmentationMaskInstancingShader;   // The segmentation mask instancing renderer
 
+
+struct LightUniforms
+{
+	GLint color, coefficients, enabled;
+
+	void init(GLuint shader)
+	{
+		color = glGetUniformLocation(shader, "lightColor");
+		coefficients = glGetUniformLocation(shader, "lightCoefficients");
+		enabled = glGetUniformLocation(shader, "useLightParameters");
+	}
+
+	void apply(const InternalDataRenderer* data) const
+	{
+		glUniform3f(color, data->m_lightColor[0], data->m_lightColor[1], data->m_lightColor[2]);
+		glUniform3f(coefficients, data->m_lightCoefficients[0], data->m_lightCoefficients[1], data->m_lightCoefficients[2]);
+		glUniform1i(enabled, data->m_useLightParameters);
+	}
+};
+
+static LightUniforms regularLighting, shadowLighting, projectiveLighting;
+static GLint regularLightPosition, regularCameraPosition, regularMaterialShininess, regularMaterialSpecularColor;
 
 static GLuint instancingShader;             // The instancing renderer
 static GLuint instancingShaderPointSprite;  // The point sprite instancing renderer
@@ -1338,6 +1366,7 @@ void GLInstancingRenderer::InitShaders()
 
 	glLinkProgram(projectiveTextureInstancingShader);
 	glUseProgram(projectiveTextureInstancingShader);
+	projectiveLighting.init(projectiveTextureInstancingShader);
 	projectiveTexture_ViewMatrixInverse = glGetUniformLocation(projectiveTextureInstancingShader, "ViewMatrixInverse");
 	projectiveTexture_ModelViewMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "ModelViewMatrix");
 	projectiveTexture_lightSpecularIntensity = glGetUniformLocation(projectiveTextureInstancingShader, "lightSpecularIntensityIn");
@@ -1357,6 +1386,7 @@ void GLInstancingRenderer::InitShaders()
 
 	glLinkProgram(useShadowMapInstancingShader);
 	glUseProgram(useShadowMapInstancingShader);
+	shadowLighting.init(useShadowMapInstancingShader);
 	useShadow_ViewMatrixInverse = glGetUniformLocation(useShadowMapInstancingShader, "ViewMatrixInverse");
 	useShadow_ModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ModelViewMatrix");
 	useShadow_lightSpecularIntensity = glGetUniformLocation(useShadowMapInstancingShader, "lightSpecularIntensityIn");
@@ -1391,10 +1421,15 @@ void GLInstancingRenderer::InitShaders()
 	instancingShader = gltLoadShaderPair(instancingVertexShader, instancingFragmentShader);
 	glLinkProgram(instancingShader);
 	glUseProgram(instancingShader);
+	regularLighting.init(instancingShader);
 	ModelViewMatrix = glGetUniformLocation(instancingShader, "ModelViewMatrix");
 	ProjectionMatrix = glGetUniformLocation(instancingShader, "ProjectionMatrix");
 	uniform_texture_diffuse = glGetUniformLocation(instancingShader, "Diffuse");
 	regularLightDirIn = glGetUniformLocation(instancingShader, "lightDirIn");
+	regularLightPosition = glGetUniformLocation(instancingShader, "lightPosition");
+	regularCameraPosition = glGetUniformLocation(instancingShader, "cameraPosition");
+	regularMaterialShininess = glGetUniformLocation(instancingShader, "materialShininess");
+	regularMaterialSpecularColor = glGetUniformLocation(instancingShader, "materialSpecularColor");
 
 	glUseProgram(0);
 
@@ -1538,6 +1573,13 @@ void GLInstancingRenderer::setLightSpecularIntensity(const float lightSpecularIn
 	m_data->m_lightSpecularIntensity[0] = lightSpecularIntensity[0];
 	m_data->m_lightSpecularIntensity[1] = lightSpecularIntensity[1];
 	m_data->m_lightSpecularIntensity[2] = lightSpecularIntensity[2];
+}
+
+void GLInstancingRenderer::setLightParameters(const float lightColor[3], float ambientCoeff, float diffuseCoeff, float specularCoeff)
+{
+	m_data->m_lightColor.setValue(lightColor[0], lightColor[1], lightColor[2]);
+	m_data->m_lightCoefficients.setValue(ambientCoeff, diffuseCoeff, specularCoeff);
+	m_data->m_useLightParameters = true;
 }
 
 void GLInstancingRenderer::setLightPosition(const float lightPos[3])
@@ -2571,12 +2613,19 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 								}
 
 								glUseProgram(instancingShader);
+								regularLighting.apply(m_data);
 								glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 								glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
 
 								b3Vector3 gLightDir = m_data->m_lightPos;
 								gLightDir.normalize();
 								glUniform3f(regularLightDirIn, gLightDir[0], gLightDir[1], gLightDir[2]);
+								glUniform3f(regularLightPosition, m_data->m_lightPos[0], m_data->m_lightPos[1], m_data->m_lightPos[2]);
+								float camPos[3];
+								m_data->m_activeCamera->getCameraPosition(camPos);
+								glUniform3f(regularCameraPosition, camPos[0], camPos[1], camPos[2]);
+								glUniform1f(regularMaterialShininess, gfxObj->m_materialShinyNess);
+								glUniform3f(regularMaterialSpecularColor, gfxObj->m_materialSpecularColor[0], gfxObj->m_materialSpecularColor[1], gfxObj->m_materialSpecularColor[2]);
 
 								glUniform1i(uniform_texture_diffuse, 0);
 								glEnable(GL_MULTISAMPLE);
@@ -2622,6 +2671,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 								}
 
 								glUseProgram(useShadowMapInstancingShader);
+								shadowLighting.apply(m_data);
 								glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 								//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
 								//glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrix[0]);
@@ -2707,6 +2757,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 								}
 
 								glUseProgram(projectiveTextureInstancingShader);
+								projectiveLighting.apply(m_data);
 								glUniformMatrix4fv(projectiveTexture_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 								glUniform3f(projectiveTexture_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0], m_data->m_lightSpecularIntensity[1], m_data->m_lightSpecularIntensity[2]);
 								glUniform3f(projectiveTexture_materialSpecularColor, gfxObj->m_materialSpecularColor[0], gfxObj->m_materialSpecularColor[1], gfxObj->m_materialSpecularColor[2]);
